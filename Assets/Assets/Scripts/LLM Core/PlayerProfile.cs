@@ -12,5 +12,5 @@ public class PlayerProfile : MonoBehaviour
         unlockedSkills.Add(skillName);
         skills[skillName] = 1;
         Debug.Log($"[Profile] Learned skill: {skillName}");
-    }
+    } 
 }
