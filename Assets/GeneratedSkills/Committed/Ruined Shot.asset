@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Ruined Shot
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: 5782e15f061f4e1c8755b1e95e05cf50
+  familyId: c944ccf044bb4d81af8271778a4464a7
+  tier: 1
+  parentSkillId: 
+  skillName: Ruined Shot
+  description: A shot that deals bonus damage to enemies in the ruined city.
+  type: 0
+  context: combat
+  environment: ruined city
+  tags: []
+  level: 1

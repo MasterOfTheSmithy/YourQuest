@@ -19,6 +19,10 @@ public class EmergentSkill : ScriptableObject
     public string context;
     public string environment;
 
+    // ? Added: lightweight tags for filtering + similarity + LLM grounding
+    // Keep these short: ["combat","unarmed","training","forest","night"]
+    public string[] contextTags;
+
     [Header("Draft State")]
     [Range(0f, 1f)] public float fitScore; // optional
     public bool committed;                // once converted into SkillData
@@ -28,5 +32,5 @@ public class EmergentSkill : ScriptableObject
     [Header("Upgrade Candidate")]
     public bool isUpgradeCandidate;
     public string upgradeTargetSkillId;   // the committed skill it likely upgrades
-    public float similarityScore;         // how similar it was (0..1)
+    public float similarityScore;         // how similar it was (0.1)
 }

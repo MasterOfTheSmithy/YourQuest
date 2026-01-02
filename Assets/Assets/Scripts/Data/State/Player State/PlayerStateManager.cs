@@ -38,7 +38,18 @@ public class PlayerStateManager : MonoBehaviour
     {
         if (JsonFileStore.TryLoad<PlayerState>(SavePath, out var loaded))
         {
-            state = loaded;
+            state = loaded ?? new PlayerState();
+
+            // Ensure new collections are not null when loading older saves
+            state.titles ??= new System.Collections.Generic.List<TitleRecord>();
+            state.classes ??= new System.Collections.Generic.List<ClassRecord>();
+            state.skills ??= new System.Collections.Generic.List<SkillRecord>();
+            state.quests ??= new System.Collections.Generic.List<QuestRecord>();
+            state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+            state.reputation ??= new System.Collections.Generic.Dictionary<string, float>();
+            state.behaviorLedger ??= new System.Collections.Generic.List<string>();
+            state.behaviorCounters ??= new System.Collections.Generic.Dictionary<string, float>();
+
             state.Touch();
             Debug.Log($"[PlayerStateManager] Loaded: {SavePath}");
             return;
@@ -53,6 +64,7 @@ public class PlayerStateManager : MonoBehaviour
 
     public void Save()
     {
+        if (state == null) state = new PlayerState();
         state.Touch();
         JsonFileStore.TrySave(SavePath, state);
     }
@@ -63,17 +75,23 @@ public class PlayerStateManager : MonoBehaviour
 
     public void SetLocation(string sceneName, string regionId, Vector3 position)
     {
+        if (state == null) state = new PlayerState();
+
         state.currentScene = sceneName ?? "";
         state.currentRegionId = regionId ?? "";
-        state.lastPosition[0] = position.x;
-        state.lastPosition[1] = position.y;
-        state.lastPosition[2] = position.z;
+
+        // ? FIX: Vector3 is not indexable — assign directly
+        state.lastPosition = position;
+
         state.Touch();
     }
 
     public void AddOrUpdateSkillFromCommitted(SkillData committed)
     {
         if (committed == null) return;
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         var rec = new SkillRecord
         {
@@ -92,12 +110,17 @@ public class PlayerStateManager : MonoBehaviour
             context = committed.context,
             environment = committed.environment,
 
-            learnedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            learnedUnix = now,
+
+            // back-compat field (fine to keep)
+            acquiredUnix = now
         };
 
         state.UpsertSkill(rec);
 
         // Ensure equip slot exists if empty
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+
         string slotKey = committed.type.ToString();
         if (!state.equippedSkillBySlot.ContainsKey(slotKey) || string.IsNullOrWhiteSpace(state.equippedSkillBySlot[slotKey]))
         {
@@ -111,27 +134,45 @@ public class PlayerStateManager : MonoBehaviour
     public void EquipSkill(SkillData skill)
     {
         if (skill == null) return;
+        if (state == null) state = new PlayerState();
+
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
         state.equippedSkillBySlot[skill.type.ToString()] = skill.skillId;
+
         state.Touch();
         if (autosave) Save();
     }
 
     public void AddTitle(string name, string description)
     {
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         var t = new TitleRecord
         {
             titleId = Guid.NewGuid().ToString("N"),
             name = name ?? "Untitled",
             description = description ?? "",
-            earnedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+
+            // new + back-compat
+            earnedUnix = now,
+            acquiredUnix = now
         };
+
+        state.titles ??= new System.Collections.Generic.List<TitleRecord>();
         state.titles.Add(t);
+
         state.Touch();
         if (autosave) Save();
     }
 
     public void AddQuest(string name, string description, string status = "offer", string[] tags = null)
     {
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         var q = new QuestRecord
         {
             questId = Guid.NewGuid().ToString("N"),
@@ -139,9 +180,13 @@ public class PlayerStateManager : MonoBehaviour
             description = description ?? "",
             status = status ?? "offer",
             tags = tags ?? Array.Empty<string>(),
-            updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            createdUnix = now,
+            updatedUnix = now
         };
+
+        state.quests ??= new System.Collections.Generic.List<QuestRecord>();
         state.quests.Add(q);
+
         state.Touch();
         if (autosave) Save();
     }

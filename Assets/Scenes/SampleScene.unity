@@ -612,16 +612,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e829fabbccac143a6d57913dcd0ce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SituationSnapshotBuilder
-  playerTransform: {fileID: 2119070395}
-  threatProbe: {fileID: 506931877}
-  movementClassifier: {fileID: 506931878}
-  maxChars: 2600
+  regionId: region_unknown
+  regionName: Unknown
+  player: {fileID: 2119070395}
+  playerLevel: 1
+  autoPopulateFromRuntime: 1
+  playerContext: {fileID: 68381539}
+  playerStateManager: {fileID: 712111121}
+  sampleInterval: 0.33
+  travelSpeedThreshold: 1.2
+  idleSpeedThreshold: 0.15
+  hostileMask:
+    serializedVersion: 2
+    m_Bits: 0
+  occluderMask:
+    serializedVersion: 2
+    m_Bits: 0
+  threatRadius: 20
   maxThreats: 8
   maxNotables: 5
-  playerLevelGuess: 1
-  tickRateSeconds: 1
-  logSnapshotEachTick: 1
-  logOnlyWhenChanged: 1
+  logEveryUpdate: 0
 --- !u!114 &506931877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -693,6 +703,8 @@ GameObject:
   m_Component:
   - component: {fileID: 712111118}
   - component: {fileID: 712111117}
+  - component: {fileID: 712111126}
+  - component: {fileID: 712111125}
   - component: {fileID: 712111124}
   - component: {fileID: 712111121}
   - component: {fileID: 712111123}
@@ -755,13 +767,12 @@ MonoBehaviour:
     playerId: player
     displayName: The Player
     level: 1
-    xp: 0
-    xpToNext: 100
+    experience: 0
     stats:
+      vitality: 5
       strength: 5
       dexterity: 5
       intelligence: 5
-      vitality: 5
       maxHealth: 100
       maxStamina: 100
       maxMana: 50
@@ -773,13 +784,18 @@ MonoBehaviour:
     classes: []
     skills: []
     quests: []
-    currentScene: 
     currentRegionId: 
-    lastPosition:
-    - 0
-    - 0
-    - 0
+    currentRegionName: Unknown
+    currentScene: 
+    lastPosition: {x: 0, y: 0, z: 0}
     lastUpdatedUnix: 0
+    behaviorLedger: []
+    lastLedgerRollupUnix: 0
+    nextSkillEligibleUnix: 0
+    nextTitleEligibleUnix: 0
+    nextQuestEligibleUnix: 0
+    rewardBudget: 0
+    rewardBudgetLastUpdateUnix: 0
   fileName: player_state.json
   autosave: 1
   autosaveInterval: 10
@@ -795,21 +811,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f074b68b2a6741e4a9473088fe55bfb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldStateManager
-  state:
-    schemaVersion: 1
-    worldId: world
-    worldName: YourQuest
-    canonLedger: 'Canon: Magic exists. The world responds to witnessed acts. Factions
-      compete for relics.'
-    factions: []
-    locations: []
-    npcs: []
-    worldQuests: []
-    currentRegionId: 
-    lastUpdatedUnix: 0
-  fileName: world_state.json
   autosave: 1
-  autosaveInterval: 12
+  fileName: world_state.json
 --- !u!114 &712111123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -823,9 +826,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldDeltaApplier
   minConfidence: 0.25
-  maxFlagOps: 12
-  maxFactionOps: 8
-  maxLocationOps: 8
+  maxFlags: 6
+  maxFactions: 4
+  maxLocations: 4
+  worldStateManager: {fileID: 712111122}
 --- !u!114 &712111124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -840,15 +844,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LLMThinkCycle
   worldDeltaApplier: {fileID: 712111123}
   situationSnapshotBuilder: {fileID: 506931876}
-  thinkEverySeconds: 12
+  thinkEverySeconds: 30
   minTotalSignificance: 4
   minConfidenceToApply: 0.25
   maxSituationChars: 2600
   maxSummaryChars: 900
   maxLedgerChars: 900
-  logPrompt: 0
+  requireIdleLLM: 1
+  retrySoonWhenBusy: 1
+  busyRetryDelay: 0.5
+  logPrompt: 1
   logRawResponse: 1
   clearEventsAfterApply: 1
+--- !u!114 &712111125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712111116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e176f0897a16d71448d059373d4c8626, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressionThinkCycle
+  balance: {fileID: 11400000, guid: f098f0147ecc9d44289483ac9971bfe7, type: 2}
+  applier: {fileID: 712111126}
+  logPrompt: 1
+  logRawResponse: 1
+--- !u!114 &712111126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712111116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca1f72704459af249b6436e4bbfbd222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressionDecisionApplier
+  minConfidence: 0.25
+  gateSkillsToCalmLowThreat: 1
+  playerProfile: {fileID: 2119070399}
+  snapshotBuilder: {fileID: 506931876}
 --- !u!1 &1290082914
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,6 +1112,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LLMClient
   model: mistral:7b-instruct-q4_K_M
   apiUrl: http://localhost:11434
+  numPredict: 300
+  logRequestJson: 1
+  logRawModelText: 1
 --- !u!4 &1987460744
 Transform:
   m_ObjectHideFlags: 0

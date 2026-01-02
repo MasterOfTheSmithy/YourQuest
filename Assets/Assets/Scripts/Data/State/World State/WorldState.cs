@@ -1,4 +1,3 @@
-// WorldState.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,35 +7,26 @@ public class WorldState
 {
     public int schemaVersion = 1;
 
-    // Stable-ish identifiers
     public string worldId = "world";
     public string worldName = "YourQuest";
 
-    // Canon ledger (short, stable summary - NOT huge prose)
-    // Keep this tight; it’s injected often.
     [TextArea(3, 12)]
     public string canonLedger =
         "Canon: Magic exists.\nThe world responds to witnessed acts.\nFactions compete for relics.";
 
-    // Global numeric flags (economy, tension, corruption, etc.)
     public Dictionary<string, float> globalFlags = new Dictionary<string, float>();
-
-    // Per-faction state
     public List<FactionRecord> factions = new List<FactionRecord>();
-
-    // Known locations (discovered/important)
     public List<LocationRecord> locations = new List<LocationRecord>();
-
-    // Known NPC cards (important only; don’t store every peasant)
     public List<NpcRecord> npcs = new List<NpcRecord>();
-
-    // Global quest registry (optional; you may keep quests mostly on player)
     public List<WorldQuestRecord> worldQuests = new List<WorldQuestRecord>();
 
-    // Locality: current “hot region” to help renderer choose what to include
     public string currentRegionId = "";
 
     public long lastUpdatedUnix;
+
+    // ? Added: last LLM decision metadata (small, safe, helps debugging + tuning)
+    [TextArea(2, 8)] public string lastLLMRationale = "";
+    [Range(0f, 1f)] public float lastLLMConfidence = 0f;
 
     public void Touch()
     {
@@ -59,7 +49,9 @@ public class WorldState
             locations = new List<LocationRecord>(),
             npcs = new List<NpcRecord>(),
             worldQuests = new List<WorldQuestRecord>(),
-            currentRegionId = "region_unknown"
+            currentRegionId = "region_unknown",
+            lastLLMRationale = "",
+            lastLLMConfidence = 0f
         };
         s.Touch();
         return s;
@@ -149,6 +141,99 @@ public class WorldState
         globalFlags[key] = cur + delta;
         Touch();
     }
+
+    // =========================================================
+    // ? Added: Delta application helpers used by WorldDeltaApplier
+    // =========================================================
+
+    public void ApplyFlagDelta(string key, string op, float value)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+
+        if (globalFlags == null) globalFlags = new Dictionary<string, float>();
+        globalFlags.TryGetValue(key, out float cur);
+
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        globalFlags[key] = next;
+        Touch();
+    }
+
+    /// <summary>
+    /// Applies a delta to a faction. Right now this drives attitude.
+    /// Text (if present) is treated as a compact "status" override if meaningful.
+    /// </summary>
+    public void ApplyFactionDelta(string factionId, string op, float value, string text = null)
+    {
+        if (string.IsNullOrWhiteSpace(factionId)) return;
+        var f = GetOrCreateFaction(factionId.Trim());
+        if (f == null) return;
+
+        float cur = f.attitudeToPlayer;
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        f.attitudeToPlayer = Mathf.Clamp(next, -1f, 1f);
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            // Keep this short + state-like. Don’t dump prose in here.
+            f.status = text.Trim();
+        }
+
+        Touch();
+    }
+
+    /// <summary>
+    /// Applies a delta to a location. Numeric affects importance.
+    /// valueText can optionally set state; text can update the location note.
+    /// </summary>
+    public void ApplyLocationDelta(string locationId, string op, float value, string valueText = null, string text = null)
+    {
+        if (string.IsNullOrWhiteSpace(locationId)) return;
+        var l = GetOrCreateLocation(locationId.Trim());
+        if (l == null) return;
+
+        float cur = l.importance;
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        l.importance = Mathf.Clamp(next, -1000f, 1000f);
+
+        if (!string.IsNullOrWhiteSpace(valueText))
+            l.state = valueText.Trim();
+
+        if (!string.IsNullOrWhiteSpace(text))
+            l.text = text.Trim();
+
+        Touch();
+    }
 }
 
 [Serializable]
@@ -157,10 +242,8 @@ public class FactionRecord
     public string factionId;
     public string name;
 
-    // -1..+1 is a good range for vibe
     public float attitudeToPlayer = 0f;
 
-    // internal state flags for that faction (fear, wealth, suspicion)
     public Dictionary<string, float> flags = new Dictionary<string, float>();
 
     public string status = "active"; // active/hostile/allied/defeated
@@ -173,12 +256,10 @@ public class LocationRecord
     public string name;
     public string regionId;
 
-    // 0..1 "how known" helps curation
     public float importance = 0.2f;
 
-    public string state = "normal"; // normal/raided/burning/abandoned
+    public string state = "normal";
 
-    // short note / narrative hook / last observation
     [TextArea(2, 6)]
     public string text = "";
 
@@ -193,10 +274,9 @@ public class NpcRecord
     public string factionId;
     public string locationId;
 
-    // Relationship to player -1..+1
     public float affinityToPlayer = 0f;
 
-    public string status = "alive"; // alive/dead/missing
+    public string status = "alive";
     public Dictionary<string, float> flags = new Dictionary<string, float>();
 }
 

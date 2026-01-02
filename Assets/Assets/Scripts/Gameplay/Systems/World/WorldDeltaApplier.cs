@@ -1,4 +1,3 @@
-// WorldDeltaApplier.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,14 +13,14 @@ public class WorldDeltaApplier : MonoBehaviour
     public float minConfidence = 0.25f;
 
     [Header("Caps")]
-    public int maxFlags = 6;
-    public int maxFactions = 4;
-    public int maxLocations = 4;
+    public int maxFlags = 18;
+    public int maxFactions = 8;
+    public int maxLocations = 12;
 
     [Header("Refs")]
     public WorldStateManager worldStateManager;
 
-    private void Awake()
+    void Awake()
     {
         if (worldStateManager == null)
             worldStateManager = FindFirstObjectByType<WorldStateManager>();
@@ -50,6 +49,8 @@ public class WorldDeltaApplier : MonoBehaviour
             return false;
         }
 
+        json = NormalizeLikelyJson(json);
+
         JObject root;
         try
         {
@@ -66,8 +67,6 @@ public class WorldDeltaApplier : MonoBehaviour
         NormalizeArrayField(root, "locations");
 
         string rationale = (root.Value<string>("rationale") ?? "").Trim();
-        if (rationale.Length > 240) rationale = rationale.Substring(0, 240);
-
         float confidence = NormalizeConfidence(root["confidence"]);
 
         if (confidence < minConfidence)
@@ -87,127 +86,123 @@ public class WorldDeltaApplier : MonoBehaviour
         if (flags.Count == 0 && factions.Count == 0 && locations.Count == 0)
         {
             Debug.Log($"[WorldDeltaApplier] NO-OP delta (ignored): {rationale}");
-            error = "No-op delta (all ops empty after normalization).";
+            error = "No-op delta (empty ops).";
             return false;
         }
 
-        try
-        {
-            foreach (var f in flags)
-            {
-                switch (f.op)
-                {
-                    case "set": worldStateManager.SetFlag(f.key, f.value); break;
-                    case "inc": worldStateManager.IncFlag(f.key, f.value); break;
-                    case "dec": worldStateManager.IncFlag(f.key, -f.value); break;
-                }
-            }
-
-            foreach (var fa in factions)
-            {
-                switch (fa.op)
-                {
-                    case "attitude_set":
-                        worldStateManager.SetFactionAttitude(fa.factionId, fa.value);
-                        break;
-                    case "attitude_inc":
-                        worldStateManager.IncFactionAttitude(fa.factionId, fa.value);
-                        break;
-                    case "status_set":
-                        // status_set uses text
-                        worldStateManager.SetFactionStatus(fa.factionId, fa.text);
-                        break;
-                }
-            }
-
-            foreach (var lo in locations)
-            {
-                switch (lo.op)
-                {
-                    case "state_set":
-                        worldStateManager.SetLocationState(lo.locationId, lo.valueText);
-                        break;
-                    case "importance_set":
-                        worldStateManager.SetLocationImportance(lo.locationId, lo.value);
-                        break;
-                    case "importance_inc":
-                        worldStateManager.IncLocationImportance(lo.locationId, lo.value);
-                        break;
-                }
-
-                // Optional narrative text hook (if provided)
-                if (!string.IsNullOrWhiteSpace(lo.text))
-                    worldStateManager.SetLocationText(lo.locationId, lo.text);
-            }
-
-            worldStateManager.Save();
-
-            Debug.Log($"[WorldDeltaApplier] Applied delta: {rationale}");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            error = "Apply failed: " + ex.Message;
-            return false;
-        }
+        ApplyToWorldState(flags, factions, locations, confidence, rationale);
+        return true;
     }
 
-    private float NormalizeConfidence(JToken tok)
+    private void ApplyToWorldState(
+        List<FlagOp> flags,
+        List<FactionOp> factions,
+        List<LocationOp> locations,
+        float confidence,
+        string rationale)
     {
-        float c = 0f;
-
-        if (tok == null) return 0f;
-
-        if (tok.Type == JTokenType.Float || tok.Type == JTokenType.Integer)
-            c = tok.Value<float>();
-        else if (tok.Type == JTokenType.String)
-            float.TryParse(tok.Value<string>(), out c);
-
-        if (c > 1f && c <= 100f) c /= 100f;
-        return Mathf.Clamp01(c);
-    }
-
-    private void NormalizeArrayField(JObject root, string field)
-    {
-        if (root[field] == null)
+        var ws = worldStateManager.State; // ? your real API
+        if (ws == null)
         {
-            root[field] = new JArray();
+            Debug.LogWarning("[WorldDeltaApplier] WorldState is null; cannot apply.");
             return;
         }
 
-        if (root[field] is JObject obj)
+        foreach (var op in flags)
         {
-            root[field] = new JArray(obj);
-            return;
+            if (string.IsNullOrWhiteSpace(op.key)) continue;
+            ws.ApplyFlagDelta(op.key, op.op, op.value);
         }
 
-        if (root[field] is JArray) return;
+        foreach (var op in factions)
+        {
+            if (string.IsNullOrWhiteSpace(op.factionId)) continue;
+            ws.ApplyFactionDelta(op.factionId, op.op, op.value, op.text);
+        }
 
-        root[field] = new JArray();
+        foreach (var op in locations)
+        {
+            if (string.IsNullOrWhiteSpace(op.locationId)) continue;
+            ws.ApplyLocationDelta(op.locationId, op.op, op.value, op.valueText, op.text);
+        }
+
+        ws.lastLLMRationale = rationale;
+        ws.lastLLMConfidence = confidence;
+
+        worldStateManager.Save(); // ? your real API
+
+        Debug.Log($"[WorldDeltaApplier] Applied delta | conf={confidence:0.00} | {rationale}");
     }
+
+    // ---------- Normalization Helpers ----------
+
+    private static void NormalizeArrayField(JObject root, string key)
+    {
+        if (root[key] == null) root[key] = new JArray();
+        if (root[key].Type != JTokenType.Array) root[key] = new JArray(root[key]);
+    }
+
+    private static float NormalizeConfidence(JToken token)
+    {
+        if (token == null) return 0f;
+
+        if (token.Type == JTokenType.Float || token.Type == JTokenType.Integer)
+            return Mathf.Clamp01(token.Value<float>());
+
+        if (token.Type == JTokenType.String)
+        {
+            string s = token.Value<string>().Trim();
+            if (float.TryParse(s, out float f))
+                return Mathf.Clamp01(f);
+        }
+
+        return 0f;
+    }
+
+    private static string NormalizeLikelyJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return json;
+
+        string s = json.Trim();
+
+        if (s.Length > 0 && s[0] == '\uFEFF')
+            s = s.Substring(1).TrimStart();
+
+        if (s.StartsWith("{\\\""))
+        {
+            s = s.Replace("\\\"", "\"");
+            s = s.Replace("\\/", "/");
+        }
+
+        if (s.StartsWith("\"{") && s.EndsWith("}\""))
+        {
+            s = s.Substring(1, s.Length - 2);
+            s = s.Replace("\\\"", "\"").Replace("\\/", "/");
+        }
+
+        return s;
+    }
+
+    // ---------- Sanitizers ----------
 
     private List<FlagOp> SanitizeFlags(JArray arr)
     {
-        var list = new List<FlagOp>(8);
+        var list = new List<FlagOp>();
         if (arr == null) return list;
 
-        for (int i = 0; i < arr.Count; i++)
+        foreach (var it in arr)
         {
-            var t = arr[i];
-            if (t.Type == JTokenType.String) continue;
-            if (t is not JObject o) continue;
+            if (it == null || it.Type != JTokenType.Object) continue;
+            var o = (JObject)it;
 
             string key = (o.Value<string>("key") ?? "").Trim();
-            string op = (o.Value<string>("op") ?? "").Trim().ToLowerInvariant();
+            string op = (o.Value<string>("op") ?? "").Trim();
+            float val = SafeFloat(o["value"]);
 
             if (string.IsNullOrWhiteSpace(key)) continue;
-            if (op != "set" && op != "inc" && op != "dec") continue;
+            if (!IsOpValid(op)) continue;
 
-            float value = ReadFloat(o["value"]);
-            if (float.IsNaN(value) || float.IsInfinity(value)) continue;
-
-            value = Mathf.Clamp(value, -1000f, 1000f);
-            list.Add(new FlagOp { key = key, op = op, value = value });
+            list.Add(new FlagOp { key = key, op = op, value = val });
         }
 
         return list;
@@ -215,32 +210,23 @@ public class WorldDeltaApplier : MonoBehaviour
 
     private List<FactionOp> SanitizeFactions(JArray arr)
     {
-        var list = new List<FactionOp>(6);
+        var list = new List<FactionOp>();
         if (arr == null) return list;
 
-        for (int i = 0; i < arr.Count; i++)
+        foreach (var it in arr)
         {
-            if (arr[i] is not JObject o) continue;
+            if (it == null || it.Type != JTokenType.Object) continue;
+            var o = (JObject)it;
 
-            string factionId = (o.Value<string>("factionId") ?? "").Trim();
-            string op = (o.Value<string>("op") ?? "").Trim().ToLowerInvariant();
-            float value = ReadFloat(o["value"]);
+            string id = (o.Value<string>("factionId") ?? "").Trim();
+            string op = (o.Value<string>("op") ?? "").Trim();
+            float val = SafeFloat(o["value"]);
             string text = (o.Value<string>("text") ?? "").Trim();
 
-            if (string.IsNullOrWhiteSpace(factionId)) continue;
-            if (op != "attitude_set" && op != "attitude_inc" && op != "status_set") continue;
+            if (string.IsNullOrWhiteSpace(id)) continue;
+            if (!IsOpValid(op)) continue;
 
-            if (op == "status_set")
-            {
-                if (string.IsNullOrWhiteSpace(text)) continue;
-                list.Add(new FactionOp { factionId = factionId, op = op, value = 0f, text = text });
-                continue;
-            }
-
-            if (float.IsNaN(value) || float.IsInfinity(value)) continue;
-            value = Mathf.Clamp(value, -1f, 1f);
-
-            list.Add(new FactionOp { factionId = factionId, op = op, value = value, text = text });
+            list.Add(new FactionOp { factionId = id, op = op, value = val, text = text });
         }
 
         return list;
@@ -248,63 +234,47 @@ public class WorldDeltaApplier : MonoBehaviour
 
     private List<LocationOp> SanitizeLocations(JArray arr)
     {
-        var list = new List<LocationOp>(6);
+        var list = new List<LocationOp>();
         if (arr == null) return list;
 
-        for (int i = 0; i < arr.Count; i++)
+        foreach (var it in arr)
         {
-            if (arr[i] is not JObject o) continue;
+            if (it == null || it.Type != JTokenType.Object) continue;
+            var o = (JObject)it;
 
-            string locationId = (o.Value<string>("locationId") ?? "").Trim();
-            string op = (o.Value<string>("op") ?? "").Trim().ToLowerInvariant();
+            string id = (o.Value<string>("locationId") ?? "").Trim();
+            string op = (o.Value<string>("op") ?? "").Trim();
+            float val = SafeFloat(o["value"]);
+            string valueText = (o.Value<string>("valueText") ?? "").Trim();
+            string text = (o.Value<string>("text") ?? "").Trim();
 
-            if (string.IsNullOrWhiteSpace(locationId)) continue;
-            if (op != "state_set" && op != "importance_set" && op != "importance_inc") continue;
+            if (string.IsNullOrWhiteSpace(id)) continue;
+            if (!IsOpValid(op)) continue;
 
-            string narrativeText = (o.Value<string>("text") ?? "").Trim();
-
-            if (op == "state_set")
-            {
-                string valText = (o.Value<string>("value") ?? o.Value<string>("valueText") ?? "").Trim();
-                if (string.IsNullOrWhiteSpace(valText)) continue;
-
-                list.Add(new LocationOp
-                {
-                    locationId = locationId,
-                    op = op,
-                    value = 0f,
-                    valueText = valText,
-                    text = narrativeText
-                });
-                continue;
-            }
-
-            float value = ReadFloat(o["value"]);
-            if (float.IsNaN(value) || float.IsInfinity(value)) continue;
-            value = Mathf.Clamp(value, -1000f, 1000f);
-
-            list.Add(new LocationOp
-            {
-                locationId = locationId,
-                op = op,
-                value = value,
-                valueText = "",
-                text = narrativeText
-            });
+            list.Add(new LocationOp { locationId = id, op = op, value = val, valueText = valueText, text = text });
         }
 
         return list;
     }
 
-    private float ReadFloat(JToken tok)
+    private static float SafeFloat(JToken t)
     {
-        if (tok == null) return 0f;
-        if (tok.Type == JTokenType.Float || tok.Type == JTokenType.Integer) return tok.Value<float>();
-        if (tok.Type == JTokenType.String && float.TryParse(tok.Value<string>(), out float v)) return v;
+        if (t == null) return 0f;
+        if (t.Type == JTokenType.Float || t.Type == JTokenType.Integer) return t.Value<float>();
+        if (t.Type == JTokenType.String && float.TryParse(t.Value<string>(), out float f)) return f;
         return 0f;
     }
 
-    private string ExtractFirstJsonObject(string s)
+    private static bool IsOpValid(string op)
+    {
+        if (string.IsNullOrWhiteSpace(op)) return false;
+        op = op.Trim().ToLowerInvariant();
+        return op == "add" || op == "set" || op == "mul";
+    }
+
+    // ---------- JSON Extraction ----------
+
+    private static string ExtractFirstJsonObject(string s)
     {
         int start = s.IndexOf('{');
         if (start < 0) return null;

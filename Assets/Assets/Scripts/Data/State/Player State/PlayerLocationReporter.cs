@@ -17,10 +17,20 @@ public class PlayerLocationReporter : MonoBehaviour
         if (psm == null) return;
 
         string scene = SceneManager.GetActiveScene().name;
-        string region = ComputeRegionId(transform.position);
+
+        // Prefer semantic region (RegionVolume -> PlayerContext), fallback to grid id
+        string region = GetBestRegionId(transform.position);
 
         psm.SetLocation(scene, region, transform.position);
         WorldStateManager.Instance?.SetCurrentRegion(region);
+    }
+
+    private string GetBestRegionId(Vector3 pos)
+    {
+        if (PlayerContext.Instance != null && !string.IsNullOrWhiteSpace(PlayerContext.Instance.SemanticRegionId))
+            return PlayerContext.Instance.SemanticRegionId;
+
+        return ComputeRegionId(pos);
     }
 
     private string ComputeRegionId(Vector3 pos)

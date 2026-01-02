@@ -1,0 +1,300 @@
+Shift right click in unity directory, open windows powershell, copy past code below
+
+# --- Dump C# scripts grouped by FIRST-LEVEL folder (top branch)
+# --- Inside each dump, group visually by SUBFOLDER headings
+# --- Script headers use ABSOLUTE file path
+# --- Safe chunking by MaxBytes + MaxLines + per-script PART splitting
+# --- Writes _MANIFEST.txt + in-file INDEX per dump file
+
+$MaxBytes = 220000
+$MaxLines = 1800
+
+$OutDir   = Join-Path (Get-Location).Path "ScriptDumps_TopFolders"
+$Manifest = Join-Path $OutDir "_MANIFEST.txt"
+
+$Encoding = New-Object System.Text.UTF8Encoding($false) # UTF-8 no BOM
+
+Remove-Item $OutDir -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
+[System.IO.File]::WriteAllText($Manifest, "", $Encoding)
+
+function Get-Bytes([string]$s) { $Encoding.GetBytes($s) }
+
+function Append-Bytes([string]$Path, [byte[]]$Bytes) {
+    $fs = [System.IO.File]::Open($Path, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::Read)
+    try { $fs.Write($Bytes, 0, $Bytes.Length) }
+    finally { $fs.Close() }
+}
+
+function Sanitize-FileName([string]$name) {
+    $invalid = [System.IO.Path]::GetInvalidFileNameChars()
+    foreach ($c in $invalid) { $name = $name.Replace($c, '_') }
+    $name = $name -replace '[\\/:\*\?"<>\|]', '_'
+    $name = $name -replace '\s+', ' '
+    $name.Trim()
+}
+
+function New-TopOutFile([string]$topKey, [int]$index) {
+    $safe = Sanitize-FileName $topKey
+    if ([string]::IsNullOrWhiteSpace($safe)) { $safe = "ROOT" }
+    Join-Path $OutDir ("TOP_{0}_{1:000}.txt" -f $safe, $index)
+}
+
+function Add-ManifestLine([string]$line) {
+    [System.IO.File]::AppendAllText($Manifest, $line + "`n", $Encoding)
+}
+
+# ===== In-file index support (buffered, then finalized) =====
+$script:indexMap = @{}  # filePath -> List[string]
+
+function Write-IndexHeader([string]$filePath, [string]$groupKey) {
+    $stamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    $txt = @"
+# INDEX
+# Group: $groupKey
+# Generated: $stamp
+# --------------------------------
+
+"@
+    [System.IO.File]::WriteAllText($filePath, $txt, $Encoding)
+}
+
+function Add-IndexEntry([string]$filePath, [string]$entry) {
+    if (-not $script:indexMap.ContainsKey($filePath)) {
+        $script:indexMap[$filePath] = New-Object System.Collections.Generic.List[string]
+    }
+    $null = $script:indexMap[$filePath].Add($entry)
+}
+
+function Finalize-Index([string]$filePath) {
+    if (-not $script:indexMap.ContainsKey($filePath)) { return }
+    $entries = $script:indexMap[$filePath]
+    if ($entries.Count -eq 0) { return }
+
+    $existing = [System.IO.File]::ReadAllText($filePath, $Encoding)
+    $lines = $existing -split "`n"
+
+    # Find first blank line after header (we already include one)
+    $insertAt = 0
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].Trim() -eq "") { $insertAt = $i; break }
+    }
+
+    $indexLines = $entries | ForEach-Object { "# - " + $_ }
+
+    $newLines = @()
+    if ($insertAt -gt 0) { $newLines += $lines[0..($insertAt-1)] } else { $newLines += $lines }
+    $newLines += $indexLines
+    $newLines += ""  # blank line after index list
+
+    if ($insertAt -lt ($lines.Count - 1)) {
+        $newLines += $lines[($insertAt+1)..($lines.Count-1)]
+    }
+
+    [System.IO.File]::WriteAllText($filePath, ($newLines -join "`n"), $Encoding)
+    $entries.Clear()
+}
+
+# ===== Helpers for relative path + grouping =====
+$root = (Get-Location).Path.TrimEnd('\','/')
+
+function Get-RelPath([string]$absPath) {
+    if ($absPath.StartsWith($root, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $absPath.Substring($root.Length).TrimStart('\','/')
+    }
+    return $absPath
+}
+
+function Get-TopBranch([string]$absPath) {
+    $rel = Get-RelPath $absPath
+    $parts = $rel -split '[\\/]+'
+    if ($parts.Count -eq 0 -or [string]::IsNullOrWhiteSpace($parts[0])) { return "ROOT" }
+    return $parts[0]
+}
+
+function Get-SubfolderKey([string]$absPath) {
+    # Subfolder = directory relative to root (no filename)
+    $rel = Get-RelPath $absPath
+    $dirRel = Split-Path $rel -Parent
+    if ([string]::IsNullOrWhiteSpace($dirRel)) { return "ROOT" }
+    return $dirRel.Replace('\','/')
+}
+
+# ===== Collect scripts =====
+Write-Host "Project root: $root"
+Write-Host "Output folder: $OutDir"
+Write-Host "Manifest: $Manifest"
+Write-Host "MaxBytes per dump: $MaxBytes"
+Write-Host "MaxLines per dump: $MaxLines"
+
+$files =
+    Get-ChildItem -Recurse -Filter *.cs |
+    Where-Object { $_.FullName -notmatch "\\Library\\|\\Temp\\|\\Obj\\|\\Build\\|\\Builds\\|\\Logs\\|\\UserSettings\\|\\Packages\\|\\ProjectSettings\\" } |
+    Sort-Object FullName
+
+if ($files.Count -eq 0) {
+    Write-Host "No .cs files found (or everything excluded)."
+    exit 0
+}
+
+# Group by TOP branch folder
+$groups = $files | Group-Object { Get-TopBranch $_.FullName } | Sort-Object Name
+
+$totalOutFiles = 0
+
+foreach ($g in $groups) {
+    $topKey = $g.Name
+
+    $index = 1
+    $currentFile = New-TopOutFile $topKey $index
+    Write-IndexHeader $currentFile $topKey
+    $script:indexMap[$currentFile] = New-Object System.Collections.Generic.List[string]
+
+    $totalOutFiles++
+    $currentLines = 0
+    $lastSubfolder = $null
+
+    Write-Host ""
+    Write-Host "Top group: $topKey"
+    Write-Host "Writing: $currentFile"
+
+    Add-ManifestLine "=== TOP: $topKey ==="
+    Add-ManifestLine "OUT: $(Split-Path -Leaf $currentFile)"
+
+    foreach ($f in ($g.Group | Sort-Object FullName)) {
+        $absPath = $f.FullName
+        $subKey  = Get-SubfolderKey $absPath
+
+        # Insert a subfolder banner when it changes
+        $banner = ""
+        if ($subKey -ne $lastSubfolder) {
+            $banner = "`n### $subKey`n"
+            $lastSubfolder = $subKey
+        }
+
+        $header = "`n===== $absPath =====`n"
+        $content = Get-Content $absPath -Raw -ErrorAction SilentlyContinue
+        if ($null -eq $content) { $content = "" }
+
+        $blob = $banner + $header + $content.TrimEnd() + "`n"
+        $blobBytes = Get-Bytes $blob
+        $blobLineCount = ($blob -split "`n").Count
+
+        $currentSize = (Get-Item $currentFile).Length
+        $fitsBytes = ($currentSize + $blobBytes.Length -le $MaxBytes)
+        $fitsLines = (($currentLines + $blobLineCount) -le $MaxLines)
+
+        if ($fitsBytes -and $fitsLines) {
+            Append-Bytes $currentFile $blobBytes
+            $currentLines += $blobLineCount
+
+            Add-ManifestLine "  + $absPath"
+            Add-IndexEntry $currentFile $absPath
+            continue
+        }
+
+        # Start new dump file (same top group)
+        if ($currentSize -gt 0 -or $currentLines -gt 0) {
+            Finalize-Index $currentFile
+
+            $index++
+            $currentFile = New-TopOutFile $topKey $index
+            Write-IndexHeader $currentFile $topKey
+            $script:indexMap[$currentFile] = New-Object System.Collections.Generic.List[string]
+
+            $totalOutFiles++
+            $currentLines = 0
+            $lastSubfolder = $null  # reset so first script in new file prints a banner
+
+            Write-Host "Writing: $currentFile"
+            Add-ManifestLine "OUT: $(Split-Path -Leaf $currentFile)"
+        }
+
+        # If STILL too big, split script into PARTs (banner applies only to the first part)
+        $lines = ($header + $content.TrimEnd() + "`n") -split "`n"
+        $part = 1
+        $bufferLines = New-Object System.Collections.Generic.List[string]
+
+        function Flush-Part([string]$absPathForHeader, [int]$partNum, [string]$maybeBanner) {
+            if ($bufferLines.Count -eq 0) { return }
+
+            $partHeader = "`n===== $absPathForHeader (PART $partNum) =====`n"
+            $payload = $maybeBanner + $partHeader + ($bufferLines -join "`n") + "`n"
+            $payloadBytes = Get-Bytes $payload
+            $payloadLineCount = ($payload -split "`n").Count
+
+            $curSize = (Get-Item $script:currentFile).Length
+            $needNew = (($curSize + $payloadBytes.Length) -gt $MaxBytes) -or (($script:currentLines + $payloadLineCount) -gt $MaxLines)
+
+            if ($needNew -and ($curSize -gt 0 -or $script:currentLines -gt 0)) {
+                Finalize-Index $script:currentFile
+
+                $script:indexRef++
+                $script:currentFile = New-TopOutFile $script:topKeyRef $script:indexRef
+                Write-IndexHeader $script:currentFile $script:topKeyRef
+                $script:indexMap[$script:currentFile] = New-Object System.Collections.Generic.List[string]
+
+                $script:totalOutFiles++
+                $script:currentLines = 0
+                $script:lastSubfolderRef = $null
+
+                Write-Host "Writing: $script:currentFile"
+                Add-ManifestLine "OUT: $(Split-Path -Leaf $script:currentFile)"
+            }
+
+            Append-Bytes $script:currentFile $payloadBytes
+            $script:currentLines += $payloadLineCount
+
+            $label = "$absPathForHeader (PART $partNum)"
+            Add-ManifestLine "  + $label"
+            Add-IndexEntry $script:currentFile $label
+
+            $bufferLines.Clear()
+        }
+
+        # expose refs to nested function
+        $script:topKeyRef = $topKey
+        $script:indexRef = $index
+        $script:currentFile = $currentFile
+        $script:currentLines = $currentLines
+        $script:totalOutFiles = $totalOutFiles
+        $script:lastSubfolderRef = $lastSubfolder
+
+        $firstPartBanner = $banner
+        foreach ($line in $lines) {
+            $bufferLines.Add($line)
+
+            $candidate = ($bufferLines -join "`n") + "`n"
+            $candidateBytes = Get-Bytes $candidate
+            $candidateLineCount = $bufferLines.Count + 1
+
+            if ($candidateBytes.Length -gt ($MaxBytes - 9000) -or $candidateLineCount -gt ($MaxLines - 120)) {
+                $bufferLines.RemoveAt($bufferLines.Count - 1)
+
+                Flush-Part $absPath $part $firstPartBanner
+                $part++
+                $firstPartBanner = ""  # banner only once for this script
+
+                $bufferLines.Add($line)
+            }
+        }
+
+        Flush-Part $absPath $part $firstPartBanner
+
+        # pull back updates
+        $index = $script:indexRef
+        $currentFile = $script:currentFile
+        $currentLines = $script:currentLines
+        $totalOutFiles = $script:totalOutFiles
+    }
+
+    Finalize-Index $currentFile
+    Add-ManifestLine ""
+}
+
+Write-Host ""
+Write-Host "Done. Created $totalOutFiles file(s) in '$OutDir'."
+Write-Host "Manifest written to '$Manifest'."
+
+
+

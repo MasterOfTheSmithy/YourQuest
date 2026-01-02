@@ -1,3 +1,6 @@
+// Assets/Assets/Scripts/Observation/EventAccumulator.cs
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,6 +26,43 @@ public class EventAccumulator : MonoBehaviour
 
     public void RecordEvent(ActionEvent ev) => actionEvents.Add(ev);
     public void AddEvent(ActionEvent ev) => RecordEvent(ev);
+
+    public IReadOnlyList<ActionEvent> GetEvents() => actionEvents;
+
+    /// <summary>
+    /// Clears buffered action events after you’ve applied a progression decision,
+    /// so you don’t double-award off the same evidence.
+    /// </summary>
+    public void ClearEvents() => actionEvents.Clear();
+
+    /// <summary>
+    /// Returns skills that were committed/applied to the player.
+    /// Used for upgrade matching / replacement offers.
+    /// </summary>
+    public IReadOnlyList<SkillData> GetCommittedSkills() => committedSkills;
+
+    /// <summary>
+    /// Removes events with UnixTime strictly less than cutoffUnix.
+    /// Use this after rolling them into a long-term ledger.
+    /// </summary>
+    public int PruneEventsBeforeUnix(long cutoffUnix)
+    {
+        int removed = 0;
+
+        // Remove from back (safe even if list order isn’t perfect)
+        for (int i = actionEvents.Count - 1; i >= 0; i--)
+        {
+            var e = actionEvents[i];
+            if (e == null) { actionEvents.RemoveAt(i); removed++; continue; }
+            if (e.UnixTime < cutoffUnix)
+            {
+                actionEvents.RemoveAt(i);
+                removed++;
+            }
+        }
+
+        return removed;
+    }
 
     public void AddCommittedSkill(SkillData skill)
     {
@@ -50,8 +90,8 @@ public class EventAccumulator : MonoBehaviour
             if (c == null) continue;
 
             float score = SkillSimilarity.Score(
-                draft.skillName, draft.description, draft.context, draft.environment, draft.type.ToString(),
-                c.skillName, c.description, c.context, c.environment, c.type.ToString()
+                draft.skillName, draft.description, draft.contextTags,
+                c.skillName, c.description, c.tags
             );
 
             if (score > bestScore)
@@ -63,30 +103,19 @@ public class EventAccumulator : MonoBehaviour
 
         if (best != null && bestScore >= strongMatchThreshold)
         {
-            draft.isUpgradeCandidate = true;
             draft.upgradeTargetSkillId = best.skillId;
-            draft.similarityScore = bestScore;
-
             upgradeCandidates.Add(draft);
-            Debug.Log($"[EventAccumulator] Upgrade candidate: '{draft.skillName}' -> '{best.skillName}' (score {bestScore:0.00})");
+            Debug.Log($"[EventAccumulator] Draft classified as UPGRADE candidate for '{best.skillName}' (score={bestScore:0.00})");
+            return;
         }
-        else
-        {
-            draft.isUpgradeCandidate = false;
-            draft.upgradeTargetSkillId = null;
-            draft.similarityScore = bestScore;
 
-            ghostSkills.Add(draft);
-            Debug.Log($"[EventAccumulator] Ghost skill added: {draft.skillName} ({draft.type})");
-        }
-    }
-    public void ClearEvents()
-    {
-        actionEvents.Clear();
+        ghostSkills.Add(draft);
+        Debug.Log($"[EventAccumulator] Draft stored as new ghost skill '{draft.skillName}' (score={bestScore:0.00})");
     }
 
     public IReadOnlyList<EmergentSkill> GetGhostSkills() => ghostSkills;
     public IReadOnlyList<EmergentSkill> GetUpgradeCandidates() => upgradeCandidates;
-    public IReadOnlyList<SkillData> GetCommittedSkills() => committedSkills;
-    public IReadOnlyList<ActionEvent> GetEvents() => actionEvents;
+
+    public void ClearGhostSkills() => ghostSkills.Clear();
+    public void ClearUpgradeCandidates() => upgradeCandidates.Clear();
 }

@@ -1,8 +1,27 @@
+using System;
 using System.IO;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public static class JsonFileStore
 {
+    // One place to control serialization behavior for the whole project.
+    private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented,
+
+        // Prevent Unity structs/classes with recursive properties from nuking saves.
+        ReferenceLoopHandling = ReferenceLoopHandling.Error,
+
+        // Converters to serialize Unity types as plain data.
+        Converters =
+        {
+            new Vector3JsonConverter(),
+            new Vector2JsonConverter(),
+            new QuaternionJsonConverter()
+        }
+    };
+
     public static bool TryLoad<T>(string path, out T data) where T : class
     {
         data = null;
@@ -10,13 +29,15 @@ public static class JsonFileStore
         try
         {
             if (!File.Exists(path)) return false;
+
             string json = File.ReadAllText(path);
-            data = JsonUtility.FromJson<T>(json);
+            data = JsonConvert.DeserializeObject<T>(json, Settings);
             return data != null;
         }
-        catch (System.Exception e)
+        catch (Exception ex)
         {
-            Debug.LogWarning($"[JsonFileStore] Load failed: {path}\n{e}");
+            Debug.LogWarning($"[JsonFileStore] TryLoad failed: {path}\n{ex.Message}");
+            data = null;
             return false;
         }
     }
@@ -25,17 +46,19 @@ public static class JsonFileStore
     {
         try
         {
+            if (data == null) return false;
+
             string dir = Path.GetDirectoryName(path);
-            if (!Directory.Exists(dir))
+            if (!string.IsNullOrWhiteSpace(dir))
                 Directory.CreateDirectory(dir);
 
-            string json = JsonUtility.ToJson(data, true);
+            string json = JsonConvert.SerializeObject(data, Settings);
             File.WriteAllText(path, json);
             return true;
         }
-        catch (System.Exception e)
+        catch (Exception ex)
         {
-            Debug.LogWarning($"[JsonFileStore] Save failed: {path}\n{e}");
+            Debug.LogWarning($"[JsonFileStore] TrySave failed: {path}\n{ex.Message}");
             return false;
         }
     }

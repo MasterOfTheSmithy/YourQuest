@@ -1,4 +1,5 @@
-// LLMThinkCycle.cs
+// Assets/Assets/Scripts/Gameplay/Systems/World/LLMThinkCycle.cs
+
 using System.Text;
 using UnityEngine;
 
@@ -22,6 +23,16 @@ public class LLMThinkCycle : MonoBehaviour
     public int maxSituationChars = 2600;
     public int maxSummaryChars = 900;
     public int maxLedgerChars = 900;
+
+    [Header("Queue / Contention Control")]
+    [Tooltip("If true, this cycle won't enqueue while LLMClient is busy/queued.")]
+    public bool requireIdleLLM = true;
+
+    [Tooltip("If true, when busy, we retry soon instead of skipping an entire think interval.")]
+    public bool retrySoonWhenBusy = true;
+
+    [Tooltip("Delay (seconds) between retry attempts while busy.")]
+    public float busyRetryDelay = 0.5f;
 
     [Header("Debug")]
     public bool logPrompt = false;
@@ -50,16 +61,40 @@ public class LLMThinkCycle : MonoBehaviour
     private void Update()
     {
         if (Time.time < nextThinkTime) return;
+
+        // ? If we're repairing, don't also schedule normal thinks.
+        if (inRepair)
+        {
+            // Keep checking periodically rather than drifting forever.
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
+        // ? If LLM is busy and we require idleness, retry soon (don't "burn" the whole interval).
+        if (requireIdleLLM && LLMClient.Instance != null && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + (retrySoonWhenBusy ? Mathf.Max(0.1f, busyRetryDelay) : thinkEverySeconds);
+            return;
+        }
+
+        // Only advance timer once we're actually going to try a think.
         nextThinkTime = Time.time + thinkEverySeconds;
         TryThink();
     }
 
     private void TryThink()
     {
-        if (inRepair) return; // don't overlap repair with new think cycles
+        if (inRepair) return;
 
         if (LLMClient.Instance == null || worldDeltaApplier == null)
             return;
+
+        // ? Second guard (race-safe).
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
 
         var acc = EventAccumulator.Instance;
         if (acc == null) return;
@@ -93,9 +128,17 @@ public class LLMThinkCycle : MonoBehaviour
         if (logPrompt)
             Debug.Log(prompt);
 
+        // ? Only enqueue if still safe to do so.
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
         LLMClient.Instance.GenerateSkill(prompt, raw =>
         {
-            if (string.IsNullOrWhiteSpace(raw)) return;
+            if (string.IsNullOrWhiteSpace(raw))
+                return;
 
             if (logRawResponse)
                 Debug.Log("[LLMThinkCycle] RAW RESPONSE:\n" + raw);
@@ -114,14 +157,37 @@ public class LLMThinkCycle : MonoBehaviour
             if (!string.IsNullOrEmpty(err) && err.ToLowerInvariant().Contains("no-op"))
                 return;
 
-            // One repair attempt max
+            // ? One repair attempt max; and do not overlap with queued LLM requests.
             inRepair = true;
+
+            // If LLM is currently busy due to the other think cycle, retry repair shortly.
+            if (requireIdleLLM && LLMClient.Instance.IsBusy)
+            {
+                inRepair = false;
+                nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+                return;
+            }
+
             RetryOnce(schema, raw, err, acc);
         });
     }
 
     private void RetryOnce(string schema, string raw, string error, EventAccumulator acc)
     {
+        // ? If something else grabbed the LLM before we start repair, back off.
+        if (LLMClient.Instance == null)
+        {
+            inRepair = false;
+            return;
+        }
+
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            inRepair = false;
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
         var sb = new StringBuilder();
         sb.AppendLine("Return ONLY a single valid JSON object. No markdown. No headings. No explanation.");
         sb.AppendLine("You MUST match the schema exactly.");

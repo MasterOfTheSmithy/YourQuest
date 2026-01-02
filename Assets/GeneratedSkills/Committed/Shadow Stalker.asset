@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Shadow Stalker
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: 0b8528b7c4a14064a77b7056f98d5063
+  familyId: c5eb710239144d2abb0c66d6a537a3bf
+  tier: 1
+  parentSkillId: 
+  skillName: Shadow Stalker
+  description: A sneaky and cunning fighter that can move unseen on the battlefield.
+  type: 0
+  context: stealth
+  environment: battlefield
+  tags: []
+  level: 1

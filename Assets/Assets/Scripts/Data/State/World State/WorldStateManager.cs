@@ -29,6 +29,15 @@ public class WorldStateManager : MonoBehaviour
     /// </summary>
     public WorldState state => State;
 
+    // -----------------------------
+    // Back-compat shims (IMPORTANT)
+    // -----------------------------
+    // Some scripts (including the WorldDeltaApplier you pasted) expect:
+    // - worldStateManager.worldState
+    // - worldStateManager.SaveWorldState()
+    public WorldState worldState => State;
+    public void SaveWorldState() => Save();
+
     private string SaveDir => Path.Combine(Application.persistentDataPath, "Save");
     private string SavePath => Path.Combine(SaveDir, fileName);
 

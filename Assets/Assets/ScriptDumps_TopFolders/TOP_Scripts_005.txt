@@ -1,3 +1,14 @@
+# INDEX
+# Group: Scripts
+# Generated: 2026-01-01 19:23:34
+# --------------------------------
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillCommiter.cs (PART 1)
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillData.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillSimilarity.cs
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillCommiter.cs (PART 1) =====
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillCommiter.cs =====
 using System;
 using UnityEngine;
 
@@ -124,4 +135,101 @@ public static class SkillCommitter
         return name.Length > 64 ? name.Substring(0, 64) : name.Trim();
     }
 #endif
+}
+
+
+### Scripts/ScriptableObjects/Skills
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillData.cs =====
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "SkillData", menuName = "Emergent/Committed Skill")]
+public class SkillData : ScriptableObject
+{
+    [Header("Stable Identity")]
+    public string skillId; // GUID string
+
+    [Header("Skill Family")]
+    public string familyId;       // same for all tiers in a family
+    [Min(1)] public int tier = 1; // Tier 1 = base, Tier 2+ = upgrades
+    public string parentSkillId;  // previous tier’s skillId (optional)
+
+    [Header("Skill Info")]
+    public string skillName;
+
+    [TextArea(4, 12)]
+    public string description;
+
+    [Header("Classification")]
+    public SkillType type = SkillType.Active;
+
+    [Header("Metadata")]
+    public string context;
+    public string environment;
+
+    // Added: tags for balancing, synergy, future prerequisites, UI grouping, etc.
+    public string[] tags;
+
+    [Header("Progression")]
+    [Min(1)] public int level = 1;
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillSimilarity.cs =====
+using System;
+using UnityEngine;
+
+public static class SkillSimilarity
+{
+    // Explicit thresholds so other systems stop guessing
+    public const float STRONG_MATCH = 0.78f;
+    public const float WEAK_MATCH = 0.45f;
+
+    public static float Score(
+        string aName, string aDesc, string[] aTags,
+        string bName, string bDesc, string[] bTags)
+    {
+        float name = Jaccard(Tokenize(aName), Tokenize(bName));
+        float desc = Jaccard(Tokenize(aDesc), Tokenize(bDesc));
+        float tags = Jaccard(TokenizeTags(aTags), TokenizeTags(bTags));
+
+        float s = name * 0.45f + desc * 0.35f + tags * 0.20f;
+        return Mathf.Clamp01(s);
+    }
+
+    private static string[] Tokenize(string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return Array.Empty<string>();
+        s = s.ToLowerInvariant();
+        char[] sep = new[] {
+            ' ', '\t', '\n', '\r', '.', ',', ';', ':',
+            '!', '?', '/', '\\', '-', '_',
+            '(', ')', '[', ']', '{', '}', '"'
+        };
+        return s.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    private static string[] TokenizeTags(string[] tags)
+    {
+        if (tags == null || tags.Length == 0) return Array.Empty<string>();
+        for (int i = 0; i < tags.Length; i++)
+            if (tags[i] != null)
+                tags[i] = tags[i].Trim().ToLowerInvariant();
+        return tags;
+    }
+
+    private static float Jaccard(string[] a, string[] b)
+    {
+        if (a.Length == 0 && b.Length == 0) return 1f;
+        if (a.Length == 0 || b.Length == 0) return 0f;
+
+        var setA = new System.Collections.Generic.HashSet<string>(a);
+        var setB = new System.Collections.Generic.HashSet<string>(b);
+
+        int inter = 0;
+        foreach (var x in setA)
+            if (setB.Contains(x)) inter++;
+
+        int union = setA.Count + setB.Count - inter;
+        return union <= 0 ? 0f : (float)inter / union;
+    }
 }

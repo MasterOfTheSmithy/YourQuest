@@ -24,6 +24,9 @@ public class SkillData : ScriptableObject
     public string context;
     public string environment;
 
+    // Added: tags for balancing, synergy, future prerequisites, UI grouping, etc.
+    public string[] tags;
+
     [Header("Progression")]
     [Min(1)] public int level = 1;
 }

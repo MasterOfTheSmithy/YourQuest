@@ -1,3 +1,5 @@
+// Assets/Assets/Scripts/Observation/Entities/EntityInfo.cs
+
 using UnityEngine;
 
 public enum Hostility
@@ -32,7 +34,19 @@ public class EntityInfo : MonoBehaviour
     [Tooltip("Optional tags: guard, civilian, boss, merchant, etc.")]
     public string[] tags;
 
+    // Preferred API
     public bool IsHostile => hostility == Hostility.Hostile;
+
+    // -----------------------------
+    // Compatibility API (fix compile errors)
+    // -----------------------------
+
+    // Some scripts still expect a field/property called isHostile
+    public bool isHostile => IsHostile;
+
+    // Some scripts expect targetingPlayer (runtime flag).
+    // Set this from your AI/perception system if/when available.
+    public bool targetingPlayer = false;
 
     private void OnValidate()
     {

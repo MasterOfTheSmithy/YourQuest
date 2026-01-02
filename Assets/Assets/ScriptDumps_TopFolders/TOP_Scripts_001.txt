@@ -1,0 +1,1766 @@
+# INDEX
+# Group: Scripts
+# Generated: 2026-01-01 19:23:33
+# --------------------------------
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\PlayerProfile.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\JsonFileStore.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\SerializableDictionary.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\Vector3JsonConverter.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerLocationReporter.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerState.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerStateManager.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldState.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldStateManager.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerController.cs
+
+### Scripts/Data
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\PlayerProfile.cs =====
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerProfile : MonoBehaviour
+{
+    [Header("Progression")]
+    public Dictionary<string, int> skills = new();
+    public HashSet<string> unlockedSkills = new();
+
+    [Header("Equipment (by type)")]
+    // Stores committed skillId equipped in each slot type.
+    public Dictionary<SkillType, string> equippedSkillByType = new();
+
+    public void AddSkill(string skillName)
+    {
+        if (unlockedSkills.Contains(skillName)) return;
+
+        unlockedSkills.Add(skillName);
+        skills[skillName] = 1;
+        Debug.Log($"[Profile] Learned skill: {skillName}");
+    }
+
+    public string GetEquippedSkillId(SkillType type)
+    {
+        return equippedSkillByType.TryGetValue(type, out var id) ? id : null;
+    }
+
+    public void EquipSkill(SkillData skill)
+    {
+        if (skill == null) return;
+
+        equippedSkillByType[skill.type] = skill.skillId;
+        Debug.Log($"[Profile] Equipped {skill.skillName} (Tier {skill.tier}) in slot {skill.type}");
+    }
+
+    public void ReplaceEquippedSkill(SkillData newSkill)
+    {
+        // For now “replace” just means equip into that type slot.
+        EquipSkill(newSkill);
+    }
+}
+
+### Scripts/Data/Serialization
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\JsonFileStore.cs =====
+using System;
+using System.IO;
+using UnityEngine;
+using Newtonsoft.Json;
+
+public static class JsonFileStore
+{
+    // One place to control serialization behavior for the whole project.
+    private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented,
+
+        // Prevent Unity structs/classes with recursive properties from nuking saves.
+        ReferenceLoopHandling = ReferenceLoopHandling.Error,
+
+        // Converters to serialize Unity types as plain data.
+        Converters =
+        {
+            new Vector3JsonConverter(),
+            new Vector2JsonConverter(),
+            new QuaternionJsonConverter()
+        }
+    };
+
+    public static bool TryLoad<T>(string path, out T data) where T : class
+    {
+        data = null;
+
+        try
+        {
+            if (!File.Exists(path)) return false;
+
+            string json = File.ReadAllText(path);
+            data = JsonConvert.DeserializeObject<T>(json, Settings);
+            return data != null;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[JsonFileStore] TryLoad failed: {path}\n{ex.Message}");
+            data = null;
+            return false;
+        }
+    }
+
+    public static bool TrySave<T>(string path, T data) where T : class
+    {
+        try
+        {
+            if (data == null) return false;
+
+            string dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir))
+                Directory.CreateDirectory(dir);
+
+            string json = JsonConvert.SerializeObject(data, Settings);
+            File.WriteAllText(path, json);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[JsonFileStore] TrySave failed: {path}\n{ex.Message}");
+            return false;
+        }
+    }
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\SerializableDictionary.cs =====
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+[Serializable]
+public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver
+{
+    public List<TKey> keys = new List<TKey>();
+    public List<TValue> values = new List<TValue>();
+
+    private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+
+    public void OnBeforeSerialize()
+    {
+        keys.Clear();
+        values.Clear();
+        foreach (var kvp in dictionary)
+        {
+            keys.Add(kvp.Key);
+            values.Add(kvp.Value);
+        }
+    }
+
+    public void OnAfterDeserialize()
+    {
+        dictionary = new Dictionary<TKey, TValue>();
+        for (int i = 0; i < Math.Min(keys.Count, values.Count); i++)
+        {
+            dictionary[keys[i]] = values[i];
+        }
+    }
+
+    public TValue this[TKey key]
+    {
+        get => dictionary[key];
+        set => dictionary[key] = value;
+    }
+
+    public bool ContainsKey(TKey key) => dictionary.ContainsKey(key);
+    public void Add(TKey key, TValue value) => dictionary[key] = value;
+    public Dictionary<TKey, TValue> ToDictionary() => dictionary;
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\Vector3JsonConverter.cs =====
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+
+public sealed class Vector3JsonConverter : JsonConverter<Vector3>
+{
+    public override void WriteJson(JsonWriter writer, Vector3 value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("x"); writer.WriteValue(value.x);
+        writer.WritePropertyName("y"); writer.WriteValue(value.y);
+        writer.WritePropertyName("z"); writer.WriteValue(value.z);
+        writer.WriteEndObject();
+    }
+
+    public override Vector3 ReadJson(JsonReader reader, System.Type objectType, Vector3 existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null) return Vector3.zero;
+
+        var obj = JObject.Load(reader);
+        return new Vector3(
+            (float)(obj["x"] ?? 0f),
+            (float)(obj["y"] ?? 0f),
+            (float)(obj["z"] ?? 0f)
+        );
+    }
+}
+
+public sealed class Vector2JsonConverter : JsonConverter<Vector2>
+{
+    public override void WriteJson(JsonWriter writer, Vector2 value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("x"); writer.WriteValue(value.x);
+        writer.WritePropertyName("y"); writer.WriteValue(value.y);
+        writer.WriteEndObject();
+    }
+
+    public override Vector2 ReadJson(JsonReader reader, System.Type objectType, Vector2 existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null) return Vector2.zero;
+
+        var obj = JObject.Load(reader);
+        return new Vector2(
+            (float)(obj["x"] ?? 0f),
+            (float)(obj["y"] ?? 0f)
+        );
+    }
+}
+
+public sealed class QuaternionJsonConverter : JsonConverter<Quaternion>
+{
+    public override void WriteJson(JsonWriter writer, Quaternion value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("x"); writer.WriteValue(value.x);
+        writer.WritePropertyName("y"); writer.WriteValue(value.y);
+        writer.WritePropertyName("z"); writer.WriteValue(value.z);
+        writer.WritePropertyName("w"); writer.WriteValue(value.w);
+        writer.WriteEndObject();
+    }
+
+    public override Quaternion ReadJson(JsonReader reader, System.Type objectType, Quaternion existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null) return Quaternion.identity;
+
+        var obj = JObject.Load(reader);
+        return new Quaternion(
+            (float)(obj["x"] ?? 0f),
+            (float)(obj["y"] ?? 0f),
+            (float)(obj["z"] ?? 0f),
+            (float)(obj["w"] ?? 1f)
+        );
+    }
+}
+
+### Scripts/Data/State/Player State
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerLocationReporter.cs =====
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class PlayerLocationReporter : MonoBehaviour
+{
+    public float reportEverySeconds = 2f;
+    public float regionCellSize = 20f;
+
+    private float nextTime;
+
+    private void Update()
+    {
+        if (Time.time < nextTime) return;
+        nextTime = Time.time + reportEverySeconds;
+
+        var psm = PlayerStateManager.Instance;
+        if (psm == null) return;
+
+        string scene = SceneManager.GetActiveScene().name;
+
+        // Prefer semantic region (RegionVolume -> PlayerContext), fallback to grid id
+        string region = GetBestRegionId(transform.position);
+
+        psm.SetLocation(scene, region, transform.position);
+        WorldStateManager.Instance?.SetCurrentRegion(region);
+    }
+
+    private string GetBestRegionId(Vector3 pos)
+    {
+        if (PlayerContext.Instance != null && !string.IsNullOrWhiteSpace(PlayerContext.Instance.SemanticRegionId))
+            return PlayerContext.Instance.SemanticRegionId;
+
+        return ComputeRegionId(pos);
+    }
+
+    private string ComputeRegionId(Vector3 pos)
+    {
+        float cell = Mathf.Max(0.01f, regionCellSize);
+        int cx = Mathf.FloorToInt(pos.x / cell);
+        int cz = Mathf.FloorToInt(pos.z / cell);
+        return $"x{cx}_z{cz}";
+    }
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerState.cs =====
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using UnityEngine;
+
+[Serializable]
+public class PlayerState
+{
+    // Bump because we are adding fields expected by other systems.
+    public int schemaVersion = 3;
+
+    // Identity
+    public string playerId = "player";
+    public string displayName = "The Player";
+
+    // Progression
+    public int level = 1;
+
+    // Keep existing saved field for backward compatibility
+    public int experience = 0;
+
+    // ? Alias: newer code expects "xp"
+    // IMPORTANT: this must NOT be serialized/deserialized, or old files like "xp": "0.0" will break loads.
+    [JsonIgnore]
+    public int xp
+    {
+        get => experience;
+        set => experience = Mathf.Max(0, value);
+    }
+
+    // ? Newer code expects xpToNext (derived)
+    // IMPORTANT: must NOT be serialized/deserialized.
+    [JsonIgnore]
+    public int xpToNext
+    {
+        get
+        {
+            int needed = GetXpRequiredForLevel(level);
+            int remaining = needed - experience;
+            return Mathf.Max(0, remaining);
+        }
+    }
+
+    // Core stats
+    public StatBlock stats = new StatBlock();
+
+    // Progression flavor
+    public List<TitleRecord> titles = new List<TitleRecord>();
+    public List<ClassRecord> classes = new List<ClassRecord>();
+
+    // Skills (tiered families)
+    public List<SkillRecord> skills = new List<SkillRecord>();
+
+    // Quests
+    public List<QuestRecord> quests = new List<QuestRecord>();
+
+    // Equipment / loadout
+    public Dictionary<string, string> equippedSkillBySlot = new Dictionary<string, string>();
+
+    // Reputation / social
+    public Dictionary<string, float> reputation = new Dictionary<string, float>();
+
+    // Location
+    public string currentRegionId = "region_unknown";
+    public string currentRegionName = "Unknown";
+
+    // Location (required by other systems)
+    public string currentScene = "";
+    public Vector3 lastPosition = Vector3.zero;
+
+    // Time
+    public long lastUpdatedUnix;
+
+    // ---------------------------
+    // Behavior Ledger (long-lived evidence)
+    // ---------------------------
+
+    [Tooltip("Short, aggregated lines of what the player has been doing over time. Used as evidence in prompts.")]
+    public List<string> behaviorLedger = new List<string>();
+
+    [Tooltip("Optional counters; useful for balancing. Keys like: verb:punch, region:library, craft:woodcutting, etc.")]
+    public Dictionary<string, float> behaviorCounters = new Dictionary<string, float>();
+
+    [Tooltip("Last time we rolled up short-term events into the ledger.")]
+    public long lastLedgerRollupUnix = 0;
+
+    // ---------------------------
+    // Persistent cooldowns (earned pacing)
+    // ---------------------------
+
+    public long nextSkillEligibleUnix = 0;
+    public long nextTitleEligibleUnix = 0;
+    public long nextQuestEligibleUnix = 0;
+
+    public float rewardBudget = 0f;
+    public long rewardBudgetLastUpdateUnix = 0;
+
+    public void Touch()
+    {
+        lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
+
+    // ---------------------------
+    // XP / Level helpers
+    // ---------------------------
+
+    public static int GetXpRequiredForLevel(int lvl)
+    {
+        lvl = Mathf.Max(1, lvl);
+        float baseNeed = 100f;
+        float growth = 1.5f;
+        float needed = baseNeed * Mathf.Pow(growth, lvl - 1);
+        return Mathf.RoundToInt(needed);
+    }
+
+    public bool TryLevelUpIfReady(bool consumeXp = true)
+    {
+        int needed = GetXpRequiredForLevel(level);
+        if (experience < needed) return false;
+
+        if (consumeXp) experience -= needed;
+        level += 1;
+        Touch();
+        return true;
+    }
+
+    public void AddXp(int amount, bool autoLevel = true)
+    {
+        if (amount <= 0) return;
+        experience += amount;
+
+        if (autoLevel)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                if (!TryLevelUpIfReady(true)) break;
+            }
+        }
+
+        Touch();
+    }
+
+    // ---------------------------
+    // Ledger helpers
+    // ---------------------------
+
+    public void AddLedgerLine(string line, int maxLines = 60)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
+        line = line.Trim();
+
+        behaviorLedger ??= new List<string>();
+        behaviorLedger.Add(line);
+
+        if (maxLines > 0 && behaviorLedger.Count > maxLines)
+            behaviorLedger.RemoveRange(0, behaviorLedger.Count - maxLines);
+
+        Touch();
+    }
+
+    public void IncCounter(string key, float delta)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim().ToLowerInvariant();
+
+        behaviorCounters ??= new Dictionary<string, float>();
+        behaviorCounters.TryGetValue(key, out float cur);
+        behaviorCounters[key] = cur + delta;
+        Touch();
+    }
+
+    // ---------------------------
+    // Titles
+    // ---------------------------
+
+    public bool HasTitle(string titleName)
+    {
+        if (string.IsNullOrWhiteSpace(titleName)) return false;
+        titleName = titleName.Trim();
+
+        if (titles == null) return false;
+
+        for (int i = 0; i < titles.Count; i++)
+            if (titles[i] != null && titles[i].name == titleName)
+                return true;
+
+        return false;
+    }
+
+    public void AwardTitle(string titleName, string description)
+    {
+        if (string.IsNullOrWhiteSpace(titleName)) return;
+        if (HasTitle(titleName)) return;
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        titles ??= new List<TitleRecord>();
+        titles.Add(new TitleRecord
+        {
+            titleId = Guid.NewGuid().ToString("N"),
+            name = titleName.Trim(),
+            description = (description ?? "").Trim(),
+            acquiredUnix = now,
+            earnedUnix = now
+        });
+
+        Touch();
+    }
+
+    // ---------------------------
+    // Classes
+    // ---------------------------
+
+    public void AwardClass(string className, string description)
+    {
+        if (string.IsNullOrWhiteSpace(className)) return;
+
+        classes ??= new List<ClassRecord>();
+
+        for (int i = 0; i < classes.Count; i++)
+            if (classes[i] != null && classes[i].name == className.Trim())
+                return;
+
+        classes.Add(new ClassRecord
+        {
+            name = className.Trim(),
+            description = (description ?? "").Trim(),
+            acquiredUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        });
+
+        Touch();
+    }
+
+    // ---------------------------
+    // Skills helpers
+    // ---------------------------
+
+    public SkillRecord FindSkillById(string skillId)
+    {
+        if (string.IsNullOrWhiteSpace(skillId)) return null;
+        if (skills == null) return null;
+
+        for (int i = 0; i < skills.Count; i++)
+        {
+            var s = skills[i];
+            if (s != null && s.skillId == skillId) return s;
+        }
+        return null;
+    }
+
+    public int FindHighestTierInFamily(string familyId)
+    {
+        if (string.IsNullOrWhiteSpace(familyId)) return 0;
+        if (skills == null) return 0;
+
+        int bestTier = 0;
+        for (int i = 0; i < skills.Count; i++)
+        {
+            var s = skills[i];
+            if (s == null) continue;
+
+            if (!string.IsNullOrWhiteSpace(s.familyId) && s.familyId == familyId)
+            {
+                if (s.tier > bestTier) bestTier = s.tier;
+            }
+        }
+
+        return bestTier;
+    }
+
+    public void SeedSkill(string skillName, string type, string hook)
+    {
+        if (string.IsNullOrWhiteSpace(skillName)) return;
+
+        skills ??= new List<SkillRecord>();
+
+        for (int i = 0; i < skills.Count; i++)
+            if (skills[i] != null && skills[i].name == skillName.Trim())
+                return;
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        skills.Add(new SkillRecord
+        {
+            name = skillName.Trim(),
+            type = (type ?? "Unknown").Trim(),
+            tier = 1,
+            description = (hook ?? "").Trim(),
+
+            skillId = Guid.NewGuid().ToString("N"),
+            familyId = null,
+            parentSkillId = null,
+
+            rank = 1,
+            unlocked = true,
+            context = "",
+            environment = "",
+
+            acquiredUnix = now,
+            learnedUnix = now
+        });
+
+        Touch();
+    }
+
+    public void UpsertSkill(SkillRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.skillId)) return;
+
+        skills ??= new List<SkillRecord>();
+
+        for (int i = 0; i < skills.Count; i++)
+        {
+            var existing = skills[i];
+            if (existing != null && existing.skillId == record.skillId)
+            {
+                skills[i] = record;
+                Touch();
+                return;
+            }
+        }
+
+        skills.Add(record);
+        Touch();
+    }
+}
+
+[Serializable]
+public class StatBlock
+{
+    public int vitality = 10;
+    public int strength = 10;
+    public int dexterity = 10;
+    public int intelligence = 10;
+
+    public int maxHealth = 100;
+    public int maxStamina = 100;
+    public int maxMana = 50;
+
+    public int attack = 10;
+    public int defense = 5;
+
+    [Range(0f, 1f)]
+    public float critChance = 0.05f;
+
+    public float moveSpeed = 5f;
+}
+
+[Serializable]
+public class TitleRecord
+{
+    public string titleId;
+    public long earnedUnix;
+
+    public string name;
+    [TextArea(2, 6)] public string description;
+
+    public long acquiredUnix;
+}
+
+[Serializable]
+public class ClassRecord
+{
+    public string name;
+    [TextArea(2, 6)] public string description;
+    public long acquiredUnix;
+}
+
+[Serializable]
+public class SkillRecord
+{
+    public string skillId;
+    public string familyId;
+    public string parentSkillId;
+
+    public int rank = 1;
+    public bool unlocked = true;
+
+    public string context;
+    public string environment;
+
+    public long learnedUnix;
+
+    public string name;
+    public string type;
+    public int tier;
+    [TextArea(2, 6)] public string description;
+
+    public long acquiredUnix;
+}
+
+[Serializable]
+public class QuestRecord
+{
+    public string questId;
+
+    public string name;
+    [TextArea(2, 6)] public string description;
+
+    public string status = "offer";
+    public string[] tags = Array.Empty<string>();
+
+    public long createdUnix;
+    public long updatedUnix;
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerStateManager.cs =====
+using System;
+using UnityEngine;
+
+public class PlayerStateManager : MonoBehaviour
+{
+    public static PlayerStateManager Instance { get; private set; }
+
+    [Header("Runtime State")]
+    public PlayerState state = new PlayerState();
+
+    [Header("Save")]
+    public string fileName = "player_state.json";
+    public bool autosave = true;
+    public float autosaveInterval = 10f;
+
+    private float nextAutosave;
+
+    public string SavePath => System.IO.Path.Combine(Application.persistentDataPath, "Save", fileName);
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+
+        LoadOrCreate();
+        nextAutosave = Time.time + autosaveInterval;
+    }
+
+    private void Update()
+    {
+        if (!autosave) return;
+        if (Time.time < nextAutosave) return;
+        nextAutosave = Time.time + autosaveInterval;
+        Save();
+    }
+
+    public void LoadOrCreate()
+    {
+        if (JsonFileStore.TryLoad<PlayerState>(SavePath, out var loaded))
+        {
+            state = loaded ?? new PlayerState();
+
+            // Ensure new collections are not null when loading older saves
+            state.titles ??= new System.Collections.Generic.List<TitleRecord>();
+            state.classes ??= new System.Collections.Generic.List<ClassRecord>();
+            state.skills ??= new System.Collections.Generic.List<SkillRecord>();
+            state.quests ??= new System.Collections.Generic.List<QuestRecord>();
+            state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+            state.reputation ??= new System.Collections.Generic.Dictionary<string, float>();
+            state.behaviorLedger ??= new System.Collections.Generic.List<string>();
+            state.behaviorCounters ??= new System.Collections.Generic.Dictionary<string, float>();
+
+            state.Touch();
+            Debug.Log($"[PlayerStateManager] Loaded: {SavePath}");
+            return;
+        }
+
+        // New save
+        state = new PlayerState();
+        state.Touch();
+        Save();
+        Debug.Log($"[PlayerStateManager] Created new save: {SavePath}");
+    }
+
+    public void Save()
+    {
+        if (state == null) state = new PlayerState();
+        state.Touch();
+        JsonFileStore.TrySave(SavePath, state);
+    }
+
+    // -----------------------
+    // High-level mutation API
+    // -----------------------
+
+    public void SetLocation(string sceneName, string regionId, Vector3 position)
+    {
+        if (state == null) state = new PlayerState();
+
+        state.currentScene = sceneName ?? "";
+        state.currentRegionId = regionId ?? "";
+
+        // ? FIX: Vector3 is not indexable — assign directly
+        state.lastPosition = position;
+
+        state.Touch();
+    }
+
+    public void AddOrUpdateSkillFromCommitted(SkillData committed)
+    {
+        if (committed == null) return;
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var rec = new SkillRecord
+        {
+            skillId = committed.skillId,
+            familyId = committed.familyId,
+            tier = committed.tier,
+            parentSkillId = committed.parentSkillId,
+
+            name = committed.skillName,
+            description = committed.description,
+            type = committed.type.ToString(),
+
+            rank = committed.level,
+            unlocked = true,
+
+            context = committed.context,
+            environment = committed.environment,
+
+            learnedUnix = now,
+
+            // back-compat field (fine to keep)
+            acquiredUnix = now
+        };
+
+        state.UpsertSkill(rec);
+
+        // Ensure equip slot exists if empty
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+
+        string slotKey = committed.type.ToString();
+        if (!state.equippedSkillBySlot.ContainsKey(slotKey) || string.IsNullOrWhiteSpace(state.equippedSkillBySlot[slotKey]))
+        {
+            state.equippedSkillBySlot[slotKey] = committed.skillId;
+        }
+
+        state.Touch();
+        if (autosave) Save();
+    }
+
+    public void EquipSkill(SkillData skill)
+    {
+        if (skill == null) return;
+        if (state == null) state = new PlayerState();
+
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+        state.equippedSkillBySlot[skill.type.ToString()] = skill.skillId;
+
+        state.Touch();
+        if (autosave) Save();
+    }
+
+    public void AddTitle(string name, string description)
+    {
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var t = new TitleRecord
+        {
+            titleId = Guid.NewGuid().ToString("N"),
+            name = name ?? "Untitled",
+            description = description ?? "",
+
+            // new + back-compat
+            earnedUnix = now,
+            acquiredUnix = now
+        };
+
+        state.titles ??= new System.Collections.Generic.List<TitleRecord>();
+        state.titles.Add(t);
+
+        state.Touch();
+        if (autosave) Save();
+    }
+
+    public void AddQuest(string name, string description, string status = "offer", string[] tags = null)
+    {
+        if (state == null) state = new PlayerState();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var q = new QuestRecord
+        {
+            questId = Guid.NewGuid().ToString("N"),
+            name = name ?? "Unnamed Quest",
+            description = description ?? "",
+            status = status ?? "offer",
+            tags = tags ?? Array.Empty<string>(),
+            createdUnix = now,
+            updatedUnix = now
+        };
+
+        state.quests ??= new System.Collections.Generic.List<QuestRecord>();
+        state.quests.Add(q);
+
+        state.Touch();
+        if (autosave) Save();
+    }
+}
+
+### Scripts/Data/State/World State
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldState.cs =====
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+[Serializable]
+public class WorldState
+{
+    public int schemaVersion = 1;
+
+    public string worldId = "world";
+    public string worldName = "YourQuest";
+
+    [TextArea(3, 12)]
+    public string canonLedger =
+        "Canon: Magic exists.\nThe world responds to witnessed acts.\nFactions compete for relics.";
+
+    public Dictionary<string, float> globalFlags = new Dictionary<string, float>();
+    public List<FactionRecord> factions = new List<FactionRecord>();
+    public List<LocationRecord> locations = new List<LocationRecord>();
+    public List<NpcRecord> npcs = new List<NpcRecord>();
+    public List<WorldQuestRecord> worldQuests = new List<WorldQuestRecord>();
+
+    public string currentRegionId = "";
+
+    public long lastUpdatedUnix;
+
+    // ? Added: last LLM decision metadata (small, safe, helps debugging + tuning)
+    [TextArea(2, 8)] public string lastLLMRationale = "";
+    [Range(0f, 1f)] public float lastLLMConfidence = 0f;
+
+    public void Touch()
+    {
+        lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
+
+    public static WorldState CreateDefault()
+    {
+        var s = new WorldState
+        {
+            schemaVersion = 1,
+            worldId = "world",
+            worldName = "YourQuest",
+            canonLedger =
+                "Canon: Magic exists.\n" +
+                "The world responds to witnessed acts.\n" +
+                "Factions compete for relics.",
+            globalFlags = new Dictionary<string, float>(),
+            factions = new List<FactionRecord>(),
+            locations = new List<LocationRecord>(),
+            npcs = new List<NpcRecord>(),
+            worldQuests = new List<WorldQuestRecord>(),
+            currentRegionId = "region_unknown",
+            lastLLMRationale = "",
+            lastLLMConfidence = 0f
+        };
+        s.Touch();
+        return s;
+    }
+
+    // ---------- Lookups / Upserts ----------
+
+    public FactionRecord GetOrCreateFaction(string id, string name = null)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return null;
+        id = id.Trim();
+
+        for (int i = 0; i < factions.Count; i++)
+        {
+            var f = factions[i];
+            if (f != null && f.factionId == id)
+            {
+                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(f.name))
+                    f.name = name.Trim();
+                return f;
+            }
+        }
+
+        var created = new FactionRecord
+        {
+            factionId = id,
+            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
+            attitudeToPlayer = 0f,
+            status = "active",
+            flags = new Dictionary<string, float>()
+        };
+
+        factions.Add(created);
+        Touch();
+        return created;
+    }
+
+    public LocationRecord GetOrCreateLocation(string id, string name = null, string regionId = null)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return null;
+        id = id.Trim();
+
+        for (int i = 0; i < locations.Count; i++)
+        {
+            var l = locations[i];
+            if (l != null && l.locationId == id)
+            {
+                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(l.name))
+                    l.name = name.Trim();
+
+                if (!string.IsNullOrWhiteSpace(regionId) && string.IsNullOrWhiteSpace(l.regionId))
+                    l.regionId = regionId.Trim();
+
+                return l;
+            }
+        }
+
+        var created = new LocationRecord
+        {
+            locationId = id,
+            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
+            regionId = string.IsNullOrWhiteSpace(regionId) ? currentRegionId : regionId.Trim(),
+            state = "normal",
+            importance = 0.2f,
+            text = "",
+            flags = new Dictionary<string, float>()
+        };
+
+        locations.Add(created);
+        Touch();
+        return created;
+    }
+
+    public void SetFlag(string key, float value)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+        globalFlags[key] = value;
+        Touch();
+    }
+
+    public void IncFlag(string key, float delta)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+        globalFlags.TryGetValue(key, out float cur);
+        globalFlags[key] = cur + delta;
+        Touch();
+    }
+
+    // =========================================================
+    // ? Added: Delta application helpers used by WorldDeltaApplier
+    // =========================================================
+
+    public void ApplyFlagDelta(string key, string op, float value)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+
+        if (globalFlags == null) globalFlags = new Dictionary<string, float>();
+        globalFlags.TryGetValue(key, out float cur);
+
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        globalFlags[key] = next;
+        Touch();
+    }
+
+    /// <summary>
+    /// Applies a delta to a faction. Right now this drives attitude.
+    /// Text (if present) is treated as a compact "status" override if meaningful.
+    /// </summary>
+    public void ApplyFactionDelta(string factionId, string op, float value, string text = null)
+    {
+        if (string.IsNullOrWhiteSpace(factionId)) return;
+        var f = GetOrCreateFaction(factionId.Trim());
+        if (f == null) return;
+
+        float cur = f.attitudeToPlayer;
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        f.attitudeToPlayer = Mathf.Clamp(next, -1f, 1f);
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            // Keep this short + state-like. Don’t dump prose in here.
+            f.status = text.Trim();
+        }
+
+        Touch();
+    }
+
+    /// <summary>
+    /// Applies a delta to a location. Numeric affects importance.
+    /// valueText can optionally set state; text can update the location note.
+    /// </summary>
+    public void ApplyLocationDelta(string locationId, string op, float value, string valueText = null, string text = null)
+    {
+        if (string.IsNullOrWhiteSpace(locationId)) return;
+        var l = GetOrCreateLocation(locationId.Trim());
+        if (l == null) return;
+
+        float cur = l.importance;
+        float next = cur;
+        op = (op ?? "").Trim().ToLowerInvariant();
+
+        switch (op)
+        {
+            case "add": next = cur + value; break;
+            case "set": next = value; break;
+            case "mul": next = cur * value; break;
+            default: return;
+        }
+
+        l.importance = Mathf.Clamp(next, -1000f, 1000f);
+
+        if (!string.IsNullOrWhiteSpace(valueText))
+            l.state = valueText.Trim();
+
+        if (!string.IsNullOrWhiteSpace(text))
+            l.text = text.Trim();
+
+        Touch();
+    }
+}
+
+[Serializable]
+public class FactionRecord
+{
+    public string factionId;
+    public string name;
+
+    public float attitudeToPlayer = 0f;
+
+    public Dictionary<string, float> flags = new Dictionary<string, float>();
+
+    public string status = "active"; // active/hostile/allied/defeated
+}
+
+[Serializable]
+public class LocationRecord
+{
+    public string locationId;
+    public string name;
+    public string regionId;
+
+    public float importance = 0.2f;
+
+    public string state = "normal";
+
+    [TextArea(2, 6)]
+    public string text = "";
+
+    public Dictionary<string, float> flags = new Dictionary<string, float>();
+}
+
+[Serializable]
+public class NpcRecord
+{
+    public string npcId;
+    public string name;
+    public string factionId;
+    public string locationId;
+
+    public float affinityToPlayer = 0f;
+
+    public string status = "alive";
+    public Dictionary<string, float> flags = new Dictionary<string, float>();
+}
+
+[Serializable]
+public class WorldQuestRecord
+{
+    public string questId;
+    public string name;
+    public string description;
+    public string status; // offer/active/complete/failed
+    public string regionId;
+    public string[] tags;
+    public long updatedUnix;
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldStateManager.cs =====
+// WorldStateManager.cs
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using Newtonsoft.Json;
+
+/// <summary>
+/// Authoritative WorldState persistence + mutation API.
+/// Saves to Application.persistentDataPath/Save/world_state.json
+/// </summary>
+public class WorldStateManager : MonoBehaviour
+{
+    public static WorldStateManager Instance { get; private set; }
+
+    [Header("Persistence")]
+    public bool autosave = true;
+
+    [Tooltip("Optional: override filename if needed.")]
+    public string fileName = "world_state.json";
+
+    /// <summary>
+    /// Preferred API
+    /// </summary>
+    public WorldState State { get; private set; } = WorldState.CreateDefault();
+
+    /// <summary>
+    /// Back-compat for older scripts that reference WorldStateManager.Instance.state
+    /// </summary>
+    public WorldState state => State;
+
+    // -----------------------------
+    // Back-compat shims (IMPORTANT)
+    // -----------------------------
+    // Some scripts (including the WorldDeltaApplier you pasted) expect:
+    // - worldStateManager.worldState
+    // - worldStateManager.SaveWorldState()
+    public WorldState worldState => State;
+    public void SaveWorldState() => Save();
+
+    private string SaveDir => Path.Combine(Application.persistentDataPath, "Save");
+    private string SavePath => Path.Combine(SaveDir, fileName);
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+
+        Load();
+    }
+
+    // ---------------------------
+    // Load / Save
+    // ---------------------------
+
+    public void Load()
+    {
+        try
+        {
+            Directory.CreateDirectory(SaveDir);
+
+            if (!File.Exists(SavePath))
+            {
+                State = WorldState.CreateDefault();
+                Touch();
+                Save();
+                Debug.Log($"[WorldStateManager] Created new world state at {SavePath}");
+                return;
+            }
+
+            var json = File.ReadAllText(SavePath);
+            State = JsonConvert.DeserializeObject<WorldState>(json) ?? WorldState.CreateDefault();
+            Touch();
+            Debug.Log($"[WorldStateManager] Loaded world state from {SavePath}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[WorldStateManager] Load failed, creating default. " + ex.Message);
+            State = WorldState.CreateDefault();
+            Touch();
+            Save();
+        }
+    }
+
+    public void Save()
+    {
+        try
+        {
+            Directory.CreateDirectory(SaveDir);
+            Touch();
+
+            var json = JsonConvert.SerializeObject(State, Formatting.Indented);
+            File.WriteAllText(SavePath, json);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[WorldStateManager] Save failed: " + ex.Message);
+        }
+    }
+
+    private void Touch()
+    {
+        if (State == null) State = WorldState.CreateDefault();
+        State.Touch();
+    }
+
+    // ---------------------------
+    // Canon / Region
+    // ---------------------------
+
+    public void SetCurrentRegion(string regionId)
+    {
+        if (string.IsNullOrWhiteSpace(regionId)) return;
+        State.currentRegionId = regionId.Trim();
+        if (autosave) Save();
+    }
+
+    public void AppendCanon(string line, int maxLines = 40)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
+        line = line.Trim();
+
+        var lines = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(State.canonLedger))
+        {
+            var existing = State.canonLedger.Replace("\r", "").Split('\n');
+            for (int i = 0; i < existing.Length; i++)
+            {
+                var l = existing[i].Trim();
+                if (!string.IsNullOrWhiteSpace(l)) lines.Add(l);
+            }
+        }
+
+        lines.Add(line);
+
+        if (maxLines > 0 && lines.Count > maxLines)
+            lines.RemoveRange(0, lines.Count - maxLines);
+
+        State.canonLedger = string.Join("\n", lines);
+        if (autosave) Save();
+    }
+
+    // ---------------------------
+    // Flags (global numeric)
+    // ---------------------------
+
+    public void SetFlag(string key, float value)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+
+        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
+        State.globalFlags[key] = value;
+
+        if (autosave) Save();
+    }
+
+    public void IncFlag(string key, float delta)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        key = key.Trim();
+
+        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
+
+        if (!State.globalFlags.TryGetValue(key, out var cur))
+            cur = 0f;
+
+        State.globalFlags[key] = cur + delta;
+
+        if (autosave) Save();
+    }
+
+    public float GetFlag(string key, float fallback = 0f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return fallback;
+        key = key.Trim();
+
+        if (State.globalFlags == null) return fallback;
+        return State.globalFlags.TryGetValue(key, out var v) ? v : fallback;
+    }
+
+    // ---------------------------
+    // Factions
+    // ---------------------------
+
+    public FactionRecord EnsureFaction(string factionId, string name = null)
+    {
+        if (string.IsNullOrWhiteSpace(factionId)) return null;
+        return State.GetOrCreateFaction(factionId.Trim(), name);
+    }
+
+    public void SetFactionAttitude(string factionId, float value)
+    {
+        var f = EnsureFaction(factionId);
+        if (f == null) return;
+
+        f.attitudeToPlayer = Mathf.Clamp(value, -1f, 1f);
+        if (autosave) Save();
+    }
+
+    public void IncFactionAttitude(string factionId, float delta)
+    {
+        var f = EnsureFaction(factionId);
+        if (f == null) return;
+
+        f.attitudeToPlayer = Mathf.Clamp(f.attitudeToPlayer + delta, -1f, 1f);
+        if (autosave) Save();
+    }
+
+    public void SetFactionStatus(string factionId, string status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return;
+        var f = EnsureFaction(factionId);
+        if (f == null) return;
+
+        f.status = status.Trim();
+        if (autosave) Save();
+    }
+
+    // ---------------------------
+    // Locations
+    // ---------------------------
+
+    public LocationRecord EnsureLocation(string locationId, string name = null, string regionId = null)
+    {
+        if (string.IsNullOrWhiteSpace(locationId)) return null;
+        return State.GetOrCreateLocation(locationId.Trim(), name, regionId);
+    }
+
+    public void SetLocationState(string locationId, string state)
+    {
+        if (string.IsNullOrWhiteSpace(state)) return;
+
+        var l = EnsureLocation(locationId);
+        if (l == null) return;
+
+        l.state = state.Trim();
+        if (autosave) Save();
+    }
+
+    public void SetLocationImportance(string locationId, float value)
+    {
+        var l = EnsureLocation(locationId);
+        if (l == null) return;
+
+        l.importance = Mathf.Clamp(value, -1000f, 1000f);
+        if (autosave) Save();
+    }
+
+    public void IncLocationImportance(string locationId, float delta)
+    {
+        var l = EnsureLocation(locationId);
+        if (l == null) return;
+
+        l.importance = Mathf.Clamp(l.importance + delta, -1000f, 1000f);
+        if (autosave) Save();
+    }
+
+    public void SetLocationText(string locationId, string text)
+    {
+        var l = EnsureLocation(locationId);
+        if (l == null) return;
+
+        l.text = (text ?? "").Trim();
+        if (autosave) Save();
+    }
+}
+
+### Scripts/Gameplay/Player
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerController.cs =====
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+[DisallowMultipleComponent]
+[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
+public class PlayerController : MonoBehaviour
+{
+    public enum ViewMode { ThirdPerson, FirstPerson }
+
+    [Header("Mode")]
+    public ViewMode viewMode = ViewMode.ThirdPerson;
+    public Key toggleViewKey = Key.C;
+
+    [Header("References")]
+    public Transform cameraPivot;     // child of player (head height)
+    public Camera playerCamera;       // NOT parented to player
+    public ActionRecorder actionRecorder;
+
+    [Header("Look")]
+    public float sensitivityX = 0.12f;
+    public float sensitivityY = 0.10f;
+    public float lookSmoothing = 14f;
+    public float pitchMin = -75f;
+    public float pitchMax = 80f;
+
+    [Header("Movement")]
+    public float walkSpeed = 6f;
+    public float sprintSpeed = 8.5f;
+    public float acceleration = 35f;
+    public float deceleration = 45f;
+    public float airAcceleration = 12f;
+    public float airMaxSpeed = 6.5f;
+    public float rotationSharpness = 16f;
+
+    [Header("Jump")]
+    public float jumpVelocity = 6.5f;
+    public float coyoteTime = 0.12f;
+    public float jumpBuffer = 0.12f;
+    public float fallGravityMultiplier = 2.2f;
+    public float lowJumpMultiplier = 1.6f;
+
+    [Header("Grounding")]
+    public LayerMask groundMask = ~0;
+    public float groundProbeDistance = 0.25f;
+    public float maxGroundSlope = 55f;
+    public float stickToGroundForce = 10f;
+
+    [Header("Third Person Camera")]
+    public float thirdPersonDistance = 3.5f;
+    public float thirdPersonHeight = 1.6f;
+    public float shoulderOffset = 0.45f;
+    public float cameraSharpness = 18f;
+    public float cameraCollisionRadius = 0.18f;
+    public float cameraCollisionPadding = 0.05f;
+
+    [Header("FOV")]
+    public float firstPersonFov = 82f;
+    public float thirdPersonFov = 70f;
+    public float fovSharpness = 8f;
+
+    Rigidbody rb;
+    CapsuleCollider capsule;
+
+    Vector2 moveInput;
+    bool sprintHeld;
+    bool jumpPressed;
+    bool jumpHeld;
+
+    float yaw;
+    float pitch;
+    Vector2 smoothLook;
+    Vector2 lookVel;
+
+    bool grounded;
+    Vector3 groundNormal = Vector3.up;
+    float lastGroundedTime;
+    float lastJumpPressedTime;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        capsule = GetComponent<CapsuleCollider>();
+
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+        if (!playerCamera) playerCamera = Camera.main;
+
+        yaw = transform.eulerAngles.y;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    void Update()
+    {
+        ReadInput();
+        UpdateLook(Time.deltaTime);
+        CheckGrounded();
+
+        if (jumpPressed)
+            lastJumpPressedTime = Time.time;
+
+        if (Keyboard.current != null && Keyboard.current[toggleViewKey].wasPressedThisFrame)
+            viewMode = viewMode == ViewMode.FirstPerson ? ViewMode.ThirdPerson : ViewMode.FirstPerson;
+
+        if (actionRecorder)
+        {
+            if (moveInput.sqrMagnitude > 0.01f) actionRecorder.RecordMove();
+            if (jumpPressed) actionRecorder.RecordJump();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        ApplyMovement(Time.fixedDeltaTime);
+        ApplyJump();
+        ApplyExtraGravity();
+    }
+
+    void LateUpdate()
+    {
+        UpdateCamera(Time.deltaTime);
+    }
+
+    // ---------------- INPUT ----------------
+
+    void ReadInput()
+    {
+        moveInput = Vector2.zero;
+
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.isPressed) moveInput.y += 1;
+            if (Keyboard.current.sKey.isPressed) moveInput.y -= 1;
+            if (Keyboard.current.dKey.isPressed) moveInput.x += 1;
+            if (Keyboard.current.aKey.isPressed) moveInput.x -= 1;
+
+            sprintHeld = Keyboard.current.leftShiftKey.isPressed;
+            jumpPressed = Keyboard.current.spaceKey.wasPressedThisFrame;
+            jumpHeld = Keyboard.current.spaceKey.isPressed;
+        }
+
+        moveInput = Vector2.ClampMagnitude(moveInput, 1f);
+    }
+
+    // ---------------- LOOK ----------------
+
+    void UpdateLook(float dt)
+    {
+        if (Mouse.current == null) return;
+
+        Vector2 raw = Mouse.current.delta.ReadValue();
+        Vector2 target = new(raw.x * sensitivityX, raw.y * sensitivityY);
+
+        smoothLook = Vector2.SmoothDamp(
+            smoothLook, target, ref lookVel,
+            1f / Mathf.Max(1f, lookSmoothing), Mathf.Infinity, dt
+        );
+
+        yaw += smoothLook.x;
+        pitch -= smoothLook.y;
+        pitch = Mathf.Clamp(pitch, pitchMin, pitchMax);
+
+        cameraPivot.rotation = Quaternion.Euler(pitch, yaw, 0f);
+
+        if (viewMode == ViewMode.FirstPerson)
+            transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+    }
+
+    // ---------------- GROUND ----------------
+
+    void CheckGrounded()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+        grounded = false;
+
+        if (Physics.SphereCast(origin, capsule.radius * 0.95f, Vector3.down,
+            out RaycastHit hit, groundProbeDistance, groundMask))
+        {
+            float slope = Vector3.Angle(hit.normal, Vector3.up);
+            if (slope <= maxGroundSlope)
+            {
+                grounded = true;
+                groundNormal = hit.normal;
+                lastGroundedTime = Time.time;
+
+                if (rb.linearVelocity.y <= 0f)
+                    rb.AddForce(Vector3.down * stickToGroundForce, ForceMode.Acceleration);
+            }
+        }
+    }
+
+    // ---------------- MOVEMENT ----------------
+
+    void ApplyMovement(float dt)
+    {
+        Vector3 forward = cameraPivot.forward;
+        Vector3 right = cameraPivot.right;
+        forward.y = right.y = 0;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 wishDir = (forward * moveInput.y + right * moveInput.x).normalized;
+        float targetSpeed = sprintHeld ? sprintSpeed : walkSpeed;
+
+        Vector3 vel = rb.linearVelocity;
+        Vector3 lateral = new(vel.x, 0, vel.z);
+
+        float accel = grounded ? acceleration : airAcceleration;
+        float max = grounded ? targetSpeed : airMaxSpeed;
+
+        Vector3 desired = wishDir * max;
+        lateral = Vector3.MoveTowards(lateral, desired, accel * dt);
+
+        rb.linearVelocity = new Vector3(lateral.x, vel.y, lateral.z);
+
+        if (viewMode == ViewMode.ThirdPerson && wishDir.sqrMagnitude > 0.01f)
+        {
+            Quaternion rot = Quaternion.LookRotation(wishDir);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, rot,
+                1f - Mathf.Exp(-rotationSharpness * dt)
+            );
+        }
+    }
+
+    void ApplyJump()
+    {
+        bool canJump =
+            (Time.time - lastGroundedTime) <= coyoteTime &&
+            (Time.time - lastJumpPressedTime) <= jumpBuffer;
+
+        if (!canJump) return;
+
+        lastJumpPressedTime = -999;
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpVelocity, rb.linearVelocity.z);
+    }
+
+    void ApplyExtraGravity()
+    {
+        if (grounded) return;
+
+        if (rb.linearVelocity.y < 0)
+            rb.AddForce(Physics.gravity * (fallGravityMultiplier - 1), ForceMode.Acceleration);
+        else if (!jumpHeld)
+            rb.AddForce(Physics.gravity * (lowJumpMultiplier - 1), ForceMode.Acceleration);
+    }
+
+    // ---------------- CAMERA ----------------
+
+    void UpdateCamera(float dt)
+    {
+        if (!playerCamera || !cameraPivot) return;
+
+        float targetFov = viewMode == ViewMode.FirstPerson ? firstPersonFov : thirdPersonFov;
+        playerCamera.fieldOfView = Mathf.Lerp(
+            playerCamera.fieldOfView, targetFov,
+            1f - Mathf.Exp(-fovSharpness * dt)
+        );
+
+        if (viewMode == ViewMode.FirstPerson)
+        {
+            playerCamera.transform.SetPositionAndRotation(
+                cameraPivot.position, cameraPivot.rotation
+            );
+            return;
+        }
+
+        Vector3 pivot = cameraPivot.position + Vector3.up * thirdPersonHeight;
+        Vector3 shoulder = cameraPivot.right * shoulderOffset;
+        Vector3 desired = pivot + shoulder - cameraPivot.forward * thirdPersonDistance;
+
+        Vector3 from = pivot + shoulder;
+        Vector3 dir = desired - from;
+        float dist = dir.magnitude;
+        dir.Normalize();
+
+        Vector3 finalPos = desired;
+        if (Physics.SphereCast(from, cameraCollisionRadius, dir, out RaycastHit hit, dist, groundMask))
+            finalPos = from + dir * Mathf.Max(0, hit.distance - cameraCollisionPadding);
+
+        playerCamera.transform.position = Vector3.Lerp(
+            playerCamera.transform.position, finalPos,
+            1f - Mathf.Exp(-cameraSharpness * dt)
+        );
+
+        Quaternion lookRot = Quaternion.LookRotation(
+            (pivot - playerCamera.transform.position).normalized
+        );
+
+        playerCamera.transform.rotation = Quaternion.Slerp(
+            playerCamera.transform.rotation, lookRot,
+            1f - Mathf.Exp(-cameraSharpness * dt)
+        );
+    }
+}

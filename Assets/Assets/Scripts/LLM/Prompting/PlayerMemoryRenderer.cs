@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 public static class PlayerMemoryRenderer
 {
@@ -9,9 +11,14 @@ public static class PlayerMemoryRenderer
         var sb = new StringBuilder();
         sb.AppendLine("PLAYER_SNAPSHOT");
         sb.AppendLine($"Name: {s.displayName}");
-        sb.AppendLine($"Level: {s.level}  XP: {s.xp:0}/{s.xpToNext:0}");
+
+        // xp is int; xpToNext is int; formatting with :0 is unnecessary (and can confuse)
+        sb.AppendLine($"Level: {s.level}  XP: {s.xp}/{(s.xp + s.xpToNext)} (to next {s.xpToNext})");
+
         sb.AppendLine($"Scene: {s.currentScene}  Region: {s.currentRegionId}");
-        sb.AppendLine($"Pos: [{s.lastPosition[0]:0.0}, {s.lastPosition[1]:0.0}, {s.lastPosition[2]:0.0}]");
+
+        // ? Vector3 is not indexable, use .x .y .z
+        sb.AppendLine($"Pos: [{s.lastPosition.x:0.0}, {s.lastPosition.y:0.0}, {s.lastPosition.z:0.0}]");
         sb.AppendLine();
 
         // Stats
@@ -44,23 +51,32 @@ public static class PlayerMemoryRenderer
         // Skills (top tiers first)
         sb.AppendLine("SKILLS (top/highest tiers)");
         int added = 0;
+
         if (s.skills != null && s.skills.Count > 0)
         {
-            // Simple: list highest tiers per family
-            // (not perfect sorting, but stable)
+            // Track families we already printed so we don't list duplicates
+            var printedFamilies = new HashSet<string>();
+
             for (int i = 0; i < s.skills.Count && added < maxSkills; i++)
             {
                 var r = s.skills[i];
                 if (r == null || !r.unlocked) continue;
 
-                // show highest only
-                var highest = s.FindHighestTierInFamily(r.familyId);
-                if (highest != null && highest.skillId != r.skillId) continue;
+                string fam = string.IsNullOrWhiteSpace(r.familyId) ? $"__nofam__:{r.skillId}" : r.familyId;
+
+                // Only show highest tier per family
+                int highestTier = s.FindHighestTierInFamily(r.familyId);
+                if (highestTier > 0 && r.tier != highestTier) continue;
+
+                // Only print one skill per family
+                if (printedFamilies.Contains(fam)) continue;
+                printedFamilies.Add(fam);
 
                 sb.AppendLine($"- {r.name} | Type {r.type} | Tier {r.tier} | Family {Short(r.familyId)}");
                 added++;
             }
         }
+
         if (added == 0) sb.AppendLine("<none>");
         sb.AppendLine();
 
@@ -89,7 +105,10 @@ public static class PlayerMemoryRenderer
             {
                 var q = s.quests[i];
                 if (q == null) continue;
-                if (q.status == "complete" || q.status == "failed") continue;
+
+                // Treat both "complete" and "completed" as done; same for failed
+                string status = (q.status ?? "").Trim().ToLowerInvariant();
+                if (status == "complete" || status == "completed" || status == "failed") continue;
 
                 sb.AppendLine($"- [{q.status}] {q.name}: {q.description}");
                 qCount++;
