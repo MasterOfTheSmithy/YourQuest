@@ -1,12 +1,10 @@
 # INDEX
 # Group: Scripts
-# Generated: 2026-01-01 19:23:33
+# Generated: 2026-01-03 10:52:59
 # --------------------------------
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerInputActions.cs (PART 1)
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Input\InputIntentRecorder.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\PlayerBehaviorRollup.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\UpgradeOfferManager.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\LLMThinkCycle.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorDecisionApplier.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorPromptBuilder.cs
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerInputActions.cs (PART 1) =====
 
@@ -738,871 +736,1022 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
 }
 
 
-### Scripts/Gameplay/Systems/Input
+### Scripts/Gameplay/Systems/Director
 
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Input\InputIntentRecorder.cs =====
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorDecisionApplier.cs =====
+// FILE: Assets/Assets/Scripts/Gameplay/Systems/Director/DirectorDecisionApplier.cs
+
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
-/// Bridges Unity InputActions ? ActionRecorder as INTENT signals.
-/// Works with PlayerInput notification behaviors:
-/// - Send Messages / Broadcast Messages (uses On<ActionName> methods)
-/// - Invoke Unity Events / Invoke C# Events (subscribes to InputAction callbacks)
+/// Applies the Director LLM JSON decision to game state.
+/// Now supports "allowedDecisions" gating so the LLM cannot force progression/world
+/// when the ThinkCycle says it's not justified.
 /// </summary>
-[RequireComponent(typeof(PlayerInput))]
-public class InputIntentRecorder : MonoBehaviour
+public class DirectorDecisionApplier : MonoBehaviour
 {
-    private PlayerInput playerInput;
-    private ActionRecorder recorder;
+    [Header("Refs")]
+    public BalanceConfig balanceConfig;
 
-    // Cached actions (used in non-SendMessages modes)
-    private InputAction move;
-    private InputAction jump;
-    private InputAction sprint;
-    private InputAction crouch;
-    private InputAction dodge;
-    private InputAction attack;
-    private InputAction aim;
-    private InputAction interact;
+    [Header("World")]
+    public WorldDeltaApplier worldDeltaApplier;
 
-    // Movement value cached for SendMessages mode (OnMove)
-    private Vector2 moveValue;
+    [Header("Progression")]
+    public ProgressionDecisionApplier progressionDecisionApplier;
 
-    [Header("Thresholds")]
-    [Tooltip("Movement magnitude required to count as 'moving'.")]
-    public float moveStartThreshold = 0.15f;
+    [Header("Debug")]
+    public bool logRejects = true;
 
-    [Tooltip("Minimum seconds between repeated movement intent events.")]
-    public float moveIntentCooldown = 0.6f;
-
-    private bool wasMoving;
-    private float lastMoveIntentTime;
-
-    private bool usingSendMessages;
-
-    private void Awake()
+    public bool TryApplyDirectorJson(string raw, out string applied, out string reason)
     {
-        playerInput = GetComponent<PlayerInput>();
-        recorder = ActionRecorder.Instance;
-
-        usingSendMessages =
-            playerInput.notificationBehavior == PlayerNotifications.SendMessages ||
-            playerInput.notificationBehavior == PlayerNotifications.BroadcastMessages;
+        // Backwards-compatible default: allow all.
+        return TryApplyDirectorJson(raw, out applied, out reason, allowedDecisions: null);
     }
 
-    private void OnEnable()
+    /// <summary>
+    /// allowedDecisions: null => allow all. Otherwise must include decision string.
+    /// Valid strings: "none", "world", "progression"
+    /// </summary>
+    public bool TryApplyDirectorJson(string raw, out string applied, out string reason, HashSet<string> allowedDecisions)
     {
-        // If using SendMessages/BroadcastMessages, Unity will call OnMove/OnJump/etc automatically.
-        // Do NOT subscribe to actions in this mode (avoids double-recording).
-        if (usingSendMessages) return;
+        applied = "none";
+        reason = "";
 
-        if (playerInput == null || playerInput.actions == null)
+        if (string.IsNullOrWhiteSpace(raw))
         {
-            Debug.LogWarning("[InputIntentRecorder] PlayerInput/actions missing.");
-            return;
+            reason = "Empty response.";
+            return false;
         }
 
-        var map = playerInput.actions;
+        string cleaned = StripCodeFences(raw).Trim();
 
-        // These names must match your InputActions asset action names
-        move = SafeGet(map, "Move");
-        jump = SafeGet(map, "Jump");
-        sprint = SafeGet(map, "Sprint");
-        crouch = SafeGet(map, "Crouch");
-        dodge = SafeGet(map, "Dodge");
-        attack = SafeGet(map, "Attack");
-        aim = SafeGet(map, "Aim");
-        interact = SafeGet(map, "Interact");
-
-        if (jump != null) jump.performed += OnJumpAction;
-        if (sprint != null) sprint.performed += OnSprintAction;
-        if (crouch != null) crouch.performed += OnCrouchAction;
-        if (dodge != null) dodge.performed += OnDodgeAction;
-        if (attack != null) attack.performed += OnAttackAction;
-        if (aim != null)
+        if (!TryExtractFirstJsonObject(cleaned, out string jsonText))
         {
-            aim.performed += OnAimStartAction;
-            aim.canceled += OnAimEndAction;
-        }
-        if (interact != null) interact.performed += OnInteractAction;
-    }
-
-    private void OnDisable()
-    {
-        if (usingSendMessages) return;
-
-        // Guard everything (prevents NullReferenceExceptions)
-        if (jump != null) jump.performed -= OnJumpAction;
-        if (sprint != null) sprint.performed -= OnSprintAction;
-        if (crouch != null) crouch.performed -= OnCrouchAction;
-        if (dodge != null) dodge.performed -= OnDodgeAction;
-        if (attack != null) attack.performed -= OnAttackAction;
-
-        if (aim != null)
-        {
-            aim.performed -= OnAimStartAction;
-            aim.canceled -= OnAimEndAction;
+            reason = "Could not find a JSON object in response.";
+            if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nRAW:\n" + raw);
+            return false;
         }
 
-        if (interact != null) interact.performed -= OnInteractAction;
-    }
-
-    private void Update()
-    {
-        HandleMovementIntent();
-    }
-
-    private void HandleMovementIntent()
-    {
-        Vector2 v;
-
-        if (usingSendMessages)
-        {
-            v = moveValue; // set by OnMove(InputValue)
-        }
-        else
-        {
-            if (move == null) return;
-            v = move.ReadValue<Vector2>();
-        }
-
-        bool isMoving = v.magnitude >= moveStartThreshold;
-
-        // Movement started
-        if (isMoving && !wasMoving && Time.time - lastMoveIntentTime >= moveIntentCooldown)
-        {
-            recorder?.RecordMove();
-            lastMoveIntentTime = Time.time;
-        }
-
-        // Movement stopped
-        if (!isMoving && wasMoving)
-        {
-            recorder?.RecordMove(); // stop is meaningful
-        }
-
-        wasMoving = isMoving;
-    }
-
-    // -------------------------
-    // Send Messages entry points
-    // (Unity calls these when PlayerInput notificationBehavior = Send Messages)
-    // -------------------------
-
-    public void OnMove(InputValue value)
-    {
-        moveValue = value.Get<Vector2>();
-    }
-
-    public void OnJump(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordJump();
-    }
-
-    public void OnSprint(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordMove();
-    }
-
-    public void OnCrouch(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordCrouch();
-    }
-
-    public void OnDodge(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordDodge();
-    }
-
-    public void OnAttack(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordCombat(null);
-    }
-
-    public void OnAim(InputValue value)
-    {
-        // In SendMessages, you usually only get performed; treat both press/release as posture change.
-        recorder?.RecordMove();
-    }
-
-    public void OnInteract(InputValue value)
-    {
-        if (value.isPressed) recorder?.RecordInteract(null);
-    }
-
-    // -------------------------
-    // InputAction subscription handlers
-    // (used when notificationBehavior = Invoke Unity Events / Invoke C# Events)
-    // -------------------------
-
-    private void OnJumpAction(InputAction.CallbackContext ctx) => recorder?.RecordJump();
-    private void OnSprintAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnCrouchAction(InputAction.CallbackContext ctx) => recorder?.RecordCrouch();
-    private void OnDodgeAction(InputAction.CallbackContext ctx) => recorder?.RecordDodge();
-    private void OnAttackAction(InputAction.CallbackContext ctx) => recorder?.RecordCombat(null);
-    private void OnAimStartAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnAimEndAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnInteractAction(InputAction.CallbackContext ctx) => recorder?.RecordInteract(null);
-
-    private static InputAction SafeGet(InputActionAsset asset, string actionName)
-    {
+        JObject root;
         try
         {
-            return asset[actionName];
+            root = JObject.Parse(jsonText);
         }
-        catch
+        catch (Exception e)
         {
-            Debug.LogWarning($"[InputIntentRecorder] InputAction '{actionName}' not found in asset.");
-            return null;
+            reason = "JSON parse failed: " + e.Message;
+            if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nJSON:\n" + jsonText);
+            return false;
         }
+
+        string decision = ((string)root["decision"] ?? "none").Trim().ToLowerInvariant();
+
+        // --- HARD GATE ---
+        if (allowedDecisions != null && !allowedDecisions.Contains(decision))
+        {
+            reason = $"Decision '{decision}' is not allowed right now. Allowed: [{string.Join(", ", allowedDecisions)}]";
+            if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nJSON:\n" + jsonText);
+            return false;
+        }
+
+        if (decision == "none")
+        {
+            applied = "none";
+            reason = (string)root["reason"] ?? "none";
+            return true;
+        }
+
+        if (decision == "world")
+        {
+            JObject payload = root["payload"] as JObject;
+            JObject worldDelta = payload?["worldDelta"] as JObject;
+
+            if (worldDelta == null)
+            {
+                reason = "decision=world but payload.worldDelta missing.";
+                if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nJSON:\n" + jsonText);
+                return false;
+            }
+
+            // FIX #1: WorldDeltaApplier expects string (your error: JObject -> string)
+            string worldDeltaJson = worldDelta.ToString(Formatting.None);
+
+            // FIX #2: Definite assignment: do NOT declare out vars inside a short-circuit expression
+            string wReason = "";
+            bool ok = false;
+
+            if (worldDeltaApplier != null)
+            {
+                ok = worldDeltaApplier.TryApply(worldDeltaJson, out wReason);
+            }
+            else
+            {
+                wReason = "WorldDeltaApplier ref is null.";
+            }
+
+            applied = "world";
+            reason = ok ? wReason : ("World apply failed: " + wReason);
+            return ok;
+        }
+
+        if (decision == "progression")
+        {
+            JObject payload = root["payload"] as JObject;
+            JObject progression = payload?["progression"] as JObject;
+
+            if (progression == null)
+            {
+                reason = "decision=progression but payload.progression missing.";
+                if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nJSON:\n" + jsonText);
+                return false;
+            }
+
+            // Keep your pipeline consistent: progression applier takes raw JSON string
+            string progJson = progression.ToString(Formatting.None);
+
+            // FIX #3: Definite assignment again
+            string progApplied = "progression";
+            string pReason = "";
+            bool ok = false;
+
+            if (progressionDecisionApplier != null)
+            {
+                ok = progressionDecisionApplier.TryApply(progJson, out progApplied, out pReason);
+            }
+            else
+            {
+                pReason = "ProgressionDecisionApplier ref is null.";
+            }
+
+            applied = ok ? progApplied : "progression";
+            reason = ok ? pReason : ("Progression apply failed: " + pReason);
+            return ok;
+        }
+
+        reason = $"Unknown decision '{decision}'.";
+        if (logRejects) Debug.LogWarning("[DirectorDecisionApplier] Reject: " + reason + "\nJSON:\n" + jsonText);
+        return false;
+    }
+
+    private static string StripCodeFences(string s)
+    {
+        // Removes ```json ... ``` wrappers if present, without being fragile.
+        // Also handles triple backticks without language.
+        s = s.Replace("\r\n", "\n");
+
+        if (s.Contains("```"))
+        {
+            // Remove all fence markers and language tags.
+            // Example: ```json\n{...}\n```
+            s = s.Replace("```json", "");
+            s = s.Replace("```JSON", "");
+            s = s.Replace("```", "");
+        }
+
+        return s;
+    }
+
+    private static bool TryExtractFirstJsonObject(string text, out string json)
+    {
+        json = null;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        int start = text.IndexOf('{');
+        if (start < 0) return false;
+
+        int depth = 0;
+        bool inString = false;
+        bool escape = false;
+
+        for (int i = start; i < text.Length; i++)
+        {
+            char c = text[i];
+
+            if (inString)
+            {
+                if (escape) { escape = false; continue; }
+                if (c == '\\') { escape = true; continue; }
+                if (c == '"') { inString = false; continue; }
+                continue;
+            }
+            else
+            {
+                if (c == '"') { inString = true; continue; }
+
+                if (c == '{') depth++;
+                else if (c == '}') depth--;
+
+                if (depth == 0)
+                {
+                    json = text.Substring(start, i - start + 1);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
-### Scripts/Gameplay/Systems/Progression
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\PlayerBehaviorRollup.cs =====
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorPromptBuilder.cs =====
 using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
 /// <summary>
-/// PlayerBehaviorRollup:
-/// - Reads EventAccumulator ActionEvents
-/// - Converts older events into a compact, long-term behavior ledger stored in PlayerState
-/// - Prunes those older events from the short-term buffer
-///
-/// This keeps:
-/// - buffer = "short-term, detailed evidence"
-/// - ledger = "long-term, compressed evidence"
+/// Builds the Director prompt (world snapshot + player snapshot + action/behavior ledgers + triggers).
+/// Also determines allowed decisions based on computed evidence/triggers.
+/// 
+/// This intentionally avoids "EXAMPLE" blocks, which cause models to copy placeholder values ("string")
+/// and re-introduce code fences. We instead give a strict schema contract.
 /// </summary>
-public class PlayerBehaviorRollup : MonoBehaviour
+public class DirectorPromptBuilder : MonoBehaviour
 {
-    [Header("Window")]
-    [Tooltip("Keep the last N minutes in the short-term buffer. Older than this gets rolled into the ledger.")]
-    public int keepMinutesInBuffer = 30;
-
-    [Tooltip("Max ledger lines to keep in PlayerState.")]
-    public int maxLedgerLines = 60;
-
-    [Header("Refs")]
-    public EventAccumulator accumulator;
+    [Header("Refs (optional but recommended)")]
+    public WorldStateManager worldStateManager;
     public PlayerStateManager playerStateManager;
 
-    [Header("Debug")]
-    public bool logRollups = false;
-
-    private void Awake()
-    {
-        if (accumulator == null) accumulator = FindFirstObjectByType<EventAccumulator>();
-        if (playerStateManager == null) playerStateManager = FindFirstObjectByType<PlayerStateManager>();
-    }
-
-    /// <summary>
-    /// Call this periodically (or right before a progression/world think) to keep evidence clean.
-    /// </summary>
-    public void RollupIfNeeded()
-    {
-        if (accumulator == null || playerStateManager == null) return;
-        if (playerStateManager.state == null) return;
-
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        long cutoff = now - (keepMinutesInBuffer * 60L);
-
-        var events = accumulator.GetEvents();
-        if (events == null || events.Count == 0) return;
-
-        // Collect older events
-        var older = new List<ActionEvent>(256);
-        for (int i = 0; i < events.Count; i++)
-        {
-            var e = events[i];
-            if (e == null) continue;
-            if (e.UnixTime < cutoff)
-                older.Add(e);
-        }
-
-        if (older.Count == 0) return;
-
-        string line = BuildLedgerLine(older);
-
-        // Write ledger evidence
-        var ps = playerStateManager.state;
-        ps.AddLedgerLine(line, maxLedgerLines);
-
-        // Update counters (optional but good for balancing)
-        ApplyCounters(ps, older);
-
-        ps.lastLedgerRollupUnix = now;
-        ps.Touch();
-        if (playerStateManager.autosave) playerStateManager.Save();
-
-        // Prune rolled events out of buffer
-        int removed = accumulator.PruneEventsBeforeUnix(cutoff);
-
-        if (logRollups)
-            Debug.Log($"[PlayerBehaviorRollup] Rolled {older.Count} events into ledger; pruned {removed} events.\nLedger: {line}");
-    }
-
-    private static string BuildLedgerLine(List<ActionEvent> older)
-    {
-        // Group by verb + region
-        var counts = new Dictionary<string, int>(128);
-        var regionCounts = new Dictionary<string, int>(64);
-
-        long minT = long.MaxValue;
-        long maxT = 0;
-
-        for (int i = 0; i < older.Count; i++)
-        {
-            var e = older[i];
-            if (e == null) continue;
-
-            string verb = string.IsNullOrWhiteSpace(e.Verb) ? "unknown" : e.Verb.Trim().ToLowerInvariant();
-            string region = string.IsNullOrWhiteSpace(e.RegionId) ? "region_unknown" : e.RegionId.Trim().ToLowerInvariant();
-
-            string key = $"{verb}@{region}";
-            counts.TryGetValue(key, out int cur);
-            counts[key] = cur + 1;
-
-            regionCounts.TryGetValue(region, out int rcur);
-            regionCounts[region] = rcur + 1;
-
-            if (e.UnixTime < minT) minT = e.UnixTime;
-            if (e.UnixTime > maxT) maxT = e.UnixTime;
-        }
-
-        // pick top region
-        string topRegion = "region_unknown";
-        int topRegionCount = 0;
-        foreach (var kv in regionCounts)
-        {
-            if (kv.Value > topRegionCount)
-            {
-                topRegion = kv.Key;
-                topRegionCount = kv.Value;
-            }
-        }
-
-        // pick top 3 behaviors
-        var top = new List<KeyValuePair<string, int>>(counts);
-        top.Sort((a, b) => b.Value.CompareTo(a.Value));
-
-        var sb = new StringBuilder(512);
-        sb.Append($"[{UnixToShortTime(minT)}–{UnixToShortTime(maxT)}] ");
-        sb.Append($"Mostly in {topRegion}. ");
-
-        int take = Mathf.Min(3, top.Count);
-        for (int i = 0; i < take; i++)
-        {
-            var kv = top[i];
-            sb.Append(kv.Key);
-            sb.Append(" x");
-            sb.Append(kv.Value);
-            if (i < take - 1) sb.Append(", ");
-        }
-
-        return sb.ToString();
-    }
-
-    private static string UnixToShortTime(long unix)
-    {
-        if (unix <= 0) return "??:??";
-        try
-        {
-            var dt = DateTimeOffset.FromUnixTimeSeconds(unix).ToLocalTime();
-            return dt.ToString("HH:mm");
-        }
-        catch
-        {
-            return "??:??";
-        }
-    }
-
-    private static void ApplyCounters(PlayerState ps, List<ActionEvent> older)
-    {
-        if (ps == null) return;
-
-        for (int i = 0; i < older.Count; i++)
-        {
-            var e = older[i];
-            if (e == null) continue;
-
-            string verb = string.IsNullOrWhiteSpace(e.Verb) ? "unknown" : e.Verb.Trim().ToLowerInvariant();
-            string region = string.IsNullOrWhiteSpace(e.RegionId) ? "region_unknown" : e.RegionId.Trim().ToLowerInvariant();
-
-            ps.IncCounter($"verb:{verb}", 1f);
-            ps.IncCounter($"region:{region}", 1f);
-
-            // If you later add richer tags (threat, stance, tool, etc.), increment them here too.
-        }
-    }
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\UpgradeOfferManager.cs =====
-using System.Collections.Generic;
-using UnityEngine;
-
-/// <summary>
-/// Holds pending upgrade offers and provides a simple accept/decline flow.
-/// Swap OnGUI out later for a proper UI panel.
-/// </summary>
-public class UpgradeOfferManager : MonoBehaviour
-{
-    public static UpgradeOfferManager Instance { get; private set; }
-
-    [Header("References")]
-    public PlayerProfile playerProfile;
-
-    private readonly Queue<UpgradeOffer> offers = new();
-    private UpgradeOffer? activeOffer;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-    }
-
-    private void Update()
-    {
-        if (activeOffer == null && offers.Count > 0)
-            activeOffer = offers.Dequeue();
-    }
-
-    /// <summary>
-    /// Called when an upgrade (Tier 2+) is committed.
-    /// Creates an offer instead of auto replacing.
-    /// </summary>
-    public void OfferReplacementIfRelevant(SkillData newSkill, SkillData parentSkill)
-    {
-        if (newSkill == null || parentSkill == null) return;
-        if (playerProfile == null)
-        {
-            Debug.LogWarning("[UpgradeOffer] No PlayerProfile assigned.");
-            return;
-        }
-
-        var equippedId = playerProfile.GetEquippedSkillId(newSkill.type);
-
-        bool parentEquipped = !string.IsNullOrWhiteSpace(equippedId) && equippedId == parentSkill.skillId;
-        bool slotOccupied = !string.IsNullOrWhiteSpace(equippedId);
-
-        if (!slotOccupied)
-        {
-            playerProfile.EquipSkill(newSkill);
-            PlayerStateManager.Instance?.EquipSkill(newSkill);
-            return;
-        }
-
-        offers.Enqueue(new UpgradeOffer
-        {
-            newSkill = newSkill,
-            parentSkill = parentSkill,
-            currentlyEquippedSkillId = equippedId,
-            reason = parentEquipped
-                ? "Upgraded equipped skill"
-                : "Higher-tier option for this slot"
-        });
-    }
-
-    private void Accept()
-    {
-        if (activeOffer == null) return;
-        var offer = activeOffer.Value;
-
-        playerProfile.ReplaceEquippedSkill(offer.newSkill);
-        PlayerStateManager.Instance?.EquipSkill(offer.newSkill);
-
-        activeOffer = null;
-    }
-
-    private void Decline()
-    {
-        activeOffer = null;
-    }
-
-    private void OnGUI()
-    {
-        if (activeOffer == null) return;
-        var offer = activeOffer.Value;
-
-        GUILayout.BeginArea(new Rect(20, 20, 520, 160), GUI.skin.box);
-        GUILayout.Label("<b>Upgrade Available</b>", new GUIStyle(GUI.skin.label) { richText = true });
-
-        GUILayout.Label(
-            $"New: {offer.newSkill.skillName} (Tier {offer.newSkill.tier})\n" +
-            $"Upgrades: {offer.parentSkill.skillName} (Tier {offer.parentSkill.tier})\n" +
-            $"Slot: {offer.newSkill.type}\n" +
-            $"Reason: {offer.reason}"
-        );
-
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Replace Equipped")) Accept();
-        if (GUILayout.Button("Keep Current")) Decline();
-        GUILayout.EndHorizontal();
-
-        GUILayout.EndArea();
-    }
-
-    public struct UpgradeOffer
-    {
-        public SkillData newSkill;
-        public SkillData parentSkill;
-        public string currentlyEquippedSkillId;
-        public string reason;
-    }
-}
-
-### Scripts/Gameplay/Systems/World
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\LLMThinkCycle.cs =====
-// Assets/Assets/Scripts/Gameplay/Systems/World/LLMThinkCycle.cs
-
-using System.Text;
-using UnityEngine;
-
-public class LLMThinkCycle : MonoBehaviour
-{
-    [Header("References")]
-    public WorldDeltaApplier worldDeltaApplier;
-
-    [Header("Situation (Highly Recommended)")]
+    [Tooltip("Provides a compact ground-truth snapshot JSON string (and/or supporting info).")]
     public SituationSnapshotBuilder situationSnapshotBuilder;
 
-    [Header("Timing")]
-    public float thinkEverySeconds = 12f;
-    public float minTotalSignificance = 4f;
+    [Tooltip("Holds aggregated action counts/significance.")]
+    public EventAccumulator eventAccumulator;
 
-    [Header("Safety")]
+    [Header("Director Settings")]
+    [TextArea(2, 10)]
+    public string canonLedger = "Canon: Magic exists. The world responds to witnessed acts. Factions compete for relics.";
+
+    [Tooltip("If world significance >= this, world changes become eligible.")]
+    public float worldSignificanceThreshold = 4.0f;
+
+    [Tooltip("If progression score normalized >= this, progression becomes eligible.")]
     [Range(0f, 1f)]
-    public float minConfidenceToApply = 0.25f;
+    public float progressionThreshold = 0.75f;
 
-    [Header("Prompt Budgeting")]
-    public int maxSituationChars = 2600;
-    public int maxSummaryChars = 900;
-    public int maxLedgerChars = 900;
+    [Tooltip("If true, we allow 'none' always. Recommended.")]
+    public bool alwaysAllowNone = true;
 
-    [Header("Queue / Contention Control")]
-    [Tooltip("If true, this cycle won't enqueue while LLMClient is busy/queued.")]
-    public bool requireIdleLLM = true;
-
-    [Tooltip("If true, when busy, we retry soon instead of skipping an entire think interval.")]
-    public bool retrySoonWhenBusy = true;
-
-    [Tooltip("Delay (seconds) between retry attempts while busy.")]
-    public float busyRetryDelay = 0.5f;
+    [Header("Output Budget")]
+    [Tooltip("Trims long sections to help smaller models not melt. Still keeps full schema rules.")]
+    public int maxNotesChars = 1200;
 
     [Header("Debug")]
-    public bool logPrompt = false;
-    public bool logRawResponse = true;
-    public bool clearEventsAfterApply = true;
+    public bool logBuiltPrompt = false;
 
-    private float nextThinkTime;
+    // Cached last-computed gating info
+    private TriggerSnapshot _lastTriggers;
 
-    // Prevent retry spirals
-    private bool inRepair = false;
-
-    private void Awake()
+    /// <summary>
+    /// DirectorThinkCycle calls this to build the full prompt for the LLM.
+    /// </summary>
+    public string BuildDirectorPrompt()
     {
-        if (worldDeltaApplier == null)
-            worldDeltaApplier = FindFirstObjectByType<WorldDeltaApplier>();
+        var sb = new StringBuilder(4096);
 
-        if (worldDeltaApplier != null)
-            worldDeltaApplier.minConfidence = minConfidenceToApply;
+        // -------- World Snapshot --------
+        AppendHeader(sb, "WORLD_SNAPSHOT");
+        string worldName = "YourQuest";
+        string regionId = TryGetRegionId(out string rid) ? rid : "region_unknown";
+        string regionName = TryGetRegionName(out string rname) ? rname : "Unknown";
 
-        if (situationSnapshotBuilder == null)
-            situationSnapshotBuilder = FindFirstObjectByType<SituationSnapshotBuilder>();
+        sb.AppendLine($"World: {worldName}  Region: {regionId}");
+        sb.AppendLine();
 
-        nextThinkTime = Time.time + thinkEverySeconds;
+        AppendHeader(sb, "CANON_LEDGER");
+        sb.AppendLine(string.IsNullOrWhiteSpace(canonLedger) ? "Canon: <unset>" : canonLedger.Trim());
+        sb.AppendLine();
+
+        // -------- Global Flags / Factions --------
+        // If your WorldState has richer structures, wire them in here.
+        AppendHeader(sb, "GLOBAL_FLAGS (top)");
+        float tension = TryGetWorldTension(out float t) ? t : 0f;
+        sb.AppendLine($"- tension = {tension:0.00}");
+        sb.AppendLine();
+
+        AppendHeader(sb, "FACTIONS (notable)");
+        AppendFactions(sb);
+        sb.AppendLine();
+
+        AppendHeader(sb, "LOCATIONS (region-relevant)");
+        AppendLocations(sb, regionId);
+        sb.AppendLine();
+
+        AppendHeader(sb, "NPCS (region-relevant)");
+        AppendNPCs(sb, regionId);
+        sb.AppendLine();
+
+        // -------- Player Snapshot --------
+        AppendHeader(sb, "PLAYER_SNAPSHOT");
+        AppendPlayerSnapshot(sb, regionId);
+        sb.AppendLine();
+
+        // -------- Recent Actions / Situation Snapshot --------
+        AppendHeader(sb, "RECENT_ACTIONS_SUMMARY");
+        AppendSituationSnapshot(sb);
+        sb.AppendLine();
+        AppendRecentActionsSummary(sb);
+        sb.AppendLine();
+
+        // -------- Behavior Ledger --------
+        AppendHeader(sb, "BEHAVIOR_LEDGER");
+        AppendBehaviorLedger(sb);
+        sb.AppendLine();
+
+        // -------- Triggers / Gating --------
+        _lastTriggers = ComputeTriggers(regionId);
+        AppendHeader(sb, "TRIGGERS");
+        sb.AppendLine($"- world_total_significance: {_lastTriggers.worldTotalSignificance:0.00} (threshold {worldSignificanceThreshold:0.00}) => candidate={_lastTriggers.worldCandidate}");
+        sb.AppendLine($"- progression_score_raw: {_lastTriggers.progressionScoreRaw:0.00}");
+        sb.AppendLine($"- progression_score_normalized: {_lastTriggers.progressionScoreNormalized:0.00} (threshold {progressionThreshold:0.00}) => candidate={_lastTriggers.progressionCandidate}");
+        sb.AppendLine($"- progression_dominant_verb: {_lastTriggers.dominantVerb}");
+        sb.AppendLine($"- progression_dominant_region: {_lastTriggers.dominantRegion}");
+        sb.AppendLine();
+
+        // -------- Task / Rules / Schema --------
+        AppendHeader(sb, "TASK");
+        sb.AppendLine("You are the System Director for an offline single-player RPG.");
+        sb.AppendLine("Choose EXACTLY ONE decision: none | world | progression.");
+        sb.AppendLine("Return ONLY one JSON object. No markdown. No code fences. No extra blocks.");
+        sb.AppendLine();
+
+        AppendHeader(sb, "HARD RULES");
+        sb.AppendLine("- Output MUST be valid JSON.");
+        sb.AppendLine("- Output MUST contain exactly these top-level keys: decision, confidence, reason, payload.");
+        sb.AppendLine("- decision MUST be one of: \"none\", \"world\", \"progression\".");
+        sb.AppendLine("- confidence MUST be a number 0.0 to 1.0.");
+        sb.AppendLine("- reason MUST be a short string grounded in SITUATION_SNAPSHOT evidence.");
+        sb.AppendLine("- payload MUST be an object ({}).");
+        sb.AppendLine("- If decision=\"world\", payload MUST be {\"worldDelta\":{...}} exactly.");
+        sb.AppendLine("- If decision=\"progression\", payload MUST be {\"progression\":{...}} exactly.");
+        sb.AppendLine("- Do NOT include any keys not specified by the schema.");
+        sb.AppendLine("- Do NOT include any example text, comments, or explanations outside JSON.");
+        sb.AppendLine();
+
+        AppendHeader(sb, "EVIDENCE RULES");
+        sb.AppendLine("- Use SITUATION_SNAPSHOT as PRIMARY evidence.");
+        sb.AppendLine("- If snapshot contradicts summaries/ledger, trust snapshot.");
+        sb.AppendLine("- Keep changes proportional. No god-gifts.");
+        sb.AppendLine();
+
+        AppendHeader(sb, "DECISION GUIDANCE");
+        sb.AppendLine("- Choose world when the world should react (mood/flags/spawns/notes).");
+        sb.AppendLine("- Choose progression only when the player earned a skill/title/quest.");
+        sb.AppendLine("- Choose none if nothing is justified.");
+        sb.AppendLine();
+
+        AppendHeader(sb, "OUTPUT_SCHEMA");
+        sb.AppendLine("Return ONE JSON object matching ONE of the following shapes:");
+        sb.AppendLine();
+        sb.AppendLine("{\"decision\":\"none\",\"confidence\":0.0,\"reason\":\"...\",\"payload\":{}}");
+        sb.AppendLine();
+        sb.AppendLine("{\"decision\":\"world\",\"confidence\":0.0,\"reason\":\"...\",\"payload\":{\"worldDelta\":{\"sceneName\":\"...\",\"regionId\":\"...\",\"mood\":\"...\",\"flags\":{},\"spawns\":[],\"notes\":[]}}}");
+        sb.AppendLine();
+        sb.AppendLine("{\"decision\":\"progression\",\"confidence\":0.0,\"reason\":\"...\",\"payload\":{\"progression\":{\"decision\":\"skill|title|quest\",\"confidence\":0.0,\"reason\":\"...\",\"payload\":{}}}}");
+        sb.AppendLine();
+        sb.AppendLine("Additional progression constraints:");
+        sb.AppendLine("- If progression.decision=\"skill\" => payload MUST include skillSeedName, skillType, hook.");
+        sb.AppendLine("- If progression.decision=\"title\" => payload MUST include titleName (and only fields your game supports).");
+        sb.AppendLine("- If progression.decision=\"quest\" => payload MUST include questId or questName (match your quest system).");
+        sb.AppendLine();
+        sb.AppendLine("Now output JSON only.");
+
+        string prompt = sb.ToString();
+        if (logBuiltPrompt) Debug.Log("[DirectorPromptBuilder] Built prompt:\n" + prompt);
+        return prompt;
     }
 
-    private void Update()
+    /// <summary>
+    /// DirectorThinkCycle uses this to gate decisions before applying.
+    /// null => allow all. Otherwise must contain allowed decisions.
+    /// </summary>
+    public HashSet<string> GetAllowedDecisions()
     {
-        if (Time.time < nextThinkTime) return;
+        // If we haven't built yet, compute minimal triggers.
+        if (_lastTriggers == null) _lastTriggers = ComputeTriggers(TryGetRegionId(out var rid) ? rid : "region_unknown");
 
-        // ? If we're repairing, don't also schedule normal thinks.
-        if (inRepair)
-        {
-            // Keep checking periodically rather than drifting forever.
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
-        }
+        var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // ? If LLM is busy and we require idleness, retry soon (don't "burn" the whole interval).
-        if (requireIdleLLM && LLMClient.Instance != null && LLMClient.Instance.IsBusy)
-        {
-            nextThinkTime = Time.time + (retrySoonWhenBusy ? Mathf.Max(0.1f, busyRetryDelay) : thinkEverySeconds);
-            return;
-        }
+        if (alwaysAllowNone) allowed.Add("none");
 
-        // Only advance timer once we're actually going to try a think.
-        nextThinkTime = Time.time + thinkEverySeconds;
-        TryThink();
+        // Allow world/progression only if candidates.
+        if (_lastTriggers.worldCandidate) allowed.Add("world");
+        if (_lastTriggers.progressionCandidate) allowed.Add("progression");
+
+        // If you're experimenting and want "allow all", return null instead.
+        return allowed;
     }
 
-    private void TryThink()
+    // =========================
+    // Sections
+    // =========================
+
+    private void AppendPlayerSnapshot(StringBuilder sb, string regionId)
     {
-        if (inRepair) return;
+        string playerName = TryGetPlayerName(out var pn) ? pn : "The Player";
+        int level = TryGetPlayerLevel(out var lv) ? lv : 1;
+        int xp = TryGetPlayerXP(out var xpVal) ? xpVal : 0;
+        int xpToNext = TryGetPlayerXPToNext(out var xpNext) ? xpNext : 100;
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
-        if (LLMClient.Instance == null || worldDeltaApplier == null)
-            return;
+        Vector3 pos = TryGetPlayerPosition(out var p) ? p : Vector3.zero;
 
-        // ? Second guard (race-safe).
-        if (requireIdleLLM && LLMClient.Instance.IsBusy)
-        {
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
-        }
+        sb.AppendLine($"Name: {playerName}");
+        sb.AppendLine($"Level: {level}  XP: {xp}/{xpToNext} (to next {xpToNext})");
+        sb.AppendLine($"Scene: {sceneName}  Region: {regionId}");
+        sb.AppendLine($"Pos: [{pos.x:0.0}, {pos.y:0.0}, {pos.z:0.0}]");
+        sb.AppendLine();
 
-        var acc = EventAccumulator.Instance;
-        if (acc == null) return;
+        AppendHeader(sb, "STATS");
+        AppendStats(sb);
+        sb.AppendLine();
 
-        var events = acc.GetEvents();
-        if (events == null || events.Count == 0) return;
+        AppendHeader(sb, "EQUIPPED_SKILLS");
+        AppendEquippedSkills(sb);
+        sb.AppendLine();
 
-        float sig = 0f;
-        for (int i = 0; i < events.Count; i++)
-            sig += Mathf.Max(0f, events[i].Significance);
+        AppendHeader(sb, "SKILLS (top/highest tiers)");
+        AppendTopSkills(sb);
+        sb.AppendLine();
 
-        if (sig < minTotalSignificance) return;
+        AppendHeader(sb, "TITLES (recent)");
+        AppendTitles(sb);
+        sb.AppendLine();
 
-        // Blocks
-        string situation = Truncate(SafeSituationSnapshot(), maxSituationChars);
-        string summary = Truncate(SafeSummarize(events), maxSummaryChars);
-        string ledger = Truncate(SafeLedger(), maxLedgerChars);
-
-        string combinedRecent = BuildCombinedRecentBlock(situation, summary);
-
-        string task = BuildInstruction(sig, !string.IsNullOrWhiteSpace(situation));
-        string schema = PromptContextBuilder.WrapJsonSchema(WorldDeltaSchemaWithExamples());
-
-        string prompt = PromptContextBuilder.BuildContext(
-            taskInstruction: task,
-            outputSchemaBlock: schema,
-            recentSummary: combinedRecent,
-            behaviorLedger: ledger
-        );
-
-        if (logPrompt)
-            Debug.Log(prompt);
-
-        // ? Only enqueue if still safe to do so.
-        if (requireIdleLLM && LLMClient.Instance.IsBusy)
-        {
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
-        }
-
-        LLMClient.Instance.GenerateSkill(prompt, raw =>
-        {
-            if (string.IsNullOrWhiteSpace(raw))
-                return;
-
-            if (logRawResponse)
-                Debug.Log("[LLMThinkCycle] RAW RESPONSE:\n" + raw);
-
-            if (worldDeltaApplier.TryApply(raw, out var err))
-            {
-                Debug.Log("[WORLD SHIFT] World updated.");
-                if (clearEventsAfterApply)
-                    TryClearEvents(acc);
-                return;
-            }
-
-            Debug.LogWarning("[LLMThinkCycle] Delta failed: " + err);
-
-            // If applier says no-op, do not spam repair; just wait for better evidence
-            if (!string.IsNullOrEmpty(err) && err.ToLowerInvariant().Contains("no-op"))
-                return;
-
-            // ? One repair attempt max; and do not overlap with queued LLM requests.
-            inRepair = true;
-
-            // If LLM is currently busy due to the other think cycle, retry repair shortly.
-            if (requireIdleLLM && LLMClient.Instance.IsBusy)
-            {
-                inRepair = false;
-                nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-                return;
-            }
-
-            RetryOnce(schema, raw, err, acc);
-        });
+        AppendHeader(sb, "QUESTS (active/offers)");
+        AppendQuests(sb);
     }
 
-    private void RetryOnce(string schema, string raw, string error, EventAccumulator acc)
+    private void AppendSituationSnapshot(StringBuilder sb)
     {
-        // ? If something else grabbed the LLM before we start repair, back off.
-        if (LLMClient.Instance == null)
+        sb.AppendLine("SITUATION_SNAPSHOT (ground truth):");
+        if (situationSnapshotBuilder != null)
         {
-            inRepair = false;
-            return;
+            // Prefer a method if you have one; fallback to reflection-safe ToString.
+            // If your builder already stores the last JSON in a public property, wire it directly.
+            string snap = TryGetSituationJson(out var sj) ? sj : null;
+            if (!string.IsNullOrWhiteSpace(snap))
+                sb.AppendLine(snap.Trim());
+            else
+                sb.AppendLine("{\"regId\":\"region_unknown\",\"regName\":\"Unknown\"}");
         }
-
-        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        else
         {
-            inRepair = false;
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
+            sb.AppendLine("{\"regId\":\"region_unknown\",\"regName\":\"Unknown\"}");
         }
-
-        var sb = new StringBuilder();
-        sb.AppendLine("Return ONLY a single valid JSON object. No markdown. No headings. No explanation.");
-        sb.AppendLine("You MUST match the schema exactly.");
         sb.AppendLine();
-        sb.AppendLine($"CONFIDENCE RULE: confidence must be a number 0.0 to 1.0 (NOT percent). Must be >= {minConfidenceToApply:0.00}");
-        sb.AppendLine();
-        sb.AppendLine("ARRAY RULE: flags/factions/locations MUST be arrays of OBJECTS (not strings).");
-        sb.AppendLine("If you have no changes for a category, use an empty array [].");
-        sb.AppendLine();
-        sb.AppendLine("Correct EXAMPLES:");
-        sb.AppendLine(@"""flags"": [ { ""key"": ""tension"", ""op"": ""inc"", ""value"": 1 } ]");
-        sb.AppendLine(@"""factions"": [ { ""factionId"": ""the_archives"", ""name"": ""The Archives"", ""op"": ""attitude_inc"", ""value"": -0.05, ""text"": ""Rumors spread in the stacks."" } ]");
-        sb.AppendLine(@"""locations"": [ { ""locationId"": ""library_hall"", ""name"": ""Library Hall"", ""regionId"": ""region_library"", ""op"": ""state_set"", ""value"": ""alert"", ""text"": ""Footsteps hush; lanterns turn."" } ]");
-        sb.AppendLine();
-        sb.AppendLine("Schema:");
-        sb.AppendLine(schema);
-        sb.AppendLine();
-        sb.AppendLine("Parse error to fix:");
-        sb.AppendLine(error);
-        sb.AppendLine();
-        sb.AppendLine("Bad previous output (for reference only):");
-        sb.AppendLine(raw);
-
-        LLMClient.Instance.GenerateSkill(sb.ToString(), repaired =>
-        {
-            if (logRawResponse)
-                Debug.Log("[LLMThinkCycle] REPAIRED:\n" + repaired);
-
-            inRepair = false;
-
-            if (worldDeltaApplier.TryApply(repaired, out var err2))
-            {
-                Debug.Log("[WORLD SHIFT] World updated (repaired).");
-                if (clearEventsAfterApply)
-                    TryClearEvents(acc);
-                return;
-            }
-
-            Debug.LogWarning("[LLMThinkCycle] Repair failed: " + err2);
-        });
     }
 
-    private string BuildCombinedRecentBlock(string situation, string summary)
+    private void AppendRecentActionsSummary(StringBuilder sb)
     {
-        var sb = new StringBuilder();
-
-        if (!string.IsNullOrWhiteSpace(situation))
+        // If you have a real summary pipeline, wire it. Otherwise give a compact list from accumulator.
+        if (eventAccumulator == null)
         {
-            sb.AppendLine("SITUATION_SNAPSHOT (primary evidence; treat as ground truth):");
-            sb.AppendLine(situation);
-            sb.AppendLine();
+            sb.AppendLine("RECENT_ACTIONS_SUMMARY:");
+            sb.AppendLine("<none>");
+            return;
         }
 
         sb.AppendLine("RECENT_ACTIONS_SUMMARY:");
-        sb.AppendLine(string.IsNullOrWhiteSpace(summary) ? "<none>" : summary);
-
-        return sb.ToString();
+        // You likely have something like eventAccumulator.GetSummaryLines()
+        // We’ll do a conservative approach: ask it for a string if you have it, otherwise <wired later>.
+        string summary = TryGetAccumulatorSummary(out var s) ? s : null;
+        if (!string.IsNullOrWhiteSpace(summary))
+        {
+            sb.AppendLine(summary.Trim());
+        }
+        else
+        {
+            sb.AppendLine("<wired later: EventAccumulator summary unavailable>");
+        }
     }
 
-    private string SafeSituationSnapshot()
+    private void AppendBehaviorLedger(StringBuilder sb)
     {
+        if (eventAccumulator == null)
+        {
+            sb.AppendLine("Behavior Ledger (most impactful):");
+            sb.AppendLine("<none>");
+            return;
+        }
+
+        sb.AppendLine("Behavior Ledger (most impactful):");
+        string ledger = TryGetAccumulatorLedger(out var l) ? l : null;
+        if (!string.IsNullOrWhiteSpace(ledger))
+        {
+            sb.AppendLine(ledger.Trim());
+        }
+        else
+        {
+            sb.AppendLine("<wired later: EventAccumulator ledger unavailable>");
+        }
+    }
+
+    private void AppendFactions(StringBuilder sb)
+    {
+        // Wire real factions when your WorldState has them.
+        // For now: if WorldStateManager has a method/property, pull it; else keep minimal.
+        string factions = TryGetWorldFactionsBlock(out var fb) ? fb : null;
+        if (!string.IsNullOrWhiteSpace(factions))
+        {
+            sb.AppendLine(factions.Trim());
+        }
+        else
+        {
+            sb.AppendLine("<none>");
+        }
+    }
+
+    private void AppendLocations(StringBuilder sb, string regionId)
+    {
+        string locations = TryGetWorldLocationsBlock(regionId, out var lb) ? lb : null;
+        if (!string.IsNullOrWhiteSpace(locations))
+        {
+            sb.AppendLine(locations.Trim());
+        }
+        else
+        {
+            sb.AppendLine("<none>");
+        }
+    }
+
+    private void AppendNPCs(StringBuilder sb, string regionId)
+    {
+        string npcs = TryGetWorldNPCsBlock(regionId, out var nb) ? nb : null;
+        if (!string.IsNullOrWhiteSpace(npcs))
+        {
+            sb.AppendLine(npcs.Trim());
+        }
+        else
+        {
+            sb.AppendLine("<none>");
+        }
+    }
+
+    // =========================
+    // Trigger computation
+    // =========================
+
+    [Serializable]
+    private class TriggerSnapshot
+    {
+        public float worldTotalSignificance;
+        public bool worldCandidate;
+
+        public float progressionScoreRaw;
+        public float progressionScoreNormalized;
+        public bool progressionCandidate;
+
+        public string dominantVerb = "unknown";
+        public string dominantRegion = "region_unknown";
+    }
+
+    private TriggerSnapshot ComputeTriggers(string regionId)
+    {
+        var ts = new TriggerSnapshot();
+
+        // World significance should come from eventAccumulator significance totals.
+        // In your logs you have "world_total_significance".
+        ts.worldTotalSignificance = TryGetWorldTotalSignificance(out var wts) ? wts : 0f;
+        ts.worldCandidate = ts.worldTotalSignificance >= worldSignificanceThreshold;
+
+        // Progression scoring is your own system. If you already compute it elsewhere, wire it.
+        // For now, use accumulator heuristic: dominant verb with high "skill-earning" weight.
+        // IMPORTANT: keep default as 0 so you don't accidentally allow progression.
+        ts.progressionScoreRaw = TryGetProgressionScoreRaw(out var psr) ? psr : 0f;
+
+        // Normalization (clamp 0..1). If you have a true normalization, plug it in here.
+        ts.progressionScoreNormalized = Mathf.Clamp01(ts.progressionScoreRaw);
+        ts.progressionCandidate = ts.progressionScoreNormalized >= progressionThreshold;
+
+        ts.dominantVerb = TryGetDominantVerb(out var dv) ? dv : "unknown";
+        ts.dominantRegion = regionId;
+
+        return ts;
+    }
+
+    // =========================
+    // Utilities
+    // =========================
+
+    private static void AppendHeader(StringBuilder sb, string title)
+    {
+        sb.AppendLine(title);
+    }
+
+    // =========================
+    // Safe getters / wiring points
+    // =========================
+
+    private bool TryGetRegionId(out string regionId)
+    {
+        regionId = null;
+        if (worldStateManager == null) return false;
+
+        // If your WorldStateManager exposes a current region id, wire it here.
+        // Example: worldStateManager.WorldState.currentRegionId
         try
         {
-            if (situationSnapshotBuilder == null)
-                return "<no SituationSnapshotBuilder>";
-            return situationSnapshotBuilder.BuildSnapshot();
+            var ws = worldStateManager.GetWorldState();
+            if (ws != null && !string.IsNullOrWhiteSpace(ws.currentRegionId))
+            {
+                regionId = ws.currentRegionId;
+                return true;
+            }
         }
-        catch
-        {
-            return "<situation unavailable>";
-        }
+        catch { }
+        return false;
     }
 
-    private string SafeSummarize(System.Collections.Generic.IReadOnlyList<ActionEvent> events)
+    private bool TryGetRegionName(out string regionName)
     {
+        regionName = null;
+        if (worldStateManager == null) return false;
+
         try
         {
-            return EventSummarizer.Summarize(new System.Collections.Generic.List<ActionEvent>(events));
+            var ws = worldStateManager.GetWorldState();
+            if (ws != null && !string.IsNullOrWhiteSpace(ws.currentRegionName))
+            {
+                regionName = ws.currentRegionName;
+                return true;
+            }
         }
-        catch
-        {
-            return $"Observed {events.Count} actions.";
-        }
+        catch { }
+        return false;
     }
 
-    private string SafeLedger()
+    private bool TryGetWorldTension(out float tension)
     {
+        tension = 0f;
+        if (worldStateManager == null) return false;
+
         try
         {
-            return ActionRegistry.Instance?.BuildBehaviorSummary(12) ?? "<none>";
+            var ws = worldStateManager.GetWorldState();
+            if (ws != null)
+            {
+                tension = ws.tension;
+                return true;
+            }
         }
-        catch
+        catch { }
+        return false;
+    }
+
+    private bool TryGetPlayerName(out string name)
+    {
+        name = null;
+        if (playerStateManager == null) return false;
+
+        try
         {
-            return "<ledger unavailable>";
+            var ps = playerStateManager.GetPlayerState();
+            if (ps != null && !string.IsNullOrWhiteSpace(ps.playerName))
+            {
+                name = ps.playerName;
+                return true;
+            }
         }
+        catch { }
+        return false;
     }
 
-    private string BuildInstruction(float sig, bool situationPresent)
+    private bool TryGetPlayerLevel(out int level)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("Create a WorldDeltaDTO responding to player behavior.");
-        sb.AppendLine($"Total significance: {sig:0.00}");
-        sb.AppendLine();
+        level = 1;
+        if (playerStateManager == null) return false;
 
-        if (situationPresent)
+        try
         {
-            sb.AppendLine("Critical relevance rules:");
-            sb.AppendLine("- Use SITUATION_SNAPSHOT as PRIMARY evidence.");
-            sb.AppendLine("- Prefer region-appropriate changes over generic flags.");
-            sb.AppendLine("- Keep deltas small and concrete.");
-            sb.AppendLine();
+            var ps = playerStateManager.GetPlayerState();
+            if (ps != null)
+            {
+                level = ps.level;
+                return true;
+            }
         }
-
-        sb.AppendLine("Rules:");
-        sb.AppendLine("- confidence must be 0.0..1.0");
-        sb.AppendLine("- flags items: { key, op(set|inc|dec), value(number) }");
-        sb.AppendLine("- factions items: { factionId, name, op(attitude_set|attitude_inc|status_set), value(number), text(string) }");
-        sb.AppendLine("- locations items: { locationId, name, regionId, op(state_set|importance_set|importance_inc), value(string or number depending on op), text(string) }");
-        sb.AppendLine("- No extra top-level keys.");
-        sb.AppendLine("- Return JSON only.");
-        return sb.ToString();
+        catch { }
+        return false;
     }
 
-    private string WorldDeltaSchemaWithExamples()
+    private bool TryGetPlayerXP(out int xp)
     {
-        return @"
-{
-  ""rationale"": ""string"",
-  ""confidence"": 0.0,
+        xp = 0;
+        if (playerStateManager == null) return false;
 
-  ""flags"": [
-    { ""key"": ""tension"", ""op"": ""inc"", ""value"": 1 }
-  ],
-
-  ""factions"": [
-    { ""factionId"": ""the_archives"", ""name"": ""The Archives"", ""op"": ""attitude_inc"", ""value"": -0.05, ""text"": ""Rumors spread in the stacks."" }
-  ],
-
-  ""locations"": [
-    { ""locationId"": ""library_hall"", ""name"": ""Library Hall"", ""regionId"": ""region_library"", ""op"": ""state_set"", ""value"": ""alert"", ""text"": ""Lanterns tilt toward the aisles."" }
-  ]
-}";
+        try
+        {
+            var ps = playerStateManager.GetPlayerState();
+            if (ps != null)
+            {
+                xp = ps.xp;
+                return true;
+            }
+        }
+        catch { }
+        return false;
     }
 
-    private void TryClearEvents(EventAccumulator acc)
+    private bool TryGetPlayerXPToNext(out int xpToNext)
     {
-        var m = acc.GetType().GetMethod("ClearEvents");
-        if (m != null)
-            m.Invoke(acc, null);
+        xpToNext = 100;
+        if (playerStateManager == null) return false;
+
+        try
+        {
+            var ps = playerStateManager.GetPlayerState();
+            if (ps != null)
+            {
+                xpToNext = ps.xpToNext;
+                return true;
+            }
+        }
+        catch { }
+        return false;
     }
 
-    private static string Truncate(string s, int maxChars)
+    private bool TryGetPlayerPosition(out Vector3 pos)
     {
-        if (string.IsNullOrEmpty(s)) return s;
-        if (maxChars <= 0) return "";
-        if (s.Length <= maxChars) return s;
-        return s.Substring(0, maxChars) + "...";
+        pos = Vector3.zero;
+
+        // If PlayerStateManager tracks Transform, wire it. Otherwise try to find a tagged Player.
+        try
+        {
+            var go = GameObject.FindGameObjectWithTag("Player");
+            if (go != null)
+            {
+                pos = go.transform.position;
+                return true;
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private void AppendStats(StringBuilder sb)
+    {
+        // If you have real stats in PlayerState, wire them.
+        // Keeping this stable so the prompt format doesn't thrash.
+        sb.AppendLine("STR 10 | DEX 10 | INT 10 | VIT 10");
+        sb.AppendLine("HP 100 | STA 100 | MANA 50");
+        sb.AppendLine("ATK 10 | DEF 5 | CRIT 0.05 | MS x5.00");
+    }
+
+    private void AppendEquippedSkills(StringBuilder sb)
+    {
+        sb.AppendLine("<none>");
+    }
+
+    private void AppendTopSkills(StringBuilder sb)
+    {
+        sb.AppendLine("<none>");
+    }
+
+    private void AppendTitles(StringBuilder sb)
+    {
+        sb.AppendLine("<none>");
+    }
+
+    private void AppendQuests(StringBuilder sb)
+    {
+        sb.AppendLine("<none>");
+    }
+
+    private bool TryGetSituationJson(out string json)
+    {
+        json = null;
+        if (situationSnapshotBuilder == null) return false;
+
+        // If your builder has a method like BuildSnapshotJson(), use it.
+        // We'll look for common patterns via reflection to avoid hard dependency.
+        try
+        {
+            var t = situationSnapshotBuilder.GetType();
+
+            var m = t.GetMethod("BuildSnapshotJson");
+            if (m != null)
+            {
+                json = m.Invoke(situationSnapshotBuilder, null) as string;
+                return !string.IsNullOrWhiteSpace(json);
+            }
+
+            var p = t.GetProperty("LastSnapshot");
+            if (p != null)
+            {
+                json = p.GetValue(situationSnapshotBuilder) as string;
+                return !string.IsNullOrWhiteSpace(json);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetAccumulatorSummary(out string summary)
+    {
+        summary = null;
+        if (eventAccumulator == null) return false;
+
+        try
+        {
+            var t = eventAccumulator.GetType();
+
+            var m = t.GetMethod("GetRecentSummary");
+            if (m != null)
+            {
+                summary = m.Invoke(eventAccumulator, null) as string;
+                return !string.IsNullOrWhiteSpace(summary);
+            }
+
+            var p = t.GetProperty("RecentSummary");
+            if (p != null)
+            {
+                summary = p.GetValue(eventAccumulator) as string;
+                return !string.IsNullOrWhiteSpace(summary);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetAccumulatorLedger(out string ledger)
+    {
+        ledger = null;
+        if (eventAccumulator == null) return false;
+
+        try
+        {
+            var t = eventAccumulator.GetType();
+
+            var m = t.GetMethod("GetBehaviorLedger");
+            if (m != null)
+            {
+                ledger = m.Invoke(eventAccumulator, null) as string;
+                return !string.IsNullOrWhiteSpace(ledger);
+            }
+
+            var p = t.GetProperty("BehaviorLedger");
+            if (p != null)
+            {
+                ledger = p.GetValue(eventAccumulator) as string;
+                return !string.IsNullOrWhiteSpace(ledger);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetWorldTotalSignificance(out float sig)
+    {
+        sig = 0f;
+        if (eventAccumulator == null) return false;
+
+        try
+        {
+            var t = eventAccumulator.GetType();
+
+            var m = t.GetMethod("GetWorldTotalSignificance");
+            if (m != null)
+            {
+                object o = m.Invoke(eventAccumulator, null);
+                if (o is float f) { sig = f; return true; }
+                if (o is double d) { sig = (float)d; return true; }
+            }
+
+            var p = t.GetProperty("worldTotalSignificance");
+            if (p != null)
+            {
+                object o = p.GetValue(eventAccumulator);
+                if (o is float f) { sig = f; return true; }
+                if (o is double d) { sig = (float)d; return true; }
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetProgressionScoreRaw(out float scoreRaw)
+    {
+        scoreRaw = 0f;
+        if (eventAccumulator == null) return false;
+
+        // If you already compute progression scoring elsewhere, expose it and wire it here.
+        try
+        {
+            var t = eventAccumulator.GetType();
+
+            var m = t.GetMethod("GetProgressionScoreRaw");
+            if (m != null)
+            {
+                object o = m.Invoke(eventAccumulator, null);
+                if (o is float f) { scoreRaw = f; return true; }
+                if (o is double d) { scoreRaw = (float)d; return true; }
+            }
+
+            var p = t.GetProperty("progressionScoreRaw");
+            if (p != null)
+            {
+                object o = p.GetValue(eventAccumulator);
+                if (o is float f) { scoreRaw = f; return true; }
+                if (o is double d) { scoreRaw = (float)d; return true; }
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetDominantVerb(out string verb)
+    {
+        verb = "unknown";
+        if (eventAccumulator == null) return false;
+
+        try
+        {
+            var t = eventAccumulator.GetType();
+
+            var m = t.GetMethod("GetDominantVerb");
+            if (m != null)
+            {
+                verb = m.Invoke(eventAccumulator, null) as string;
+                return !string.IsNullOrWhiteSpace(verb);
+            }
+
+            var p = t.GetProperty("dominantVerb");
+            if (p != null)
+            {
+                verb = p.GetValue(eventAccumulator) as string;
+                return !string.IsNullOrWhiteSpace(verb);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetWorldFactionsBlock(out string block)
+    {
+        block = null;
+        if (worldStateManager == null) return false;
+
+        try
+        {
+            var m = worldStateManager.GetType().GetMethod("GetFactionsPromptBlock");
+            if (m != null)
+            {
+                block = m.Invoke(worldStateManager, null) as string;
+                return !string.IsNullOrWhiteSpace(block);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetWorldLocationsBlock(string regionId, out string block)
+    {
+        block = null;
+        if (worldStateManager == null) return false;
+
+        try
+        {
+            var m = worldStateManager.GetType().GetMethod("GetLocationsPromptBlock");
+            if (m != null)
+            {
+                block = m.Invoke(worldStateManager, new object[] { regionId }) as string;
+                return !string.IsNullOrWhiteSpace(block);
+            }
+        }
+        catch { }
+
+        return false;
+    }
+
+    private bool TryGetWorldNPCsBlock(string regionId, out string block)
+    {
+        block = null;
+        if (worldStateManager == null) return false;
+
+        try
+        {
+            var m = worldStateManager.GetType().GetMethod("GetNPCsPromptBlock");
+            if (m != null)
+            {
+                block = m.Invoke(worldStateManager, new object[] { regionId }) as string;
+                return !string.IsNullOrWhiteSpace(block);
+            }
+        }
+        catch { }
+
+        return false;
     }
 }

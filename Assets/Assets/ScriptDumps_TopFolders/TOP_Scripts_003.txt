@@ -1,22 +1,964 @@
 # INDEX
 # Group: Scripts
-# Generated: 2026-01-01 19:23:34
+# Generated: 2026-01-03 10:53:01
 # --------------------------------
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs (PART 1)
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorThinkCycle.cs (PART 1)
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Input\InputIntentRecorder.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\PlayerBehaviorRollup.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\UpgradeOfferManager.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\LLMThinkCycle.cs
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaDTO.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Debug\DebugSkillGenerator.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\LLMClient.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PlayerMemoryRenderer.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PromptContextBuilder.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\WorldMemoryRenderer.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\ActionRecorder.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\ActionRegistry.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Entities\EntityIndex.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Entities\EntityInfo.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventAccumulator.cs
-# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventSummarizer.cs
 
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs (PART 1) =====
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorThinkCycle.cs (PART 1) =====
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorThinkCycle.cs =====
+// Assets/Assets/Scripts/Gameplay/Systems/Director/DirectorThinkCycle.cs
+
+using UnityEngine;
+
+public class DirectorThinkCycle : MonoBehaviour
+{
+    [Header("References")]
+    public LLMClient llmClient;
+    public DirectorPromptBuilder promptBuilder;
+    public DirectorDecisionApplier decisionApplier;
+
+    [Header("Timing")]
+    public float thinkEverySeconds = 18f;
+
+    [Header("Debug")]
+    public bool logPrompt = false;
+    public bool logRawResponse = false;
+    public bool logApplyResult = true;
+
+    private float nextThink;
+
+    private WorldStateManager worldStateManager;
+    private PlayerStateManager playerStateManager;
+
+    private void Awake()
+    {
+        if (llmClient == null) llmClient = LLMClient.Instance;
+        if (promptBuilder == null) promptBuilder = GetComponent<DirectorPromptBuilder>();
+        if (decisionApplier == null) decisionApplier = GetComponent<DirectorDecisionApplier>();
+
+        // Unity 2022+ : FindObjectOfType is obsolete
+        if (worldStateManager == null) worldStateManager = Object.FindFirstObjectByType<WorldStateManager>();
+        if (playerStateManager == null) playerStateManager = Object.FindFirstObjectByType<PlayerStateManager>();
+
+        nextThink = Time.time + thinkEverySeconds;
+    }
+
+    private void Update()
+    {
+        if (Time.time < nextThink) return;
+        nextThink = Time.time + thinkEverySeconds;
+
+        TryThink();
+    }
+
+    private void TryThink()
+    {
+        if (llmClient == null || promptBuilder == null || decisionApplier == null) return;
+        if (llmClient.IsBusy) return;
+
+        // Build the director prompt
+        string prompt = promptBuilder.BuildDirectorPrompt();
+        if (string.IsNullOrWhiteSpace(prompt)) return;
+
+        if (logPrompt)
+            Debug.Log("[DirectorThinkCycle] PROMPT\n" + prompt);
+
+        // Your LLMClient exposes Enqueue(prompt, onResponse, debugTag)
+        llmClient.Enqueue(prompt, (resp) =>
+        {
+            if (string.IsNullOrWhiteSpace(resp)) return;
+
+            if (logRawResponse)
+                Debug.Log("[DirectorThinkCycle] RAW\n" + resp);
+
+            // Your DirectorDecisionApplier exposes TryApplyDirectorJson(...)
+            bool ok = decisionApplier.TryApplyDirectorJson(resp, out string applied, out string reason);
+
+            if (logApplyResult)
+                Debug.Log($"[DirectorThinkCycle] Apply ok={ok} applied={applied} reason={reason}");
+
+        }, debugTag: "DirectorThink");
+    }
+}
+
+
+### Scripts/Gameplay/Systems/Input
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Input\InputIntentRecorder.cs =====
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+/// <summary>
+/// Bridges Unity InputActions ? ActionRecorder as INTENT signals.
+/// Works with PlayerInput notification behaviors:
+/// - Send Messages / Broadcast Messages (uses On<ActionName> methods)
+/// - Invoke Unity Events / Invoke C# Events (subscribes to InputAction callbacks)
+/// </summary>
+[RequireComponent(typeof(PlayerInput))]
+public class InputIntentRecorder : MonoBehaviour
+{
+    private PlayerInput playerInput;
+    private ActionRecorder recorder;
+
+    // Cached actions (used in non-SendMessages modes)
+    private InputAction move;
+    private InputAction jump;
+    private InputAction sprint;
+    private InputAction crouch;
+    private InputAction dodge;
+    private InputAction attack;
+    private InputAction aim;
+    private InputAction interact;
+
+    // Movement value cached for SendMessages mode (OnMove)
+    private Vector2 moveValue;
+
+    [Header("Thresholds")]
+    [Tooltip("Movement magnitude required to count as 'moving'.")]
+    public float moveStartThreshold = 0.15f;
+
+    [Tooltip("Minimum seconds between repeated movement intent events.")]
+    public float moveIntentCooldown = 0.6f;
+
+    private bool wasMoving;
+    private float lastMoveIntentTime;
+
+    private bool usingSendMessages;
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+        recorder = ActionRecorder.Instance;
+
+        usingSendMessages =
+            playerInput.notificationBehavior == PlayerNotifications.SendMessages ||
+            playerInput.notificationBehavior == PlayerNotifications.BroadcastMessages;
+    }
+
+    private void OnEnable()
+    {
+        // If using SendMessages/BroadcastMessages, Unity will call OnMove/OnJump/etc automatically.
+        // Do NOT subscribe to actions in this mode (avoids double-recording).
+        if (usingSendMessages) return;
+
+        if (playerInput == null || playerInput.actions == null)
+        {
+            Debug.LogWarning("[InputIntentRecorder] PlayerInput/actions missing.");
+            return;
+        }
+
+        var map = playerInput.actions;
+
+        // These names must match your InputActions asset action names
+        move = SafeGet(map, "Move");
+        jump = SafeGet(map, "Jump");
+        sprint = SafeGet(map, "Sprint");
+        crouch = SafeGet(map, "Crouch");
+        dodge = SafeGet(map, "Dodge");
+        attack = SafeGet(map, "Attack");
+        aim = SafeGet(map, "Aim");
+        interact = SafeGet(map, "Interact");
+
+        if (jump != null) jump.performed += OnJumpAction;
+        if (sprint != null) sprint.performed += OnSprintAction;
+        if (crouch != null) crouch.performed += OnCrouchAction;
+        if (dodge != null) dodge.performed += OnDodgeAction;
+        if (attack != null) attack.performed += OnAttackAction;
+        if (aim != null)
+        {
+            aim.performed += OnAimStartAction;
+            aim.canceled += OnAimEndAction;
+        }
+        if (interact != null) interact.performed += OnInteractAction;
+    }
+
+    private void OnDisable()
+    {
+        if (usingSendMessages) return;
+
+        // Guard everything (prevents NullReferenceExceptions)
+        if (jump != null) jump.performed -= OnJumpAction;
+        if (sprint != null) sprint.performed -= OnSprintAction;
+        if (crouch != null) crouch.performed -= OnCrouchAction;
+        if (dodge != null) dodge.performed -= OnDodgeAction;
+        if (attack != null) attack.performed -= OnAttackAction;
+
+        if (aim != null)
+        {
+            aim.performed -= OnAimStartAction;
+            aim.canceled -= OnAimEndAction;
+        }
+
+        if (interact != null) interact.performed -= OnInteractAction;
+    }
+
+    private void Update()
+    {
+        HandleMovementIntent();
+    }
+
+    private void HandleMovementIntent()
+    {
+        Vector2 v;
+
+        if (usingSendMessages)
+        {
+            v = moveValue; // set by OnMove(InputValue)
+        }
+        else
+        {
+            if (move == null) return;
+            v = move.ReadValue<Vector2>();
+        }
+
+        bool isMoving = v.magnitude >= moveStartThreshold;
+
+        // Movement started
+        if (isMoving && !wasMoving && Time.time - lastMoveIntentTime >= moveIntentCooldown)
+        {
+            recorder?.RecordMove();
+            lastMoveIntentTime = Time.time;
+        }
+
+        // Movement stopped
+        if (!isMoving && wasMoving)
+        {
+            recorder?.RecordMove(); // stop is meaningful
+        }
+
+        wasMoving = isMoving;
+    }
+
+    // -------------------------
+    // Send Messages entry points
+    // (Unity calls these when PlayerInput notificationBehavior = Send Messages)
+    // -------------------------
+
+    public void OnMove(InputValue value)
+    {
+        moveValue = value.Get<Vector2>();
+    }
+
+    public void OnJump(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordJump();
+    }
+
+    public void OnSprint(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordMove();
+    }
+
+    public void OnCrouch(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordCrouch();
+    }
+
+    public void OnDodge(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordDodge();
+    }
+
+    public void OnAttack(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordCombat(null);
+    }
+
+    public void OnAim(InputValue value)
+    {
+        // In SendMessages, you usually only get performed; treat both press/release as posture change.
+        recorder?.RecordMove();
+    }
+
+    public void OnInteract(InputValue value)
+    {
+        if (value.isPressed) recorder?.RecordInteract(null);
+    }
+
+    // -------------------------
+    // InputAction subscription handlers
+    // (used when notificationBehavior = Invoke Unity Events / Invoke C# Events)
+    // -------------------------
+
+    private void OnJumpAction(InputAction.CallbackContext ctx) => recorder?.RecordJump();
+    private void OnSprintAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
+    private void OnCrouchAction(InputAction.CallbackContext ctx) => recorder?.RecordCrouch();
+    private void OnDodgeAction(InputAction.CallbackContext ctx) => recorder?.RecordDodge();
+    private void OnAttackAction(InputAction.CallbackContext ctx) => recorder?.RecordCombat(null);
+    private void OnAimStartAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
+    private void OnAimEndAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
+    private void OnInteractAction(InputAction.CallbackContext ctx) => recorder?.RecordInteract(null);
+
+    private static InputAction SafeGet(InputActionAsset asset, string actionName)
+    {
+        try
+        {
+            return asset[actionName];
+        }
+        catch
+        {
+            Debug.LogWarning($"[InputIntentRecorder] InputAction '{actionName}' not found in asset.");
+            return null;
+        }
+    }
+}
+
+### Scripts/Gameplay/Systems/Progression
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\PlayerBehaviorRollup.cs =====
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+/// <summary>
+/// PlayerBehaviorRollup:
+/// - Reads EventAccumulator ActionEvents
+/// - Converts older events into a compact, long-term behavior ledger stored in PlayerState
+/// - Prunes those older events from the short-term buffer
+///
+/// This keeps:
+/// - buffer = "short-term, detailed evidence"
+/// - ledger = "long-term, compressed evidence"
+/// </summary>
+public class PlayerBehaviorRollup : MonoBehaviour
+{
+    [Header("Window")]
+    [Tooltip("Keep the last N minutes in the short-term buffer. Older than this gets rolled into the ledger.")]
+    public int keepMinutesInBuffer = 30;
+
+    [Tooltip("Max ledger lines to keep in PlayerState.")]
+    public int maxLedgerLines = 60;
+
+    [Header("Refs")]
+    public EventAccumulator accumulator;
+    public PlayerStateManager playerStateManager;
+
+    [Header("Debug")]
+    public bool logRollups = false;
+
+    private void Awake()
+    {
+        if (accumulator == null) accumulator = FindFirstObjectByType<EventAccumulator>();
+        if (playerStateManager == null) playerStateManager = FindFirstObjectByType<PlayerStateManager>();
+    }
+
+    /// <summary>
+    /// Call this periodically (or right before a progression/world think) to keep evidence clean.
+    /// </summary>
+    public void RollupIfNeeded()
+    {
+        if (accumulator == null || playerStateManager == null) return;
+        if (playerStateManager.state == null) return;
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long cutoff = now - (keepMinutesInBuffer * 60L);
+
+        var events = accumulator.GetEvents();
+        if (events == null || events.Count == 0) return;
+
+        // Collect older events
+        var older = new List<ActionEvent>(256);
+        for (int i = 0; i < events.Count; i++)
+        {
+            var e = events[i];
+            if (e == null) continue;
+            if (e.UnixTime < cutoff)
+                older.Add(e);
+        }
+
+        if (older.Count == 0) return;
+
+        string line = BuildLedgerLine(older);
+
+        // Write ledger evidence
+        var ps = playerStateManager.state;
+        ps.AddLedgerLine(line, maxLedgerLines);
+
+        // Update counters (optional but good for balancing)
+        ApplyCounters(ps, older);
+
+        ps.lastLedgerRollupUnix = now;
+        ps.Touch();
+        if (playerStateManager.autosave) playerStateManager.Save();
+
+        // Prune rolled events out of buffer
+        int removed = accumulator.PruneEventsBeforeUnix(cutoff);
+
+        if (logRollups)
+            Debug.Log($"[PlayerBehaviorRollup] Rolled {older.Count} events into ledger; pruned {removed} events.\nLedger: {line}");
+    }
+
+    private static string BuildLedgerLine(List<ActionEvent> older)
+    {
+        // Group by verb + region
+        var counts = new Dictionary<string, int>(128);
+        var regionCounts = new Dictionary<string, int>(64);
+
+        long minT = long.MaxValue;
+        long maxT = 0;
+
+        for (int i = 0; i < older.Count; i++)
+        {
+            var e = older[i];
+            if (e == null) continue;
+
+            string verb = string.IsNullOrWhiteSpace(e.Verb) ? "unknown" : e.Verb.Trim().ToLowerInvariant();
+            string region = string.IsNullOrWhiteSpace(e.RegionId) ? "region_unknown" : e.RegionId.Trim().ToLowerInvariant();
+
+            string key = $"{verb}@{region}";
+            counts.TryGetValue(key, out int cur);
+            counts[key] = cur + 1;
+
+            regionCounts.TryGetValue(region, out int rcur);
+            regionCounts[region] = rcur + 1;
+
+            if (e.UnixTime < minT) minT = e.UnixTime;
+            if (e.UnixTime > maxT) maxT = e.UnixTime;
+        }
+
+        // pick top region
+        string topRegion = "region_unknown";
+        int topRegionCount = 0;
+        foreach (var kv in regionCounts)
+        {
+            if (kv.Value > topRegionCount)
+            {
+                topRegion = kv.Key;
+                topRegionCount = kv.Value;
+            }
+        }
+
+        // pick top 3 behaviors
+        var top = new List<KeyValuePair<string, int>>(counts);
+        top.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+        var sb = new StringBuilder(512);
+        sb.Append($"[{UnixToShortTime(minT)}–{UnixToShortTime(maxT)}] ");
+        sb.Append($"Mostly in {topRegion}. ");
+
+        int take = Mathf.Min(3, top.Count);
+        for (int i = 0; i < take; i++)
+        {
+            var kv = top[i];
+            sb.Append(kv.Key);
+            sb.Append(" x");
+            sb.Append(kv.Value);
+            if (i < take - 1) sb.Append(", ");
+        }
+
+        return sb.ToString();
+    }
+
+    private static string UnixToShortTime(long unix)
+    {
+        if (unix <= 0) return "??:??";
+        try
+        {
+            var dt = DateTimeOffset.FromUnixTimeSeconds(unix).ToLocalTime();
+            return dt.ToString("HH:mm");
+        }
+        catch
+        {
+            return "??:??";
+        }
+    }
+
+    private static void ApplyCounters(PlayerState ps, List<ActionEvent> older)
+    {
+        if (ps == null) return;
+
+        for (int i = 0; i < older.Count; i++)
+        {
+            var e = older[i];
+            if (e == null) continue;
+
+            string verb = string.IsNullOrWhiteSpace(e.Verb) ? "unknown" : e.Verb.Trim().ToLowerInvariant();
+            string region = string.IsNullOrWhiteSpace(e.RegionId) ? "region_unknown" : e.RegionId.Trim().ToLowerInvariant();
+
+            ps.IncCounter($"verb:{verb}", 1f);
+            ps.IncCounter($"region:{region}", 1f);
+
+            // If you later add richer tags (threat, stance, tool, etc.), increment them here too.
+        }
+    }
+}
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\UpgradeOfferManager.cs =====
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// Holds pending upgrade offers and provides a simple accept/decline flow.
+/// Swap OnGUI out later for a proper UI panel.
+/// </summary>
+public class UpgradeOfferManager : MonoBehaviour
+{
+    public static UpgradeOfferManager Instance { get; private set; }
+
+    [Header("References")]
+    public PlayerProfile playerProfile;
+
+    private readonly Queue<UpgradeOffer> offers = new();
+    private UpgradeOffer? activeOffer;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+    private void Update()
+    {
+        if (activeOffer == null && offers.Count > 0)
+            activeOffer = offers.Dequeue();
+    }
+
+    /// <summary>
+    /// Called when an upgrade (Tier 2+) is committed.
+    /// Creates an offer instead of auto replacing.
+    /// </summary>
+    public void OfferReplacementIfRelevant(SkillData newSkill, SkillData parentSkill)
+    {
+        if (newSkill == null || parentSkill == null) return;
+        if (playerProfile == null)
+        {
+            Debug.LogWarning("[UpgradeOffer] No PlayerProfile assigned.");
+            return;
+        }
+
+        var equippedId = playerProfile.GetEquippedSkillId(newSkill.type);
+
+        bool parentEquipped = !string.IsNullOrWhiteSpace(equippedId) && equippedId == parentSkill.skillId;
+        bool slotOccupied = !string.IsNullOrWhiteSpace(equippedId);
+
+        if (!slotOccupied)
+        {
+            playerProfile.EquipSkill(newSkill);
+            PlayerStateManager.Instance?.EquipSkill(newSkill);
+            return;
+        }
+
+        offers.Enqueue(new UpgradeOffer
+        {
+            newSkill = newSkill,
+            parentSkill = parentSkill,
+            currentlyEquippedSkillId = equippedId,
+            reason = parentEquipped
+                ? "Upgraded equipped skill"
+                : "Higher-tier option for this slot"
+        });
+    }
+
+    private void Accept()
+    {
+        if (activeOffer == null) return;
+        var offer = activeOffer.Value;
+
+        playerProfile.ReplaceEquippedSkill(offer.newSkill);
+        PlayerStateManager.Instance?.EquipSkill(offer.newSkill);
+
+        activeOffer = null;
+    }
+
+    private void Decline()
+    {
+        activeOffer = null;
+    }
+
+    private void OnGUI()
+    {
+        if (activeOffer == null) return;
+        var offer = activeOffer.Value;
+
+        GUILayout.BeginArea(new Rect(20, 20, 520, 160), GUI.skin.box);
+        GUILayout.Label("<b>Upgrade Available</b>", new GUIStyle(GUI.skin.label) { richText = true });
+
+        GUILayout.Label(
+            $"New: {offer.newSkill.skillName} (Tier {offer.newSkill.tier})\n" +
+            $"Upgrades: {offer.parentSkill.skillName} (Tier {offer.parentSkill.tier})\n" +
+            $"Slot: {offer.newSkill.type}\n" +
+            $"Reason: {offer.reason}"
+        );
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Replace Equipped")) Accept();
+        if (GUILayout.Button("Keep Current")) Decline();
+        GUILayout.EndHorizontal();
+
+        GUILayout.EndArea();
+    }
+
+    public struct UpgradeOffer
+    {
+        public SkillData newSkill;
+        public SkillData parentSkill;
+        public string currentlyEquippedSkillId;
+        public string reason;
+    }
+}
+
+### Scripts/Gameplay/Systems/World
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\LLMThinkCycle.cs =====
+// Assets/Assets/Scripts/Gameplay/Systems/World/LLMThinkCycle.cs
+
+using System.Text;
+using UnityEngine;
+
+public class LLMThinkCycle : MonoBehaviour
+{
+    [Header("References")]
+    public WorldDeltaApplier worldDeltaApplier;
+
+    [Header("Situation (Highly Recommended)")]
+    public SituationSnapshotBuilder situationSnapshotBuilder;
+
+    [Header("Timing")]
+    public float thinkEverySeconds = 12f;
+    public float minTotalSignificance = 4f;
+
+    [Header("Safety")]
+    [Range(0f, 1f)]
+    public float minConfidenceToApply = 0.25f;
+
+    [Header("Prompt Budgeting")]
+    public int maxSituationChars = 2600;
+    public int maxSummaryChars = 900;
+    public int maxLedgerChars = 900;
+
+    [Header("Queue / Contention Control")]
+    [Tooltip("If true, this cycle won't enqueue while LLMClient is busy/queued.")]
+    public bool requireIdleLLM = true;
+
+    [Tooltip("If true, when busy, we retry soon instead of skipping an entire think interval.")]
+    public bool retrySoonWhenBusy = true;
+
+    [Tooltip("Delay (seconds) between retry attempts while busy.")]
+    public float busyRetryDelay = 0.5f;
+
+    [Header("Debug")]
+    public bool logPrompt = false;
+    public bool logRawResponse = true;
+    public bool clearEventsAfterApply = true;
+
+    private float nextThinkTime;
+
+    // Prevent retry spirals
+    private bool inRepair = false;
+
+    private void Awake()
+    {
+        if (worldDeltaApplier == null)
+            worldDeltaApplier = FindFirstObjectByType<WorldDeltaApplier>();
+
+        if (worldDeltaApplier != null)
+            worldDeltaApplier.minConfidence = minConfidenceToApply;
+
+        if (situationSnapshotBuilder == null)
+            situationSnapshotBuilder = FindFirstObjectByType<SituationSnapshotBuilder>();
+
+        nextThinkTime = Time.time + thinkEverySeconds;
+    }
+
+    private void Update()
+    {
+        if (Time.time < nextThinkTime) return;
+
+        // ? If we're repairing, don't also schedule normal thinks.
+        if (inRepair)
+        {
+            // Keep checking periodically rather than drifting forever.
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
+        // ? If LLM is busy and we require idleness, retry soon (don't "burn" the whole interval).
+        if (requireIdleLLM && LLMClient.Instance != null && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + (retrySoonWhenBusy ? Mathf.Max(0.1f, busyRetryDelay) : thinkEverySeconds);
+            return;
+        }
+
+        // Only advance timer once we're actually going to try a think.
+        nextThinkTime = Time.time + thinkEverySeconds;
+        TryThink();
+    }
+
+    private void TryThink()
+    {
+        if (inRepair) return;
+
+        if (LLMClient.Instance == null || worldDeltaApplier == null)
+            return;
+
+        // ? Second guard (race-safe).
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
+        var acc = EventAccumulator.Instance;
+        if (acc == null) return;
+
+        var events = acc.GetEvents();
+        if (events == null || events.Count == 0) return;
+
+        float sig = 0f;
+        for (int i = 0; i < events.Count; i++)
+            sig += Mathf.Max(0f, events[i].Significance);
+
+        if (sig < minTotalSignificance) return;
+
+        // Blocks
+        string situation = Truncate(SafeSituationSnapshot(), maxSituationChars);
+        string summary = Truncate(SafeSummarize(events), maxSummaryChars);
+        string ledger = Truncate(SafeLedger(), maxLedgerChars);
+
+        string combinedRecent = BuildCombinedRecentBlock(situation, summary);
+
+        string task = BuildInstruction(sig, !string.IsNullOrWhiteSpace(situation));
+        string schema = PromptContextBuilder.WrapJsonSchema(WorldDeltaSchemaWithExamples());
+
+        string prompt = PromptContextBuilder.BuildContext(
+            taskInstruction: task,
+            outputSchemaBlock: schema,
+            recentSummary: combinedRecent,
+            behaviorLedger: ledger
+        );
+
+        if (logPrompt)
+            Debug.Log(prompt);
+
+        // ? Only enqueue if still safe to do so.
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
+        LLMClient.Instance.GenerateSkill(prompt, raw =>
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return;
+
+            if (logRawResponse)
+                Debug.Log("[LLMThinkCycle] RAW RESPONSE:\n" + raw);
+
+            if (worldDeltaApplier.TryApply(raw, out var err))
+            {
+                Debug.Log("[WORLD SHIFT] World updated.");
+                if (clearEventsAfterApply)
+                    TryClearEvents(acc);
+                return;
+            }
+
+            Debug.LogWarning("[LLMThinkCycle] Delta failed: " + err);
+
+            // If applier says no-op, do not spam repair; just wait for better evidence
+            if (!string.IsNullOrEmpty(err) && err.ToLowerInvariant().Contains("no-op"))
+                return;
+
+            // ? One repair attempt max; and do not overlap with queued LLM requests.
+            inRepair = true;
+
+            // If LLM is currently busy due to the other think cycle, retry repair shortly.
+            if (requireIdleLLM && LLMClient.Instance.IsBusy)
+            {
+                inRepair = false;
+                nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+                return;
+            }
+
+            RetryOnce(schema, raw, err, acc);
+        });
+    }
+
+    private void RetryOnce(string schema, string raw, string error, EventAccumulator acc)
+    {
+        // ? If something else grabbed the LLM before we start repair, back off.
+        if (LLMClient.Instance == null)
+        {
+            inRepair = false;
+            return;
+        }
+
+        if (requireIdleLLM && LLMClient.Instance.IsBusy)
+        {
+            inRepair = false;
+            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Return ONLY a single valid JSON object. No markdown. No headings. No explanation.");
+        sb.AppendLine("You MUST match the schema exactly.");
+        sb.AppendLine();
+        sb.AppendLine($"CONFIDENCE RULE: confidence must be a number 0.0 to 1.0 (NOT percent). Must be >= {minConfidenceToApply:0.00}");
+        sb.AppendLine();
+        sb.AppendLine("ARRAY RULE: flags/factions/locations MUST be arrays of OBJECTS (not strings).");
+        sb.AppendLine("If you have no changes for a category, use an empty array [].");
+        sb.AppendLine();
+        sb.AppendLine("Correct EXAMPLES:");
+        sb.AppendLine(@"""flags"": [ { ""key"": ""tension"", ""op"": ""inc"", ""value"": 1 } ]");
+        sb.AppendLine(@"""factions"": [ { ""factionId"": ""the_archives"", ""name"": ""The Archives"", ""op"": ""attitude_inc"", ""value"": -0.05, ""text"": ""Rumors spread in the stacks."" } ]");
+        sb.AppendLine(@"""locations"": [ { ""locationId"": ""library_hall"", ""name"": ""Library Hall"", ""regionId"": ""region_library"", ""op"": ""state_set"", ""value"": ""alert"", ""text"": ""Footsteps hush; lanterns turn."" } ]");
+        sb.AppendLine();
+        sb.AppendLine("Schema:");
+        sb.AppendLine(schema);
+        sb.AppendLine();
+        sb.AppendLine("Parse error to fix:");
+        sb.AppendLine(error);
+        sb.AppendLine();
+        sb.AppendLine("Bad previous output (for reference only):");
+        sb.AppendLine(raw);
+
+        LLMClient.Instance.GenerateSkill(sb.ToString(), repaired =>
+        {
+            if (logRawResponse)
+                Debug.Log("[LLMThinkCycle] REPAIRED:\n" + repaired);
+
+            inRepair = false;
+
+            if (worldDeltaApplier.TryApply(repaired, out var err2))
+            {
+                Debug.Log("[WORLD SHIFT] World updated (repaired).");
+                if (clearEventsAfterApply)
+                    TryClearEvents(acc);
+                return;
+            }
+
+            Debug.LogWarning("[LLMThinkCycle] Repair failed: " + err2);
+        });
+    }
+
+    private string BuildCombinedRecentBlock(string situation, string summary)
+    {
+        var sb = new StringBuilder();
+
+        if (!string.IsNullOrWhiteSpace(situation))
+        {
+            sb.AppendLine("SITUATION_SNAPSHOT (primary evidence; treat as ground truth):");
+            sb.AppendLine(situation);
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("RECENT_ACTIONS_SUMMARY:");
+        sb.AppendLine(string.IsNullOrWhiteSpace(summary) ? "<none>" : summary);
+
+        return sb.ToString();
+    }
+
+    private string SafeSituationSnapshot()
+    {
+        try
+        {
+            if (situationSnapshotBuilder == null)
+                return "<no SituationSnapshotBuilder>";
+            return situationSnapshotBuilder.BuildSnapshot();
+        }
+        catch
+        {
+            return "<situation unavailable>";
+        }
+    }
+
+    private string SafeSummarize(System.Collections.Generic.IReadOnlyList<ActionEvent> events)
+    {
+        try
+        {
+            return EventSummarizer.Summarize(new System.Collections.Generic.List<ActionEvent>(events));
+        }
+        catch
+        {
+            return $"Observed {events.Count} actions.";
+        }
+    }
+
+    private string SafeLedger()
+    {
+        try
+        {
+            return ActionRegistry.Instance?.BuildBehaviorSummary(12) ?? "<none>";
+        }
+        catch
+        {
+            return "<ledger unavailable>";
+        }
+    }
+
+    private string BuildInstruction(float sig, bool situationPresent)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Create a WorldDeltaDTO responding to player behavior.");
+        sb.AppendLine($"Total significance: {sig:0.00}");
+        sb.AppendLine();
+
+        if (situationPresent)
+        {
+            sb.AppendLine("Critical relevance rules:");
+            sb.AppendLine("- Use SITUATION_SNAPSHOT as PRIMARY evidence.");
+            sb.AppendLine("- Prefer region-appropriate changes over generic flags.");
+            sb.AppendLine("- Keep deltas small and concrete.");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("Rules:");
+        sb.AppendLine("- confidence must be 0.0..1.0");
+        sb.AppendLine("- flags items: { key, op(set|inc|dec), value(number) }");
+        sb.AppendLine("- factions items: { factionId, name, op(attitude_set|attitude_inc|status_set), value(number), text(string) }");
+        sb.AppendLine("- locations items: { locationId, name, regionId, op(state_set|importance_set|importance_inc), value(string or number depending on op), text(string) }");
+        sb.AppendLine("- No extra top-level keys.");
+        sb.AppendLine("- Return JSON only.");
+        return sb.ToString();
+    }
+
+    private string WorldDeltaSchemaWithExamples()
+    {
+        return @"
+{
+  ""rationale"": ""string"",
+  ""confidence"": 0.0,
+
+  ""flags"": [
+    { ""key"": ""tension"", ""op"": ""inc"", ""value"": 1 }
+  ],
+
+  ""factions"": [
+    { ""factionId"": ""the_archives"", ""name"": ""The Archives"", ""op"": ""attitude_inc"", ""value"": -0.05, ""text"": ""Rumors spread in the stacks."" }
+  ],
+
+  ""locations"": [
+    { ""locationId"": ""library_hall"", ""name"": ""Library Hall"", ""regionId"": ""region_library"", ""op"": ""state_set"", ""value"": ""alert"", ""text"": ""Lanterns tilt toward the aisles."" }
+  ]
+}";
+    }
+
+    private void TryClearEvents(EventAccumulator acc)
+    {
+        var m = acc.GetType().GetMethod("ClearEvents");
+        if (m != null)
+            m.Invoke(acc, null);
+    }
+
+    private static string Truncate(string s, int maxChars)
+    {
+        if (string.IsNullOrEmpty(s)) return s;
+        if (maxChars <= 0) return "";
+        if (s.Length <= maxChars) return s;
+        return s.Substring(0, maxChars) + "...";
+    }
+}
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs =====
 using System;
@@ -320,9 +1262,6 @@ public class WorldDeltaApplier : MonoBehaviour
     private struct FactionOp { public string factionId; public string op; public float value; public string text; }
     private struct LocationOp { public string locationId; public string op; public float value; public string valueText; public string text; }
 }
-
-
-### Scripts/Gameplay/Systems/World
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaDTO.cs =====
 // WorldDeltaDTO.cs
@@ -710,6 +1649,15 @@ public class LLMClient : MonoBehaviour
     }
 
     /// <summary>
+    /// Compatibility wrapper (older systems call SendOnce).
+    /// Uses the queue, so it will not fail just because we are busy.
+    /// </summary>
+    public void SendOnce(string prompt, Action<string> onResponse, string debugTag = null)
+    {
+        Enqueue(prompt, onResponse, string.IsNullOrWhiteSpace(debugTag) ? "SendOnce" : debugTag);
+    }
+
+    /// <summary>
     /// Queue a request instead of rejecting when busy.
     /// </summary>
     public void Enqueue(string prompt, Action<string> onResponse, string debugTag = null)
@@ -727,7 +1675,7 @@ public class LLMClient : MonoBehaviour
             debugTag = debugTag
         });
 
-        // ? Critical fix: set flag BEFORE starting coroutine to avoid double-start race.
+        // Critical fix: set flag BEFORE starting coroutine to avoid double-start race.
         if (!_processing)
         {
             _processing = true;
@@ -822,977 +1770,5 @@ public class LLMClient : MonoBehaviour
         }
 
         return raw;
-    }
-}
-
-### Scripts/LLM/Prompting
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PlayerMemoryRenderer.cs =====
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-
-public static class PlayerMemoryRenderer
-{
-    public static string Render(PlayerState s, int maxSkills = 10, int maxQuests = 6, int maxTitles = 6)
-    {
-        if (s == null) return "PlayerSnapshot: <null>";
-
-        var sb = new StringBuilder();
-        sb.AppendLine("PLAYER_SNAPSHOT");
-        sb.AppendLine($"Name: {s.displayName}");
-
-        // xp is int; xpToNext is int; formatting with :0 is unnecessary (and can confuse)
-        sb.AppendLine($"Level: {s.level}  XP: {s.xp}/{(s.xp + s.xpToNext)} (to next {s.xpToNext})");
-
-        sb.AppendLine($"Scene: {s.currentScene}  Region: {s.currentRegionId}");
-
-        // ? Vector3 is not indexable, use .x .y .z
-        sb.AppendLine($"Pos: [{s.lastPosition.x:0.0}, {s.lastPosition.y:0.0}, {s.lastPosition.z:0.0}]");
-        sb.AppendLine();
-
-        // Stats
-        var st = s.stats;
-        if (st != null)
-        {
-            sb.AppendLine("STATS");
-            sb.AppendLine($"STR {st.strength} | DEX {st.dexterity} | INT {st.intelligence} | VIT {st.vitality}");
-            sb.AppendLine($"HP {st.maxHealth} | STA {st.maxStamina} | MANA {st.maxMana}");
-            sb.AppendLine($"ATK {st.attack} | DEF {st.defense} | CRIT {st.critChance:0.00} | MS x{st.moveSpeed:0.00}");
-            sb.AppendLine();
-        }
-
-        // Equipped
-        sb.AppendLine("EQUIPPED_SKILLS");
-        if (s.equippedSkillBySlot != null && s.equippedSkillBySlot.Count > 0)
-        {
-            foreach (var kv in s.equippedSkillBySlot)
-            {
-                var rec = s.FindSkillById(kv.Value);
-                if (rec != null)
-                    sb.AppendLine($"{kv.Key}: {rec.name} (Tier {rec.tier})");
-                else
-                    sb.AppendLine($"{kv.Key}: {kv.Value}");
-            }
-        }
-        else sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        // Skills (top tiers first)
-        sb.AppendLine("SKILLS (top/highest tiers)");
-        int added = 0;
-
-        if (s.skills != null && s.skills.Count > 0)
-        {
-            // Track families we already printed so we don't list duplicates
-            var printedFamilies = new HashSet<string>();
-
-            for (int i = 0; i < s.skills.Count && added < maxSkills; i++)
-            {
-                var r = s.skills[i];
-                if (r == null || !r.unlocked) continue;
-
-                string fam = string.IsNullOrWhiteSpace(r.familyId) ? $"__nofam__:{r.skillId}" : r.familyId;
-
-                // Only show highest tier per family
-                int highestTier = s.FindHighestTierInFamily(r.familyId);
-                if (highestTier > 0 && r.tier != highestTier) continue;
-
-                // Only print one skill per family
-                if (printedFamilies.Contains(fam)) continue;
-                printedFamilies.Add(fam);
-
-                sb.AppendLine($"- {r.name} | Type {r.type} | Tier {r.tier} | Family {Short(r.familyId)}");
-                added++;
-            }
-        }
-
-        if (added == 0) sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        // Titles
-        sb.AppendLine("TITLES (recent)");
-        int tCount = 0;
-        if (s.titles != null && s.titles.Count > 0)
-        {
-            for (int i = s.titles.Count - 1; i >= 0 && tCount < maxTitles; i--)
-            {
-                var t = s.titles[i];
-                if (t == null) continue;
-                sb.AppendLine($"- {t.name}: {t.description}");
-                tCount++;
-            }
-        }
-        if (tCount == 0) sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        // Quests
-        sb.AppendLine("QUESTS (active/offers)");
-        int qCount = 0;
-        if (s.quests != null && s.quests.Count > 0)
-        {
-            for (int i = s.quests.Count - 1; i >= 0 && qCount < maxQuests; i--)
-            {
-                var q = s.quests[i];
-                if (q == null) continue;
-
-                // Treat both "complete" and "completed" as done; same for failed
-                string status = (q.status ?? "").Trim().ToLowerInvariant();
-                if (status == "complete" || status == "completed" || status == "failed") continue;
-
-                sb.AppendLine($"- [{q.status}] {q.name}: {q.description}");
-                qCount++;
-            }
-        }
-        if (qCount == 0) sb.AppendLine("<none>");
-
-        return sb.ToString();
-    }
-
-    private static string Short(string s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "none";
-        return s.Length <= 8 ? s : s.Substring(0, 8);
-    }
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PromptContextBuilder.cs =====
-using System.Text;
-
-public static class PromptContextBuilder
-{
-    public static string BuildContext(
-        string taskInstruction,
-        string outputSchemaBlock,
-        string recentSummary,
-        string behaviorLedger
-    )
-    {
-        var sb = new StringBuilder();
-
-        sb.AppendLine("You are the System Director for an offline single-player RPG.");
-        sb.AppendLine("Follow the rules strictly. Output must match the schema exactly.");
-        sb.AppendLine("No markdown. No explanations outside JSON.");
-        sb.AppendLine();
-
-        // World snapshot (always)
-        var wsm = WorldStateManager.Instance;
-        if (wsm != null && wsm.state != null)
-        {
-            sb.AppendLine(WorldMemoryRenderer.Render(wsm.state));
-            sb.AppendLine();
-        }
-        else
-        {
-            sb.AppendLine("WORLD_SNAPSHOT\n<missing>");
-            sb.AppendLine();
-        }
-
-        // Player snapshot (always)
-        var psm = PlayerStateManager.Instance;
-        if (psm != null && psm.state != null)
-        {
-            sb.AppendLine(PlayerMemoryRenderer.Render(psm.state));
-            sb.AppendLine();
-        }
-        else
-        {
-            sb.AppendLine("PLAYER_SNAPSHOT\n<missing>");
-            sb.AppendLine();
-        }
-
-        // Observations
-        sb.AppendLine("RECENT_ACTIONS_SUMMARY");
-        sb.AppendLine(string.IsNullOrWhiteSpace(recentSummary) ? "<none>" : recentSummary);
-        sb.AppendLine();
-
-        sb.AppendLine("BEHAVIOR_LEDGER");
-        sb.AppendLine(string.IsNullOrWhiteSpace(behaviorLedger) ? "<none>" : behaviorLedger);
-        sb.AppendLine();
-
-        // Task
-        sb.AppendLine("TASK");
-        sb.AppendLine(taskInstruction);
-        sb.AppendLine();
-
-        sb.AppendLine("OUTPUT_SCHEMA");
-        sb.AppendLine(outputSchemaBlock);
-
-        return sb.ToString();
-    }
-
-    public static string WrapJsonSchema(string schemaJson)
-    {
-        return $"Return ONLY valid JSON.\n{schemaJson}";
-    }
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\WorldMemoryRenderer.cs =====
-using System.Text;
-
-public static class WorldMemoryRenderer
-{
-    public static string Render(WorldState s, int maxFlags = 12, int maxFactions = 6, int maxLocations = 6, int maxNpcs = 6)
-    {
-        if (s == null) return "WORLD_SNAPSHOT: <null>";
-
-        var sb = new StringBuilder();
-
-        sb.AppendLine("WORLD_SNAPSHOT");
-        sb.AppendLine($"World: {s.worldName}  Region: {s.currentRegionId}");
-        sb.AppendLine();
-
-        sb.AppendLine("CANON_LEDGER");
-        sb.AppendLine(string.IsNullOrWhiteSpace(s.canonLedger) ? "<none>" : s.canonLedger.Trim());
-        sb.AppendLine();
-
-        sb.AppendLine("GLOBAL_FLAGS (top)");
-        int added = 0;
-        if (s.globalFlags != null && s.globalFlags.Count > 0)
-        {
-            foreach (var kv in s.globalFlags)
-            {
-                sb.AppendLine($"- {kv.Key} = {kv.Value:0.00}");
-                added++;
-                if (added >= maxFlags) break;
-            }
-        }
-        if (added == 0) sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        sb.AppendLine("FACTIONS (notable)");
-        int fCount = 0;
-        if (s.factions != null)
-        {
-            for (int i = 0; i < s.factions.Count && fCount < maxFactions; i++)
-            {
-                var f = s.factions[i];
-                if (f == null) continue;
-                sb.AppendLine($"- {f.name} ({f.factionId}) | AttitudeToPlayer {f.attitudeToPlayer:0.00} | Status {f.status}");
-                fCount++;
-            }
-        }
-        if (fCount == 0) sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        sb.AppendLine("LOCATIONS (region-relevant)");
-        int lCount = 0;
-        if (s.locations != null)
-        {
-            for (int i = 0; i < s.locations.Count && lCount < maxLocations; i++)
-            {
-                var l = s.locations[i];
-                if (l == null) continue;
-                if (!string.IsNullOrWhiteSpace(s.currentRegionId) && l.regionId != s.currentRegionId) continue;
-
-                sb.AppendLine($"- {l.name} ({l.locationId}) | State {l.state} | Importance {l.importance:0.00}");
-                lCount++;
-            }
-        }
-        if (lCount == 0) sb.AppendLine("<none>");
-        sb.AppendLine();
-
-        sb.AppendLine("NPCS (region-relevant)");
-        int nCount = 0;
-        if (s.npcs != null)
-        {
-            for (int i = 0; i < s.npcs.Count && nCount < maxNpcs; i++)
-            {
-                var n = s.npcs[i];
-                if (n == null) continue;
-                if (!string.IsNullOrWhiteSpace(s.currentRegionId) && !string.IsNullOrWhiteSpace(n.locationId))
-                {
-                    // if you later store npc->location->region, you can filter better
-                }
-
-                sb.AppendLine($"- {n.name} ({n.npcId}) | Faction {n.factionId} | Affinity {n.affinityToPlayer:0.00} | Status {n.status}");
-                nCount++;
-            }
-        }
-        if (nCount == 0) sb.AppendLine("<none>");
-
-        return sb.ToString();
-    }
-}
-
-### Scripts/Observation
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\ActionRecorder.cs =====
-using System.Collections.Generic;
-using UnityEngine;
-
-public class ActionRecorder : MonoBehaviour
-{
-    public static ActionRecorder Instance { get; private set; }
-
-    // Lazy reference to EventAccumulator to avoid null on Awake
-    private EventAccumulator accumulator;
-    private EventAccumulator Accumulator
-    {
-        get
-        {
-            if (accumulator == null)
-            {
-                accumulator = EventAccumulator.Instance;
-                if (accumulator == null)
-                    Debug.LogWarning("ActionRecorder: EventAccumulator instance still null!");
-            }
-            return accumulator;
-        }
-    }
-
-    private ActionRegistry registry;
-    private ActionRegistry Registry
-    {
-        get
-        {
-            if (registry == null)
-            {
-                registry = ActionRegistry.Instance;
-                if (registry == null)
-                    Debug.LogWarning("ActionRecorder: ActionRegistry instance still null!");
-            }
-            return registry;
-        }
-    }
-
-    [Header("Context Bucketing")]
-    public float cellSize = 25f;
-
-    [Header("Cooldowns (seconds)")]
-    public float moveCooldown = 0.35f;
-    public float jumpCooldown = 0.75f;
-    public float combatCooldown = 0.25f;
-    public float crouchCooldown = 0.6f;
-    public float dodgeCooldown = 0.5f;
-    public float interactCooldown = 0.4f;
-
-    private readonly Dictionary<string, float> lastRecorded = new Dictionary<string, float>();
-    private Dictionary<string, float> cooldowns;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-
-        cooldowns = new Dictionary<string, float>
-        {
-            { "movement", moveCooldown },
-            { "jump", jumpCooldown },
-            { "combat", combatCooldown },
-            { "crouch", crouchCooldown },
-            { "dodge", dodgeCooldown },
-            { "interact", interactCooldown }
-        };
-    }
-
-    private bool CanRecord(string key)
-    {
-        // Safe default if you forget to configure a cooldown
-        float cd = cooldowns.TryGetValue(key, out float v) ? v : 0.5f;
-        return !lastRecorded.ContainsKey(key) || Time.time - lastRecorded[key] >= cd;
-    }
-
-    /// <summary>
-    /// Fallback region bucket if no semantic region exists.
-    /// </summary>
-    private string ComputeGridRegionId(Vector3 pos)
-    {
-        int cx = Mathf.FloorToInt(pos.x / Mathf.Max(0.01f, cellSize));
-        int cz = Mathf.FloorToInt(pos.z / Mathf.Max(0.01f, cellSize));
-        return $"x{cx}_z{cz}";
-    }
-
-    /// <summary>
-    /// Preferred semantic region id/name from PlayerContext, falling back to grid bucket.
-    /// </summary>
-    private void GetRegionContext(Vector3 pos, out string regionId, out string regionName)
-    {
-        regionId = null;
-        regionName = null;
-
-        var ctx = PlayerContext.Instance;
-        if (ctx != null)
-        {
-            if (!string.IsNullOrWhiteSpace(ctx.SemanticRegionId))
-                regionId = ctx.SemanticRegionId;
-
-            if (!string.IsNullOrWhiteSpace(ctx.SemanticRegionName))
-                regionName = ctx.SemanticRegionName;
-        }
-
-        if (string.IsNullOrWhiteSpace(regionId))
-            regionId = ComputeGridRegionId(pos);
-    }
-
-    private void Record(string key, ActionEvent ev)
-    {
-        if (!CanRecord(key)) return;
-
-        // Ensure registry is populated even if Accumulator isn't ready.
-        if (Registry != null) Registry.Record(ev);
-
-        if (Accumulator != null)
-            Accumulator.AddEvent(ev);
-
-        lastRecorded[key] = Time.time;
-    }
-
-    public void RecordMove()
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("movement", new ActionEvent("movement", 0.4f, null, pos, null, regionId, regionName));
-    }
-
-    public void RecordJump()
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("jump", new ActionEvent("jump", 0.6f, null, pos, null, regionId, regionName));
-    }
-
-    public void RecordCombat(GameObject target)
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("combat", new ActionEvent("combat", 1.2f, target, pos, null, regionId, regionName));
-    }
-
-    public void RecordCrouch()
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("crouch", new ActionEvent("crouch", 0.5f, null, pos, null, regionId, regionName));
-    }
-
-    public void RecordDodge()
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("dodge", new ActionEvent("dodge", 0.7f, null, pos, null, regionId, regionName));
-    }
-
-    public void RecordInteract(GameObject target)
-    {
-        var pos = transform.position;
-        GetRegionContext(pos, out var regionId, out var regionName);
-        Record("interact", new ActionEvent("interact", 0.8f, target, pos, null, regionId, regionName));
-    }
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\ActionRegistry.cs =====
-using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
-/// <summary>
-/// Long-lived behavior ledger:
-/// - stores recent raw history (ring-buffer)
-/// - aggregates counts/significance by (verb + scene + region + targetName)
-/// Keep separate from EventAccumulator (short-term LLM batching).
-/// </summary>
-public class ActionRegistry : MonoBehaviour
-{
-    public static ActionRegistry Instance { get; private set; }
-
-    [Header("Raw History")]
-    [SerializeField] private int maxHistory = 200;
-
-    [Header("Context Bucketing")]
-    [Tooltip("World-space grid size used to bucket actions into coarse regions.")]
-    [SerializeField] private float regionCellSize = 20f;
-
-    private readonly List<ActionEvent> history = new();
-
-    // Aggregated stats (internal hash key -> stats)
-    private readonly Dictionary<ActionKey, ActionStat> stats = new();
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-    }
-
-    /// <summary>
-    /// Record an event into raw history and aggregated stats.
-    /// </summary>
-    public void Record(ActionEvent ev)
-    {
-        if (ev == null) return;
-
-        // Ensure scene name is filled
-        if (string.IsNullOrWhiteSpace(ev.SceneName))
-            ev.SceneName = SceneManager.GetActiveScene().name;
-
-        // Ensure region is filled
-        if (string.IsNullOrWhiteSpace(ev.RegionId) || ev.RegionId == "unknown")
-            ev.RegionId = ComputeRegionId(ev.Position);
-
-        history.Add(ev);
-        if (history.Count > maxHistory)
-            history.RemoveAt(0);
-
-        var key = new ActionKey(ev.Verb, ev.SceneName, ev.RegionId, ev.TargetName);
-
-        if (!stats.TryGetValue(key, out var stat))
-        {
-            stat = new ActionStat();
-            stats[key] = stat;
-        }
-
-        stat.Count++;
-        stat.TotalSignificance += ev.Significance;
-        stat.LastUnixTime = ev.UnixTime;
-        stat.LastPosition = ev.Position;
-    }
-
-    public void ClearAll()
-    {
-        history.Clear();
-        stats.Clear();
-    }
-
-    public IReadOnlyList<ActionEvent> GetRecentHistory() => history;
-
-    /// <summary>
-    /// Returns a snapshot list of aggregated stats, sorted by "most impactful" first.
-    /// Impact = TotalSignificance then Count.
-    /// Public API returns a safe DTO (ActionStatSnapshot) and does not expose internal hashing keys.
-    /// </summary>
-    public List<ActionStatSnapshot> GetTopStats(int max = 30)
-    {
-        var list = new List<ActionStatSnapshot>(stats.Count);
-        foreach (var kv in stats)
-            list.Add(new ActionStatSnapshot(kv.Key, kv.Value));
-
-        list.Sort((a, b) =>
-        {
-            int sig = b.TotalSignificance.CompareTo(a.TotalSignificance);
-            if (sig != 0) return sig;
-            return b.Count.CompareTo(a.Count);
-        });
-
-        if (max > 0 && list.Count > max)
-            list.RemoveRange(max, list.Count - max);
-
-        return list;
-    }
-
-    /// <summary>
-    /// Quick helper for building an LLM-friendly “behavior memory” string.
-    /// </summary>
-    public string BuildBehaviorSummary(int top = 20)
-    {
-        var topStats = GetTopStats(top);
-        if (topStats.Count == 0) return "No behavior recorded.";
-
-        StringBuilder sb = new();
-        sb.AppendLine("Behavior Ledger (most impactful):");
-
-        foreach (var entry in topStats)
-        {
-            sb.Append("- ");
-            sb.Append(entry.Verb);
-            sb.Append(" | scene:");
-            sb.Append(entry.Scene);
-            sb.Append(" | region:");
-            sb.Append(entry.Region);
-
-            if (!string.IsNullOrWhiteSpace(entry.TargetName))
-            {
-                sb.Append(" | target:");
-                sb.Append(entry.TargetName);
-            }
-
-            sb.Append(" | count:");
-            sb.Append(entry.Count);
-            sb.Append(" | sig:");
-            sb.Append(entry.TotalSignificance.ToString("0.00"));
-            sb.AppendLine();
-        }
-
-        return sb.ToString();
-    }
-
-    private string ComputeRegionId(Vector3 pos)
-    {
-        if (regionCellSize <= 0.01f) regionCellSize = 20f;
-
-        int cx = Mathf.FloorToInt(pos.x / regionCellSize);
-        int cz = Mathf.FloorToInt(pos.z / regionCellSize);
-
-        // Deliberately ignores Y to keep it stable across slopes/vertical gameplay.
-        return $"x{cx}_z{cz}";
-    }
-
-    #region Data Types
-
-    [Serializable]
-    internal struct ActionKey : IEquatable<ActionKey>
-    {
-        public string Verb;
-        public string Scene;
-        public string Region;
-        public string TargetName;
-
-        public ActionKey(string verb, string scene, string region, string targetName)
-        {
-            Verb = verb ?? "unknown";
-            Scene = scene ?? "unknown";
-            Region = region ?? "unknown";
-            TargetName = targetName ?? ""; // empty is valid for “no target”
-        }
-
-        public bool Equals(ActionKey other)
-        {
-            return Verb == other.Verb
-                && Scene == other.Scene
-                && Region == other.Region
-                && TargetName == other.TargetName;
-        }
-
-        public override bool Equals(object obj) => obj is ActionKey other && Equals(other);
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 31 + Verb.GetHashCode();
-                hash = hash * 31 + Scene.GetHashCode();
-                hash = hash * 31 + Region.GetHashCode();
-                hash = hash * 31 + TargetName.GetHashCode();
-                return hash;
-            }
-        }
-    }
-
-    [Serializable]
-    public class ActionStat
-    {
-        public int Count;
-        public float TotalSignificance;
-
-        public long LastUnixTime;
-        public Vector3 LastPosition;
-    }
-
-    /// <summary>
-    /// Public, safe-to-return snapshot of an aggregated behavior bucket.
-    /// This avoids exposing internal ActionKey hashing/structure.
-    /// </summary>
-    [Serializable]
-    public readonly struct ActionStatSnapshot
-    {
-        public readonly string Verb;
-        public readonly string Scene;
-        public readonly string Region;
-        public readonly string TargetName;
-
-        public readonly int Count;
-        public readonly float TotalSignificance;
-
-        public readonly long LastUnixTime;
-        public readonly Vector3 LastPosition;
-
-        internal ActionStatSnapshot(ActionKey key, ActionStat stat)
-        {
-            Verb = key.Verb;
-            Scene = key.Scene;
-            Region = key.Region;
-            TargetName = key.TargetName;
-
-            Count = stat.Count;
-            TotalSignificance = stat.TotalSignificance;
-
-            LastUnixTime = stat.LastUnixTime;
-            LastPosition = stat.LastPosition;
-        }
-    }
-
-    #endregion
-}
-
-### Scripts/Observation/Entities
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Entities\EntityIndex.cs =====
-using System.Collections.Generic;
-using UnityEngine;
-
-/// <summary>
-/// Utility: find nearby EntityInfo around a point.
-/// Pure helper (no state) so it's swappable.
-/// </summary>
-public static class EntityIndex
-{
-    /// <summary>
-    /// Returns EntityInfo components near a position, within radius, filtered and capped.
-    /// </summary>
-    public static List<EntityInfo> FindNearbyEntities(
-        Vector3 center,
-        float radius,
-        LayerMask mask,
-        int maxResults = 24,
-        bool requireEntityInfo = true)
-    {
-        var results = new List<EntityInfo>(maxResults);
-
-        Collider[] hits = Physics.OverlapSphere(center, radius, mask, QueryTriggerInteraction.Ignore);
-        if (hits == null || hits.Length == 0) return results;
-
-        // Deduplicate by Transform root to avoid multiple colliders per entity
-        var seen = new HashSet<Transform>();
-
-        for (int i = 0; i < hits.Length && results.Count < maxResults; i++)
-        {
-            var col = hits[i];
-            if (col == null) continue;
-
-            var root = col.transform.root;
-            if (root == null || seen.Contains(root)) continue;
-            seen.Add(root);
-
-            EntityInfo info = root.GetComponentInChildren<EntityInfo>();
-            if (requireEntityInfo && info == null) continue;
-
-            if (info != null)
-                results.Add(info);
-        }
-
-        return results;
-    }
-
-    public static bool HasLineOfSight(Vector3 from, Vector3 to, LayerMask occluderMask)
-    {
-        Vector3 dir = (to - from);
-        float dist = dir.magnitude;
-        if (dist <= 0.01f) return true;
-
-        dir /= dist;
-        // If ray hits occluder before target position, LOS blocked
-        return !Physics.Raycast(from, dir, dist, occluderMask, QueryTriggerInteraction.Ignore);
-    }
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Entities\EntityInfo.cs =====
-// Assets/Assets/Scripts/Observation/Entities/EntityInfo.cs
-
-using UnityEngine;
-
-public enum Hostility
-{
-    Friendly = 0,
-    Neutral = 1,
-    Hostile = 2
-}
-
-/// <summary>
-/// Stable identity card for any entity the director should care about.
-/// Attach to NPCs/enemies/guards/important actors.
-/// </summary>
-public class EntityInfo : MonoBehaviour
-{
-    [Header("Identity")]
-    [Tooltip("Stable unique id. Example: npc_archivist_01, mob_goblin_scout_03")]
-    public string entityId = "entity_unknown";
-
-    public string displayName = "Unknown";
-
-    [Header("Power")]
-    public int level = 1;
-
-    [Header("Affiliation")]
-    public string factionId = "none";
-    public Hostility hostility = Hostility.Neutral;
-
-    [Header("Director Relevance")]
-    public bool isNotable = false;
-
-    [Tooltip("Optional tags: guard, civilian, boss, merchant, etc.")]
-    public string[] tags;
-
-    // Preferred API
-    public bool IsHostile => hostility == Hostility.Hostile;
-
-    // -----------------------------
-    // Compatibility API (fix compile errors)
-    // -----------------------------
-
-    // Some scripts still expect a field/property called isHostile
-    public bool isHostile => IsHostile;
-
-    // Some scripts expect targetingPlayer (runtime flag).
-    // Set this from your AI/perception system if/when available.
-    public bool targetingPlayer = false;
-
-    private void OnValidate()
-    {
-        if (string.IsNullOrWhiteSpace(entityId))
-            entityId = "entity_unknown";
-        if (string.IsNullOrWhiteSpace(displayName))
-            displayName = gameObject.name;
-        if (level < 1) level = 1;
-        if (string.IsNullOrWhiteSpace(factionId))
-            factionId = "none";
-    }
-}
-
-### Scripts/Observation
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventAccumulator.cs =====
-// Assets/Assets/Scripts/Observation/EventAccumulator.cs
-
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class EventAccumulator : MonoBehaviour
-{
-    public static EventAccumulator Instance { get; private set; }
-
-    private readonly List<ActionEvent> actionEvents = new();
-
-    private readonly List<EmergentSkill> ghostSkills = new();       // normal drafts
-    private readonly List<EmergentSkill> upgradeCandidates = new(); // drafts tied to an existing skill
-    private readonly List<SkillData> committedSkills = new();       // committed (optional)
-
-    [Header("Upgrade Matching")]
-    [Range(0f, 1f)]
-    public float strongMatchThreshold = SkillSimilarity.STRONG_MATCH;
-
-    private void Awake()
-    {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-    }
-
-    public void RecordEvent(ActionEvent ev) => actionEvents.Add(ev);
-    public void AddEvent(ActionEvent ev) => RecordEvent(ev);
-
-    public IReadOnlyList<ActionEvent> GetEvents() => actionEvents;
-
-    /// <summary>
-    /// Clears buffered action events after you’ve applied a progression decision,
-    /// so you don’t double-award off the same evidence.
-    /// </summary>
-    public void ClearEvents() => actionEvents.Clear();
-
-    /// <summary>
-    /// Returns skills that were committed/applied to the player.
-    /// Used for upgrade matching / replacement offers.
-    /// </summary>
-    public IReadOnlyList<SkillData> GetCommittedSkills() => committedSkills;
-
-    /// <summary>
-    /// Removes events with UnixTime strictly less than cutoffUnix.
-    /// Use this after rolling them into a long-term ledger.
-    /// </summary>
-    public int PruneEventsBeforeUnix(long cutoffUnix)
-    {
-        int removed = 0;
-
-        // Remove from back (safe even if list order isn’t perfect)
-        for (int i = actionEvents.Count - 1; i >= 0; i--)
-        {
-            var e = actionEvents[i];
-            if (e == null) { actionEvents.RemoveAt(i); removed++; continue; }
-            if (e.UnixTime < cutoffUnix)
-            {
-                actionEvents.RemoveAt(i);
-                removed++;
-            }
-        }
-
-        return removed;
-    }
-
-    public void AddCommittedSkill(SkillData skill)
-    {
-        if (skill == null) return;
-        committedSkills.Add(skill);
-        Debug.Log($"[EventAccumulator] Committed skill added: {skill.skillName} (Tier {skill.tier})");
-    }
-
-    /// <summary>
-    /// Adds a draft as either:
-    /// - a normal ghost skill, or
-    /// - an upgrade candidate linked to an existing committed skill
-    /// </summary>
-    public void AddGhostSkillOrUpgradeCandidate(EmergentSkill draft)
-    {
-        if (draft == null) return;
-
-        // Try match against committed skills
-        SkillData best = null;
-        float bestScore = 0f;
-
-        for (int i = 0; i < committedSkills.Count; i++)
-        {
-            var c = committedSkills[i];
-            if (c == null) continue;
-
-            float score = SkillSimilarity.Score(
-                draft.skillName, draft.description, draft.contextTags,
-                c.skillName, c.description, c.tags
-            );
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = c;
-            }
-        }
-
-        if (best != null && bestScore >= strongMatchThreshold)
-        {
-            draft.upgradeTargetSkillId = best.skillId;
-            upgradeCandidates.Add(draft);
-            Debug.Log($"[EventAccumulator] Draft classified as UPGRADE candidate for '{best.skillName}' (score={bestScore:0.00})");
-            return;
-        }
-
-        ghostSkills.Add(draft);
-        Debug.Log($"[EventAccumulator] Draft stored as new ghost skill '{draft.skillName}' (score={bestScore:0.00})");
-    }
-
-    public IReadOnlyList<EmergentSkill> GetGhostSkills() => ghostSkills;
-    public IReadOnlyList<EmergentSkill> GetUpgradeCandidates() => upgradeCandidates;
-
-    public void ClearGhostSkills() => ghostSkills.Clear();
-    public void ClearUpgradeCandidates() => upgradeCandidates.Clear();
-}
-
-===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventSummarizer.cs =====
-using System.Collections.Generic;
-using System.Text;
-
-public static class EventSummarizer
-{
-    public static string Summarize(List<ActionEvent> events)
-    {
-        if (events == null || events.Count == 0) return string.Empty;
-
-        var counts = new Dictionary<string, int>();
-        var weight = new Dictionary<string, float>();
-
-        foreach (var ev in events)
-        {
-            if (!counts.ContainsKey(ev.Verb))
-            {
-                counts[ev.Verb] = 0;
-                weight[ev.Verb] = 0f;
-            }
-            counts[ev.Verb]++;
-            weight[ev.Verb] += ev.Significance;
-        }
-
-        var sb = new StringBuilder();
-        foreach (var kv in counts)
-            sb.AppendLine($"{kv.Key}: {kv.Value} occurrences, total significance {weight[kv.Key]:0.00}");
-
-        return sb.ToString();
     }
 }

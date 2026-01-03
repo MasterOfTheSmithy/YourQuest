@@ -1,7 +1,8 @@
 # INDEX
 # Group: Scripts
-# Generated: 2026-01-01 19:23:33
+# Generated: 2026-01-03 10:52:59
 # --------------------------------
+# - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\BalanceConfig.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\PlayerProfile.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\JsonFileStore.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\SerializableDictionary.cs
@@ -12,6 +13,24 @@
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldState.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldStateManager.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerController.cs
+
+### Scripts
+
+===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\BalanceConfig.cs =====
+// Assets/Assets/Scripts/BalanceConfig.cs
+
+using UnityEngine;
+
+/// <summary>
+/// Compatibility shim.
+/// Some older systems/scripts still reference BalanceConfig.
+/// The real config is ProgressionBalanceConfig.
+/// </summary>
+[CreateAssetMenu(menuName = "YourQuest/Progression/Balance Config (Legacy Alias)")]
+public class BalanceConfig : ProgressionBalanceConfig
+{
+    // Intentionally empty. Inherits everything from ProgressionBalanceConfig.
+}
 
 ### Scripts/Data
 
@@ -172,6 +191,8 @@ public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiv
 }
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\Vector3JsonConverter.cs =====
+// Assets/Assets/Scripts/Data/State/Json/Vector3JsonConverter.cs
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -192,11 +213,12 @@ public sealed class Vector3JsonConverter : JsonConverter<Vector3>
         if (reader.TokenType == JsonToken.Null) return Vector3.zero;
 
         var obj = JObject.Load(reader);
-        return new Vector3(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f),
-            (float)(obj["z"] ?? 0f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+        float z = obj["z"]?.Value<float>() ?? 0f;
+
+        return new Vector3(x, y, z);
     }
 }
 
@@ -215,10 +237,11 @@ public sealed class Vector2JsonConverter : JsonConverter<Vector2>
         if (reader.TokenType == JsonToken.Null) return Vector2.zero;
 
         var obj = JObject.Load(reader);
-        return new Vector2(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+
+        return new Vector2(x, y);
     }
 }
 
@@ -239,12 +262,13 @@ public sealed class QuaternionJsonConverter : JsonConverter<Quaternion>
         if (reader.TokenType == JsonToken.Null) return Quaternion.identity;
 
         var obj = JObject.Load(reader);
-        return new Quaternion(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f),
-            (float)(obj["z"] ?? 0f),
-            (float)(obj["w"] ?? 1f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+        float z = obj["z"]?.Value<float>() ?? 0f;
+        float w = obj["w"]?.Value<float>() ?? 1f;
+
+        return new Quaternion(x, y, z, w);
     }
 }
 
@@ -296,6 +320,8 @@ public class PlayerLocationReporter : MonoBehaviour
 }
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerState.cs =====
+// Assets/Assets/Scripts/Data/State/Player State/PlayerState.cs
+
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -310,6 +336,14 @@ public class PlayerState
     // Identity
     public string playerId = "player";
     public string displayName = "The Player";
+
+    // ? Alias expected by DirectorPromptBuilder
+    [JsonIgnore]
+    public string playerName
+    {
+        get => displayName;
+        set => displayName = string.IsNullOrWhiteSpace(value) ? displayName : value;
+    }
 
     // Progression
     public int level = 1;
@@ -393,9 +427,40 @@ public class PlayerState
     public float rewardBudget = 0f;
     public long rewardBudgetLastUpdateUnix = 0;
 
+    // ? Required by several systems
     public void Touch()
     {
         lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
+
+    // ? Required by DirectorPromptBuilder / EventSummarizer-style pipelines
+    public void AddLedgerLine(string line, int maxLines = 80)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
+
+        behaviorLedger ??= new List<string>();
+        behaviorLedger.Add(line.Trim());
+
+        // keep it bounded
+        if (behaviorLedger.Count > maxLines)
+        {
+            int remove = behaviorLedger.Count - maxLines;
+            behaviorLedger.RemoveRange(0, remove);
+        }
+
+        Touch();
+    }
+
+    // ? Required by DirectorPromptBuilder / balancing math
+    public void IncCounter(string key, float amount = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+
+        behaviorCounters ??= new Dictionary<string, float>();
+        if (!behaviorCounters.TryGetValue(key, out float v)) v = 0f;
+
+        behaviorCounters[key] = v + amount;
+        Touch();
     }
 
     // ---------------------------
@@ -416,116 +481,143 @@ public class PlayerState
         int needed = GetXpRequiredForLevel(level);
         if (experience < needed) return false;
 
-        if (consumeXp) experience -= needed;
-        level += 1;
+        level = Mathf.Max(1, level + 1);
+
+        if (consumeXp)
+            experience = Mathf.Max(0, experience - needed);
+
         Touch();
         return true;
     }
 
-    public void AddXp(int amount, bool autoLevel = true)
+    public void AddXp(int amount)
     {
-        if (amount <= 0) return;
-        experience += amount;
-
-        if (autoLevel)
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                if (!TryLevelUpIfReady(true)) break;
-            }
-        }
-
+        experience = Mathf.Max(0, experience + Mathf.Max(0, amount));
+        TryLevelUpIfReady(consumeXp: true);
         Touch();
     }
 
     // ---------------------------
-    // Ledger helpers
+    // Titles / Classes / Quests
     // ---------------------------
 
-    public void AddLedgerLine(string line, int maxLines = 60)
+    public void AwardTitle(string titleName, string description = "")
     {
-        if (string.IsNullOrWhiteSpace(line)) return;
-        line = line.Trim();
-
-        behaviorLedger ??= new List<string>();
-        behaviorLedger.Add(line);
-
-        if (maxLines > 0 && behaviorLedger.Count > maxLines)
-            behaviorLedger.RemoveRange(0, behaviorLedger.Count - maxLines);
-
-        Touch();
-    }
-
-    public void IncCounter(string key, float delta)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim().ToLowerInvariant();
-
-        behaviorCounters ??= new Dictionary<string, float>();
-        behaviorCounters.TryGetValue(key, out float cur);
-        behaviorCounters[key] = cur + delta;
-        Touch();
-    }
-
-    // ---------------------------
-    // Titles
-    // ---------------------------
-
-    public bool HasTitle(string titleName)
-    {
-        if (string.IsNullOrWhiteSpace(titleName)) return false;
-        titleName = titleName.Trim();
-
-        if (titles == null) return false;
-
-        for (int i = 0; i < titles.Count; i++)
-            if (titles[i] != null && titles[i].name == titleName)
-                return true;
-
-        return false;
-    }
-
-    public void AwardTitle(string titleName, string description)
-    {
-        if (string.IsNullOrWhiteSpace(titleName)) return;
-        if (HasTitle(titleName)) return;
+        titles ??= new List<TitleRecord>();
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        titles ??= new List<TitleRecord>();
         titles.Add(new TitleRecord
         {
             titleId = Guid.NewGuid().ToString("N"),
-            name = titleName.Trim(),
+            name = (titleName ?? "Untitled").Trim(),
             description = (description ?? "").Trim(),
-            acquiredUnix = now,
-            earnedUnix = now
+            earnedUnix = now,
+            acquiredUnix = now
         });
 
         Touch();
     }
 
-    // ---------------------------
-    // Classes
-    // ---------------------------
-
-    public void AwardClass(string className, string description)
+    public void AwardClass(string className, string description = "")
     {
-        if (string.IsNullOrWhiteSpace(className)) return;
+        classes ??= new List<ClassRecord>();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        classes.Add(new ClassRecord
+        {
+            classId = Guid.NewGuid().ToString("N"),
+            name = (className ?? "Unknown Class").Trim(),
+            description = (description ?? "").Trim(),
+            unlockedUnix = now,
+            acquiredUnix = now
+        });
+
+        Touch();
+    }
+
+    public void OfferQuest(string questName, string description = "", string[] tags = null)
+    {
+        quests ??= new List<QuestRecord>();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        quests.Add(new QuestRecord
+        {
+            questId = Guid.NewGuid().ToString("N"),
+            name = (questName ?? "Quest").Trim(),
+            description = (description ?? "").Trim(),
+            status = "offer",
+            tags = tags ?? Array.Empty<string>(),
+            createdUnix = now,
+            updatedUnix = now
+        });
+
+        Touch();
+    }
+
+    // ? The missing “Upsert*” trio your PlayerStateManager expects
+    public void UpsertTitle(TitleRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.titleId)) return;
+
+        titles ??= new List<TitleRecord>();
+
+        for (int i = 0; i < titles.Count; i++)
+        {
+            var existing = titles[i];
+            if (existing != null && existing.titleId == record.titleId)
+            {
+                titles[i] = record;
+                Touch();
+                return;
+            }
+        }
+
+        titles.Add(record);
+        Touch();
+    }
+
+    public void UpsertClass(ClassRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.classId)) return;
 
         classes ??= new List<ClassRecord>();
 
         for (int i = 0; i < classes.Count; i++)
-            if (classes[i] != null && classes[i].name == className.Trim())
-                return;
-
-        classes.Add(new ClassRecord
         {
-            name = className.Trim(),
-            description = (description ?? "").Trim(),
-            acquiredUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-        });
+            var existing = classes[i];
+            if (existing != null && existing.classId == record.classId)
+            {
+                classes[i] = record;
+                Touch();
+                return;
+            }
+        }
 
+        classes.Add(record);
+        Touch();
+    }
+
+    public void UpsertQuest(QuestRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.questId)) return;
+
+        quests ??= new List<QuestRecord>();
+
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var existing = quests[i];
+            if (existing != null && existing.questId == record.questId)
+            {
+                quests[i] = record;
+                Touch();
+                return;
+            }
+        }
+
+        quests.Add(record);
         Touch();
     }
 
@@ -659,8 +751,15 @@ public class TitleRecord
 [Serializable]
 public class ClassRecord
 {
+    // ? required by your PlayerStateManager usage
+    public string classId;
+
+    // ? required by some “unlock time” logic
+    public long unlockedUnix;
+
     public string name;
     [TextArea(2, 6)] public string description;
+
     public long acquiredUnix;
 }
 
@@ -703,24 +802,46 @@ public class QuestRecord
 }
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\Player State\PlayerStateManager.cs =====
+// Assets/Assets/Scripts/Data/State/Player State/PlayerStateManager.cs
+
 using System;
+using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerStateManager : MonoBehaviour
 {
     public static PlayerStateManager Instance { get; private set; }
 
-    [Header("Runtime State")]
+    [Header("Persistence")]
+    public string saveFileName = "player_state.json";
+
+    [Tooltip("If true, Save() may be called by systems after mutations.")]
+    public bool autosave = true;
+
+    [Tooltip("Minimum seconds between autosaves to avoid disk spam.")]
+    public float autosaveMinIntervalSeconds = 2f;
+
     public PlayerState state = new PlayerState();
 
-    [Header("Save")]
-    public string fileName = "player_state.json";
-    public bool autosave = true;
-    public float autosaveInterval = 10f;
+    public PlayerState GetPlayerState() => state;
 
-    private float nextAutosave;
+    private string SavePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
-    public string SavePath => System.IO.Path.Combine(Application.persistentDataPath, "Save", fileName);
+    private float nextAutosaveTime;
+
+    private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented,
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Converters =
+        {
+            new Vector3JsonConverter(),
+            new Vector2JsonConverter(),
+            new QuaternionJsonConverter()
+        }
+    };
 
     private void Awake()
     {
@@ -728,178 +849,145 @@ public class PlayerStateManager : MonoBehaviour
         Instance = this;
 
         LoadOrCreate();
-        nextAutosave = Time.time + autosaveInterval;
     }
 
     private void Update()
     {
-        if (!autosave) return;
-        if (Time.time < nextAutosave) return;
-        nextAutosave = Time.time + autosaveInterval;
-        Save();
+        // Keep scene in sync (helps prompts)
+        string scene = SceneManager.GetActiveScene().name;
+        if (state.currentScene != scene)
+        {
+            state.currentScene = scene;
+            state.Touch();
+            TryAutosave();
+        }
     }
 
     public void LoadOrCreate()
     {
-        if (JsonFileStore.TryLoad<PlayerState>(SavePath, out var loaded))
+        if (File.Exists(SavePath))
         {
-            state = loaded ?? new PlayerState();
-
-            // Ensure new collections are not null when loading older saves
-            state.titles ??= new System.Collections.Generic.List<TitleRecord>();
-            state.classes ??= new System.Collections.Generic.List<ClassRecord>();
-            state.skills ??= new System.Collections.Generic.List<SkillRecord>();
-            state.quests ??= new System.Collections.Generic.List<QuestRecord>();
-            state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-            state.reputation ??= new System.Collections.Generic.Dictionary<string, float>();
-            state.behaviorLedger ??= new System.Collections.Generic.List<string>();
-            state.behaviorCounters ??= new System.Collections.Generic.Dictionary<string, float>();
-
-            state.Touch();
-            Debug.Log($"[PlayerStateManager] Loaded: {SavePath}");
-            return;
+            try
+            {
+                string json = File.ReadAllText(SavePath);
+                state = JsonConvert.DeserializeObject<PlayerState>(json, JsonSettings) ?? new PlayerState();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[PlayerStateManager] Load failed, creating new state:\n" + e);
+                state = new PlayerState();
+            }
         }
-
-        // New save
-        state = new PlayerState();
-        state.Touch();
-        Save();
-        Debug.Log($"[PlayerStateManager] Created new save: {SavePath}");
+        else
+        {
+            state = new PlayerState();
+            Save(); // first write
+        }
     }
 
     public void Save()
     {
-        if (state == null) state = new PlayerState();
-        state.Touch();
-        JsonFileStore.TrySave(SavePath, state);
+        try
+        {
+            string json = JsonConvert.SerializeObject(state, JsonSettings);
+            File.WriteAllText(SavePath, json);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[PlayerStateManager] Save failed:\n" + e);
+        }
     }
 
-    // -----------------------
-    // High-level mutation API
-    // -----------------------
+    private void TryAutosave()
+    {
+        if (!autosave) return;
+        if (Time.time < nextAutosaveTime) return;
 
+        nextAutosaveTime = Time.time + Mathf.Max(0.05f, autosaveMinIntervalSeconds);
+        Save();
+    }
+
+    // Used by PlayerLocationReporter
     public void SetLocation(string sceneName, string regionId, Vector3 position)
     {
-        if (state == null) state = new PlayerState();
-
-        state.currentScene = sceneName ?? "";
-        state.currentRegionId = regionId ?? "";
-
-        // ? FIX: Vector3 is not indexable — assign directly
+        state.currentScene = sceneName ?? state.currentScene;
+        state.currentRegionId = regionId ?? state.currentRegionId;
         state.lastPosition = position;
-
         state.Touch();
+
+        TryAutosave();
     }
 
-    public void AddOrUpdateSkillFromCommitted(SkillData committed)
+    public void SetLocation(string sceneName, string regionId)
     {
-        if (committed == null) return;
-        if (state == null) state = new PlayerState();
+        SetLocation(sceneName, regionId, state.lastPosition);
+    }
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    public void SetRegion(string regionId, string regionName = null)
+    {
+        state.currentRegionId = regionId ?? "";
+        if (regionName != null) state.currentRegionName = regionName;
+        state.Touch();
+        TryAutosave();
+    }
 
-        var rec = new SkillRecord
+    public void SetPosition(Vector3 pos)
+    {
+        state.lastPosition = pos;
+        state.Touch();
+        // no autosave here on purpose
+    }
+
+    public void GrantXp(int amount)
+    {
+        if (amount <= 0) return;
+
+        state.xp += amount;
+
+        while (true)
         {
-            skillId = committed.skillId,
-            familyId = committed.familyId,
-            tier = committed.tier,
-            parentSkillId = committed.parentSkillId,
+            int needed = PlayerState.GetXpRequiredForLevel(state.level);
+            if (state.xp < needed) break;
 
-            name = committed.skillName,
-            description = committed.description,
-            type = committed.type.ToString(),
-
-            rank = committed.level,
-            unlocked = true,
-
-            context = committed.context,
-            environment = committed.environment,
-
-            learnedUnix = now,
-
-            // back-compat field (fine to keep)
-            acquiredUnix = now
-        };
-
-        state.UpsertSkill(rec);
-
-        // Ensure equip slot exists if empty
-        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-
-        string slotKey = committed.type.ToString();
-        if (!state.equippedSkillBySlot.ContainsKey(slotKey) || string.IsNullOrWhiteSpace(state.equippedSkillBySlot[slotKey]))
-        {
-            state.equippedSkillBySlot[slotKey] = committed.skillId;
+            state.xp -= needed;
+            state.level += 1;
         }
 
         state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 
+    // Required by UpgradeOfferManager
     public void EquipSkill(SkillData skill)
     {
         if (skill == null) return;
-        if (state == null) state = new PlayerState();
 
         state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-        state.equippedSkillBySlot[skill.type.ToString()] = skill.skillId;
+
+        string slotKey = skill.type.ToString();
+        state.equippedSkillBySlot[slotKey] = skill.skillId;
 
         state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 
-    public void AddTitle(string name, string description)
+    public void EquipSkill(string slotKey, string skillId)
     {
-        if (state == null) state = new PlayerState();
+        if (string.IsNullOrWhiteSpace(slotKey) || string.IsNullOrWhiteSpace(skillId)) return;
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        var t = new TitleRecord
-        {
-            titleId = Guid.NewGuid().ToString("N"),
-            name = name ?? "Untitled",
-            description = description ?? "",
-
-            // new + back-compat
-            earnedUnix = now,
-            acquiredUnix = now
-        };
-
-        state.titles ??= new System.Collections.Generic.List<TitleRecord>();
-        state.titles.Add(t);
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+        state.equippedSkillBySlot[slotKey.Trim()] = skillId.Trim();
 
         state.Touch();
-        if (autosave) Save();
-    }
-
-    public void AddQuest(string name, string description, string status = "offer", string[] tags = null)
-    {
-        if (state == null) state = new PlayerState();
-
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        var q = new QuestRecord
-        {
-            questId = Guid.NewGuid().ToString("N"),
-            name = name ?? "Unnamed Quest",
-            description = description ?? "",
-            status = status ?? "offer",
-            tags = tags ?? Array.Empty<string>(),
-            createdUnix = now,
-            updatedUnix = now
-        };
-
-        state.quests ??= new System.Collections.Generic.List<QuestRecord>();
-        state.quests.Add(q);
-
-        state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 }
 
 ### Scripts/Data/State/World State
 
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldState.cs =====
+// Assets/Assets/Scripts/Data/State/World State/WorldState.cs
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -907,157 +995,136 @@ using UnityEngine;
 [Serializable]
 public class WorldState
 {
-    public int schemaVersion = 1;
+    public int schemaVersion = 4;
 
-    public string worldId = "world";
+    // ? WorldMemoryRenderer expects this
     public string worldName = "YourQuest";
 
-    [TextArea(3, 12)]
-    public string canonLedger =
-        "Canon: Magic exists.\nThe world responds to witnessed acts.\nFactions compete for relics.";
+    // ? WorldStateManager expects these (and DirectorPromptBuilder reads them)
+    public string canonLedger = "";
+    public string currentRegionId = "region_unknown";
+    public string currentRegionName = "Unknown";
+    public float tension = 0f;
 
+    // ? WorldDeltaApplier expects these to exist
+    public string lastLLMRationale = "";
+    public float lastLLMConfidence = 0f;
+
+    // Simple global numeric state
     public Dictionary<string, float> globalFlags = new Dictionary<string, float>();
+
+    // Old-simple models (keep them for compatibility with previous saves)
+    public Dictionary<string, float> factionAttitudes = new Dictionary<string, float>();  // factionId -> attitude
+    public Dictionary<string, string> locationStates = new Dictionary<string, string>(); // locationId -> "safe"/"ruined"
+    public Dictionary<string, float> locationImportance = new Dictionary<string, float>(); // locationId -> importance
+
+    // ? WorldMemoryRenderer expects these collections
     public List<FactionRecord> factions = new List<FactionRecord>();
     public List<LocationRecord> locations = new List<LocationRecord>();
     public List<NpcRecord> npcs = new List<NpcRecord>();
-    public List<WorldQuestRecord> worldQuests = new List<WorldQuestRecord>();
-
-    public string currentRegionId = "";
 
     public long lastUpdatedUnix;
 
-    // ? Added: last LLM decision metadata (small, safe, helps debugging + tuning)
-    [TextArea(2, 8)] public string lastLLMRationale = "";
-    [Range(0f, 1f)] public float lastLLMConfidence = 0f;
+    // ---------------------------------------------------
+    // Records (keep them generous; renderers can pick fields)
+    // ---------------------------------------------------
 
-    public void Touch()
+    [Serializable]
+    public class FactionRecord
+    {
+        public string factionId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+        public string status;              // "rising", "fractured", "hostile", etc.
+        public float attitudeToPlayer;     // -1..1
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    [Serializable]
+    public class LocationRecord
+    {
+        public string locationId;
+        public string regionId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+
+        public string state;               // "calm", "unsafe", "ruined", etc.
+        public float importance;           // 0..1 (or bigger if you want)
+        [TextArea(2, 8)] public string text; // optional extra notes
+
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    [Serializable]
+    public class NpcRecord
+    {
+        public string npcId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+
+        public string factionId;
+        public string locationId;
+
+        public float affinityToPlayer;     // -1..1
+        public string status;              // "alive", "missing", "dead"
+
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    // ---------------------------------------------------
+    // Lifecycle
+    // ---------------------------------------------------
+
+    public void Touch(long unixNow)
+    {
+        lastUpdatedUnix = unixNow;
+    }
+
+    public void TouchNow()
     {
         lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 
     public static WorldState CreateDefault()
     {
-        var s = new WorldState
+        return new WorldState
         {
-            schemaVersion = 1,
-            worldId = "world",
+            schemaVersion = 4,
             worldName = "YourQuest",
-            canonLedger =
-                "Canon: Magic exists.\n" +
-                "The world responds to witnessed acts.\n" +
-                "Factions compete for relics.",
+            canonLedger = "",
+            currentRegionId = "region_unknown",
+            currentRegionName = "Unknown",
+            tension = 0f,
+            lastLLMRationale = "",
+            lastLLMConfidence = 0f,
             globalFlags = new Dictionary<string, float>(),
+            factionAttitudes = new Dictionary<string, float>(),
+            locationStates = new Dictionary<string, string>(),
+            locationImportance = new Dictionary<string, float>(),
             factions = new List<FactionRecord>(),
             locations = new List<LocationRecord>(),
             npcs = new List<NpcRecord>(),
-            worldQuests = new List<WorldQuestRecord>(),
-            currentRegionId = "region_unknown",
-            lastLLMRationale = "",
-            lastLLMConfidence = 0f
+            lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
-        s.Touch();
-        return s;
     }
 
-    // ---------- Lookups / Upserts ----------
+    // ---------------------------------------------------
+    // Delta application helpers (WorldDeltaApplier expects these)
+    // ---------------------------------------------------
 
-    public FactionRecord GetOrCreateFaction(string id, string name = null)
-    {
-        if (string.IsNullOrWhiteSpace(id)) return null;
-        id = id.Trim();
-
-        for (int i = 0; i < factions.Count; i++)
-        {
-            var f = factions[i];
-            if (f != null && f.factionId == id)
-            {
-                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(f.name))
-                    f.name = name.Trim();
-                return f;
-            }
-        }
-
-        var created = new FactionRecord
-        {
-            factionId = id,
-            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
-            attitudeToPlayer = 0f,
-            status = "active",
-            flags = new Dictionary<string, float>()
-        };
-
-        factions.Add(created);
-        Touch();
-        return created;
-    }
-
-    public LocationRecord GetOrCreateLocation(string id, string name = null, string regionId = null)
-    {
-        if (string.IsNullOrWhiteSpace(id)) return null;
-        id = id.Trim();
-
-        for (int i = 0; i < locations.Count; i++)
-        {
-            var l = locations[i];
-            if (l != null && l.locationId == id)
-            {
-                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(l.name))
-                    l.name = name.Trim();
-
-                if (!string.IsNullOrWhiteSpace(regionId) && string.IsNullOrWhiteSpace(l.regionId))
-                    l.regionId = regionId.Trim();
-
-                return l;
-            }
-        }
-
-        var created = new LocationRecord
-        {
-            locationId = id,
-            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
-            regionId = string.IsNullOrWhiteSpace(regionId) ? currentRegionId : regionId.Trim(),
-            state = "normal",
-            importance = 0.2f,
-            text = "",
-            flags = new Dictionary<string, float>()
-        };
-
-        locations.Add(created);
-        Touch();
-        return created;
-    }
-
-    public void SetFlag(string key, float value)
+    public void ApplyFlagDelta(string key, string op, float value, string text = null)
     {
         if (string.IsNullOrWhiteSpace(key)) return;
         key = key.Trim();
-        globalFlags[key] = value;
-        Touch();
-    }
-
-    public void IncFlag(string key, float delta)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-        globalFlags.TryGetValue(key, out float cur);
-        globalFlags[key] = cur + delta;
-        Touch();
-    }
-
-    // =========================================================
-    // ? Added: Delta application helpers used by WorldDeltaApplier
-    // =========================================================
-
-    public void ApplyFlagDelta(string key, string op, float value)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
+        op = (op ?? "").Trim().ToLowerInvariant();
 
         if (globalFlags == null) globalFlags = new Dictionary<string, float>();
-        globalFlags.TryGetValue(key, out float cur);
 
+        globalFlags.TryGetValue(key, out float cur);
         float next = cur;
-        op = (op ?? "").Trim().ToLowerInvariant();
 
         switch (op)
         {
@@ -1068,22 +1135,24 @@ public class WorldState
         }
 
         globalFlags[key] = next;
-        Touch();
+
+        // Optional small canon append
+        if (!string.IsNullOrWhiteSpace(text))
+            AppendCanon(text.Trim());
+
+        TouchNow();
     }
 
-    /// <summary>
-    /// Applies a delta to a faction. Right now this drives attitude.
-    /// Text (if present) is treated as a compact "status" override if meaningful.
-    /// </summary>
     public void ApplyFactionDelta(string factionId, string op, float value, string text = null)
     {
         if (string.IsNullOrWhiteSpace(factionId)) return;
-        var f = GetOrCreateFaction(factionId.Trim());
-        if (f == null) return;
-
-        float cur = f.attitudeToPlayer;
-        float next = cur;
+        factionId = factionId.Trim();
         op = (op ?? "").Trim().ToLowerInvariant();
+
+        // Keep the dictionary model in sync
+        if (factionAttitudes == null) factionAttitudes = new Dictionary<string, float>();
+        factionAttitudes.TryGetValue(factionId, out float cur);
+        float next = cur;
 
         switch (op)
         {
@@ -1093,30 +1162,27 @@ public class WorldState
             default: return;
         }
 
-        f.attitudeToPlayer = Mathf.Clamp(next, -1f, 1f);
+        next = Mathf.Clamp(next, -1f, 1f);
+        factionAttitudes[factionId] = next;
 
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            // Keep this short + state-like. Don’t dump prose in here.
-            f.status = text.Trim();
-        }
+        // Also update list model if present
+        var f = GetOrCreateFaction(factionId);
+        f.attitudeToPlayer = next;
+        if (!string.IsNullOrWhiteSpace(text)) f.status = text.Trim();
+        f.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        Touch();
+        TouchNow();
     }
 
-    /// <summary>
-    /// Applies a delta to a location. Numeric affects importance.
-    /// valueText can optionally set state; text can update the location note.
-    /// </summary>
     public void ApplyLocationDelta(string locationId, string op, float value, string valueText = null, string text = null)
     {
         if (string.IsNullOrWhiteSpace(locationId)) return;
-        var l = GetOrCreateLocation(locationId.Trim());
-        if (l == null) return;
-
-        float cur = l.importance;
-        float next = cur;
+        locationId = locationId.Trim();
         op = (op ?? "").Trim().ToLowerInvariant();
+
+        if (locationImportance == null) locationImportance = new Dictionary<string, float>();
+        locationImportance.TryGetValue(locationId, out float cur);
+        float next = cur;
 
         switch (op)
         {
@@ -1126,155 +1192,153 @@ public class WorldState
             default: return;
         }
 
-        l.importance = Mathf.Clamp(next, -1000f, 1000f);
+        locationImportance[locationId] = next;
 
         if (!string.IsNullOrWhiteSpace(valueText))
-            l.state = valueText.Trim();
+        {
+            locationStates ??= new Dictionary<string, string>();
+            locationStates[locationId] = valueText.Trim();
+        }
 
-        if (!string.IsNullOrWhiteSpace(text))
-            l.text = text.Trim();
+        var l = GetOrCreateLocation(locationId);
+        l.importance = next;
 
-        Touch();
+        if (!string.IsNullOrWhiteSpace(valueText)) l.state = valueText.Trim();
+        if (!string.IsNullOrWhiteSpace(text)) l.text = text.Trim();
+        l.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        TouchNow();
+    }
+
+    // ---------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------
+
+    public void AppendCanon(string line, int maxLines = 50)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
+
+        var lines = new List<string>();
+        if (!string.IsNullOrWhiteSpace(canonLedger))
+        {
+            var existing = canonLedger.Replace("\r", "").Split('\n');
+            foreach (var e in existing)
+            {
+                var t = (e ?? "").Trim();
+                if (!string.IsNullOrWhiteSpace(t)) lines.Add(t);
+            }
+        }
+
+        lines.Add(line.Trim());
+
+        if (maxLines > 0 && lines.Count > maxLines)
+            lines.RemoveRange(0, lines.Count - maxLines);
+
+        canonLedger = string.Join("\n", lines);
+    }
+
+    private FactionRecord GetOrCreateFaction(string factionId)
+    {
+        factions ??= new List<FactionRecord>();
+
+        for (int i = 0; i < factions.Count; i++)
+            if (factions[i] != null && factions[i].factionId == factionId)
+                return factions[i];
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var created = new FactionRecord
+        {
+            factionId = factionId,
+            name = factionId,
+            description = "",
+            status = "",
+            attitudeToPlayer = 0f,
+            createdUnix = now,
+            updatedUnix = now
+        };
+
+        factions.Add(created);
+        return created;
+    }
+
+    private LocationRecord GetOrCreateLocation(string locationId)
+    {
+        locations ??= new List<LocationRecord>();
+
+        for (int i = 0; i < locations.Count; i++)
+            if (locations[i] != null && locations[i].locationId == locationId)
+                return locations[i];
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var created = new LocationRecord
+        {
+            locationId = locationId,
+            regionId = currentRegionId,
+            name = locationId,
+            description = "",
+            state = "",
+            importance = 0f,
+            text = "",
+            createdUnix = now,
+            updatedUnix = now
+        };
+
+        locations.Add(created);
+        return created;
     }
 }
 
-[Serializable]
-public class FactionRecord
-{
-    public string factionId;
-    public string name;
-
-    public float attitudeToPlayer = 0f;
-
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
-
-    public string status = "active"; // active/hostile/allied/defeated
-}
-
-[Serializable]
-public class LocationRecord
-{
-    public string locationId;
-    public string name;
-    public string regionId;
-
-    public float importance = 0.2f;
-
-    public string state = "normal";
-
-    [TextArea(2, 6)]
-    public string text = "";
-
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
-}
-
-[Serializable]
-public class NpcRecord
-{
-    public string npcId;
-    public string name;
-    public string factionId;
-    public string locationId;
-
-    public float affinityToPlayer = 0f;
-
-    public string status = "alive";
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
-}
-
-[Serializable]
-public class WorldQuestRecord
-{
-    public string questId;
-    public string name;
-    public string description;
-    public string status; // offer/active/complete/failed
-    public string regionId;
-    public string[] tags;
-    public long updatedUnix;
-}
-
 ===== C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\State\World State\WorldStateManager.cs =====
-// WorldStateManager.cs
-using System;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-using Newtonsoft.Json;
+// Assets/Assets/Scripts/Data/State/World State/WorldStateManager.cs
 
-/// <summary>
-/// Authoritative WorldState persistence + mutation API.
-/// Saves to Application.persistentDataPath/Save/world_state.json
-/// </summary>
+using System;
+using System.IO;
+using Newtonsoft.Json;
+using UnityEngine;
+
 public class WorldStateManager : MonoBehaviour
 {
     public static WorldStateManager Instance { get; private set; }
 
     [Header("Persistence")]
-    public bool autosave = true;
+    public string saveFileName = "world_state.json";
 
-    [Tooltip("Optional: override filename if needed.")]
-    public string fileName = "world_state.json";
-
-    /// <summary>
-    /// Preferred API
-    /// </summary>
     public WorldState State { get; private set; } = WorldState.CreateDefault();
 
-    /// <summary>
-    /// Back-compat for older scripts that reference WorldStateManager.Instance.state
-    /// </summary>
+    // legacy alias
     public WorldState state => State;
 
-    // -----------------------------
-    // Back-compat shims (IMPORTANT)
-    // -----------------------------
-    // Some scripts (including the WorldDeltaApplier you pasted) expect:
-    // - worldStateManager.worldState
-    // - worldStateManager.SaveWorldState()
-    public WorldState worldState => State;
-    public void SaveWorldState() => Save();
+    public WorldState GetWorldState() => State;
 
-    private string SaveDir => Path.Combine(Application.persistentDataPath, "Save");
-    private string SavePath => Path.Combine(SaveDir, fileName);
+    private string SavePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        Load();
+        LoadOrCreate();
     }
 
-    // ---------------------------
-    // Load / Save
-    // ---------------------------
-
-    public void Load()
+    public void LoadOrCreate()
     {
-        try
+        if (File.Exists(SavePath))
         {
-            Directory.CreateDirectory(SaveDir);
-
-            if (!File.Exists(SavePath))
+            try
+            {
+                string json = File.ReadAllText(SavePath);
+                State = JsonConvert.DeserializeObject<WorldState>(json) ?? WorldState.CreateDefault();
+            }
+            catch
             {
                 State = WorldState.CreateDefault();
-                Touch();
-                Save();
-                Debug.Log($"[WorldStateManager] Created new world state at {SavePath}");
-                return;
             }
-
-            var json = File.ReadAllText(SavePath);
-            State = JsonConvert.DeserializeObject<WorldState>(json) ?? WorldState.CreateDefault();
-            Touch();
-            Debug.Log($"[WorldStateManager] Loaded world state from {SavePath}");
         }
-        catch (Exception ex)
+        else
         {
-            Debug.LogWarning("[WorldStateManager] Load failed, creating default. " + ex.Message);
             State = WorldState.CreateDefault();
-            Touch();
             Save();
         }
     }
@@ -1283,184 +1347,35 @@ public class WorldStateManager : MonoBehaviour
     {
         try
         {
-            Directory.CreateDirectory(SaveDir);
-            Touch();
-
-            var json = JsonConvert.SerializeObject(State, Formatting.Indented);
+            State.TouchNow();
+            string json = JsonConvert.SerializeObject(State, Formatting.Indented);
             File.WriteAllText(SavePath, json);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Debug.LogWarning("[WorldStateManager] Save failed: " + ex.Message);
+            Debug.LogWarning("[WorldStateManager] Save failed:\n" + e);
         }
     }
 
-    private void Touch()
-    {
-        if (State == null) State = WorldState.CreateDefault();
-        State.Touch();
-    }
-
-    // ---------------------------
-    // Canon / Region
-    // ---------------------------
-
-    public void SetCurrentRegion(string regionId)
-    {
-        if (string.IsNullOrWhiteSpace(regionId)) return;
-        State.currentRegionId = regionId.Trim();
-        if (autosave) Save();
-    }
-
-    public void AppendCanon(string line, int maxLines = 40)
+    public void AddCanonLine(string line)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
-        line = line.Trim();
-
-        var lines = new List<string>();
-
-        if (!string.IsNullOrWhiteSpace(State.canonLedger))
-        {
-            var existing = State.canonLedger.Replace("\r", "").Split('\n');
-            for (int i = 0; i < existing.Length; i++)
-            {
-                var l = existing[i].Trim();
-                if (!string.IsNullOrWhiteSpace(l)) lines.Add(l);
-            }
-        }
-
-        lines.Add(line);
-
-        if (maxLines > 0 && lines.Count > maxLines)
-            lines.RemoveRange(0, lines.Count - maxLines);
-
-        State.canonLedger = string.Join("\n", lines);
-        if (autosave) Save();
+        State.AppendCanon(line.Trim());
+        State.TouchNow();
     }
 
-    // ---------------------------
-    // Flags (global numeric)
-    // ---------------------------
-
-    public void SetFlag(string key, float value)
+    // ? required by PlayerLocationReporter
+    public void SetCurrentRegion(string regionId, string regionName = null)
     {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-
-        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
-        State.globalFlags[key] = value;
-
-        if (autosave) Save();
+        State.currentRegionId = regionId ?? "";
+        if (regionName != null) State.currentRegionName = regionName;
+        State.TouchNow();
     }
 
-    public void IncFlag(string key, float delta)
+    public void SetTension(float t)
     {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-
-        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
-
-        if (!State.globalFlags.TryGetValue(key, out var cur))
-            cur = 0f;
-
-        State.globalFlags[key] = cur + delta;
-
-        if (autosave) Save();
-    }
-
-    public float GetFlag(string key, float fallback = 0f)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return fallback;
-        key = key.Trim();
-
-        if (State.globalFlags == null) return fallback;
-        return State.globalFlags.TryGetValue(key, out var v) ? v : fallback;
-    }
-
-    // ---------------------------
-    // Factions
-    // ---------------------------
-
-    public FactionRecord EnsureFaction(string factionId, string name = null)
-    {
-        if (string.IsNullOrWhiteSpace(factionId)) return null;
-        return State.GetOrCreateFaction(factionId.Trim(), name);
-    }
-
-    public void SetFactionAttitude(string factionId, float value)
-    {
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.attitudeToPlayer = Mathf.Clamp(value, -1f, 1f);
-        if (autosave) Save();
-    }
-
-    public void IncFactionAttitude(string factionId, float delta)
-    {
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.attitudeToPlayer = Mathf.Clamp(f.attitudeToPlayer + delta, -1f, 1f);
-        if (autosave) Save();
-    }
-
-    public void SetFactionStatus(string factionId, string status)
-    {
-        if (string.IsNullOrWhiteSpace(status)) return;
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.status = status.Trim();
-        if (autosave) Save();
-    }
-
-    // ---------------------------
-    // Locations
-    // ---------------------------
-
-    public LocationRecord EnsureLocation(string locationId, string name = null, string regionId = null)
-    {
-        if (string.IsNullOrWhiteSpace(locationId)) return null;
-        return State.GetOrCreateLocation(locationId.Trim(), name, regionId);
-    }
-
-    public void SetLocationState(string locationId, string state)
-    {
-        if (string.IsNullOrWhiteSpace(state)) return;
-
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.state = state.Trim();
-        if (autosave) Save();
-    }
-
-    public void SetLocationImportance(string locationId, float value)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.importance = Mathf.Clamp(value, -1000f, 1000f);
-        if (autosave) Save();
-    }
-
-    public void IncLocationImportance(string locationId, float delta)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.importance = Mathf.Clamp(l.importance + delta, -1000f, 1000f);
-        if (autosave) Save();
-    }
-
-    public void SetLocationText(string locationId, string text)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.text = (text ?? "").Trim();
-        if (autosave) Save();
+        State.tension = t;
+        State.ApplyFlagDelta("tension", "set", t);
     }
 }
 

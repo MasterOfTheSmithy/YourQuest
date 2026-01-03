@@ -68,6 +68,15 @@ public class LLMClient : MonoBehaviour
     }
 
     /// <summary>
+    /// Compatibility wrapper (older systems call SendOnce).
+    /// Uses the queue, so it will not fail just because we are busy.
+    /// </summary>
+    public void SendOnce(string prompt, Action<string> onResponse, string debugTag = null)
+    {
+        Enqueue(prompt, onResponse, string.IsNullOrWhiteSpace(debugTag) ? "SendOnce" : debugTag);
+    }
+
+    /// <summary>
     /// Queue a request instead of rejecting when busy.
     /// </summary>
     public void Enqueue(string prompt, Action<string> onResponse, string debugTag = null)
@@ -85,7 +94,7 @@ public class LLMClient : MonoBehaviour
             debugTag = debugTag
         });
 
-        // ? Critical fix: set flag BEFORE starting coroutine to avoid double-start race.
+        // Critical fix: set flag BEFORE starting coroutine to avoid double-start race.
         if (!_processing)
         {
             _processing = true;

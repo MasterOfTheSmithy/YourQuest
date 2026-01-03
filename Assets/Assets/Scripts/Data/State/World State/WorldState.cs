@@ -1,3 +1,5 @@
+// Assets/Assets/Scripts/Data/State/World State/WorldState.cs
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,157 +7,136 @@ using UnityEngine;
 [Serializable]
 public class WorldState
 {
-    public int schemaVersion = 1;
+    public int schemaVersion = 4;
 
-    public string worldId = "world";
+    // ? WorldMemoryRenderer expects this
     public string worldName = "YourQuest";
 
-    [TextArea(3, 12)]
-    public string canonLedger =
-        "Canon: Magic exists.\nThe world responds to witnessed acts.\nFactions compete for relics.";
+    // ? WorldStateManager expects these (and DirectorPromptBuilder reads them)
+    public string canonLedger = "";
+    public string currentRegionId = "region_unknown";
+    public string currentRegionName = "Unknown";
+    public float tension = 0f;
 
+    // ? WorldDeltaApplier expects these to exist
+    public string lastLLMRationale = "";
+    public float lastLLMConfidence = 0f;
+
+    // Simple global numeric state
     public Dictionary<string, float> globalFlags = new Dictionary<string, float>();
+
+    // Old-simple models (keep them for compatibility with previous saves)
+    public Dictionary<string, float> factionAttitudes = new Dictionary<string, float>();  // factionId -> attitude
+    public Dictionary<string, string> locationStates = new Dictionary<string, string>(); // locationId -> "safe"/"ruined"
+    public Dictionary<string, float> locationImportance = new Dictionary<string, float>(); // locationId -> importance
+
+    // ? WorldMemoryRenderer expects these collections
     public List<FactionRecord> factions = new List<FactionRecord>();
     public List<LocationRecord> locations = new List<LocationRecord>();
     public List<NpcRecord> npcs = new List<NpcRecord>();
-    public List<WorldQuestRecord> worldQuests = new List<WorldQuestRecord>();
-
-    public string currentRegionId = "";
 
     public long lastUpdatedUnix;
 
-    // ? Added: last LLM decision metadata (small, safe, helps debugging + tuning)
-    [TextArea(2, 8)] public string lastLLMRationale = "";
-    [Range(0f, 1f)] public float lastLLMConfidence = 0f;
+    // ---------------------------------------------------
+    // Records (keep them generous; renderers can pick fields)
+    // ---------------------------------------------------
 
-    public void Touch()
+    [Serializable]
+    public class FactionRecord
+    {
+        public string factionId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+        public string status;              // "rising", "fractured", "hostile", etc.
+        public float attitudeToPlayer;     // -1..1
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    [Serializable]
+    public class LocationRecord
+    {
+        public string locationId;
+        public string regionId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+
+        public string state;               // "calm", "unsafe", "ruined", etc.
+        public float importance;           // 0..1 (or bigger if you want)
+        [TextArea(2, 8)] public string text; // optional extra notes
+
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    [Serializable]
+    public class NpcRecord
+    {
+        public string npcId;
+        public string name;
+        [TextArea(2, 8)] public string description;
+
+        public string factionId;
+        public string locationId;
+
+        public float affinityToPlayer;     // -1..1
+        public string status;              // "alive", "missing", "dead"
+
+        public long createdUnix;
+        public long updatedUnix;
+    }
+
+    // ---------------------------------------------------
+    // Lifecycle
+    // ---------------------------------------------------
+
+    public void Touch(long unixNow)
+    {
+        lastUpdatedUnix = unixNow;
+    }
+
+    public void TouchNow()
     {
         lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 
     public static WorldState CreateDefault()
     {
-        var s = new WorldState
+        return new WorldState
         {
-            schemaVersion = 1,
-            worldId = "world",
+            schemaVersion = 4,
             worldName = "YourQuest",
-            canonLedger =
-                "Canon: Magic exists.\n" +
-                "The world responds to witnessed acts.\n" +
-                "Factions compete for relics.",
+            canonLedger = "",
+            currentRegionId = "region_unknown",
+            currentRegionName = "Unknown",
+            tension = 0f,
+            lastLLMRationale = "",
+            lastLLMConfidence = 0f,
             globalFlags = new Dictionary<string, float>(),
+            factionAttitudes = new Dictionary<string, float>(),
+            locationStates = new Dictionary<string, string>(),
+            locationImportance = new Dictionary<string, float>(),
             factions = new List<FactionRecord>(),
             locations = new List<LocationRecord>(),
             npcs = new List<NpcRecord>(),
-            worldQuests = new List<WorldQuestRecord>(),
-            currentRegionId = "region_unknown",
-            lastLLMRationale = "",
-            lastLLMConfidence = 0f
+            lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
-        s.Touch();
-        return s;
     }
 
-    // ---------- Lookups / Upserts ----------
+    // ---------------------------------------------------
+    // Delta application helpers (WorldDeltaApplier expects these)
+    // ---------------------------------------------------
 
-    public FactionRecord GetOrCreateFaction(string id, string name = null)
-    {
-        if (string.IsNullOrWhiteSpace(id)) return null;
-        id = id.Trim();
-
-        for (int i = 0; i < factions.Count; i++)
-        {
-            var f = factions[i];
-            if (f != null && f.factionId == id)
-            {
-                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(f.name))
-                    f.name = name.Trim();
-                return f;
-            }
-        }
-
-        var created = new FactionRecord
-        {
-            factionId = id,
-            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
-            attitudeToPlayer = 0f,
-            status = "active",
-            flags = new Dictionary<string, float>()
-        };
-
-        factions.Add(created);
-        Touch();
-        return created;
-    }
-
-    public LocationRecord GetOrCreateLocation(string id, string name = null, string regionId = null)
-    {
-        if (string.IsNullOrWhiteSpace(id)) return null;
-        id = id.Trim();
-
-        for (int i = 0; i < locations.Count; i++)
-        {
-            var l = locations[i];
-            if (l != null && l.locationId == id)
-            {
-                if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(l.name))
-                    l.name = name.Trim();
-
-                if (!string.IsNullOrWhiteSpace(regionId) && string.IsNullOrWhiteSpace(l.regionId))
-                    l.regionId = regionId.Trim();
-
-                return l;
-            }
-        }
-
-        var created = new LocationRecord
-        {
-            locationId = id,
-            name = string.IsNullOrWhiteSpace(name) ? id : name.Trim(),
-            regionId = string.IsNullOrWhiteSpace(regionId) ? currentRegionId : regionId.Trim(),
-            state = "normal",
-            importance = 0.2f,
-            text = "",
-            flags = new Dictionary<string, float>()
-        };
-
-        locations.Add(created);
-        Touch();
-        return created;
-    }
-
-    public void SetFlag(string key, float value)
+    public void ApplyFlagDelta(string key, string op, float value, string text = null)
     {
         if (string.IsNullOrWhiteSpace(key)) return;
         key = key.Trim();
-        globalFlags[key] = value;
-        Touch();
-    }
-
-    public void IncFlag(string key, float delta)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-        globalFlags.TryGetValue(key, out float cur);
-        globalFlags[key] = cur + delta;
-        Touch();
-    }
-
-    // =========================================================
-    // ? Added: Delta application helpers used by WorldDeltaApplier
-    // =========================================================
-
-    public void ApplyFlagDelta(string key, string op, float value)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
+        op = (op ?? "").Trim().ToLowerInvariant();
 
         if (globalFlags == null) globalFlags = new Dictionary<string, float>();
-        globalFlags.TryGetValue(key, out float cur);
 
+        globalFlags.TryGetValue(key, out float cur);
         float next = cur;
-        op = (op ?? "").Trim().ToLowerInvariant();
 
         switch (op)
         {
@@ -166,22 +147,24 @@ public class WorldState
         }
 
         globalFlags[key] = next;
-        Touch();
+
+        // Optional small canon append
+        if (!string.IsNullOrWhiteSpace(text))
+            AppendCanon(text.Trim());
+
+        TouchNow();
     }
 
-    /// <summary>
-    /// Applies a delta to a faction. Right now this drives attitude.
-    /// Text (if present) is treated as a compact "status" override if meaningful.
-    /// </summary>
     public void ApplyFactionDelta(string factionId, string op, float value, string text = null)
     {
         if (string.IsNullOrWhiteSpace(factionId)) return;
-        var f = GetOrCreateFaction(factionId.Trim());
-        if (f == null) return;
-
-        float cur = f.attitudeToPlayer;
-        float next = cur;
+        factionId = factionId.Trim();
         op = (op ?? "").Trim().ToLowerInvariant();
+
+        // Keep the dictionary model in sync
+        if (factionAttitudes == null) factionAttitudes = new Dictionary<string, float>();
+        factionAttitudes.TryGetValue(factionId, out float cur);
+        float next = cur;
 
         switch (op)
         {
@@ -191,30 +174,27 @@ public class WorldState
             default: return;
         }
 
-        f.attitudeToPlayer = Mathf.Clamp(next, -1f, 1f);
+        next = Mathf.Clamp(next, -1f, 1f);
+        factionAttitudes[factionId] = next;
 
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            // Keep this short + state-like. Don’t dump prose in here.
-            f.status = text.Trim();
-        }
+        // Also update list model if present
+        var f = GetOrCreateFaction(factionId);
+        f.attitudeToPlayer = next;
+        if (!string.IsNullOrWhiteSpace(text)) f.status = text.Trim();
+        f.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        Touch();
+        TouchNow();
     }
 
-    /// <summary>
-    /// Applies a delta to a location. Numeric affects importance.
-    /// valueText can optionally set state; text can update the location note.
-    /// </summary>
     public void ApplyLocationDelta(string locationId, string op, float value, string valueText = null, string text = null)
     {
         if (string.IsNullOrWhiteSpace(locationId)) return;
-        var l = GetOrCreateLocation(locationId.Trim());
-        if (l == null) return;
-
-        float cur = l.importance;
-        float next = cur;
+        locationId = locationId.Trim();
         op = (op ?? "").Trim().ToLowerInvariant();
+
+        if (locationImportance == null) locationImportance = new Dictionary<string, float>();
+        locationImportance.TryGetValue(locationId, out float cur);
+        float next = cur;
 
         switch (op)
         {
@@ -224,70 +204,100 @@ public class WorldState
             default: return;
         }
 
-        l.importance = Mathf.Clamp(next, -1000f, 1000f);
+        locationImportance[locationId] = next;
 
         if (!string.IsNullOrWhiteSpace(valueText))
-            l.state = valueText.Trim();
+        {
+            locationStates ??= new Dictionary<string, string>();
+            locationStates[locationId] = valueText.Trim();
+        }
 
-        if (!string.IsNullOrWhiteSpace(text))
-            l.text = text.Trim();
+        var l = GetOrCreateLocation(locationId);
+        l.importance = next;
 
-        Touch();
+        if (!string.IsNullOrWhiteSpace(valueText)) l.state = valueText.Trim();
+        if (!string.IsNullOrWhiteSpace(text)) l.text = text.Trim();
+        l.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        TouchNow();
     }
-}
 
-[Serializable]
-public class FactionRecord
-{
-    public string factionId;
-    public string name;
+    // ---------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------
 
-    public float attitudeToPlayer = 0f;
+    public void AppendCanon(string line, int maxLines = 50)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
 
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
+        var lines = new List<string>();
+        if (!string.IsNullOrWhiteSpace(canonLedger))
+        {
+            var existing = canonLedger.Replace("\r", "").Split('\n');
+            foreach (var e in existing)
+            {
+                var t = (e ?? "").Trim();
+                if (!string.IsNullOrWhiteSpace(t)) lines.Add(t);
+            }
+        }
 
-    public string status = "active"; // active/hostile/allied/defeated
-}
+        lines.Add(line.Trim());
 
-[Serializable]
-public class LocationRecord
-{
-    public string locationId;
-    public string name;
-    public string regionId;
+        if (maxLines > 0 && lines.Count > maxLines)
+            lines.RemoveRange(0, lines.Count - maxLines);
 
-    public float importance = 0.2f;
+        canonLedger = string.Join("\n", lines);
+    }
 
-    public string state = "normal";
+    private FactionRecord GetOrCreateFaction(string factionId)
+    {
+        factions ??= new List<FactionRecord>();
 
-    [TextArea(2, 6)]
-    public string text = "";
+        for (int i = 0; i < factions.Count; i++)
+            if (factions[i] != null && factions[i].factionId == factionId)
+                return factions[i];
 
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
-}
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-[Serializable]
-public class NpcRecord
-{
-    public string npcId;
-    public string name;
-    public string factionId;
-    public string locationId;
+        var created = new FactionRecord
+        {
+            factionId = factionId,
+            name = factionId,
+            description = "",
+            status = "",
+            attitudeToPlayer = 0f,
+            createdUnix = now,
+            updatedUnix = now
+        };
 
-    public float affinityToPlayer = 0f;
+        factions.Add(created);
+        return created;
+    }
 
-    public string status = "alive";
-    public Dictionary<string, float> flags = new Dictionary<string, float>();
-}
+    private LocationRecord GetOrCreateLocation(string locationId)
+    {
+        locations ??= new List<LocationRecord>();
 
-[Serializable]
-public class WorldQuestRecord
-{
-    public string questId;
-    public string name;
-    public string description;
-    public string status; // offer/active/complete/failed
-    public string regionId;
-    public string[] tags;
-    public long updatedUnix;
+        for (int i = 0; i < locations.Count; i++)
+            if (locations[i] != null && locations[i].locationId == locationId)
+                return locations[i];
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        var created = new LocationRecord
+        {
+            locationId = locationId,
+            regionId = currentRegionId,
+            name = locationId,
+            description = "",
+            state = "",
+            importance = 0f,
+            text = "",
+            createdUnix = now,
+            updatedUnix = now
+        };
+
+        locations.Add(created);
+        return created;
+    }
 }

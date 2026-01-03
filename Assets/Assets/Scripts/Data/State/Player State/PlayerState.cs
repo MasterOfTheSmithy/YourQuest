@@ -1,3 +1,5 @@
+// Assets/Assets/Scripts/Data/State/Player State/PlayerState.cs
+
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -12,6 +14,14 @@ public class PlayerState
     // Identity
     public string playerId = "player";
     public string displayName = "The Player";
+
+    // ? Alias expected by DirectorPromptBuilder
+    [JsonIgnore]
+    public string playerName
+    {
+        get => displayName;
+        set => displayName = string.IsNullOrWhiteSpace(value) ? displayName : value;
+    }
 
     // Progression
     public int level = 1;
@@ -95,9 +105,40 @@ public class PlayerState
     public float rewardBudget = 0f;
     public long rewardBudgetLastUpdateUnix = 0;
 
+    // ? Required by several systems
     public void Touch()
     {
         lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    }
+
+    // ? Required by DirectorPromptBuilder / EventSummarizer-style pipelines
+    public void AddLedgerLine(string line, int maxLines = 80)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return;
+
+        behaviorLedger ??= new List<string>();
+        behaviorLedger.Add(line.Trim());
+
+        // keep it bounded
+        if (behaviorLedger.Count > maxLines)
+        {
+            int remove = behaviorLedger.Count - maxLines;
+            behaviorLedger.RemoveRange(0, remove);
+        }
+
+        Touch();
+    }
+
+    // ? Required by DirectorPromptBuilder / balancing math
+    public void IncCounter(string key, float amount = 1f)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+
+        behaviorCounters ??= new Dictionary<string, float>();
+        if (!behaviorCounters.TryGetValue(key, out float v)) v = 0f;
+
+        behaviorCounters[key] = v + amount;
+        Touch();
     }
 
     // ---------------------------
@@ -118,116 +159,143 @@ public class PlayerState
         int needed = GetXpRequiredForLevel(level);
         if (experience < needed) return false;
 
-        if (consumeXp) experience -= needed;
-        level += 1;
+        level = Mathf.Max(1, level + 1);
+
+        if (consumeXp)
+            experience = Mathf.Max(0, experience - needed);
+
         Touch();
         return true;
     }
 
-    public void AddXp(int amount, bool autoLevel = true)
+    public void AddXp(int amount)
     {
-        if (amount <= 0) return;
-        experience += amount;
-
-        if (autoLevel)
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                if (!TryLevelUpIfReady(true)) break;
-            }
-        }
-
+        experience = Mathf.Max(0, experience + Mathf.Max(0, amount));
+        TryLevelUpIfReady(consumeXp: true);
         Touch();
     }
 
     // ---------------------------
-    // Ledger helpers
+    // Titles / Classes / Quests
     // ---------------------------
 
-    public void AddLedgerLine(string line, int maxLines = 60)
+    public void AwardTitle(string titleName, string description = "")
     {
-        if (string.IsNullOrWhiteSpace(line)) return;
-        line = line.Trim();
-
-        behaviorLedger ??= new List<string>();
-        behaviorLedger.Add(line);
-
-        if (maxLines > 0 && behaviorLedger.Count > maxLines)
-            behaviorLedger.RemoveRange(0, behaviorLedger.Count - maxLines);
-
-        Touch();
-    }
-
-    public void IncCounter(string key, float delta)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim().ToLowerInvariant();
-
-        behaviorCounters ??= new Dictionary<string, float>();
-        behaviorCounters.TryGetValue(key, out float cur);
-        behaviorCounters[key] = cur + delta;
-        Touch();
-    }
-
-    // ---------------------------
-    // Titles
-    // ---------------------------
-
-    public bool HasTitle(string titleName)
-    {
-        if (string.IsNullOrWhiteSpace(titleName)) return false;
-        titleName = titleName.Trim();
-
-        if (titles == null) return false;
-
-        for (int i = 0; i < titles.Count; i++)
-            if (titles[i] != null && titles[i].name == titleName)
-                return true;
-
-        return false;
-    }
-
-    public void AwardTitle(string titleName, string description)
-    {
-        if (string.IsNullOrWhiteSpace(titleName)) return;
-        if (HasTitle(titleName)) return;
+        titles ??= new List<TitleRecord>();
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        titles ??= new List<TitleRecord>();
         titles.Add(new TitleRecord
         {
             titleId = Guid.NewGuid().ToString("N"),
-            name = titleName.Trim(),
+            name = (titleName ?? "Untitled").Trim(),
             description = (description ?? "").Trim(),
-            acquiredUnix = now,
-            earnedUnix = now
+            earnedUnix = now,
+            acquiredUnix = now
         });
 
         Touch();
     }
 
-    // ---------------------------
-    // Classes
-    // ---------------------------
-
-    public void AwardClass(string className, string description)
+    public void AwardClass(string className, string description = "")
     {
-        if (string.IsNullOrWhiteSpace(className)) return;
+        classes ??= new List<ClassRecord>();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        classes.Add(new ClassRecord
+        {
+            classId = Guid.NewGuid().ToString("N"),
+            name = (className ?? "Unknown Class").Trim(),
+            description = (description ?? "").Trim(),
+            unlockedUnix = now,
+            acquiredUnix = now
+        });
+
+        Touch();
+    }
+
+    public void OfferQuest(string questName, string description = "", string[] tags = null)
+    {
+        quests ??= new List<QuestRecord>();
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        quests.Add(new QuestRecord
+        {
+            questId = Guid.NewGuid().ToString("N"),
+            name = (questName ?? "Quest").Trim(),
+            description = (description ?? "").Trim(),
+            status = "offer",
+            tags = tags ?? Array.Empty<string>(),
+            createdUnix = now,
+            updatedUnix = now
+        });
+
+        Touch();
+    }
+
+    // ? The missing “Upsert*” trio your PlayerStateManager expects
+    public void UpsertTitle(TitleRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.titleId)) return;
+
+        titles ??= new List<TitleRecord>();
+
+        for (int i = 0; i < titles.Count; i++)
+        {
+            var existing = titles[i];
+            if (existing != null && existing.titleId == record.titleId)
+            {
+                titles[i] = record;
+                Touch();
+                return;
+            }
+        }
+
+        titles.Add(record);
+        Touch();
+    }
+
+    public void UpsertClass(ClassRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.classId)) return;
 
         classes ??= new List<ClassRecord>();
 
         for (int i = 0; i < classes.Count; i++)
-            if (classes[i] != null && classes[i].name == className.Trim())
-                return;
-
-        classes.Add(new ClassRecord
         {
-            name = className.Trim(),
-            description = (description ?? "").Trim(),
-            acquiredUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-        });
+            var existing = classes[i];
+            if (existing != null && existing.classId == record.classId)
+            {
+                classes[i] = record;
+                Touch();
+                return;
+            }
+        }
 
+        classes.Add(record);
+        Touch();
+    }
+
+    public void UpsertQuest(QuestRecord record)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.questId)) return;
+
+        quests ??= new List<QuestRecord>();
+
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var existing = quests[i];
+            if (existing != null && existing.questId == record.questId)
+            {
+                quests[i] = record;
+                Touch();
+                return;
+            }
+        }
+
+        quests.Add(record);
         Touch();
     }
 
@@ -361,8 +429,15 @@ public class TitleRecord
 [Serializable]
 public class ClassRecord
 {
+    // ? required by your PlayerStateManager usage
+    public string classId;
+
+    // ? required by some “unlock time” logic
+    public long unlockedUnix;
+
     public string name;
     [TextArea(2, 6)] public string description;
+
     public long acquiredUnix;
 }
 

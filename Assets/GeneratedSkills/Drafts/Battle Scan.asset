@@ -10,20 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
-  m_Name: Shadow Stalker
+  m_Name: Battle Scan
   m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
-  draftId: 0ee05fdf3595423590d34ea944c5781d
-  skillName: Shadow Stalker
-  description: A sneaky and cunning fighter that can move unseen on the battlefield.
-  type: 0
-  context: stealth
+  draftId: f5b09c49a6cf4cfa8d5b48595fd0b246
+  skillName: Battle Scan
+  description: A quick scan of the battlefield to identify threats and weaknesses.
+  type: 1
+  context: exploration
   environment: battlefield
-  contextTags:
-  - Particle-laser
+  contextTags: []
   fitScore: 0
-  committed: 1
-  committedSkillId: 0b8528b7c4a14064a77b7056f98d5063
-  createdUnix: 1767313798
+  committed: 0
+  committedSkillId: 
+  createdUnix: 1767408456
   isUpgradeCandidate: 0
   upgradeTargetSkillId: 
   similarityScore: 0

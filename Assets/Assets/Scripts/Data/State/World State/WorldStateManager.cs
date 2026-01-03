@@ -1,83 +1,51 @@
-// WorldStateManager.cs
-using System;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-using Newtonsoft.Json;
+// Assets/Assets/Scripts/Data/State/World State/WorldStateManager.cs
 
-/// <summary>
-/// Authoritative WorldState persistence + mutation API.
-/// Saves to Application.persistentDataPath/Save/world_state.json
-/// </summary>
+using System;
+using System.IO;
+using Newtonsoft.Json;
+using UnityEngine;
+
 public class WorldStateManager : MonoBehaviour
 {
     public static WorldStateManager Instance { get; private set; }
 
     [Header("Persistence")]
-    public bool autosave = true;
+    public string saveFileName = "world_state.json";
 
-    [Tooltip("Optional: override filename if needed.")]
-    public string fileName = "world_state.json";
-
-    /// <summary>
-    /// Preferred API
-    /// </summary>
     public WorldState State { get; private set; } = WorldState.CreateDefault();
 
-    /// <summary>
-    /// Back-compat for older scripts that reference WorldStateManager.Instance.state
-    /// </summary>
+    // legacy alias
     public WorldState state => State;
 
-    // -----------------------------
-    // Back-compat shims (IMPORTANT)
-    // -----------------------------
-    // Some scripts (including the WorldDeltaApplier you pasted) expect:
-    // - worldStateManager.worldState
-    // - worldStateManager.SaveWorldState()
-    public WorldState worldState => State;
-    public void SaveWorldState() => Save();
+    public WorldState GetWorldState() => State;
 
-    private string SaveDir => Path.Combine(Application.persistentDataPath, "Save");
-    private string SavePath => Path.Combine(SaveDir, fileName);
+    private string SavePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        Load();
+        LoadOrCreate();
     }
 
-    // ---------------------------
-    // Load / Save
-    // ---------------------------
-
-    public void Load()
+    public void LoadOrCreate()
     {
-        try
+        if (File.Exists(SavePath))
         {
-            Directory.CreateDirectory(SaveDir);
-
-            if (!File.Exists(SavePath))
+            try
+            {
+                string json = File.ReadAllText(SavePath);
+                State = JsonConvert.DeserializeObject<WorldState>(json) ?? WorldState.CreateDefault();
+            }
+            catch
             {
                 State = WorldState.CreateDefault();
-                Touch();
-                Save();
-                Debug.Log($"[WorldStateManager] Created new world state at {SavePath}");
-                return;
             }
-
-            var json = File.ReadAllText(SavePath);
-            State = JsonConvert.DeserializeObject<WorldState>(json) ?? WorldState.CreateDefault();
-            Touch();
-            Debug.Log($"[WorldStateManager] Loaded world state from {SavePath}");
         }
-        catch (Exception ex)
+        else
         {
-            Debug.LogWarning("[WorldStateManager] Load failed, creating default. " + ex.Message);
             State = WorldState.CreateDefault();
-            Touch();
             Save();
         }
     }
@@ -86,183 +54,34 @@ public class WorldStateManager : MonoBehaviour
     {
         try
         {
-            Directory.CreateDirectory(SaveDir);
-            Touch();
-
-            var json = JsonConvert.SerializeObject(State, Formatting.Indented);
+            State.TouchNow();
+            string json = JsonConvert.SerializeObject(State, Formatting.Indented);
             File.WriteAllText(SavePath, json);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Debug.LogWarning("[WorldStateManager] Save failed: " + ex.Message);
+            Debug.LogWarning("[WorldStateManager] Save failed:\n" + e);
         }
     }
 
-    private void Touch()
-    {
-        if (State == null) State = WorldState.CreateDefault();
-        State.Touch();
-    }
-
-    // ---------------------------
-    // Canon / Region
-    // ---------------------------
-
-    public void SetCurrentRegion(string regionId)
-    {
-        if (string.IsNullOrWhiteSpace(regionId)) return;
-        State.currentRegionId = regionId.Trim();
-        if (autosave) Save();
-    }
-
-    public void AppendCanon(string line, int maxLines = 40)
+    public void AddCanonLine(string line)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
-        line = line.Trim();
-
-        var lines = new List<string>();
-
-        if (!string.IsNullOrWhiteSpace(State.canonLedger))
-        {
-            var existing = State.canonLedger.Replace("\r", "").Split('\n');
-            for (int i = 0; i < existing.Length; i++)
-            {
-                var l = existing[i].Trim();
-                if (!string.IsNullOrWhiteSpace(l)) lines.Add(l);
-            }
-        }
-
-        lines.Add(line);
-
-        if (maxLines > 0 && lines.Count > maxLines)
-            lines.RemoveRange(0, lines.Count - maxLines);
-
-        State.canonLedger = string.Join("\n", lines);
-        if (autosave) Save();
+        State.AppendCanon(line.Trim());
+        State.TouchNow();
     }
 
-    // ---------------------------
-    // Flags (global numeric)
-    // ---------------------------
-
-    public void SetFlag(string key, float value)
+    // ? required by PlayerLocationReporter
+    public void SetCurrentRegion(string regionId, string regionName = null)
     {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-
-        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
-        State.globalFlags[key] = value;
-
-        if (autosave) Save();
+        State.currentRegionId = regionId ?? "";
+        if (regionName != null) State.currentRegionName = regionName;
+        State.TouchNow();
     }
 
-    public void IncFlag(string key, float delta)
+    public void SetTension(float t)
     {
-        if (string.IsNullOrWhiteSpace(key)) return;
-        key = key.Trim();
-
-        if (State.globalFlags == null) State.globalFlags = new Dictionary<string, float>();
-
-        if (!State.globalFlags.TryGetValue(key, out var cur))
-            cur = 0f;
-
-        State.globalFlags[key] = cur + delta;
-
-        if (autosave) Save();
-    }
-
-    public float GetFlag(string key, float fallback = 0f)
-    {
-        if (string.IsNullOrWhiteSpace(key)) return fallback;
-        key = key.Trim();
-
-        if (State.globalFlags == null) return fallback;
-        return State.globalFlags.TryGetValue(key, out var v) ? v : fallback;
-    }
-
-    // ---------------------------
-    // Factions
-    // ---------------------------
-
-    public FactionRecord EnsureFaction(string factionId, string name = null)
-    {
-        if (string.IsNullOrWhiteSpace(factionId)) return null;
-        return State.GetOrCreateFaction(factionId.Trim(), name);
-    }
-
-    public void SetFactionAttitude(string factionId, float value)
-    {
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.attitudeToPlayer = Mathf.Clamp(value, -1f, 1f);
-        if (autosave) Save();
-    }
-
-    public void IncFactionAttitude(string factionId, float delta)
-    {
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.attitudeToPlayer = Mathf.Clamp(f.attitudeToPlayer + delta, -1f, 1f);
-        if (autosave) Save();
-    }
-
-    public void SetFactionStatus(string factionId, string status)
-    {
-        if (string.IsNullOrWhiteSpace(status)) return;
-        var f = EnsureFaction(factionId);
-        if (f == null) return;
-
-        f.status = status.Trim();
-        if (autosave) Save();
-    }
-
-    // ---------------------------
-    // Locations
-    // ---------------------------
-
-    public LocationRecord EnsureLocation(string locationId, string name = null, string regionId = null)
-    {
-        if (string.IsNullOrWhiteSpace(locationId)) return null;
-        return State.GetOrCreateLocation(locationId.Trim(), name, regionId);
-    }
-
-    public void SetLocationState(string locationId, string state)
-    {
-        if (string.IsNullOrWhiteSpace(state)) return;
-
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.state = state.Trim();
-        if (autosave) Save();
-    }
-
-    public void SetLocationImportance(string locationId, float value)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.importance = Mathf.Clamp(value, -1000f, 1000f);
-        if (autosave) Save();
-    }
-
-    public void IncLocationImportance(string locationId, float delta)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.importance = Mathf.Clamp(l.importance + delta, -1000f, 1000f);
-        if (autosave) Save();
-    }
-
-    public void SetLocationText(string locationId, string text)
-    {
-        var l = EnsureLocation(locationId);
-        if (l == null) return;
-
-        l.text = (text ?? "").Trim();
-        if (autosave) Save();
+        State.tension = t;
+        State.ApplyFlagDelta("tension", "set", t);
     }
 }

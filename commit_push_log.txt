@@ -1,4 +1,4 @@
-===== Thu 01/01/2026 23:28:51.33 =====
+===== Sat 01/03/2026 10:53:46.38 =====
 STEP 1: Starting...
 STEP 2: cd done (err=0) in C:\Users\Garri\YourQuest
 C:\Program Files\Git\cmd\git.exe
@@ -10,9 +10,46 @@ On branch main
 Your branch is up to date with 'origin/main'.
 
 Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
+  (use "git add/rm <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
+	deleted:    Assets/Assets/ScriptDumps.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_001.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_001.txt.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_002.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_002.txt.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_003.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_003.txt.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_004.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_004.txt.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_005.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_005.txt.meta
+	modified:   Assets/Assets/ScriptDumps_TopFolders/_MANIFEST.txt
+	modified:   Assets/Assets/ScriptDumps_TopFolders/_MANIFEST.txt.meta
+	modified:   Assets/Assets/Scripts/Data/Serialization/Vector3JsonConverter.cs
+	modified:   Assets/Assets/Scripts/Data/State/Player State/PlayerState.cs
+	modified:   Assets/Assets/Scripts/Data/State/Player State/PlayerStateManager.cs
+	modified:   Assets/Assets/Scripts/Data/State/World State/WorldState.cs
+	modified:   Assets/Assets/Scripts/Data/State/World State/WorldStateManager.cs
+	modified:   Assets/Assets/Scripts/LLM/LLMClient.cs
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Stalker.asset
+	modified:   Assets/Scenes/SampleScene.unity
+	modified:   ProjectSettings/PackageManagerSettings.asset
 	modified:   commit_push_log.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	Assets/Assets/Scripts/BalanceConfig.cs
+	Assets/Assets/Scripts/BalanceConfig.cs.meta
+	Assets/Assets/Scripts/Gameplay/Systems/Director.meta
+	Assets/Assets/Scripts/Gameplay/Systems/Director/
+	Assets/Assets/Scripts/ScriptableObjects/Balance/Balance Legacy.asset
+	Assets/Assets/Scripts/ScriptableObjects/Balance/Balance Legacy.asset.meta
+	Assets/GeneratedSkills/Drafts/Battle Scan.asset
+	Assets/GeneratedSkills/Drafts/Battle Scan.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Sneak.asset
+	Assets/GeneratedSkills/Drafts/Shadow Sneak.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Stalking.asset
+	Assets/GeneratedSkills/Drafts/Shadow Stalking.asset.meta
 
 no changes added to commit (use "git add" and/or "git commit -a")
 STEP 6: git add .

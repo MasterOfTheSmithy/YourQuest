@@ -1,5 +1,6 @@
 === TOP: Scripts ===
 OUT: TOP_Scripts_001.txt
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\BalanceConfig.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\PlayerProfile.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\JsonFileStore.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\Serialization\SerializableDictionary.cs
@@ -12,16 +13,20 @@ OUT: TOP_Scripts_001.txt
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerController.cs
 OUT: TOP_Scripts_002.txt
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Player\PlayerInputActions.cs (PART 1)
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorDecisionApplier.cs
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorPromptBuilder.cs
+OUT: TOP_Scripts_003.txt
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Director\DirectorThinkCycle.cs (PART 1)
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Input\InputIntentRecorder.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\PlayerBehaviorRollup.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\Progression\UpgradeOfferManager.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\LLMThinkCycle.cs
-OUT: TOP_Scripts_003.txt
-  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs (PART 1)
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaApplier.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Gameplay\Systems\World\WorldDeltaDTO.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Debug\DebugSkillGenerator.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\LLMClient.cs
-  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PlayerMemoryRenderer.cs
+OUT: TOP_Scripts_004.txt
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PlayerMemoryRenderer.cs (PART 1)
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\PromptContextBuilder.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\LLM\Prompting\WorldMemoryRenderer.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\ActionRecorder.cs
@@ -30,23 +35,22 @@ OUT: TOP_Scripts_003.txt
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Entities\EntityInfo.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventAccumulator.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\EventSummarizer.cs
-OUT: TOP_Scripts_004.txt
-  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Models\ActionEvent.cs (PART 1)
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Models\ActionEvent.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Models\Verb.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Regions\RegionVolume.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\RuntimeContext\PlayerContext.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Situation\SituationSnapshotBuilder.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Threat\MovementPatternClassifier.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Threat\TargetingTracker.cs
-  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Threat\ThreatProbe.cs
+OUT: TOP_Scripts_005.txt
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Threat\ThreatProbe.cs (PART 1)
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ProgressionBalanceConfig.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ProgressionDecisionApplier.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ProgressionMath.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ProgressionThinkCycle.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\LLMSO.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\EmergentSkill.cs
-OUT: TOP_Scripts_005.txt
-  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillCommiter.cs (PART 1)
+  + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillCommiter.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillData.cs
   + C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ScriptableObjects\Skills\SkillSimilarity.cs
 

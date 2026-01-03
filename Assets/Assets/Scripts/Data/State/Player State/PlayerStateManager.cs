@@ -1,21 +1,43 @@
+// Assets/Assets/Scripts/Data/State/Player State/PlayerStateManager.cs
+
 using System;
+using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerStateManager : MonoBehaviour
 {
     public static PlayerStateManager Instance { get; private set; }
 
-    [Header("Runtime State")]
+    [Header("Persistence")]
+    public string saveFileName = "player_state.json";
+
+    [Tooltip("If true, Save() may be called by systems after mutations.")]
+    public bool autosave = true;
+
+    [Tooltip("Minimum seconds between autosaves to avoid disk spam.")]
+    public float autosaveMinIntervalSeconds = 2f;
+
     public PlayerState state = new PlayerState();
 
-    [Header("Save")]
-    public string fileName = "player_state.json";
-    public bool autosave = true;
-    public float autosaveInterval = 10f;
+    public PlayerState GetPlayerState() => state;
 
-    private float nextAutosave;
+    private string SavePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
-    public string SavePath => System.IO.Path.Combine(Application.persistentDataPath, "Save", fileName);
+    private float nextAutosaveTime;
+
+    private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented,
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        Converters =
+        {
+            new Vector3JsonConverter(),
+            new Vector2JsonConverter(),
+            new QuaternionJsonConverter()
+        }
+    };
 
     private void Awake()
     {
@@ -23,171 +45,136 @@ public class PlayerStateManager : MonoBehaviour
         Instance = this;
 
         LoadOrCreate();
-        nextAutosave = Time.time + autosaveInterval;
     }
 
     private void Update()
     {
-        if (!autosave) return;
-        if (Time.time < nextAutosave) return;
-        nextAutosave = Time.time + autosaveInterval;
-        Save();
+        // Keep scene in sync (helps prompts)
+        string scene = SceneManager.GetActiveScene().name;
+        if (state.currentScene != scene)
+        {
+            state.currentScene = scene;
+            state.Touch();
+            TryAutosave();
+        }
     }
 
     public void LoadOrCreate()
     {
-        if (JsonFileStore.TryLoad<PlayerState>(SavePath, out var loaded))
+        if (File.Exists(SavePath))
         {
-            state = loaded ?? new PlayerState();
-
-            // Ensure new collections are not null when loading older saves
-            state.titles ??= new System.Collections.Generic.List<TitleRecord>();
-            state.classes ??= new System.Collections.Generic.List<ClassRecord>();
-            state.skills ??= new System.Collections.Generic.List<SkillRecord>();
-            state.quests ??= new System.Collections.Generic.List<QuestRecord>();
-            state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-            state.reputation ??= new System.Collections.Generic.Dictionary<string, float>();
-            state.behaviorLedger ??= new System.Collections.Generic.List<string>();
-            state.behaviorCounters ??= new System.Collections.Generic.Dictionary<string, float>();
-
-            state.Touch();
-            Debug.Log($"[PlayerStateManager] Loaded: {SavePath}");
-            return;
+            try
+            {
+                string json = File.ReadAllText(SavePath);
+                state = JsonConvert.DeserializeObject<PlayerState>(json, JsonSettings) ?? new PlayerState();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[PlayerStateManager] Load failed, creating new state:\n" + e);
+                state = new PlayerState();
+            }
         }
-
-        // New save
-        state = new PlayerState();
-        state.Touch();
-        Save();
-        Debug.Log($"[PlayerStateManager] Created new save: {SavePath}");
+        else
+        {
+            state = new PlayerState();
+            Save(); // first write
+        }
     }
 
     public void Save()
     {
-        if (state == null) state = new PlayerState();
-        state.Touch();
-        JsonFileStore.TrySave(SavePath, state);
+        try
+        {
+            string json = JsonConvert.SerializeObject(state, JsonSettings);
+            File.WriteAllText(SavePath, json);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[PlayerStateManager] Save failed:\n" + e);
+        }
     }
 
-    // -----------------------
-    // High-level mutation API
-    // -----------------------
+    private void TryAutosave()
+    {
+        if (!autosave) return;
+        if (Time.time < nextAutosaveTime) return;
 
+        nextAutosaveTime = Time.time + Mathf.Max(0.05f, autosaveMinIntervalSeconds);
+        Save();
+    }
+
+    // Used by PlayerLocationReporter
     public void SetLocation(string sceneName, string regionId, Vector3 position)
     {
-        if (state == null) state = new PlayerState();
-
-        state.currentScene = sceneName ?? "";
-        state.currentRegionId = regionId ?? "";
-
-        // ? FIX: Vector3 is not indexable — assign directly
+        state.currentScene = sceneName ?? state.currentScene;
+        state.currentRegionId = regionId ?? state.currentRegionId;
         state.lastPosition = position;
-
         state.Touch();
+
+        TryAutosave();
     }
 
-    public void AddOrUpdateSkillFromCommitted(SkillData committed)
+    public void SetLocation(string sceneName, string regionId)
     {
-        if (committed == null) return;
-        if (state == null) state = new PlayerState();
+        SetLocation(sceneName, regionId, state.lastPosition);
+    }
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    public void SetRegion(string regionId, string regionName = null)
+    {
+        state.currentRegionId = regionId ?? "";
+        if (regionName != null) state.currentRegionName = regionName;
+        state.Touch();
+        TryAutosave();
+    }
 
-        var rec = new SkillRecord
+    public void SetPosition(Vector3 pos)
+    {
+        state.lastPosition = pos;
+        state.Touch();
+        // no autosave here on purpose
+    }
+
+    public void GrantXp(int amount)
+    {
+        if (amount <= 0) return;
+
+        state.xp += amount;
+
+        while (true)
         {
-            skillId = committed.skillId,
-            familyId = committed.familyId,
-            tier = committed.tier,
-            parentSkillId = committed.parentSkillId,
+            int needed = PlayerState.GetXpRequiredForLevel(state.level);
+            if (state.xp < needed) break;
 
-            name = committed.skillName,
-            description = committed.description,
-            type = committed.type.ToString(),
-
-            rank = committed.level,
-            unlocked = true,
-
-            context = committed.context,
-            environment = committed.environment,
-
-            learnedUnix = now,
-
-            // back-compat field (fine to keep)
-            acquiredUnix = now
-        };
-
-        state.UpsertSkill(rec);
-
-        // Ensure equip slot exists if empty
-        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-
-        string slotKey = committed.type.ToString();
-        if (!state.equippedSkillBySlot.ContainsKey(slotKey) || string.IsNullOrWhiteSpace(state.equippedSkillBySlot[slotKey]))
-        {
-            state.equippedSkillBySlot[slotKey] = committed.skillId;
+            state.xp -= needed;
+            state.level += 1;
         }
 
         state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 
+    // Required by UpgradeOfferManager
     public void EquipSkill(SkillData skill)
     {
         if (skill == null) return;
-        if (state == null) state = new PlayerState();
 
         state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
-        state.equippedSkillBySlot[skill.type.ToString()] = skill.skillId;
+
+        string slotKey = skill.type.ToString();
+        state.equippedSkillBySlot[slotKey] = skill.skillId;
 
         state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 
-    public void AddTitle(string name, string description)
+    public void EquipSkill(string slotKey, string skillId)
     {
-        if (state == null) state = new PlayerState();
+        if (string.IsNullOrWhiteSpace(slotKey) || string.IsNullOrWhiteSpace(skillId)) return;
 
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        var t = new TitleRecord
-        {
-            titleId = Guid.NewGuid().ToString("N"),
-            name = name ?? "Untitled",
-            description = description ?? "",
-
-            // new + back-compat
-            earnedUnix = now,
-            acquiredUnix = now
-        };
-
-        state.titles ??= new System.Collections.Generic.List<TitleRecord>();
-        state.titles.Add(t);
+        state.equippedSkillBySlot ??= new System.Collections.Generic.Dictionary<string, string>();
+        state.equippedSkillBySlot[slotKey.Trim()] = skillId.Trim();
 
         state.Touch();
-        if (autosave) Save();
-    }
-
-    public void AddQuest(string name, string description, string status = "offer", string[] tags = null)
-    {
-        if (state == null) state = new PlayerState();
-
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-        var q = new QuestRecord
-        {
-            questId = Guid.NewGuid().ToString("N"),
-            name = name ?? "Unnamed Quest",
-            description = description ?? "",
-            status = status ?? "offer",
-            tags = tags ?? Array.Empty<string>(),
-            createdUnix = now,
-            updatedUnix = now
-        };
-
-        state.quests ??= new System.Collections.Generic.List<QuestRecord>();
-        state.quests.Add(q);
-
-        state.Touch();
-        if (autosave) Save();
+        TryAutosave();
     }
 }

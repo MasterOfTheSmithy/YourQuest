@@ -1,3 +1,5 @@
+// Assets/Assets/Scripts/Data/State/Json/Vector3JsonConverter.cs
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -18,11 +20,12 @@ public sealed class Vector3JsonConverter : JsonConverter<Vector3>
         if (reader.TokenType == JsonToken.Null) return Vector3.zero;
 
         var obj = JObject.Load(reader);
-        return new Vector3(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f),
-            (float)(obj["z"] ?? 0f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+        float z = obj["z"]?.Value<float>() ?? 0f;
+
+        return new Vector3(x, y, z);
     }
 }
 
@@ -41,10 +44,11 @@ public sealed class Vector2JsonConverter : JsonConverter<Vector2>
         if (reader.TokenType == JsonToken.Null) return Vector2.zero;
 
         var obj = JObject.Load(reader);
-        return new Vector2(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+
+        return new Vector2(x, y);
     }
 }
 
@@ -65,11 +69,12 @@ public sealed class QuaternionJsonConverter : JsonConverter<Quaternion>
         if (reader.TokenType == JsonToken.Null) return Quaternion.identity;
 
         var obj = JObject.Load(reader);
-        return new Quaternion(
-            (float)(obj["x"] ?? 0f),
-            (float)(obj["y"] ?? 0f),
-            (float)(obj["z"] ?? 0f),
-            (float)(obj["w"] ?? 1f)
-        );
+
+        float x = obj["x"]?.Value<float>() ?? 0f;
+        float y = obj["y"]?.Value<float>() ?? 0f;
+        float z = obj["z"]?.Value<float>() ?? 0f;
+        float w = obj["w"]?.Value<float>() ?? 1f;
+
+        return new Quaternion(x, y, z, w);
     }
 }

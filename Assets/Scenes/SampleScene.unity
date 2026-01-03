@@ -563,6 +563,7 @@ Transform:
   - {fileID: 68381538}
   - {fileID: 1372742471}
   - {fileID: 506931875}
+  - {fileID: 1989772243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &506931874
@@ -762,6 +763,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18fc645853b9d0e4bb5813c9956f8a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateManager
+  saveFileName: player_state.json
+  autosave: 1
+  autosaveMinIntervalSeconds: 2
   state:
     schemaVersion: 1
     playerId: player
@@ -796,9 +800,6 @@ MonoBehaviour:
     nextQuestEligibleUnix: 0
     rewardBudget: 0
     rewardBudgetLastUpdateUnix: 0
-  fileName: player_state.json
-  autosave: 1
-  autosaveInterval: 10
 --- !u!114 &712111122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -811,8 +812,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f074b68b2a6741e4a9473088fe55bfb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldStateManager
-  autosave: 1
-  fileName: world_state.json
+  saveFileName: world_state.json
 --- !u!114 &712111123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,7 +837,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712111116}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f877d38a74ee3fc4f9dd855bf58c8039, type: 3}
   m_Name: 
@@ -863,7 +863,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712111116}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e176f0897a16d71448d059373d4c8626, type: 3}
   m_Name: 
@@ -1130,6 +1130,98 @@ Transform:
   m_Children: []
   m_Father: {fileID: 353826888}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1989772242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1989772243}
+  - component: {fileID: 1989772244}
+  - component: {fileID: 1989772245}
+  - component: {fileID: 1989772246}
+  m_Layer: 0
+  m_Name: Systems_Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1989772243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989772242}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 353826888}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1989772244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989772242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eadd2f7428aa6134ea26d9cf242709e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectorDecisionApplier
+  balanceConfig: {fileID: 11400000, guid: 2e0d6ad65c88813439805b835ea0281a, type: 2}
+  worldDeltaApplier: {fileID: 712111123}
+  progressionDecisionApplier: {fileID: 712111126}
+  logRejects: 1
+--- !u!114 &1989772245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989772242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 780fec20e40440641951bcaf07b51999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectorThinkCycle
+  llmClient: {fileID: 1987460743}
+  promptBuilder: {fileID: 0}
+  decisionApplier: {fileID: 1989772244}
+  thinkEverySeconds: 10
+  logPrompt: 0
+  logRawResponse: 1
+  logApplyResult: 1
+--- !u!114 &1989772246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1989772242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eb09389e5a3107459d1d3112a0c0b27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectorPromptBuilder
+  worldStateManager: {fileID: 712111122}
+  playerStateManager: {fileID: 712111121}
+  situationSnapshotBuilder: {fileID: 506931876}
+  eventAccumulator: {fileID: 1372742473}
+  canonLedger: 'Canon: Magic exists. The world responds to witnessed acts. Factions
+    compete for relics.'
+  worldSignificanceThreshold: 4
+  progressionThreshold: 0.75
+  alwaysAllowNone: 1
+  maxNotesChars: 1200
+  logBuiltPrompt: 0
 --- !u!1 &2119070391
 GameObject:
   m_ObjectHideFlags: 0
