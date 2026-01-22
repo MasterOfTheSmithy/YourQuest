@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Earthquake Strike
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: 832f57c522024e3f934185cfc48d19d4
+  familyId: f5066ea2c65a41ea8372cf1de74a0c08
+  tier: 1
+  parentSkillId: 
+  skillName: Earthquake Strike
+  description: A powerful strike that sends shockwaves through the forest floor,
+    damaging enemies and causing terrain damage.
+  type: 1
+  context: combat
+  environment: forest
+  tags: []
+  level: 1

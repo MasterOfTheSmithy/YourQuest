@@ -12,18 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
   m_Name: Shadow Stalker
   m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
-  draftId: 0ee05fdf3595423590d34ea944c5781d
+  draftId: 07d72a984862421e95a0b7553029a18c
   skillName: Shadow Stalker
-  description: A sneaky and cunning fighter that can move unseen on the battlefield.
+  description: A passive skill that enhances stealth in the ruined city.
   type: 0
   context: stealth
-  environment: battlefield
-  contextTags:
-  - Particle-laser
+  environment: ruined city
+  contextTags: []
   fitScore: 0
   committed: 1
-  committedSkillId: 0b8528b7c4a14064a77b7056f98d5063
-  createdUnix: 1767313798
+  committedSkillId: b44db08828ee4bc0876717b8747a6df9
+  createdUnix: 1768948704
   isUpgradeCandidate: 0
   upgradeTargetSkillId: 
   similarityScore: 0

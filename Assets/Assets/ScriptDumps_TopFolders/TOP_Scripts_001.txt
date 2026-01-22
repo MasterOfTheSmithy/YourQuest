@@ -1,6 +1,6 @@
 # INDEX
 # Group: Scripts
-# Generated: 2026-01-03 10:52:59
+# Generated: 2026-01-20 14:10:43
 # --------------------------------
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\BalanceConfig.cs
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Data\PlayerProfile.cs

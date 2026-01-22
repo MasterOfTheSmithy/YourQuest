@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Crippling Touch
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: 1b0207330bc14a12b33401cf4d21527c
+  familyId: b1e0091bcd2a412a8d9bf621cccc5776
+  tier: 1
+  parentSkillId: 
+  skillName: Crippling Touch
+  description: A touch that paralyzes enemies in the dungeon, leaving them vulnerable
+    to attacks.
+  type: 0
+  context: combat
+  environment: dungeon
+  tags: []
+  level: 1

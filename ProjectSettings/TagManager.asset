@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - NPC
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - ground
   - region
   - player
-  - 
+  - NPC
   - 
   - 
   - 

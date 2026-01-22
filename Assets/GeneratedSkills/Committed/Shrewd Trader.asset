@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Shrewd Trader
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: 184fe48a4fa64730822504af91afd46d
+  familyId: ad43adc3069e4a54aa64702052d6ce4e
+  tier: 1
+  parentSkillId: 
+  skillName: Shrewd Trader
+  description: You have honed your negotiation skills, allowing you to get more out
+    of trades on the battlefield.
+  type: 0
+  context: trading
+  environment: battlefield
+  tags: []
+  level: 1

@@ -1,4 +1,4 @@
-===== Sat 01/03/2026 10:53:46.38 =====
+===== Wed 01/21/2026 20:45:43.54 =====
 STEP 1: Starting...
 STEP 2: cd done (err=0) in C:\Users\Garri\YourQuest
 C:\Program Files\Git\cmd\git.exe
@@ -12,44 +12,218 @@ Your branch is up to date with 'origin/main'.
 Changes not staged for commit:
   (use "git add/rm <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
-	deleted:    Assets/Assets/ScriptDumps.meta
 	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_001.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_001.txt.meta
 	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_002.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_002.txt.meta
 	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_003.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_003.txt.meta
 	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_004.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_004.txt.meta
 	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_005.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/TOP_Scripts_005.txt.meta
-	modified:   Assets/Assets/ScriptDumps_TopFolders/_MANIFEST.txt
-	modified:   Assets/Assets/ScriptDumps_TopFolders/_MANIFEST.txt.meta
+	modified:   Assets/Assets/Scripts/BalanceConfig.cs
+	modified:   Assets/Assets/Scripts/Data/PlayerProfile.cs
+	modified:   Assets/Assets/Scripts/Data/Serialization/JsonFileStore.cs
+	modified:   Assets/Assets/Scripts/Data/Serialization/SerializableDictionary.cs
 	modified:   Assets/Assets/Scripts/Data/Serialization/Vector3JsonConverter.cs
+	modified:   Assets/Assets/Scripts/Data/Serialization/Vector3JsonConverter.cs.meta
+	modified:   Assets/Assets/Scripts/Data/State/Player State/PlayerLocationReporter.cs
 	modified:   Assets/Assets/Scripts/Data/State/Player State/PlayerState.cs
 	modified:   Assets/Assets/Scripts/Data/State/Player State/PlayerStateManager.cs
 	modified:   Assets/Assets/Scripts/Data/State/World State/WorldState.cs
 	modified:   Assets/Assets/Scripts/Data/State/World State/WorldStateManager.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Player/PlayerController.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Player/PlayerInputActions.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Player/PlayerInputActions.inputactions
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Director/DirectorDecisionApplier.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Director/DirectorPromptBuilder.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Director/DirectorThinkCycle.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Input/InputIntentRecorder.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Progression/PlayerBehaviorRollup.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Progression/PlayerBehaviorRollup.cs.meta
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/Progression/UpgradeOfferManager.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/World/LLMThinkCycle.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/World/WorldDeltaApplier.cs
+	modified:   Assets/Assets/Scripts/Gameplay/Systems/World/WorldDeltaDTO.cs
+	modified:   Assets/Assets/Scripts/LLM/Debug/DebugSkillGenerator.cs
 	modified:   Assets/Assets/Scripts/LLM/LLMClient.cs
+	modified:   Assets/Assets/Scripts/LLM/Prompting/PlayerMemoryRenderer.cs
+	modified:   Assets/Assets/Scripts/LLM/Prompting/PromptContextBuilder.cs
+	modified:   Assets/Assets/Scripts/LLM/Prompting/WorldMemoryRenderer.cs
+	modified:   Assets/Assets/Scripts/Observation/ActionRecorder.cs
+	modified:   Assets/Assets/Scripts/Observation/ActionRegistry.cs
+	modified:   Assets/Assets/Scripts/Observation/Entities/EntityIndex.cs
+	modified:   Assets/Assets/Scripts/Observation/Entities/EntityInfo.cs
+	modified:   Assets/Assets/Scripts/Observation/EventAccumulator.cs
+	modified:   Assets/Assets/Scripts/Observation/EventSummarizer.cs
+	modified:   Assets/Assets/Scripts/Observation/Models/ActionEvent.cs
+	modified:   Assets/Assets/Scripts/Observation/Models/Verb.cs
+	modified:   Assets/Assets/Scripts/Observation/Regions/RegionVolume.cs
+	modified:   Assets/Assets/Scripts/Observation/RuntimeContext/PlayerContext.cs
+	modified:   Assets/Assets/Scripts/Observation/Situation/SituationSnapshotBuilder.cs
+	modified:   Assets/Assets/Scripts/Observation/Threat/MovementPatternClassifier.cs
+	modified:   Assets/Assets/Scripts/Observation/Threat/TargetingTracker.cs
+	modified:   Assets/Assets/Scripts/Observation/Threat/ThreatProbe.cs
+	modified:   Assets/Assets/Scripts/ProgressionBalanceConfig.cs
+	modified:   Assets/Assets/Scripts/ProgressionBalanceConfig.cs.meta
+	modified:   Assets/Assets/Scripts/ProgressionDecisionApplier.cs
+	modified:   Assets/Assets/Scripts/ProgressionDecisionApplier.cs.meta
+	modified:   Assets/Assets/Scripts/ProgressionMath.cs
+	modified:   Assets/Assets/Scripts/ProgressionMath.cs.meta
+	modified:   Assets/Assets/Scripts/ProgressionThinkCycle.cs
+	modified:   Assets/Assets/Scripts/ProgressionThinkCycle.cs.meta
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Balance.meta
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Balance/ProgressionBalanceConfig.asset
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Balance/ProgressionBalanceConfig.asset.meta
+	modified:   Assets/Assets/Scripts/ScriptableObjects/LLMSO.cs
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Skills/EmergentSkill.cs
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Skills/SkillCommiter.cs
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Skills/SkillData.cs
+	modified:   Assets/Assets/Scripts/ScriptableObjects/Skills/SkillSimilarity.cs
+	deleted:    Assets/GeneratedSkills/Committed/Ruined Shot.asset
+	deleted:    Assets/GeneratedSkills/Committed/Ruined Shot.asset.meta
+	modified:   Assets/GeneratedSkills/Committed/Shadow Stalker.asset
+	modified:   Assets/GeneratedSkills/Committed/Shadow Stalker.asset.meta
+	deleted:    Assets/GeneratedSkills/Committed/combat.asset
+	deleted:    Assets/GeneratedSkills/Committed/combat.asset.meta
+	deleted:    Assets/GeneratedSkills/Drafts/Battle Scan.asset
+	deleted:    Assets/GeneratedSkills/Drafts/Battle Scan.asset.meta
+	deleted:    Assets/GeneratedSkills/Drafts/Nature's Embrace.asset
+	deleted:    Assets/GeneratedSkills/Drafts/Nature's Embrace.asset.meta
+	deleted:    Assets/GeneratedSkills/Drafts/Ruined Shot.asset
+	deleted:    Assets/GeneratedSkills/Drafts/Ruined Shot.asset.meta
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Sneak.asset
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Sneak.asset.meta
 	modified:   Assets/GeneratedSkills/Drafts/Shadow Stalker.asset
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Stalker.asset.meta
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Stalking.asset
+	modified:   Assets/GeneratedSkills/Drafts/Shadow Stalking.asset.meta
 	modified:   Assets/Scenes/SampleScene.unity
-	modified:   ProjectSettings/PackageManagerSettings.asset
+	modified:   Packages/manifest.json
+	modified:   Packages/packages-lock.json
+	modified:   ProjectSettings/ShaderGraphSettings.asset
+	modified:   ProjectSettings/TagManager.asset
 	modified:   commit_push_log.txt
 
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
-	Assets/Assets/Scripts/BalanceConfig.cs
-	Assets/Assets/Scripts/BalanceConfig.cs.meta
-	Assets/Assets/Scripts/Gameplay/Systems/Director.meta
-	Assets/Assets/Scripts/Gameplay/Systems/Director/
-	Assets/Assets/Scripts/ScriptableObjects/Balance/Balance Legacy.asset
-	Assets/Assets/Scripts/ScriptableObjects/Balance/Balance Legacy.asset.meta
-	Assets/GeneratedSkills/Drafts/Battle Scan.asset
-	Assets/GeneratedSkills/Drafts/Battle Scan.asset.meta
-	Assets/GeneratedSkills/Drafts/Shadow Sneak.asset
-	Assets/GeneratedSkills/Drafts/Shadow Sneak.asset.meta
-	Assets/GeneratedSkills/Drafts/Shadow Stalking.asset
-	Assets/GeneratedSkills/Drafts/Shadow Stalking.asset.meta
+	Assets/Assets/Scripts/Dialogue.meta
+	Assets/Assets/Scripts/Dialogue/
+	Assets/GeneratedDialogue.meta
+	Assets/GeneratedDialogue/
+	Assets/GeneratedEntities.meta
+	Assets/GeneratedSkills/Committed/Battlefield Explorer.asset
+	Assets/GeneratedSkills/Committed/Battlefield Explorer.asset.meta
+	Assets/GeneratedSkills/Committed/Cave Trade.asset
+	Assets/GeneratedSkills/Committed/Cave Trade.asset.meta
+	Assets/GeneratedSkills/Committed/Crippling Touch.asset
+	Assets/GeneratedSkills/Committed/Crippling Touch.asset.meta
+	Assets/GeneratedSkills/Committed/Earthquake Strike.asset
+	Assets/GeneratedSkills/Committed/Earthquake Strike.asset.meta
+	Assets/GeneratedSkills/Committed/Echo Vision.asset
+	Assets/GeneratedSkills/Committed/Echo Vision.asset.meta
+	Assets/GeneratedSkills/Committed/Elemental Surge.asset
+	Assets/GeneratedSkills/Committed/Elemental Surge.asset.meta
+	Assets/GeneratedSkills/Committed/Emberball.asset
+	Assets/GeneratedSkills/Committed/Emberball.asset.meta
+	Assets/GeneratedSkills/Committed/Forest Fury 1.asset
+	Assets/GeneratedSkills/Committed/Forest Fury 1.asset.meta
+	Assets/GeneratedSkills/Committed/Forest Fury.asset
+	Assets/GeneratedSkills/Committed/Forest Fury.asset.meta
+	Assets/GeneratedSkills/Committed/Nature's Guide.asset
+	Assets/GeneratedSkills/Committed/Nature's Guide.asset.meta
+	Assets/GeneratedSkills/Committed/Rockslide.asset
+	Assets/GeneratedSkills/Committed/Rockslide.asset.meta
+	Assets/GeneratedSkills/Committed/Ruinous Expedition.asset
+	Assets/GeneratedSkills/Committed/Ruinous Expedition.asset.meta
+	Assets/GeneratedSkills/Committed/Shadow Assassin.asset
+	Assets/GeneratedSkills/Committed/Shadow Assassin.asset.meta
+	Assets/GeneratedSkills/Committed/Shadow Assassinate.asset
+	Assets/GeneratedSkills/Committed/Shadow Assassinate.asset.meta
+	Assets/GeneratedSkills/Committed/Shadow Blade 1.asset
+	Assets/GeneratedSkills/Committed/Shadow Blade 1.asset.meta
+	Assets/GeneratedSkills/Committed/Shadow Blade.asset
+	Assets/GeneratedSkills/Committed/Shadow Blade.asset.meta
+	Assets/GeneratedSkills/Committed/Sharpened Sticks.asset
+	Assets/GeneratedSkills/Committed/Sharpened Sticks.asset.meta
+	Assets/GeneratedSkills/Committed/Shrewd Trader.asset
+	Assets/GeneratedSkills/Committed/Shrewd Trader.asset.meta
+	Assets/GeneratedSkills/Committed/flame_thrower.asset
+	Assets/GeneratedSkills/Committed/flame_thrower.asset.meta
+	Assets/GeneratedSkills/Drafts/Arcane Shockwave.asset
+	Assets/GeneratedSkills/Drafts/Arcane Shockwave.asset.meta
+	Assets/GeneratedSkills/Drafts/Bartering Instinct.asset
+	Assets/GeneratedSkills/Drafts/Bartering Instinct.asset.meta
+	Assets/GeneratedSkills/Drafts/Battlefield Explorer.asset
+	Assets/GeneratedSkills/Drafts/Battlefield Explorer.asset.meta
+	Assets/GeneratedSkills/Drafts/Cave Trade.asset
+	Assets/GeneratedSkills/Drafts/Cave Trade.asset.meta
+	Assets/GeneratedSkills/Drafts/Crippling Touch.asset
+	Assets/GeneratedSkills/Drafts/Crippling Touch.asset.meta
+	Assets/GeneratedSkills/Drafts/Cyclone of Shadows.asset
+	Assets/GeneratedSkills/Drafts/Cyclone of Shadows.asset.meta
+	Assets/GeneratedSkills/Drafts/Earthquake Strike.asset
+	Assets/GeneratedSkills/Drafts/Earthquake Strike.asset.meta
+	Assets/GeneratedSkills/Drafts/Ebony Exchange.asset
+	Assets/GeneratedSkills/Drafts/Ebony Exchange.asset.meta
+	Assets/GeneratedSkills/Drafts/Echo Vision.asset
+	Assets/GeneratedSkills/Drafts/Echo Vision.asset.meta
+	Assets/GeneratedSkills/Drafts/Echoes of Power.asset
+	Assets/GeneratedSkills/Drafts/Echoes of Power.asset.meta
+	Assets/GeneratedSkills/Drafts/Echoing Light.asset
+	Assets/GeneratedSkills/Drafts/Echoing Light.asset.meta
+	Assets/GeneratedSkills/Drafts/Elemental Surge.asset
+	Assets/GeneratedSkills/Drafts/Elemental Surge.asset.meta
+	Assets/GeneratedSkills/Drafts/Emberball.asset
+	Assets/GeneratedSkills/Drafts/Emberball.asset.meta
+	Assets/GeneratedSkills/Drafts/Flamethrower.asset
+	Assets/GeneratedSkills/Drafts/Flamethrower.asset.meta
+	Assets/GeneratedSkills/Drafts/Forest Fury 1.asset
+	Assets/GeneratedSkills/Drafts/Forest Fury 1.asset.meta
+	Assets/GeneratedSkills/Drafts/Forest Fury.asset
+	Assets/GeneratedSkills/Drafts/Forest Fury.asset.meta
+	Assets/GeneratedSkills/Drafts/Frostbite.asset
+	Assets/GeneratedSkills/Drafts/Frostbite.asset.meta
+	Assets/GeneratedSkills/Drafts/Nature's Guide.asset
+	Assets/GeneratedSkills/Drafts/Nature's Guide.asset.meta
+	Assets/GeneratedSkills/Drafts/Nature's Wrath.asset
+	Assets/GeneratedSkills/Drafts/Nature's Wrath.asset.meta
+	Assets/GeneratedSkills/Drafts/Rapid Fire.asset
+	Assets/GeneratedSkills/Drafts/Rapid Fire.asset.meta
+	Assets/GeneratedSkills/Drafts/Rockslide.asset
+	Assets/GeneratedSkills/Drafts/Rockslide.asset.meta
+	Assets/GeneratedSkills/Drafts/Ruined Exploration.asset
+	Assets/GeneratedSkills/Drafts/Ruined Exploration.asset.meta
+	Assets/GeneratedSkills/Drafts/Ruinous Expedition.asset
+	Assets/GeneratedSkills/Drafts/Ruinous Expedition.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Assassin.asset
+	Assets/GeneratedSkills/Drafts/Shadow Assassin.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Assassinate.asset
+	Assets/GeneratedSkills/Drafts/Shadow Assassinate.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Assault 1.asset
+	Assets/GeneratedSkills/Drafts/Shadow Assault 1.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Assault 2.asset
+	Assets/GeneratedSkills/Drafts/Shadow Assault 2.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Assault.asset
+	Assets/GeneratedSkills/Drafts/Shadow Assault.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Blade 1.asset
+	Assets/GeneratedSkills/Drafts/Shadow Blade 1.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Blade.asset
+	Assets/GeneratedSkills/Drafts/Shadow Blade.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Leap.asset
+	Assets/GeneratedSkills/Drafts/Shadow Leap.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Strike 1.asset
+	Assets/GeneratedSkills/Drafts/Shadow Strike 1.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Strike 2.asset
+	Assets/GeneratedSkills/Drafts/Shadow Strike 2.asset.meta
+	Assets/GeneratedSkills/Drafts/Shadow Strike.asset
+	Assets/GeneratedSkills/Drafts/Shadow Strike.asset.meta
+	Assets/GeneratedSkills/Drafts/Sharpened Sticks.asset
+	Assets/GeneratedSkills/Drafts/Sharpened Sticks.asset.meta
+	Assets/GeneratedSkills/Drafts/Shrewd Trader.asset
+	Assets/GeneratedSkills/Drafts/Shrewd Trader.asset.meta
+	Assets/GeneratedSkills/Drafts/Silent Strike.asset
+	Assets/GeneratedSkills/Drafts/Silent Strike.asset.meta
+	Assets/GeneratedSkills/Drafts/Trading Mastery.asset
+	Assets/GeneratedSkills/Drafts/Trading Mastery.asset.meta
+	Assets/TextMesh Pro.meta
+	Assets/TextMesh Pro/
 
 no changes added to commit (use "git add" and/or "git commit -a")
 STEP 6: git add .

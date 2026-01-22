@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Rockslide
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: df99b5bc7e294673aefc0efe663af3ed
+  familyId: bfcc7f5b6ebe4320a6003173ebc7c1c4
+  tier: 1
+  parentSkillId: 
+  skillName: Rockslide
+  description: An avalanche of jagged rocks crashes down onto enemies, causing massive
+    damage.
+  type: 1
+  context: combat
+  environment: underground cave
+  tags: []
+  level: 1

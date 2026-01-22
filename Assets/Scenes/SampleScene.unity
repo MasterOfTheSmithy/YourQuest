@@ -119,6 +119,166 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &32373357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 32373361}
+  - component: {fileID: 32373360}
+  - component: {fileID: 32373359}
+  - component: {fileID: 32373358}
+  - component: {fileID: 32373363}
+  - component: {fileID: 32373362}
+  m_Layer: 9
+  m_Name: Common Noble
+  m_TagString: NPC
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!135 &32373358
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &32373359
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &32373360
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &32373361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.50548, y: 1.65, z: -2.06}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &32373362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff263a9c7ef46740a78a960d2b361d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcDialogueAgent
+  npcId: npc_CommonNoble_01
+  npcName: Common Noble
+  tagsOverride:
+  - Pompous
+  - Arrogant
+  - Bossy
+  - Rude
+  - Indifferent
+  maxMemoryLines: 24
+--- !u!114 &32373363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32373357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc66f9bae6d924d439bd6e6307d24594, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EntityInfo
+  entityId: npc_CommonNoble_01
+  displayName: Common Noble
+  level: 10
+  factionId: Noble
+  hostility: 0
+  isNotable: 1
+  tags:
+  - Pompous
+  - Arrogant
+  - Bossy
+  - Rude
+  - Indifferent
+  targetingPlayer: 1
 --- !u!1 &68381537
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,6 +724,7 @@ Transform:
   - {fileID: 1372742471}
   - {fileID: 506931875}
   - {fileID: 1989772243}
+  - {fileID: 1548062767}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &506931874
@@ -978,7 +1139,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ca66145a07fd3048aba8e865dfb635a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventAccumulator
-  strongMatchThreshold: 0.78
+  strongMatchThreshold: 0.746
+--- !u!1 &1548062766
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1548062767}
+  - component: {fileID: 1548062768}
+  m_Layer: 0
+  m_Name: Systems_Dialogue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1548062767
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548062766}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 353826888}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1548062768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548062766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a17a567e40432dc419a95ff9a0a861c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueThinkService
+  situationSnapshotBuilder: {fileID: 506931876}
+  temperature: 0.85
+  topP: 0.9
+  repeatPenalty: 1.15
+  recentNpcLinesToCheck: 10
+  recentPlayerLinesToCheck: 10
+  similarityRejectThreshold: 0.86
+  logPrompt: 1
+  logRaw: 1
+  forbiddenPhrases:
+  - I am sorry
+  - I do not have that information
+  - How may I assist you
+  - on this fine day
+  - Hello traveler
+  - I am here to help
+  - How can I help
+  - Greetings
+  - NPC
+  forbiddenStemsUnlessFriendly:
+  - sorry
+  - i apologize
+  - apologies
+  - i'm sorry
+  - i am sorry
+  - assist
+  - help
+  - here to help
+  - how can i help
+  - how may i assist
+  - would you like to talk
+  - what's bothering you
+  - are you okay
+  - i cannot provide
+  - i'm afraid i cannot
+  - i do not have access
+  - as an ai
+  - as a language model
+  - as an NPC
 --- !u!1 &1657232711
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,11 +1437,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DirectorThinkCycle
   llmClient: {fileID: 1987460743}
-  promptBuilder: {fileID: 0}
+  promptBuilder: {fileID: 1989772246}
   decisionApplier: {fileID: 1989772244}
   thinkEverySeconds: 10
   logPrompt: 0
-  logRawResponse: 1
+  logRawResponse: 0
   logApplyResult: 1
 --- !u!114 &1989772246
 MonoBehaviour:
@@ -1215,13 +1459,123 @@ MonoBehaviour:
   playerStateManager: {fileID: 712111121}
   situationSnapshotBuilder: {fileID: 506931876}
   eventAccumulator: {fileID: 1372742473}
-  canonLedger: 'Canon: Magic exists. The world responds to witnessed acts. Factions
-    compete for relics.'
+  canonLedger: 'Power is real, cumulative, and uncapped.
+
+    There is no artificial
+    ceiling, only consequence.
+
+
+    Progression arises from risk, adaptation, and
+    consequence.
+
+    Safe or repetitive action trends toward stagnation unless transformed
+    by context.
+
+
+    The world reacts only to observed, meaningful action.
+
+    Unobserved,
+    trivial, or consequence-free behavior does not reshape reality.
+
+
+    Abilities
+    evolve by context of use.
+
+    How, where, and why an ability is used defines
+    its growth.
+
+
+    Skills may branch, merge, decay, or mutate.
+
+    Growth is
+    not linear; disuse, misuse, or contradiction alters form.
+
+
+    Safety and repetition
+    without escalation cause stagnation.
+
+    Repetition alone does not grant power;
+    only persistence under changing pressure does.
+
+
+    Significant events are recorded.
+
+    Records
+    persist beyond the moment and bias future outcomes.
+
+
+    Recorded history influences
+    future generation.
+
+    The system remembers what the Player has become, not
+    what was declared.
+
+
+    High-impact actions leave persistent echoes.
+
+    Some
+    consequences propagate forward, shaping unrelated futures.
+
+
+    The Player has
+    no fixed class, role, or destiny.
+
+    Identity is emergent, not assigned.
+
+
+    Identity
+    is defined by behavior over time.
+
+    The system infers identity from patterns,
+    not labels.
+
+
+    The system does not shield the Player.
+
+    Failure, loss,
+    and death are valid outcomes.
+
+
+    Not all encounters are winnable.
+
+    Retreat,
+    avoidance, or intervention may be the correct response.
+
+
+    Power imbalance
+    creates narrative weight.
+
+    Struggle matters more than victory.
+
+
+    Failure
+    is canon.
+
+    Loss is recorded, remembered, and meaningful.
+
+
+    Loss may unlock
+    unique paths.
+
+    Some progress is only accessible through defeat.
+
+
+    Lore
+    emerges from play, not exposition.
+
+    The world explains itself through consequence,
+    not narration.
+
+
+    The system declares what changes, never why it chose them.
+
+    Intent
+    is implicit; justification is inferred.'
   worldSignificanceThreshold: 4
   progressionThreshold: 0.75
   alwaysAllowNone: 1
   maxNotesChars: 1200
-  logBuiltPrompt: 0
+  logBuiltPrompt: 1
 --- !u!1 &2119070391
 GameObject:
   m_ObjectHideFlags: 0
@@ -1235,12 +1589,12 @@ GameObject:
   - component: {fileID: 2119070396}
   - component: {fileID: 2119070400}
   - component: {fileID: 2119070399}
+  - component: {fileID: 2119070404}
   - component: {fileID: 2119070401}
   - component: {fileID: 2119070393}
   - component: {fileID: 2119070392}
   - component: {fileID: 2119070397}
   - component: {fileID: 2119070398}
-  - component: {fileID: 2119070402}
   - component: {fileID: 2119070403}
   m_Layer: 0
   m_Name: Player
@@ -1382,7 +1736,7 @@ MonoBehaviour:
   lowJumpMultiplier: 1.6
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 64
   groundProbeDistance: 0.25
   maxGroundSlope: 55
   stickToGroundForce: 10
@@ -1493,23 +1847,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLocationReporter
   reportEverySeconds: 2
   regionCellSize: 20
---- !u!114 &2119070402
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2119070391}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4531c7a8f91cfb34b994dcbbe23432a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RegionVolume
-  regionId: region_unknown
-  regionName: Unknown Region
-  tags: []
-  playerTag: Player
-  clearOnExit: 0
 --- !u!114 &2119070403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1524,6 +1861,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InputIntentRecorder
   moveStartThreshold: 0.15
   moveIntentCooldown: 0.6
+--- !u!114 &2119070404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119070391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92a44ab176b6838499b3b96b6d859a45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueBoxUI
+  playerRoot: {fileID: 2119070395}
+  viewCamera: {fileID: 330585545}
+  entityMask:
+    serializedVersion: 2
+    m_Bits: 512
+  occluderMask:
+    serializedVersion: 2
+    m_Bits: 0
+  talkRadius: 5
+  losOrigin: {fileID: 330585546}
+  requireLineOfSight: 1
+  requireDialogueAgent: 1
+  debugLogs: 1
+  fontSize: 18
+  headerFontSize: 20
+  npcResponseFontSize: 22
+  panelWidth: 720
+  panelHeight: 420
+  npcResponsePanelHeight: 130
+  pauseTimeWhenOpen: 1
+  unlockCursorWhenOpen: 1
+  disablePlayerInputWhileOpen: 1
+  disableInputIntentRecorderWhileOpen: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1534,3 +1906,4 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 353826888}
   - {fileID: 1657232713}
+  - {fileID: 32373361}

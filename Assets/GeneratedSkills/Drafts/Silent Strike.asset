@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
+  m_Name: Silent Strike
+  m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
+  draftId: 9d2c9a5e384b482c9994b49447a206b1
+  skillName: Silent Strike
+  description: A stealthy strike that deals damage without making a sound.
+  type: 0
+  context: stealth
+  environment: dungeon
+  contextTags: []
+  fitScore: 0
+  committed: 0
+  committedSkillId: 
+  createdUnix: 1768952385
+  isUpgradeCandidate: 0
+  upgradeTargetSkillId: 
+  similarityScore: 0

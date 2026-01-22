@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
+  m_Name: Shadow Assassin
+  m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
+  draftId: c68319040f4c457a826e3ae4e1a0b15b
+  skillName: Shadow Assassin
+  description: A swift and deadly assassination strike that takes out enemies from
+    the shadows.
+  type: 2
+  context: combat
+  environment: dungeon
+  contextTags: []
+  fitScore: 0
+  committed: 1
+  committedSkillId: 99b0880cf08244259c89de82dc6018a9
+  createdUnix: 1768949842
+  isUpgradeCandidate: 0
+  upgradeTargetSkillId: 
+  similarityScore: 0

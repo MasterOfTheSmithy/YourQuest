@@ -12,18 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
   m_Name: Shadow Stalking
   m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
-  draftId: b6aba59854d04fdfaaf543deb56e0cdc
+  draftId: 651fc738e23d4ab2a13f991e76232f8a
   skillName: Shadow Stalking
-  description: Use your shadows to move undetected and strike silently in the darkened
-    caves.
+  description: A sneaky attack that strikes from the shadows.
   type: 0
   context: stealth
-  environment: underground cave
+  environment: ruined city
   contextTags: []
   fitScore: 0
   committed: 0
   committedSkillId: 
-  createdUnix: 1767404570
+  createdUnix: 1768948495
   isUpgradeCandidate: 0
   upgradeTargetSkillId: 
   similarityScore: 0

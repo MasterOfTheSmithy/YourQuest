@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
+  m_Name: Shadow Blade 1
+  m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
+  draftId: 8f8a2765d47340ac9617dd7ca7d7bc04
+  skillName: Shadow Blade
+  description: Slices through enemies in the dungeon with a shadowy blade.
+  type: 0
+  context: combat
+  environment: dungeon
+  contextTags: []
+  fitScore: 0
+  committed: 1
+  committedSkillId: c466f720acf349f3be6a3327e7a1c3e3
+  createdUnix: 1768951887
+  isUpgradeCandidate: 0
+  upgradeTargetSkillId: 
+  similarityScore: 0

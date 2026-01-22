@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
+  m_Name: Ruinous Expedition
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  skillId: fcc276d0ca4c495eb32759cfd45f6150
+  familyId: 7c616f001c634b778ab89d7d6d2e0673
+  tier: 1
+  parentSkillId: 
+  skillName: Ruinous Expedition
+  description: Explore the ruins of a once-great city, searching for valuable treasures
+    and ancient secrets.
+  type: 0
+  context: exploration
+  environment: ruined city
+  tags: []
+  level: 1

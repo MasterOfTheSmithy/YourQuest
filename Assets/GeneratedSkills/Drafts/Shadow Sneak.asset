@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
   m_Name: Shadow Sneak
   m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
-  draftId: fea726f9bb3d45bfaa9b254ef2c2aa69
+  draftId: 67577c1303d94d3d8cecf735a1c76aff
   skillName: Shadow Sneak
-  description: Silently move through the dungeon without being detected.
-  type: 1
+  description: Move silently and quickly through the ruins, avoiding detection.
+  type: 0
   context: stealth
-  environment: dungeon
+  environment: ruined city
   contextTags: []
   fitScore: 0
   committed: 0
   committedSkillId: 
-  createdUnix: 1767455308
+  createdUnix: 1768951882
   isUpgradeCandidate: 0
   upgradeTargetSkillId: 
   similarityScore: 0

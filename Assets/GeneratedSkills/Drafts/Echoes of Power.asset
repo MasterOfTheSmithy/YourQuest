@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
+  m_Name: Echoes of Power
+  m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
+  draftId: 34c6e7afb638467f9ce63af018fc5400
+  skillName: Echoes of Power
+  description: A powerful magic dueling technique that allows you to draw strength
+    from your defeated opponents. In the underground cave, each fallen foe releases
+    an echo of their magical power, which you can tap into for a temporary boost.
+  type: 0
+  context: magic dueling
+  environment: underground cave
+  contextTags: []
+  fitScore: 0
+  committed: 0
+  committedSkillId: 
+  createdUnix: 1769045930
+  isUpgradeCandidate: 0
+  upgradeTargetSkillId: 
+  similarityScore: 0

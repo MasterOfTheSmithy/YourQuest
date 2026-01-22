@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f4f631248d1b6b45b3ed7c0765854a3, type: 3}
   m_Name: Shadow Stalker
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillId: 0b8528b7c4a14064a77b7056f98d5063
-  familyId: c5eb710239144d2abb0c66d6a537a3bf
+  skillId: b44db08828ee4bc0876717b8747a6df9
+  familyId: 7758e37c7e254a56b1ebcfd34fcb9061
   tier: 1
   parentSkillId: 
   skillName: Shadow Stalker
-  description: A sneaky and cunning fighter that can move unseen on the battlefield.
+  description: A passive skill that enhances stealth in the ruined city.
   type: 0
   context: stealth
-  environment: battlefield
+  environment: ruined city
   tags: []
   level: 1

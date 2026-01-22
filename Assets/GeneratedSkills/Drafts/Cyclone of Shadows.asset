@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05eec480905f9bf46a8492e3112a2563, type: 3}
+  m_Name: Cyclone of Shadows
+  m_EditorClassIdentifier: Assembly-CSharp::EmergentSkill
+  draftId: ee5f152b292742d98ffc429ac4fec68e
+  skillName: Cyclone of Shadows
+  description: A whirlwind of shadow magic that damages and stuns enemies.
+  type: 1
+  context: combat
+  environment: battlefield
+  contextTags: []
+  fitScore: 0
+  committed: 0
+  committedSkillId: 
+  createdUnix: 1768947771
+  isUpgradeCandidate: 0
+  upgradeTargetSkillId: 
+  similarityScore: 0

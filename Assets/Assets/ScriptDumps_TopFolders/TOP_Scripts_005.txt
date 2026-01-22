@@ -1,6 +1,6 @@
 # INDEX
 # Group: Scripts
-# Generated: 2026-01-03 10:53:01
+# Generated: 2026-01-20 14:10:45
 # --------------------------------
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Observation\Threat\ThreatProbe.cs (PART 1)
 # - C:\Users\Garri\YourQuest\Assets\Assets\Scripts\ProgressionBalanceConfig.cs

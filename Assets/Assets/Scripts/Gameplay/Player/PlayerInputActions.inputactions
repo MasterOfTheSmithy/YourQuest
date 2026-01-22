@@ -46,7 +46,7 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "00000000-0000-0000-0000-000000000006",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -97,7 +97,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -108,7 +108,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -119,7 +119,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -130,7 +130,7 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -152,7 +152,7 @@
                     "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -163,7 +163,7 @@
                     "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -174,7 +174,7 @@
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -185,7 +185,7 @@
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -196,7 +196,7 @@
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -207,7 +207,7 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -218,7 +218,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -229,7 +229,7 @@
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -240,7 +240,7 @@
                     "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -251,7 +251,7 @@
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -262,7 +262,7 @@
                     "path": "<Keyboard>/leftCtrl",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -273,7 +273,7 @@
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";New Control Scheme",
                     "action": "Dodge",
                     "isComposite": false,
                     "isPartOfComposite": false

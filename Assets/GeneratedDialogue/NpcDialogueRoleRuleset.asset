@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b47c790add20f5347a5790f3d3395123, type: 3}
+  m_Name: NpcDialogueRoleRuleset
+  m_EditorClassIdentifier: Assembly-CSharp::NpcDialogueRoleRuleset
+  fallback:
+    roleTag: commoner
+    constraints: Be grounded. Do not invent world-changing facts. If unsure, admit
+      uncertainty. Refer to lore and situation snapshot if making large statements.
+    style: Natural conversational tone. Keep answers brief.
+    allowedActions: []
+  rules:
+  - roleTag: Noble Man
+    constraints: Be grounded. Do not invent world-changing facts. If unsure, admit
+      uncertainty. Refer to lore and situation snapshot if making large statements.
+      Reference Role and Location of NPC to generate dialogue responding to the player's
+      prompt.
+    style: Pompous, Pratty
+    allowedActions: []
