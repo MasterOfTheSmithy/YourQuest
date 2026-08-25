@@ -605,12 +605,11 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
             restored.y =
                 _lastSafeRootY;
 
-            transform.position =
-                restored;
+            // note: Update only this hostile's transform and Rigidbody pose; a full-world Physics.SyncTransforms here can hitch when many generated colliders exist.
+            SetRootPosition(
+                restored);
 
             ZeroVerticalVelocity();
-
-            Physics.SyncTransforms();
 
             Bounds recoveredBounds;
 
@@ -796,12 +795,24 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         position.y +=
             delta;
 
+        // note: Grounding updates only the corrected hostile pose so startup batches do not force a global physics reconciliation per enemy.
+        SetRootPosition(
+            position);
+
+        ZeroVerticalVelocity();
+    }
+
+    private void SetRootPosition(
+        Vector3 position)
+    {
         transform.position =
             position;
 
-        ZeroVerticalVelocity();
-
-        Physics.SyncTransforms();
+        if (_body != null)
+        {
+            _body.position =
+                position;
+        }
     }
 
     private void SaveSafeGround(

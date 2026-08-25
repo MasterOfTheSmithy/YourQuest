@@ -79,7 +79,7 @@ public sealed class YQOriginSitePortal : MonoBehaviour
         if (controller != null)
             controller.enabled = controllerEnabled;
 
-        Physics.SyncTransforms();
+        // note: The Rigidbody, transform, and CharacterController now share the destination pose; avoid synchronizing every collider in the generated world for one portal transition.
         // note: Transition logging names the authored destination without exposing prefab paths or mutable asset authority.
         Debug.Log("[YQOriginSitePortal] ENTERED " + transitionName);
     }
