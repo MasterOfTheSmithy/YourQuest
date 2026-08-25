@@ -1157,7 +1157,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 "Cells grounded to canonical terrain: " + groundedCellCount);
 
             // note: Players never see a floating intermediate frame; authored content becomes visible only after support terrain and LOD ownership are stable.
-            contentRoot.SetActive(true);
+            yield return ActivateHierarchyCooperativelyRoutine(
+                contentRoot);
         }
         else
         {
@@ -1184,6 +1185,93 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             removedPreviewArtifactCount + "\n" +
             "Imported reflection probes disabled: " +
             disabledReflectionProbeCount);
+    }
+
+    private static IEnumerator ActivateHierarchyCooperativelyRoutine(
+        GameObject contentRoot)
+    {
+        if (contentRoot == null)
+            yield break;
+
+        List<GameObject> originallyActive =
+            new List<GameObject>();
+        Stack<Transform> pending =
+            new Stack<Transform>();
+
+        for (int childIndex = contentRoot.transform.childCount - 1;
+             childIndex >= 0;
+             childIndex--)
+        {
+            pending.Push(
+                contentRoot.transform.GetChild(childIndex));
+        }
+
+        float frameStartedAt =
+            Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform current =
+                pending.Pop();
+
+            for (int childIndex = current.childCount - 1;
+                 childIndex >= 0;
+                 childIndex--)
+            {
+                pending.Push(
+                    current.GetChild(childIndex));
+            }
+
+            GameObject currentObject =
+                current.gameObject;
+
+            if (currentObject.activeSelf)
+            {
+                originallyActive.Add(
+                    currentObject);
+                currentObject.SetActive(
+                    false);
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                // note: Capture authored active-state intent cooperatively while the staging root is hidden, so even very large sites cannot monopolize a loading frame.
+                yield return null;
+                frameStartedAt =
+                    Time.realtimeSinceStartup;
+            }
+        }
+
+        // note: With every originally active descendant temporarily disabled, enabling the empty staging root cannot register the complete site in one frame.
+        contentRoot.SetActive(
+            true);
+        yield return null;
+        frameStartedAt =
+            Time.realtimeSinceStartup;
+
+        for (int index = 0;
+             index < originallyActive.Count;
+             index++)
+        {
+            GameObject currentObject =
+                originallyActive[index];
+
+            if (currentObject != null)
+            {
+                // note: Pre-order traversal restores parents before descendants, preserving authored activeSelf state while renderer, collider, and behaviour registration stays frame-budgeted.
+                currentObject.SetActive(
+                    true);
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt =
+                    Time.realtimeSinceStartup;
+            }
+        }
     }
 
     private string BuildFoundationCacheKey()
