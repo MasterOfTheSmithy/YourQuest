@@ -5328,6 +5328,15 @@ public static class YQGeneratedWorldEnvironment
             return;
         }
 
+        float horizontalFootprint = Mathf.Max(
+            bounds.size.x,
+            bounds.size.z);
+        if (bounds.size.y < 1.25f || horizontalFootprint < 1.8f)
+        {
+            // note: Ankle- and knee-height rocks are visual terrain dressing; giving them solid capsules created random locomotion barriers on otherwise walkable ground.
+            return;
+        }
+
         float horizontalSize =
             Mathf.Min(
                 bounds.size.x,

@@ -3122,9 +3122,16 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                         "flower", "bush", "branch", "root", "smallrock",
                         "small_rock", "crate", "barrel", "basket", "chair",
                         "table", "pot", "wheel", "prop");
-                if (!explicitBarrier && !smallTraversalClutter)
+                bool lowDecorativeRock =
+                    largestDimension <= 3.5f && bounds.size.y <= 1.4f &&
+                    ContainsTraversalToken(
+                        objectName,
+                        "rock", "boulder", "pebble");
+                if (!explicitBarrier && !smallTraversalClutter &&
+                    !lowDecorativeRock)
                     continue;
 
+                // note: Low decorative rocks never own player blocking; structural stone, walls, stairs, and large boulders retain authored collision.
                 collider.enabled = false;
                 disabledColliders++;
             }
@@ -3192,8 +3199,14 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     "flower", "bush", "branch", "root", "smallrock",
                     "small_rock", "crate", "barrel", "basket", "chair",
                     "table", "pot", "wheel", "prop");
+            bool lowDecorativeRock =
+                largestDimension <= 3.5f && bounds.size.y <= 1.4f &&
+                ContainsTraversalToken(
+                    objectName,
+                    "rock", "boulder", "pebble");
 
-            if (!explicitBarrier && !smallTraversalClutter)
+            if (!explicitBarrier && !smallTraversalClutter &&
+                !lowDecorativeRock)
                 continue;
 
             // note: Generated traversal collision keeps structural floors and walls; invisible volumes and ankle-height dressing never own authoritative player blocking.
