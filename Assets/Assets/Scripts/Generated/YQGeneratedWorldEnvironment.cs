@@ -229,8 +229,7 @@ public static class YQGeneratedWorldEnvironment
         stats ??=
             new WildernessBuildStats();
 
-        // note: All wilderness transforms are committed once after the batch; synchronizing physics after every tree, rock, cave, or creature multiplied startup cost without improving renderer-bound grounding.
-        Physics.SyncTransforms();
+        // note: Wilderness grounding uses terrain samples and renderer bounds; colliders can join the next normal physics step instead of forcing a full-scene loading synchronization.
         yield return null;
 
         Debug.Log(
@@ -1013,7 +1012,10 @@ public static class YQGeneratedWorldEnvironment
             surfaces,
             layers.Count);
 
+        // note: Let the final alpha strip finish its render frame before terrain texture publication performs its unavoidable native flush.
+        yield return null;
         terrain.Flush();
+        yield return null;
         completed?.Invoke(surfaces);
     }
 
@@ -1328,7 +1330,7 @@ public static class YQGeneratedWorldEnvironment
                 }
             }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.003f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
             {
                 // note: Regional material weighting yields often enough for the Goddess presentation to retain its visual heartbeat.
                 yield return null;
@@ -1468,8 +1470,8 @@ public static class YQGeneratedWorldEnvironment
                     region,
                     palette);
 
-            int vegetationSpawned =
-                SpawnSmallScatter(
+            int vegetationSpawned = 0;
+            yield return SpawnSmallScatterRoutine(
                     regionRoot.transform,
                     terrain,
                     plan,
@@ -1479,12 +1481,13 @@ public static class YQGeneratedWorldEnvironment
                     regionCenter,
                     YQWorldAssetCatalog
                         .SlotVegetation,
-                    vegetationTarget);
+                    vegetationTarget,
+                    count => vegetationSpawned = count);
 
             yield return null;
 
-            int rocksSpawned =
-                SpawnSmallScatter(
+            int rocksSpawned = 0;
+            yield return SpawnSmallScatterRoutine(
                     regionRoot.transform,
                     terrain,
                     plan,
@@ -1494,7 +1497,8 @@ public static class YQGeneratedWorldEnvironment
                     regionCenter,
                     YQWorldAssetCatalog
                         .SlotRock,
-                    rockTarget);
+                    rockTarget,
+                    count => rocksSpawned = count);
 
             yield return null;
 
@@ -1676,7 +1680,7 @@ public static class YQGeneratedWorldEnvironment
                 20);
     }
 
-    private static int SpawnSmallScatter(
+    private static IEnumerator SpawnSmallScatterRoutine(
         Transform parent,
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
@@ -1685,7 +1689,8 @@ public static class YQGeneratedWorldEnvironment
         YQRuntimeWorldAssetRegistry registry,
         Vector3 regionCenter,
         string slot,
-        int targetCount)
+        int targetCount,
+        Action<int> completed)
     {
         if (parent == null ||
             terrain == null ||
@@ -1695,7 +1700,8 @@ public static class YQGeneratedWorldEnvironment
             registry == null ||
             targetCount <= 0)
         {
-            return 0;
+            completed?.Invoke(0);
+            yield break;
         }
 
         GameObject root =
@@ -1718,6 +1724,7 @@ public static class YQGeneratedWorldEnvironment
         int attempts =
             targetCount *
             2;
+        float frameStartedAt = Time.realtimeSinceStartup;
 
         for (int attempt = 0;
              attempt < attempts &&
@@ -1852,9 +1859,16 @@ public static class YQGeneratedWorldEnvironment
             }
 
             spawned++;
+
+            // note: Wilderness dressing shares the strict loading budget; even a vegetation-heavy region cannot instantiate its complete scatter set on one presentation frame.
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
         }
 
-        return spawned;
+        completed?.Invoke(spawned);
     }
 
     private static bool IsOversizedSmallScatterPrefab(

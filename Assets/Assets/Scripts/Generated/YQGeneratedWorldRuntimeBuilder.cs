@@ -53,7 +53,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     string.Empty;
     private static float _initialGenerationLockStartedAt = -1f;
     private static bool _initialGenerationDeadlineWarningIssued;
-    private const float MaximumInitialGenerationLockSeconds = 240f;
+    private const float MaximumInitialGenerationLockSeconds = 180f;
+    private const float StartupHierarchyFrameBudgetSeconds = 0.0015f;
 
     private const int MaxSkippedMissingScriptPrefabLogs =
         8;
@@ -323,6 +324,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private int _builtSettlementCount;
 
     private bool _worldMaterializationFailed;
+    private bool _initialGenerationWatchdogAborted;
 
     private bool _lastSettlementMaterialized;
 
@@ -411,6 +413,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         {
             ReportInitialGenerationDeadlineExceeded();
         }
+
+        if (_initialGenerationWatchdogAborted)
+            return;
 
         float automaticCheckInterval =
             IsInitialGenerationGameplayLocked
@@ -1404,7 +1409,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
     }
 
-    private static void ReportInitialGenerationDeadlineExceeded()
+    private void ReportInitialGenerationDeadlineExceeded()
     {
         if (!IsInitialGenerationGameplayLocked ||
             _initialGenerationDeadlineWarningIssued)
@@ -1412,10 +1417,44 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         _initialGenerationDeadlineWarningIssued = true;
 
+        // note: A deadline is an actual circuit breaker: stop owned coroutines and prevent the coordinator from immediately relaunching the same wedged transaction.
+        _initialGenerationWatchdogAborted = true;
+        CancelActiveBuildRoutine();
+        _worldMaterializationFailed = true;
+
+        YQStartupLoadingScreen.ShowGenerationFailure(
+            "I—yes, I meant to stop there. The world took too long to hold together, so I cut the spell before it froze everything. Retry when you're ready; I'll try to be less ambitious.",
+            RetryAfterGenerationWatchdog,
+            ReturnToTitleAfterGenerationWatchdog);
+
         Debug.LogError(
             "[YQGeneratedWorldRuntimeBuilder] INITIAL GENERATION SAFETY DEADLINE REACHED. " +
-            "The world remains fail-closed while the active transaction continues. " +
-            "Gameplay and the generation presentation will not be released against incomplete state.");
+            "The active materialization coroutines were stopped and the loading screen entered a responsive recovery state. " +
+            "Gameplay was not released against incomplete state.");
+    }
+
+    private void RetryAfterGenerationWatchdog()
+    {
+        // note: A player-requested retry receives a fresh deadline and rebuilds only from the accepted persisted world plan.
+        _initialGenerationWatchdogAborted = false;
+        _initialGenerationDeadlineWarningIssued = false;
+        _initialGenerationLockStartedAt = Time.unscaledTime;
+        YQStartupLoadingScreen.SetGenerationStage(
+            "Right. Smaller gestures. Fewer dramatic pauses. Rebuilding the world...",
+            0.70f);
+        RebuildGeneratedWorld();
+    }
+
+    private void ReturnToTitleAfterGenerationWatchdog()
+    {
+        // note: Abandon the incomplete runtime hierarchy before handing modal ownership back to the title screen.
+        CancelActiveBuildRoutine();
+        DestroyRuntimeRootOnly();
+        ReleaseInitialGenerationGameplayLock();
+        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
+
+        if (YQTitleScreenUI.Instance != null)
+            YQTitleScreenUI.Instance.OpenAtStartup();
     }
 
     private float ResolveInitialGenerationStageHold()
@@ -2096,6 +2135,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     public void RebuildGeneratedWorld()
     {
         CancelActiveBuildRoutine();
+
+        _initialGenerationWatchdogAborted = false;
+        YQStartupLoadingScreen.ClearGenerationFailure();
 
         _builtWorldState =
             null;
@@ -5131,14 +5173,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
-        // note: Every pad uses delayed writes; one heightmap sync and one physics sync publish the immutable construction terrain for all later systems.
-        // note: Publish height LOD, terrain rendering, and physics on separate frames so their unavoidable Unity synchronization points never stack into one visible freeze.
+        // note: Every pad uses delayed writes; publish height LOD and terrain rendering separately while deferring the global physics rebuild to final player handoff.
         yield return null;
         terrain.terrainData.SyncHeightmap();
         yield return null;
         terrain.Flush();
-        yield return null;
-        Physics.SyncTransforms();
         completed?.Invoke(prepared);
     }
 
@@ -5584,7 +5623,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         instance.transform.position =
             position;
 
-        Physics.SyncTransforms();
+        // note: Grounding consumes renderer bounds; the final player handoff owns physics publication instead of forcing it for each moved authored instance.
     }
 
     private static bool TryGetRenderableBounds(
@@ -6325,14 +6364,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         yield return YQRuntimeUrpMaterialRepair.ForceRepairHierarchyRoutine(
             witchHouseRoot,
             null);
-        ConfigureOriginParticlePresentation(mountainRoot);
-        DisableUnsupportedOriginColliders(mountainRoot, 48f);
-        DisableUnsupportedOriginColliders(witchHouseRoot, 60f);
-        Physics.SyncTransforms();
+        yield return ConfigureOriginParticlePresentationRoutine(mountainRoot);
+        yield return DisableUnsupportedOriginCollidersRoutine(mountainRoot, 48f);
+        yield return DisableUnsupportedOriginCollidersRoutine(witchHouseRoot, 60f);
+        // note: Renderer-bound grounding is complete immediately; collider publication is deferred to the final world handoff to avoid per-instance global synchronization.
 
-        if (!TryGetRenderableBounds(
-                witchHouseRoot,
-                out Bounds witchHouseBounds))
+        bool hasWitchHouseBounds = false;
+        Bounds witchHouseBounds = new Bounds();
+        yield return TryGetRenderableBoundsRoutine(
+            witchHouseRoot,
+            (success, bounds) =>
+            {
+                hasWitchHouseBounds = success;
+                witchHouseBounds = bounds;
+            });
+        if (!hasWitchHouseBounds)
         {
             witchHouseBounds = new Bounds(
                 witchHouseRoot.transform.position,
@@ -6472,7 +6518,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
-        int retained = 0;
+        // note: The bounded origin path parents the curated statue directly instead of wrapping it in legacy CompiledCell roots, so the statue itself is the one retained authored assembly.
+        int retained = cellRoots.Count == 0 ? 1 : 0;
         int excluded = 0;
         Vector2 statueHorizontal = new Vector2(
             statueBounds.center.x,
@@ -6719,60 +6766,182 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return Vector2.Distance(point, start + segment * t);
     }
 
-    private static void ConfigureOriginParticlePresentation(GameObject root)
+    private static IEnumerator TryGetRenderableBoundsRoutine(
+        GameObject root,
+        Action<bool, Bounds> completed)
     {
         if (root == null)
-            return;
-
-        ParticleSystemRenderer[] renderers =
-            root.GetComponentsInChildren<ParticleSystemRenderer>(true);
-
-        for (int index = 0; index < renderers.Length; index++)
         {
-            ParticleSystemRenderer renderer = renderers[index];
+            completed?.Invoke(false, new Bounds());
+            yield break;
+        }
 
-            if (renderer == null)
+        bool rendererInitialized = false;
+        Bounds rendererBounds = new Bounds();
+        bool colliderInitialized = false;
+        Bounds colliderBounds = new Bounds();
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            if (current == null)
                 continue;
 
-            // note: Waterfall mist and magical atmosphere are translucent presentation layers; shadow casting/receiving turns their billboards into dark cards.
-            renderer.shadowCastingMode =
-                UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
-            renderer.motionVectorGenerationMode =
-                MotionVectorGenerationMode.ForceNoMotion;
+            Renderer[] renderers = current.GetComponents<Renderer>();
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                Renderer renderer = renderers[index];
+                if (renderer == null || renderer is ParticleSystemRenderer)
+                    continue;
+
+                if (!rendererInitialized)
+                {
+                    rendererBounds = renderer.bounds;
+                    rendererInitialized = true;
+                }
+                else
+                {
+                    rendererBounds.Encapsulate(renderer.bounds);
+                }
+            }
+
+            Collider[] colliders = current.GetComponents<Collider>();
+            for (int index = 0; index < colliders.Length; index++)
+            {
+                Collider collider = colliders[index];
+                if (collider == null || collider.isTrigger)
+                    continue;
+
+                if (!colliderInitialized)
+                {
+                    colliderBounds = collider.bounds;
+                    colliderInitialized = true;
+                }
+                else
+                {
+                    colliderBounds.Encapsulate(collider.bounds);
+                }
+            }
+
+            for (int index = 0; index < current.childCount; index++)
+                pending.Push(current.GetChild(index));
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StartupHierarchyFrameBudgetSeconds)
+            {
+                // note: Large reviewed sites yield before hierarchy inspection can consume a visible loading frame.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        completed?.Invoke(
+            rendererInitialized || colliderInitialized,
+            rendererInitialized ? rendererBounds : colliderBounds);
+    }
+
+    private static IEnumerator ConfigureOriginParticlePresentationRoutine(
+        GameObject root)
+    {
+        if (root == null)
+            yield break;
+
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            if (current == null)
+                continue;
+
+            ParticleSystemRenderer[] renderers =
+                current.GetComponents<ParticleSystemRenderer>();
+
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                ParticleSystemRenderer renderer = renderers[index];
+
+                if (renderer == null)
+                    continue;
+
+                // note: Waterfall mist and magical atmosphere are translucent presentation layers; shadow casting/receiving turns their billboards into dark cards.
+                renderer.shadowCastingMode =
+                    UnityEngine.Rendering.ShadowCastingMode.Off;
+                renderer.receiveShadows = false;
+                renderer.motionVectorGenerationMode =
+                    MotionVectorGenerationMode.ForceNoMotion;
+            }
+
+            for (int index = 0; index < current.childCount; index++)
+                pending.Push(current.GetChild(index));
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StartupHierarchyFrameBudgetSeconds)
+            {
+                // note: Particle cleanup shares the same hard per-frame startup budget as material and grounding work.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
         }
     }
 
-    private static void DisableUnsupportedOriginColliders(
+    private static IEnumerator DisableUnsupportedOriginCollidersRoutine(
         GameObject root,
         float maximumDimension)
     {
         if (root == null)
-            return;
+            yield break;
 
-        Collider[] colliders = root.GetComponentsInChildren<Collider>(true);
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
 
-        for (int index = 0; index < colliders.Length; index++)
+        while (pending.Count > 0)
         {
-            Collider collider = colliders[index];
-
-            if (collider == null || collider.isTrigger || !collider.enabled)
+            Transform current = pending.Pop();
+            if (current == null)
                 continue;
 
-            Bounds bounds = collider.bounds;
-            float largestDimension = Mathf.Max(
-                bounds.size.x,
-                Mathf.Max(bounds.size.y, bounds.size.z));
-            string semanticName = collider.name.ToLowerInvariant();
-            bool explicitBlocker = ContainsOriginCurationToken(
-                semanticName,
-                "invisible", "blocker", "boundary", "killvolume",
-                "collisionvolume");
+            Collider[] colliders = current.GetComponents<Collider>();
 
-            if (explicitBlocker || largestDimension > maximumDimension)
+            for (int index = 0; index < colliders.Length; index++)
             {
-                // note: Generated terrain owns broad traversal collision; imported scene-wide boundary volumes cannot survive as invisible walls in the curated origin.
-                collider.enabled = false;
+                Collider collider = colliders[index];
+
+                if (collider == null || collider.isTrigger || !collider.enabled)
+                    continue;
+
+                Bounds bounds = collider.bounds;
+                float largestDimension = Mathf.Max(
+                    bounds.size.x,
+                    Mathf.Max(bounds.size.y, bounds.size.z));
+                string semanticName = collider.name.ToLowerInvariant();
+                bool explicitBlocker = ContainsOriginCurationToken(
+                    semanticName,
+                    "invisible", "blocker", "boundary", "killvolume",
+                    "collisionvolume");
+
+                if (explicitBlocker || largestDimension > maximumDimension)
+                {
+                    // note: Generated terrain owns broad traversal collision; imported scene-wide boundary volumes cannot survive as invisible walls in the curated origin.
+                    collider.enabled = false;
+                }
+            }
+
+            for (int index = 0; index < current.childCount; index++)
+                pending.Push(current.GetChild(index));
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StartupHierarchyFrameBudgetSeconds)
+            {
+                // note: Collider validation may inspect hundreds of imported objects but never as one uninterrupted loading-frame pass.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
             }
         }
     }
@@ -7018,7 +7187,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 controllerWasEnabled;
         }
 
-        Physics.SyncTransforms();
+        // note: Origin validation below consumes renderer bounds, so it does not need to force the entire physics world to synchronize during loading.
     }
 
     // ------------------------------------------------------------

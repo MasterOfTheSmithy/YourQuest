@@ -193,6 +193,45 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         return RepairRenderers(renderers);
     }
 
+    public static IEnumerator RepairMaterialHierarchyRoutine(
+        GameObject root,
+        System.Action<int> completed)
+    {
+        if (root == null)
+        {
+            completed?.Invoke(0);
+            yield break;
+        }
+
+        int repaired = 0;
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                pending.Push(current.GetChild(childIndex));
+            }
+
+            Renderer[] renderers = current.GetComponents<Renderer>();
+            for (int index = 0; index < renderers.Length; index++)
+                repaired += RepairRenderer(renderers[index], false);
+
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            {
+                // note: Dense streamed environments validate imported materials cooperatively so loading presentation animation is never blocked by a full hierarchy pass.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        completed?.Invoke(repaired);
+    }
+
     public static int ForceRepairHierarchy(GameObject root)
     {
         if (root == null)
@@ -216,23 +255,33 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             yield break;
         }
 
-        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
         int repaired = 0;
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
         float frameStartedAt = Time.realtimeSinceStartup;
-        for (int index = 0; index < renderers.Length; index++)
+        while (pending.Count > 0)
         {
-            repaired += RepairRenderer(renderers[index], true);
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                pending.Push(current.GetChild(childIndex));
+            }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0035f)
+            Renderer[] renderers = current.GetComponents<Renderer>();
+            for (int index = 0; index < renderers.Length; index++)
+                repaired += RepairRenderer(renderers[index], true);
+            repaired += RepairTextMeshes(current.GetComponents<TextMesh>());
+            repaired += RepairTmpText(current.GetComponents<TMP_Text>());
+
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
             {
                 // note: Imported landmark material conversion is spread across loading frames so the Goddess camera and prose remain responsive.
                 yield return null;
                 frameStartedAt = Time.realtimeSinceStartup;
             }
         }
-
-        repaired += RepairTextMeshes(root.GetComponentsInChildren<TextMesh>(true));
-        repaired += RepairTmpText(root.GetComponentsInChildren<TMP_Text>(true));
         completed?.Invoke(repaired);
     }
 

@@ -154,8 +154,7 @@ public static class YQGeneratedWorldPopulation
             }
         }
 
-        // note: Population grounding uses renderer bounds and explicit terrain samples; one batch synchronization is sufficient after every actor and reward transform is final.
-        Physics.SyncTransforms();
+        // note: Population placement is renderer/terrain driven; defer collider publication to the normal physics step rather than freezing the loading presentation here.
 
         Debug.Log(
             "[YQGeneratedWorldPopulation] BUILT\n" +
@@ -267,7 +266,7 @@ public static class YQGeneratedWorldPopulation
             }
         }
 
-        Physics.SyncTransforms();
+        // note: Cooperative population construction does not require an immediate global physics rebuild; the final player handoff owns the single authoritative sync.
         Debug.Log(
             "[YQGeneratedWorldPopulation] BUILT COOPERATIVELY\n" +
             "Canonical records in plan: " + plan.generatedNpcs.Count +

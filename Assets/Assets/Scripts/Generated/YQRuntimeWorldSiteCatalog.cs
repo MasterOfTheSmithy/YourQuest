@@ -462,6 +462,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private static readonly List<Collider>
         TraversalColliderScanBuffer = new List<Collider>(256);
 
+    private struct SourceColliderSnapshot
+    {
+        public BoxCollider collider;
+        public Vector3 size;
+        public bool enabled;
+    }
+
     private string settlementId = string.Empty;
     private string runtimeManifestResourceKey = string.Empty;
     private string expectedKitId = string.Empty;
@@ -491,6 +498,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private const float GeneratedTerrainEdgeClearance = 16f;
     private const float StreamingFrameBudgetSeconds = 0.0015f;
     private const int ComplexCellInstanceThreshold = 256;
+    private const int CuratedSiteSourceInstanceBudget = 640;
+    private const int MaximumDefaultSemanticZones = 3;
     private const float MinimumExteriorFoundationCorrection = 0.35f;
     private const float MaximumExteriorFoundationCorrection = 96f;
     private const float MinimumFoundationRendererFootprint = 0.36f;
@@ -659,7 +668,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             siteRoot.gameObject.AddComponent<
                 YQCompiledWorldSiteInstance>();
         site.Configure(locationId, selectedManifest, origin);
-        Physics.SyncTransforms();
+        // note: Direct materialization publishes transforms naturally on the next physics step; callers do not need a full-scene loading sync.
+        yield return null;
         completed?.Invoke(true);
     }
 
@@ -891,6 +901,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         int sanitizedColliderCount = 0;
         int traversalColliderCount = 0;
         int disabledReflectionProbeCount = 0;
+        int removedPreviewArtifactCount = 0;
         float frameStartedAt = Time.realtimeSinceStartup;
         // note: Cells are assembled under an inactive staging root so malformed vendor LOD ownership can be repaired before Unity enables any LODGroup.
         GameObject contentRoot = new GameObject("CompiledSiteContent");
@@ -916,6 +927,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 yield return InstantiateReviewedPrefabRoutine(
                     cell.CellPrefab,
                     contentRoot.transform,
+                    expectedKitId,
+                    cell.SourceInstanceCount,
                     (created, repaired) =>
                     {
                         instance = created;
@@ -929,10 +942,22 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 instance.transform.localPosition =
                     cell.AuthoredLocalPosition - authoredOrigin;
                 instance.transform.localRotation = Quaternion.identity;
-                traversalColliderCount +=
-                    SanitizeTraversalObstructionColliders(instance);
-                disabledReflectionProbeCount +=
-                    DisableImportedReflectionProbes(instance);
+                // note: Known source-pack preview props are removed while the cell is still hidden so they cannot leak into the curated generated environment.
+                yield return CurateKnownPreviewArtifactsRoutine(
+                    instance,
+                    expectedKitId,
+                    count => removedPreviewArtifactCount += count);
+                int cellTraversalColliders = 0;
+                int cellReflectionProbes = 0;
+                yield return SanitizeStreamedCellRoutine(
+                    instance,
+                    (colliders, probes) =>
+                    {
+                        cellTraversalColliders = colliders;
+                        cellReflectionProbes = probes;
+                    });
+                traversalColliderCount += cellTraversalColliders;
+                disabledReflectionProbeCount += cellReflectionProbes;
                 spawned++;
 
                 // note: Yield immediately after a complex authored cell or whenever this streaming slice has consumed its small main-thread budget.
@@ -963,6 +988,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 yield return InstantiateReviewedPrefabRoutine(
                     zone.prefab,
                     contentRoot.transform,
+                    expectedKitId,
+                    zone.sourceInstanceCount,
                     (created, repaired) =>
                     {
                         instance = created;
@@ -976,10 +1003,21 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 instance.transform.localPosition =
                     zone.authoredSourceOrigin - authoredOrigin;
                 instance.transform.localRotation = Quaternion.identity;
-                traversalColliderCount +=
-                    SanitizeTraversalObstructionColliders(instance);
-                disabledReflectionProbeCount +=
-                    DisableImportedReflectionProbes(instance);
+                yield return CurateKnownPreviewArtifactsRoutine(
+                    instance,
+                    expectedKitId,
+                    count => removedPreviewArtifactCount += count);
+                int zoneTraversalColliders = 0;
+                int zoneReflectionProbes = 0;
+                yield return SanitizeStreamedCellRoutine(
+                    instance,
+                    (colliders, probes) =>
+                    {
+                        zoneTraversalColliders = colliders;
+                        zoneReflectionProbes = probes;
+                    });
+                traversalColliderCount += zoneTraversalColliders;
+                disabledReflectionProbeCount += zoneReflectionProbes;
                 spawned++;
 
                 if (Time.realtimeSinceStartup - frameStartedAt >=
@@ -1046,10 +1084,17 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 }
                 else
                 {
-                    hasFoundationCorrection =
-                        TryResolveExteriorFoundationCorrection(
-                            contentRoot,
-                            out foundationCorrection);
+                    bool runtimeCorrectionResolved = false;
+                    float runtimeCorrection = 0f;
+                    yield return TryResolveExteriorFoundationCorrectionRoutine(
+                        contentRoot,
+                        (success, value) =>
+                        {
+                            runtimeCorrectionResolved = success;
+                            runtimeCorrection = value;
+                        });
+                    hasFoundationCorrection = runtimeCorrectionResolved;
+                    foundationCorrection = runtimeCorrection;
                     foundationCorrectionSource =
                         hasFoundationCorrection
                             ? "runtime structural bounds"
@@ -1075,10 +1120,28 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     contentRoot.transform.position);
                 if (generatedTerrain != null)
                 {
-                    yield return AlignCompiledCellsToTerrainRoutine(
-                        contentRoot,
-                        generatedTerrain,
-                        count => groundedCellCount = count);
+                    if (string.Equals(
+                            expectedKitId,
+                            "witch_house",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        // note: Witch House is a furnished structure embedded high and off-center inside a large source demo cell; curate that coherent cluster directly onto Vey's prepared terrain pad.
+                        yield return CurateAndGroundWitchHouseRoutine(
+                            contentRoot,
+                            generatedTerrain,
+                            (grounded, removed) =>
+                            {
+                                groundedCellCount = grounded;
+                                removedPreviewArtifactCount += removed;
+                            });
+                    }
+                    else
+                    {
+                        yield return AlignCompiledCellsToTerrainRoutine(
+                            contentRoot,
+                            generatedTerrain,
+                            count => groundedCellCount = count);
+                    }
                 }
             }
 
@@ -1102,12 +1165,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             loadRejected = true;
         }
 
-        Physics.SyncTransforms();
+        // note: Newly enabled streamed colliders join the next normal physics step; forcing a full-scene synchronization here caused a loading hitch and was immediately repeated by actor relocation.
+        yield return null;
         loaded = contentSpawned;
         loading = false;
-
-        if (loaded)
-            RelocateExistingActors();
+        // note: Persisted actors already retain authoritative world positions; rescanning every EntityInfo and forcing physics whenever a site streams in caused both loading and traversal hitches.
         // note: Distance streaming already bounds this site's lifetime; rescanning the whole generated world here previously allocated a renderer table large enough to stall dense authored maps.
         Debug.Log(
             "[YQCompiledWorldSiteInstance] SITE STREAMED IN\n" +
@@ -1118,6 +1180,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             sanitizedColliderCount + "\n" +
             "Traversal obstruction colliders disabled: " +
             traversalColliderCount + "\n" +
+            "Source preview artifacts removed: " +
+            removedPreviewArtifactCount + "\n" +
             "Imported reflection probes disabled: " +
             disabledReflectionProbeCount);
     }
@@ -1262,42 +1326,67 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         return true;
     }
 
-    private bool TryResolveExteriorFoundationCorrection(
+    private IEnumerator TryResolveExteriorFoundationCorrectionRoutine(
         GameObject contentRoot,
-        out float correction)
+        Action<bool, float> completed)
     {
-        correction = 0f;
-
         if (contentRoot == null)
-            return false;
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
 
-        Renderer[] renderers = contentRoot.GetComponentsInChildren<Renderer>(
-            true);
+        List<Renderer> renderers = new List<Renderer>();
         bool initialized = false;
         Bounds contentBounds = new Bounds();
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(contentRoot.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
 
-        for (int index = 0; index < renderers.Length; index++)
+        while (pending.Count > 0)
         {
-            Renderer renderer = renderers[index];
-
-            if (!IsFoundationRenderer(renderer))
+            Transform current = pending.Pop();
+            if (current == null)
                 continue;
 
-            if (!initialized)
+            Renderer[] localRenderers = current.GetComponents<Renderer>();
+            for (int index = 0; index < localRenderers.Length; index++)
             {
-                contentBounds = renderer.bounds;
-                initialized = true;
+                Renderer renderer = localRenderers[index];
+
+                if (!IsFoundationRenderer(renderer))
+                    continue;
+
+                renderers.Add(renderer);
+
+                if (!initialized)
+                {
+                    contentBounds = renderer.bounds;
+                    initialized = true;
+                }
+                else
+                {
+                    contentBounds.Encapsulate(renderer.bounds);
+                }
             }
-            else
+
+            for (int index = 0; index < current.childCount; index++)
+                pending.Push(current.GetChild(index));
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
             {
-                contentBounds.Encapsulate(renderer.bounds);
+                // note: Even the legacy metadata fallback scans a reviewed cell cooperatively so it cannot freeze the loading presentation.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
             }
         }
 
         if (!initialized || !IsFiniteVector(contentBounds.center) ||
             !IsFiniteVector(contentBounds.size))
         {
-            return false;
+            completed?.Invoke(false, 0f);
+            yield break;
         }
 
         float lowerBandCeiling = contentBounds.min.y + Mathf.Min(
@@ -1306,7 +1395,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         List<Vector2> samples = new List<Vector2>();
         float totalWeight = 0f;
 
-        for (int index = 0; index < renderers.Length; index++)
+        for (int index = 0; index < renderers.Count; index++)
         {
             Renderer renderer = renderers[index];
 
@@ -1332,10 +1421,21 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
             samples.Add(new Vector2(localBottom, weight));
             totalWeight += weight;
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                // note: Foundation sampling obeys the same small frame budget as hierarchy discovery.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
         }
 
         if (samples.Count == 0 || !IsFinite(totalWeight) || totalWeight <= 0f)
-            return false;
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
 
         samples.Sort((left, right) => left.x.CompareTo(right.x));
         float targetWeight = totalWeight * 0.5f;
@@ -1358,11 +1458,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             dominantBottom < MinimumExteriorFoundationCorrection ||
             dominantBottom > MaximumExteriorFoundationCorrection)
         {
-            return false;
+            completed?.Invoke(false, 0f);
+            yield break;
         }
 
-        correction = dominantBottom;
-        return true;
+        completed?.Invoke(true, dominantBottom);
     }
 
     private static bool IsFoundationRenderer(Renderer renderer)
@@ -1436,7 +1536,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             }
         }
 
-        Physics.SyncTransforms();
+        // note: Actor transforms are consumed by the next normal physics step; relocation never forces a global synchronization.
     }
 
     private static bool HasLocationTag(string[] tags, string locationId)
@@ -1997,6 +2097,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         bool filterByTags = requiredTags != null &&
             requiredTags.Count > 0;
 
+        if (!filterByTags && selectedManifest.SourceInstanceCount >
+            CuratedSiteSourceInstanceBudget)
+        {
+            // note: Oversized source scenes are asset libraries, not finished generated locations; publish a deterministic reviewed district slice instead of dumping every demo zone into one POI.
+            return BuildCuratedDefaultCellIds(selectedManifest);
+        }
+
         for (int zoneIndex = 0;
              zoneIndex < selectedManifest.Zones.Count;
              zoneIndex++)
@@ -2021,6 +2128,134 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         // note: Even an unsliced runtime site is the union of reviewed semantic cells, never every raw source-scene cell left in its streaming manifest.
         return selected;
+    }
+
+    private static HashSet<string> BuildCuratedDefaultCellIds(
+        YQReviewedSemanticSiteManifest selectedManifest)
+    {
+        HashSet<string> selected = new HashSet<string>(
+            StringComparer.OrdinalIgnoreCase);
+        List<YQReviewedSemanticZoneRecord> candidates =
+            new List<YQReviewedSemanticZoneRecord>();
+
+        for (int index = 0; index < selectedManifest.Zones.Count; index++)
+        {
+            YQReviewedSemanticZoneRecord zone = selectedManifest.Zones[index];
+            if (zone != null && zone.streamingCellIds != null &&
+                zone.streamingCellIds.Count > 0)
+            {
+                candidates.Add(zone);
+            }
+        }
+
+        candidates.Sort((left, right) =>
+        {
+            int scoreComparison = ResolveZoneCurationScore(right).CompareTo(
+                ResolveZoneCurationScore(left));
+            if (scoreComparison != 0)
+                return scoreComparison;
+
+            int sizeComparison = Mathf.Max(0, left.sourceInstanceCount).
+                CompareTo(Mathf.Max(0, right.sourceInstanceCount));
+            return sizeComparison != 0
+                ? sizeComparison
+                : string.Compare(
+                    left.stableId,
+                    right.stableId,
+                    StringComparison.OrdinalIgnoreCase);
+        });
+
+        int retainedInstances = 0;
+        int retainedZones = 0;
+        string retainedZoneNames = string.Empty;
+
+        for (int index = 0;
+             index < candidates.Count &&
+             retainedZones < MaximumDefaultSemanticZones;
+             index++)
+        {
+            YQReviewedSemanticZoneRecord zone = candidates[index];
+            int zoneInstances = Mathf.Max(1, zone.sourceInstanceCount);
+            if (zoneInstances > CuratedSiteSourceInstanceBudget -
+                retainedInstances)
+            {
+                continue;
+            }
+
+            AddZoneCellIds(zone, selected);
+            retainedInstances += zoneInstances;
+            retainedZones++;
+            retainedZoneNames += (retainedZoneNames.Length > 0 ? ", " : "") +
+                (!string.IsNullOrWhiteSpace(zone.displayName)
+                    ? zone.displayName
+                    : zone.stableId);
+        }
+
+        if (selected.Count == 0 && candidates.Count > 0)
+        {
+            YQReviewedSemanticZoneRecord smallest = candidates[0];
+            for (int index = 1; index < candidates.Count; index++)
+            {
+                if (candidates[index].sourceInstanceCount <
+                    smallest.sourceInstanceCount)
+                {
+                    smallest = candidates[index];
+                }
+            }
+
+            // note: A reviewed site with no zone under budget still receives its smallest coherent authored unit rather than failing or combining unrelated zones.
+            AddZoneCellIds(smallest, selected);
+            retainedInstances = Mathf.Max(1, smallest.sourceInstanceCount);
+            retainedZoneNames = !string.IsNullOrWhiteSpace(smallest.displayName)
+                ? smallest.displayName
+                : smallest.stableId;
+        }
+
+        Debug.Log(
+            "[YQCompiledWorldSiteInstance] DEFAULT CURATED SLICE\n" +
+            "Reviewed site: " + selectedManifest.KitId + "\n" +
+            "Source instances: " + selectedManifest.SourceInstanceCount +
+            "\nRetained instances: " + retainedInstances +
+            "\nSemantic zones: " + retainedZoneNames);
+        return selected;
+    }
+
+    private static void AddZoneCellIds(
+        YQReviewedSemanticZoneRecord zone,
+        HashSet<string> selected)
+    {
+        for (int index = 0; index < zone.streamingCellIds.Count; index++)
+            selected.Add(zone.streamingCellIds[index]);
+    }
+
+    private static int ResolveZoneCurationScore(
+        YQReviewedSemanticZoneRecord zone)
+    {
+        string identity = ((zone.displayName ?? string.Empty) + " " +
+            (zone.stableId ?? string.Empty) + " " +
+            string.Join(" ", zone.semanticTags ?? new List<string>())).
+            ToLowerInvariant();
+        int score = Mathf.Min(8, Mathf.Max(0, zone.authoredBuildingCount)) *
+            24;
+
+        // note: The default slice favors recognizable civic/residential anchors and connective space, while source-pack perimeter/support dumps are low-priority dressing.
+        if (identity.Contains("central") || identity.Contains("core"))
+            score += 90;
+        if (identity.Contains("civic") || identity.Contains("poi"))
+            score += 75;
+        if (identity.Contains("residential") || identity.Contains("market"))
+            score += 60;
+        if (identity.Contains("entrance") || identity.Contains("approach"))
+            score += 50;
+        if (identity.Contains("circulation"))
+            score += 35;
+        if (identity.Contains("service") || identity.Contains("support"))
+            score -= 25;
+        if (identity.Contains("perimeter"))
+            score -= 60;
+
+        score -= Mathf.Max(0, zone.sourceInstanceCount) / 24;
+        return score;
     }
 
     private bool IsZoneActive(YQReviewedSemanticZoneRecord zone)
@@ -2112,7 +2347,37 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         if (root == null)
             yield break;
 
-        LODGroup[] groups = root.GetComponentsInChildren<LODGroup>(true);
+        List<LODGroup> gatheredGroups = new List<LODGroup>();
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float gatherFrameStartedAt = Time.realtimeSinceStartup;
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                pending.Push(current.GetChild(childIndex));
+            }
+
+            LODGroup[] localGroups = current.GetComponents<LODGroup>();
+            for (int groupIndex = 0;
+                 groupIndex < localGroups.Length;
+                 groupIndex++)
+            {
+                gatheredGroups.Add(localGroups[groupIndex]);
+            }
+            if (Time.realtimeSinceStartup - gatherFrameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                // note: Discover dense vendor LOD hierarchies incrementally; the former site-wide component query produced a visible loading-frame spike before repair even began.
+                yield return null;
+                gatherFrameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        LODGroup[] groups = gatheredGroups.ToArray();
         Array.Sort(groups, (left, right) =>
             GetTransformDepth(right.transform).CompareTo(
                 GetTransformDepth(left.transform)));
@@ -2308,6 +2573,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private static IEnumerator InstantiateReviewedPrefabRoutine(
         GameObject prefab,
         Transform parent,
+        string kitId,
+        int sourceInstanceCount,
         Action<GameObject, int> completed)
     {
         if (prefab == null)
@@ -2316,28 +2583,59 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
-        int prefabId = prefab.GetInstanceID();
-        if (!MalformedColliderPrefabCache.TryGetValue(
-                prefabId,
-                out bool containsMalformedColliders))
+        if (string.Equals(
+                kitId,
+                "witch_house",
+                StringComparison.OrdinalIgnoreCase))
         {
-            // note: Cache the immutable source check once; malformed third-party colliders retain the scoped warning-suppression path below.
-            containsMalformedColliders = ContainsMalformedBoxCollider(prefab);
-            MalformedColliderPrefabCache[prefabId] = containsMalformedColliders;
+            GameObject curatedCell = null;
+            int curatedRepairs = 0;
+            yield return InstantiateCuratedWitchHouseCellRoutine(
+                prefab,
+                parent,
+                (created, repairs) =>
+                {
+                    curatedCell = created;
+                    curatedRepairs = repairs;
+                });
+            if (curatedCell != null)
+            {
+                yield return YQRuntimeUrpMaterialRepair.
+                    RepairMaterialHierarchyRoutine(curatedCell, null);
+                completed?.Invoke(curatedCell, curatedRepairs);
+                yield break;
+            }
+        }
+
+        if (sourceInstanceCount >= ComplexCellInstanceThreshold &&
+            prefab.transform.childCount > 1)
+        {
+            GameObject fragmentedCell = null;
+            int fragmentedRepairs = 0;
+            yield return InstantiateFragmentedReviewedCellRoutine(
+                prefab,
+                parent,
+                (created, repairs) =>
+                {
+                    fragmentedCell = created;
+                    fragmentedRepairs = repairs;
+                });
+            if (fragmentedCell != null)
+            {
+                yield return YQRuntimeUrpMaterialRepair.
+                    RepairMaterialHierarchyRoutine(fragmentedCell, null);
+                completed?.Invoke(fragmentedCell, fragmentedRepairs);
+                yield break;
+            }
         }
 
         GameObject instance = null;
-
-        if (containsMalformedColliders)
-        {
-            int ignoredRepairCount = 0;
-            instance = InstantiateReviewedPrefab(
-                prefab,
-                parent,
-                ref ignoredRepairCount);
-            completed?.Invoke(instance, ignoredRepairCount);
-            yield break;
-        }
+        List<SourceColliderSnapshot> colliderSnapshots =
+            new List<SourceColliderSnapshot>();
+        // note: Repair malformed vendor collider source data cooperatively before cloning; this keeps dense towns on Unity's asynchronous path instead of forcing one blocking Instantiate frame.
+        yield return PreparePrefabCollidersForAsyncCloneRoutine(
+            prefab,
+            colliderSnapshots);
 
         AsyncInstantiateOperation<GameObject> operation =
             UnityEngine.Object.InstantiateAsync(
@@ -2349,6 +2647,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             -1;
 
         yield return operation;
+
+        RestorePrefabColliderSource(colliderSnapshots);
 
         if (operation.Result != null &&
             operation.Result.Length > 0)
@@ -2363,19 +2663,297 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
-        // note: Keep hierarchy integration, collider sanitation, and material validation on separate rendered frames.
+        // note: Keep hierarchy integration and material validation on separate rendered frames; cloned colliders already inherited the repaired source values.
         yield return null;
-        int sanitized =
-            SanitizeMalformedBoxColliders(
-                instance);
-
-        yield return null;
-        YQRuntimeUrpMaterialRepair.RepairMaterialHierarchy(
-            instance);
+        yield return YQRuntimeUrpMaterialRepair.
+            RepairMaterialHierarchyRoutine(
+                instance,
+                null);
 
         completed?.Invoke(
             instance,
-            sanitized);
+            colliderSnapshots.Count);
+    }
+
+    private static IEnumerator InstantiateCuratedWitchHouseCellRoutine(
+        GameObject prefab,
+        Transform parent,
+        Action<GameObject, int> completed)
+    {
+        Transform sourceRoot = prefab != null ? prefab.transform : null;
+        if (sourceRoot == null || sourceRoot.childCount == 0)
+        {
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        Vector3 structuralPositionSum = Vector3.zero;
+        int structuralRoots = 0;
+        float minimumStructuralY = float.PositiveInfinity;
+        float maximumStructuralY = float.NegativeInfinity;
+        for (int index = 0; index < sourceRoot.childCount; index++)
+        {
+            Transform child = sourceRoot.GetChild(index);
+            if (child == null || !IsWitchHouseStructuralRoot(child.name))
+                continue;
+
+            structuralPositionSum += child.localPosition;
+            minimumStructuralY = Mathf.Min(
+                minimumStructuralY,
+                child.localPosition.y);
+            maximumStructuralY = Mathf.Max(
+                maximumStructuralY,
+                child.localPosition.y);
+            structuralRoots++;
+        }
+
+        if (structuralRoots == 0)
+        {
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        Vector3 clusterCenter = structuralPositionSum / structuralRoots;
+        const float clusterRadius = 27f;
+        float minimumY = minimumStructuralY - 5f;
+        float maximumY = maximumStructuralY + 16f;
+        GameObject container = new GameObject(prefab.name + "__Curated");
+        container.transform.SetParent(parent, false);
+        int spawned = 0;
+        int repairedColliders = 0;
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        for (int index = 0; index < sourceRoot.childCount; index++)
+        {
+            Transform sourceChild = sourceRoot.GetChild(index);
+            if (sourceChild == null || sourceChild.name.StartsWith(
+                    "SM_big_rock",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            Vector2 offset = new Vector2(
+                sourceChild.localPosition.x - clusterCenter.x,
+                sourceChild.localPosition.z - clusterCenter.z);
+            bool withinCluster = offset.sqrMagnitude <=
+                clusterRadius * clusterRadius &&
+                sourceChild.localPosition.y >= minimumY &&
+                sourceChild.localPosition.y <= maximumY;
+            if (!withinCluster)
+                continue;
+
+            GameObject instance = null;
+            int repaired = 0;
+            yield return InstantiateSourceChildRoutine(
+                sourceChild,
+                container.transform,
+                (created, repairs) =>
+                {
+                    instance = created;
+                    repaired = repairs;
+                });
+            if (instance != null)
+            {
+                spawned++;
+                repairedColliders += repaired;
+            }
+
+            // note: The 656-object source demo is never cloned wholesale; retained hut roots are integrated only while the loading frame remains inside its tight budget.
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        if (spawned == 0)
+        {
+            Destroy(container);
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        Debug.Log(
+            "[YQCompiledWorldSiteInstance] WITCH HOUSE PREFILTERED\n" +
+            "Source roots: " + sourceRoot.childCount + "\n" +
+            "Retained coherent roots: " + spawned);
+        completed?.Invoke(container, repairedColliders);
+    }
+
+    private static IEnumerator InstantiateFragmentedReviewedCellRoutine(
+        GameObject prefab,
+        Transform parent,
+        Action<GameObject, int> completed)
+    {
+        Transform sourceRoot = prefab != null ? prefab.transform : null;
+        if (sourceRoot == null || sourceRoot.childCount == 0)
+        {
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        GameObject container = new GameObject(prefab.name + "__Fragmented");
+        container.transform.SetParent(parent, false);
+        int spawned = 0;
+        int repairedColliders = 0;
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        for (int index = 0; index < sourceRoot.childCount; index++)
+        {
+            Transform sourceChild = sourceRoot.GetChild(index);
+            if (sourceChild == null)
+                continue;
+
+            GameObject instance = null;
+            int repaired = 0;
+            yield return InstantiateSourceChildRoutine(
+                sourceChild,
+                container.transform,
+                (created, repairs) =>
+                {
+                    instance = created;
+                    repaired = repairs;
+                });
+            if (instance != null)
+            {
+                spawned++;
+                repairedColliders += repaired;
+            }
+
+            // note: Dense reviewed cells are reconstructed from their authored root instances under a strict frame budget, preserving layout without one monolithic hierarchy integration spike.
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        if (spawned == 0)
+        {
+            Destroy(container);
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        completed?.Invoke(container, repairedColliders);
+    }
+
+    private static IEnumerator InstantiateSourceChildRoutine(
+        Transform sourceChild,
+        Transform parent,
+        Action<GameObject, int> completed)
+    {
+        if (sourceChild == null || parent == null)
+        {
+            completed?.Invoke(null, 0);
+            yield break;
+        }
+
+        string sourceName = sourceChild.name;
+        Vector3 sourcePosition = sourceChild.localPosition;
+        Quaternion sourceRotation = sourceChild.localRotation;
+        Vector3 sourceScale = sourceChild.localScale;
+        List<SourceColliderSnapshot> snapshots =
+            new List<SourceColliderSnapshot>();
+        yield return PreparePrefabCollidersForAsyncCloneRoutine(
+            sourceChild.gameObject,
+            snapshots);
+
+        AsyncInstantiateOperation<GameObject> operation =
+            UnityEngine.Object.InstantiateAsync(
+                sourceChild.gameObject,
+                parent);
+        // note: Even an unusually complex authored root clones through Unity's background-capable path; no single source object is allowed to force a synchronous loading-frame copy.
+        operation.priority = -1;
+        yield return operation;
+        RestorePrefabColliderSource(snapshots);
+
+        GameObject instance = operation.Result != null &&
+            operation.Result.Length > 0
+                ? operation.Result[0]
+                : null;
+        if (instance != null)
+        {
+            instance.name = sourceName;
+            instance.transform.localPosition = sourcePosition;
+            instance.transform.localRotation = sourceRotation;
+            instance.transform.localScale = sourceScale;
+        }
+
+        completed?.Invoke(instance, snapshots.Count);
+    }
+
+    private static IEnumerator PreparePrefabCollidersForAsyncCloneRoutine(
+        GameObject prefab,
+        List<SourceColliderSnapshot> snapshots)
+    {
+        if (prefab == null || snapshots == null)
+            yield break;
+
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(prefab.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                pending.Push(current.GetChild(childIndex));
+            }
+
+            BoxCollider[] colliders =
+                current.GetComponents<BoxCollider>();
+            for (int colliderIndex = 0;
+                 colliderIndex < colliders.Length;
+                 colliderIndex++)
+            {
+                BoxCollider collider = colliders[colliderIndex];
+                if (!IsMalformedBoxCollider(collider))
+                    continue;
+
+                snapshots.Add(new SourceColliderSnapshot
+                {
+                    collider = collider,
+                    size = collider.size,
+                    enabled = collider.enabled
+                });
+                Vector3 repairedSize = collider.size;
+                repairedSize.x = Mathf.Abs(repairedSize.x);
+                repairedSize.y = Mathf.Abs(repairedSize.y);
+                repairedSize.z = Mathf.Abs(repairedSize.z);
+                collider.size = repairedSize;
+                Vector3 scale = collider.transform.lossyScale;
+                if (scale.x < 0f || scale.y < 0f || scale.z < 0f)
+                    collider.enabled = false;
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+    }
+
+    private static void RestorePrefabColliderSource(
+        List<SourceColliderSnapshot> snapshots)
+    {
+        for (int index = 0; index < snapshots.Count; index++)
+        {
+            SourceColliderSnapshot snapshot = snapshots[index];
+            if (snapshot.collider == null)
+                continue;
+
+            snapshot.collider.size = snapshot.size;
+            snapshot.collider.enabled = snapshot.enabled;
+        }
     }
 
     private static bool ContainsMalformedBoxCollider(GameObject root)
@@ -2433,6 +3011,146 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         ColliderScanBuffer.Clear();
         return count;
+    }
+
+    private static IEnumerator CurateKnownPreviewArtifactsRoutine(
+        GameObject root,
+        string kitId,
+        Action<int> completed)
+    {
+        if (root == null || !string.Equals(
+                kitId,
+                "witch_house",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            completed?.Invoke(0);
+            yield break;
+        }
+
+        int removed = 0;
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform candidate = pending.Pop();
+            if (candidate == null)
+                continue;
+            for (int childIndex = 0;
+                 childIndex < candidate.childCount;
+                 childIndex++)
+            {
+                pending.Push(candidate.GetChild(childIndex));
+            }
+
+            if (candidate == root.transform ||
+                !candidate.name.StartsWith(
+                    "SM_big_rock",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            // note: SM_big_rock is the Witch House source scene's scale/preview prop, not a reviewed piece of Vey's authored location.
+            candidate.gameObject.SetActive(false);
+            Destroy(candidate.gameObject);
+            removed++;
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        completed?.Invoke(removed);
+    }
+
+    private static IEnumerator SanitizeStreamedCellRoutine(
+        GameObject root,
+        Action<int, int> completed)
+    {
+        if (root == null)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        int disabledColliders = 0;
+        int disabledProbes = 0;
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                pending.Push(current.GetChild(childIndex));
+            }
+
+            Collider[] colliders = current.GetComponents<Collider>();
+            for (int index = 0; index < colliders.Length; index++)
+            {
+                Collider collider = colliders[index];
+                if (collider == null || !collider.enabled ||
+                    collider.isTrigger || collider is TerrainCollider ||
+                    collider is CharacterController)
+                {
+                    continue;
+                }
+
+                Bounds bounds = collider.bounds;
+                float largestDimension = Mathf.Max(
+                    bounds.size.x,
+                    Mathf.Max(bounds.size.y, bounds.size.z));
+                string objectName = collider.name.ToLowerInvariant();
+                bool explicitBarrier = ContainsTraversalToken(
+                    objectName,
+                    "invisible", "blocker", "boundary", "killvolume",
+                    "kill_volume", "blockingvolume", "blocking_volume");
+                bool smallTraversalClutter =
+                    largestDimension <= 4.5f && bounds.size.y <= 3.5f &&
+                    ContainsTraversalToken(
+                        objectName,
+                        "pebble", "rubble", "debris", "clutter", "grass",
+                        "flower", "bush", "branch", "root", "smallrock",
+                        "small_rock", "crate", "barrel", "basket", "chair",
+                        "table", "pot", "wheel", "prop");
+                if (!explicitBarrier && !smallTraversalClutter)
+                    continue;
+
+                collider.enabled = false;
+                disabledColliders++;
+            }
+
+            ReflectionProbe[] probes =
+                current.GetComponents<ReflectionProbe>();
+            for (int index = 0; index < probes.Length; index++)
+            {
+                ReflectionProbe probe = probes[index];
+                if (probe == null || !probe.enabled)
+                    continue;
+
+                probe.enabled = false;
+                disabledProbes++;
+            }
+
+            // note: Collider and reflection-probe cleanup walks dense imported cells incrementally instead of allocating and processing the entire hierarchy on one loading frame.
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        completed?.Invoke(disabledColliders, disabledProbes);
     }
 
     private static int SanitizeTraversalObstructionColliders(GameObject root)
@@ -2510,6 +3228,121 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         return disabled;
     }
 
+    private static IEnumerator CurateAndGroundWitchHouseRoutine(
+        GameObject contentRoot,
+        Terrain terrain,
+        Action<int, int> completed)
+    {
+        if (contentRoot == null || terrain == null ||
+            contentRoot.transform.childCount == 0)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        Transform cell = contentRoot.transform.GetChild(0);
+        Bounds structuralBounds = default;
+        bool foundStructure = false;
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        Stack<Transform> structuralPending = new Stack<Transform>();
+        for (int childIndex = 0; childIndex < cell.childCount; childIndex++)
+        {
+            Transform child = cell.GetChild(childIndex);
+            if (child != null && IsWitchHouseStructuralRoot(child.name))
+                structuralPending.Push(child);
+        }
+
+        while (structuralPending.Count > 0)
+        {
+            Transform current = structuralPending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
+            {
+                structuralPending.Push(current.GetChild(childIndex));
+            }
+
+            Renderer[] renderers = current.GetComponents<Renderer>();
+            for (int rendererIndex = 0;
+                 rendererIndex < renderers.Length;
+                 rendererIndex++)
+            {
+                Renderer renderer = renderers[rendererIndex];
+                if (!IsGroundingRenderer(renderer))
+                    continue;
+
+                if (!foundStructure)
+                {
+                    structuralBounds = renderer.bounds;
+                    foundStructure = true;
+                }
+                else
+                {
+                    structuralBounds.Encapsulate(renderer.bounds);
+                }
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        if (!foundStructure)
+        {
+            int fallbackGrounded = 0;
+            yield return AlignCompiledCellsToTerrainRoutine(
+                contentRoot,
+                terrain,
+                count => fallbackGrounded = count);
+            completed?.Invoke(fallbackGrounded, 0);
+            yield break;
+        }
+
+        Vector2 clusterCenter = new Vector2(
+            structuralBounds.center.x,
+            structuralBounds.center.z);
+        float clusterRadius = Mathf.Clamp(
+            Mathf.Max(structuralBounds.extents.x, structuralBounds.extents.z) +
+                9f,
+            18f,
+            27f);
+        int removed = 0;
+        // note: Incoherent showcase roots were rejected before instantiation; grounding never rescans every furnished child or performs a second curation pass.
+
+        Vector3 desiredAnchor = contentRoot.transform.position;
+        cell.position += new Vector3(
+            desiredAnchor.x - structuralBounds.center.x,
+            0f,
+            desiredAnchor.z - structuralBounds.center.z);
+        float terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(
+            terrain,
+            desiredAnchor);
+        float verticalDelta = terrainHeight + 0.03f - structuralBounds.min.y;
+        cell.position += Vector3.up * verticalDelta;
+
+        Debug.Log(
+            "[YQCompiledWorldSiteInstance] WITCH HOUSE CURATED\n" +
+            "Showcase roots removed: " + removed + "\n" +
+            "Cluster radius: " + clusterRadius.ToString("F1") + "m\n" +
+            "Foundation correction: " + verticalDelta.ToString("F2") +
+            "m");
+        completed?.Invoke(1, removed);
+    }
+
+    private static bool IsWitchHouseStructuralRoot(string objectName)
+    {
+        string identity = (objectName ?? string.Empty).ToLowerInvariant();
+        return ContainsTraversalToken(
+            identity,
+            "sm_shopwalls", "stairs_cube", "sm_beam_01", "sm_beam_02",
+            "sm_roofsupports", "storagedoorframe",
+            "windowntrim_str_mainshop");
+    }
+
     private static IEnumerator AlignCompiledCellsToTerrainRoutine(
         GameObject contentRoot,
         Terrain terrain,
@@ -2526,13 +3359,24 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         for (int index = 0;
              index < contentRoot.transform.childCount;
-             index++)
+            index++)
         {
             Transform cell = contentRoot.transform.GetChild(index);
-            if (cell != null && TryResolveCellGroundingDelta(
+            bool hasGroundingDelta = false;
+            float verticalDelta = 0f;
+            if (cell != null)
+            {
+                yield return TryResolveCellGroundingDeltaRoutine(
                     cell.gameObject,
                     terrain,
-                    out float verticalDelta))
+                    (resolved, delta) =>
+                    {
+                        hasGroundingDelta = resolved;
+                        verticalDelta = delta;
+                    });
+            }
+
+            if (cell != null && hasGroundingDelta)
             {
                 cell.position += Vector3.up * verticalDelta;
                 grounded++;
@@ -2549,38 +3393,69 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         completed?.Invoke(grounded);
     }
 
-    private static bool TryResolveCellGroundingDelta(
+    private static IEnumerator TryResolveCellGroundingDeltaRoutine(
         GameObject cell,
         Terrain terrain,
-        out float verticalDelta)
+        Action<bool, float> completed)
     {
-        verticalDelta = 0f;
         if (cell == null || terrain == null)
-            return false;
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
 
-        Renderer[] renderers = cell.GetComponentsInChildren<Renderer>(true);
+        List<Renderer> renderers = new List<Renderer>();
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(cell.transform);
         bool initialized = false;
         Bounds aggregate = new Bounds();
+        float frameStartedAt = Time.realtimeSinceStartup;
 
-        for (int index = 0; index < renderers.Length; index++)
+        while (pending.Count > 0)
         {
-            Renderer renderer = renderers[index];
-            if (!IsGroundingRenderer(renderer))
-                continue;
-
-            if (!initialized)
+            Transform current = pending.Pop();
+            for (int childIndex = 0;
+                 childIndex < current.childCount;
+                 childIndex++)
             {
-                aggregate = renderer.bounds;
-                initialized = true;
+                pending.Push(current.GetChild(childIndex));
             }
-            else
+
+            Renderer[] localRenderers = current.GetComponents<Renderer>();
+            for (int rendererIndex = 0;
+                 rendererIndex < localRenderers.Length;
+                 rendererIndex++)
             {
-                aggregate.Encapsulate(renderer.bounds);
+                Renderer renderer = localRenderers[rendererIndex];
+                if (!IsGroundingRenderer(renderer))
+                    continue;
+
+                renderers.Add(renderer);
+                if (!initialized)
+                {
+                    aggregate = renderer.bounds;
+                    initialized = true;
+                }
+                else
+                {
+                    aggregate.Encapsulate(renderer.bounds);
+                }
+            }
+
+            // note: Foundation discovery walks dense authored cells incrementally; grounding can never monopolize the loading thread with a hierarchy-wide renderer query.
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
             }
         }
 
         if (!initialized)
-            return false;
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
 
         float lowerBandCeiling = aggregate.min.y + Mathf.Min(
             8f,
@@ -2588,7 +3463,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         List<Vector2> samples = new List<Vector2>();
         float totalWeight = 0f;
 
-        for (int index = 0; index < renderers.Length; index++)
+        for (int index = 0; index < renderers.Count; index++)
         {
             Renderer renderer = renderers[index];
             if (!IsGroundingRenderer(renderer))
@@ -2606,10 +3481,20 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             float weight = Mathf.Sqrt(footprint);
             samples.Add(new Vector2(bounds.min.y, weight));
             totalWeight += weight;
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
         }
 
         if (samples.Count == 0 || !IsFinite(totalWeight) || totalWeight <= 0f)
-            return false;
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
 
         samples.Sort((left, right) => left.x.CompareTo(right.x));
         float targetWeight = totalWeight * 0.5f;
@@ -2634,11 +3519,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         if (!IsFinite(candidate) ||
             Mathf.Abs(candidate) > MaximumExteriorFoundationCorrection)
         {
-            return false;
+            completed?.Invoke(false, 0f);
+            yield break;
         }
 
-        verticalDelta = Mathf.Abs(candidate) >= 0.03f ? candidate : 0f;
-        return true;
+        completed?.Invoke(
+            true,
+            Mathf.Abs(candidate) >= 0.03f ? candidate : 0f);
     }
 
     private static bool IsGroundingRenderer(Renderer renderer)
@@ -3091,8 +3978,12 @@ public static class YQTerrainSupportComposer
         }
 
         data.SetHeightsDelayLOD(minimumX, minimumZ, heights);
+        // note: Each terrain synchronization boundary gets its own loading frame so height LOD, collision refresh, and surface paint cannot stack into one visible hitch.
+        yield return null;
         data.SyncHeightmap();
+        yield return null;
         terrain.Flush();
+        yield return null;
 
         // note: Surface painting is a visual blend only; failure to find a compatible terrain layer never invalidates the collision-support height contract.
         yield return PaintSupportSurfaceRoutine(terrain, stamps);

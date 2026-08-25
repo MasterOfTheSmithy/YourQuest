@@ -63,52 +63,46 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         OriginTransitionFallback =
         {
-            // note: Fallback voice should sound like the Goddess persona slipping into anxious build-mode.
-            "Your origin is settled. I found a self in there eventually. Congratulations, barely. Now I need somewhere to put you before reality starts shedding parts.",
+            // note: Each fallback opens with rehearsed divinity and then lets the immediate construction problem break the performance.
+            "Your essence is revealed. Behold as I prepare its destined realm—no, the realm needs ground first. Obviously. One sacred moment.",
 
-            "I finished reading your answers. Some were confessions. Some were debris. I am sorting both with divine posture and extremely normal blood pressure.",
+            "I have weighed your answers upon the eternal scales. They tipped over, but the result is valid. I am building around it now.",
 
-            "There. You have a name, a pressure, and equipment shaped from your evidence. Geography is next, which is a huge tab and already blinking at me.",
+            "Rise, chosen mortal, and witness creation. Not yet—there is nowhere safe to rise. Remain metaphorically risen while I fix that.",
 
-            "Your origin stopped changing. A rare mercy. I will place it somewhere inconvenient enough to matter and stable enough not to sue me.",
+            "By my flawless discernment, your origin is sealed. I only need to decide where it goes, which I definitely decided moments ago.",
 
-            "I preserved the useful parts of your answers and several questionable parts for texture. The world queue is blinking.",
+            "Your name and purpose are written into eternity. The handwriting is cramped. Geography will make it look intentional.",
 
-            "You have been interpreted. This is usually where the ground becomes involved. I am pretending that is simple.",
-
-            "Your first identity is assembled. Try not to treat it as a complete explanation. That field overflows badly.",
-
-            "I have heard enough to make a beginning. Not a flattering beginning, obviously. A shippable one. Try to look grateful later."
+            "I pronounce your beginning complete. Quietly. The world behind it is still mostly instructions and one alarming hill."
         };
 
     private static readonly string[]
         WorldPlanFinished =
         {
-            "The broad shape is settled. Roads, settlements, danger slots. I am calling it coherent before reality can object in writing.",
+            "Behold the ordained shape of the world. I chose the roads before the settlements, but that is an advanced divine technique and not a mistake.",
 
-            "The world now has structure. Do not look impressed. Even terrible systems can have folders.",
+            "The map obeys my perfect design. One road currently obeys the ocean instead. I am correcting its devotion.",
 
-            "I chose the shape of your little reality. It is stable enough to disappoint people on purpose, which is basically civilization.",
+            "Thus have I divided settlement from wilderness. The boundary is drifting. Please regard the drift as sacred until I catch it.",
 
-            "Geography has agreed to exist. History is preparing its lies in a separate, very judgmental queue.",
+            "Witness a coherent cosmos. I am counting the settlements again because omniscience benefits from verification. One, two—yes. Coherent.",
 
-            "The map is coherent. I am not relieved. I am divinely unsurprised. Ignore the part where I stopped blinking.",
-
-            "The world has accepted its outline. I will now bully matter into taking the hint."
+            "The grand design is complete. I am now moving three important things I placed on top of each other. Ceremonially."
         };
 
     private static readonly string[]
         StableScaffold =
         {
-            "The elaborate version declined to exist cleanly. Rude. I am using the stable one, because someone here has adult supervision installed.",
+            "The first creation was a sacred preliminary vision. It also could not stand up. I am invoking the plainer, load-bearing vision.",
 
-            "Reality rejected the ornate draft. Sensible, if dull. The stable shape will do, and yes, I hate that too.",
+            "By divine wisdom, I reject unnecessary ornament. This decision is unrelated to the ornament arriving inside out.",
 
-            "The prettier possibility arrived malformed. I deleted its little ambitions before it could become everyone's problem.",
+            "The ornate reality has been judged unworthy. Not broken—unworthy. The stable one is already replacing it.",
 
-            "I am continuing with the scaffold that does not contradict itself. A humiliating standard. Still above average today.",
+            "I foresaw the need for a simpler world. I foresaw it immediately after the complicated one failed, which still counts.",
 
-            "The first answer was untidy. I am using the reliable one while pretending this was my aesthetic."
+            "Witness my merciful restraint. Fewer moving pieces means fewer pieces can fall on you, and I meant to discover that."
         };
 
     private static readonly string[]
@@ -644,45 +638,26 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         TerrainMaterialization =
         {
-            "Hold still. I am deciding which parts of the ground deserve to be higher...",
+            // note: Terrain lines expose frantic physical corrections beneath a rehearsed creator-Goddess performance.
+            "Behold, I raise the eternal mountains—too high. Much too high. Witness me lower them with equal divinity.",
 
-            "Mountains first. Or rivers. Rivers become argumentative when placed second...",
+            "By my decree, the rivers shall run... downhill. Yes, naturally. I am turning this valley around before the water notices.",
 
-            "I am folding the earth. Try not to stand on the crease...",
+            "Let firmament divide from earth. No, that is the horizon. The earth is the lower one. Correcting both.",
 
-            "The horizon is still negotiable...",
+            "I command this hill to rise in majesty. Stop. Stop rising. The command has been divinely amended.",
 
-            "One moment. I am teaching the ground where down is...",
+            "Witness the birth of a continent. The western edge is curling upward, but I have several very sacred tools for that.",
 
-            "I appear to have made that hill too ambitious...",
+            "Thus I lay the ground beneath you. Not that piece—it is still soft. I meant the piece immediately beside it.",
 
-            "Do not move. The continent underneath you is not entirely committed yet...",
+            "The valleys answer my infinite wisdom. One answered upside down. I am handling the dissenter personally.",
 
-            "I am arranging stone, soil, slope, and several million years of implied geology...",
+            "Creation proceeds precisely as foretold: stone, soil, slope, and—no, not there. Move the slope left.",
 
-            "There should be a valley here. Yes. Definitely a valley...",
+            "I bless this horizon with perfect balance. It is visibly crooked. The blessing may require a second application.",
 
-            "The mountains are arguing about perspective. I shall settle it...",
-
-            "I am carving places for rivers to believe they chose themselves...",
-
-            "One moment. The earth is still remembering its shape...",
-
-            "I have made the terrain too flat. Mortals become suspicious of that...",
-
-            "I am adding inconvenient elevation. Journeys require inconvenience...",
-
-            "The ground is nearly finished pretending it has always been here...",
-
-            "A little erosion here... several geological epochs there...",
-
-            "I am giving the landscape scars from events that never actually occurred...",
-
-            "Stone takes such confidence to arrange properly...",
-
-            "The horizon was crooked. I noticed before you did...",
-
-            "There. Almost. The land only needs a few more ancient accidents..."
+            "The land shall bear the weight of destiny. First it must bear its own weight. I am reinforcing the embarrassing section."
         };
 
     // ============================================================
@@ -692,45 +667,21 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         SettlementMaterialization =
         {
-            "I am putting {0} where everyone will insist it has always stood...",
+            "And here I bestow {0}, jewel of the—no, it is facing backward. The jewel will rotate.",
 
-            "{0} requires streets. Mortals dislike climbing through windows...",
+            "By sovereign decree, the streets of {0} shall meet. They currently miss by six feet. I am narrowing the decree.",
 
-            "One moment. I am arranging {0} into something vaguely habitable...",
+            "Witness {0} descend from possibility. Gently. Gently—stop. I am correcting the ground beneath it.",
 
-            "I am giving {0} a shape people can become sentimental about...",
+            "I have ordained a marketplace for {0}. I appear to have ordained it inside a house. Both are moving.",
 
-            "There should be a settlement here. Conveniently, there now is...",
+            "Thus rises {0}, exactly where I intended after rejecting the first three places I intended.",
 
-            "{0} is acquiring roads, corners, and places to lose things...",
+            "The sacred roads of {0} now connect every district. Except that one. It is being reclassified as a scenic mistake.",
 
-            "I am laying out {0}. Apparently houses cannot simply overlap...",
+            "I grant {0} an ancient and harmonious layout. Please allow the ancient buildings time to stop overlapping.",
 
-            "The streets of {0} are being persuaded to connect to one another...",
-
-            "I am making {0} look older than the people who will remember it...",
-
-            "{0} needs somewhere to gather, somewhere to trade, and somewhere to gossip...",
-
-            "I am arranging {0} around decisions nobody remembers making...",
-
-            "One moment. {0} presently has an architectural disagreement...",
-
-            "I am giving {0} the illusion of gradual development...",
-
-            "{0} is taking shape. Try not to notice how suddenly...",
-
-            "I am placing the important parts of {0} where mortals will later claim was obvious...",
-
-            "The roads in {0} are learning where they lead...",
-
-            "I am making {0} inconvenient enough to feel authentic...",
-
-            "{0} now requires buildings to justify all these roads...",
-
-            "I am deciding which part of {0} becomes 'the old part'...",
-
-            "There. {0} nearly looks as though people built it themselves..."
+            "Behold {0}, made habitable by my boundless power and several rapid, unrecorded corrections."
         };
 
     // ============================================================
@@ -740,65 +691,21 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         BuildingMaterialization =
         {
-            "Walls for {0}. Mortals become distressed without walls...",
+            "By my hand, every house in {0} shall stand true. That roof is not true. I am turning it over.",
 
-            "I am constructing {0}. Please ignore the fact that none of these beams have ever seen a tree...",
+            "I grant {0} walls, doors, and sacred shelter. The doors are in the walls this time. Nearly all of them.",
 
-            "{0} needs roofs. Weather apparently cannot simply be reasoned with...",
+            "Witness architecture obey me. One house has mistaken itself for a staircase; I am speaking to it firmly.",
 
-            "One moment. I have put a doorway where a wall was trying to be...",
+            "The foundations of {0} are eternally secure. I am placing them now, beneath the buildings, where they apparently belong.",
 
-            "I am deciding which buildings in {0} will eventually be called historic...",
+            "By divine proportion, every doorway shall admit a mortal. That one admits half a mortal. Widening it.",
 
-            "The houses of {0} are being persuaded not to occupy the same space...",
+            "I crown {0} with roofs against the storm. Two roofs are crowning the same house. Redistributing majesty.",
 
-            "I am giving {0} windows. People enjoy looking through barriers they built themselves...",
+            "Thus are the homes of {0} made whole. No, the chimneys do need to face outside. One moment.",
 
-            "{0} requires interiors, exteriors, and arguments about property boundaries...",
-
-            "I am fitting roofs onto {0}. Gravity has opinions about this...",
-
-            "The buildings in {0} are learning which side is supposed to face the road...",
-
-            "I am constructing several places in {0} where people will insist on locking doors...",
-
-            "One moment. A house in {0} was trying to become a staircase...",
-
-            "I am placing foundations beneath {0}. Retrospectively, of course...",
-
-            "{0} needs architecture with enough imperfections to look mortal...",
-
-            "I am giving {0} buildings that will eventually need repairs nobody wants to pay for...",
-
-            "The walls of {0} are nearly convinced they are load-bearing...",
-
-            "I am deciding which structure in {0} everyone uses as a landmark...",
-
-            "{0} is acquiring chimneys. I may add smoke later if I remember...",
-
-            "I am putting doors into {0}. You people are remarkably fond of hinges...",
-
-            "One moment. The buildings of {0} are settling into the ground...",
-
-            "I have made one of the roofs in {0} too perfect. Fixing that...",
-
-            "{0} needs somewhere for merchants to overcharge travelers...",
-
-            "I am creating corners in {0}. Apparently rooms require several...",
-
-            "The architecture of {0} has begun pretending it evolved naturally...",
-
-            "I am giving {0} structures with suspiciously ancient foundations...",
-
-            "A few more walls in {0}. Then perhaps civilization will stop leaking out...",
-
-            "I am arranging timber and stone into culturally significant rectangles...",
-
-            "The buildings of {0} now have opinions about where ground level is...",
-
-            "I am making {0} structurally convincing from a respectful distance...",
-
-            "There. {0} is beginning to look expensive to maintain..."
+            "Behold, a flawless street of dwellings. Regard it from here while I quietly pull three dwellings out of the road."
         };
 
     // ============================================================
@@ -808,35 +715,21 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         EnvironmentMaterialization =
         {
-            "Trees. Yes. Worlds generally need trees...",
+            "I call forth the primeval forest. Not across the road—back, back. Trees are less obedient than the hymns imply.",
 
-            "I am scattering vegetation so nobody suspects I placed every stone personally...",
+            "By my blessing, life spreads across the land. It is spreading in rows. I am disordering it by hand.",
 
-            "One moment. The wilderness looks arranged. That is unacceptable...",
+            "Witness nature, untouched by mortal design. I am currently moving every boulder so mortals can actually walk through it.",
 
-            "I am adding plants where nobody asked for them. Nature enjoys that...",
+            "I summon ancient wilderness. That tree is inside a house. The wilderness has exceeded its jurisdiction.",
 
-            "The landscape requires clutter before mortals call it natural...",
+            "Let root and branch reclaim the empty places. Not the doorway. I should have specified the doorway.",
 
-            "I am placing rocks with the confidence of geological inevitability...",
+            "The stones fall according to my unknowable purpose. I know the purpose. The purpose is no longer blocking the stairs.",
 
-            "There are not enough things growing where they are inconvenient...",
+            "Thus I clothe the world in green abundance. Some abundance is floating. I am lowering it with solemnity.",
 
-            "I am making the wilderness look less recently manufactured...",
-
-            "A few trees here. A boulder there. Several centuries of implied weathering...",
-
-            "I am teaching the vegetation not to stand in neat rows...",
-
-            "The world needs places where roads stop being trustworthy...",
-
-            "I am distributing shrubbery according to ancient laws I have just invented...",
-
-            "One moment. That forest looks far too intentional...",
-
-            "I am adding the sort of rocks travelers trip over and later blame on fate...",
-
-            "Nature is nearly ready to pretend I had nothing to do with it..."
+            "Behold a wilderness older than memory. Please disregard how rapidly I am rotating that suspiciously young forest."
         };
 
     // ============================================================
@@ -846,29 +739,15 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         WorldPlanChanged =
         {
-            "Oh. I changed my mind about the world. Hold still while everyone's memories catch up...",
+            "I have issued a divine revision to reality. This is not changing my mind; it is omniscience arriving in installments.",
 
-            "That version of reality is obsolete. I am replacing it...",
+            "That world was a prophetic illustration. This world is the prophecy. I am replacing the roads before anyone notices.",
 
-            "No, not that world. The other one. Give me a moment...",
+            "By eternal decree, history has always taken this shape. History is objecting, so I am rewriting the loud section first.",
 
-            "I have revised geography. Everyone will remember this version shortly...",
+            "Witness my foresight. I foresaw a better arrangement immediately after completing the worse arrangement.",
 
-            "Reality shifted slightly. Do not worry. It does that when I edit it...",
-
-            "I changed something upstream. Everything downstream is pretending this was always true...",
-
-            "One moment. I replaced a piece of reality and the inhabitants have not noticed yet...",
-
-            "Wrong version of the world. Let me correct everyone's memories...",
-
-            "I dislike that arrangement. We are using another one...",
-
-            "The world has been revised. History is being informed retroactively...",
-
-            "That possibility has been discarded. Please forget you almost existed inside it...",
-
-            "Hm. I have selected a better reality..."
+            "Reality has not shifted. Your perspective has shifted. Also the mountain. I am putting the mountain back."
         };
 
     // ============================================================
@@ -878,45 +757,19 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         TerminalFailure =
         {
-            "Hm. Something refuses to exist correctly. You are not entering my world like this...",
+            "By my absolute authority, creation pauses. I did not fail. The world failed to understand me, and I am checking what I said.",
 
-            "No. Reality has developed an inconsistency. Stay there while I remove it...",
+            "No. That is not a sacred mystery; that is a building beneath the ground. I cannot let you enter until I retrieve it.",
 
-            "Something I made is contradicting something else I made. Tedious...",
+            "I proclaim this reality temporarily forbidden. Please do not ask why the statue is lying down. I know why. Mostly.",
 
-            "Do not move. A piece of the world has declined to become real properly...",
+            "The cosmos has revealed a hidden contradiction. I put it there accidentally, but discovering it was exceptionally divine.",
 
-            "I found a knot in causality. You are absolutely not stepping into it...",
+            "Remain beyond the threshold. My omnipotence requires a brief retry and possibly a smaller mountain.",
 
-            "One moment. The world is arguing with me. It will lose...",
+            "Creation is proceeding according to a higher plan. I am writing the higher plan now. It begins with fixing this.",
 
-            "That is wrong. Deeply, structurally wrong. Remain outside...",
-
-            "No. I refuse to let you enter while reality is doing that...",
-
-            "Something has escaped its proper history. Stay where you are...",
-
-            "I seem to have created a contradiction. Annoying...",
-
-            "Reality has become untidy. You may enter when it stops embarrassing me...",
-
-            "Absolutely not. Something in there has failed to become what I told it to be...",
-
-            "The world has produced an impossible answer. I shall ask again...",
-
-            "No, no. That cannot be true in the same universe as the other thing...",
-
-            "Stay there. I have discovered a flaw in existence...",
-
-            "Something inside refuses to agree with its own history...",
-
-            "I am not finished correcting reality. Do not test me by entering early...",
-
-            "The world is currently in a metaphysically unacceptable condition...",
-
-            "I have made an error. You heard nothing...",
-
-            "No entrance yet. Causality is undergoing maintenance..."
+            "I have not lost control. Control is merely distributed across several emergencies. You are safest outside while I collect it."
         };
 
     // ============================================================
@@ -926,45 +779,17 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         PopulationComplete =
         {
-            "There. Everyone is where they have always been. Do not ask me to create them again...",
+            "By my breath, every soul awakens in its appointed place. Two awakened in the same chair. The appointment is being corrected.",
 
-            "Good. The living have names, the dangerous have grudges, and reality is mostly consistent...",
+            "Witness life spread across my creation. I am checking the names because three people answered at once when I said Elian.",
 
-            "Everyone now remembers existing. Convenient, is it not?",
+            "The people remember lives stretching back generations. I wrote those generations quickly, but with tremendous divine sincerity.",
 
-            "There. I populated your little world. Try not to kill all of it immediately...",
+            "Thus are the settlements inhabited and the wilds given teeth. The teeth have names. I may have reversed two of them.",
 
-            "The people are placed. The monsters are placed. The histories are lying convincingly...",
+            "Every mortal now possesses a history, a purpose, and somewhere to stand. I am quietly adding somewhere for one of them to stand.",
 
-            "Done. Every soul has somewhere to stand and something to complain about...",
-
-            "There. The world is inhabited. It already seems louder...",
-
-            "Everyone has a name, a place, and at least one problem. Sufficiently real...",
-
-            "The mortals believe they have histories and the monsters believe they have territories...",
-
-            "Population complete. Not that they know there was ever a time before them...",
-
-            "Everyone is accounted for. More importantly, everyone believes they always were...",
-
-            "Souls distributed, memories attached, hostilities assigned. Very tidy...",
-
-            "There. Nobody remembers not existing. Precisely as intended...",
-
-            "The world has people in it now. This always complicates things...",
-
-            "Good. Every village has voices and every dangerous place has teeth...",
-
-            "There. History is occupied...",
-
-            "Everyone has been inserted into causality without significant tearing...",
-
-            "Done. Mortality is operational...",
-
-            "The world can now complain about itself through its inhabitants...",
-
-            "There. You are no longer the only person with problems..."
+            "My creation lives. Please receive this as a miracle and not as several hundred simultaneous administrative emergencies."
         };
 
     // ============================================================
@@ -974,29 +799,17 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         FinalReveal =
         {
-            "There. The roads remember where they lead. You may enter...",
+            "Behold: your world, complete by my infallible hand. The hand is still moving one tree. Enter after the tree stops.",
 
-            "Finished. Or finished enough that you are unlikely to notice the difference...",
+            "I open the threshold by divine decree. If a road shifts while you cross it, that is perspective and absolutely not unfinished work.",
 
-            "The world is holding together. Go on, then...",
+            "Creation stands ready. I have checked the ground twice, the doors once, and the horizon enough. You may enter.",
 
-            "There. Everything agrees that it has always existed. You may proceed...",
+            "Witness the realm I promised you. It is real, inhabited, and no longer making the alarming sound. Go carefully.",
 
-            "I have finished making the past. You may begin making the future...",
+            "The world is complete. Complete means safe to enter, not immune to further divine improvements performed behind you.",
 
-            "Reality is stable enough for mortals now. Enter...",
-
-            "The land is placed, the people remember themselves, and the monsters are hungry. Perfect...",
-
-            "There. Your world awaits. Try not to damage anything irreplaceable...",
-
-            "All done. Mostly. Do not ask questions about the horizon...",
-
-            "The world has agreed to remain real for the foreseeable future. You may go...",
-
-            "Creation is complete. Please behave as though this took several billion years...",
-
-            "There. I have done the difficult part. Now you may complicate it..."
+            "By all the authority vested in me by—by me, apparently—you may begin. I will keep holding the edges together."
         };
 
     // ============================================================

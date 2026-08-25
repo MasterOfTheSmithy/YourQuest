@@ -116,6 +116,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
      * first-generation duration note.
      */
     private bool _generationMode;
+    private bool _generationFailure;
+    private Action _retryGeneration;
+    private Action _returnToTitle;
 
     private bool _finishingGenerationPresentation;
 
@@ -250,6 +253,35 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         ShowGeneration(
             status,
             progress);
+    }
+
+    public static void ShowGenerationFailure(
+        string status,
+        Action retryGeneration,
+        Action returnToTitle)
+    {
+        YQStartupLoadingScreen screen = ShowGeneration(
+            status,
+            1f);
+
+        if (screen == null)
+            return;
+
+        // note: A watchdog stop remains an interactive terminal state instead of impersonating an endlessly running loading screen.
+        screen._generationFailure = true;
+        screen._retryGeneration = retryGeneration;
+        screen._returnToTitle = returnToTitle;
+    }
+
+    public static void ClearGenerationFailure()
+    {
+        if (s_instance == null)
+            return;
+
+        // note: Clear stale recovery callbacks before a fresh deterministic attempt resumes normal progress reporting.
+        s_instance._generationFailure = false;
+        s_instance._retryGeneration = null;
+        s_instance._returnToTitle = null;
     }
 
     private static void DismissOrphanedGenerationPresentation()
@@ -1585,6 +1617,43 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 diagnosticsRect.height - 12f),
             diagnostics,
             _compactDiagnosticsStyle);
+
+        if (_generationFailure)
+            DrawGenerationFailureActions(margin);
+    }
+
+    private void DrawGenerationFailureActions(float margin)
+    {
+        const float buttonWidth = 170f;
+        const float buttonHeight = 38f;
+        const float buttonGap = 12f;
+        float totalWidth = buttonWidth * 2f + buttonGap;
+        float x = (Screen.width - totalWidth) * 0.5f;
+        float y = Screen.height - margin - buttonHeight;
+
+        // note: Recovery controls prove the presentation is responsive and let the player choose a clean retry or a safe return instead of waiting forever.
+        if (GUI.Button(
+                new Rect(x, y, buttonWidth, buttonHeight),
+                "Retry generation"))
+        {
+            Action retry = _retryGeneration;
+            ClearGenerationFailure();
+            retry?.Invoke();
+            return;
+        }
+
+        if (GUI.Button(
+                new Rect(
+                    x + buttonWidth + buttonGap,
+                    y,
+                    buttonWidth,
+                    buttonHeight),
+                "Return to title"))
+        {
+            Action returnToTitle = _returnToTitle;
+            ClearGenerationFailure();
+            returnToTitle?.Invoke();
+        }
     }
 
     private void DrawLlmThinkingIndicator(float margin)
