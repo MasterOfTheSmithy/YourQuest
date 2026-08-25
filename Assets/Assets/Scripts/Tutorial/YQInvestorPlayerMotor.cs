@@ -32,6 +32,10 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     public float coyoteTime = 0.12f;
     public float jumpBuffer = 0.14f;
 
+    [Header("Traversal Assist")]
+    public float blockedStepAssistHeight = 0.56f;
+    public float blockedStepProbePadding = 0.20f;
+
     [Header("Stamina")]
     public float minSprintStamina = 3f;
     public float sprintBaseCostPerSecond = 7f;
@@ -95,6 +99,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private Vector3 _thirdPersonCameraVelocity;
     private Vector2 _moveInput;
     private readonly RaycastHit[] _cameraHits = new RaycastHit[12];
+    private readonly RaycastHit[] _stepProbeHits = new RaycastHit[8];
     private float _verticalVelocity;
     private float _yaw;
     private float _pitch;
@@ -388,12 +393,105 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         if (!jumped)
             ApplyGravity(dt, grounded, jumpHeld);
 
-        _controller.Move((_planarVelocity + Vector3.up * _verticalVelocity) * dt);
+        Vector3 requestedPlanarMotion = _planarVelocity * dt;
+        Vector3 movementStart = transform.position;
+        CollisionFlags movementFlags = _controller.Move(
+            requestedPlanarMotion + Vector3.up * (_verticalVelocity * dt));
+
+        if (grounded && !jumped &&
+            (movementFlags & CollisionFlags.Sides) != 0)
+        {
+            Vector3 actualPlanarMotion = transform.position - movementStart;
+            actualPlanarMotion.y = 0f;
+            Vector3 requestedDirection = requestedPlanarMotion.sqrMagnitude > 0f
+                ? requestedPlanarMotion.normalized
+                : Vector3.zero;
+            float completedDistance = Mathf.Max(
+                0f,
+                Vector3.Dot(actualPlanarMotion, requestedDirection));
+            float requestedDistance = requestedPlanarMotion.magnitude;
+
+            if (completedDistance < requestedDistance * 0.55f)
+            {
+                TryAssistBlockedStep(
+                    requestedDirection *
+                    Mathf.Max(0f, requestedDistance - completedDistance));
+            }
+        }
 
         if (actionRecorder != null && move.sqrMagnitude > 0.01f)
             actionRecorder.RecordMove();
 
         vitals?.SetSprinting(_isSprinting);
+    }
+
+    private void TryAssistBlockedStep(Vector3 requestedPlanarMotion)
+    {
+        requestedPlanarMotion.y = 0f;
+        float requestedDistance = requestedPlanarMotion.magnitude;
+        if (requestedDistance <= 0.001f || _controller == null)
+            return;
+
+        Vector3 direction = requestedPlanarMotion / requestedDistance;
+        float assistHeight = Mathf.Clamp(
+            Mathf.Max(_controller.stepOffset, blockedStepAssistHeight),
+            0.30f,
+            Mathf.Max(0.30f, _controller.height * 0.45f));
+        float probeDistance = _controller.radius + requestedDistance +
+            Mathf.Max(0.05f, blockedStepProbePadding);
+        Vector3 upperProbeOrigin = transform.position +
+            Vector3.up * (assistHeight + _controller.skinWidth + 0.08f);
+
+        if (HasExternalStepProbeHit(
+                upperProbeOrigin,
+                direction,
+                probeDistance))
+        {
+            return;
+        }
+
+        float startY = transform.position.y;
+        _controller.Move(Vector3.up * assistHeight);
+        float actualRise = transform.position.y - startY;
+        if (actualRise < assistHeight * 0.72f)
+        {
+            // note: A ceiling or overhang rejected the lift; settle back immediately and preserve the original blocking collision.
+            _controller.Move(Vector3.down * Mathf.Max(0f, actualRise));
+            return;
+        }
+
+        // note: This fallback runs only after CharacterController reports a grounded side collision and the space above the obstacle is clear, allowing irregular imported stair risers without climbing walls.
+        _controller.Move(requestedPlanarMotion);
+        _controller.Move(Vector3.down * (actualRise + 0.10f));
+    }
+
+    private bool HasExternalStepProbeHit(
+        Vector3 origin,
+        Vector3 direction,
+        float distance)
+    {
+        int hitCount = Physics.RaycastNonAlloc(
+            origin,
+            direction,
+            _stepProbeHits,
+            distance,
+            ~0,
+            QueryTriggerInteraction.Ignore);
+
+        for (int index = 0; index < hitCount; index++)
+        {
+            Collider hitCollider = _stepProbeHits[index].collider;
+            if (hitCollider == null ||
+                hitCollider.transform == transform ||
+                hitCollider.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private bool TrySpendSprint(float dt)
