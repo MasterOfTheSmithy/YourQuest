@@ -1660,6 +1660,10 @@ public static class YQGeneratedWorldPopulation
 
         enemy.Initialize(
             null);
+
+        // note: Attach runtime grounding at the frame-budgeted leader spawn point instead of relying on a later all-enemy scan.
+        YQGeneratedEnemyRuntimeSafety.EnsureAttached(
+            enemy);
     }
 
     private static void CreateGenericHostile(
@@ -1780,6 +1784,10 @@ public static class YQGeneratedWorldPopulation
 
         enemy.Initialize(
             null);
+
+        // note: Attach runtime grounding at the frame-budgeted hostile spawn point so safety setup cannot bunch into a later frame.
+        YQGeneratedEnemyRuntimeSafety.EnsureAttached(
+            enemy);
     }
     private static void ApplyHumanHostileReadability(
     GameObject instance,

@@ -4,9 +4,6 @@ using UnityEngine;
 public sealed class YQGeneratedEnemyRuntimeSafety :
     MonoBehaviour
 {
-    private const float ScanInterval =
-    2.00f;
-
     private const float GroundCheckInterval =
         0.25f;
 
@@ -46,7 +43,7 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
     private bool _initialized;
 
-    private float _nextScanTime;
+    private float _fallbackScanTime;
 
     private float _nextAudioCheckTime;
 
@@ -83,6 +80,31 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
         _manager._isManager =
             true;
+
+        // note: Run one delayed compatibility scan for pre-existing scene enemies; generated spawn paths attach guards directly without recurring world searches.
+        _manager._fallbackScanTime =
+            Time.unscaledTime +
+            1.0f;
+    }
+
+    public static void EnsureAttached(
+        YQInvestorEnemy enemy)
+    {
+        if (enemy == null ||
+            enemy.GetComponent<
+                YQGeneratedEnemyRuntimeSafety>() !=
+                null)
+        {
+            return;
+        }
+
+        // note: Attach safety while this one generated hostile is created so initialization work follows the existing frame-budgeted spawn cadence.
+        YQGeneratedEnemyRuntimeSafety guard =
+            enemy.gameObject.AddComponent<
+                YQGeneratedEnemyRuntimeSafety>();
+
+        guard._isManager =
+            false;
     }
 
     // ============================================================
@@ -182,15 +204,12 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
     private void ManagerUpdate()
     {
         if (Time.unscaledTime <
-            _nextScanTime)
+            _fallbackScanTime)
         {
             return;
         }
 
-        _nextScanTime =
-            Time.unscaledTime +
-            ScanInterval;
-
+        // note: This one-time scan preserves compatibility for generated hostiles already present at scene startup without allocating and traversing every enemy forever.
         YQInvestorEnemy[] enemies =
             FindObjectsByType<
                 YQInvestorEnemy>(
@@ -221,20 +240,12 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
                 continue;
             }
 
-            if (enemy.GetComponent<
-                    YQGeneratedEnemyRuntimeSafety>() !=
-                null)
-            {
-                continue;
-            }
-
-            YQGeneratedEnemyRuntimeSafety guard =
-                enemy.gameObject.AddComponent<
-                    YQGeneratedEnemyRuntimeSafety>();
-
-            guard._isManager =
-                false;
+            EnsureAttached(
+                enemy);
         }
+
+        enabled =
+            false;
     }
 
     private static bool IsGeneratedEnemy(

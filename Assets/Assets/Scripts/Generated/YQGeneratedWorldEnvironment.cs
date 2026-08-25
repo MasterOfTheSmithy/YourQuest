@@ -3326,6 +3326,10 @@ public static class YQGeneratedWorldEnvironment
 
         enemy.Initialize(
             null);
+
+        // note: Ambient enemies receive their safety guard as each async wilderness spawn completes, preserving the streaming frame budget.
+        YQGeneratedEnemyRuntimeSafety.EnsureAttached(
+            enemy);
     }
 
     private static string BuildAmbientMonsterLabel(
