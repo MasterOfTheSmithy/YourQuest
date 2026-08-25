@@ -128,7 +128,7 @@ public static class YQGeneratedWorldPopulation
 
                 palette.EnsureCollections();
 
-                BuildEncampment(
+                BuildEncampmentSynchronously(
                     encampmentRoot.transform,
                     terrain,
                     plan,
@@ -245,7 +245,10 @@ public static class YQGeneratedWorldPopulation
                     continue;
 
                 palette.EnsureCollections();
-                BuildEncampment(
+                int named = 0;
+                int generic = 0;
+                int rewards = 0;
+                yield return BuildEncampmentRoutine(
                     encampmentRoot.transform,
                     terrain,
                     plan,
@@ -254,9 +257,12 @@ public static class YQGeneratedWorldPopulation
                     region,
                     palette,
                     registry,
-                    out int named,
-                    out int generic,
-                    out int rewards);
+                    (namedCount, genericCount, rewardCount) =>
+                    {
+                        named = namedCount;
+                        generic = genericCount;
+                        rewards = rewardCount;
+                    });
                 namedHostiles += named;
                 rankAndFileHostiles += generic;
                 rewardContainers += rewards;
@@ -1223,7 +1229,7 @@ public static class YQGeneratedWorldPopulation
     // ENCAMPMENTS
     // ============================================================
 
-    private static void BuildEncampment(
+    private static void BuildEncampmentSynchronously(
         Transform parent,
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
@@ -1236,13 +1242,50 @@ public static class YQGeneratedWorldPopulation
         out int genericHostiles,
         out int rewardContainers)
     {
-        namedHostiles =
+        int named = 0;
+        int generic = 0;
+        int rewards = 0;
+        IEnumerator routine = BuildEncampmentRoutine(
+            parent,
+            terrain,
+            plan,
+            world,
+            encampment,
+            region,
+            palette,
+            registry,
+            (namedCount, genericCount, rewardCount) =>
+            {
+                named = namedCount;
+                generic = genericCount;
+                rewards = rewardCount;
+            });
+
+        // note: The retained legacy Build API drains the phased routine immediately; production startup always uses Unity's coroutine scheduler.
+        DrainCoroutineSynchronously(routine);
+        namedHostiles = named;
+        genericHostiles = generic;
+        rewardContainers = rewards;
+    }
+
+    private static IEnumerator BuildEncampmentRoutine(
+        Transform parent,
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        WorldState world,
+        GeneratedEncampmentRecord encampment,
+        GeneratedRegionRecord region,
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry,
+        Action<int, int, int> completed)
+    {
+        int namedHostiles =
             0;
 
-        genericHostiles =
+        int genericHostiles =
             0;
 
-        rewardContainers =
+        int rewardContainers =
             0;
 
         Vector3 center =
@@ -1272,7 +1315,7 @@ public static class YQGeneratedWorldPopulation
 
         if (!usesCompiledSite)
         {
-            BuildEncampmentSiteAssets(
+            yield return BuildEncampmentSiteAssetsRoutine(
                 campRoot.transform,
                 terrain,
                 encampment,
@@ -1329,6 +1372,9 @@ public static class YQGeneratedWorldPopulation
 
             namedHostiles =
                 1;
+
+            // note: Never clone a leader and the remaining encounter cast in the same rendered loading frame.
+            yield return null;
         }
 
         /*
@@ -1381,6 +1427,9 @@ public static class YQGeneratedWorldPopulation
                 registry);
 
             genericHostiles++;
+
+            // note: Publish at most one imported hostile character hierarchy per frame.
+            yield return null;
         }
 
         rewardContainers =
@@ -1391,6 +1440,11 @@ public static class YQGeneratedWorldPopulation
                 encampment,
                 palette,
                 registry);
+
+        completed?.Invoke(
+            namedHostiles,
+            genericHostiles,
+            rewardContainers);
 
         Debug.Log(
             "[YQGeneratedWorldPopulation] ENCAMPMENT\n" +
@@ -1410,6 +1464,18 @@ public static class YQGeneratedWorldPopulation
             rewardContainers +
             "\nAnchor: " +
             center);
+    }
+
+    private static void DrainCoroutineSynchronously(IEnumerator routine)
+    {
+        if (routine == null)
+            return;
+
+        while (routine.MoveNext())
+        {
+            if (routine.Current is IEnumerator nested)
+                DrainCoroutineSynchronously(nested);
+        }
     }
 
     private static GeneratedNpcPlanRecord
@@ -4363,7 +4429,7 @@ public static class YQGeneratedWorldPopulation
     // ENCAMPMENT SITE ASSETS
     // ============================================================
 
-    private static void BuildEncampmentSiteAssets(
+    private static IEnumerator BuildEncampmentSiteAssetsRoutine(
         Transform parent,
         Terrain terrain,
         GeneratedEncampmentRecord encampment,
@@ -4579,6 +4645,9 @@ public static class YQGeneratedWorldPopulation
             EnsureEnvironmentCollider(
                 instance,
                 structural);
+
+            // note: Fallback camps may use several imported structures, but only one hierarchy is materialized and repaired per frame.
+            yield return null;
         }
     }
 
