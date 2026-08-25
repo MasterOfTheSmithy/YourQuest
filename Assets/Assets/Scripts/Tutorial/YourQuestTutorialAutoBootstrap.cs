@@ -39,6 +39,22 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
     private static readonly Dictionary<string, AudioClip> s_audioClipCache = new Dictionary<string, AudioClip>(StringComparer.OrdinalIgnoreCase);
     private bool _bootStarted;
 
+    public static void RestartAfterGenerationFailure()
+    {
+        YourQuestTutorialAutoBootstrap bootstrap =
+            FindFirstObjectByType<YourQuestTutorialAutoBootstrap>();
+
+        if (bootstrap == null)
+            return;
+
+        // note: Returning from a failed generation attempt restarts the one authoritative startup coroutine instead of opening a title screen with no owner waiting for its result.
+        bootstrap.StopAllCoroutines();
+        RuntimeModalUiBlocker.Release(StartupBlockToken);
+        GameplayRuntimeReady = false;
+        GameplayPresentationReleased = false;
+        bootstrap.StartCoroutine(bootstrap.BootstrapRoutine());
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRuntimeStatics()
     {
@@ -167,32 +183,23 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         if (ownsOrdinaryLoading && loading != null)
             loading.SetStage("Materializing the authored world", 0.92f);
 
-        float worldWarningDeadline = Time.unscaledTime + 240f;
-        bool worldDelayWarningIssued = false;
-
         while (worldBuilder == null ||
                !worldBuilder.HasMaterializedCurrentWorld)
         {
-            if (!worldDelayWarningIssued &&
-                Time.unscaledTime >= worldWarningDeadline)
-            {
-                worldDelayWarningIssued = true;
-                Debug.LogError(
-                    "[YourQuestTutorialAutoBootstrap] Production world has exceeded the startup target. " +
-                    "Startup remains fail-closed and will continue waiting for a valid materialized world.");
-
-                // note: Keep the recoverable startup coroutine alive and the modal visible; a late valid transaction may still complete without restarting the process.
-                loading?.SetStage(
-                    "World generation is still running; gameplay remains safely locked",
-                    0.94f);
-            }
-
             if (worldBuilder == null)
             {
                 worldBuilder = YQGeneratedWorldRuntimeBuilder.Instance != null
                     ? YQGeneratedWorldRuntimeBuilder.Instance
                     : EnsureSingleton<YQGeneratedWorldRuntimeBuilder>(
                         "YQGeneratedWorldRuntimeBuilder");
+            }
+
+            // note: The world builder owns the single bounded startup watchdog and its interactive recovery UI; bootstrap remains dormant until Retry or Return resolves that state.
+            if (worldBuilder != null &&
+                worldBuilder.InitialGenerationRecoveryRequired)
+            {
+                yield return null;
+                continue;
             }
 
             yield return null;

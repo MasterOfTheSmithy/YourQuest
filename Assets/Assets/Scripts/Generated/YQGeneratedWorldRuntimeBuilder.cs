@@ -111,6 +111,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         private set;
     }
 
+    public bool InitialGenerationRecoveryRequired =>
+        _initialGenerationWatchdogAborted;
+
     public bool HasMaterializedCurrentWorld
     {
         get
@@ -1452,9 +1455,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         DestroyRuntimeRootOnly();
         ReleaseInitialGenerationGameplayLock();
         YQTitleEnvironmentLoader.ReleaseWorldGeneration();
-
-        if (YQTitleScreenUI.Instance != null)
-            YQTitleScreenUI.Instance.OpenAtStartup();
+        YourQuestTutorialAutoBootstrap.RestartAfterGenerationFailure();
     }
 
     private float ResolveInitialGenerationStageHold()
