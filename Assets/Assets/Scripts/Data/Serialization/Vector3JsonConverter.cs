@@ -78,3 +78,4 @@ public sealed class QuaternionJsonConverter : JsonConverter<Quaternion>
         return new Quaternion(x, y, z, w);
     }
 }
+

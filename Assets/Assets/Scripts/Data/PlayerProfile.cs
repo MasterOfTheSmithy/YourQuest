@@ -35,7 +35,9 @@ public class PlayerProfile : MonoBehaviour
 
     public void ReplaceEquippedSkill(SkillData newSkill)
     {
-        // For now ìreplaceî just means equip into that type slot.
+        // For now ‚Äúreplace‚Äù just means equip into that type slot.
         EquipSkill(newSkill);
     }
 }
+
+

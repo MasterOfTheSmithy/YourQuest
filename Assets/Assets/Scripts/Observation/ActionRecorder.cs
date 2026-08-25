@@ -45,6 +45,7 @@ public class ActionRecorder : MonoBehaviour
     public float combatCooldown = 0.25f;
     public float crouchCooldown = 0.6f;
     public float dodgeCooldown = 0.5f;
+    public float climbCooldown = 0.65f;
     public float interactCooldown = 0.4f;
 
     private readonly Dictionary<string, float> lastRecorded = new Dictionary<string, float>();
@@ -62,6 +63,7 @@ public class ActionRecorder : MonoBehaviour
             { "combat", combatCooldown },
             { "crouch", crouchCooldown },
             { "dodge", dodgeCooldown },
+            { "climb", climbCooldown },
             { "interact", interactCooldown }
         };
     }
@@ -115,7 +117,29 @@ public class ActionRecorder : MonoBehaviour
         if (Accumulator != null)
             Accumulator.AddEvent(ev);
 
+        // note: Progression offers need current-session evidence, not only counters from the delayed ledger rollup.
+        ApplyImmediateBehaviorCounters(ev);
+
         lastRecorded[key] = Time.time;
+    }
+
+    private static void ApplyImmediateBehaviorCounters(ActionEvent ev)
+    {
+        if (ev == null || ev.BehaviorCountersApplied)
+            return;
+
+        PlayerStateManager manager = PlayerStateManager.Instance;
+        PlayerState state = manager != null ? manager.state : null;
+        if (state == null)
+            return;
+
+        string verb = string.IsNullOrWhiteSpace(ev.Verb) ? "unknown" : ev.Verb.Trim().ToLowerInvariant();
+        string region = string.IsNullOrWhiteSpace(ev.RegionId) ? "region_unknown" : ev.RegionId.Trim().ToLowerInvariant();
+
+        // note: Keep these keys identical to the delayed rollup so evidence gates work consistently in every session.
+        state.IncCounter("verb:" + verb, 1f);
+        state.IncCounter("region:" + region, 1f);
+        ev.BehaviorCountersApplied = true;
     }
 
     public void RecordMove()
@@ -151,6 +175,13 @@ public class ActionRecorder : MonoBehaviour
         var pos = transform.position;
         GetRegionContext(pos, out var regionId, out var regionName);
         Record("dodge", new ActionEvent("dodge", 0.7f, null, pos, null, regionId, regionName));
+    }
+
+    public void RecordClimb()
+    {
+        var pos = transform.position;
+        GetRegionContext(pos, out var regionId, out var regionName);
+        Record("climb", new ActionEvent("climb", 0.7f, null, pos, null, regionId, regionName));
     }
 
     public void RecordInteract(GameObject target)

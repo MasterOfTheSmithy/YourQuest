@@ -59,3 +59,4 @@ public class EntityInfo : MonoBehaviour
             factionId = "none";
     }
 }
+

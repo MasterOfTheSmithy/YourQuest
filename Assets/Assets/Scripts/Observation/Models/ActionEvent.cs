@@ -32,6 +32,9 @@ public class ActionEvent
     public float TimeSinceStart;    // Time.time at capture
     public long UnixTime;           // DateTimeOffset.UtcNow
 
+    // note: Prevent the delayed behavior rollup from counting an event already reflected in live progression evidence.
+    public bool BehaviorCountersApplied;
+
     public ActionEvent(
         string verb,
         float significance,

@@ -62,6 +62,9 @@ public class DirectorPromptBuilder : MonoBehaviour
         sb.AppendLine($"World: {worldName}  Region: {regionId}");
         sb.AppendLine();
 
+        AppendGeneratedWorldPlanCompact(sb);
+        sb.AppendLine();
+
         AppendHeader(sb, "CANON_LEDGER");
         sb.AppendLine(string.IsNullOrWhiteSpace(canonLedger) ? "Canon: <unset>" : canonLedger.Trim());
         sb.AppendLine();
@@ -258,7 +261,7 @@ public class DirectorPromptBuilder : MonoBehaviour
 
         sb.AppendLine("RECENT_ACTIONS_SUMMARY:");
         // You likely have something like eventAccumulator.GetSummaryLines()
-        // We’ll do a conservative approach: ask it for a string if you have it, otherwise <wired later>.
+        // We'll do a conservative approach: ask it for a string if you have it, otherwise <wired later>.
         string summary = TryGetAccumulatorSummary(out var s) ? s : null;
         if (!string.IsNullOrWhiteSpace(summary))
         {
@@ -329,6 +332,49 @@ public class DirectorPromptBuilder : MonoBehaviour
         else
         {
             sb.AppendLine("<none>");
+        }
+    }
+
+    private void AppendGeneratedWorldPlanCompact(StringBuilder sb)
+    {
+        AppendHeader(sb, "GENERATED_WORLD_PLAN (compact)");
+        if (worldStateManager == null)
+        {
+            sb.AppendLine("<none>");
+            return;
+        }
+
+        WorldState ws = worldStateManager.GetWorldState();
+        GeneratedWorldPlanRecord plan = ws != null ? ws.generatedWorldPlan : null;
+        if (plan == null || string.IsNullOrWhiteSpace(plan.worldSeed))
+        {
+            sb.AppendLine("<none>");
+            return;
+        }
+
+        plan.EnsureCollections();
+        sb.AppendLine($"Seed: {plan.worldSeed} | Source: {plan.source}");
+        sb.AppendLine($"Summary: {plan.summary}");
+        sb.AppendLine($"Budget: {plan.targetPlayableHoursMin}-{plan.targetPlayableHoursMax}h | Regions {plan.regions.Count} | Settlements {plan.settlements.Count} | Encampments {plan.encampments.Count} | AssetPalettes {plan.assetPalettes.Count}");
+
+        int regionCount = 0;
+        for (int i = 0; i < plan.regions.Count && regionCount < 4; i++)
+        {
+            GeneratedRegionRecord region = plan.regions[i];
+            if (region == null)
+                continue;
+            sb.AppendLine($"- Region: {region.displayName} ({region.regionId}) | T{region.dangerTier} | Style {region.assetStyleKey} | {region.playerPressure}");
+            regionCount++;
+        }
+
+        int paletteCount = 0;
+        for (int i = 0; i < plan.assetPalettes.Count && paletteCount < 3; i++)
+        {
+            GeneratedRegionAssetPaletteRecord palette = plan.assetPalettes[i];
+            if (palette == null)
+                continue;
+            sb.AppendLine($"- Palette: {palette.styleKey} ({palette.paletteId}) | Region {palette.regionId} | Slots floor={palette.floor.Count} wall={palette.wall.Count} deco={palette.floorDeco.Count + palette.wallDeco.Count}");
+            paletteCount++;
         }
     }
 

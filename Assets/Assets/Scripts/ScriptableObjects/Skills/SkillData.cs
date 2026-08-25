@@ -9,7 +9,7 @@ public class SkillData : ScriptableObject
     [Header("Skill Family")]
     public string familyId;       // same for all tiers in a family
     [Min(1)] public int tier = 1; // Tier 1 = base, Tier 2+ = upgrades
-    public string parentSkillId;  // previous tier’s skillId (optional)
+    public string parentSkillId;  // previous tierâ€™s skillId (optional)
 
     [Header("Skill Info")]
     public string skillName;

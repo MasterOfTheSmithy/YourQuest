@@ -30,8 +30,8 @@ public class EventAccumulator : MonoBehaviour
     public IReadOnlyList<ActionEvent> GetEvents() => actionEvents;
 
     /// <summary>
-    /// Clears buffered action events after you’ve applied a progression decision,
-    /// so you don’t double-award off the same evidence.
+    /// Clears buffered action events after youâ€™ve applied a progression decision,
+    /// so you donâ€™t double-award off the same evidence.
     /// </summary>
     public void ClearEvents() => actionEvents.Clear();
 
@@ -49,7 +49,7 @@ public class EventAccumulator : MonoBehaviour
     {
         int removed = 0;
 
-        // Remove from back (safe even if list order isn’t perfect)
+        // Remove from back (safe even if list order isnâ€™t perfect)
         for (int i = actionEvents.Count - 1; i >= 0; i--)
         {
             var e = actionEvents[i];

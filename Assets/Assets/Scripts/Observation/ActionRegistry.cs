@@ -98,7 +98,7 @@ public class ActionRegistry : MonoBehaviour
     }
 
     /// <summary>
-    /// Quick helper for building an LLM-friendly ìbehavior memoryî string.
+    /// Quick helper for building an LLM-friendly ‚Äúbehavior memory‚Äù string.
     /// </summary>
     public string BuildBehaviorSummary(int top = 20)
     {
@@ -159,7 +159,7 @@ public class ActionRegistry : MonoBehaviour
             Verb = verb ?? "unknown";
             Scene = scene ?? "unknown";
             Region = region ?? "unknown";
-            TargetName = targetName ?? ""; // empty is valid for ìno targetî
+            TargetName = targetName ?? ""; // empty is valid for ‚Äúno target‚Äù
         }
 
         public bool Equals(ActionKey other)
@@ -231,3 +231,4 @@ public class ActionRegistry : MonoBehaviour
 
     #endregion
 }
+

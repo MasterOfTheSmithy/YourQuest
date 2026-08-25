@@ -97,7 +97,7 @@ public static class ProgressionMath
         baseScore += bestVerbCount * 0.15f;
 
         // Diminishing returns for spam
-        // If player just repeats one verb endlessly, the *first part* counts, then it starts to “normalize”.
+        // If player just repeats one verb endlessly, the *first part* counts, then it starts to â€œnormalizeâ€.
         float spamPenalty = 0f;
         if (bestVerbCount > 1)
         {
@@ -117,7 +117,7 @@ public static class ProgressionMath
             finalScore *= cfg.varietyBonusMultiplier;
 
         if (!string.IsNullOrWhiteSpace(bestRegion) && bestRegion.StartsWith("region_"))
-            finalScore *= cfg.semanticRegionBonus;
+            finalScore *= Mathf.Clamp(cfg.semanticRegionBonus, 0.95f, 1.03f);
 
         r.score = finalScore;
         r.dominantVerb = bestVerb;

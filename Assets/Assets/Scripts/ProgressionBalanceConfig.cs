@@ -12,21 +12,21 @@ public class ProgressionBalanceConfig : ScriptableObject
 
     [Header("Thresholds (earned-ness score)")]
     [Tooltip("If the score is below this, do nothing (no LLM call).")]
-    public float minScoreToConsider = 8f;
+    public float minScoreToConsider = 12f;
 
     [Tooltip("Skill-tier reward consideration threshold.")]
-    public float scoreForSkillCandidate = 18f;
+    public float scoreForSkillCandidate = 24f;
 
     [Tooltip("Title candidate threshold.")]
-    public float scoreForTitleCandidate = 22f;
+    public float scoreForTitleCandidate = 34f;
 
     [Tooltip("Quest hook threshold.")]
-    public float scoreForQuestCandidate = 26f;
+    public float scoreForQuestCandidate = 38f;
 
     [Header("Cooldowns (seconds)")]
-    public float skillCooldown = 300f;   // 5m
-    public float titleCooldown = 600f;   // 10m
-    public float questCooldown = 420f;   // 7m
+    public float skillCooldown = 420f;   // 7m
+    public float titleCooldown = 900f;   // 15m
+    public float questCooldown = 720f;   // 12m
 
     [Header("Diminishing Returns")]
     [Range(0.05f, 1f)]
@@ -42,9 +42,9 @@ public class ProgressionBalanceConfig : ScriptableObject
     [Tooltip("Bonus multiplier when actions occur under threat / danger context.")]
     public float dangerBonusMultiplier = 1.25f;
 
-    [Tooltip("Bonus when actions happen in a semantic region instead of generic grid bucket.")]
-    public float semanticRegionBonus = 1.10f;
+    [Tooltip("Legacy context multiplier for semantic regions. Keep near 1 so player behavior, not location names, drives progression.")]
+    public float semanticRegionBonus = 1.00f;
 
-    [Tooltip("Bonus when the player’s actions show variety (not only one verb).")]
+    [Tooltip("Bonus when the playerâ€™s actions show variety (not only one verb).")]
     public float varietyBonusMultiplier = 1.15f;
 }

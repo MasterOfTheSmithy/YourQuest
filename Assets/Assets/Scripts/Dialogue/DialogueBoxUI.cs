@@ -1,13 +1,14 @@
-// C:\Users\Garri\YourQuest\Assets\Assets\Scripts\Dialogue\DialogueBoxUI.cs
+// Assets/Assets/Scripts/Dialogue/DialogueBoxUI.cs
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class DialogueBoxUI : MonoBehaviour
@@ -15,24 +16,13 @@ public sealed class DialogueBoxUI : MonoBehaviour
     [Header("Interaction")]
     public Transform playerRoot;
     public Camera viewCamera;
-
-    [Tooltip("Layer(s) to search for NPC colliders.")]
     public LayerMask entityMask = ~0;
-
-    [Tooltip("Layers that can block LOS. Exclude Player + NPC.")]
     public LayerMask occluderMask = ~0;
-
-    [Range(0.5f, 12f)]
-    public float talkRadius = 4f;
-
-    [Tooltip("Where LOS ray starts (if null, uses camera position).")]
+    [Range(0.5f, 12f)] public float talkRadius = 4f;
     public Transform losOrigin;
 
     [Header("Targeting Rules")]
-    [Tooltip("If true, requires LOS (raycast against occluderMask).")]
     public bool requireLineOfSight = true;
-
-    [Tooltip("If true, NPC must have a NpcDialogueAgent to be considered talkable.")]
     public bool requireDialogueAgent = true;
 
     [Header("Debug")]
@@ -41,14 +31,9 @@ public sealed class DialogueBoxUI : MonoBehaviour
     [Header("UI")]
     [Range(10, 36)] public int fontSize = 18;
     [Range(8, 28)] public int headerFontSize = 20;
-
-    [Tooltip("Font size for the large latest NPC reply panel above the transcript.")]
     [Range(10, 42)] public int npcResponseFontSize = 24;
-
     [Range(200, 900)] public int panelWidth = 720;
     [Range(200, 900)] public int panelHeight = 520;
-
-    [Tooltip("Height for the large latest NPC reply panel.")]
     [Range(60, 240)] public int npcResponsePanelHeight = 130;
 
     [Header("Behavior")]
@@ -56,58 +41,44 @@ public sealed class DialogueBoxUI : MonoBehaviour
     public bool unlockCursorWhenOpen = true;
 
     [Header("Input Blocking While Open")]
-    [Tooltip("Disables PlayerInput components under playerRoot while dialogue is open (stops move/jump/etc).")]
     public bool disablePlayerInputWhileOpen = true;
-
-    [Tooltip("Also disables any MonoBehaviour named 'InputIntentRecorder' under playerRoot while open.")]
     public bool disableInputIntentRecorderWhileOpen = true;
 
     private Canvas _canvas;
+    private CanvasScaler _canvasScaler;
     private GameObject _root;
-
     private TMP_Text _headerText;
-
-    // Big panel above transcript
     private TMP_Text _npcResponseText;
-
     private TMP_Text _transcriptText;
     private ScrollRect _scrollRect;
-
     private TMP_InputField _inputField;
     private Button _sendButton;
     private Button _closeButton;
-
     private EntityInfo _activeEntity;
     private NpcDialogueAgent _activeAgent;
-
     private bool _isOpen;
-
     private bool _pausedByUs;
     private float _previousTimeScale = 1f;
-
     private CursorLockMode _prevCursorLock;
     private bool _prevCursorVisible;
     private bool _cursorCaptured;
-
     private PlayerInput[] _blockedPlayerInputs;
     private MonoBehaviour[] _blockedIntentRecorders;
 
     private void Reset()
     {
-        viewCamera = Camera.main;
+        ResolveViewCamera();
+        ResolvePlayerRoot();
     }
 
     private void Awake()
     {
-        if (viewCamera == null) viewCamera = Camera.main;
-        if (playerRoot == null) playerRoot = transform;
-
+        ResolveViewCamera();
+        ResolvePlayerRoot();
         EnsureEventSystem_InputSystem();
         BuildUI();
-
         _root.SetActive(false);
         _isOpen = false;
-
         AppendSystemLine("Press E near an NPC to talk.");
     }
 
@@ -116,6 +87,8 @@ public sealed class DialogueBoxUI : MonoBehaviour
         if (_isOpen) Close();
         else
         {
+            // note: Runtime NPCs can outlive this canvas; always release the transcript event when presentation is disabled.
+            SetActiveAgent(null);
             RestoreTimeScaleIfNeeded();
             RestoreCursorIfNeeded();
             RestoreGameplayInputsIfNeeded();
@@ -124,6 +97,9 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
     private void Update()
     {
+        ResolveViewCamera();
+        ResolvePlayerRoot();
+
         var kb = Keyboard.current;
         if (kb == null) return;
 
@@ -134,31 +110,73 @@ public sealed class DialogueBoxUI : MonoBehaviour
         }
         else
         {
-            // Block “other keys doing other things” by disabling gameplay inputs.
-            // Here we only handle dialogue controls.
             if (kb.escapeKey.wasPressedThisFrame)
             {
                 Close();
                 return;
             }
 
-            // Enter sends even if the input loses focus; we re-focus.
             if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)
                 TrySend();
         }
     }
 
-    private void TryOpenNearestNpc()
+    private void ResolvePlayerRoot()
     {
-        if (debugLogs)
+        if (playerRoot) return;
+
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
         {
-            Debug.Log($"[DialogueBoxUI] E pressed. center={playerRoot.position} radius={talkRadius} entityMask={entityMask.value} occluderMask={occluderMask.value} requireLOS={requireLineOfSight}");
+            playerRoot = player.transform;
+            return;
         }
 
-        var nearest = FindNearestTalkableNpc(out string reason);
+        PlayerController controller = FindFirstObjectByType<PlayerController>();
+        if (controller != null)
+        {
+            playerRoot = controller.transform;
+            return;
+        }
+
+        CharacterController cc = FindFirstObjectByType<CharacterController>();
+        if (cc != null)
+            playerRoot = cc.transform;
+    }
+
+    private void ResolveViewCamera()
+    {
+        if (viewCamera) return;
+        if (Camera.main != null)
+        {
+            viewCamera = Camera.main;
+            return;
+        }
+
+        viewCamera = FindFirstObjectByType<Camera>();
+    }
+
+    private void TryOpenNearestNpc()
+    {
+        ResolvePlayerRoot();
+        ResolveViewCamera();
+
+        if (!playerRoot)
+        {
+            if (debugLogs) Debug.LogWarning("[DialogueBoxUI] Cannot open dialogue. playerRoot is null.");
+            return;
+        }
+
+        EntityInfo nearest = FindNearestTalkableNpc(out string reason);
         if (nearest == null)
         {
             if (debugLogs) Debug.Log($"[DialogueBoxUI] No talk target. Reason: {reason}");
+            return;
+        }
+
+        if (!nearest)
+        {
+            if (debugLogs) Debug.LogWarning("[DialogueBoxUI] Candidate was destroyed before open.");
             return;
         }
 
@@ -177,16 +195,16 @@ public sealed class DialogueBoxUI : MonoBehaviour
     private EntityInfo FindNearestTalkableNpc(out string reason)
     {
         reason = "unknown";
+        ResolvePlayerRoot();
+        ResolveViewCamera();
 
-        if (playerRoot == null)
+        if (!playerRoot)
         {
             reason = "playerRoot null";
             return null;
         }
 
         Vector3 center = playerRoot.position;
-
-        // Uses your existing EntityIndex API.
         List<EntityInfo> nearby = EntityIndex.FindNearbyEntities(center, talkRadius, entityMask, maxResults: 24, requireEntityInfo: true);
         if (nearby == null || nearby.Count == 0)
         {
@@ -195,25 +213,24 @@ public sealed class DialogueBoxUI : MonoBehaviour
         }
 
         Vector3 origin = GetLosOrigin();
-
         EntityInfo best = null;
         float bestDistSq = float.MaxValue;
 
         for (int i = 0; i < nearby.Count; i++)
         {
-            var e = nearby[i];
-            if (e == null) continue;
+            EntityInfo e = nearby[i];
+            if (!e) continue;
+            Transform candidateTransform = e.transform;
+            if (!candidateTransform) continue;
+            if (requireDialogueAgent && e.GetComponentInChildren<NpcDialogueAgent>() == null) continue;
 
-            if (requireDialogueAgent && e.GetComponentInChildren<NpcDialogueAgent>() == null)
-                continue;
-
-            Vector3 target = e.transform.position;
+            Vector3 target = candidateTransform.position;
             float dSq = (target - center).sqrMagnitude;
             if (dSq >= bestDistSq) continue;
 
             if (requireLineOfSight)
             {
-                if (!HasLineOfSight(origin, target + Vector3.up * 1.4f, occluderMask, out RaycastHit hit))
+                if (!HasLineOfSightToEntity(e, origin, target + Vector3.up * 1.4f, occluderMask, out RaycastHit hit))
                 {
                     if (debugLogs)
                     {
@@ -239,43 +256,72 @@ public sealed class DialogueBoxUI : MonoBehaviour
         return best;
     }
 
-    private static bool HasLineOfSight(Vector3 from, Vector3 to, LayerMask occluderMask, out RaycastHit hit)
+    private bool HasLineOfSightToEntity(EntityInfo entity, Vector3 from, Vector3 to, LayerMask mask, out RaycastHit blockingHit)
     {
+        blockingHit = default;
+        if (!entity) return false;
+
         Vector3 dir = to - from;
         float dist = dir.magnitude;
-        if (dist <= 0.01f)
+        if (dist <= 0.01f) return true;
+        dir /= dist;
+
+        RaycastHit[] hits = Physics.RaycastAll(from, dir, dist, mask, QueryTriggerInteraction.Ignore);
+        if (hits == null || hits.Length == 0) return true;
+        Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        Transform entityRoot = entity.transform;
+        Transform player = playerRoot;
+
+        for (int i = 0; i < hits.Length; i++)
         {
-            hit = default;
-            return true;
+            Collider col = hits[i].collider;
+            if (col == null) continue;
+            Transform hitTransform = col.transform;
+            if (hitTransform == null) continue;
+
+            if (entityRoot && (hitTransform == entityRoot || hitTransform.IsChildOf(entityRoot)))
+                continue;
+
+            if (player && (hitTransform == player || hitTransform.IsChildOf(player)))
+                continue;
+
+            blockingHit = hits[i];
+            return false;
         }
 
-        dir /= dist;
-        return !Physics.Raycast(from, dir, out hit, dist, occluderMask, QueryTriggerInteraction.Ignore);
+        return true;
     }
 
     private Vector3 GetLosOrigin()
     {
-        if (losOrigin != null) return losOrigin.position;
-        if (viewCamera != null) return viewCamera.transform.position;
-        return playerRoot != null ? (playerRoot.position + Vector3.up * 1.6f) : Vector3.zero;
+        if (losOrigin) return losOrigin.position;
+        if (viewCamera) return viewCamera.transform.position;
+        if (playerRoot) return playerRoot.position + Vector3.up * 1.6f;
+        return Vector3.zero;
     }
 
     private void Open(EntityInfo entity, NpcDialogueAgent agent)
     {
+        if (!entity) return;
+        if (requireDialogueAgent && agent == null) return;
+
+        _activeEntity = entity;
+        SetActiveAgent(agent);
+        _activeAgent?.RefreshIdentityAndSession();
+
+        ResolvePlayerRoot();
         _isOpen = true;
         _root.SetActive(true);
 
         if (pauseTimeWhenOpen) PauseTime();
         if (unlockCursorWhenOpen) CaptureAndUnlockCursor();
-
         BlockGameplayInputsIfNeeded();
 
-        _headerText.text = $"Talking to: {entity.displayName}  ({entity.entityId})";
-
-        // Large top panel: latest NPC line / initial prompt
-        _npcResponseText.text = $"<color=#FFD36F><b>{Escape(entity.displayName)}:</b></color>\n<i>Speak. Don’t waste my time.</i>";
-
-        AppendSystemLine("Type your message and press Enter.");
+        _headerText.text = $"Talking to: {entity.displayName} ({entity.entityId})";
+        string lastLine = agent != null && !string.IsNullOrWhiteSpace(agent.LastNpcLine) ? agent.LastNpcLine.Trim() : "Conversation ready.";
+        _npcResponseText.text = $"<color=#FFD36F><b>{Escape(entity.displayName)}:</b></color>\n{Escape(lastLine)}";
+        RebuildTranscriptFromAgent();
         FocusInput();
     }
 
@@ -283,19 +329,16 @@ public sealed class DialogueBoxUI : MonoBehaviour
     {
         _isOpen = false;
         _root.SetActive(false);
-
         RestoreTimeScaleIfNeeded();
         RestoreCursorIfNeeded();
         RestoreGameplayInputsIfNeeded();
-
         _activeEntity = null;
-        _activeAgent = null;
+        SetActiveAgent(null);
     }
 
     private void TrySend()
     {
         if (!_isOpen) return;
-
         if (_activeAgent == null)
         {
             AppendSystemLine("NPC missing NpcDialogueAgent.");
@@ -311,31 +354,21 @@ public sealed class DialogueBoxUI : MonoBehaviour
         }
 
         playerText = playerText.Trim();
-
         if (_inputField != null) _inputField.text = string.Empty;
-
         AppendPlayerLine(playerText);
         FocusInput();
-
-        // Prevent double click / Enter spam while request is pending
         if (_sendButton != null) _sendButton.interactable = false;
 
         _activeAgent.SendPlayerMessage(playerText, npcReply =>
         {
             if (_sendButton != null) _sendButton.interactable = true;
-
             string npcName = _activeEntity != null ? _activeEntity.displayName : (_activeAgent != null ? _activeAgent.NpcName : "NPC");
             string reply = string.IsNullOrWhiteSpace(npcReply) ? "<no response>" : npcReply.Trim();
-
-            // Update the big top panel
             _npcResponseText.text = $"<color=#FFD36F><b>{Escape(npcName)}:</b></color>\n{Escape(reply)}";
-
-            AppendNpcLine(npcName, reply);
+            RebuildTranscriptFromAgent();
             FocusInput();
         });
     }
-
-    // ---- Time/Cursor ----
 
     private void PauseTime()
     {
@@ -371,11 +404,10 @@ public sealed class DialogueBoxUI : MonoBehaviour
         _cursorCaptured = false;
     }
 
-    // ---- Gameplay input blocking ----
-
     private void BlockGameplayInputsIfNeeded()
     {
-        if (playerRoot == null) return;
+        ResolvePlayerRoot();
+        if (!playerRoot) return;
 
         if (disablePlayerInputWhileOpen)
         {
@@ -390,7 +422,6 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
         if (disableInputIntentRecorderWhileOpen)
         {
-            // Avoid hard reference. Match by type name.
             var all = playerRoot.GetComponentsInChildren<MonoBehaviour>(true);
             var list = new List<MonoBehaviour>(8);
             for (int i = 0; i < all.Length; i++)
@@ -432,8 +463,6 @@ public sealed class DialogueBoxUI : MonoBehaviour
         }
     }
 
-    // ---- Transcript ----
-
     private void AppendSystemLine(string s) => AppendLine($"<color=#AAAAAA>[system]</color> {Escape(s)}");
     private void AppendPlayerLine(string s) => AppendLine($"<color=#6FC1FF>[you]</color> {Escape(s)}");
     private void AppendNpcLine(string npcName, string s) => AppendLine($"<color=#FFD36F>[{Escape(npcName)}]</color> {Escape(s)}");
@@ -441,30 +470,94 @@ public sealed class DialogueBoxUI : MonoBehaviour
     private void AppendLine(string richTextLine)
     {
         if (_transcriptText == null) return;
+        if (string.IsNullOrEmpty(_transcriptText.text)) _transcriptText.text = richTextLine;
+        else _transcriptText.text += "\n" + richTextLine;
+        if (_scrollRect != null) StartCoroutine(ScrollToBottomNextFrame());
+    }
 
-        if (string.IsNullOrEmpty(_transcriptText.text))
-            _transcriptText.text = richTextLine;
-        else
-            _transcriptText.text += "\n" + richTextLine;
+    private void RebuildTranscriptFromAgent()
+    {
+        if (_transcriptText == null)
+            return;
 
-        if (_scrollRect != null)
-            StartCoroutine(ScrollToBottomNextFrame());
+        if (_activeAgent == null)
+        {
+            _transcriptText.text = "<color=#AAAAAA>[system]</color> No NPC transcript available.";
+            if (_scrollRect != null) StartCoroutine(ScrollToBottomNextFrame());
+            return;
+        }
+
+        List<DialogueTurn> turns = _activeAgent.GetRecentTurnsSnapshot(256);
+        if (turns == null || turns.Count == 0)
+        {
+            _transcriptText.text = "<color=#AAAAAA>[system]</color> Conversation ready.";
+            if (_scrollRect != null) StartCoroutine(ScrollToBottomNextFrame());
+            return;
+        }
+
+        string npcName = _activeEntity != null ? _activeEntity.displayName : _activeAgent.NpcName;
+        StringBuilder sb = new StringBuilder(4096);
+        for (int i = 0; i < turns.Count; i++)
+        {
+            DialogueTurn turn = turns[i];
+            if (turn == null || string.IsNullOrWhiteSpace(turn.text))
+                continue;
+
+            string speaker = string.IsNullOrWhiteSpace(turn.speaker) ? "npc" : turn.speaker.Trim().ToLowerInvariant();
+            sb.Append(speaker == "player"
+                ? "<color=#6FC1FF>[you]</color> "
+                : "<color=#FFD36F>[" + Escape(npcName) + "]</color> ");
+            sb.Append(Escape(turn.text.Trim()));
+            if (i < turns.Count - 1)
+                sb.Append('\n');
+        }
+
+        _transcriptText.text = sb.ToString();
+        if (_scrollRect != null) StartCoroutine(ScrollToBottomNextFrame());
+    }
+
+    private void SetActiveAgent(
+        NpcDialogueAgent agent)
+    {
+        if (_activeAgent != null)
+        {
+            _activeAgent.TranscriptChanged -=
+                HandleActiveTranscriptChanged;
+        }
+
+        _activeAgent =
+            agent;
+
+        if (_activeAgent != null)
+        {
+            // note: Both the committed player turn and asynchronous NPC reply rebuild from the persisted session, keeping the visible transcript authoritative.
+            _activeAgent.TranscriptChanged +=
+                HandleActiveTranscriptChanged;
+        }
+    }
+
+    private void HandleActiveTranscriptChanged()
+    {
+        if (!_isOpen ||
+            _activeAgent == null)
+        {
+            return;
+        }
+
+        RebuildTranscriptFromAgent();
     }
 
     private IEnumerator ScrollToBottomNextFrame()
     {
         yield return null;
-        if (_scrollRect != null)
-            _scrollRect.verticalNormalizedPosition = 0f;
+        if (_scrollRect != null) _scrollRect.verticalNormalizedPosition = 0f;
     }
 
     private static string Escape(string s)
     {
-        if (string.IsNullOrEmpty(s)) return "";
-        return s.Replace("<", "‹").Replace(">", "›");
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        return s.Replace("<", "&lt;").Replace(">", "&gt;");
     }
-
-    // ---- UI Build ----
 
     private void BuildUI()
     {
@@ -473,32 +566,36 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
         _canvas = _root.AddComponent<Canvas>();
         _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        _canvas.pixelPerfect = false;
 
-        _root.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        _canvasScaler = _root.AddComponent<CanvasScaler>();
+        // note: Dialogue uses the shared UI scale so it matches the tutorial and menu overlays.
+        YQUITheme.ApplyCanvasScaler(_canvasScaler);
+
         _root.AddComponent<GraphicRaycaster>();
 
-        var panelGO = CreateUIObject("Panel", _root.transform);
-        var panelRT = panelGO.GetComponent<RectTransform>();
+        GameObject panelGO = CreateUIObject("Panel", _root.transform);
+        RectTransform panelRT = panelGO.GetComponent<RectTransform>();
         panelRT.anchorMin = new Vector2(0.5f, 0f);
         panelRT.anchorMax = new Vector2(0.5f, 0f);
         panelRT.pivot = new Vector2(0.5f, 0f);
         panelRT.anchoredPosition = new Vector2(0f, 20f);
         panelRT.sizeDelta = new Vector2(panelWidth, panelHeight);
 
-        var panelImg = panelGO.AddComponent<Image>();
-        panelImg.color = new Color(0f, 0f, 0f, 0.78f);
+        Image panelImg = panelGO.AddComponent<Image>();
+        YQUITheme.ApplyPanel(panelImg);
 
-        var vlg = panelGO.AddComponent<VerticalLayoutGroup>();
+        VerticalLayoutGroup vlg = panelGO.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(14, 14, 12, 12);
         vlg.spacing = 10;
         vlg.childForceExpandHeight = false;
         vlg.childForceExpandWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childControlWidth = true;
 
-        // Header row
-        var headerRowGO = CreateUIObject("HeaderRow", panelRT);
-        AddLayout(headerRowGO, flexibleWidth: 1, preferredWidth: -1, preferredHeight: 36);
-
-        var hlg = headerRowGO.AddComponent<HorizontalLayoutGroup>();
+        GameObject headerRowGO = CreateUIObject("HeaderRow", panelRT);
+        AddLayout(headerRowGO, 1f, -1f, 36f);
+        HorizontalLayoutGroup hlg = headerRowGO.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 10;
         hlg.childAlignment = TextAnchor.MiddleLeft;
         hlg.childForceExpandWidth = true;
@@ -507,118 +604,117 @@ public sealed class DialogueBoxUI : MonoBehaviour
         _headerText = CreateTMPText("HeaderText", headerRowGO.transform, headerFontSize, FontStyles.Bold);
         _headerText.text = "Dialogue";
         _headerText.alignment = TextAlignmentOptions.MidlineLeft;
-        AddLayout(_headerText.gameObject, flexibleWidth: 1, preferredWidth: -1, preferredHeight: 36);
+        _headerText.color = YQUITheme.Gold;
+        AddLayout(_headerText.gameObject, 1f, -1f, 36f);
 
-        _closeButton = CreateButton("CloseButton", headerRowGO.transform, "X", height: 36, onClick: Close, preferredWidth: 90);
+        _closeButton = CreateButton("CloseButton", headerRowGO.transform, "X", 36, Close, 90f);
 
-        // Big NPC response panel
-        var npcPanelGO = CreateUIObject("NpcResponsePanel", panelRT);
-        npcPanelGO.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.07f);
-        AddLayout(npcPanelGO, flexibleWidth: 1, preferredWidth: -1, preferredHeight: npcResponsePanelHeight);
+        GameObject npcPanelGO = CreateUIObject("NpcResponsePanel", panelRT);
+        // note: The NPC answer gets a softer inset panel so the active response is easier to scan.
+        YQUITheme.ApplySoftPanel(npcPanelGO.AddComponent<Image>());
+        AddLayout(npcPanelGO, 1f, -1f, npcResponsePanelHeight);
 
-        var npcInner = CreateUIObject("NpcResponseInner", npcPanelGO.transform);
-        var npcInnerRT = npcInner.GetComponent<RectTransform>();
+        GameObject npcInner = CreateUIObject("NpcResponseInner", npcPanelGO.transform);
+        RectTransform npcInnerRT = npcInner.GetComponent<RectTransform>();
         npcInnerRT.anchorMin = Vector2.zero;
         npcInnerRT.anchorMax = Vector2.one;
-        npcInnerRT.offsetMin = new Vector2(12, 10);
-        npcInnerRT.offsetMax = new Vector2(-12, -10);
+        npcInnerRT.offsetMin = new Vector2(12f, 10f);
+        npcInnerRT.offsetMax = new Vector2(-12f, -10f);
 
         _npcResponseText = CreateTMPText("NpcResponseText", npcInner.transform, npcResponseFontSize, FontStyles.Normal);
-        _npcResponseText.enableWordWrapping = true;
+        _npcResponseText.textWrappingMode = TextWrappingModes.Normal;
         _npcResponseText.alignment = TextAlignmentOptions.TopLeft;
         _npcResponseText.margin = Vector4.zero;
         StretchToParent(_npcResponseText.rectTransform);
 
-        // Transcript scroll
-        var scrollGO = CreateUIObject("TranscriptScroll", panelRT);
-        scrollGO.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.06f);
-        AddLayout(scrollGO, flexibleWidth: 1, preferredWidth: -1, preferredHeight: -1); // flexible height: takes remaining
-
+        GameObject scrollGO = CreateUIObject("TranscriptScroll", panelRT);
+        YQUITheme.ApplySoftPanel(scrollGO.AddComponent<Image>());
+        AddLayout(scrollGO, 1f, -1f, -1f);
         _scrollRect = scrollGO.AddComponent<ScrollRect>();
         _scrollRect.horizontal = false;
 
-        var viewportGO = CreateUIObject("Viewport", scrollGO.transform);
-        var viewportRT = viewportGO.GetComponent<RectTransform>();
+        GameObject viewportGO = CreateUIObject("Viewport", scrollGO.transform);
+        RectTransform viewportRT = viewportGO.GetComponent<RectTransform>();
         viewportRT.anchorMin = Vector2.zero;
         viewportRT.anchorMax = Vector2.one;
-        viewportRT.offsetMin = new Vector2(10, 10);
-        viewportRT.offsetMax = new Vector2(-10, -10);
-
+        viewportRT.offsetMin = new Vector2(10f, 10f);
+        viewportRT.offsetMax = new Vector2(-10f, -10f);
         viewportGO.AddComponent<RectMask2D>();
-        viewportGO.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+        viewportGO.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
         _scrollRect.viewport = viewportRT;
 
-        var contentGO = CreateUIObject("Content", viewportRT);
-        var contentRT = contentGO.GetComponent<RectTransform>();
-        contentRT.anchorMin = new Vector2(0, 1);
-        contentRT.anchorMax = new Vector2(1, 1);
-        contentRT.pivot = new Vector2(0.5f, 1);
+        GameObject contentGO = CreateUIObject("Content", viewportRT);
+        RectTransform contentRT = contentGO.GetComponent<RectTransform>();
+        contentRT.anchorMin = new Vector2(0f, 1f);
+        contentRT.anchorMax = new Vector2(1f, 1f);
+        contentRT.pivot = new Vector2(0.5f, 1f);
         contentRT.anchoredPosition = Vector2.zero;
-        contentRT.sizeDelta = new Vector2(0, 0);
+        contentRT.sizeDelta = new Vector2(0f, 0f);
 
-        var contentVlg = contentGO.AddComponent<VerticalLayoutGroup>();
+        VerticalLayoutGroup contentVlg = contentGO.AddComponent<VerticalLayoutGroup>();
         contentVlg.childAlignment = TextAnchor.UpperLeft;
         contentVlg.childForceExpandHeight = false;
         contentVlg.childForceExpandWidth = true;
+        contentVlg.childControlHeight = true;
+        contentVlg.childControlWidth = true;
 
-        contentGO.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        ContentSizeFitter fitter = contentGO.AddComponent<ContentSizeFitter>();
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         _scrollRect.content = contentRT;
 
         _transcriptText = CreateTMPText("TranscriptText", contentGO.transform, fontSize, FontStyles.Normal);
-        _transcriptText.text = "";
-        _transcriptText.enableWordWrapping = true;
+        _transcriptText.text = string.Empty;
+        _transcriptText.textWrappingMode = TextWrappingModes.Normal;
         _transcriptText.alignment = TextAlignmentOptions.TopLeft;
         _transcriptText.margin = Vector4.zero;
-
-        // Critical: ensure full-width in layout so it doesn't crop the left side.
         StretchWidthForLayout(_transcriptText.rectTransform);
-        AddLayout(_transcriptText.gameObject, flexibleWidth: 1, preferredWidth: -1, preferredHeight: -1);
+        AddLayout(_transcriptText.gameObject, 1f, -1f, -1f);
 
-        // Input row
-        var inputRowGO = CreateUIObject("InputRow", panelRT);
-        AddLayout(inputRowGO, flexibleWidth: 1, preferredWidth: -1, preferredHeight: 44);
-
-        var inputHlg = inputRowGO.AddComponent<HorizontalLayoutGroup>();
+        GameObject inputRowGO = CreateUIObject("InputRow", panelRT);
+        AddLayout(inputRowGO, 1f, -1f, 44f);
+        HorizontalLayoutGroup inputHlg = inputRowGO.AddComponent<HorizontalLayoutGroup>();
         inputHlg.spacing = 10;
         inputHlg.childAlignment = TextAnchor.MiddleLeft;
         inputHlg.childForceExpandWidth = true;
         inputHlg.childForceExpandHeight = true;
 
-        var inputGO = CreateUIObject("InputField", inputRowGO.transform);
-        inputGO.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.10f);
-        AddLayout(inputGO, flexibleWidth: 1, preferredWidth: -1, preferredHeight: 44);
+        GameObject inputGO = CreateUIObject("InputField", inputRowGO.transform);
+        Image inputImage = inputGO.AddComponent<Image>();
+        inputImage.color = YQUITheme.Button;
+        YQUITheme.AddFrame(inputGO);
+        AddLayout(inputGO, 1f, -1f, 44f);
 
         _inputField = inputGO.AddComponent<TMP_InputField>();
         _inputField.lineType = TMP_InputField.LineType.SingleLine;
         _inputField.richText = false;
 
-        var placeholder = CreateTMPText("Placeholder", inputGO.transform, fontSize, FontStyles.Italic);
-        placeholder.text = "Type message…";
-        placeholder.color = new Color(1f, 1f, 1f, 0.45f);
+        TMP_Text placeholder = CreateTMPText("Placeholder", inputGO.transform, fontSize, FontStyles.Italic);
+        placeholder.text = "Type message...";
+        placeholder.color = YQUITheme.Muted;
         placeholder.margin = Vector4.zero;
 
-        var inputText = CreateTMPText("Text", inputGO.transform, fontSize, FontStyles.Normal);
-        inputText.text = "";
+        TMP_Text inputText = CreateTMPText("Text", inputGO.transform, fontSize, FontStyles.Normal);
+        inputText.text = string.Empty;
+        inputText.color = YQUITheme.Ink;
         inputText.margin = Vector4.zero;
 
-        var phRT = placeholder.rectTransform;
+        RectTransform phRT = placeholder.rectTransform;
         phRT.anchorMin = Vector2.zero; phRT.anchorMax = Vector2.one;
-        phRT.offsetMin = new Vector2(12, 8); phRT.offsetMax = new Vector2(-12, -8);
+        phRT.offsetMin = new Vector2(12f, 8f); phRT.offsetMax = new Vector2(-12f, -8f);
 
-        var itRT = inputText.rectTransform;
+        RectTransform itRT = inputText.rectTransform;
         itRT.anchorMin = Vector2.zero; itRT.anchorMax = Vector2.one;
-        itRT.offsetMin = new Vector2(12, 8); itRT.offsetMax = new Vector2(-12, -8);
+        itRT.offsetMin = new Vector2(12f, 8f); itRT.offsetMax = new Vector2(-12f, -8f);
 
         _inputField.placeholder = placeholder;
-        _inputField.textComponent = inputText;
-
-        _sendButton = CreateButton("SendButton", inputRowGO.transform, "Send", height: 44, onClick: TrySend, preferredWidth: 180);
+        _inputField.textComponent = (TextMeshProUGUI)inputText;
+        _sendButton = CreateButton("SendButton", inputRowGO.transform, "Send", 44, TrySend, 180f);
         _sendButton.interactable = true;
     }
 
     private static GameObject CreateUIObject(string name, Transform parent)
     {
-        var go = new GameObject(name);
+        GameObject go = new GameObject(name);
         go.transform.SetParent(parent, false);
         go.AddComponent<RectTransform>();
         return go;
@@ -626,37 +722,32 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
     private TMP_Text CreateTMPText(string name, Transform parent, int size, FontStyles style)
     {
-        var go = CreateUIObject(name, parent);
-        var t = go.AddComponent<TextMeshProUGUI>();
+        GameObject go = CreateUIObject(name, parent);
+        TextMeshProUGUI t = go.AddComponent<TextMeshProUGUI>();
         t.fontSize = size;
         t.fontStyle = style;
-        t.color = Color.white;
         t.raycastTarget = false;
+        // note: Runtime-created text shares wrapping and color defaults across all polished overlays.
+        YQUITheme.ApplyText(t);
         return t;
     }
 
     private Button CreateButton(string name, Transform parent, string label, int height, Action onClick, float preferredWidth)
     {
-        var go = CreateUIObject(name, parent);
-        AddLayout(go, flexibleWidth: 0, preferredWidth: preferredWidth, preferredHeight: height);
-
-        var img = go.AddComponent<Image>();
-        img.color = new Color(1f, 1f, 1f, 0.14f);
-
-        var btn = go.AddComponent<Button>();
+        GameObject go = CreateUIObject(name, parent);
+        AddLayout(go, 0f, preferredWidth, height);
+        Image img = go.AddComponent<Image>();
+        Button btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         btn.onClick.AddListener(() => onClick?.Invoke());
-
-        var txt = CreateTMPText("Label", go.transform, fontSize, FontStyles.Bold);
+        // note: Buttons use one interaction palette so hover and press states feel consistent.
+        YQUITheme.ApplyButton(btn);
+        TMP_Text txt = CreateTMPText("Label", go.transform, fontSize, FontStyles.Bold);
         txt.text = label;
         txt.alignment = TextAlignmentOptions.Center;
-
-        var txtRT = txt.rectTransform;
-        txtRT.anchorMin = Vector2.zero;
-        txtRT.anchorMax = Vector2.one;
-        txtRT.offsetMin = Vector2.zero;
-        txtRT.offsetMax = Vector2.zero;
-
+        RectTransform txtRT = txt.rectTransform;
+        txtRT.anchorMin = Vector2.zero; txtRT.anchorMax = Vector2.one;
+        txtRT.offsetMin = Vector2.zero; txtRT.offsetMax = Vector2.zero;
         return btn;
     }
 
@@ -669,14 +760,14 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
     private static void EnsureEventSystem_InputSystem()
     {
-        var es = FindFirstObjectByType<EventSystem>();
+        EventSystem es = FindFirstObjectByType<EventSystem>();
         if (es == null)
         {
-            var go = new GameObject("EventSystem");
+            GameObject go = new GameObject("EventSystem");
             es = go.AddComponent<EventSystem>();
         }
 
-        var legacy = es.GetComponent<StandaloneInputModule>();
+        StandaloneInputModule legacy = es.GetComponent<StandaloneInputModule>();
         if (legacy != null)
         {
 #if UNITY_EDITOR
@@ -692,20 +783,12 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
     private static void AddLayout(GameObject go, float flexibleWidth, float preferredWidth, float preferredHeight)
     {
-        var le = go.GetComponent<LayoutElement>();
+        LayoutElement le = go.GetComponent<LayoutElement>();
         if (le == null) le = go.AddComponent<LayoutElement>();
-
-        le.flexibleWidth = Mathf.Max(0, flexibleWidth);
-
-        // If preferredWidth/Height are negative, leave unset so layout can decide.
-        if (preferredWidth >= 0) le.preferredWidth = preferredWidth;
-        if (preferredHeight >= 0) le.preferredHeight = preferredHeight;
-
-        // Flexible height is used by Scroll panel; if preferredHeight is -1, we let it stretch.
-        if (preferredHeight < 0)
-            le.flexibleHeight = 1f;
-        else
-            le.flexibleHeight = 0f;
+        le.flexibleWidth = Mathf.Max(0f, flexibleWidth);
+        if (preferredWidth >= 0f) le.preferredWidth = preferredWidth;
+        if (preferredHeight >= 0f) le.preferredHeight = preferredHeight;
+        le.flexibleHeight = preferredHeight < 0f ? 1f : 0f;
     }
 
     private static void StretchToParent(RectTransform rt)
@@ -717,15 +800,14 @@ public sealed class DialogueBoxUI : MonoBehaviour
         rt.offsetMax = Vector2.zero;
     }
 
-    // Ensures TMP inside layout/content fills width and doesn't clip the left edge.
     private static void StretchWidthForLayout(RectTransform rt)
     {
-        rt.anchorMin = new Vector2(0, 1);
-        rt.anchorMax = new Vector2(1, 1);
-        rt.pivot = new Vector2(0.5f, 1);
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
         rt.anchoredPosition = Vector2.zero;
-        rt.sizeDelta = new Vector2(0, 0);
-        rt.offsetMin = new Vector2(0, rt.offsetMin.y);
-        rt.offsetMax = new Vector2(0, rt.offsetMax.y);
+        rt.sizeDelta = new Vector2(0f, 0f);
+        rt.offsetMin = new Vector2(0f, rt.offsetMin.y);
+        rt.offsetMax = new Vector2(0f, rt.offsetMax.y);
     }
 }

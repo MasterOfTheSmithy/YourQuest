@@ -16,19 +16,25 @@ public class WorldDeltaApplier : MonoBehaviour
     public int maxFlags = 18;
     public int maxFactions = 8;
     public int maxLocations = 12;
+    public int maxRegionStyleChanges = 1;
 
     [Header("Refs")]
     public WorldStateManager worldStateManager;
 
     void Awake()
     {
-        if (worldStateManager == null)
-            worldStateManager = FindFirstObjectByType<WorldStateManager>();
+        ResolveReferences();
+    }
+
+    private void OnEnable()
+    {
+        ResolveReferences();
     }
 
     public bool TryApply(string raw, out string error)
     {
         error = null;
+        ResolveReferences();
 
         if (worldStateManager == null)
         {
@@ -65,6 +71,7 @@ public class WorldDeltaApplier : MonoBehaviour
         NormalizeArrayField(root, "flags");
         NormalizeArrayField(root, "factions");
         NormalizeArrayField(root, "locations");
+        NormalizeArrayField(root, "regionStyles");
 
         string rationale = (root.Value<string>("rationale") ?? "").Trim();
         float confidence = NormalizeConfidence(root["confidence"]);
@@ -78,19 +85,21 @@ public class WorldDeltaApplier : MonoBehaviour
         var flags = SanitizeFlags(root["flags"] as JArray);
         var factions = SanitizeFactions(root["factions"] as JArray);
         var locations = SanitizeLocations(root["locations"] as JArray);
+        var regionStyles = SanitizeRegionStyles(root["regionStyles"] as JArray);
 
         if (flags.Count > maxFlags) flags.RemoveRange(maxFlags, flags.Count - maxFlags);
         if (factions.Count > maxFactions) factions.RemoveRange(maxFactions, factions.Count - maxFactions);
         if (locations.Count > maxLocations) locations.RemoveRange(maxLocations, locations.Count - maxLocations);
+        if (regionStyles.Count > maxRegionStyleChanges) regionStyles.RemoveRange(maxRegionStyleChanges, regionStyles.Count - maxRegionStyleChanges);
 
-        if (flags.Count == 0 && factions.Count == 0 && locations.Count == 0)
+        if (flags.Count == 0 && factions.Count == 0 && locations.Count == 0 && regionStyles.Count == 0)
         {
             Debug.Log($"[WorldDeltaApplier] NO-OP delta (ignored): {rationale}");
             error = "No-op delta (empty ops).";
             return false;
         }
 
-        ApplyToWorldState(flags, factions, locations, confidence, rationale);
+        ApplyToWorldState(flags, factions, locations, regionStyles, confidence, rationale);
         return true;
     }
 
@@ -98,6 +107,7 @@ public class WorldDeltaApplier : MonoBehaviour
         List<FlagOp> flags,
         List<FactionOp> factions,
         List<LocationOp> locations,
+        List<RegionStyleOp> regionStyles,
         float confidence,
         string rationale)
     {
@@ -126,8 +136,33 @@ public class WorldDeltaApplier : MonoBehaviour
             ws.ApplyLocationDelta(op.locationId, op.op, op.value, op.valueText, op.text);
         }
 
+        for (int i = 0; i < regionStyles.Count; i++)
+        {
+            RegionStyleOp op = regionStyles[i];
+            GeneratedWorldPlanRecord plan = ws.generatedWorldPlan;
+
+            if (plan == null || plan.regions == null)
+                continue;
+
+            for (int regionIndex = 0; regionIndex < plan.regions.Count; regionIndex++)
+            {
+                GeneratedRegionRecord region = plan.regions[regionIndex];
+                if (region == null || !string.Equals(region.regionId, op.regionId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // note: Only an approved semantic key enters saved world state; Unity paths remain owned by the curated asset catalog.
+                region.assetStyleKey = op.styleKey;
+                region.assetStyleRationale = op.reason;
+                region.assetPaletteId = string.Empty;
+                break;
+            }
+        }
+
         ws.lastLLMRationale = rationale;
         ws.lastLLMConfidence = confidence;
+
+        // note: Style-only deltas still advance persisted world revision metadata.
+        ws.TouchNow();
 
         worldStateManager.Save(); // ? your real API
 
@@ -200,9 +235,9 @@ public class WorldDeltaApplier : MonoBehaviour
             float val = SafeFloat(o["value"]);
 
             if (string.IsNullOrWhiteSpace(key)) continue;
-            if (!IsOpValid(op)) continue;
+            if (!TryNormalizeNumericOp(op, val, out string normalizedOp, out float normalizedValue)) continue;
 
-            list.Add(new FlagOp { key = key, op = op, value = val });
+            list.Add(new FlagOp { key = key, op = normalizedOp, value = normalizedValue });
         }
 
         return list;
@@ -220,13 +255,12 @@ public class WorldDeltaApplier : MonoBehaviour
 
             string id = (o.Value<string>("factionId") ?? "").Trim();
             string op = (o.Value<string>("op") ?? "").Trim();
-            float val = SafeFloat(o["value"]);
-            string text = (o.Value<string>("text") ?? "").Trim();
+            string text = SafeString(o["text"]);
 
             if (string.IsNullOrWhiteSpace(id)) continue;
-            if (!IsOpValid(op)) continue;
+            if (!TryNormalizeFactionOp(op, o["value"], text, out string normalizedOp, out float normalizedValue, out string normalizedText)) continue;
 
-            list.Add(new FactionOp { factionId = id, op = op, value = val, text = text });
+            list.Add(new FactionOp { factionId = id, op = normalizedOp, value = normalizedValue, text = normalizedText });
         }
 
         return list;
@@ -244,14 +278,91 @@ public class WorldDeltaApplier : MonoBehaviour
 
             string id = (o.Value<string>("locationId") ?? "").Trim();
             string op = (o.Value<string>("op") ?? "").Trim();
-            float val = SafeFloat(o["value"]);
-            string valueText = (o.Value<string>("valueText") ?? "").Trim();
-            string text = (o.Value<string>("text") ?? "").Trim();
+            string valueText = SafeString(o["valueText"]);
+            string text = SafeString(o["text"]);
 
             if (string.IsNullOrWhiteSpace(id)) continue;
-            if (!IsOpValid(op)) continue;
+            if (!TryNormalizeLocationOp(op, o["value"], valueText, text, out string normalizedOp, out float normalizedValue, out string normalizedValueText, out string normalizedText)) continue;
 
-            list.Add(new LocationOp { locationId = id, op = op, value = val, valueText = valueText, text = text });
+            list.Add(new LocationOp
+            {
+                locationId = id,
+                op = normalizedOp,
+                value = normalizedValue,
+                valueText = normalizedValueText,
+                text = normalizedText
+            });
+        }
+
+        return list;
+    }
+
+    private List<RegionStyleOp> SanitizeRegionStyles(JArray arr)
+    {
+        List<RegionStyleOp> list = new List<RegionStyleOp>();
+        if (arr == null)
+            return list;
+
+        foreach (JToken token in arr)
+        {
+            if (token is not JObject entry)
+                continue;
+
+            string regionId = SafeString(entry["regionId"]);
+            string styleKey = SafeString(entry["styleKey"]).ToLowerInvariant();
+            string reason = SafeString(entry["reason"]);
+
+            if (string.IsNullOrWhiteSpace(regionId) ||
+                !YQWorldAssetCatalog.IsSupportedStyleKey(styleKey))
+            {
+                continue;
+            }
+
+            GeneratedWorldPlanRecord activePlan =
+                worldStateManager != null && worldStateManager.State != null
+                    ? worldStateManager.State.generatedWorldPlan
+                    : null;
+
+            GeneratedRegionRecord activeRegion = null;
+            if (activePlan != null && activePlan.regions != null)
+            {
+                for (int i = 0; i < activePlan.regions.Count; i++)
+                {
+                    GeneratedRegionRecord candidate = activePlan.regions[i];
+                    if (candidate != null && string.Equals(candidate.regionId, regionId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        activeRegion = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (activeRegion == null ||
+                string.Equals(activeRegion.assetStyleKey, styleKey, StringComparison.OrdinalIgnoreCase))
+            {
+                // note: Unknown regions and already-active styles are rejected before they can masquerade as an applied world mutation.
+                continue;
+            }
+
+            if (!YQWorldAssetCatalog.IsCoherentStyleTransition(
+                    activeRegion.assetStyleKey,
+                    styleKey,
+                    reason))
+            {
+                // note: Routine movement may alter tension and encounters, but cannot physically turn a surface town into a sewer, hospital, dungeon, or another genre.
+                Debug.LogWarning(
+                    "[WorldDeltaApplier] Rejected incoherent region style transition " +
+                    activeRegion.assetStyleKey + " -> " + styleKey +
+                    " for '" + regionId + "': " + reason);
+                continue;
+            }
+
+            list.Add(new RegionStyleOp
+            {
+                regionId = regionId,
+                styleKey = styleKey,
+                reason = reason
+            });
         }
 
         return list;
@@ -265,11 +376,132 @@ public class WorldDeltaApplier : MonoBehaviour
         return 0f;
     }
 
-    private static bool IsOpValid(string op)
+    private static string SafeString(JToken token)
     {
-        if (string.IsNullOrWhiteSpace(op)) return false;
-        op = op.Trim().ToLowerInvariant();
-        return op == "add" || op == "set" || op == "mul";
+        if (token == null || token.Type == JTokenType.Null)
+            return string.Empty;
+
+        string value = token.Type == JTokenType.String ? token.Value<string>() : token.ToString();
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static bool TryNormalizeNumericOp(string op, float value, out string normalizedOp, out float normalizedValue)
+    {
+        normalizedOp = string.Empty;
+        normalizedValue = value;
+
+        switch (NormalizeOpToken(op))
+        {
+            case "add":
+            case "inc":
+            case "increase":
+            case "delta":
+                normalizedOp = "add";
+                return true;
+            case "dec":
+            case "decrease":
+            case "sub":
+            case "subtract":
+                normalizedOp = "add";
+                normalizedValue = -value;
+                return true;
+            case "set":
+            case "assign":
+                normalizedOp = "set";
+                return true;
+            case "mul":
+            case "multiply":
+                normalizedOp = "mul";
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static bool TryNormalizeFactionOp(
+        string op,
+        JToken valueToken,
+        string text,
+        out string normalizedOp,
+        out float normalizedValue,
+        out string normalizedText)
+    {
+        normalizedOp = string.Empty;
+        normalizedValue = SafeFloat(valueToken);
+        normalizedText = text;
+
+        switch (NormalizeOpToken(op))
+        {
+            case "attitude_inc":
+            case "attitude_add":
+                normalizedOp = "add";
+                return true;
+            case "attitude_dec":
+                normalizedOp = "add";
+                normalizedValue = -normalizedValue;
+                return true;
+            case "attitude_set":
+                normalizedOp = "set";
+                return true;
+            case "status_set":
+                normalizedOp = "add";
+                normalizedValue = 0f;
+                if (string.IsNullOrWhiteSpace(normalizedText))
+                    normalizedText = SafeString(valueToken);
+                return !string.IsNullOrWhiteSpace(normalizedText);
+            default:
+                return TryNormalizeNumericOp(op, normalizedValue, out normalizedOp, out normalizedValue);
+        }
+    }
+
+    private static bool TryNormalizeLocationOp(
+        string op,
+        JToken valueToken,
+        string valueText,
+        string text,
+        out string normalizedOp,
+        out float normalizedValue,
+        out string normalizedValueText,
+        out string normalizedText)
+    {
+        normalizedOp = string.Empty;
+        normalizedValue = SafeFloat(valueToken);
+        normalizedValueText = valueText;
+        normalizedText = text;
+
+        switch (NormalizeOpToken(op))
+        {
+            case "state_set":
+                normalizedOp = "add";
+                normalizedValue = 0f;
+                if (string.IsNullOrWhiteSpace(normalizedValueText))
+                    normalizedValueText = SafeString(valueToken);
+                return !string.IsNullOrWhiteSpace(normalizedValueText);
+            case "importance_inc":
+            case "importance_add":
+                normalizedOp = "add";
+                return true;
+            case "importance_dec":
+                normalizedOp = "add";
+                normalizedValue = -normalizedValue;
+                return true;
+            case "importance_set":
+                normalizedOp = "set";
+                return true;
+            default:
+                return TryNormalizeNumericOp(op, normalizedValue, out normalizedOp, out normalizedValue);
+        }
+    }
+
+    private static string NormalizeOpToken(string op)
+    {
+        return string.IsNullOrWhiteSpace(op) ? string.Empty : op.Trim().ToLowerInvariant();
+    }
+
+    private void ResolveReferences()
+    {
+        if (worldStateManager == null)
+            worldStateManager = WorldStateManager.Instance != null ? WorldStateManager.Instance : FindFirstObjectByType<WorldStateManager>();
     }
 
     // ---------- JSON Extraction ----------
@@ -298,4 +530,5 @@ public class WorldDeltaApplier : MonoBehaviour
     private struct FlagOp { public string key; public string op; public float value; }
     private struct FactionOp { public string factionId; public string op; public float value; public string text; }
     private struct LocationOp { public string locationId; public string op; public float value; public string valueText; public string text; }
+    private struct RegionStyleOp { public string regionId; public string styleKey; public string reason; }
 }

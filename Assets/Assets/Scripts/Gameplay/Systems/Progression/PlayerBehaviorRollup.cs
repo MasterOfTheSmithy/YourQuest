@@ -15,6 +15,10 @@ using UnityEngine;
 /// </summary>
 public class PlayerBehaviorRollup : MonoBehaviour
 {
+    [Header("Cadence")]
+    [Tooltip("How often to check whether old action events should be compressed into long-term player memory.")]
+    public float rollupEverySeconds = 60f;
+
     [Header("Window")]
     [Tooltip("Keep the last N minutes in the short-term buffer. Older than this gets rolled into the ledger.")]
     public int keepMinutesInBuffer = 30;
@@ -29,10 +33,22 @@ public class PlayerBehaviorRollup : MonoBehaviour
     [Header("Debug")]
     public bool logRollups = false;
 
+    private float _nextRollupTime;
+
     private void Awake()
     {
         if (accumulator == null) accumulator = FindFirstObjectByType<EventAccumulator>();
         if (playerStateManager == null) playerStateManager = FindFirstObjectByType<PlayerStateManager>();
+        _nextRollupTime = Time.time + Mathf.Max(5f, rollupEverySeconds);
+    }
+
+    private void Update()
+    {
+        if (Time.time < _nextRollupTime)
+            return;
+
+        _nextRollupTime = Time.time + Mathf.Max(5f, rollupEverySeconds);
+        RollupIfNeeded();
     }
 
     /// <summary>
@@ -126,7 +142,7 @@ public class PlayerBehaviorRollup : MonoBehaviour
         top.Sort((a, b) => b.Value.CompareTo(a.Value));
 
         var sb = new StringBuilder(512);
-        sb.Append($"[{UnixToShortTime(minT)}–{UnixToShortTime(maxT)}] ");
+        sb.Append($"[{UnixToShortTime(minT)}-{UnixToShortTime(maxT)}] ");
         sb.Append($"Mostly in {topRegion}. ");
 
         int take = Mathf.Min(3, top.Count);
@@ -168,8 +184,13 @@ public class PlayerBehaviorRollup : MonoBehaviour
             string verb = string.IsNullOrWhiteSpace(e.Verb) ? "unknown" : e.Verb.Trim().ToLowerInvariant();
             string region = string.IsNullOrWhiteSpace(e.RegionId) ? "region_unknown" : e.RegionId.Trim().ToLowerInvariant();
 
-            ps.IncCounter($"verb:{verb}", 1f);
-            ps.IncCounter($"region:{region}", 1f);
+            if (!e.BehaviorCountersApplied)
+            {
+                // note: Events created outside ActionRecorder still become long-term evidence during the delayed rollup.
+                ps.IncCounter($"verb:{verb}", 1f);
+                ps.IncCounter($"region:{region}", 1f);
+                e.BehaviorCountersApplied = true;
+            }
 
             // If you later add richer tags (threat, stance, tool, etc.), increment them here too.
         }

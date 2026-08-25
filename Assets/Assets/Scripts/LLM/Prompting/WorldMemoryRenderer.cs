@@ -12,6 +12,9 @@ public static class WorldMemoryRenderer
         sb.AppendLine($"World: {s.worldName}  Region: {s.currentRegionId}");
         sb.AppendLine();
 
+        AppendGeneratedWorldPlan(sb, s);
+        sb.AppendLine();
+
         sb.AppendLine("CANON_LEDGER");
         sb.AppendLine(string.IsNullOrWhiteSpace(s.canonLedger) ? "<none>" : s.canonLedger.Trim());
         sb.AppendLine();
@@ -82,5 +85,82 @@ public static class WorldMemoryRenderer
         if (nCount == 0) sb.AppendLine("<none>");
 
         return sb.ToString();
+    }
+
+    private static void AppendGeneratedWorldPlan(StringBuilder sb, WorldState s, int maxRegions = 5, int maxSettlements = 5, int maxEncampments = 6, int maxPalettes = 5)
+    {
+        GeneratedWorldPlanRecord plan = s != null ? s.generatedWorldPlan : null;
+        if (plan == null)
+        {
+            sb.AppendLine("GENERATED_WORLD_PLAN");
+            sb.AppendLine("<none>");
+            return;
+        }
+
+        plan.EnsureCollections();
+        if (string.IsNullOrWhiteSpace(plan.worldSeed) || plan.regions.Count == 0)
+        {
+            sb.AppendLine("GENERATED_WORLD_PLAN");
+            sb.AppendLine("<none>");
+            return;
+        }
+
+        sb.AppendLine("GENERATED_WORLD_PLAN (compact)");
+        sb.AppendLine($"Seed: {plan.worldSeed} | Source: {plan.source} | PromptPolicy: {plan.promptBudgetPolicy}");
+        sb.AppendLine($"Summary: {plan.summary}");
+        sb.AppendLine($"Budget: {plan.targetPlayableHoursMin}-{plan.targetPlayableHoursMax}h | Regions {plan.regions.Count} | Settlements {plan.settlements.Count} | Encampments {plan.encampments.Count} | AssetPalettes {plan.assetPalettes.Count}");
+
+        sb.AppendLine("Generated Regions");
+        int regions = 0;
+        for (int i = 0; i < plan.regions.Count && regions < maxRegions; i++)
+        {
+            GeneratedRegionRecord region = plan.regions[i];
+            if (region == null)
+                continue;
+            sb.AppendLine($"- {region.displayName} ({region.regionId}) | Tier {region.dangerTier} | Pressure {region.playerPressure}");
+            regions++;
+        }
+        if (regions == 0)
+            sb.AppendLine("- <none>");
+
+        sb.AppendLine("Generated Asset Palettes");
+        int palettes = 0;
+        for (int i = 0; i < plan.assetPalettes.Count && palettes < maxPalettes; i++)
+        {
+            GeneratedRegionAssetPaletteRecord palette = plan.assetPalettes[i];
+            if (palette == null)
+                continue;
+
+            sb.AppendLine($"- {palette.styleKey} ({palette.paletteId}) | Region {palette.regionId} | Floor {palette.floor.Count} Wall {palette.wall.Count} Path {palette.path.Count} Deco {palette.floorDeco.Count + palette.wallDeco.Count}");
+            palettes++;
+        }
+        if (palettes == 0)
+            sb.AppendLine("- <none>");
+
+        sb.AppendLine("Generated Settlements");
+        int settlements = 0;
+        for (int i = 0; i < plan.settlements.Count && settlements < maxSettlements; i++)
+        {
+            GeneratedSettlementRecord settlement = plan.settlements[i];
+            if (settlement == null)
+                continue;
+            sb.AppendLine($"- {settlement.displayName} ({settlement.settlementId}) | {settlement.kind} pop~{settlement.approxPopulation} | Region {settlement.regionId}");
+            settlements++;
+        }
+        if (settlements == 0)
+            sb.AppendLine("- <none>");
+
+        sb.AppendLine("Generated Enemy Sites");
+        int encampments = 0;
+        for (int i = 0; i < plan.encampments.Count && encampments < maxEncampments; i++)
+        {
+            GeneratedEncampmentRecord encampment = plan.encampments[i];
+            if (encampment == null)
+                continue;
+            sb.AppendLine($"- {encampment.displayName} ({encampment.encampmentId}) | {encampment.kind} T{encampment.threatTier} | {encampment.abilityProfile}");
+            encampments++;
+        }
+        if (encampments == 0)
+            sb.AppendLine("- <none>");
     }
 }

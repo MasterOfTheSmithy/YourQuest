@@ -107,6 +107,18 @@ public class InputIntentRecorder : MonoBehaviour
 
     private void Update()
     {
+        // note: Modal screens and initial generation should not generate movement/combat intent history.
+        if (RuntimeModalUiBlocker.IsBlocked)
+        {
+            moveValue =
+                Vector2.zero;
+
+            wasMoving =
+                false;
+
+            return;
+        }
+
         HandleMovementIntent();
     }
 
@@ -154,37 +166,58 @@ public class InputIntentRecorder : MonoBehaviour
 
     public void OnJump(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordJump();
     }
 
     public void OnSprint(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordMove();
     }
 
     public void OnCrouch(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordCrouch();
     }
 
     public void OnDodge(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordDodge();
     }
 
     public void OnAttack(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordCombat(null);
     }
 
     public void OnAim(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         // In SendMessages, you usually only get performed; treat both press/release as posture change.
         recorder?.RecordMove();
     }
 
     public void OnInteract(InputValue value)
     {
+        if (RuntimeModalUiBlocker.IsBlocked)
+            return;
+
         if (value.isPressed) recorder?.RecordInteract(null);
     }
 
@@ -193,14 +226,14 @@ public class InputIntentRecorder : MonoBehaviour
     // (used when notificationBehavior = Invoke Unity Events / Invoke C# Events)
     // -------------------------
 
-    private void OnJumpAction(InputAction.CallbackContext ctx) => recorder?.RecordJump();
-    private void OnSprintAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnCrouchAction(InputAction.CallbackContext ctx) => recorder?.RecordCrouch();
-    private void OnDodgeAction(InputAction.CallbackContext ctx) => recorder?.RecordDodge();
-    private void OnAttackAction(InputAction.CallbackContext ctx) => recorder?.RecordCombat(null);
-    private void OnAimStartAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnAimEndAction(InputAction.CallbackContext ctx) => recorder?.RecordMove();
-    private void OnInteractAction(InputAction.CallbackContext ctx) => recorder?.RecordInteract(null);
+    private void OnJumpAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordJump(); }
+    private void OnSprintAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordMove(); }
+    private void OnCrouchAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordCrouch(); }
+    private void OnDodgeAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordDodge(); }
+    private void OnAttackAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordCombat(null); }
+    private void OnAimStartAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordMove(); }
+    private void OnAimEndAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordMove(); }
+    private void OnInteractAction(InputAction.CallbackContext ctx) { if (!RuntimeModalUiBlocker.IsBlocked) recorder?.RecordInteract(null); }
 
     private static InputAction SafeGet(InputActionAsset asset, string actionName)
     {
@@ -215,3 +248,4 @@ public class InputIntentRecorder : MonoBehaviour
         }
     }
 }
+

@@ -1,127 +1,128 @@
+// Assets/Assets/Scripts/LLM/Prompting/PlayerMemoryRenderer.cs
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
 
 public static class PlayerMemoryRenderer
 {
-    public static string Render(PlayerState s, int maxSkills = 10, int maxQuests = 6, int maxTitles = 6)
+    public static string Render(PlayerState s, int maxSkills = 10, int maxQuests = 6, int maxTitles = 6, int maxItems = 8)
     {
-        if (s == null) return "PlayerSnapshot: <null>";
+        if (s == null)
+            return "PLAYER_SNAPSHOT\n<null>";
 
-        var sb = new StringBuilder();
+        s.EnsureCollections();
+
+        StringBuilder sb = new StringBuilder(2048);
         sb.AppendLine("PLAYER_SNAPSHOT");
         sb.AppendLine($"Name: {s.displayName}");
-
-        // xp is int; xpToNext is int; formatting with :0 is unnecessary (and can confuse)
         sb.AppendLine($"Level: {s.level}  XP: {s.xp}/{(s.xp + s.xpToNext)} (to next {s.xpToNext})");
-
         sb.AppendLine($"Scene: {s.currentScene}  Region: {s.currentRegionId}");
-
-        // ? Vector3 is not indexable, use .x .y .z
         sb.AppendLine($"Pos: [{s.lastPosition.x:0.0}, {s.lastPosition.y:0.0}, {s.lastPosition.z:0.0}]");
         sb.AppendLine();
 
-        // Stats
-        var st = s.stats;
+        StatBlock st = s.stats;
         if (st != null)
         {
             sb.AppendLine("STATS");
             sb.AppendLine($"STR {st.strength} | DEX {st.dexterity} | INT {st.intelligence} | VIT {st.vitality}");
             sb.AppendLine($"HP {st.maxHealth} | STA {st.maxStamina} | MANA {st.maxMana}");
-            sb.AppendLine($"ATK {st.attack} | DEF {st.defense} | CRIT {st.critChance:0.00} | MS x{st.moveSpeed:0.00}");
+            sb.AppendLine($"ATK {st.attack} | DEF {st.defense} | CRIT {st.critChance:0.00} | MS {st.moveSpeed:0.00}");
             sb.AppendLine();
         }
 
-        // Equipped
+        sb.AppendLine("EQUIPPED_ITEMS");
+        if (s.equippedItemBySlot.Count == 0)
+            sb.AppendLine("<none>");
+        else
+        {
+            foreach (KeyValuePair<string, string> kvp in s.equippedItemBySlot)
+            {
+                InventoryItemRecord item = s.FindInventoryItemById(kvp.Value);
+                sb.AppendLine(item != null ? $"- {kvp.Key}: {item.displayName} ({item.itemType})" : $"- {kvp.Key}: {kvp.Value}");
+            }
+        }
+        sb.AppendLine();
+
         sb.AppendLine("EQUIPPED_SKILLS");
-        if (s.equippedSkillBySlot != null && s.equippedSkillBySlot.Count > 0)
+        if (s.equippedSkillBySlot.Count == 0)
+            sb.AppendLine("<none>");
+        else
         {
-            foreach (var kv in s.equippedSkillBySlot)
+            foreach (KeyValuePair<string, string> kvp in s.equippedSkillBySlot)
             {
-                var rec = s.FindSkillById(kv.Value);
-                if (rec != null)
-                    sb.AppendLine($"{kv.Key}: {rec.name} (Tier {rec.tier})");
-                else
-                    sb.AppendLine($"{kv.Key}: {kv.Value}");
+                SkillRecord skill = s.FindSkillById(kvp.Value);
+                sb.AppendLine(skill != null ? $"- {kvp.Key}: {skill.name} ({skill.type})" : $"- {kvp.Key}: {kvp.Value}");
             }
         }
-        else sb.AppendLine("<none>");
         sb.AppendLine();
 
-        // Skills (top tiers first)
-        sb.AppendLine("SKILLS (top/highest tiers)");
-        int added = 0;
-
-        if (s.skills != null && s.skills.Count > 0)
+        sb.AppendLine("INVENTORY (top)");
+        int itemCount = 0;
+        for (int i = 0; i < s.inventoryItems.Count && itemCount < maxItems; i++)
         {
-            // Track families we already printed so we don't list duplicates
-            var printedFamilies = new HashSet<string>();
-
-            for (int i = 0; i < s.skills.Count && added < maxSkills; i++)
-            {
-                var r = s.skills[i];
-                if (r == null || !r.unlocked) continue;
-
-                string fam = string.IsNullOrWhiteSpace(r.familyId) ? $"__nofam__:{r.skillId}" : r.familyId;
-
-                // Only show highest tier per family
-                int highestTier = s.FindHighestTierInFamily(r.familyId);
-                if (highestTier > 0 && r.tier != highestTier) continue;
-
-                // Only print one skill per family
-                if (printedFamilies.Contains(fam)) continue;
-                printedFamilies.Add(fam);
-
-                sb.AppendLine($"- {r.name} | Type {r.type} | Tier {r.tier} | Family {Short(r.familyId)}");
-                added++;
-            }
+            InventoryItemRecord item = s.inventoryItems[i];
+            if (item == null)
+                continue;
+            sb.AppendLine($"- {item.displayName} x{item.quantity} | {item.itemType} | {item.rarity}");
+            itemCount++;
         }
-
-        if (added == 0) sb.AppendLine("<none>");
+        if (itemCount == 0)
+            sb.AppendLine("<none>");
         sb.AppendLine();
 
-        // Titles
+        sb.AppendLine("SKILLS (top tiers)");
+        HashSet<string> printedFamilies = new HashSet<string>();
+        int skillCount = 0;
+        for (int i = 0; i < s.skills.Count && skillCount < maxSkills; i++)
+        {
+            SkillRecord r = s.skills[i];
+            if (r == null || !r.unlocked)
+                continue;
+
+            string family = string.IsNullOrWhiteSpace(r.familyId) ? "__" + r.skillId : r.familyId;
+            if (printedFamilies.Contains(family))
+                continue;
+            int highestTier = string.IsNullOrWhiteSpace(r.familyId) ? r.tier : s.FindHighestTierInFamily(r.familyId);
+            if (highestTier > 0 && r.tier != highestTier)
+                continue;
+
+            printedFamilies.Add(family);
+            sb.AppendLine($"- {r.name} | Type {r.type} | Tier {r.tier}");
+            skillCount++;
+        }
+        if (skillCount == 0)
+            sb.AppendLine("<none>");
+        sb.AppendLine();
+
         sb.AppendLine("TITLES (recent)");
-        int tCount = 0;
-        if (s.titles != null && s.titles.Count > 0)
+        int titleCount = 0;
+        for (int i = s.titles.Count - 1; i >= 0 && titleCount < maxTitles; i--)
         {
-            for (int i = s.titles.Count - 1; i >= 0 && tCount < maxTitles; i--)
-            {
-                var t = s.titles[i];
-                if (t == null) continue;
-                sb.AppendLine($"- {t.name}: {t.description}");
-                tCount++;
-            }
+            TitleRecord title = s.titles[i];
+            if (title == null)
+                continue;
+            sb.AppendLine($"- {title.name}: {title.description}");
+            titleCount++;
         }
-        if (tCount == 0) sb.AppendLine("<none>");
+        if (titleCount == 0)
+            sb.AppendLine("<none>");
         sb.AppendLine();
 
-        // Quests
         sb.AppendLine("QUESTS (active/offers)");
-        int qCount = 0;
-        if (s.quests != null && s.quests.Count > 0)
+        int questCount = 0;
+        for (int i = s.quests.Count - 1; i >= 0 && questCount < maxQuests; i--)
         {
-            for (int i = s.quests.Count - 1; i >= 0 && qCount < maxQuests; i--)
-            {
-                var q = s.quests[i];
-                if (q == null) continue;
-
-                // Treat both "complete" and "completed" as done; same for failed
-                string status = (q.status ?? "").Trim().ToLowerInvariant();
-                if (status == "complete" || status == "completed" || status == "failed") continue;
-
-                sb.AppendLine($"- [{q.status}] {q.name}: {q.description}");
-                qCount++;
-            }
+            QuestRecord q = s.quests[i];
+            if (q == null)
+                continue;
+            string status = (q.status ?? string.Empty).Trim().ToLowerInvariant();
+            if (status == "complete" || status == "completed" || status == "failed")
+                continue;
+            sb.AppendLine($"- [{q.status}] {q.name}: {q.description}");
+            questCount++;
         }
-        if (qCount == 0) sb.AppendLine("<none>");
+        if (questCount == 0)
+            sb.AppendLine("<none>");
 
         return sb.ToString();
-    }
-
-    private static string Short(string s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "none";
-        return s.Length <= 8 ? s : s.Substring(0, 8);
     }
 }
