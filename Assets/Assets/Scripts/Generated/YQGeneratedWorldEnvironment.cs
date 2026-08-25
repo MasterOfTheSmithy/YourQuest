@@ -1502,38 +1502,41 @@ public static class YQGeneratedWorldEnvironment
 
             yield return null;
 
-            int caves =
-                BuildRegionalCaves(
+            int caves = 0;
+            yield return BuildRegionalCavesRoutine(
                     regionRoot.transform,
                     terrain,
                     plan,
                     region,
                     palette,
                     registry,
-                    regionCenter);
+                    regionCenter,
+                    count => caves = count);
 
             yield return null;
 
-            int ambientEnemies =
-                BuildRegionalAmbientEncounters(
+            int ambientEnemies = 0;
+            yield return BuildRegionalAmbientEncountersRoutine(
                     regionRoot.transform,
                     terrain,
                     plan,
                     region,
                     registry,
-                    regionCenter);
+                    regionCenter,
+                    count => ambientEnemies = count);
 
             yield return null;
 
-            int treasure =
-                BuildRegionalTreasure(
+            int treasure = 0;
+            yield return BuildRegionalTreasureRoutine(
                     regionRoot.transform,
                     terrain,
                     plan,
                     region,
                     palette,
                     registry,
-                    regionCenter);
+                    regionCenter,
+                    count => treasure = count);
 
             yield return null;
 
@@ -1788,10 +1791,20 @@ public static class YQGeneratedWorldEnvironment
                 continue;
             }
 
-            GameObject instance =
-                UnityEngine.Object.Instantiate(
+            AsyncInstantiateOperation<GameObject> operation =
+                UnityEngine.Object.InstantiateAsync(
                     prefab,
                     root.transform);
+            operation.priority = -1;
+            // note: Even one unexpectedly dense imported scatter prefab must integrate asynchronously instead of consuming an entire Goddess frame.
+            yield return operation;
+            GameObject instance =
+                operation.Result != null && operation.Result.Length > 0
+                    ? operation.Result[0]
+                    : null;
+
+            if (instance == null)
+                continue;
 
             instance.name =
                 "Wilderness_" +
@@ -2101,14 +2114,15 @@ public static class YQGeneratedWorldEnvironment
     // CAVES
     // ============================================================
 
-    private static int BuildRegionalCaves(
+    private static IEnumerator BuildRegionalCavesRoutine(
         Transform parent,
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
         GeneratedRegionRecord region,
         GeneratedRegionAssetPaletteRecord palette,
         YQRuntimeWorldAssetRegistry registry,
-        Vector3 regionCenter)
+        Vector3 regionCenter,
+        Action<int> completed)
     {
         if (parent == null ||
             terrain == null ||
@@ -2118,7 +2132,8 @@ public static class YQGeneratedWorldEnvironment
             registry == null ||
             palette.enemySite == null)
         {
-            return 0;
+            completed?.Invoke(0);
+            yield break;
         }
 
         List<GeneratedAssetReferenceRecord> caveReferences =
@@ -2142,7 +2157,10 @@ public static class YQGeneratedWorldEnvironment
         }
 
         if (caveReferences.Count == 0)
-            return 0;
+        {
+            completed?.Invoke(0);
+            yield break;
+        }
 
         // note: Regions receive a small exploration cluster instead of one isolated entrance; higher danger supports a third destination.
         int desired =
@@ -2224,9 +2242,14 @@ public static class YQGeneratedWorldEnvironment
                 try
                 {
                     // note: Mirrored imported boxes remain disabled on the clone and are replaced by structural mesh collision below.
-                    instance = UnityEngine.Object.Instantiate(
+                    AsyncInstantiateOperation<GameObject> operation =
+                        UnityEngine.Object.InstantiateAsync(
                         prefab,
                         caveRoot.transform);
+                    operation.priority = -1;
+                    yield return operation;
+                    if (operation.Result != null && operation.Result.Length > 0)
+                        instance = operation.Result[0];
                 }
                 finally
                 {
@@ -2360,7 +2383,7 @@ public static class YQGeneratedWorldEnvironment
                 caveRoot);
         }
 
-        return spawned;
+        completed?.Invoke(spawned);
     }
 
     private static bool IsCaveReference(
@@ -2387,13 +2410,14 @@ public static class YQGeneratedWorldEnvironment
     // AMBIENT OVERWORLD ENCOUNTERS
     // ============================================================
 
-    private static int BuildRegionalAmbientEncounters(
+    private static IEnumerator BuildRegionalAmbientEncountersRoutine(
         Transform parent,
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
         GeneratedRegionRecord region,
         YQRuntimeWorldAssetRegistry registry,
-        Vector3 regionCenter)
+        Vector3 regionCenter,
+        Action<int> completed)
     {
         if (parent == null ||
             terrain == null ||
@@ -2401,7 +2425,8 @@ public static class YQGeneratedWorldEnvironment
             region == null ||
             registry == null)
         {
-            return 0;
+            completed?.Invoke(0);
+            yield break;
         }
 
         List<AmbientMonsterSource> sources =
@@ -2416,7 +2441,8 @@ public static class YQGeneratedWorldEnvironment
              *
              * Do not invent a completely unrelated ecosystem.
              */
-            return 0;
+            completed?.Invoke(0);
+            yield break;
         }
 
         int danger =
@@ -2546,10 +2572,19 @@ public static class YQGeneratedWorldEnvironment
                             terrain,
                             position);
 
-                GameObject instance =
-                    UnityEngine.Object.Instantiate(
+                AsyncInstantiateOperation<GameObject> operation =
+                    UnityEngine.Object.InstantiateAsync(
                         entry.prefab,
                         encounterRoot.transform);
+                operation.priority = -1;
+                yield return operation;
+                GameObject instance =
+                    operation.Result != null && operation.Result.Length > 0
+                        ? operation.Result[0]
+                        : null;
+
+                if (instance == null)
+                    continue;
 
                 instance.name =
                     "AmbientEnemy__" +
@@ -2614,7 +2649,7 @@ public static class YQGeneratedWorldEnvironment
                 encounterRoot);
         }
 
-        return total;
+        completed?.Invoke(total);
     }
 
     private static List<AmbientMonsterSource>
@@ -3471,14 +3506,15 @@ public static class YQGeneratedWorldEnvironment
     // WILDERNESS TREASURE
     // ============================================================
 
-    private static int BuildRegionalTreasure(
+    private static IEnumerator BuildRegionalTreasureRoutine(
     Transform parent,
     Terrain terrain,
     GeneratedWorldPlanRecord plan,
     GeneratedRegionRecord region,
     GeneratedRegionAssetPaletteRecord palette,
     YQRuntimeWorldAssetRegistry registry,
-    Vector3 regionCenter)
+    Vector3 regionCenter,
+    Action<int> completed)
     {
         if (parent == null ||
             terrain == null ||
@@ -3487,7 +3523,8 @@ public static class YQGeneratedWorldEnvironment
             palette == null ||
             registry == null)
         {
-            return 0;
+            completed?.Invoke(0);
+            yield break;
         }
 
         int danger =
@@ -3582,10 +3619,19 @@ public static class YQGeneratedWorldEnvironment
                 if (prefab == null)
                     continue;
 
-                GameObject chest =
-                    UnityEngine.Object.Instantiate(
+                AsyncInstantiateOperation<GameObject> operation =
+                    UnityEngine.Object.InstantiateAsync(
                         prefab,
                         root.transform);
+                operation.priority = -1;
+                yield return operation;
+                GameObject chest =
+                    operation.Result != null && operation.Result.Length > 0
+                        ? operation.Result[0]
+                        : null;
+
+                if (chest == null)
+                    continue;
 
                 string persistentId =
                     "wilderness:" +
@@ -3773,7 +3819,7 @@ public static class YQGeneratedWorldEnvironment
                 root);
         }
 
-        return spawned;
+        completed?.Invoke(spawned);
     }
 
     // ============================================================
