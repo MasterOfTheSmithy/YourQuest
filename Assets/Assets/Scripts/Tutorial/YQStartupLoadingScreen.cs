@@ -119,6 +119,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     private bool _generationFailure;
     private Action _retryGeneration;
     private Action _returnToTitle;
+    private bool _ordinaryLogStackTracesSuppressed;
+    private StackTraceLogType _previousOrdinaryLogStackTraceType;
 
     private bool _finishingGenerationPresentation;
 
@@ -185,6 +187,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         s_instance._generationMode =
             false;
 
+        s_instance.RestoreOrdinaryLogStackTraces();
+
         s_instance.ClearGenerationTranscript();
 
         s_instance._title =
@@ -218,6 +222,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         s_instance._generationMode =
             true;
+
+        s_instance.SuppressOrdinaryLogStackTraces();
 
         // note: Initial generation keeps the baked Goddess stage alive behind the transparent HUD instead of unloading it into a blank screen.
         YQTitleEnvironmentLoader.HoldForWorldGeneration();
@@ -494,6 +500,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     {
         Application.logMessageReceived -=
             OnLogMessage;
+
+        RestoreOrdinaryLogStackTraces();
     }
 
     private void OnDestroy()
@@ -508,6 +516,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         Application.logMessageReceived -=
             OnLogMessage;
+
+        RestoreOrdinaryLogStackTraces();
 
         if (wasGenerationPresentation)
             YQTitleEnvironmentLoader.ReleaseWorldGeneration();
@@ -525,6 +535,32 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     // ============================================================
     // LOGGING
     // ============================================================
+
+    private void SuppressOrdinaryLogStackTraces()
+    {
+        if (_ordinaryLogStackTracesSuppressed)
+            return;
+
+        _previousOrdinaryLogStackTraceType =
+            Application.GetStackTraceLogType(LogType.Log);
+        Application.SetStackTraceLogType(
+            LogType.Log,
+            StackTraceLogType.None);
+        _ordinaryLogStackTracesSuppressed = true;
+        // note: Generation emits useful progress breadcrumbs, but capturing a full call stack for every ordinary line caused avoidable editor-side loading hitches; warnings and errors keep their stacks.
+    }
+
+    private void RestoreOrdinaryLogStackTraces()
+    {
+        if (!_ordinaryLogStackTracesSuppressed)
+            return;
+
+        Application.SetStackTraceLogType(
+            LogType.Log,
+            _previousOrdinaryLogStackTraceType);
+        _ordinaryLogStackTracesSuppressed = false;
+        // note: The project's original diagnostic policy resumes immediately after the generation presentation releases ownership.
+    }
 
     private void OnLogMessage(
         string condition,
