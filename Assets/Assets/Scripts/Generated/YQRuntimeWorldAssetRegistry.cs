@@ -101,7 +101,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
                 if (_instance != null)
                 {
-                    _instance.BuildLookup();
+                    // note: Resources loading invokes OnEnable, so reuse its dictionaries instead of rebuilding the entire root registry twice on the loading screen.
+                    _instance.EnsureLookup();
                     _instance.LogRuntimeSummaryOnce();
                 }
             }
@@ -586,7 +587,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
                 continue;
             }
 
-            shard.BuildLookup();
+            // note: The asynchronously loaded shard has already run OnEnable; only build here if its nonserialized lookup was genuinely unavailable.
+            shard.EnsureLookup();
             _loadedShards[resourcePath] =
                 shard;
         }
@@ -729,7 +731,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             return false;
         }
 
-        shard.BuildLookup();
+        // note: A synchronous fallback load also invokes OnEnable, so avoid a second full dictionary allocation on the requesting frame.
+        shard.EnsureLookup();
         _loadedShards[resourcePath] =
             shard;
 
