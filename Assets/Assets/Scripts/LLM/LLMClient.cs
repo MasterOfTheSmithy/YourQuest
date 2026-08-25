@@ -289,7 +289,8 @@ public sealed class LLMClient : MonoBehaviour
         string debugTag,
         Dictionary<string, object> optionsOverride,
         string exclusiveOwner,
-        bool disableTimeout = true)
+        // note: Startup-exclusive work is important, not infinite; callers must opt in explicitly if a genuinely unbounded local request is ever required.
+        bool disableTimeout = false)
     {
         string owner = string.IsNullOrWhiteSpace(exclusiveOwner) ? string.Empty : exclusiveOwner.Trim();
         if (string.IsNullOrWhiteSpace(owner))
