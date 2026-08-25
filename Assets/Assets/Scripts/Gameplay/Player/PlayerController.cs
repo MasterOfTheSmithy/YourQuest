@@ -769,7 +769,7 @@ public class PlayerController : MonoBehaviour
                 legacyCharacterControllerWasEnabled;
         }
 
-        Physics.SyncTransforms();
+        // note: Generated world transforms were integrated across many loading frames; a full-scene SyncTransforms here rescanned every streamed collider and caused a final reveal hitch. The next normal physics step publishes the restored player body.
 
         generationGameplayLockApplied =
             false;
@@ -873,7 +873,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.WakeUp();
 
-            Physics.SyncTransforms();
+            // note: Repair only changes the authoritative Rigidbody; waking it is sufficient and avoids a second full-world transform synchronization after generation.
 
             if (logRepair &&
                 !reportedPostGenerationPhysicsRepair)
