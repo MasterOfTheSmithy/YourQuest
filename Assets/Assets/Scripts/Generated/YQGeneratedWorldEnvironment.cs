@@ -1856,6 +1856,12 @@ public static class YQGeneratedWorldEnvironment
             PrepareWildernessInstance(
                 instance);
 
+            // note: Imported scatter hierarchies repair cooperatively so an unexpectedly dense prefab cannot freeze the Goddess loading animation.
+            yield return YQRuntimeUrpMaterialRepair
+                .RepairMaterialHierarchyRoutine(
+                    instance,
+                    null);
+
             if (!FinalizeSmallWildernessInstance(
                     instance,
                     terrain,
@@ -2304,9 +2310,11 @@ public static class YQGeneratedWorldEnvironment
                     reference.assetPath,
                     instance);
 
-                YQRuntimeUrpMaterialRepair
-                    .RepairHierarchy(
-                        instance);
+                // note: Cave material traversal shares the loading-frame budget instead of turning async instantiation into a synchronous hierarchy spike.
+                yield return YQRuntimeUrpMaterialRepair
+                    .RepairMaterialHierarchyRoutine(
+                        instance,
+                        null);
 
                 PrepareStaticStructure(
                     instance);
@@ -2602,9 +2610,11 @@ public static class YQGeneratedWorldEnvironment
                     entry.assetPath,
                     instance);
 
-                YQRuntimeUrpMaterialRepair
-                    .RepairHierarchy(
-                        instance);
+                // note: Dense creature prefabs repair over bounded frames before silhouette normalization and physics setup.
+                yield return YQRuntimeUrpMaterialRepair
+                    .RepairMaterialHierarchyRoutine(
+                        instance,
+                        null);
 
                 float targetHeight =
                     ResolveMonsterTargetHeight(
@@ -3692,9 +3702,11 @@ public static class YQGeneratedWorldEnvironment
                     reference.assetPath,
                     chest);
 
-                YQRuntimeUrpMaterialRepair
-                    .RepairHierarchy(
-                        chest);
+                // note: Treasure hierarchies repair cooperatively before collision and grounding are finalized.
+                yield return YQRuntimeUrpMaterialRepair
+                    .RepairMaterialHierarchyRoutine(
+                        chest,
+                        null);
 
                 PrepareStaticStructure(
                     chest);
@@ -3988,9 +4000,7 @@ public static class YQGeneratedWorldEnvironment
                 false;
         }
 
-        YQRuntimeUrpMaterialRepair
-            .RepairHierarchy(
-                root);
+        // note: Material traversal is owned by the surrounding spawn coroutine so this physics preparation remains bounded and allocation-light.
     }
 
     private static bool FinalizeSmallWildernessInstance(
