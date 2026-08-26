@@ -299,6 +299,27 @@ public static class YQGoddessGenerationDialogue
     public static string TakeOriginTransition(
         string fallback)
     {
+        if (YQGoddessLoadingVoice.TryTakePlayerIntroduction(
+                out string introduction))
+        {
+            // note: The direct welcome is always the first origin thought; accepted model prose follows through the existing transcript queue.
+            string authoredTransition =
+                Take(
+                    ref _originTransition,
+                    string.Empty);
+
+            if (!string.IsNullOrWhiteSpace(authoredTransition))
+            {
+                QueueGeneratedLine(
+                    authoredTransition);
+            }
+
+            _lastSelectionWasGenerated =
+                false;
+
+            return introduction;
+        }
+
         return Take(
             ref _originTransition,
             fallback);

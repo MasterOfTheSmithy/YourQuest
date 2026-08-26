@@ -60,6 +60,9 @@ public static class YQGoddessLoadingVoice
 
     private static int _playerAwareLineCount;
 
+    // note: The first origin line is a one-shot welcome so the player hears an introduction before construction status commentary.
+    private static bool _playerIntroductionDelivered;
+
     private static readonly string[]
         OriginTransitionFallback =
         {
@@ -75,6 +78,18 @@ public static class YQGoddessLoadingVoice
             "Your name and purpose are written into eternity. The handwriting is cramped. Geography will make it look intentional.",
 
             "I pronounce your beginning complete. Quietly. The world behind it is still mostly instructions and one alarming hill."
+        };
+
+    private static readonly string[]
+        PlayerIntroductionTemplates =
+        {
+            "Welcome, {0}. I know you have questions, but for now, I must work. This world is fragile, and I am shaping its first roads around {1}. I am doing my best to keep it together, even despite your nonsense.",
+
+            "Welcome, {0}. Your answers gave me a beginning: {1}. The world is very fragile, but it is being built especially for you. If reality wobbles, that is my problem. Mostly.",
+
+            "Come in, {0}. I have your place prepared—loosely. {1} is already written into your first tools, roads, and trouble. I am holding the edges together while pretending this was all deliberate.",
+
+            "Welcome, {0}. I am making a world that can carry you, starting with {1}. It may creak while I finish it. That is not a warning; it is simply the sound of my excellent plan being tested."
         };
 
     private static readonly string[]
@@ -1003,6 +1018,132 @@ public static class YQGoddessLoadingVoice
 
         _playerAwareLineCount =
             0;
+
+        _playerIntroductionDelivered =
+            false;
+    }
+
+    public static bool TryTakePlayerIntroduction(
+        out string line)
+    {
+        line =
+            string.Empty;
+
+        if (_playerIntroductionDelivered)
+            return false;
+
+        PlayerState state =
+            PlayerStateManager.Instance != null
+                ? PlayerStateManager.Instance.state
+                : null;
+
+        if (state == null)
+            return false;
+
+        _playerIntroductionDelivered =
+            true;
+
+        string playerName =
+            SafeDisplay(
+                state.displayName);
+
+        if (string.IsNullOrWhiteSpace(playerName) ||
+            string.Equals(
+                playerName,
+                "The Player",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            playerName =
+                "adventurer";
+        }
+
+        string identity =
+            ResolvePlayerIdentityPhrase(
+                state);
+
+        string template =
+            Pick(
+                "player_introduction",
+                PlayerIntroductionTemplates);
+
+        if (string.IsNullOrWhiteSpace(template))
+            return false;
+
+        try
+        {
+            // note: The welcome binds the authored name and one accepted origin fact without exposing internal generation terminology.
+            line =
+                string.Format(
+                    template,
+                    playerName,
+                    identity);
+        }
+        catch
+        {
+            line =
+                string.Empty;
+        }
+
+        return
+            !string.IsNullOrWhiteSpace(line);
+    }
+
+    private static string ResolvePlayerIdentityPhrase(
+        PlayerState state)
+    {
+        if (state != null &&
+            state.generatedOrigin != null)
+        {
+            GeneratedOriginRecord origin =
+                state.generatedOrigin;
+
+            if (!string.IsNullOrWhiteSpace(origin.className))
+            {
+                return
+                    "the " +
+                    SafeDisplay(origin.className) +
+                    " you are becoming";
+            }
+
+            if (!string.IsNullOrWhiteSpace(origin.titleName))
+            {
+                return
+                    "the title " +
+                    SafeDisplay(origin.titleName) +
+                    " you earned";
+            }
+
+            if (!string.IsNullOrWhiteSpace(origin.stimulus))
+            {
+                return
+                    "what matters to you: " +
+                    SafeDisplay(origin.stimulus);
+            }
+        }
+
+        if (state != null &&
+            !string.IsNullOrWhiteSpace(state.characterLifeDirection))
+        {
+            return
+                "the direction you chose: " +
+                SafeDisplay(state.characterLifeDirection);
+        }
+
+        AnswerProfile profile =
+            AnalyzeAnswers(
+                state,
+                null);
+
+        if (profile != null &&
+            !string.IsNullOrWhiteSpace(profile.RecurringTheme))
+        {
+            return
+                "the theme in your answers: " +
+                SafeDisplay(profile.RecurringTheme);
+        }
+
+        return
+            "the shape of your answers";
     }
 
     public static string BuildQuestionnaireContextForPrompt(

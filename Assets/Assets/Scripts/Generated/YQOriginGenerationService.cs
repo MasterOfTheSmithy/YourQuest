@@ -239,6 +239,11 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             YQGoddessGenerationDialogue.BuildBasicVoiceContract(
                 "The player's origin, class, title, first ability, quest, and loadout in this response are being accepted now.",
                 "The accepted origin will be persisted, then the first world plan will be requested.") +
+            "ORIGIN WELCOME:\n" +
+            "- This is the player's first welcome. Address the supplied displayName directly when it is present; do not describe a scene instead of speaking to the player.\n" +
+            "- Introduce the world as fragile and made especially for this player, while admitting that keeping it together is difficult.\n" +
+            "- Use one or two supplied identity facts (class, title, stimulus, answers, ability, or loadout) to show that the player's choices are shaping the character and starting world.\n" +
+            "- A little affectionate exasperation about the player's nonsense is welcome, but never erase their agency or turn the welcome into an insult.\n" +
             "- For this origin response, provide exactly 2 ambientLines grounded in the accepted origin fields.\n";
     }
 
