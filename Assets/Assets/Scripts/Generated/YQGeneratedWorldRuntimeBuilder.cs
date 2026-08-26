@@ -1006,12 +1006,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 yield break;
             }
 
-            // note: Terrain geometry/layers become canonical first; reviewed construction pads are then applied in plan order before any wilderness object samples a height.
+            // note: Terrain geometry becomes canonical first; construction pads are finalized before surface painting so visual slopes and physical slopes cannot disagree.
             yield return
                 YQGeneratedWorldEnvironment.BuildTerrainFoundationRoutine(
                     _generatedTerrain,
                     plan,
-                    registry);
+                    registry,
+                    true);
 
             bool constructionTerrainPrepared =
                 false;
@@ -1021,6 +1022,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 plan,
                 _generatedTerrain,
                 prepared => constructionTerrainPrepared = prepared);
+
+            // note: Paint the finalized construction-aware heightfield once; repainting before and after grading doubled GPU uploads and left every late pad with the wrong material mask.
+            yield return
+                YQGeneratedWorldEnvironment.BuildTerrainSurfaceRoutine(
+                    _generatedTerrain,
+                    plan,
+                    registry);
 
             // note: Dressing is a read-only consumer of the final canonical heightfield. Streamed sites can no longer reshape terrain after this point.
             yield return

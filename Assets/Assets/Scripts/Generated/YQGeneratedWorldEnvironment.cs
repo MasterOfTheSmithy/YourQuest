@@ -42,7 +42,7 @@ public static class YQGeneratedWorldEnvironment
         24;
 
     private const int BaseLandformsPerRegion =
-        3;
+        5;
 
     private const int BaseAmbientEncounterGroupsPerRegion =
         1;
@@ -147,7 +147,8 @@ public static class YQGeneratedWorldEnvironment
     public static IEnumerator BuildTerrainFoundationRoutine(
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
-        YQRuntimeWorldAssetRegistry registry)
+        YQRuntimeWorldAssetRegistry registry,
+        bool deferSurfacePaint = false)
     {
         if (terrain == null ||
             terrain.terrainData == null ||
@@ -177,22 +178,26 @@ public static class YQGeneratedWorldEnvironment
         // note: Palette shifts and initial construction yield between terrain phases so one frame never owns the complete world build.
         yield return null;
 
-        List<RegionSurface> surfaces =
-            null;
+        List<RegionSurface> surfaces = new List<RegionSurface>();
 
-        yield return ApplyRegionalTerrainLayersRoutine(
-            terrain,
-            plan,
-            registry,
-            result => surfaces = result);
+        if (!deferSurfacePaint)
+        {
+            yield return ApplyRegionalTerrainLayersRoutine(
+                terrain,
+                plan,
+                registry,
+                result => surfaces = result);
 
-        surfaces ??=
-            new List<RegionSurface>();
+            surfaces ??= new List<RegionSurface>();
+        }
 
         yield return null;
 
         Debug.Log(
-            "[YQGeneratedWorldEnvironment] TERRAIN FOUNDATION READY\n" +
+            "[YQGeneratedWorldEnvironment] " +
+            (deferSurfacePaint
+                ? "TERRAIN GEOMETRY READY\n"
+                : "TERRAIN FOUNDATION READY\n") +
             "Terrain layers: " +
             (terrain.terrainData.terrainLayers != null
                 ? terrain.terrainData.terrainLayers.Length
@@ -200,6 +205,35 @@ public static class YQGeneratedWorldEnvironment
             "\nRegion surface mappings: " + surfaces.Count +
             "\nRegions: " + plan.regions.Count +
             "\nTerrain hills/mountains stamped: " + landforms);
+    }
+
+    public static IEnumerator BuildTerrainSurfaceRoutine(
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry)
+    {
+        if (terrain == null || terrain.terrainData == null ||
+            plan == null || registry == null)
+        {
+            yield break;
+        }
+
+        List<RegionSurface> surfaces = null;
+        // note: Production paints after every construction pad is finalized, so slope stone, biome detail, and the authored approach describe the terrain the player actually collides with.
+        yield return ApplyRegionalTerrainLayersRoutine(
+            terrain,
+            plan,
+            registry,
+            result => surfaces = result);
+
+        Debug.Log(
+            "[YQGeneratedWorldEnvironment] TERRAIN SURFACE READY\n" +
+            "Terrain layers: " +
+            (terrain.terrainData.terrainLayers != null
+                ? terrain.terrainData.terrainLayers.Length
+                : 0) +
+            "\nRegion surface mappings: " +
+            (surfaces != null ? surfaces.Count : 0));
     }
 
     public static IEnumerator BuildWildernessRoutine(
@@ -232,6 +266,24 @@ public static class YQGeneratedWorldEnvironment
 
         stats ??=
             new WildernessBuildStats();
+
+        int originVegetation = 0;
+        int originRocks = 0;
+
+        // note: Regional scatter alone can leave the fixed tutorial threshold inside a mathematically valid but visually empty gap between region centers; a bounded local composition guarantees readable foreground and midground silhouettes.
+        yield return BuildOriginApproachDressingRoutine(
+            parent,
+            terrain,
+            plan,
+            registry,
+            (vegetation, rocks) =>
+            {
+                originVegetation = vegetation;
+                originRocks = rocks;
+            });
+
+        stats.vegetation += originVegetation;
+        stats.rocks += originRocks;
 
         // note: Wilderness grounding uses terrain samples and renderer bounds; colliders can join the next normal physics step instead of forcing a full-scene loading synchronization.
         yield return null;
@@ -326,7 +378,7 @@ public static class YQGeneratedWorldEnvironment
              */
             int attempts =
                 target *
-                4;
+                8;
 
             int regionStamped =
                 0;
@@ -443,7 +495,7 @@ public static class YQGeneratedWorldEnvironment
                     Mathf.PI *
                     2f;
 
-                ApplyTerrainLandformStamp(
+                yield return ApplyTerrainLandformStampRoutine(
                     terrain,
                     heights,
                     center,
@@ -456,7 +508,7 @@ public static class YQGeneratedWorldEnvironment
 
                 stamped++;
 
-                // note: One terrain landform is the largest indivisible authored unit; yield immediately afterward to preserve the loading presentation heartbeat.
+                // note: Separate completed landforms across frames so heightmap authorship and later terrain upload cannot combine into one presentation spike.
                 yield return null;
             }
 
@@ -580,12 +632,12 @@ public static class YQGeneratedWorldEnvironment
         {
             return
                 Mathf.Lerp(
-                    38f +
+                    58f +
                         danger *
-                        1.5f,
-                    68f +
+                        2.0f,
+                    104f +
                         danger *
-                        2.2f,
+                        3.0f,
                     Deterministic01(
                         seed +
                         "|radius"));
@@ -627,12 +679,12 @@ public static class YQGeneratedWorldEnvironment
         {
             amplitude =
                 Mathf.Lerp(
-                    8f +
-                        danger *
-                        0.7f,
                     18f +
                         danger *
-                        1.25f,
+                        1.1f,
+                    42f +
+                        danger *
+                        2.0f,
                     Deterministic01(
                         seed +
                         "|height"));
@@ -658,10 +710,10 @@ public static class YQGeneratedWorldEnvironment
             Mathf.Min(
                 amplitude,
                 terrain.terrainData.size.y *
-                0.20f);
+                0.42f);
     }
 
-    private static void ApplyTerrainLandformStamp(
+    private static IEnumerator ApplyTerrainLandformStampRoutine(
         Terrain terrain,
         float[,] heights,
         Vector3 worldCenter,
@@ -676,7 +728,7 @@ public static class YQGeneratedWorldEnvironment
             radius <= 0.1f ||
             amplitudeMeters <= 0.01f)
         {
-            return;
+            yield break;
         }
 
         TerrainData data =
@@ -770,6 +822,8 @@ public static class YQGeneratedWorldEnvironment
             Mathf.Max(
                 0.001f,
                 size.y);
+
+        float frameStartedAt = Time.realtimeSinceStartup;
 
         for (int z = minZ;
              z <= maxZ;
@@ -875,6 +929,13 @@ public static class YQGeneratedWorldEnvironment
                             x] +
                         normalizedAmplitude *
                         shaped);
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            {
+                // note: Broad mountain silhouettes are authored a few height rows at a time so improved terrain cannot reintroduce a loading-screen hard frame.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
             }
         }
     }
@@ -1340,6 +1401,9 @@ public static class YQGeneratedWorldEnvironment
         Vector3 terrainSize =
             data.size;
 
+        Vector3 originAnchor =
+            YQGeneratedWorldLayout.GetVeyOriginAnchor();
+
         // note: One bounded height read supplies slope and elevation masks for every splat pixel; repeated native Terrain queries inside the 256x256 paint loop caused avoidable loading spikes.
         float[,] heightSamples =
             data.GetHeights(
@@ -1465,6 +1529,12 @@ public static class YQGeneratedWorldEnvironment
                 float totalWeight =
                     0f;
 
+                RegionSurface nearestSurface =
+                    null;
+
+                float nearestDistanceSquared =
+                    float.PositiveInfinity;
+
                 for (int regionIndex = 0;
                      regionIndex < surfaces.Count;
                      regionIndex++)
@@ -1486,6 +1556,12 @@ public static class YQGeneratedWorldEnvironment
                             dx +
                         dz *
                             dz;
+
+                    if (distanceSquared < nearestDistanceSquared)
+                    {
+                        nearestDistanceSquared = distanceSquared;
+                        nearestSurface = surface;
+                    }
 
                     float influence =
                         1f /
@@ -1575,6 +1651,43 @@ public static class YQGeneratedWorldEnvironment
                     }
                 }
 
+                float originLocalZ =
+                    worldZ - originAnchor.z;
+
+                if (totalWeight > 0.0000001f && nearestSurface != null &&
+                    originLocalZ >= -118f && originLocalZ <= 30f)
+                {
+                    float longitudinalFade =
+                        Mathf.SmoothStep(-118f, -100f, originLocalZ) *
+                        (1f - Mathf.SmoothStep(18f, 30f, originLocalZ));
+
+                    float trailCenterX =
+                        originAnchor.x +
+                        Mathf.Sin((originLocalZ + 118f) * 0.041f) * 3.2f;
+
+                    float trailMask =
+                        (1f - Mathf.SmoothStep(
+                            3.2f,
+                            8.5f,
+                            Mathf.Abs(worldX - trailCenterX))) *
+                        longitudinalFade;
+
+                    if (trailMask > 0.001f &&
+                        nearestSurface.detailLayerIndex >= 0 &&
+                        nearestSurface.detailLayerIndex < layerCount)
+                    {
+                        // note: The fixed Goddess approach is a restrained biome-detail corridor painted into the authoritative terrain, never a floating road mesh or a cross-palette prop strip.
+                        float trailWeight =
+                            totalWeight * trailMask * 4.2f;
+
+                        weights[y, x, nearestSurface.detailLayerIndex] +=
+                            trailWeight;
+
+                        totalWeight +=
+                            trailWeight;
+                    }
+                }
+
                 if (totalWeight <=
                     0.0000001f)
                 {
@@ -1648,6 +1761,112 @@ public static class YQGeneratedWorldEnvironment
     // ============================================================
     // WILDERNESS
     // ============================================================
+
+    private static IEnumerator BuildOriginApproachDressingRoutine(
+        Transform parent,
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry,
+        Action<int, int> completed)
+    {
+        if (parent == null || terrain == null || plan == null ||
+            registry == null || plan.regions == null ||
+            plan.regions.Count == 0)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        GeneratedRegionRecord nearestRegion = null;
+        GeneratedRegionAssetPaletteRecord nearestPalette = null;
+        Vector3 originAnchor = YQGeneratedWorldLayout.GetVeyOriginAnchor();
+        float nearestDistanceSquared = float.PositiveInfinity;
+
+        for (int index = 0; index < plan.regions.Count; index++)
+        {
+            GeneratedRegionRecord region = plan.regions[index];
+            GeneratedRegionAssetPaletteRecord palette =
+                region != null ? FindPalette(plan, region) : null;
+
+            if (region == null || palette == null)
+                continue;
+
+            Vector3 regionCenter =
+                YQGeneratedWorldLayout.GetRegionCenter(plan, region, terrain);
+            float distanceSquared =
+                (new Vector2(regionCenter.x, regionCenter.z) -
+                 new Vector2(originAnchor.x, originAnchor.z)).sqrMagnitude;
+
+            if (distanceSquared >= nearestDistanceSquared)
+                continue;
+
+            nearestDistanceSquared = distanceSquared;
+            nearestRegion = region;
+            nearestPalette = palette;
+        }
+
+        if (nearestRegion == null || nearestPalette == null)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        Transform previous = parent.Find("Generated_OriginApproachDressing");
+        if (previous != null)
+        {
+            previous.gameObject.SetActive(false);
+            UnityEngine.Object.Destroy(previous.gameObject);
+        }
+
+        GameObject root = new GameObject("Generated_OriginApproachDressing");
+        root.transform.SetParent(parent, false);
+
+        int vegetationSpawned = 0;
+        int rocksSpawned = 0;
+
+        // note: Four-to-six-member palette clusters frame the authored approach outside its traversal reserve; they are deterministic set dressing, not global uniform noise.
+        yield return SpawnSmallScatterAreaRoutine(
+            root.transform,
+            terrain,
+            plan,
+            nearestRegion,
+            nearestPalette,
+            registry,
+            originAnchor,
+            YQWorldAssetCatalog.SlotVegetation,
+            72,
+            32f,
+            112f,
+            14f,
+            28f,
+            16f,
+            count => vegetationSpawned = count);
+
+        yield return SpawnSmallScatterAreaRoutine(
+            root.transform,
+            terrain,
+            plan,
+            nearestRegion,
+            nearestPalette,
+            registry,
+            originAnchor,
+            YQWorldAssetCatalog.SlotRock,
+            24,
+            34f,
+            118f,
+            14f,
+            30f,
+            16f,
+            count => rocksSpawned = count);
+
+        Debug.Log(
+            "[YQGeneratedWorldEnvironment] ORIGIN APPROACH DRESSED\n" +
+            "Palette region: " + nearestRegion.displayName + "\n" +
+            "Vegetation: " + vegetationSpawned + "/72\n" +
+            "Rock outcrops: " + rocksSpawned + "/24");
+
+        completed?.Invoke(vegetationSpawned, rocksSpawned);
+    }
 
     private static IEnumerator
         BuildRegionalWildernessRoutine(
@@ -1964,6 +2183,41 @@ public static class YQGeneratedWorldEnvironment
         int targetCount,
         Action<int> completed)
     {
+        return SpawnSmallScatterAreaRoutine(
+            parent,
+            terrain,
+            plan,
+            region,
+            palette,
+            registry,
+            regionCenter,
+            slot,
+            targetCount,
+            WildernessRadiusMin,
+            WildernessRadiusMax,
+            SettlementClearRadius,
+            OriginClearRadius,
+            16f,
+            completed);
+    }
+
+    private static IEnumerator SpawnSmallScatterAreaRoutine(
+        Transform parent,
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        GeneratedRegionRecord region,
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry,
+        Vector3 regionCenter,
+        string slot,
+        int targetCount,
+        float minimumRadius,
+        float maximumRadius,
+        float settlementClearRadius,
+        float originClearRadius,
+        float encampmentClearRadius,
+        Action<int> completed)
+    {
         if (parent == null ||
             terrain == null ||
             plan == null ||
@@ -2050,11 +2304,11 @@ public static class YQGeneratedWorldEnvironment
                     plan,
                     regionCenter,
                     clusterSeed,
-                    WildernessRadiusMin,
-                    WildernessRadiusMax,
-                    SettlementClearRadius,
-                    OriginClearRadius,
-                    16f,
+                    minimumRadius,
+                    maximumRadius,
+                    settlementClearRadius,
+                    originClearRadius,
+                    encampmentClearRadius,
                     out Vector3 clusterCenter))
             {
                 continue;
@@ -2072,9 +2326,9 @@ public static class YQGeneratedWorldEnvironment
                     terrain,
                     plan,
                     position,
-                    SettlementClearRadius,
-                    OriginClearRadius,
-                    16f))
+                    settlementClearRadius,
+                    originClearRadius,
+                    encampmentClearRadius))
             {
                 continue;
             }

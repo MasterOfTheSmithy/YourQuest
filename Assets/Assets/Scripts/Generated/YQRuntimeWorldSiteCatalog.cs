@@ -1112,37 +1112,34 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             }
 
             int groundedCellCount = 0;
-            if (presentationMode ==
-                    YQWorldSitePresentationMode.SeamlessExterior &&
-                !UsesAuthoredTerrainRelief())
+            Terrain generatedTerrain = ResolveGeneratedTerrain(
+                contentRoot.transform.position);
+            bool curatedWitchHouse = string.Equals(
+                expectedKitId,
+                "witch_house",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (generatedTerrain != null && curatedWitchHouse)
             {
-                Terrain generatedTerrain = ResolveGeneratedTerrain(
-                    contentRoot.transform.position);
-                if (generatedTerrain != null)
-                {
-                    if (string.Equals(
-                            expectedKitId,
-                            "witch_house",
-                            StringComparison.OrdinalIgnoreCase))
+                // note: The curated Witch House discards its source-demo relief, so it must always bind to generated terrain even when legacy manifest presentation metadata is not SeamlessExterior.
+                yield return CurateAndGroundWitchHouseRoutine(
+                    contentRoot,
+                    generatedTerrain,
+                    (grounded, removed) =>
                     {
-                        // note: Witch House is a furnished structure embedded high and off-center inside a large source demo cell; curate that coherent cluster directly onto Vey's prepared terrain pad.
-                        yield return CurateAndGroundWitchHouseRoutine(
-                            contentRoot,
-                            generatedTerrain,
-                            (grounded, removed) =>
-                            {
-                                groundedCellCount = grounded;
-                                removedPreviewArtifactCount += removed;
-                            });
-                    }
-                    else
-                    {
-                        yield return AlignCompiledCellsToTerrainRoutine(
-                            contentRoot,
-                            generatedTerrain,
-                            count => groundedCellCount = count);
-                    }
-                }
+                        groundedCellCount = grounded;
+                        removedPreviewArtifactCount += removed;
+                    });
+            }
+            else if (generatedTerrain != null &&
+                     presentationMode ==
+                        YQWorldSitePresentationMode.SeamlessExterior &&
+                     !UsesAuthoredTerrainRelief())
+            {
+                yield return AlignCompiledCellsToTerrainRoutine(
+                    contentRoot,
+                    generatedTerrain,
+                    count => groundedCellCount = count);
             }
 
             Debug.Log(
