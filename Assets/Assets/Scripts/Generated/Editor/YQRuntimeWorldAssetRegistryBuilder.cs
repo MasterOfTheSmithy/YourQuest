@@ -100,6 +100,8 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         "Assets/BefourStudios/WesternDesertTown",
         "Assets/HIVEMIND",
         "Assets/Tom's Terrain Tools/Unity Terrain Assets",
+        // note: Approved URP conifers must enter runtime shards; editor-only AssetDatabase fallback previously hid their absence until a player build.
+        "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs",
         "Assets/YughuesFreeBushes2018/Prefabs",
         "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests",
         "Assets/Magic Pig Games (Infinity PBR)/Characters/Rock Monster",

@@ -1052,6 +1052,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             // note: A new world begins at the authored threshold; ordinary loads retain the save's horizontal location and receive only terrain-height safety correction.
             PlacePlayerAtGeneratedOrigin(
                 _generatedTerrain,
+                plan,
                 narrate);
 
             int settlementsBuilt =
@@ -4976,7 +4977,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         bool prepared = true;
         List<ConstructionFootprintReservation> reservations =
             new List<ConstructionFootprintReservation>();
+        List<YQGeneratedWorldEnvironment.LivedPathTerrainReservation>
+            pathTerrainReservations =
+                new List<YQGeneratedWorldEnvironment.LivedPathTerrainReservation>();
         Vector3 originAnchor = YQGeneratedWorldLayout.GetVeyOriginAnchor();
+
+        pathTerrainReservations.Add(
+            new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                originAnchor,
+                YQGeneratedWorldLayout.OriginReserveRadius));
+        pathTerrainReservations.Add(
+            new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                originAnchor + OriginWitchHouseOffset,
+                24f));
 
         // note: Messenger Mountain authored the Goddess 23.7 metres above its source datum; reproduce that relief instead of flattening the shrine and leaving its statue suspended in the air.
         prepared &= GradeOriginGoddessRelief(
@@ -5071,7 +5084,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         terrain,
                         center,
                         flatRadius,
-                        outerRadius))
+                        outerRadius,
+                        ResolveMinimumConstructionWorldHeight(
+                            plan.worldSeed,
+                            terrain,
+                            center,
+                            footprintRadius)))
                 {
                     Debug.LogError(
                         "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED SETTLEMENT\n" +
@@ -5085,6 +5103,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     label,
                     center,
                     footprintRadius));
+                pathTerrainReservations.Add(
+                    new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                        center,
+                        outerRadius));
 
                 yield return null;
             }
@@ -5153,7 +5175,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         terrain,
                         center,
                         flatRadius,
-                        outerRadius))
+                        outerRadius,
+                        ResolveMinimumConstructionWorldHeight(
+                            plan.worldSeed,
+                            terrain,
+                            center,
+                            footprintRadius)))
                 {
                     Debug.LogError(
                         "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED HOSTILE SITE\n" +
@@ -5163,11 +5190,20 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     continue;
                 }
 
+                // note: The relocated runtime anchor adopts the finished shelf elevation, including any lake-clearance raise, before hostile-site content binds to it.
+                center.y = SampleTerrainDataWorldHeight(
+                    terrain,
+                    center);
                 YQGeneratedWorldLayout.SetRuntimeEncampmentAnchor(
                     encampment.encampmentId,
                     center);
 
-                if ((center - requestedCenter).sqrMagnitude > 0.01f)
+                Vector2 centerHorizontal = new Vector2(center.x, center.z);
+                Vector2 requestedHorizontal = new Vector2(
+                    requestedCenter.x,
+                    requestedCenter.z);
+
+                if ((centerHorizontal - requestedHorizontal).sqrMagnitude > 0.01f)
                 {
                     Debug.LogWarning(
                         "[YQGeneratedWorldRuntimeBuilder] HOSTILE SITE RELOCATED\n" +
@@ -5181,16 +5217,26 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     label,
                     center,
                     footprintRadius));
+                pathTerrainReservations.Add(
+                    new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                        center,
+                        outerRadius));
 
                 yield return null;
             }
         }
 
-        // note: Every pad uses delayed writes; publish height LOD and terrain rendering separately while deferring the global physics rebuild to final player handoff.
+        // note: Roads, cave climbs, and water crossings repair against the already-finalized construction shelves, then join the same delayed height publication as the pads.
+        yield return YQGeneratedWorldEnvironment
+            .RepairLivedPathTerrainRoutine(
+                terrain,
+                plan,
+                pathTerrainReservations);
+
+        // note: Every pad and lived path uses delayed writes; one required heightmap synchronization publishes render/physics authority, while the redundant full Terrain.Flush pass is deliberately avoided.
         yield return null;
         terrain.terrainData.SyncHeightmap();
         yield return null;
-        terrain.Flush();
         completed?.Invoke(prepared);
     }
 
@@ -5351,6 +5397,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         float flatRadius,
         float outerRadius)
     {
+        return GradeTerrainPad(
+            terrain,
+            center,
+            flatRadius,
+            outerRadius,
+            float.NegativeInfinity);
+    }
+
+    internal static bool GradeTerrainPad(
+        Terrain terrain,
+        Vector3 center,
+        float flatRadius,
+        float outerRadius,
+        float minimumWorldHeight)
+    {
         if (terrain == null || terrain.terrainData == null ||
             !terrain.gameObject.activeInHierarchy)
         {
@@ -5400,6 +5461,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         float[,] heights = data.GetHeights(startX, startZ, width, height);
         float sampledWorldHeight = terrain.SampleHeight(center) + origin.y;
+
+        if (!float.IsNaN(minimumWorldHeight) &&
+            !float.IsInfinity(minimumWorldHeight))
+        {
+            // note: Construction overlapping a deterministic lake rises into a dry shelf/island before buildings spawn; the water plane never becomes the settlement's floor.
+            sampledWorldHeight =
+                Mathf.Max(
+                    sampledWorldHeight,
+                    minimumWorldHeight);
+        }
         float targetHeight = Mathf.Clamp01(
             (sampledWorldHeight - origin.y) / Mathf.Max(0.001f, size.y));
         Vector2 horizontalCenter = new Vector2(center.x, center.z);
@@ -5439,6 +5510,67 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         // note: The caller batches all delayed pad writes and publishes one final heightmap, avoiding settlement-by-settlement terrain rebuild stalls.
         data.SetHeightsDelayLOD(startX, startZ, heights);
         return true;
+    }
+
+    private static float ResolveMinimumConstructionWorldHeight(
+        string worldSeed,
+        Terrain terrain,
+        Vector3 center,
+        float footprintRadius)
+    {
+        if (terrain == null || terrain.terrainData == null)
+            return float.NegativeInfinity;
+
+        float minimumHeight =
+            float.NegativeInfinity;
+
+        for (int basinIndex = 0;
+             basinIndex < YQGeneratedWorldTerrain.MacroWaterBasinCount;
+             basinIndex++)
+        {
+            if (!YQGeneratedWorldTerrain.TryGetMacroWaterBasin(
+                    worldSeed,
+                    terrain,
+                    basinIndex,
+                    out YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin) ||
+                !basin.ContainsXZ(
+                    center,
+                    Mathf.Max(0f, footprintRadius)))
+            {
+                continue;
+            }
+
+            minimumHeight =
+                Mathf.Max(
+                    minimumHeight,
+                    basin.WaterSurfaceY +
+                        1.25f);
+        }
+
+        return minimumHeight;
+    }
+
+    private static float SampleTerrainDataWorldHeight(
+        Terrain terrain,
+        Vector3 worldPosition)
+    {
+        if (terrain == null || terrain.terrainData == null)
+            return worldPosition.y;
+
+        TerrainData data = terrain.terrainData;
+        Vector3 origin = terrain.transform.position;
+        Vector3 size = data.size;
+        float normalizedX = Mathf.InverseLerp(
+            origin.x,
+            origin.x + size.x,
+            worldPosition.x);
+        float normalizedZ = Mathf.InverseLerp(
+            origin.z,
+            origin.z + size.z,
+            worldPosition.z);
+
+        // note: TerrainData exposes delayed height edits immediately, unlike physics which waits for the final SyncHeightmap transaction.
+        return origin.y + data.GetInterpolatedHeight(normalizedX, normalizedZ);
     }
 
     private static bool GradeOriginGoddessRelief(
@@ -7061,8 +7193,131 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 0f);
     }
 
+    private static Vector3 ResolveDryPlayerHorizontalPosition(
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        Vector3 requested)
+    {
+        if (terrain == null || terrain.terrainData == null)
+            return requested;
+
+        Vector3 origin = terrain.transform.position;
+        Vector3 size = terrain.terrainData.size;
+        const float boundaryMargin = 4f;
+        requested.x = Mathf.Clamp(
+            requested.x,
+            origin.x + boundaryMargin,
+            origin.x + size.x - boundaryMargin);
+        requested.z = Mathf.Clamp(
+            requested.z,
+            origin.z + boundaryMargin,
+            origin.z + size.z - boundaryMargin);
+        YQGeneratedWorldTerrain.MacroWaterBasinDescriptor[] basins =
+            new YQGeneratedWorldTerrain.MacroWaterBasinDescriptor[
+                YQGeneratedWorldTerrain.MacroWaterBasinCount];
+        int basinCount = 0;
+
+        if (plan != null)
+        {
+            for (int basinIndex = 0;
+                 basinIndex < YQGeneratedWorldTerrain.MacroWaterBasinCount;
+                 basinIndex++)
+            {
+                if (YQGeneratedWorldTerrain.TryGetMacroWaterBasin(
+                        plan.worldSeed,
+                        terrain,
+                        basinIndex,
+                        out YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin))
+                {
+                    basins[basinCount++] = basin;
+                }
+            }
+        }
+
+        if (!IsInsidePlayerWaterReserve(basins, basinCount, requested))
+            return requested;
+
+        float phase = Deterministic01(
+            (plan != null ? plan.worldSeed : string.Empty) +
+            "|player_dry_migration") *
+            Mathf.PI * 2f;
+
+        for (float radius = 12f; radius <= 180f; radius += 12f)
+        {
+            for (int directionIndex = 0;
+                 directionIndex < 16;
+                 directionIndex++)
+            {
+                float angle = phase +
+                    directionIndex / 16f * Mathf.PI * 2f;
+                Vector3 candidate = new Vector3(
+                    requested.x + Mathf.Cos(angle) * radius,
+                    requested.y,
+                    requested.z + Mathf.Sin(angle) * radius);
+
+                if (candidate.x < origin.x + boundaryMargin ||
+                    candidate.x > origin.x + size.x - boundaryMargin ||
+                    candidate.z < origin.z + boundaryMargin ||
+                    candidate.z > origin.z + size.z - boundaryMargin ||
+                    IsInsidePlayerWaterReserve(basins, basinCount, candidate))
+                {
+                    continue;
+                }
+
+                float normalizedX = Mathf.InverseLerp(
+                    origin.x,
+                    origin.x + size.x,
+                    candidate.x);
+                float normalizedZ = Mathf.InverseLerp(
+                    origin.z,
+                    origin.z + size.z,
+                    candidate.z);
+
+                if (terrain.terrainData.GetSteepness(
+                        normalizedX,
+                        normalizedZ) > 34f)
+                {
+                    continue;
+                }
+
+                // note: A save whose old horizontal location became lake water migrates to the nearest deterministic dry, walkable ring instead of spawning underwater.
+                return candidate;
+            }
+        }
+
+        Vector3 fallback = YQGeneratedWorldLayout.GetVeyOriginAnchor();
+        fallback.x = Mathf.Clamp(
+            fallback.x,
+            origin.x + boundaryMargin,
+            origin.x + size.x - boundaryMargin);
+        fallback.z = Mathf.Clamp(
+            fallback.z,
+            origin.z + boundaryMargin,
+            origin.z + size.z - boundaryMargin);
+        return fallback;
+    }
+
+    private static bool IsInsidePlayerWaterReserve(
+        YQGeneratedWorldTerrain.MacroWaterBasinDescriptor[] basins,
+        int basinCount,
+        Vector3 candidate)
+    {
+        for (int basinIndex = 0;
+             basins != null && basinIndex < basinCount;
+             basinIndex++)
+        {
+            if (basins[basinIndex].ContainsXZ(candidate, 7f))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static void PlacePlayerAtGeneratedOrigin(
         Terrain terrain,
+        GeneratedWorldPlanRecord plan,
         bool useGeneratedOrigin)
     {
         GameObject player =
@@ -7114,11 +7369,17 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (terrain != null)
         {
+            spawn = ResolveDryPlayerHorizontalPosition(
+                terrain,
+                plan,
+                spawn);
             float terrainSafeHeight = YQGeneratedWorldTerrain
                 .SampleWorldHeight(terrain, spawn) + 0.45f;
 
-            // note: Generated terrain is the absolute safety floor even when an authored semantic projection is malformed or unavailable.
-            spawn.y = Mathf.Max(spawn.y, terrainSafeHeight);
+            // note: Ordinary saves migrate onto the current deterministic surface instead of retaining a stale pre-migration altitude; new-origin authored clearance may still be higher.
+            spawn.y = useGeneratedOrigin
+                ? Mathf.Max(spawn.y, terrainSafeHeight)
+                : terrainSafeHeight;
         }
 
         /*

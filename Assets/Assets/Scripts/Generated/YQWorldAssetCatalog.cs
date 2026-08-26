@@ -1013,10 +1013,24 @@ public static class YQWorldAssetCatalog
             Add(p.rock, TomRock, SlotRock, "terrain_rock", "neutral_stone");
         }
 
-        // note: Surface regions without a native cave entrance still expose a curated subterranean POI rather than silently losing cave gameplay.
-        if (!ContainsSemanticReference(p.enemySite, "cave", "underground", "mine", "tunnel", "cavern"))
+        // note: Surface fantasy regions without a native cave entrance receive a style-adjacent fallback; technology/industrial palettes never inherit a Viking doorway merely to satisfy a slot.
+        if (ResolveStyleDomain(p.styleKey) == "fantasy" &&
+            !IsInteriorStyle(p.styleKey) &&
+            !ContainsSemanticReference(p.enemySite, "cave", "underground", "mine", "tunnel", "cavern"))
         {
-            Add(p.enemySite, P(Viking, "SM_WoodenUGEntrance"), SlotEnemySite, "subterranean", "cave_entrance");
+            if (ContainsAny(
+                    p.styleKey,
+                    "desert",
+                    "western",
+                    "persepolis",
+                    "ruin"))
+            {
+                Add(p.enemySite, P(Western, "SM_CaveStraight"), SlotEnemySite, "subterranean", "dry_cave_entrance");
+            }
+            else
+            {
+                Add(p.enemySite, P(Viking, "SM_WoodenUGEntrance"), SlotEnemySite, "subterranean", "cave_entrance");
+            }
         }
 
         if (p.enemySite.Count == 0 && p.largeStructure.Count > 0)
