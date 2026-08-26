@@ -1986,6 +1986,13 @@ public static class YQGeneratedWorldEnvironment
                      instances.Count < MaximumTerrainTreeInstances;
                      attempt++)
                 {
+                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    {
+                        // note: Rejected candidates consume budget too; yielding before evaluation prevents sparse biomes from spinning through thousands of failed samples in one loading frame.
+                        yield return null;
+                        frameStartedAt = Time.realtimeSinceStartup;
+                    }
+
                     string seed = plan.worldSeed +
                         "|terrain_tree|" + profile.region.regionId +
                         "|" + attempt;
@@ -2219,7 +2226,8 @@ public static class YQGeneratedWorldEnvironment
             data.detailPrototypes = Array.Empty<DetailPrototype>();
         }
 
-        terrain.Flush();
+        // note: Terrain setters already publish their own data; an explicit Flush here would synchronously force every vegetation and detail update onto one loading frame.
+        yield return null;
         completed?.Invoke(treeCount, detailCount);
     }
 
