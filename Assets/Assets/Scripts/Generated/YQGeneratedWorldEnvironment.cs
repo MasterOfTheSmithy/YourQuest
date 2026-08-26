@@ -38,6 +38,21 @@ public static class YQGeneratedWorldEnvironment
     private const int BaseVegetationPerRegion =
         96;
 
+    private const int TerrainDetailResolution =
+        256;
+
+    private const int TerrainDetailPatchResolution =
+        16;
+
+    private const int MaximumTerrainTreeInstances =
+        2400;
+
+    private const int MaximumTerrainTreePrototypes =
+        12;
+
+    private const int MaximumTerrainDetailPrototypes =
+        6;
+
     private const int BaseRockScatterPerRegion =
         24;
 
@@ -111,6 +126,21 @@ public static class YQGeneratedWorldEnvironment
         public int ambientEnemies;
 
         public int treasure;
+    }
+
+    private sealed class TerrainVegetationProfile
+    {
+        public GeneratedRegionRecord region;
+
+        public GeneratedRegionAssetPaletteRecord palette;
+
+        public Vector3 center;
+
+        public readonly List<int> treePrototypeIndices =
+            new List<int>();
+
+        public readonly List<int> detailPrototypeIndices =
+            new List<int>();
     }
 
     private sealed class AmbientMonsterSource
@@ -256,6 +286,20 @@ public static class YQGeneratedWorldEnvironment
         WildernessBuildStats stats =
             null;
 
+        int terrainTrees = 0;
+        int terrainDetails = 0;
+
+        // note: Macro trees and ground-cover fields belong to Terrain so thousands of plants batch natively instead of becoming thousands of loading-time GameObjects.
+        yield return BuildTerrainNativeVegetationRoutine(
+            terrain,
+            plan,
+            registry,
+            (trees, details) =>
+            {
+                terrainTrees = trees;
+                terrainDetails = details;
+            });
+
         // note: Wilderness families are committed across rendered frames instead of cloning every region's scenery in one loading-frame burst.
         yield return BuildRegionalWildernessRoutine(
             parent,
@@ -292,6 +336,10 @@ public static class YQGeneratedWorldEnvironment
             "[YQGeneratedWorldEnvironment] WILDERNESS READY\n" +
             "Vegetation spawned: " +
             stats.vegetation +
+            "\nTerrain tree instances: " +
+            terrainTrees +
+            "\nTerrain detail placements: " +
+            terrainDetails +
             "\nOrdinary rocks spawned: " +
             stats.rocks +
             "\nCave POIs spawned: " +
@@ -1759,6 +1807,599 @@ public static class YQGeneratedWorldEnvironment
     }
 
     // ============================================================
+    // TERRAIN-NATIVE VEGETATION
+    // ============================================================
+
+    private static IEnumerator BuildTerrainNativeVegetationRoutine(
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry,
+        Action<int, int> completed)
+    {
+        if (terrain == null || terrain.terrainData == null ||
+            plan == null || registry == null ||
+            plan.regions == null || plan.regions.Count == 0)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        TerrainData data = terrain.terrainData;
+        List<TreePrototype> treePrototypes = new List<TreePrototype>();
+        List<DetailPrototype> detailPrototypes = new List<DetailPrototype>();
+        Dictionary<string, int> treePrototypeByPath =
+            new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<int, int> detailPrototypeByTexture =
+            new Dictionary<int, int>();
+        List<TerrainVegetationProfile> profiles =
+            new List<TerrainVegetationProfile>();
+        float frameStartedAt = Time.realtimeSinceStartup;
+
+        for (int regionIndex = 0;
+             regionIndex < plan.regions.Count;
+             regionIndex++)
+        {
+            GeneratedRegionRecord region = plan.regions[regionIndex];
+            GeneratedRegionAssetPaletteRecord palette =
+                region != null ? FindPalette(plan, region) : null;
+
+            if (region == null || palette == null)
+                continue;
+
+            palette.EnsureCollections();
+            TerrainVegetationProfile profile =
+                new TerrainVegetationProfile
+                {
+                    region = region,
+                    palette = palette,
+                    center = YQGeneratedWorldLayout.GetRegionCenter(
+                        plan,
+                        region,
+                        terrain)
+                };
+
+            for (int referenceIndex = 0;
+                 referenceIndex < palette.vegetation.Count;
+                 referenceIndex++)
+            {
+                GeneratedAssetReferenceRecord reference =
+                    palette.vegetation[referenceIndex];
+
+                if (reference == null ||
+                    string.IsNullOrWhiteSpace(reference.assetPath))
+                {
+                    continue;
+                }
+
+                GameObject prefab = registry.ResolvePrefab(reference.assetPath);
+                if (prefab == null)
+                    continue;
+
+                if (LooksLikeTree(null, reference))
+                {
+                    if (profile.treePrototypeIndices.Count >= 3 ||
+                        IsOversizedSmallScatterPrefab(
+                            prefab,
+                            YQWorldAssetCatalog.SlotVegetation,
+                            reference))
+                    {
+                        continue;
+                    }
+
+                    if (!treePrototypeByPath.TryGetValue(
+                            reference.assetPath,
+                            out int prototypeIndex))
+                    {
+                        if (treePrototypes.Count >= MaximumTerrainTreePrototypes)
+                            continue;
+
+                        prototypeIndex = treePrototypes.Count;
+                        treePrototypeByPath.Add(
+                            reference.assetPath,
+                            prototypeIndex);
+                        treePrototypes.Add(
+                            new TreePrototype
+                            {
+                                prefab = prefab,
+                                bendFactor = 0.18f,
+                                navMeshLod = 0
+                            });
+                    }
+
+                    AddUniqueIndex(profile.treePrototypeIndices, prototypeIndex);
+                }
+                else if (profile.detailPrototypeIndices.Count < 2 &&
+                         LooksLikeTerrainDetailReference(reference) &&
+                         TryResolveTerrainDetailTexture(
+                             prefab,
+                             out Texture2D detailTexture))
+                {
+                    int textureKey = detailTexture.GetInstanceID();
+
+                    if (!detailPrototypeByTexture.TryGetValue(
+                            textureKey,
+                            out int detailIndex))
+                    {
+                        if (detailPrototypes.Count >= MaximumTerrainDetailPrototypes)
+                            continue;
+
+                        detailIndex = detailPrototypes.Count;
+                        detailPrototypeByTexture.Add(textureKey, detailIndex);
+                        detailPrototypes.Add(
+                            CreateTerrainDetailPrototype(detailTexture));
+                    }
+
+                    AddUniqueIndex(profile.detailPrototypeIndices, detailIndex);
+                }
+
+                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                {
+                    // note: Prototype discovery may touch lazy registry shards, so it yields before another imported vegetation family is inspected.
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
+            }
+
+            profiles.Add(profile);
+        }
+
+        int treeCount = 0;
+
+        if (treePrototypes.Count > 0)
+        {
+            data.treePrototypes = treePrototypes.ToArray();
+            yield return null;
+
+            List<TreeInstance> instances =
+                new List<TreeInstance>(
+                    Mathf.Min(
+                        MaximumTerrainTreeInstances,
+                        profiles.Count * 320));
+            Vector3 terrainOrigin = terrain.transform.position;
+            Vector3 terrainSize = data.size;
+            uint seedHash = StableHash32(
+                SafeText(plan.worldSeed, "yourquest_default_world"));
+            float noiseOffsetX = (seedHash & 0xFFFFu) * 0.0137f;
+            float noiseOffsetZ = ((seedHash >> 16) & 0xFFFFu) * 0.0173f;
+
+            for (int profileIndex = 0;
+                 profileIndex < profiles.Count &&
+                 instances.Count < MaximumTerrainTreeInstances;
+                 profileIndex++)
+            {
+                TerrainVegetationProfile profile = profiles[profileIndex];
+                if (profile.treePrototypeIndices.Count == 0)
+                    continue;
+
+                int target = Mathf.Clamp(
+                    Mathf.RoundToInt(
+                        ResolveVegetationTarget(
+                            profile.region,
+                            profile.palette) * 3.15f),
+                    180,
+                    420);
+                int placedForRegion = 0;
+                int attempts = target * 6;
+
+                for (int attempt = 0;
+                     attempt < attempts && placedForRegion < target &&
+                     instances.Count < MaximumTerrainTreeInstances;
+                     attempt++)
+                {
+                    string seed = plan.worldSeed +
+                        "|terrain_tree|" + profile.region.regionId +
+                        "|" + attempt;
+
+                    if (!TryResolveWildernessPosition(
+                            terrain,
+                            plan,
+                            profile.center,
+                            seed,
+                            18f,
+                            310f,
+                            28f,
+                            40f,
+                            24f,
+                            out Vector3 position))
+                    {
+                        continue;
+                    }
+
+                    position.y = YQGeneratedWorldTerrain.SampleWorldHeight(
+                        terrain,
+                        position);
+                    float normalizedX =
+                        (position.x - terrainOrigin.x) /
+                        Mathf.Max(0.001f, terrainSize.x);
+                    float normalizedZ =
+                        (position.z - terrainOrigin.z) /
+                        Mathf.Max(0.001f, terrainSize.z);
+                    Vector3 normal = data.GetInterpolatedNormal(
+                        normalizedX,
+                        normalizedZ);
+
+                    if (Vector3.Angle(Vector3.up, normal) > 34f)
+                        continue;
+
+                    float groveNoise = Mathf.PerlinNoise(
+                        noiseOffsetX + position.x * 0.0105f,
+                        noiseOffsetZ + position.z * 0.0105f);
+                    float moistureNoise = Mathf.PerlinNoise(
+                        noiseOffsetZ + position.x * 0.0038f,
+                        noiseOffsetX + position.z * 0.0038f);
+
+                    if (groveNoise * 0.68f + moistureNoise * 0.32f <
+                        ResolveTreeMaskThreshold(profile.palette))
+                    {
+                        continue;
+                    }
+
+                    int localPrototype = Mathf.Clamp(
+                        Mathf.FloorToInt(
+                            Deterministic01(seed + "|prototype") *
+                            profile.treePrototypeIndices.Count),
+                        0,
+                        profile.treePrototypeIndices.Count - 1);
+                    float baseScale = Mathf.Lerp(
+                        0.82f,
+                        1.22f,
+                        Deterministic01(seed + "|height"));
+
+                    // note: TreeInstance coordinates are terrain-normalized and snap to the final heightmap, eliminating prefab pivots and per-tree grounding work.
+                    instances.Add(
+                        new TreeInstance
+                        {
+                            position = new Vector3(
+                                normalizedX,
+                                Mathf.Clamp01(
+                                    (position.y - terrainOrigin.y) /
+                                    Mathf.Max(0.001f, terrainSize.y)),
+                                normalizedZ),
+                            prototypeIndex =
+                                profile.treePrototypeIndices[localPrototype],
+                            widthScale = baseScale * Mathf.Lerp(
+                                0.88f,
+                                1.08f,
+                                Deterministic01(seed + "|width")),
+                            heightScale = baseScale,
+                            rotation = Deterministic01(seed + "|yaw") *
+                                Mathf.PI * 2f,
+                            color = Color.white,
+                            lightmapColor = Color.white
+                        });
+                    placedForRegion++;
+
+                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    {
+                        // note: Ecological rejection sampling is frame-budgeted even though Terrain will batch the accepted tree instances at publication.
+                        yield return null;
+                        frameStartedAt = Time.realtimeSinceStartup;
+                    }
+                }
+            }
+
+            // note: One native Terrain publication replaces hundreds of managed object hierarchies and lets Unity own tree culling, billboards, and batching.
+            data.SetTreeInstances(instances.ToArray(), true);
+            treeCount = instances.Count;
+            terrain.treeDistance = 520f;
+            terrain.treeBillboardDistance = 135f;
+            terrain.treeCrossFadeLength = 20f;
+            terrain.treeMaximumFullLODCount = 72;
+            yield return null;
+        }
+        else
+        {
+            data.treePrototypes = Array.Empty<TreePrototype>();
+            data.treeInstances = Array.Empty<TreeInstance>();
+        }
+
+        int detailCount = 0;
+
+        if (detailPrototypes.Count > 0)
+        {
+            data.SetDetailResolution(
+                TerrainDetailResolution,
+                TerrainDetailPatchResolution);
+            data.detailPrototypes = detailPrototypes.ToArray();
+            List<int[,]> detailMaps = new List<int[,]>(
+                detailPrototypes.Count);
+
+            for (int detailIndex = 0;
+                 detailIndex < detailPrototypes.Count;
+                 detailIndex++)
+            {
+                detailMaps.Add(
+                    new int[TerrainDetailResolution, TerrainDetailResolution]);
+            }
+
+            Vector3 terrainOrigin = terrain.transform.position;
+            Vector3 terrainSize = data.size;
+            uint detailSeedHash = StableHash32(
+                plan.worldSeed + "|terrain_details");
+            float detailOffsetX = (detailSeedHash & 0xFFFFu) * 0.0091f;
+            float detailOffsetZ =
+                ((detailSeedHash >> 16) & 0xFFFFu) * 0.0117f;
+
+            for (int z = 0; z < TerrainDetailResolution; z++)
+            {
+                float normalizedZ =
+                    (z + 0.5f) / TerrainDetailResolution;
+                float worldZ = terrainOrigin.z + normalizedZ * terrainSize.z;
+
+                for (int x = 0; x < TerrainDetailResolution; x++)
+                {
+                    float normalizedX =
+                        (x + 0.5f) / TerrainDetailResolution;
+                    Vector3 worldPosition = new Vector3(
+                        terrainOrigin.x + normalizedX * terrainSize.x,
+                        0f,
+                        worldZ);
+                    TerrainVegetationProfile profile =
+                        FindNearestVegetationProfile(profiles, worldPosition);
+
+                    if (profile == null ||
+                        profile.detailPrototypeIndices.Count == 0 ||
+                        !IsWildernessPositionAllowed(
+                            terrain,
+                            plan,
+                            worldPosition,
+                            20f,
+                            28f,
+                            16f))
+                    {
+                        continue;
+                    }
+
+                    Vector3 normal = data.GetInterpolatedNormal(
+                        normalizedX,
+                        normalizedZ);
+                    if (Vector3.Angle(Vector3.up, normal) > 38f)
+                        continue;
+
+                    float patchNoise = Mathf.PerlinNoise(
+                        detailOffsetX + worldPosition.x * 0.026f,
+                        detailOffsetZ + worldPosition.z * 0.026f);
+                    float biomeNoise = Mathf.PerlinNoise(
+                        detailOffsetZ + worldPosition.x * 0.006f,
+                        detailOffsetX + worldPosition.z * 0.006f);
+                    float densityMask =
+                        patchNoise * 0.57f + biomeNoise * 0.43f;
+                    float threshold = ResolveDetailMaskThreshold(
+                        profile.palette);
+
+                    if (densityMask < threshold)
+                        continue;
+
+                    string cellSeed = plan.worldSeed +
+                        "|detail_cell|" + x + "|" + z;
+                    int profileLayer = Mathf.Clamp(
+                        Mathf.FloorToInt(
+                            Deterministic01(cellSeed) *
+                            profile.detailPrototypeIndices.Count),
+                        0,
+                        profile.detailPrototypeIndices.Count - 1);
+                    int layerIndex =
+                        profile.detailPrototypeIndices[profileLayer];
+                    int density = Mathf.Clamp(
+                        1 + Mathf.FloorToInt(
+                            (densityMask - threshold) * 9f),
+                        1,
+                        4);
+
+                    detailMaps[layerIndex][z, x] = density;
+                    detailCount += density;
+                }
+
+                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                {
+                    // note: Detail masks are synthesized incrementally so dense ground cover never blocks the Goddess presentation loop.
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
+            }
+
+            for (int detailIndex = 0;
+                 detailIndex < detailMaps.Count;
+                 detailIndex++)
+            {
+                data.SetDetailLayer(
+                    0,
+                    0,
+                    detailIndex,
+                    detailMaps[detailIndex]);
+                // note: Each Terrain detail layer publishes on its own rendered frame, bounding the engine-side upload cost.
+                yield return null;
+            }
+
+            terrain.detailObjectDistance = 145f;
+            terrain.detailObjectDensity = 0.92f;
+        }
+        else
+        {
+            data.detailPrototypes = Array.Empty<DetailPrototype>();
+        }
+
+        terrain.Flush();
+        completed?.Invoke(treeCount, detailCount);
+    }
+
+    private static DetailPrototype CreateTerrainDetailPrototype(
+        Texture2D texture)
+    {
+        // note: Existing vegetation art supplies the billboard texture; runtime code only describes a batched Terrain detail contract.
+        return new DetailPrototype
+        {
+            prototypeTexture = texture,
+            minWidth = 0.42f,
+            maxWidth = 1.05f,
+            minHeight = 0.35f,
+            maxHeight = 0.95f,
+            noiseSpread = 0.19f,
+            healthyColor = new Color(0.72f, 0.82f, 0.64f, 1f),
+            dryColor = new Color(0.54f, 0.48f, 0.35f, 1f),
+            renderMode = DetailRenderMode.GrassBillboard,
+            usePrototypeMesh = false
+        };
+    }
+
+    private static bool TryResolveTerrainDetailTexture(
+        GameObject prefab,
+        out Texture2D texture)
+    {
+        texture = null;
+        if (prefab == null)
+            return false;
+
+        Renderer[] renderers =
+            prefab.GetComponentsInChildren<Renderer>(true);
+
+        for (int rendererIndex = 0;
+             rendererIndex < renderers.Length;
+             rendererIndex++)
+        {
+            Renderer renderer = renderers[rendererIndex];
+            if (renderer == null || renderer is ParticleSystemRenderer)
+                continue;
+
+            Material[] materials = renderer.sharedMaterials;
+
+            for (int materialIndex = 0;
+                 materialIndex < materials.Length;
+                 materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                Texture2D candidate = material != null
+                    ? material.mainTexture as Texture2D
+                    : null;
+
+                if (candidate == null ||
+                    candidate.width < 8 || candidate.height < 8)
+                {
+                    continue;
+                }
+
+                texture = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool LooksLikeTerrainDetailReference(
+        GeneratedAssetReferenceRecord reference)
+    {
+        string semantic = BuildReferenceSemanticText(reference);
+
+        return ContainsAnySemantic(
+            semantic,
+            "grass",
+            "fern",
+            "weed",
+            "flower",
+            "shrub",
+            "bush");
+    }
+
+    private static void AddUniqueIndex(
+        List<int> indices,
+        int value)
+    {
+        if (indices != null && !indices.Contains(value))
+        {
+            // note: A region may reference the same shared tree or detail asset more than once; Terrain receives one stable local choice.
+            indices.Add(value);
+        }
+    }
+
+    private static TerrainVegetationProfile FindNearestVegetationProfile(
+        List<TerrainVegetationProfile> profiles,
+        Vector3 position)
+    {
+        TerrainVegetationProfile nearest = null;
+        float nearestDistanceSquared = float.PositiveInfinity;
+
+        for (int index = 0;
+             profiles != null && index < profiles.Count;
+             index++)
+        {
+            TerrainVegetationProfile candidate = profiles[index];
+            if (candidate == null)
+                continue;
+
+            float distanceSquared =
+                (new Vector2(candidate.center.x, candidate.center.z) -
+                 new Vector2(position.x, position.z)).sqrMagnitude;
+
+            if (distanceSquared >= nearestDistanceSquared)
+                continue;
+
+            nearest = candidate;
+            nearestDistanceSquared = distanceSquared;
+        }
+
+        return nearest;
+    }
+
+    private static float ResolveTreeMaskThreshold(
+        GeneratedRegionAssetPaletteRecord palette)
+    {
+        string style = palette != null
+            ? SafeText(palette.styleKey, string.Empty).ToLowerInvariant()
+            : string.Empty;
+
+        if (ContainsAnySemantic(
+                style,
+                "desert",
+                "persepolis",
+                "western"))
+        {
+            return 0.64f;
+        }
+
+        if (ContainsAnySemantic(
+                style,
+                "nordic",
+                "viking",
+                "forest",
+                "hallowed"))
+        {
+            return 0.43f;
+        }
+
+        return 0.50f;
+    }
+
+    private static float ResolveDetailMaskThreshold(
+        GeneratedRegionAssetPaletteRecord palette)
+    {
+        string style = palette != null
+            ? SafeText(palette.styleKey, string.Empty).ToLowerInvariant()
+            : string.Empty;
+
+        if (ContainsAnySemantic(
+                style,
+                "desert",
+                "persepolis",
+                "western"))
+        {
+            return 0.62f;
+        }
+
+        if (ContainsAnySemantic(
+                style,
+                "nordic",
+                "viking",
+                "forest",
+                "hallowed"))
+        {
+            return 0.40f;
+        }
+
+        return 0.48f;
+    }
+
+    // ============================================================
     // WILDERNESS
     // ============================================================
 
@@ -2603,6 +3244,11 @@ public static class YQGeneratedWorldEnvironment
                 slot,
                 YQWorldAssetCatalog.SlotRock,
                 StringComparison.OrdinalIgnoreCase);
+        bool vegetationSlot =
+            string.Equals(
+                slot,
+                YQWorldAssetCatalog.SlotVegetation,
+                StringComparison.OrdinalIgnoreCase);
 
         for (int i = 0;
              i < source.Count;
@@ -2632,6 +3278,15 @@ public static class YQGeneratedWorldEnvironment
                     "gravel"))
             {
                 // note: A palette slot label is not proof of physical identity; statues, branches, and machine cubes formerly appeared as wilderness rocks.
+                continue;
+            }
+
+            if (vegetationSlot &&
+                LooksLikeTree(
+                    null,
+                    reference))
+            {
+                // note: Macro trees are Terrain instances now; ordinary scatter remains reserved for curated shrubs, ferns, flowers, and similar midground dressing.
                 continue;
             }
 
