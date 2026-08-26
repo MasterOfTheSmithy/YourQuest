@@ -93,7 +93,11 @@ public static class YQGeneratedWorldEnvironment
 
         public Vector3 center;
 
-        public int terrainLayerIndex;
+        public int baseLayerIndex = -1;
+
+        public int detailLayerIndex = -1;
+
+        public int rockLayerIndex = -1;
     }
 
     private sealed class WildernessBuildStats
@@ -917,12 +921,12 @@ public static class YQGeneratedWorldEnvironment
 
             palette.EnsureCollections();
 
-            GeneratedAssetReferenceRecord terrainReference =
-                FindResolvableTerrainMaterial(
+            List<GeneratedAssetReferenceRecord> terrainReferences =
+                FindResolvableTerrainMaterials(
                     palette,
                     registry);
 
-            if (terrainReference == null)
+            if (terrainReferences.Count == 0)
             {
                 Debug.LogWarning(
                     "[YQGeneratedWorldEnvironment] " +
@@ -932,40 +936,46 @@ public static class YQGeneratedWorldEnvironment
                 continue;
             }
 
-            string materialPath =
-                YQRuntimeWorldAssetRegistry
-                    .NormalizePath(
-                        terrainReference.assetPath);
+            int baseLayerIndex =
+                ResolveOrCreateTerrainLayerIndex(
+                    terrainReferences[0],
+                    registry,
+                    palette,
+                    layers,
+                    layerByMaterialPath);
 
-            int layerIndex;
+            if (baseLayerIndex < 0)
+                continue;
 
-            if (!layerByMaterialPath.TryGetValue(
-                    materialPath,
-                    out layerIndex))
-            {
-                Material material =
-                    registry.ResolveMaterial(
-                        materialPath);
-
-                TerrainLayer layer =
-                    CreateTerrainLayer(
-                        material,
+            int detailLayerIndex =
+                terrainReferences.Count > 1
+                    ? ResolveOrCreateTerrainLayerIndex(
+                        terrainReferences[1],
+                        registry,
                         palette,
-                        materialPath);
+                        layers,
+                        layerByMaterialPath)
+                    : baseLayerIndex;
 
-                if (layer == null)
-                    continue;
+            GeneratedAssetReferenceRecord rockReference =
+                FindRockTerrainReference(
+                    terrainReferences);
 
-                layerIndex =
-                    layers.Count;
+            int rockLayerIndex =
+                rockReference != null
+                    ? ResolveOrCreateTerrainLayerIndex(
+                        rockReference,
+                        registry,
+                        palette,
+                        layers,
+                        layerByMaterialPath)
+                    : detailLayerIndex;
 
-                layers.Add(
-                    layer);
+            if (detailLayerIndex < 0)
+                detailLayerIndex = baseLayerIndex;
 
-                layerByMaterialPath[
-                    materialPath] =
-                    layerIndex;
-            }
+            if (rockLayerIndex < 0)
+                rockLayerIndex = detailLayerIndex;
 
             surfaces.Add(
                 new RegionSurface
@@ -982,8 +992,14 @@ public static class YQGeneratedWorldEnvironment
                                 plan,
                                 region),
 
-                    terrainLayerIndex =
-                        layerIndex
+                    baseLayerIndex =
+                        baseLayerIndex,
+
+                    detailLayerIndex =
+                        detailLayerIndex,
+
+                    rockLayerIndex =
+                        rockLayerIndex
                 });
         }
 
@@ -1019,19 +1035,109 @@ public static class YQGeneratedWorldEnvironment
         completed?.Invoke(surfaces);
     }
 
-    private static GeneratedAssetReferenceRecord
-        FindResolvableTerrainMaterial(
+    private static int ResolveOrCreateTerrainLayerIndex(
+        GeneratedAssetReferenceRecord reference,
+        YQRuntimeWorldAssetRegistry registry,
+        GeneratedRegionAssetPaletteRecord palette,
+        List<TerrainLayer> layers,
+        Dictionary<string, int> layerByMaterialPath)
+    {
+        if (reference == null ||
+            registry == null ||
+            layers == null ||
+            layerByMaterialPath == null)
+        {
+            return -1;
+        }
+
+        string materialPath =
+            YQRuntimeWorldAssetRegistry.NormalizePath(
+                reference.assetPath);
+
+        if (layerByMaterialPath.TryGetValue(
+                materialPath,
+                out int existingIndex))
+        {
+            return existingIndex;
+        }
+
+        Material material =
+            registry.ResolveMaterial(
+                materialPath);
+
+        TerrainLayer layer =
+            CreateTerrainLayer(
+                material,
+                palette,
+                materialPath);
+
+        if (layer == null)
+            return -1;
+
+        int createdIndex =
+            layers.Count;
+
+        layers.Add(
+            layer);
+
+        layerByMaterialPath[materialPath] =
+            createdIndex;
+
+        return createdIndex;
+    }
+
+    private static GeneratedAssetReferenceRecord FindRockTerrainReference(
+        List<GeneratedAssetReferenceRecord> references)
+    {
+        if (references == null || references.Count == 0)
+            return null;
+
+        for (int index = references.Count - 1;
+             index >= 0;
+             index--)
+        {
+            GeneratedAssetReferenceRecord reference =
+                references[index];
+
+            if (reference != null &&
+                ContainsAnySemantic(
+                    BuildReferenceSemanticText(reference),
+                    "rock",
+                    "stone",
+                    "ridge",
+                    "highland",
+                    "gravel"))
+            {
+                return reference;
+            }
+        }
+
+        return references.Count > 2
+            ? references[2]
+            : references[references.Count - 1];
+    }
+
+    private static List<GeneratedAssetReferenceRecord>
+        FindResolvableTerrainMaterials(
             GeneratedRegionAssetPaletteRecord palette,
             YQRuntimeWorldAssetRegistry registry)
     {
+        List<GeneratedAssetReferenceRecord> result =
+            new List<GeneratedAssetReferenceRecord>(8);
+
         if (palette == null ||
             palette.terrainMaterials == null)
         {
-            return null;
+            return result;
         }
 
+        HashSet<string> acceptedPaths =
+            new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+
         for (int i = 0;
-             i < palette.terrainMaterials.Count;
+             i < palette.terrainMaterials.Count &&
+             result.Count < 8;
              i++)
         {
             GeneratedAssetReferenceRecord reference =
@@ -1044,9 +1150,16 @@ public static class YQGeneratedWorldEnvironment
                 continue;
             }
 
+            string materialPath =
+                YQRuntimeWorldAssetRegistry.NormalizePath(
+                    reference.assetPath);
+
+            if (!acceptedPaths.Add(materialPath))
+                continue;
+
             Material material =
                 registry.ResolveMaterial(
-                    reference.assetPath);
+                    materialPath);
 
             if (material == null)
                 continue;
@@ -1061,14 +1174,17 @@ public static class YQGeneratedWorldEnvironment
                     "_Diffuse");
 
             if (diffuse != null)
-                return reference;
+            {
+                result.Add(reference);
+                continue;
+            }
 
             try
             {
                 if (material.mainTexture
                     is Texture2D)
                 {
-                    return reference;
+                    result.Add(reference);
                 }
             }
             catch
@@ -1076,7 +1192,7 @@ public static class YQGeneratedWorldEnvironment
             }
         }
 
-        return null;
+        return result;
     }
 
     private static TerrainLayer CreateTerrainLayer(
@@ -1127,7 +1243,10 @@ public static class YQGeneratedWorldEnvironment
             SafeName(
                 palette != null
                     ? palette.styleKey
-                    : material.name);
+                    : "surface") +
+            "_" +
+            SafeName(
+                material.name);
 
         layer.hideFlags =
             HideFlags.DontSave;
@@ -1221,6 +1340,31 @@ public static class YQGeneratedWorldEnvironment
         Vector3 terrainSize =
             data.size;
 
+        // note: One bounded height read supplies slope and elevation masks for every splat pixel; repeated native Terrain queries inside the 256x256 paint loop caused avoidable loading spikes.
+        float[,] heightSamples =
+            data.GetHeights(
+                0,
+                0,
+                data.heightmapResolution,
+                data.heightmapResolution);
+
+        int heightResolution =
+            data.heightmapResolution;
+
+        float heightSpacingX =
+            terrainSize.x /
+            Mathf.Max(
+                1,
+                heightResolution - 1);
+
+        float heightSpacingZ =
+            terrainSize.z /
+            Mathf.Max(
+                1,
+                heightResolution - 1);
+
+        yield return null;
+
         float frameStartedAt =
             Time.realtimeSinceStartup;
 
@@ -1250,7 +1394,73 @@ public static class YQGeneratedWorldEnvironment
                 float worldX =
                     terrainPosition.x +
                     normalizedX *
-                    terrainSize.x;
+                        terrainSize.x;
+
+                int heightX =
+                    Mathf.Clamp(
+                        Mathf.RoundToInt(
+                            normalizedX *
+                            (heightResolution - 1)),
+                        0,
+                        heightResolution - 1);
+
+                int heightZ =
+                    Mathf.Clamp(
+                        Mathf.RoundToInt(
+                            normalizedZ *
+                            (heightResolution - 1)),
+                        0,
+                        heightResolution - 1);
+
+                int previousHeightX =
+                    Mathf.Max(
+                        0,
+                        heightX - 1);
+
+                int nextHeightX =
+                    Mathf.Min(
+                        heightResolution - 1,
+                        heightX + 1);
+
+                int previousHeightZ =
+                    Mathf.Max(
+                        0,
+                        heightZ - 1);
+
+                int nextHeightZ =
+                    Mathf.Min(
+                        heightResolution - 1,
+                        heightZ + 1);
+
+                float slopeX =
+                    (heightSamples[heightZ, nextHeightX] -
+                     heightSamples[heightZ, previousHeightX]) *
+                    terrainSize.y /
+                    Mathf.Max(
+                        heightSpacingX,
+                        (nextHeightX - previousHeightX) *
+                        heightSpacingX);
+
+                float slopeZ =
+                    (heightSamples[nextHeightZ, heightX] -
+                     heightSamples[previousHeightZ, heightX]) *
+                    terrainSize.y /
+                    Mathf.Max(
+                        heightSpacingZ,
+                        (nextHeightZ - previousHeightZ) *
+                        heightSpacingZ);
+
+                float slope =
+                    Mathf.Clamp01(
+                        Mathf.Sqrt(
+                            slopeX * slopeX +
+                            slopeZ * slopeZ) /
+                        1.15f);
+
+                float elevation =
+                    heightSamples[
+                        heightZ,
+                        heightX];
 
                 float totalWeight =
                     0f;
@@ -1286,24 +1496,83 @@ public static class YQGeneratedWorldEnvironment
                     influence *=
                         influence;
 
-                    int layer =
-                        surface
-                            .terrainLayerIndex;
+                    float detailNoise =
+                        Mathf.PerlinNoise(
+                            (worldX + surface.center.x * 0.37f) * 0.018f + 19.3f,
+                            (worldZ + surface.center.z * 0.41f) * 0.018f + 7.1f);
 
-                    if (layer < 0 ||
-                        layer >= layerCount)
+                    float rockMask =
+                        Mathf.Clamp01(
+                            Mathf.SmoothStep(
+                                0.16f,
+                                0.72f,
+                                slope) +
+                            Mathf.SmoothStep(
+                                0.34f,
+                                0.78f,
+                                elevation) *
+                            0.38f);
+
+                    float detailMask =
+                        Mathf.Clamp01(
+                            (0.20f +
+                             detailNoise * 0.80f) *
+                            (1f - rockMask * 0.72f));
+
+                    float baseShare =
+                        Mathf.Max(
+                            0.08f,
+                            1f -
+                            detailMask * 0.48f -
+                            rockMask * 0.82f);
+
+                    float detailShare =
+                        0.10f +
+                        detailMask * 0.74f;
+
+                    float rockShare =
+                        0.04f +
+                        rockMask * 1.45f;
+
+                    float baseWeight =
+                        influence *
+                        baseShare;
+
+                    float detailWeight =
+                        influence *
+                        detailShare;
+
+                    float rockWeight =
+                        influence *
+                        rockShare;
+
+                    if (surface.baseLayerIndex >= 0 &&
+                        surface.baseLayerIndex < layerCount)
                     {
-                        continue;
+                        weights[y, x, surface.baseLayerIndex] +=
+                            baseWeight;
+                        totalWeight +=
+                            baseWeight;
                     }
 
-                    weights[
-                        y,
-                        x,
-                        layer] +=
-                        influence;
+                    if (surface.detailLayerIndex >= 0 &&
+                        surface.detailLayerIndex < layerCount)
+                    {
+                        weights[y, x, surface.detailLayerIndex] +=
+                            detailWeight;
+                        totalWeight +=
+                            detailWeight;
+                    }
 
-                    totalWeight +=
-                        influence;
+                    if (surface.rockLayerIndex >= 0 &&
+                        surface.rockLayerIndex < layerCount)
+                    {
+                        // note: Stone follows actual normalized slope/elevation while low-frequency detail breaks up broad flat color fields without cross-biome randomization.
+                        weights[y, x, surface.rockLayerIndex] +=
+                            rockWeight;
+                        totalWeight +=
+                            rockWeight;
+                    }
                 }
 
                 if (totalWeight <=
@@ -1736,6 +2005,19 @@ public static class YQGeneratedWorldEnvironment
         int attempts =
             targetCount *
             4;
+
+        List<GeneratedAssetReferenceRecord> scatterReferences =
+            BuildSmallScatterReferences(
+                palette,
+                slot);
+
+        if (scatterReferences.Count == 0)
+        {
+            UnityEngine.Object.Destroy(root);
+            completed?.Invoke(0);
+            yield break;
+        }
+
         float frameStartedAt = Time.realtimeSinceStartup;
 
         for (int attempt = 0;
@@ -1798,9 +2080,8 @@ public static class YQGeneratedWorldEnvironment
             }
 
             GeneratedAssetReferenceRecord reference =
-                PickSmallScatterReference(
-                    palette,
-                    slot,
+                PickWeightedReference(
+                    scatterReferences,
                     clusterSeed + "|palette");
 
             if (reference == null)
@@ -1979,18 +2260,16 @@ public static class YQGeneratedWorldEnvironment
                 (footprint > 16f || height > 16f));
     }
 
-    private static GeneratedAssetReferenceRecord
-        PickSmallScatterReference(
+    private static List<GeneratedAssetReferenceRecord>
+        BuildSmallScatterReferences(
             GeneratedRegionAssetPaletteRecord palette,
-            string slot,
-            string seed)
+            string slot)
     {
-        if (palette == null)
-            return null;
-
         List<GeneratedAssetReferenceRecord> candidates =
-            new List<
-                GeneratedAssetReferenceRecord>();
+            new List<GeneratedAssetReferenceRecord>();
+
+        if (palette == null)
+            return candidates;
 
         List<GeneratedAssetReferenceRecord> primary =
             YQWorldAssetCatalog
@@ -2000,7 +2279,8 @@ public static class YQGeneratedWorldEnvironment
 
         AddValidSmallReferences(
             candidates,
-            primary);
+            primary,
+            slot);
 
         /*
          * Some palettes only put giant mountains in SlotRock.
@@ -2042,28 +2322,33 @@ public static class YQGeneratedWorldEnvironment
                             "debris",
                             "boulder"))
                     {
-                        candidates.Add(
+                        AddUniqueSmallReference(
+                            candidates,
                             reference);
                     }
                 }
             }
         }
 
-        return
-            PickWeightedReference(
-                candidates,
-                seed);
+        return candidates;
     }
 
     private static void AddValidSmallReferences(
         List<GeneratedAssetReferenceRecord> result,
-        List<GeneratedAssetReferenceRecord> source)
+        List<GeneratedAssetReferenceRecord> source,
+        string slot)
     {
         if (result == null ||
             source == null)
         {
             return;
         }
+
+        bool rockSlot =
+            string.Equals(
+                slot,
+                YQWorldAssetCatalog.SlotRock,
+                StringComparison.OrdinalIgnoreCase);
 
         for (int i = 0;
              i < source.Count;
@@ -2081,9 +2366,49 @@ public static class YQGeneratedWorldEnvironment
                 continue;
             }
 
-            result.Add(
+            if (rockSlot &&
+                !ContainsAnySemantic(
+                    BuildReferenceIdentitySemanticText(reference),
+                    "rock",
+                    "stone",
+                    "rubble",
+                    "debris",
+                    "boulder",
+                    "pebble",
+                    "gravel"))
+            {
+                // note: A palette slot label is not proof of physical identity; statues, branches, and machine cubes formerly appeared as wilderness rocks.
+                continue;
+            }
+
+            AddUniqueSmallReference(
+                result,
                 reference);
         }
+    }
+
+    private static void AddUniqueSmallReference(
+        List<GeneratedAssetReferenceRecord> result,
+        GeneratedAssetReferenceRecord reference)
+    {
+        if (result == null || reference == null)
+            return;
+
+        for (int index = 0;
+             index < result.Count;
+             index++)
+        {
+            if (result[index] != null &&
+                string.Equals(
+                    result[index].assetPath,
+                    reference.assetPath,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
+        result.Add(reference);
     }
 
     private static GeneratedAssetReferenceRecord
@@ -5547,6 +5872,47 @@ public static class YQGeneratedWorldEnvironment
         return
             NormalizeSemanticText(
                 sb.ToString());
+    }
+
+    private static string BuildReferenceIdentitySemanticText(
+        GeneratedAssetReferenceRecord reference)
+    {
+        if (reference == null)
+            return string.Empty;
+
+        StringBuilder sb =
+            new StringBuilder();
+
+        sb.Append(
+            SafeText(
+                reference.assetPath,
+                string.Empty));
+
+        if (reference.styleTags != null)
+        {
+            for (int index = 0;
+                 index < reference.styleTags.Count;
+                 index++)
+            {
+                sb.Append(" ");
+                sb.Append(reference.styleTags[index]);
+            }
+        }
+
+        if (reference.subTags != null)
+        {
+            for (int index = 0;
+                 index < reference.subTags.Count;
+                 index++)
+            {
+                sb.Append(" ");
+                sb.Append(reference.subTags[index]);
+            }
+        }
+
+        // note: Identity checks deliberately exclude slotTag because a mistaken "rock" slot assignment must not make a statue or machine count as stone.
+        return NormalizeSemanticText(
+            sb.ToString());
     }
 
     // ============================================================

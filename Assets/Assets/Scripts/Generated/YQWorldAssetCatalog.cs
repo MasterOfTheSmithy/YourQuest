@@ -50,7 +50,9 @@ public static class YQWorldAssetCatalog
     private const string HivemindVikingComplete = "Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/";
     private const string HivemindTownSmithComplete = "Assets/HIVEMIND/TownSmith/HDRP(Default)/Art/Prefabs/Drag&Drops/";
     private const string HivemindCyberpunkComplete = "Assets/HIVEMIND/CyberpunkCity/HDRP(Default)/Art/Prefabs/";
-    private const string TomTrees = "Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/";
+    private const string TomTerrainAssets = "Assets/Tom's Terrain Tools/Unity Terrain Assets/";
+    private const string TomTrees = TomTerrainAssets + "Trees Ambient-Occlusion/";
+    private const string TomRock = TomTerrainAssets + "Rocks/RockMesh.prefab";
     private const string Bushes = "Assets/YughuesFreeBushes2018/Prefabs/";
     private const string Ground = "Assets/ADG_Textures/ground_vol1/";
     private const string Chests = "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/_Prefabs/Chests/";
@@ -351,6 +353,11 @@ public static class YQWorldAssetCatalog
                 break;
         }
 
+        // note: Every outdoor region receives a curated base/detail/stone surface trio from the installed ADG terrain library instead of collapsing to one repeated material.
+        EnsureTerrainSurfaceDiversity(
+            palette,
+            style);
+
         AddCompatibleCompleteSettlementBuildings(
             palette,
             style);
@@ -362,6 +369,94 @@ public static class YQWorldAssetCatalog
         palette.verboseInternals.Add("palette_seed=" + StableHex((worldSeed ?? string.Empty) + ":" + (region != null ? region.regionId : "region") + ":" + style));
         palette.verboseInternals.Add("slot_contract=floor/wall/path/large_structure build layout skeleton; floor_deco/wall_deco/exterior_deco add dressing only after collision-safe placement.");
         return palette;
+    }
+
+    private static void EnsureTerrainSurfaceDiversity(
+        GeneratedRegionAssetPaletteRecord palette,
+        string style)
+    {
+        if (palette == null)
+            return;
+
+        string semantic =
+            NormalizeSearchText(
+                style);
+
+        if (ContainsAny(
+                semantic,
+                "desert",
+                "western",
+                "persepolis",
+                "olympus",
+                "ruin",
+                "tomb"))
+        {
+            AddTerrainIfMissing(palette, GroundMat("ground1"), "sand", "base");
+            AddTerrainIfMissing(palette, GroundMat("ground3"), "dry_ground", "detail");
+            AddTerrainIfMissing(palette, GroundMat("ground10"), "stone", "slope");
+        }
+        else if (ContainsAny(
+                     semantic,
+                     "scifi",
+                     "cyberpunk",
+                     "container",
+                     "hospital",
+                     "military",
+                     "sewer",
+                     "bio_horror"))
+        {
+            AddTerrainIfMissing(palette, GroundMat("ground12"), "industrial_ground", "base");
+            AddTerrainIfMissing(palette, GroundMat("ground13"), "dark_ground", "detail");
+            AddTerrainIfMissing(palette, GroundMat("ground10"), "broken_stone", "slope");
+        }
+        else if (ContainsAny(
+                     semantic,
+                     "mountain",
+                     "viking",
+                     "nordic",
+                     "hallowed"))
+        {
+            AddTerrainIfMissing(palette, GroundMat("ground6"), "packed_earth", "base");
+            AddTerrainIfMissing(palette, GroundMat("ground8"), "highland", "detail");
+            AddTerrainIfMissing(palette, GroundMat("ground7"), "ridge_stone", "slope");
+        }
+        else
+        {
+            AddTerrainIfMissing(palette, GroundMat("ground5"), "forest_floor", "base");
+            AddTerrainIfMissing(palette, GroundMat("ground6"), "earth", "detail");
+            AddTerrainIfMissing(palette, GroundMat("ground7"), "stone", "slope");
+        }
+    }
+
+    private static void AddTerrainIfMissing(
+        GeneratedRegionAssetPaletteRecord palette,
+        string path,
+        params string[] tags)
+    {
+        if (palette == null || palette.terrainMaterials == null)
+            return;
+
+        for (int index = 0;
+             index < palette.terrainMaterials.Count;
+             index++)
+        {
+            GeneratedAssetReferenceRecord existing =
+                palette.terrainMaterials[index];
+
+            if (existing != null &&
+                string.Equals(
+                    existing.assetPath,
+                    path,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
+        AddTerrain(
+            palette,
+            path,
+            tags);
     }
 
     private static void AddCompatibleCompleteSettlementBuildings(
@@ -885,6 +980,31 @@ public static class YQWorldAssetCatalog
     {
         Add(p.lootContainer, Chests + "ChestSimpleSmall.prefab", SlotLootContainer, "loot", "simple");
         Add(p.lootContainer, Chests + "ChestOrnateMedium.prefab", SlotLootContainer, "loot", "ornate");
+
+        if (ResolveStyleDomain(p.styleKey) == "fantasy")
+        {
+            // note: Tom's Terrain Tools is an approved neutral nature library; each fantasy palette receives a small biome-compatible subset, never the entire tree grab-bag.
+            if (ContainsAny(p.styleKey, "nordic", "viking", "mountain", "hallowed"))
+            {
+                Add(p.vegetation, TomTrees + "ScotsPineTypeA.prefab", SlotVegetation, "conifer", "highland");
+                Add(p.vegetation, TomTrees + "ScotsPineTypeB.prefab", SlotVegetation, "conifer", "highland");
+                Add(p.vegetation, TomTrees + "ThinTree.prefab", SlotVegetation, "tree", "highland");
+            }
+            else if (ContainsAny(p.styleKey, "desert", "persepolis", "olympus", "ruin"))
+            {
+                Add(p.vegetation, TomTrees + "Mimosa.prefab", SlotVegetation, "dry_tree", "warm");
+                Add(p.vegetation, TomTrees + "ThinTree.prefab", SlotVegetation, "sparse_tree", "dry");
+            }
+            else
+            {
+                Add(p.vegetation, TomTrees + "Alder.prefab", SlotVegetation, "tree", "temperate");
+                Add(p.vegetation, TomTrees + "Sycamore.prefab", SlotVegetation, "tree", "temperate");
+                Add(p.vegetation, TomTrees + "ThinTree.prefab", SlotVegetation, "tree", "temperate");
+            }
+
+            // note: The terrain-tool RockMesh supplements, rather than replaces, each architecture pack's native stone family.
+            Add(p.rock, TomRock, SlotRock, "terrain_rock", "neutral_stone");
+        }
 
         // note: Surface regions without a native cave entrance still expose a curated subterranean POI rather than silently losing cave gameplay.
         if (!ContainsSemanticReference(p.enemySite, "cave", "underground", "mine", "tunnel", "cavern"))
