@@ -1,4 +1,5 @@
 // Assets/Assets/Scripts/Tutorial/YourQuestTutorialHud.cs
+using System.Collections;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,7 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     private TMP_Text _manaValueText;
     private TMP_Text _objectiveBodyText;
     private TMP_Text _worldBodyText;
+    private TMP_Text _characterBodyText;
     private TMP_Text _promptText;
     private TMP_Text _inventoryToastText;
     private Image _healthFill;
@@ -21,6 +23,8 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     private Image _manaFill;
     private Image _crosshairVertical;
     private Image _crosshairHorizontal;
+    private RawImage _playerBadgeImage;
+    private RawImage _questIconImage;
 
     private const float ReferenceRefreshInterval = 0.75f;
     private readonly StringBuilder _worldBuilder = new StringBuilder(512);
@@ -36,6 +40,8 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     private float _nextPromptProbeTime;
     private float _nextRenderTime;
     private string _cachedPrompt = string.Empty;
+    private YQRuntime2DArtRegistry _artRegistry;
+    private string _lastPlayerBadgeKey = string.Empty;
 
     [Header("Performance")]
     [Tooltip("The HUD builds rich-text strings, so refresh at a responsive bounded cadence instead of allocating every rendered frame.")]
@@ -48,6 +54,36 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     {
         BuildUi();
         ResolveRuntimeReferences();
+    }
+
+    private IEnumerator Start()
+    {
+        // note: Curated journal and class art is requested only after gameplay presentation, so decorative UI cannot compete with world construction or the Goddess loading animation.
+        while (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+            yield return null;
+
+        ResourceRequest request =
+            Resources.LoadAsync<YQRuntime2DArtRegistry>(
+                "YQRuntime2DArtRegistry");
+
+        yield return request;
+
+        _artRegistry =
+            request.asset as
+                YQRuntime2DArtRegistry;
+
+        if (_artRegistry != null &&
+            _questIconImage != null &&
+            _artRegistry.TryGetTexture(
+                "quest_scroll",
+                out Texture2D questTexture))
+        {
+            _questIconImage.texture =
+                questTexture;
+
+            _questIconImage.enabled =
+                true;
+        }
     }
 
     private void LateUpdate()
@@ -93,27 +129,47 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         SetBar(_staminaFill, _staminaValueText, currentStamina, maxStamina);
         SetBar(_manaFill, _manaValueText, currentMana, maxMana);
 
-        SetTextIfChanged(_identityText,
-            "<color=#F5E8B0>" + Escape(state.displayName) + "</color>\n" +
-            "Lvl " + state.level + "   XP " + state.xp + "/" + Mathf.Max(1, state.xp + state.xpToNext) + "   Gold " + state.currency + "\n" +
-            "Region  " + Escape(state.currentRegionName));
+        string className =
+            GetLatestClass(state);
+
+        string titleName =
+            GetLatestTitle(state);
+
+        SetTextIfChanged(
+            _identityText,
+            "<size=68%><color=#B99A5C>LEVEL " +
+                state.level +
+                "</color></size>\n" +
+            "<color=#F1E2B8>" +
+                Escape(state.displayName) +
+                "</color>\n" +
+            "<size=70%><color=#BDB19A>" +
+                Escape(className) +
+                "  •  " +
+                Escape(titleName) +
+                "</color></size>");
+
+        UpdatePlayerBadge(
+            state,
+            className,
+            titleName);
 
         QuestRecord activeQuest = state.GetActiveQuest();
         if (activeQuest != null)
         {
-            string questBody = "<color=#FFF1B8>" + Escape(SafeLine(activeQuest.name)) + "</color>";
+            string questBody = "<color=#F1E2B8>" + Escape(SafeLine(activeQuest.name)) + "</color>";
             string detail = SafeLine(activeQuest.description);
             if (!string.IsNullOrWhiteSpace(detail))
-                questBody += "\n<size=72%><color=#D6DDE8>" + Escape(detail) + "</color></size>";
+                questBody += "\n<size=76%><color=#C8BEA8>" + Escape(detail) + "</color></size>";
             string hint = BuildQuestHint(activeQuest);
             if (!string.IsNullOrWhiteSpace(hint))
-                questBody += "\n<size=70%><color=#A7FFCF>Next: " + Escape(hint) + "</color></size>";
+                questBody += "\n<size=74%><color=#D5B66A>◆  NEXT  " + Escape(hint) + "</color></size>";
             SetTextIfChanged(_objectiveBodyText, questBody);
         }
         else
         {
             string objective = _director != null ? _director.CurrentObjective : "Talk to the archivist and begin the tutorial loop.";
-            SetTextIfChanged(_objectiveBodyText, "<color=#FFF1B8>" + Escape(SafeLine(objective)) + "</color>");
+            SetTextIfChanged(_objectiveBodyText, "<color=#F1E2B8>" + Escape(SafeLine(objective)) + "</color>");
         }
 
         StringBuilder worldBuilder = _worldBuilder;
@@ -127,14 +183,45 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
                 latestNote = _worldStateManager.State.lastLLMRationale;
         }
 
-        worldBuilder.AppendLine("Offers  " + state.GetPendingOfferCount() + (string.IsNullOrWhiteSpace(tension) ? string.Empty : "     Tension  " + tension));
-        worldBuilder.AppendLine("Class  " + Escape(GetLatestClass(state)));
-        worldBuilder.AppendLine("Title  " + Escape(GetLatestTitle(state)));
-        worldBuilder.AppendLine("Quest  " + Escape(activeQuest != null ? activeQuest.name : GetLatestQuest(state)));
-        worldBuilder.AppendLine("Gear  " + Escape(DescribeItem(state.GetEquippedItem("weapon"))) + "  |  " + Escape(DescribeItem(state.GetEquippedItem("chest"))));
-        worldBuilder.AppendLine("Relics  " + Escape(DescribeItem(state.GetEquippedItem("ring_left"))) + "  |  " + Escape(DescribeItem(state.GetEquippedItem("boots"))));
-        worldBuilder.Append("Note  " + Escape(Truncate(SafeLine(latestNote), 160)));
+        worldBuilder.Append("<color=#9F895F>REGION</color>  ");
+        worldBuilder.Append(Escape(state.currentRegionName));
+
+        if (!string.IsNullOrWhiteSpace(tension))
+        {
+            worldBuilder.Append("     <color=#9F895F>PRESSURE</color>  ");
+            worldBuilder.Append(tension);
+        }
+
+        worldBuilder.AppendLine();
+        worldBuilder.Append("<color=#9F895F>JOURNAL</color>  ");
+        worldBuilder.Append(state.GetPendingOfferCount());
+        worldBuilder.Append(" offers pending");
+
+        if (!string.IsNullOrWhiteSpace(latestNote))
+        {
+            worldBuilder.Append("  •  ");
+            worldBuilder.Append(
+                Escape(
+                    Truncate(
+                        SafeLine(latestNote),
+                        92)));
+        }
+
         SetTextIfChanged(_worldBodyText, worldBuilder.ToString());
+
+        worldBuilder.Clear();
+        worldBuilder.Append("<color=#9F895F>XP</color>  ");
+        worldBuilder.Append(state.xp);
+        worldBuilder.Append(" / ");
+        worldBuilder.Append(Mathf.Max(1, state.xp + state.xpToNext));
+        worldBuilder.Append("     <color=#9F895F>GOLD</color>  ");
+        worldBuilder.Append(state.currency);
+        worldBuilder.AppendLine();
+        worldBuilder.Append("<color=#9F895F>WEAPON</color>  ");
+        worldBuilder.Append(Escape(DescribeItem(state.GetEquippedItem("weapon"))));
+        worldBuilder.Append("     <color=#9F895F>ARMOR</color>  ");
+        worldBuilder.Append(Escape(DescribeItem(state.GetEquippedItem("chest"))));
+        SetTextIfChanged(_characterBodyText, worldBuilder.ToString());
 
         string prompt = ResolveInteractionPrompt();
         bool promptVisible = !string.IsNullOrWhiteSpace(prompt) && !RuntimeModalUiBlocker.IsBlocked;
@@ -189,6 +276,56 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
             default:
                 return BuildFallbackQuestHint(quest);
         }
+    }
+
+    private void UpdatePlayerBadge(
+        PlayerState state,
+        string className,
+        string titleName)
+    {
+        if (_artRegistry == null ||
+            _playerBadgeImage == null ||
+            state == null)
+        {
+            return;
+        }
+
+        string semantic =
+            SafeLine(className) +
+            " " +
+            SafeLine(titleName) +
+            " " +
+            SafeLine(state.displayName);
+
+        if (!_artRegistry.TryPickKey(
+                YQCurated2DArtCatalog.KindClassBadge,
+                semantic,
+                SafeLine(state.displayName),
+                "class_warrior",
+                out string badgeKey) ||
+            string.Equals(
+                badgeKey,
+                _lastPlayerBadgeKey,
+                System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (_artRegistry.TryGetTexture(
+                badgeKey,
+                out Texture2D badgeTexture))
+        {
+            _lastPlayerBadgeKey =
+                badgeKey;
+
+            _playerBadgeImage.texture =
+                badgeTexture;
+
+            _playerBadgeImage.enabled =
+                true;
+        }
+
+        // note: Generated class text chooses only a semantic registry key; the runtime registry remains the authority for the approved badge texture.
     }
 
     private static string BuildFallbackQuestHint(QuestRecord quest)
@@ -367,26 +504,65 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
         YQUITheme.ApplyCanvasScaler(scaler);
 
-        RectTransform vitalsPanel = CreatePanel(canvasGo.transform, "VitalsPanel", new Vector2(0f, 0f), new Vector2(548f, 228f), new Vector2(42f, 34f), YQUITheme.Panel);
-        AddFrame(vitalsPanel, new Color(0.66f, 0.61f, 0.42f, 0.42f));
-        _identityText = CreateText(vitalsPanel, "IdentityText", 21f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(22f, -18f), new Vector2(492f, 70f));
-        CreateBar(vitalsPanel, "Health", new Vector2(22f, -102f), new Color(0.76f, 0.18f, 0.2f, 1f), out _healthFill, out _healthValueText);
-        CreateBar(vitalsPanel, "Stamina", new Vector2(22f, -146f), new Color(0.2f, 0.68f, 0.28f, 1f), out _staminaFill, out _staminaValueText);
-        CreateBar(vitalsPanel, "Mana", new Vector2(22f, -190f), new Color(0.2f, 0.42f, 0.88f, 1f), out _manaFill, out _manaValueText);
+        Color rpgPanel =
+            new Color(
+                0.042f,
+                0.031f,
+                0.021f,
+                0.91f);
 
-        RectTransform objectivePanel = CreatePanel(canvasGo.transform, "ObjectivePanel", new Vector2(1f, 1f), new Vector2(560f, 320f), new Vector2(-26f, -26f), YQUITheme.Panel);
+        Color rpgFrame =
+            new Color(
+                0.66f,
+                0.49f,
+                0.25f,
+                0.88f);
+
+        RectTransform vitalsPanel = CreatePanel(canvasGo.transform, "VitalsPanel", new Vector2(0f, 0f), new Vector2(600f, 326f), new Vector2(34f, 30f), rpgPanel);
+        AddFrame(vitalsPanel, rpgFrame);
+
+        RectTransform badgeFrame = CreatePanel(vitalsPanel, "ClassBadgeFrame", new Vector2(0f, 1f), new Vector2(88f, 88f), new Vector2(22f, -20f), new Color(0.095f, 0.068f, 0.038f, 0.95f));
+        AddFrame(badgeFrame, new Color(rpgFrame.r, rpgFrame.g, rpgFrame.b, 0.7f));
+        _playerBadgeImage = CreateRawImage(badgeFrame, "ClassBadgeArt", new Vector2(8f, 8f), new Vector2(-8f, -8f));
+        _playerBadgeImage.enabled = false;
+
+        _identityText = CreateText(vitalsPanel, "IdentityText", 23f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(128f, -18f), new Vector2(442f, 92f));
+        _identityText.overflowMode = TextOverflowModes.Ellipsis;
+        _identityText.maxVisibleLines = 3;
+        CreateDivider(vitalsPanel, new Vector2(22f, -122f), 556f, rpgFrame);
+
+        CreateBar(vitalsPanel, "HEALTH", new Vector2(22f, -142f), new Color(0.67f, 0.12f, 0.12f, 1f), out _healthFill, out _healthValueText);
+        CreateBar(vitalsPanel, "STAMINA", new Vector2(22f, -184f), new Color(0.18f, 0.52f, 0.2f, 1f), out _staminaFill, out _staminaValueText);
+        CreateBar(vitalsPanel, "MANA", new Vector2(22f, -226f), new Color(0.18f, 0.34f, 0.68f, 1f), out _manaFill, out _manaValueText);
+
+        _characterBodyText = CreateText(vitalsPanel, "CharacterDetailsText", 13f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(22f, -274f), new Vector2(556f, 44f));
+        SetTextWrapping(_characterBodyText);
+        _characterBodyText.overflowMode = TextOverflowModes.Ellipsis;
+        _characterBodyText.maxVisibleLines = 2;
+
+        RectTransform objectivePanel = CreatePanel(canvasGo.transform, "ObjectivePanel", new Vector2(1f, 1f), new Vector2(560f, 286f), new Vector2(-28f, -28f), rpgPanel);
         objectivePanel.gameObject.AddComponent<RectMask2D>();
-        AddFrame(objectivePanel, new Color(0.66f, 0.61f, 0.42f, 0.42f));
-        TMP_Text objectiveTitle = CreateText(objectivePanel, "ObjectiveTitleText", 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(18f, -18f), new Vector2(524f, 28f));
-        objectiveTitle.text = "TRIAL STEP";
-        _objectiveBodyText = CreateText(objectivePanel, "ObjectiveBodyText", 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(18f, -54f), new Vector2(524f, 92f));
+        AddFrame(objectivePanel, rpgFrame);
+        TMP_Text objectiveTitle = CreateText(objectivePanel, "ObjectiveTitleText", 15f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(22f, -18f), new Vector2(516f, 24f));
+        objectiveTitle.text = "ACTIVE QUEST";
+        objectiveTitle.color = new Color(0.78f, 0.65f, 0.4f, 1f);
+        objectiveTitle.characterSpacing = 6f;
+        CreateDivider(objectivePanel, new Vector2(22f, -50f), 516f, rpgFrame);
+
+        RectTransform questIconFrame = CreatePanel(objectivePanel, "QuestIconFrame", new Vector2(0f, 1f), new Vector2(62f, 62f), new Vector2(22f, -66f), new Color(0.095f, 0.068f, 0.038f, 0.86f));
+        AddFrame(questIconFrame, new Color(rpgFrame.r, rpgFrame.g, rpgFrame.b, 0.58f));
+        _questIconImage = CreateRawImage(questIconFrame, "QuestIconArt", new Vector2(6f, 6f), new Vector2(-6f, -6f));
+        _questIconImage.enabled = false;
+
+        _objectiveBodyText = CreateText(objectivePanel, "ObjectiveBodyText", 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(102f, -66f), new Vector2(436f, 126f));
         SetTextWrapping(_objectiveBodyText);
         _objectiveBodyText.overflowMode = TextOverflowModes.Ellipsis;
-        _objectiveBodyText.maxVisibleLines = 4;
-        _worldBodyText = CreateText(objectivePanel, "WorldBodyText", 12.5f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(18f, -156f), new Vector2(524f, 140f));
+        _objectiveBodyText.maxVisibleLines = 6;
+        CreateDivider(objectivePanel, new Vector2(22f, -208f), 516f, new Color(rpgFrame.r, rpgFrame.g, rpgFrame.b, 0.42f));
+        _worldBodyText = CreateText(objectivePanel, "WorldBodyText", 12.5f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(22f, -222f), new Vector2(516f, 50f));
         SetTextWrapping(_worldBodyText);
         _worldBodyText.overflowMode = TextOverflowModes.Ellipsis;
-        _worldBodyText.maxVisibleLines = 8;
+        _worldBodyText.maxVisibleLines = 2;
 
         RectTransform promptPanel = CreatePanel(canvasGo.transform, "PromptPanel", new Vector2(0.5f, 0.5f), new Vector2(520f, 54f), new Vector2(0f, -92f), YQUITheme.PanelSoft);
         AddFrame(promptPanel, new Color(0.66f, 0.61f, 0.42f, 0.35f));
@@ -422,7 +598,48 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     {
         Outline outline = rt.gameObject.AddComponent<Outline>();
         outline.effectColor = color;
-        outline.effectDistance = new Vector2(2f, -2f);
+        outline.effectDistance = new Vector2(1.5f, -1.5f);
+    }
+
+    private static RawImage CreateRawImage(
+        Transform parent,
+        string objectName,
+        Vector2 insetMin,
+        Vector2 insetMax)
+    {
+        GameObject go = new GameObject(
+            objectName,
+            typeof(RectTransform),
+            typeof(RawImage));
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = insetMin;
+        rt.offsetMax = insetMax;
+        RawImage image = go.GetComponent<RawImage>();
+        image.color = Color.white;
+        image.raycastTarget = false;
+        image.uvRect = new Rect(0f, 0f, 1f, 1f);
+        return image;
+    }
+
+    private static void CreateDivider(
+        Transform parent,
+        Vector2 anchoredPosition,
+        float width,
+        Color color)
+    {
+        RectTransform divider = CreatePanel(
+            parent,
+            "RpgDivider",
+            new Vector2(0f, 1f),
+            new Vector2(width, 1f),
+            anchoredPosition,
+            color);
+        divider.GetComponent<Image>().raycastTarget = false;
+
+        // note: Static bronze dividers establish an RPG information hierarchy without animation, layout rebuilds, or per-frame decoration work.
     }
 
     private static TMP_Text CreateText(Transform parent, string name, float size, FontStyles style, TextAlignmentOptions alignment, Vector2 anchoredPosition, Vector2 dimensions)
@@ -470,18 +687,21 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
 
     private static void CreateBar(Transform parent, string label, Vector2 anchoredPos, Color fillColor, out Image fillImage, out TMP_Text valueText)
     {
-        TMP_Text labelText = CreateText(parent, label + "Label", 15f, FontStyles.Bold, TextAlignmentOptions.TopLeft, anchoredPos, new Vector2(110f, 18f));
-        labelText.color = YQUITheme.Muted;
+        TMP_Text labelText = CreateText(parent, label + "Label", 13f, FontStyles.Bold, TextAlignmentOptions.TopLeft, anchoredPos, new Vector2(102f, 18f));
+        labelText.color = new Color(0.73f, 0.66f, 0.53f, 1f);
+        labelText.characterSpacing = 3f;
         labelText.text = label;
 
-        RectTransform frame = CreatePanel(parent, label + "Frame", new Vector2(0f, 1f), new Vector2(320f, 22f), anchoredPos + new Vector2(114f, -2f), new Color(0.095f, 0.11f, 0.135f, 1f));
-        RectTransform fill = CreatePanel(frame, label + "Fill", new Vector2(0f, 0.5f), new Vector2(320f, 22f), new Vector2(0f, 0f), fillColor);
+        RectTransform frame = CreatePanel(parent, label + "Frame", new Vector2(0f, 1f), new Vector2(342f, 18f), anchoredPos + new Vector2(108f, -1f), new Color(0.072f, 0.052f, 0.035f, 1f));
+        AddFrame(frame, new Color(0.45f, 0.34f, 0.2f, 0.62f));
+        RectTransform fill = CreatePanel(frame, label + "Fill", new Vector2(0f, 0.5f), new Vector2(338f, 14f), new Vector2(2f, 0f), fillColor);
         fill.anchorMin = new Vector2(0f, 0f);
         fill.anchorMax = new Vector2(0f, 1f);
         fill.pivot = new Vector2(0f, 0.5f);
         fillImage = fill.GetComponent<Image>();
 
-        valueText = CreateText(parent, label + "Value", 14f, FontStyles.Normal, TextAlignmentOptions.TopRight, anchoredPos + new Vector2(444f, 0f), new Vector2(78f, 18f));
+        valueText = CreateText(parent, label + "Value", 13f, FontStyles.Normal, TextAlignmentOptions.TopRight, anchoredPos + new Vector2(460f, 0f), new Vector2(96f, 18f));
+        valueText.color = new Color(0.88f, 0.83f, 0.72f, 1f);
     }
 
     private static Image CreateCrosshairSegment(Transform parent, string name, Vector2 size)
@@ -503,7 +723,7 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         if (fill != null)
         {
             RectTransform rt = fill.rectTransform;
-            rt.sizeDelta = new Vector2(320f * Mathf.Clamp01(max <= 0f ? 0f : current / max), 22f);
+            rt.sizeDelta = new Vector2(338f * Mathf.Clamp01(max <= 0f ? 0f : current / max), 14f);
         }
 
         if (valueText != null)

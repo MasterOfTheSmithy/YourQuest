@@ -27,6 +27,17 @@ public sealed class YQActiveQuestWorldHighlight : MonoBehaviour
     private string _resolvedQuestKey = string.Empty;
     private const float FullTargetRescanInterval = 5f;
 
+    public bool TryGetCurrentTargetPosition(
+        out Vector3 position)
+    {
+        position =
+            _targetPosition;
+
+        // note: The minimap consumes the already-resolved quest target instead of repeating the highlight system's scene scans.
+        return
+            _hasTarget;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Install()
     {
