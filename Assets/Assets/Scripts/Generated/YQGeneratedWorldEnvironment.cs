@@ -2582,6 +2582,8 @@ public static class YQGeneratedWorldEnvironment
                     "|member|" +
                     member;
 
+                AmbientMonsterSource resolvedSource =
+                    source;
                 if (!TryResolveAmbientMonsterPrefab(
                         registry,
                         source.family,
@@ -2589,7 +2591,23 @@ public static class YQGeneratedWorldEnvironment
                         out YQRuntimeWorldAssetEntry entry,
                         out string resolvedCategory))
                 {
-                    continue;
+                    // note: Unsupported generated species never become misleading capsules or arbitrary models; a curated beast is labeled and factioned as fallback wildlife instead.
+                    if (!TryResolveAmbientMonsterPrefab(
+                            registry,
+                            "wilderness beast",
+                            seed + "|wildlife_fallback",
+                            out entry,
+                            out resolvedCategory))
+                    {
+                        continue;
+                    }
+
+                    resolvedSource =
+                        new AmbientMonsterSource
+                        {
+                            family = "wilderness beast",
+                            factionId = "generated_wildlife"
+                        };
                 }
 
                 Vector3 offset =
@@ -2636,7 +2654,7 @@ public static class YQGeneratedWorldEnvironment
                 instance.name =
                     "AmbientEnemy__" +
                     SafeName(
-                        source.family) +
+                        resolvedSource.family) +
                     "__" +
                     StableHash32(
                         seed)
@@ -2657,7 +2675,7 @@ public static class YQGeneratedWorldEnvironment
 
                 float targetHeight =
                     ResolveMonsterTargetHeight(
-                        source.family);
+                        resolvedSource.family);
 
                 if (!TryNormalizeMonsterVisualEnvelope(
                         instance,
@@ -2682,7 +2700,7 @@ public static class YQGeneratedWorldEnvironment
                 ConfigureAmbientEnemy(
                     instance,
                     region,
-                    source,
+                    resolvedSource,
                     seed);
 
                 total++;
@@ -2710,77 +2728,99 @@ public static class YQGeneratedWorldEnvironment
             new List<
                 AmbientMonsterSource>();
 
-        if (plan == null ||
-            plan.encampments == null)
+        if (plan == null)
         {
             return result;
         }
 
-        for (int i = 0;
-             i < plan.encampments.Count;
-             i++)
+        if (plan.encampments != null)
         {
-            GeneratedEncampmentRecord encampment =
-                plan.encampments[i];
-
-            if (encampment == null ||
-                !string.Equals(
-                    encampment.regionId,
-                    regionId,
-                    StringComparison.OrdinalIgnoreCase))
+            for (int i = 0;
+                 i < plan.encampments.Count;
+                 i++)
             {
-                continue;
-            }
+                GeneratedEncampmentRecord encampment =
+                    plan.encampments[i];
 
-            string family =
-                SafeText(
-                    encampment.monsterFamily,
-                    string.Empty);
-
-            if (string.IsNullOrWhiteSpace(
-                    family))
-            {
-                continue;
-            }
-
-            bool duplicate =
-                false;
-
-            for (int existing = 0;
-                 existing < result.Count;
-                 existing++)
-            {
-                if (string.Equals(
-                        result[existing]
-                            .family,
-                        family,
+                if (encampment == null ||
+                    !string.Equals(
+                        encampment.regionId,
+                        regionId,
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    duplicate =
-                        true;
-
-                    break;
+                    continue;
                 }
+
+                AddAmbientMonsterSource(
+                    result,
+                    encampment);
             }
+        }
 
-            if (duplicate)
-                continue;
+        if (result.Count == 0 &&
+            plan.encampments != null)
+        {
+            for (int i = 0;
+                 i < plan.encampments.Count;
+                 i++)
+            {
+                // note: A region without its own generated encounter may reuse a world-canonical family before any mechanical wildlife fallback is considered.
+                AddAmbientMonsterSource(
+                    result,
+                    plan.encampments[i]);
+            }
+        }
 
+        if (result.Count == 0)
+        {
+            // note: Baseline wildlife is mechanical fallback scaffolding, not generated canon; it exists only so incomplete or offline generation cannot leave every region lifeless.
             result.Add(
                 new AmbientMonsterSource
                 {
-                    family =
-                        family,
-
-                    factionId =
-                        SafeText(
-                            encampment
-                                .inhabitantFactionId,
-                            "generated_wilderness")
+                    family = "wilderness beast",
+                    factionId = "generated_wildlife"
                 });
         }
 
         return result;
+    }
+
+    private static void AddAmbientMonsterSource(
+        List<AmbientMonsterSource> result,
+        GeneratedEncampmentRecord encampment)
+    {
+        if (result == null || encampment == null)
+            return;
+
+        string family =
+            SafeText(
+                encampment.monsterFamily,
+                string.Empty);
+
+        if (string.IsNullOrWhiteSpace(family))
+            return;
+
+        for (int existing = 0;
+             existing < result.Count;
+             existing++)
+        {
+            if (string.Equals(
+                    result[existing].family,
+                    family,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
+        result.Add(
+            new AmbientMonsterSource
+            {
+                family = family,
+                factionId = SafeText(
+                    encampment.inhabitantFactionId,
+                    "generated_wilderness")
+            });
     }
 
     private static bool TryResolveAmbientMonsterPrefab(
