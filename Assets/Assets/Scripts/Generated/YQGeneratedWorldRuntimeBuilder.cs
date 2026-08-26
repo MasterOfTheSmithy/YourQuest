@@ -5611,6 +5611,47 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
         }
 
+        Terrain[] activeTerrains =
+            Terrain.activeTerrains;
+
+        for (int terrainIndex = 0;
+             terrainIndex < activeTerrains.Length;
+             terrainIndex++)
+        {
+            Terrain terrain =
+                activeTerrains[terrainIndex];
+
+            if (terrain == null ||
+                terrain.terrainData == null ||
+                !terrain.gameObject.activeInHierarchy ||
+                !YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                    terrain,
+                    bounds,
+                    out _,
+                    out _,
+                    out _))
+            {
+                continue;
+            }
+
+            float terrainEmbed =
+                Mathf.Clamp(
+                    bounds.size.y * 0.01f,
+                    0.015f,
+                    0.15f);
+
+            // note: Every fallback or modular building now enters the same structural terrain authority as streamed and generated site assets.
+            if (YQGeneratedWorldTerrain.TryPlaceGroundedObject(
+                    instance,
+                    terrain,
+                    YQGeneratedWorldPlacementCategory.Structure,
+                    terrainEmbed,
+                    out _))
+            {
+                return;
+            }
+        }
+
         if (!TryFindGroundHeight(
                 instance,
                 bounds,

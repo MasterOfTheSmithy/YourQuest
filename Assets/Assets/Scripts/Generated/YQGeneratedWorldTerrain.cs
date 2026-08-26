@@ -3,6 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum YQGeneratedWorldPlacementCategory
+{
+    Automatic,
+    Structure,
+    Rock,
+    Tree,
+    Vegetation,
+    Prop,
+    Actor
+}
+
 public static class YQGeneratedWorldTerrain
 {
     /*
@@ -619,32 +630,107 @@ public static class YQGeneratedWorldTerrain
         float embedDepth,
         out float correction)
     {
+        // note: Legacy callers still enter the universal placement authority; semantic inference keeps old spawn paths from bypassing category rules.
+        return TryPlaceGroundedObject(
+            root,
+            terrain,
+            YQGeneratedWorldPlacementCategory.Automatic,
+            embedDepth,
+            out correction);
+    }
+
+    public static bool TryPlaceGroundedObject(
+        GameObject root,
+        Terrain terrain,
+        YQGeneratedWorldPlacementCategory category,
+        float embedDepth,
+        out float correction)
+    {
         correction =
             0f;
 
         if (root == null ||
             terrain == null ||
-            YQTerrainSupportComposer.IsExplicitlySuspended(root) ||
-            !TryGetStableContactGeometry(
+            terrain.terrainData == null ||
+            YQTerrainSupportComposer.IsExplicitlySuspended(root))
+        {
+            return false;
+        }
+
+        YQGeneratedWorldPlacementCategory resolvedCategory =
+            ResolvePlacementCategory(
+                root,
+                category);
+
+        // note: Only natural dressing may follow the terrain normal; buildings, trees, and actors remain upright so grounding never corrupts authored traversal or animation axes.
+        AlignNaturalObjectToSurface(
+            root,
+            terrain,
+            resolvedCategory);
+
+        if (!TryGetStableContactGeometry(
                 root,
                 out Bounds bounds,
-                out float structuralBottom) ||
-            !TrySampleFootprintHeight(
+                out float structuralBottom))
+        {
+            return false;
+        }
+
+        if (!TrySampleFootprintHeight(
                 terrain,
                 bounds,
                 out float terrainContact,
-                out _,
-                out _))
+                out float minimumTerrain,
+                out float maximumTerrain))
         {
             return false;
+        }
+
+        float footprint =
+            Mathf.Max(
+                bounds.size.x,
+                bounds.size.z);
+        float terrainVariation =
+            Mathf.Max(
+                0f,
+                maximumTerrain - minimumTerrain);
+        float categoryEmbed =
+            ResolvePlacementEmbedDepth(
+                resolvedCategory,
+                bounds,
+                terrainVariation,
+                embedDepth);
+
+        if (resolvedCategory !=
+                YQGeneratedWorldPlacementCategory.Structure &&
+            resolvedCategory !=
+                YQGeneratedWorldPlacementCategory.Actor)
+        {
+            // note: Rocks, props, and low vegetation contact through their actual visible bottom; weighted structural bottoms are reserved for multi-part buildings and characters.
+            structuralBottom =
+                bounds.min.y;
+        }
+
+        if (resolvedCategory ==
+                YQGeneratedWorldPlacementCategory.Structure &&
+            terrainVariation >
+                Mathf.Clamp(
+                    footprint * 0.10f,
+                    0.55f,
+                    3.5f))
+        {
+            // note: A rigid structure on residual slope favors the footprint median plus bounded burial; this closes downhill air gaps without dragging the full building below the lowest sample.
+            terrainContact =
+                Mathf.Lerp(
+                    minimumTerrain,
+                    terrainContact,
+                    0.72f);
         }
 
         correction =
             terrainContact -
             structuralBottom -
-            Mathf.Max(
-                0f,
-                embedDepth);
+            categoryEmbed;
 
         if (!IsFinite(correction) ||
             Mathf.Abs(correction) > 128f)
@@ -680,6 +766,214 @@ public static class YQGeneratedWorldTerrain
         }
 
         return true;
+    }
+
+    private static YQGeneratedWorldPlacementCategory
+        ResolvePlacementCategory(
+            GameObject root,
+            YQGeneratedWorldPlacementCategory requested)
+    {
+        if (requested !=
+            YQGeneratedWorldPlacementCategory.Automatic)
+        {
+            return requested;
+        }
+
+        string semantic =
+            (root != null
+                ? root.name
+                : string.Empty)
+            .ToLowerInvariant();
+
+        if (ContainsAny(
+                semantic,
+                "building", "house", "hut", "cabin", "tower",
+                "ruin", "cave", "structure", "bridge", "wall"))
+        {
+            return YQGeneratedWorldPlacementCategory.Structure;
+        }
+
+        if (ContainsAny(
+                semantic,
+                "tree", "trunk", "pine", "spruce", "birch"))
+        {
+            return YQGeneratedWorldPlacementCategory.Tree;
+        }
+
+        if (ContainsAny(
+                semantic,
+                "rock", "stone", "boulder", "cliff"))
+        {
+            return YQGeneratedWorldPlacementCategory.Rock;
+        }
+
+        if (ContainsAny(
+                semantic,
+                "grass", "fern", "weed", "bush", "shrub", "flower"))
+        {
+            return YQGeneratedWorldPlacementCategory.Vegetation;
+        }
+
+        if (ContainsAny(
+                semantic,
+                "npc", "enemy", "creature", "resident", "goddess"))
+        {
+            return YQGeneratedWorldPlacementCategory.Actor;
+        }
+
+        return YQGeneratedWorldPlacementCategory.Prop;
+    }
+
+    private static float ResolvePlacementEmbedDepth(
+        YQGeneratedWorldPlacementCategory category,
+        Bounds bounds,
+        float terrainVariation,
+        float requestedEmbedDepth)
+    {
+        float requested =
+            Mathf.Max(
+                0f,
+                requestedEmbedDepth);
+
+        switch (category)
+        {
+            case YQGeneratedWorldPlacementCategory.Structure:
+                // note: Structural burial grows only enough to hide a residual foundation seam and remains capped against swallowed doors or stairs.
+                return Mathf.Clamp(
+                    Mathf.Max(
+                        requested,
+                        terrainVariation * 0.18f),
+                    0.015f,
+                    Mathf.Min(
+                        0.75f,
+                        Mathf.Max(
+                            0.08f,
+                            bounds.size.y * 0.055f)));
+
+            case YQGeneratedWorldPlacementCategory.Rock:
+                return Mathf.Clamp(
+                    Mathf.Max(
+                        requested,
+                        bounds.size.y * 0.055f),
+                    0.035f,
+                    0.55f);
+
+            case YQGeneratedWorldPlacementCategory.Tree:
+                return Mathf.Clamp(
+                    Mathf.Max(
+                        requested,
+                        0.045f),
+                    0.025f,
+                    0.18f);
+
+            case YQGeneratedWorldPlacementCategory.Vegetation:
+                return Mathf.Clamp(
+                    Mathf.Max(
+                        requested,
+                        bounds.size.y * 0.025f),
+                    0.025f,
+                    0.22f);
+
+            case YQGeneratedWorldPlacementCategory.Actor:
+                return Mathf.Clamp(
+                    requested,
+                    0f,
+                    0.025f);
+
+            default:
+                return Mathf.Clamp(
+                    Mathf.Max(
+                        requested,
+                        bounds.size.y * 0.018f),
+                    0.015f,
+                    0.28f);
+        }
+    }
+
+    private static void AlignNaturalObjectToSurface(
+        GameObject root,
+        Terrain terrain,
+        YQGeneratedWorldPlacementCategory category)
+    {
+        float maximumTilt;
+
+        switch (category)
+        {
+            case YQGeneratedWorldPlacementCategory.Rock:
+                maximumTilt = 24f;
+                break;
+
+            case YQGeneratedWorldPlacementCategory.Vegetation:
+                maximumTilt = 11f;
+                break;
+
+            default:
+                return;
+        }
+
+        TerrainData data =
+            terrain.terrainData;
+        Vector3 terrainOrigin =
+            terrain.transform.position;
+        Vector3 terrainSize =
+            data.size;
+        Vector3 position =
+            root.transform.position;
+        float normalizedX =
+            (position.x - terrainOrigin.x) /
+            Mathf.Max(
+                0.001f,
+                terrainSize.x);
+        float normalizedZ =
+            (position.z - terrainOrigin.z) /
+            Mathf.Max(
+                0.001f,
+                terrainSize.z);
+
+        if (normalizedX < 0f ||
+            normalizedX > 1f ||
+            normalizedZ < 0f ||
+            normalizedZ > 1f)
+        {
+            return;
+        }
+
+        Vector3 surfaceNormal =
+            data.GetInterpolatedNormal(
+                normalizedX,
+                normalizedZ);
+        float surfaceAngle =
+            Vector3.Angle(
+                Vector3.up,
+                surfaceNormal);
+
+        if (!IsFiniteVector(surfaceNormal) ||
+            surfaceAngle <= 0.05f)
+        {
+            return;
+        }
+
+        float tiltRatio =
+            Mathf.Clamp01(
+                maximumTilt /
+                surfaceAngle);
+        Quaternion cappedTilt =
+            Quaternion.Slerp(
+                Quaternion.identity,
+                Quaternion.FromToRotation(
+                    Vector3.up,
+                    surfaceNormal),
+                tiltRatio);
+        float authoredYaw =
+            root.transform.eulerAngles.y;
+
+        // note: Natural placement keeps deterministic yaw while applying only a bounded surface tilt, preventing rocks from floating on slopes without toppling props downhill.
+        root.transform.rotation =
+            cappedTilt *
+            Quaternion.Euler(
+                0f,
+                authoredYaw,
+                0f);
     }
 
     private static bool IsStableContactRenderer(

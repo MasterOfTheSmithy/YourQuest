@@ -3412,9 +3412,10 @@ public static class YQGeneratedWorldPopulation
             return;
         }
 
-        if (YQGeneratedWorldTerrain.TryGroundObject(
+        if (YQGeneratedWorldTerrain.TryPlaceGroundedObject(
                 root,
                 terrain,
+                YQGeneratedWorldPlacementCategory.Actor,
                 0.005f,
                 out _))
         {
@@ -4315,7 +4316,10 @@ public static class YQGeneratedWorldPopulation
             if (compiledRewardPosition)
                 GroundObjectToWorldHeight(chest, position.y);
             else
-                GroundObjectToTerrainBase(chest, terrain);
+                GroundObjectToTerrainBase(
+                    chest,
+                    terrain,
+                    YQGeneratedWorldPlacementCategory.Prop);
 
             /*
              * Stable identity.
@@ -4650,10 +4654,6 @@ public static class YQGeneratedWorldPopulation
              * Base grounding uses median terrain contact and permits a
              * small amount of intentional terrain penetration.
              */
-            GroundObjectToTerrainBase(
-                instance,
-                terrain);
-
             bool structural =
                 ReferenceHasAnyTag(
                     reference,
@@ -4664,6 +4664,14 @@ public static class YQGeneratedWorldPopulation
                     "underground",
                     "mountain",
                     "rock");
+
+            // note: Campsite modules declare structural intent before placement so ruins stay upright while loose props and rocks can settle naturally.
+            GroundObjectToTerrainBase(
+                instance,
+                terrain,
+                structural
+                    ? YQGeneratedWorldPlacementCategory.Structure
+                    : YQGeneratedWorldPlacementCategory.Prop);
 
             EnsureEnvironmentCollider(
                 instance,
@@ -5362,7 +5370,9 @@ public static class YQGeneratedWorldPopulation
 
     private static void GroundObjectToTerrainBase(
         GameObject instance,
-        Terrain terrain)
+        Terrain terrain,
+        YQGeneratedWorldPlacementCategory category =
+            YQGeneratedWorldPlacementCategory.Automatic)
     {
         if (instance == null ||
             terrain == null)
@@ -5390,9 +5400,10 @@ public static class YQGeneratedWorldPopulation
                 0.35f);
 
         // note: Rewards, caves, and campsite props use the shared filtered support bottom and upper-middle terrain footprint instead of raw renderer corners.
-        YQGeneratedWorldTerrain.TryGroundObject(
+        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
+            category,
             penetration,
             out _);
     }

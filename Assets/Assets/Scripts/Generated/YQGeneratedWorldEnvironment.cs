@@ -4770,7 +4770,8 @@ public static class YQGeneratedWorldEnvironment
         GroundWildernessInstance(
             instance,
             terrain,
-            slot);
+            slot,
+            reference);
 
         if (!TryGetWildernessBounds(
                 instance,
@@ -4896,7 +4897,8 @@ public static class YQGeneratedWorldEnvironment
     private static void GroundWildernessInstance(
         GameObject instance,
         Terrain terrain,
-        string slot)
+        string slot,
+        GeneratedAssetReferenceRecord reference)
     {
         if (instance == null ||
             terrain == null ||
@@ -4911,6 +4913,9 @@ public static class YQGeneratedWorldEnvironment
                 YQWorldAssetCatalog
                     .SlotVegetation,
                 StringComparison.OrdinalIgnoreCase) &&
+            LooksLikeTree(
+                instance,
+                reference) &&
             TryGetTreeTrunkBounds(
                 instance,
                 out Bounds trunkBounds))
@@ -4931,14 +4936,30 @@ public static class YQGeneratedWorldEnvironment
                     0.05f;
                 instance.transform.position =
                     treePosition;
+
+                // note: Tree trunks remain upright and use their root geometry as the explicit contact authority.
                 return;
             }
         }
 
-        // note: Ordinary wilderness props use the shared structural lower-band and footprint terrain solver, removing pivot-driven floating and sinking.
-        YQGeneratedWorldTerrain.TryGroundObject(
+        YQGeneratedWorldPlacementCategory category =
+            string.Equals(
+                slot,
+                YQWorldAssetCatalog.SlotRock,
+                StringComparison.OrdinalIgnoreCase)
+                ? YQGeneratedWorldPlacementCategory.Rock
+                : string.Equals(
+                    slot,
+                    YQWorldAssetCatalog.SlotVegetation,
+                    StringComparison.OrdinalIgnoreCase)
+                    ? YQGeneratedWorldPlacementCategory.Vegetation
+                    : YQGeneratedWorldPlacementCategory.Prop;
+
+        // note: Ordinary wilderness props enter the same category-aware placement gate, giving rocks and low vegetation bounded natural tilt plus visible-bottom contact.
+        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
+            category,
             0.05f,
             out _);
     }
@@ -5110,9 +5131,10 @@ public static class YQGeneratedWorldEnvironment
                 1.75f);
 
         // note: Caves and large wilderness structures share the same nine-point terrain contact contract as every other grounded generated asset.
-        YQGeneratedWorldTerrain.TryGroundObject(
+        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
+            YQGeneratedWorldPlacementCategory.Structure,
             penetration,
             out _);
     }
@@ -5555,9 +5577,10 @@ public static class YQGeneratedWorldEnvironment
         }
 
         // note: Grounded creatures use their visible lower band and the surrounding terrain footprint; the old positive offset deliberately left feet hovering.
-        YQGeneratedWorldTerrain.TryGroundObject(
+        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             root,
             terrain,
+            YQGeneratedWorldPlacementCategory.Actor,
             0.005f,
             out _);
     }
