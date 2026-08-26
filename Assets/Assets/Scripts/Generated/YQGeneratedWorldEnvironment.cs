@@ -2505,6 +2505,55 @@ public static class YQGeneratedWorldEnvironment
             }
         }
 
+        if (settlementAnchors.Count >= 2)
+        {
+            List<Vector2> mainRouteAnchors =
+                new List<Vector2>(
+                    settlementAnchors);
+
+            // note: The main route is ordered around the origin so settlements read as one inhabited region instead of a collection of unrelated radial driveways.
+            mainRouteAnchors.Sort(
+                delegate(Vector2 a, Vector2 b)
+                {
+                    float angleA =
+                        Mathf.Atan2(
+                            a.y - origin.y,
+                            a.x - origin.x);
+                    float angleB =
+                        Mathf.Atan2(
+                            b.y - origin.y,
+                            b.x - origin.x);
+                    return angleA.CompareTo(angleB);
+                });
+
+            for (int routeIndex = 0;
+                 routeIndex < mainRouteAnchors.Count - 1;
+                 routeIndex++)
+            {
+                AddLivedPathConnection(
+                    paths,
+                    mainRouteAnchors[routeIndex],
+                    mainRouteAnchors[routeIndex + 1],
+                    3.6f,
+                    6.8f,
+                    plan.worldSeed +
+                    "|regional_main_route|" +
+                    routeIndex);
+            }
+
+            if (mainRouteAnchors.Count >= 3)
+            {
+                AddLivedPathConnection(
+                    paths,
+                    mainRouteAnchors[mainRouteAnchors.Count - 1],
+                    mainRouteAnchors[0],
+                    3.4f,
+                    6.2f,
+                    plan.worldSeed +
+                    "|regional_main_route_return");
+            }
+        }
+
         if (plan.encampments != null)
         {
             for (int index = 0;
@@ -3221,13 +3270,427 @@ public static class YQGeneratedWorldEnvironment
             yield return null;
         }
 
+        int drainageStreams =
+            0;
+
+        // note: Each basin receives two narrow deterministic drainage ribbons that sit on sampled terrain, making water part of the travel landscape instead of isolated decorative ellipses.
+        for (int basinIndex = 0;
+             basinIndex < YQGeneratedWorldTerrain.MacroWaterBasinCount;
+             basinIndex++)
+        {
+            if (!YQGeneratedWorldTerrain.TryGetMacroWaterBasin(
+                    plan.worldSeed,
+                    terrain,
+                    basinIndex,
+                    out YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin))
+            {
+                continue;
+            }
+
+            for (int branchIndex = 0;
+                 branchIndex < 2;
+                 branchIndex++)
+            {
+                List<Vector3> streamPoints =
+                    BuildDrainageStreamPoints(
+                        terrain,
+                        basin,
+                        basinIndex,
+                        branchIndex);
+
+                if (streamPoints.Count < 6)
+                    continue;
+
+                AsyncInstantiateOperation<GameObject> operation =
+                    UnityEngine.Object.InstantiateAsync(
+                        waterPrefab,
+                        root.transform);
+                operation.priority = -1;
+                yield return operation;
+
+                GameObject streamInstance =
+                    operation.Result != null &&
+                    operation.Result.Length > 0
+                        ? operation.Result[0]
+                        : null;
+
+                if (streamInstance == null)
+                    continue;
+
+                streamInstance.name =
+                    "DrainageStream_" +
+                    basinIndex +
+                    "_" +
+                    branchIndex +
+                    "__" +
+                    waterPrefab.name;
+                streamInstance.transform.position =
+                    Vector3.zero;
+                streamInstance.transform.rotation =
+                    Quaternion.identity;
+                streamInstance.transform.localScale =
+                    Vector3.one;
+
+                registry.ApplyMaterialOverrides(
+                    waterAssetPath,
+                    streamInstance);
+
+                yield return YQRuntimeUrpMaterialRepair
+                    .RepairMaterialHierarchyRoutine(
+                        streamInstance,
+                        null);
+
+                RemoveWildernessCollision(
+                    streamInstance);
+
+                if (!TryConfigureDrainageWaterSurface(
+                        streamInstance,
+                        streamPoints,
+                        basinIndex,
+                        branchIndex))
+                {
+                    streamInstance.SetActive(false);
+                    UnityEngine.Object.Destroy(streamInstance);
+                    continue;
+                }
+
+                drainageStreams++;
+                yield return null;
+            }
+        }
+
         if (spawned == 0)
         {
             root.SetActive(false);
             UnityEngine.Object.Destroy(root);
         }
 
-        completed?.Invoke(spawned);
+        completed?.Invoke(
+            spawned +
+            drainageStreams);
+    }
+
+    private static List<Vector3> BuildDrainageStreamPoints(
+        Terrain terrain,
+        YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin,
+        int basinIndex,
+        int branchIndex)
+    {
+        List<Vector3> points =
+            new List<Vector3>(28);
+
+        if (terrain == null ||
+            terrain.terrainData == null)
+        {
+            return points;
+        }
+
+        Vector2 axis =
+            basin.LongAxisXZ.normalized;
+        Vector2 normal =
+            basin.ShortAxisXZ.normalized;
+        float direction =
+            branchIndex == 0
+                ? -1f
+                : 1f;
+        Vector2 start =
+            new Vector2(
+                basin.CenterWorld.x,
+                basin.CenterWorld.z) +
+            axis *
+                direction *
+                basin.LongRadius *
+                0.58f +
+            normal *
+                Mathf.Lerp(
+                    -basin.ShortRadius *
+                        0.22f,
+                    basin.ShortRadius *
+                        0.22f,
+                    Deterministic01(
+                        basinIndex +
+                        "|" +
+                        branchIndex +
+                        "|stream_offset"));
+
+        float length =
+            Mathf.Lerp(
+                108f,
+                176f,
+                Deterministic01(
+                    basinIndex +
+                    "|" +
+                    branchIndex +
+                    "|stream_length"));
+        int sampleCount =
+            24;
+        float phase =
+            Deterministic01(
+                basinIndex +
+                "|" +
+                branchIndex +
+                "|stream_phase") *
+            Mathf.PI *
+            2f;
+        float meander =
+            Mathf.Lerp(
+                4f,
+                13f,
+                Deterministic01(
+                    basinIndex +
+                    "|" +
+                    branchIndex +
+                    "|stream_meander"));
+
+        for (int index = 0;
+             index < sampleCount;
+             index++)
+        {
+            float t =
+                index /
+                (float)(sampleCount - 1);
+            Vector2 horizontal =
+                start +
+                axis *
+                    direction *
+                    length *
+                    t +
+                normal *
+                    Mathf.Sin(
+                        t *
+                        Mathf.PI *
+                        2f +
+                        phase) *
+                    meander *
+                    Mathf.Sin(
+                        t *
+                        Mathf.PI);
+            Vector3 point =
+                new Vector3(
+                    horizontal.x,
+                    0f,
+                    horizontal.y);
+
+            if (!InsideTerrainWithMargin(
+                    terrain,
+                    point,
+                    2f))
+            {
+                break;
+            }
+
+            point.y =
+                YQGeneratedWorldTerrain.SampleWorldHeight(
+                    terrain,
+                    point) +
+                0.045f;
+            points.Add(point);
+        }
+
+        return points;
+    }
+
+    private static bool TryConfigureDrainageWaterSurface(
+        GameObject instance,
+        List<Vector3> points,
+        int basinIndex,
+        int branchIndex)
+    {
+        if (instance == null ||
+            points == null ||
+            points.Count < 2)
+        {
+            return false;
+        }
+
+        Renderer[] importedRenderers =
+            instance.GetComponentsInChildren<Renderer>(true);
+        Renderer materialSource =
+            null;
+
+        for (int index = 0;
+             index < importedRenderers.Length;
+             index++)
+        {
+            Renderer renderer =
+                importedRenderers[index];
+
+            if (renderer == null)
+                continue;
+
+            if (materialSource == null &&
+                renderer.sharedMaterials != null &&
+                renderer.sharedMaterials.Length > 0 &&
+                renderer.sharedMaterials[0] != null)
+            {
+                materialSource = renderer;
+            }
+
+            renderer.enabled =
+                false;
+        }
+
+        if (materialSource == null)
+            return false;
+
+        Mesh mesh =
+            BuildDrainageWaterMesh(
+                points,
+                basinIndex,
+                branchIndex);
+        if (mesh == null)
+            return false;
+
+        GameObject surface =
+            new GameObject(
+                "GroundedDrainageWaterSurface");
+        surface.transform.SetParent(
+            instance.transform,
+            false);
+
+        MeshFilter filter =
+            surface.AddComponent<MeshFilter>();
+        MeshRenderer rendererComponent =
+            surface.AddComponent<MeshRenderer>();
+        filter.sharedMesh =
+            mesh;
+        rendererComponent.sharedMaterials =
+            materialSource.sharedMaterials;
+        rendererComponent.shadowCastingMode =
+            UnityEngine.Rendering.ShadowCastingMode.Off;
+        rendererComponent.receiveShadows =
+            false;
+        rendererComponent.lightProbeUsage =
+            UnityEngine.Rendering.LightProbeUsage.Off;
+        rendererComponent.reflectionProbeUsage =
+            UnityEngine.Rendering.ReflectionProbeUsage.Off;
+
+        return true;
+    }
+
+    private static Mesh BuildDrainageWaterMesh(
+        List<Vector3> points,
+        int basinIndex,
+        int branchIndex)
+    {
+        int segmentCount =
+            points.Count -
+            1;
+        Vector3[] vertices =
+            new Vector3[segmentCount * 2 + 2];
+        Vector3[] normals =
+            new Vector3[vertices.Length];
+        Vector2[] uvs =
+            new Vector2[vertices.Length];
+        int[] triangles =
+            new int[segmentCount * 6];
+
+        for (int index = 0;
+             index <= segmentCount;
+             index++)
+        {
+            Vector3 point =
+                points[index];
+            Vector3 tangent =
+                index == 0
+                    ? points[1] - points[0]
+                    : index == segmentCount
+                        ? points[index] - points[index - 1]
+                        : points[index + 1] - points[index - 1];
+            tangent.y =
+                0f;
+            tangent.Normalize();
+            Vector3 side =
+                new Vector3(
+                    -tangent.z,
+                    0f,
+                    tangent.x);
+            float width =
+                Mathf.Lerp(
+                    2.2f,
+                    4.6f,
+                    Mathf.Sin(
+                        index /
+                        (float)segmentCount *
+                        Mathf.PI));
+            int vertexIndex =
+                index *
+                2;
+            vertices[vertexIndex] =
+                point -
+                side *
+                width;
+            vertices[vertexIndex + 1] =
+                point +
+                side *
+                width;
+            normals[vertexIndex] =
+                Vector3.up;
+            normals[vertexIndex + 1] =
+                Vector3.up;
+            uvs[vertexIndex] =
+                new Vector2(
+                    0f,
+                    index /
+                    (float)segmentCount *
+                    2.4f);
+            uvs[vertexIndex + 1] =
+                new Vector2(
+                    1f,
+                    index /
+                    (float)segmentCount *
+                    2.4f);
+        }
+
+        for (int index = 0;
+             index < segmentCount;
+             index++)
+        {
+            int vertexIndex =
+                index *
+                2;
+            int triangleIndex =
+                index *
+                6;
+            triangles[triangleIndex] =
+                vertexIndex;
+            triangles[triangleIndex + 1] =
+                vertexIndex +
+                2;
+            triangles[triangleIndex + 2] =
+                vertexIndex +
+                1;
+            triangles[triangleIndex + 3] =
+                vertexIndex +
+                1;
+            triangles[triangleIndex + 4] =
+                vertexIndex +
+                2;
+            triangles[triangleIndex + 5] =
+                vertexIndex +
+                3;
+        }
+
+        Mesh mesh =
+            new Mesh
+            {
+                name =
+                    "YQ_DrainageWater_" +
+                    basinIndex +
+                    "_" +
+                    branchIndex
+            };
+        mesh.vertices =
+            vertices;
+        mesh.normals =
+            normals;
+        mesh.uv =
+            uvs;
+        mesh.triangles =
+            triangles;
+        mesh.RecalculateBounds();
+        GeneratedMacroWaterMeshes.Add(mesh);
+        return mesh;
     }
 
     private static bool TryConfigureMacroWaterSurface(
