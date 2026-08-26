@@ -24,9 +24,9 @@ public static class YQGeneratedWorldTerrain
      * Keep the version explicit so future save migration can choose
      * the correct terrain algorithm.
      */
-    // note: Version three intentionally opts regenerated worlds into the macro-landform layout; the version remains part of the persisted terrain seed contract.
+    // note: Version four opts regenerated worlds into the deterministic biome-tile layout while preserving the explicit persisted terrain seed contract.
     public const string TerrainGenerationVersion =
-    "generated_terrain_v3_macro_landforms";
+    "generated_terrain_v4_biome_tiles";
 
     public const string RuntimeTerrainObjectName =
         "YQ_GENERATED_TERRAIN";
@@ -1288,6 +1288,10 @@ public static class YQGeneratedWorldTerrain
             CreateMacroLandformSettings(
                 seedHash);
 
+        YQGeneratedWorldTilePlan tilePlan =
+            new YQGeneratedWorldTilePlan(
+                seedHash);
+
         for (int z = 0;
              z < resolution;
              z++)
@@ -1301,7 +1305,8 @@ public static class YQGeneratedWorldTerrain
                 mountainRidgeOffset,
                 detailOffset,
                 valleyOffset,
-                landforms);
+                landforms,
+                tilePlan);
         }
 
         return heights;
@@ -1345,6 +1350,10 @@ public static class YQGeneratedWorldTerrain
             CreateMacroLandformSettings(
                 seedHash);
 
+        YQGeneratedWorldTilePlan tilePlan =
+            new YQGeneratedWorldTilePlan(
+                seedHash);
+
         float frameStartedAt =
             Time.realtimeSinceStartup;
 
@@ -1376,6 +1385,7 @@ public static class YQGeneratedWorldTerrain
                     detailOffset,
                     valleyOffset,
                     landforms,
+                    tilePlan,
                     startX,
                     endXExclusive);
 
@@ -1400,6 +1410,7 @@ public static class YQGeneratedWorldTerrain
         Vector2 detailOffset,
         Vector2 valleyOffset,
         MacroLandformSettings landforms,
+        YQGeneratedWorldTilePlan tilePlan,
         int startXInclusive = 0,
         int endXExclusive = -1)
     {
@@ -1448,6 +1459,12 @@ public static class YQGeneratedWorldTerrain
                 WorldSize *
                     0.5f;
 
+            // note: The shared tile profile gives terrain, future foliage, and streaming passes one continuously blended regional authority at this world position.
+            YQGeneratedWorldTileProfile tileProfile =
+                tilePlan.Sample(
+                    worldX,
+                    worldZ);
+
             // note: Continental lift and restrained rolling hills establish broad, traversable lowlands before sharper mountain structure is applied.
             float continental =
                 SignedFractalNoise(
@@ -1468,6 +1485,22 @@ public static class YQGeneratedWorldTerrain
                     3,
                     0.5f,
                     2f);
+
+            float warpedWorldX =
+                worldX +
+                rollingHills *
+                    Mathf.Lerp(
+                        28f,
+                        66f,
+                        tileProfile.Ruggedness);
+
+            float warpedWorldZ =
+                worldZ +
+                continental *
+                    Mathf.Lerp(
+                        24f,
+                        58f,
+                        tileProfile.Ruggedness);
 
             float detail =
                 Mathf.PerlinNoise(
@@ -1544,11 +1577,17 @@ public static class YQGeneratedWorldTerrain
             float mountainRegion =
                 Smooth01(
                     Mathf.InverseLerp(
-                        0.5f,
-                        0.69f,
+                        Mathf.Lerp(
+                            0.59f,
+                            0.46f,
+                            tileProfile.MountainAffinity),
+                        Mathf.Lerp(
+                            0.76f,
+                            0.63f,
+                            tileProfile.MountainAffinity),
                         FractalNoise(
-                            worldX,
-                            worldZ,
+                            warpedWorldX,
+                            warpedWorldZ,
                             MountainRegionNoiseScale,
                             mountainRegionOffset,
                             2,
@@ -1562,8 +1601,8 @@ public static class YQGeneratedWorldTerrain
                             0.5f,
                             0.94f,
                             RidgedFractalNoise(
-                                worldX,
-                                worldZ,
+                                warpedWorldX,
+                                warpedWorldZ,
                                 MountainRidgeNoiseScale,
                                 mountainRidgeOffset,
                                 3,
@@ -1587,9 +1626,13 @@ public static class YQGeneratedWorldTerrain
             float mountainMask =
                 Mathf.Clamp01(
                     mountainRegion *
-                        0.82f +
+                        0.68f +
                     perimeterMountainBias *
-                        0.62f);
+                        0.5f +
+                    tileProfile.MountainAffinity *
+                        0.48f -
+                    tileProfile.DrainageAffinity *
+                        0.14f);
 
             mountainMask *=
                 1f -
@@ -1609,10 +1652,16 @@ public static class YQGeneratedWorldTerrain
 
             float height =
                 BaseHeightNormalized +
+                tileProfile.ElevationBias *
+                    0.034f +
                 continental *
                     ContinentalAmplitude +
                 rollingHills *
                     RollingHillAmplitude *
+                    Mathf.Lerp(
+                        0.62f,
+                        1.32f,
+                        tileProfile.Ruggedness) *
                     lowlandNoiseRetention +
                 detail *
                     DetailAmplitude *
@@ -1623,7 +1672,10 @@ public static class YQGeneratedWorldTerrain
                 mountainMask *
                 (0.038f +
                  ridgeShape *
-                    0.265f);
+                    Mathf.Lerp(
+                        0.19f,
+                        0.3f,
+                        tileProfile.Ruggedness));
 
             float valleyGrade =
                 (Mathf.PerlinNoise(
@@ -1638,6 +1690,10 @@ public static class YQGeneratedWorldTerrain
             float valleyFloor =
                 BaseHeightNormalized -
                 0.032f +
+                tileProfile.ElevationBias *
+                    0.014f -
+                tileProfile.DrainageAffinity *
+                    0.006f +
                 continental *
                     0.016f +
                 valleyGrade;
