@@ -51,7 +51,7 @@ public static class YQGeneratedWorldEnvironment
         16;
 
     private const int MaximumTerrainDetailPrototypes =
-        6;
+        8;
 
     private static readonly string[] ApprovedUrpConiferPrefabs =
     {
@@ -3413,6 +3413,16 @@ public static class YQGeneratedWorldEnvironment
             BuildMacroWaterSet(
                 terrain,
                 plan);
+        uint terrainSeedHash =
+            StableHash32(
+                YQGeneratedWorldTerrain.TerrainGenerationVersion +
+                "|" +
+                SafeText(
+                    plan.worldSeed,
+                    "yourquest_default_world"));
+        YQGeneratedWorldTilePlan tilePlan =
+            new YQGeneratedWorldTilePlan(
+                terrainSeedHash);
         List<Vector2> settlementDetailReserves =
             new List<Vector2>();
         List<Vector2> encampmentDetailReserves =
@@ -3524,7 +3534,7 @@ public static class YQGeneratedWorldEnvironment
                         treePrototypes,
                         treePrototypeByPath);
                 }
-                else if (profile.detailPrototypeIndices.Count < 2 &&
+                else if (profile.detailPrototypeIndices.Count < 3 &&
                          LooksLikeTerrainDetailReference(reference) &&
                          TryResolveTerrainDetailTexture(
                              prefab,
@@ -3604,8 +3614,7 @@ public static class YQGeneratedWorldEnvironment
                         profiles.Count * 320));
             Vector3 terrainOrigin = terrain.transform.position;
             Vector3 terrainSize = data.size;
-            uint seedHash = StableHash32(
-                SafeText(plan.worldSeed, "yourquest_default_world"));
+            uint seedHash = terrainSeedHash;
             float noiseOffsetX = (seedHash & 0xFFFFu) * 0.0137f;
             float noiseOffsetZ = ((seedHash >> 16) & 0xFFFFu) * 0.0173f;
 
@@ -3622,9 +3631,17 @@ public static class YQGeneratedWorldEnvironment
                     Mathf.RoundToInt(
                         ResolveVegetationTarget(
                             profile.region,
-                            profile.palette) * 2.3f),
-                    120,
-                    300);
+                            profile.palette) *
+                        2.3f *
+                        Mathf.Lerp(
+                            0.72f,
+                            1.32f,
+                            tilePlan.Sample(
+                                profile.center.x,
+                                profile.center.z)
+                                .ForestDensity)),
+                    96,
+                    340);
                 int placedForRegion = 0;
                 int attempts = target * 6;
 
@@ -3668,6 +3685,11 @@ public static class YQGeneratedWorldEnvironment
                         continue;
                     }
 
+                    YQGeneratedWorldTileProfile tileProfile =
+                        tilePlan.Sample(
+                            position.x,
+                            position.z);
+
                     position.y = YQGeneratedWorldTerrain.SampleWorldHeight(
                         terrain,
                         position);
@@ -3681,8 +3703,26 @@ public static class YQGeneratedWorldEnvironment
                         normalizedX,
                         normalizedZ);
 
-                    if (Vector3.Angle(Vector3.up, normal) > 34f)
+                    float maximumTreeSlope =
+                        Mathf.Lerp(
+                            27f,
+                            36f,
+                            tileProfile.Ruggedness);
+
+                    if (tileProfile.Biome ==
+                        YQGeneratedWorldBiomeKind.Wetland)
+                    {
+                        maximumTreeSlope =
+                            Mathf.Min(
+                                maximumTreeSlope,
+                                25f);
+                    }
+
+                    if (Vector3.Angle(Vector3.up, normal) >
+                        maximumTreeSlope)
+                    {
                         continue;
+                    }
 
                     float groveNoise = Mathf.PerlinNoise(
                         noiseOffsetX + position.x * 0.0105f,
@@ -3691,8 +3731,28 @@ public static class YQGeneratedWorldEnvironment
                         noiseOffsetZ + position.x * 0.0038f,
                         noiseOffsetX + position.z * 0.0038f);
 
-                    if (groveNoise * 0.68f + moistureNoise * 0.32f <
-                        profile.treeMaskThreshold)
+                    float ecologicalTreeScore =
+                        groveNoise *
+                            0.48f +
+                        moistureNoise *
+                            0.2f +
+                        tileProfile.ForestDensity *
+                            0.25f +
+                        tileProfile.Moisture *
+                            0.07f;
+
+                    float ecologicalTreeThreshold =
+                        profile.treeMaskThreshold +
+                        Mathf.Lerp(
+                            0.1f,
+                            -0.08f,
+                            tileProfile.ForestDensity) +
+                        ResolveBiomeTreeThresholdOffset(
+                            tileProfile.Biome);
+
+                    // note: Biome suitability controls canopy acceptance while grove noise still forms irregular clearings and clusters inside each ecological province.
+                    if (ecologicalTreeScore <
+                        ecologicalTreeThreshold)
                     {
                         continue;
                     }
@@ -3707,6 +3767,19 @@ public static class YQGeneratedWorldEnvironment
                         0.82f,
                         1.22f,
                         Deterministic01(seed + "|height"));
+
+                    baseScale *=
+                        Mathf.Lerp(
+                            0.86f,
+                            1.08f,
+                            tileProfile.Moisture);
+
+                    Color treeColor =
+                        ResolveBiomeTreeColor(
+                            tileProfile,
+                            Deterministic01(
+                                seed +
+                                "|tint"));
 
                     // note: TreeInstance coordinates are terrain-normalized and snap to the final heightmap, eliminating prefab pivots and per-tree grounding work.
                     instances.Add(
@@ -3727,7 +3800,7 @@ public static class YQGeneratedWorldEnvironment
                             heightScale = baseScale,
                             rotation = Deterministic01(seed + "|yaw") *
                                 Mathf.PI * 2f,
-                            color = Color.white,
+                            color = treeColor,
                             lightmapColor = Color.white
                         });
                     placedForRegion++;
@@ -3833,6 +3906,10 @@ public static class YQGeneratedWorldEnvironment
                         worldZ);
                     TerrainVegetationProfile profile =
                         FindNearestVegetationProfile(profiles, worldPosition);
+                    YQGeneratedWorldTileProfile tileProfile =
+                        tilePlan.Sample(
+                            worldPosition.x,
+                            worldPosition.z);
 
                     if (profile == null ||
                         profile.detailPrototypeIndices.Count == 0 ||
@@ -3859,7 +3936,16 @@ public static class YQGeneratedWorldEnvironment
                         terrainSize,
                         normalizedX,
                         normalizedZ);
-                    if (slopeDegrees > 38f)
+                    float maximumDetailSlope =
+                        tileProfile.Biome ==
+                            YQGeneratedWorldBiomeKind.Highland
+                                ? 42f
+                                : tileProfile.Biome ==
+                                    YQGeneratedWorldBiomeKind.Wetland
+                                        ? 32f
+                                        : 38f;
+
+                    if (slopeDegrees > maximumDetailSlope)
                         continue;
 
                     float patchNoise = Mathf.PerlinNoise(
@@ -3869,8 +3955,26 @@ public static class YQGeneratedWorldEnvironment
                         detailOffsetZ + worldPosition.x * 0.006f,
                         detailOffsetX + worldPosition.z * 0.006f);
                     float densityMask =
-                        patchNoise * 0.57f + biomeNoise * 0.43f;
-                    float threshold = profile.detailMaskThreshold;
+                        patchNoise *
+                            0.45f +
+                        biomeNoise *
+                            0.25f +
+                        tileProfile.ForestDensity *
+                            0.16f +
+                        tileProfile.Moisture *
+                            0.14f;
+
+                    densityMask -=
+                        Mathf.InverseLerp(
+                            18f,
+                            maximumDetailSlope,
+                            slopeDegrees) *
+                        0.1f;
+
+                    float threshold =
+                        profile.detailMaskThreshold +
+                        ResolveBiomeDetailThresholdOffset(
+                            tileProfile.Biome);
 
                     if (densityMask < threshold)
                         continue;
@@ -3889,9 +3993,12 @@ public static class YQGeneratedWorldEnvironment
                         profile.detailPrototypeIndices[profileLayer];
                     int density = Mathf.Clamp(
                         2 + Mathf.FloorToInt(
-                            (densityMask - threshold) * 12f),
+                            (densityMask - threshold) *
+                                15f +
+                            ResolveBiomeGroundCoverBonus(
+                                tileProfile.Biome)),
                         2,
-                        6);
+                        8);
 
                     detailMaps[layerIndex][z, x] = density;
                     detailCount += density;
@@ -4252,6 +4359,108 @@ public static class YQGeneratedWorldEnvironment
         }
 
         return 0.42f;
+    }
+
+    private static float ResolveBiomeTreeThresholdOffset(
+        YQGeneratedWorldBiomeKind biome)
+    {
+        // note: Canopy density and ground-cover density are separate ecological layers, so open moorland can remain lush without becoming an implausible closed forest.
+        switch (biome)
+        {
+            case YQGeneratedWorldBiomeKind.AncientWoodland:
+                return -0.08f;
+
+            case YQGeneratedWorldBiomeKind.Wetland:
+                return -0.025f;
+
+            case YQGeneratedWorldBiomeKind.Highland:
+                return 0.035f;
+
+            case YQGeneratedWorldBiomeKind.Moorland:
+                return 0.1f;
+
+            default:
+                return 0f;
+        }
+    }
+
+    private static float ResolveBiomeDetailThresholdOffset(
+        YQGeneratedWorldBiomeKind biome)
+    {
+        switch (biome)
+        {
+            case YQGeneratedWorldBiomeKind.AncientWoodland:
+                return -0.075f;
+
+            case YQGeneratedWorldBiomeKind.Wetland:
+                return -0.1f;
+
+            case YQGeneratedWorldBiomeKind.Moorland:
+                return -0.07f;
+
+            case YQGeneratedWorldBiomeKind.Highland:
+                return 0.025f;
+
+            default:
+                return -0.025f;
+        }
+    }
+
+    private static float ResolveBiomeGroundCoverBonus(
+        YQGeneratedWorldBiomeKind biome)
+    {
+        switch (biome)
+        {
+            case YQGeneratedWorldBiomeKind.Wetland:
+                return 2f;
+
+            case YQGeneratedWorldBiomeKind.AncientWoodland:
+            case YQGeneratedWorldBiomeKind.Moorland:
+                return 1f;
+
+            default:
+                return 0f;
+        }
+    }
+
+    private static Color ResolveBiomeTreeColor(
+        YQGeneratedWorldTileProfile profile,
+        float variation)
+    {
+        float dryAmount =
+            Mathf.Clamp01(
+                (1f - profile.Moisture) *
+                    0.28f +
+                variation *
+                    0.08f);
+
+        Color healthy =
+            profile.Biome ==
+                YQGeneratedWorldBiomeKind.Highland
+                    ? new Color(
+                        0.9f,
+                        0.94f,
+                        0.88f,
+                        1f)
+                    : new Color(
+                        0.94f,
+                        1f,
+                        0.92f,
+                        1f);
+
+        Color dry =
+            new Color(
+                0.92f,
+                0.88f,
+                0.78f,
+                1f);
+
+        // note: Terrain tree tint stays deliberately subtle so imported bark and leaf materials retain their authored color response.
+        return
+            Color.Lerp(
+                healthy,
+                dry,
+                dryAmount);
     }
 
     // ============================================================
