@@ -39,7 +39,7 @@ public static class YQGeneratedWorldEnvironment
         96;
 
     private const int TerrainDetailResolution =
-        256;
+        384;
 
     private const int TerrainDetailPatchResolution =
         16;
@@ -48,10 +48,18 @@ public static class YQGeneratedWorldEnvironment
         2400;
 
     private const int MaximumTerrainTreePrototypes =
-        12;
+        16;
 
     private const int MaximumTerrainDetailPrototypes =
         6;
+
+    private static readonly string[] ApprovedUrpConiferPrefabs =
+    {
+        "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/PF Conifer Tall BOTD URP.prefab",
+        "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/PF Conifer Medium BOTD URP.prefab",
+        "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/PF Conifer Small BOTD URP.prefab",
+        "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/PF Conifer Bare BOTD URP.prefab"
+    };
 
     private const int BaseRockScatterPerRegion =
         24;
@@ -113,6 +121,23 @@ public static class YQGeneratedWorldEnvironment
         public int detailLayerIndex = -1;
 
         public int rockLayerIndex = -1;
+
+        public int pathLayerIndex = -1;
+    }
+
+    private sealed class LivedPathSegment
+    {
+        public Vector2 start;
+
+        public Vector2 end;
+
+        public float halfWidth;
+
+        public float shoulderWidth;
+
+        public float curveAmplitude;
+
+        public float curvePhase;
     }
 
     private sealed class WildernessBuildStats
@@ -1080,11 +1105,28 @@ public static class YQGeneratedWorldEnvironment
                         layerByMaterialPath)
                     : detailLayerIndex;
 
+            GeneratedAssetReferenceRecord pathReference =
+                FindPathTerrainReference(
+                    terrainReferences);
+
+            int pathLayerIndex =
+                pathReference != null
+                    ? ResolveOrCreateTerrainLayerIndex(
+                        pathReference,
+                        registry,
+                        palette,
+                        layers,
+                        layerByMaterialPath)
+                    : detailLayerIndex;
+
             if (detailLayerIndex < 0)
                 detailLayerIndex = baseLayerIndex;
 
             if (rockLayerIndex < 0)
                 rockLayerIndex = detailLayerIndex;
+
+            if (pathLayerIndex < 0)
+                pathLayerIndex = detailLayerIndex;
 
             surfaces.Add(
                 new RegionSurface
@@ -1108,7 +1150,10 @@ public static class YQGeneratedWorldEnvironment
                         detailLayerIndex,
 
                     rockLayerIndex =
-                        rockLayerIndex
+                        rockLayerIndex,
+
+                    pathLayerIndex =
+                        pathLayerIndex
                 });
         }
 
@@ -1134,6 +1179,7 @@ public static class YQGeneratedWorldEnvironment
 
         yield return PaintRegionalTerrainRoutine(
             terrain,
+            plan,
             surfaces,
             layers.Count);
 
@@ -1224,6 +1270,39 @@ public static class YQGeneratedWorldEnvironment
         return references.Count > 2
             ? references[2]
             : references[references.Count - 1];
+    }
+
+    private static GeneratedAssetReferenceRecord FindPathTerrainReference(
+        List<GeneratedAssetReferenceRecord> references)
+    {
+        if (references == null || references.Count == 0)
+            return null;
+
+        for (int index = 0;
+             index < references.Count;
+             index++)
+        {
+            GeneratedAssetReferenceRecord reference =
+                references[index];
+
+            if (reference != null &&
+                ContainsAnySemantic(
+                    BuildReferenceSemanticText(reference),
+                    "packed_earth",
+                    "earth",
+                    "dirt",
+                    "dry_ground",
+                    "dark_ground",
+                    "gravel"))
+            {
+                return reference;
+            }
+        }
+
+        // note: A lived-area path always reuses a curated regional surface; it never introduces a cross-biome material or generated placeholder.
+        return references.Count > 1
+            ? references[1]
+            : references[0];
     }
 
     private static List<GeneratedAssetReferenceRecord>
@@ -1419,6 +1498,7 @@ public static class YQGeneratedWorldEnvironment
 
     private static IEnumerator PaintRegionalTerrainRoutine(
         Terrain terrain,
+        GeneratedWorldPlanRecord plan,
         List<RegionSurface> surfaces,
         int layerCount)
     {
@@ -1451,6 +1531,11 @@ public static class YQGeneratedWorldEnvironment
 
         Vector3 originAnchor =
             YQGeneratedWorldLayout.GetVeyOriginAnchor();
+
+        List<LivedPathSegment> livedPaths =
+            BuildLivedPathNetwork(
+                plan,
+                terrain);
 
         // note: One bounded height read supplies slope and elevation masks for every splat pixel; repeated native Terrain queries inside the 256x256 paint loop caused avoidable loading spikes.
         float[,] heightSamples =
@@ -1736,6 +1821,30 @@ public static class YQGeneratedWorldEnvironment
                     }
                 }
 
+                if (totalWeight > 0.0000001f &&
+                    nearestSurface != null &&
+                    nearestSurface.pathLayerIndex >= 0 &&
+                    nearestSurface.pathLayerIndex < layerCount)
+                {
+                    float livedPathMask = ResolveLivedPathMask(
+                        livedPaths,
+                        new Vector2(worldX, worldZ));
+
+                    if (livedPathMask > 0.001f)
+                    {
+                        // note: Lived settlements and camps receive one readable packed-earth spine with soft natural shoulders instead of disconnected road props or a uniform city-wide decal.
+                        float pathWeight =
+                            totalWeight * livedPathMask * 6.5f;
+                        weights[
+                            y,
+                            x,
+                            nearestSurface.pathLayerIndex] +=
+                            pathWeight;
+                        totalWeight +=
+                            pathWeight;
+                    }
+                }
+
                 if (totalWeight <=
                     0.0000001f)
                 {
@@ -1806,6 +1915,244 @@ public static class YQGeneratedWorldEnvironment
         }
     }
 
+    private static List<LivedPathSegment> BuildLivedPathNetwork(
+        GeneratedWorldPlanRecord plan,
+        Terrain terrain)
+    {
+        List<LivedPathSegment> paths =
+            new List<LivedPathSegment>();
+
+        if (plan == null || terrain == null)
+            return paths;
+
+        Vector2 origin = new Vector2(
+            YQGeneratedWorldLayout.GetVeyOriginAnchor().x,
+            YQGeneratedWorldLayout.GetVeyOriginAnchor().z);
+        List<Vector2> settlementAnchors =
+            new List<Vector2>();
+
+        if (plan.settlements != null)
+        {
+            for (int index = 0;
+                 index < plan.settlements.Count;
+                 index++)
+            {
+                GeneratedSettlementRecord settlement =
+                    plan.settlements[index];
+
+                if (settlement == null)
+                    continue;
+
+                Vector3 worldAnchor =
+                    YQGeneratedWorldLayout.GetSettlementAnchor(
+                        plan,
+                        settlement,
+                        terrain);
+                settlementAnchors.Add(
+                    new Vector2(worldAnchor.x, worldAnchor.z));
+            }
+        }
+
+        for (int index = 0;
+             index < settlementAnchors.Count;
+             index++)
+        {
+            Vector2 anchor = settlementAnchors[index];
+            Vector2 target = origin;
+            float nearestDistanceSquared =
+                (anchor - origin).sqrMagnitude;
+
+            for (int otherIndex = 0;
+                 otherIndex < settlementAnchors.Count;
+                 otherIndex++)
+            {
+                if (otherIndex == index)
+                    continue;
+
+                float distanceSquared =
+                    (anchor - settlementAnchors[otherIndex]).sqrMagnitude;
+
+                if (distanceSquared >= nearestDistanceSquared)
+                    continue;
+
+                target = settlementAnchors[otherIndex];
+                nearestDistanceSquared = distanceSquared;
+            }
+
+            AddLivedPathApproach(
+                paths,
+                anchor,
+                target,
+                42f,
+                118f,
+                3.8f,
+                6.5f,
+                plan.worldSeed + "|settlement_path|" + index);
+        }
+
+        if (plan.encampments != null)
+        {
+            for (int index = 0;
+                 index < plan.encampments.Count;
+                 index++)
+            {
+                GeneratedEncampmentRecord encampment =
+                    plan.encampments[index];
+
+                if (encampment == null)
+                    continue;
+
+                Vector3 worldAnchor =
+                    YQGeneratedWorldLayout.GetEncampmentAnchor(
+                        plan,
+                        encampment,
+                        terrain);
+                Vector2 anchor =
+                    new Vector2(worldAnchor.x, worldAnchor.z);
+                Vector2 target = origin;
+                float nearestDistanceSquared =
+                    (anchor - origin).sqrMagnitude;
+
+                for (int settlementIndex = 0;
+                     settlementIndex < settlementAnchors.Count;
+                     settlementIndex++)
+                {
+                    float distanceSquared =
+                        (anchor - settlementAnchors[settlementIndex]).sqrMagnitude;
+
+                    if (distanceSquared >= nearestDistanceSquared)
+                        continue;
+
+                    target = settlementAnchors[settlementIndex];
+                    nearestDistanceSquared = distanceSquared;
+                }
+
+                AddLivedPathApproach(
+                    paths,
+                    anchor,
+                    target,
+                    22f,
+                    72f,
+                    2.4f,
+                    4.2f,
+                    plan.worldSeed + "|encampment_path|" + index);
+            }
+        }
+
+        return paths;
+    }
+
+    private static void AddLivedPathApproach(
+        List<LivedPathSegment> paths,
+        Vector2 anchor,
+        Vector2 target,
+        float rearLength,
+        float approachLength,
+        float halfWidth,
+        float shoulderWidth,
+        string seed)
+    {
+        Vector2 direction = target - anchor;
+        float distance = direction.magnitude;
+
+        if (paths == null || distance < 0.1f)
+            return;
+
+        direction /= distance;
+        float forwardLength = Mathf.Min(
+            approachLength,
+            distance * 0.48f);
+
+        // note: Each lived location owns a continuous local spine aimed at its nearest hub; the route remains bounded instead of carving a straight road across the entire procedural world.
+        paths.Add(
+            new LivedPathSegment
+            {
+                start = anchor - direction * rearLength,
+                end = anchor + direction * forwardLength,
+                halfWidth = halfWidth,
+                shoulderWidth = shoulderWidth,
+                curveAmplitude = Mathf.Lerp(
+                    1.4f,
+                    4.5f,
+                    Deterministic01(seed + "|curve")),
+                curvePhase = Deterministic01(seed + "|phase") *
+                    Mathf.PI * 2f
+            });
+    }
+
+    private static float ResolveLivedPathMask(
+        List<LivedPathSegment> paths,
+        Vector2 point)
+    {
+        float strongest = 0f;
+
+        for (int index = 0;
+             paths != null && index < paths.Count;
+             index++)
+        {
+            LivedPathSegment path = paths[index];
+            float distance = DistanceToLivedPath(path, point);
+            float mask = 1f - Mathf.SmoothStep(
+                path.halfWidth,
+                path.halfWidth + path.shoulderWidth,
+                distance);
+            strongest = Mathf.Max(strongest, mask);
+        }
+
+        return strongest;
+    }
+
+    private static bool IsNearLivedPath(
+        List<LivedPathSegment> paths,
+        Vector3 position,
+        float padding)
+    {
+        Vector2 point = new Vector2(position.x, position.z);
+
+        for (int index = 0;
+             paths != null && index < paths.Count;
+             index++)
+        {
+            LivedPathSegment path = paths[index];
+
+            if (DistanceToLivedPath(path, point) <=
+                path.halfWidth + Mathf.Max(0f, padding))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static float DistanceToLivedPath(
+        LivedPathSegment path,
+        Vector2 point)
+    {
+        if (path == null)
+            return float.PositiveInfinity;
+
+        Vector2 delta = path.end - path.start;
+        float lengthSquared = delta.sqrMagnitude;
+
+        if (lengthSquared < 0.001f)
+            return Vector2.Distance(point, path.start);
+
+        float t = Mathf.Clamp01(
+            Vector2.Dot(point - path.start, delta) /
+            lengthSquared);
+        Vector2 direction = delta.normalized;
+        Vector2 perpendicular = new Vector2(
+            -direction.y,
+            direction.x);
+        float curve = Mathf.Sin(t * Mathf.PI) *
+            Mathf.Sin(t * Mathf.PI * 2f + path.curvePhase) *
+            path.curveAmplitude;
+        Vector2 center = Vector2.Lerp(path.start, path.end, t) +
+            perpendicular * curve;
+        return Vector2.Distance(point, center);
+    }
+
     // ============================================================
     // TERRAIN-NATIVE VEGETATION
     // ============================================================
@@ -1833,6 +2180,10 @@ public static class YQGeneratedWorldEnvironment
             new Dictionary<int, int>();
         List<TerrainVegetationProfile> profiles =
             new List<TerrainVegetationProfile>();
+        List<LivedPathSegment> livedPaths =
+            BuildLivedPathNetwork(
+                plan,
+                terrain);
         float frameStartedAt = Time.realtimeSinceStartup;
 
         for (int regionIndex = 0;
@@ -1877,36 +2228,24 @@ public static class YQGeneratedWorldEnvironment
 
                 if (LooksLikeTree(null, reference))
                 {
-                    if (profile.treePrototypeIndices.Count >= 3 ||
+                    if (profile.treePrototypeIndices.Count >= 5 ||
                         IsOversizedSmallScatterPrefab(
                             prefab,
                             YQWorldAssetCatalog.SlotVegetation,
-                            reference))
+                            reference) ||
+                        !IsTerrainTreePrototypeCompatible(
+                            prefab,
+                            reference.assetPath))
                     {
                         continue;
                     }
 
-                    if (!treePrototypeByPath.TryGetValue(
-                            reference.assetPath,
-                            out int prototypeIndex))
-                    {
-                        if (treePrototypes.Count >= MaximumTerrainTreePrototypes)
-                            continue;
-
-                        prototypeIndex = treePrototypes.Count;
-                        treePrototypeByPath.Add(
-                            reference.assetPath,
-                            prototypeIndex);
-                        treePrototypes.Add(
-                            new TreePrototype
-                            {
-                                prefab = prefab,
-                                bendFactor = 0.18f,
-                                navMeshLod = 0
-                            });
-                    }
-
-                    AddUniqueIndex(profile.treePrototypeIndices, prototypeIndex);
+                    RegisterTerrainTreePrototype(
+                        profile,
+                        reference.assetPath,
+                        prefab,
+                        treePrototypes,
+                        treePrototypeByPath);
                 }
                 else if (profile.detailPrototypeIndices.Count < 2 &&
                          LooksLikeTerrainDetailReference(reference) &&
@@ -1937,6 +2276,37 @@ public static class YQGeneratedWorldEnvironment
                     // note: Prototype discovery may touch lazy registry shards, so it yields before another imported vegetation family is inspected.
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
+                }
+            }
+
+            if (ShouldSupplementWithApprovedConifers(
+                    profile.palette))
+            {
+                for (int coniferIndex = 0;
+                     coniferIndex < ApprovedUrpConiferPrefabs.Length &&
+                     profile.treePrototypeIndices.Count < 5;
+                     coniferIndex++)
+                {
+                    string coniferPath =
+                        ApprovedUrpConiferPrefabs[coniferIndex];
+                    GameObject coniferPrefab =
+                        registry.ResolvePrefab(
+                            coniferPath);
+
+                    if (!IsTerrainTreePrototypeCompatible(
+                            coniferPrefab,
+                            coniferPath))
+                    {
+                        continue;
+                    }
+
+                    // note: Persisted palettes predating this repair still receive the full approved URP conifer family at materialization time.
+                    RegisterTerrainTreePrototype(
+                        profile,
+                        coniferPath,
+                        coniferPrefab,
+                        treePrototypes,
+                        treePrototypeByPath);
                 }
             }
 
@@ -2008,6 +2378,14 @@ public static class YQGeneratedWorldEnvironment
                             40f,
                             24f,
                             out Vector3 position))
+                    {
+                        continue;
+                    }
+
+                    if (IsNearLivedPath(
+                            livedPaths,
+                            position,
+                            5.5f))
                     {
                         continue;
                     }
@@ -2146,6 +2524,10 @@ public static class YQGeneratedWorldEnvironment
 
                     if (profile == null ||
                         profile.detailPrototypeIndices.Count == 0 ||
+                        IsNearLivedPath(
+                            livedPaths,
+                            worldPosition,
+                            1.8f) ||
                         !IsWildernessPositionAllowed(
                             terrain,
                             plan,
@@ -2188,10 +2570,10 @@ public static class YQGeneratedWorldEnvironment
                     int layerIndex =
                         profile.detailPrototypeIndices[profileLayer];
                     int density = Mathf.Clamp(
-                        1 + Mathf.FloorToInt(
-                            (densityMask - threshold) * 9f),
-                        1,
-                        4);
+                        2 + Mathf.FloorToInt(
+                            (densityMask - threshold) * 12f),
+                        2,
+                        6);
 
                     detailMaps[layerIndex][z, x] = density;
                     detailCount += density;
@@ -2218,8 +2600,8 @@ public static class YQGeneratedWorldEnvironment
                 yield return null;
             }
 
-            terrain.detailObjectDistance = 145f;
-            terrain.detailObjectDensity = 0.92f;
+            terrain.detailObjectDistance = 180f;
+            terrain.detailObjectDensity = 1f;
         }
         else
         {
@@ -2250,6 +2632,122 @@ public static class YQGeneratedWorldEnvironment
         };
     }
 
+    private static bool IsTerrainTreePrototypeCompatible(
+        GameObject prefab,
+        string assetPath)
+    {
+        if (prefab == null ||
+            string.IsNullOrWhiteSpace(assetPath) ||
+            prefab.GetComponent<LODGroup>() == null ||
+            assetPath.IndexOf(
+                "/URP/",
+                StringComparison.OrdinalIgnoreCase) < 0)
+        {
+            return false;
+        }
+
+        Renderer[] renderers =
+            prefab.GetComponentsInChildren<Renderer>(true);
+        bool foundRenderable =
+            false;
+
+        for (int rendererIndex = 0;
+             rendererIndex < renderers.Length;
+             rendererIndex++)
+        {
+            Renderer renderer =
+                renderers[rendererIndex];
+
+            if (renderer == null ||
+                renderer is ParticleSystemRenderer)
+            {
+                continue;
+            }
+
+            Material[] materials =
+                renderer.sharedMaterials;
+
+            for (int materialIndex = 0;
+                 materialIndex < materials.Length;
+                 materialIndex++)
+            {
+                Material material =
+                    materials[materialIndex];
+
+                if (material == null ||
+                    material.shader == null ||
+                    !material.shader.isSupported)
+                {
+                    return false;
+                }
+
+                foundRenderable =
+                    true;
+            }
+        }
+
+        // note: Terrain trees accept only an explicit URP LOD contract; legacy Tree Editor and arbitrary marketplace foliage can no longer enter the magenta billboard path.
+        return foundRenderable;
+    }
+
+    private static void RegisterTerrainTreePrototype(
+        TerrainVegetationProfile profile,
+        string assetPath,
+        GameObject prefab,
+        List<TreePrototype> prototypes,
+        Dictionary<string, int> prototypeByPath)
+    {
+        if (profile == null || prefab == null ||
+            prototypes == null || prototypeByPath == null ||
+            string.IsNullOrWhiteSpace(assetPath))
+        {
+            return;
+        }
+
+        if (!prototypeByPath.TryGetValue(
+                assetPath,
+                out int prototypeIndex))
+        {
+            if (prototypes.Count >= MaximumTerrainTreePrototypes)
+                return;
+
+            prototypeIndex = prototypes.Count;
+            prototypeByPath.Add(assetPath, prototypeIndex);
+            prototypes.Add(
+                new TreePrototype
+                {
+                    prefab = prefab,
+                    bendFactor = 0.18f,
+                    navMeshLod = 1
+                });
+        }
+
+        AddUniqueIndex(
+            profile.treePrototypeIndices,
+            prototypeIndex);
+    }
+
+    private static bool ShouldSupplementWithApprovedConifers(
+        GeneratedRegionAssetPaletteRecord palette)
+    {
+        string style = palette != null
+            ? SafeText(palette.styleKey, string.Empty).ToLowerInvariant()
+            : string.Empty;
+
+        return !ContainsAnySemantic(
+            style,
+            "desert",
+            "western",
+            "persepolis",
+            "scifi",
+            "cyberpunk",
+            "container",
+            "bio_horror",
+            "hospital",
+            "sewer",
+            "pirate");
+    }
+
     private static bool TryResolveTerrainDetailTexture(
         GameObject prefab,
         out Texture2D texture)
@@ -2276,9 +2774,14 @@ public static class YQGeneratedWorldEnvironment
                  materialIndex++)
             {
                 Material material = materials[materialIndex];
-                Texture2D candidate = material != null
-                    ? material.mainTexture as Texture2D
-                    : null;
+                // note: Shader Graph foliage commonly names its base texture `_BaseMap`; property-aware lookup avoids the noisy and invalid Material.mainTexture fallback.
+                Texture2D candidate = FindTexture(
+                    material,
+                    "_BaseMap",
+                    "_BaseColorMap",
+                    "_MainTex",
+                    "_Albedo",
+                    "_Diffuse");
 
                 if (candidate == null ||
                     candidate.width < 8 || candidate.height < 8)
@@ -2297,7 +2800,8 @@ public static class YQGeneratedWorldEnvironment
     private static bool LooksLikeTerrainDetailReference(
         GeneratedAssetReferenceRecord reference)
     {
-        string semantic = BuildReferenceSemanticText(reference);
+        // note: Ground-cover eligibility follows the asset's identity rather than broad palette style tags, preventing props such as dinnerware from becoming Terrain detail textures.
+        string semantic = BuildReferenceIdentitySemanticText(reference);
 
         return ContainsAnySemantic(
             semantic,
@@ -2362,7 +2866,7 @@ public static class YQGeneratedWorldEnvironment
                 "persepolis",
                 "western"))
         {
-            return 0.64f;
+            return 0.60f;
         }
 
         if (ContainsAnySemantic(
@@ -2372,10 +2876,10 @@ public static class YQGeneratedWorldEnvironment
                 "forest",
                 "hallowed"))
         {
-            return 0.43f;
+            return 0.39f;
         }
 
-        return 0.50f;
+        return 0.46f;
     }
 
     private static float ResolveDetailMaskThreshold(
@@ -2391,7 +2895,7 @@ public static class YQGeneratedWorldEnvironment
                 "persepolis",
                 "western"))
         {
-            return 0.62f;
+            return 0.56f;
         }
 
         if (ContainsAnySemantic(
@@ -2401,10 +2905,10 @@ public static class YQGeneratedWorldEnvironment
                 "forest",
                 "hallowed"))
         {
-            return 0.40f;
+            return 0.34f;
         }
 
-        return 0.48f;
+        return 0.42f;
     }
 
     // ============================================================

@@ -53,6 +53,7 @@ public static class YQWorldAssetCatalog
     private const string TomTerrainAssets = "Assets/Tom's Terrain Tools/Unity Terrain Assets/";
     private const string TomTrees = TomTerrainAssets + "Trees Ambient-Occlusion/";
     private const string TomRock = TomTerrainAssets + "Rocks/RockMesh.prefab";
+    private const string ForstUrpConifers = "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/";
     private const string Bushes = "Assets/YughuesFreeBushes2018/Prefabs/";
     private const string Ground = "Assets/ADG_Textures/ground_vol1/";
     private const string Chests = "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/_Prefabs/Chests/";
@@ -983,6 +984,12 @@ public static class YQWorldAssetCatalog
 
         if (ResolveStyleDomain(p.styleKey) == "fantasy")
         {
+            // note: The Forst URP conifers expose real LODGroups and URP materials, making them the approved Terrain-tree family instead of incompatible marketplace foliage prefabs.
+            Add(p.vegetation, ForstUrpConifers + "PF Conifer Tall BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "tall");
+            Add(p.vegetation, ForstUrpConifers + "PF Conifer Medium BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "medium");
+            Add(p.vegetation, ForstUrpConifers + "PF Conifer Small BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "small");
+            Add(p.vegetation, ForstUrpConifers + "PF Conifer Bare BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "bare");
+
             // note: Tom's Terrain Tools is an approved neutral nature library; each fantasy palette receives a small biome-compatible subset, never the entire tree grab-bag.
             if (ContainsAny(p.styleKey, "nordic", "viking", "mountain", "hallowed"))
             {
