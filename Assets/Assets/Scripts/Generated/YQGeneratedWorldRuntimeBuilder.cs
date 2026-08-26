@@ -5586,12 +5586,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static void GroundInstance(
         GameObject instance)
     {
-        if (instance == null)
+        if (instance == null ||
+            YQTerrainSupportComposer.IsExplicitlySuspended(
+                instance))
             return;
 
-        if (!TryGetRenderableBounds(
+        if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
                 instance,
-                out Bounds bounds))
+                out Bounds bounds,
+                out float structuralBottom))
         {
             return;
         }
@@ -5604,9 +5607,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
         }
 
+        // note: Fallback/modular assemblies share the same filtered structural bottom as the compiled-world path; decorative renderers and imported pivots cannot lift the result.
+        float embedDepth =
+            Mathf.Clamp(
+                bounds.size.y * 0.01f,
+                0.015f,
+                0.15f);
         float verticalOffset =
             targetGroundHeight -
-            bounds.min.y;
+            structuralBottom -
+            embedDepth;
 
         if (Mathf.Abs(
                 verticalOffset) <
@@ -5721,130 +5731,50 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Vector3 center =
             bounds.center;
 
-        Vector3[] samplePoints =
-        {
-            new Vector3(
-                center.x,
-                0f,
-                center.z),
-
-            new Vector3(
-                bounds.min.x,
-                0f,
-                bounds.min.z),
-
-            new Vector3(
-                bounds.max.x,
-                0f,
-                bounds.min.z),
-
-            new Vector3(
-                bounds.min.x,
-                0f,
-                bounds.max.z),
-
-            new Vector3(
-                bounds.max.x,
-                0f,
-                bounds.max.z),
-
-            new Vector3(
-                center.x,
-                0f,
-                bounds.min.z),
-
-            new Vector3(
-                center.x,
-                0f,
-                bounds.max.z),
-
-            new Vector3(
-                bounds.min.x,
-                0f,
-                center.z),
-
-            new Vector3(
-                bounds.max.x,
-                0f,
-                center.z)
-        };
-
         Terrain[] terrains =
             Terrain.activeTerrains;
 
         bool foundTerrain =
             false;
 
-        float highestTerrain =
+        float terrainContact =
             float.MinValue;
 
-        for (int sampleIndex = 0;
-             sampleIndex <
-                samplePoints.Length;
-             sampleIndex++)
+        for (int terrainIndex = 0;
+             terrainIndex < terrains.Length;
+             terrainIndex++)
         {
-            Vector3 sample =
-                samplePoints[
-                    sampleIndex];
+            Terrain terrain =
+                terrains[terrainIndex];
 
-            for (int terrainIndex = 0;
-                 terrainIndex <
-                    terrains.Length;
-                 terrainIndex++)
+            if (terrain == null ||
+                terrain.terrainData == null ||
+                !terrain.gameObject.activeInHierarchy ||
+                !YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                    terrain,
+                    bounds,
+                    out float candidateContact,
+                    out _,
+                    out _))
             {
-                Terrain terrain =
-                    terrains[
-                        terrainIndex];
-
-                if (terrain == null ||
-                    terrain.terrainData == null ||
-                    !terrain.gameObject.activeInHierarchy)
-                {
-                    continue;
-                }
-
-                Vector3 terrainPosition =
-                    terrain.transform.position;
-
-                Vector3 terrainSize =
-                    terrain.terrainData.size;
-
-                if (sample.x <
-                        terrainPosition.x ||
-                    sample.x >
-                        terrainPosition.x +
-                        terrainSize.x ||
-                    sample.z <
-                        terrainPosition.z ||
-                    sample.z >
-                        terrainPosition.z +
-                        terrainSize.z)
-                {
-                    continue;
-                }
-
-                float height =
-                    terrain.SampleHeight(
-                        sample) +
-                    terrainPosition.y;
-
-                if (!foundTerrain ||
-                    height >
-                        highestTerrain)
-                {
-                    highestTerrain =
-                        height;
-
-                    foundTerrain =
-                        true;
-                }
+                continue;
             }
+
+            // note: Overlapping active terrains are unusual, but the upper valid surface remains the safe authority while each surface uses the shared footprint percentile instead of its highest corner.
+            terrainContact =
+                !foundTerrain
+                    ? candidateContact
+                    : Mathf.Max(
+                        terrainContact,
+                        candidateContact);
+            foundTerrain =
+                true;
         }
 
         if (foundTerrain)
         {
             groundHeight =
-                highestTerrain;
+                terrainContact;
 
             return true;
         }
@@ -6639,13 +6569,27 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
-        if (!TryGetRenderableBounds(statue.gameObject, out statueBounds))
+        if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
+                statue.gameObject,
+                out statueBounds,
+                out float statueStructuralBottom))
             return false;
 
-        float terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(
-            terrain,
-            statueBounds.center);
-        float verticalCorrection = terrainHeight - statueBounds.min.y;
+        if (!YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                terrain,
+                statueBounds,
+                out float terrainHeight,
+                out _,
+                out _))
+        {
+            return false;
+        }
+
+        // note: The retained Goddess shrine settles by its structural footprint, so its pedestal cannot hover when the imported statue pivot is offset.
+        float verticalCorrection =
+            terrainHeight -
+            statueStructuralBottom -
+            0.015f;
 
         if (float.IsNaN(verticalCorrection) ||
             float.IsInfinity(verticalCorrection) ||

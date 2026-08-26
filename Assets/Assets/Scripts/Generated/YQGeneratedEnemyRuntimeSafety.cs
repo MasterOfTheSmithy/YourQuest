@@ -16,8 +16,8 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
     private const float GroundProbeDistance =
         40.0f;
 
-    private const float GroundPadding =
-        0.04f;
+    private const float GroundEmbedDepth =
+        0.005f;
 
     private const float AllowedBelowGround =
         0.30f;
@@ -53,6 +53,8 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
     private bool _hasSafeGround;
     private AudioSource[] _cachedAudioSources;
+    private Renderer[] _cachedVisualRenderers;
+    private bool _explicitlySuspended;
 
     private float _nextLocomotionAudioCheckTime;
 
@@ -312,9 +314,16 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
         _body =
             GetComponent<Rigidbody>();
+        _explicitlySuspended =
+            YQTerrainSupportComposer.IsExplicitlySuspended(
+                gameObject);
         _cachedAudioSources =
     GetComponentsInChildren<AudioSource>(
         true);
+        // note: Visual grounding renderers are captured once; quarter-second recovery checks never allocate a new hierarchy array per hostile.
+        _cachedVisualRenderers =
+            GetComponentsInChildren<Renderer>(
+                true);
 
         if (_body == null)
         {
@@ -547,6 +556,12 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
     private void MaintainGroundSafety()
     {
+        if (UsesSuspendedPlacement())
+        {
+            // note: Explicitly flying or suspended hostiles retain their authored air position; the safety recovery path never drags them onto terrain.
+            return;
+        }
+
         Bounds bounds;
 
         if (!TryGetVisualBounds(
@@ -652,6 +667,9 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
     private void GroundEnemy(
         bool initialPlacement)
     {
+        if (UsesSuspendedPlacement())
+            return;
+
         Bounds bounds;
 
         if (!TryGetVisualBounds(
@@ -788,9 +806,10 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         Bounds bounds,
         float groundY)
     {
+        // note: Enemy recovery preserves a tiny terrain embed and uses filtered cached body bounds; it no longer allocates a hierarchy scan or reintroduces a visible 4 cm hover gap.
         float delta =
-            groundY +
-            GroundPadding -
+            groundY -
+            GroundEmbedDepth -
             bounds.min.y;
 
         if (Mathf.Abs(
@@ -839,6 +858,12 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
             true;
     }
 
+    private bool UsesSuspendedPlacement()
+    {
+        return (_enemy != null && _enemy.allowFlight) ||
+            _explicitlySuspended;
+    }
+
     private void ZeroVerticalVelocity()
     {
         if (_body == null ||
@@ -868,40 +893,34 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
             default;
 
         Renderer[] renderers =
-            GetComponentsInChildren<Renderer>(
-                true);
+            _cachedVisualRenderers;
+
+        if (renderers == null)
+        {
+            renderers =
+                GetComponentsInChildren<Renderer>(
+                    true);
+            _cachedVisualRenderers =
+                renderers;
+        }
 
         bool found =
             false;
 
-        for (int i = 0;
-             i < renderers.Length;
-             i++)
+        for (int index = 0;
+             index < renderers.Length;
+             index++)
         {
             Renderer renderer =
-                renderers[i];
+                renderers[index];
 
-            if (renderer == null ||
-                !renderer.enabled)
-            {
+            if (!IsGroundVisualRenderer(renderer))
                 continue;
-            }
-
-            /*
-             * Particle renderers are not body geometry and can have
-             * enormous/transient bounds.
-             */
-            if (renderer is
-                ParticleSystemRenderer)
-            {
-                continue;
-            }
 
             if (!found)
             {
                 result =
                     renderer.bounds;
-
                 found =
                     true;
             }
@@ -913,6 +932,31 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         }
 
         return found;
+    }
+
+    private static bool IsGroundVisualRenderer(
+        Renderer renderer)
+    {
+        if (renderer == null ||
+            !renderer.enabled ||
+            renderer is ParticleSystemRenderer ||
+            renderer is TrailRenderer ||
+            renderer is LineRenderer)
+        {
+            return false;
+        }
+
+        string objectName =
+            renderer.name ?? string.Empty;
+        return objectName.IndexOf(
+                   "preview",
+                   StringComparison.OrdinalIgnoreCase) < 0 &&
+            objectName.IndexOf(
+                "decal",
+                StringComparison.OrdinalIgnoreCase) < 0 &&
+            objectName.IndexOf(
+                "gizmo",
+                StringComparison.OrdinalIgnoreCase) < 0;
     }
 
     // ============================================================
