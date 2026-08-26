@@ -18,9 +18,8 @@ public sealed class YQGeneratedWorldPerformanceDirector : MonoBehaviour
         startupBudgetConfigured = true;
         Application.targetFrameRate = 60;
         Application.backgroundLoadingPriority = ThreadPriority.Low;
-        QualitySettings.asyncUploadTimeSlice = 1;
-        QualitySettings.asyncUploadPersistentBuffer = true;
-        QualitySettings.maxQueuedFrames = 1;
+
+        // note: Do not change Unity's async-upload buffer or render queue at runtime; D3D12 can lose an in-flight fence when these native graphics settings are changed during Play Mode startup.
 
         if (GarbageCollector.isIncremental)
         {
@@ -31,7 +30,7 @@ public sealed class YQGeneratedWorldPerformanceDirector : MonoBehaviour
 
         Debug.Log(
             "[YQGeneratedWorldPerformanceDirector] Startup anti-hang budget active. " +
-            "Background integration=Low, async upload=1ms, incremental GC=1ms.");
+            "Background integration=Low, incremental GC=1ms, graphics queue left driver-safe.");
     }
 
     public static void ConfigureForGeneratedWorld(Transform root)
