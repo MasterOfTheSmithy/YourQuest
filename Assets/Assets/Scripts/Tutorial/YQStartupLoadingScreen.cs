@@ -1575,19 +1575,10 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             margin,
             dialogueWidth,
             dialogueHeight);
-        GUI.Label(
-            new Rect(
-                dialogueRect.x + 2f,
-                dialogueRect.y + 2f,
-                dialogueRect.width,
-                dialogueRect.height),
-            dialogue,
-            _generationDialogueShadowStyle);
-        // note: Goddess prose is drawn directly over the cinematic scene; there is deliberately no panel, border, or scroll-box chrome around it.
-        GUI.Label(
+        // note: The cinematic thought stream keeps full-height text and lets older thoughts leave through the top instead of compressing or clipping the newest line.
+        DrawCinematicGenerationTranscript(
             dialogueRect,
-            dialogue,
-            _generationDialogueStyle);
+            dialogue);
 
         DrawLlmThinkingIndicator(margin);
 
@@ -1704,9 +1695,10 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 '.',
                 1 + Mathf.FloorToInt(Time.unscaledTime * 2.2f) % 3)
             : string.Empty;
+        // note: Player-facing Goddess presentation describes the visible state without exposing the local inference implementation.
         string label = thinking
-            ? "LOCAL MODEL  /  THINKING" + suffix
-            : "LOCAL MODEL  /  STANDBY";
+            ? "THINKING" + suffix
+            : "STANDBY";
         Vector2 labelSize = _thinkingStyle.CalcSize(new GUIContent(label));
         Rect labelRect = new Rect(
             Screen.width - margin - labelSize.x,
@@ -1726,6 +1718,50 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 ? new Color(0.72f, 0.96f, 1f, pulse)
                 : new Color(0.42f, 0.62f, 0.72f, pulse));
         GUI.Label(labelRect, label, _thinkingStyle);
+    }
+
+    private void DrawCinematicGenerationTranscript(
+        Rect dialogueRect,
+        string dialogue)
+    {
+        float contentHeight =
+            Mathf.Max(
+                dialogueRect.height,
+                _generationDialogueStyle.CalcHeight(
+                    new GUIContent(
+                        dialogue),
+                    dialogueRect.width) +
+                4f);
+
+        float contentY =
+            Mathf.Min(
+                0f,
+                dialogueRect.height -
+                contentHeight);
+
+        // note: This clip window has no scroll chrome; bottom anchoring continuously moves completed thoughts off its top edge as new prose arrives.
+        GUI.BeginGroup(
+            dialogueRect);
+
+        GUI.Label(
+            new Rect(
+                2f,
+                contentY + 2f,
+                dialogueRect.width,
+                contentHeight),
+            dialogue,
+            _generationDialogueShadowStyle);
+
+        GUI.Label(
+            new Rect(
+                0f,
+                contentY,
+                dialogueRect.width,
+                contentHeight),
+            dialogue,
+            _generationDialogueStyle);
+
+        GUI.EndGroup();
     }
 
     private void DrawImportedGenerationArt(
