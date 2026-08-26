@@ -24,8 +24,9 @@ public static class YQGeneratedWorldTerrain
      * Keep the version explicit so future save migration can choose
      * the correct terrain algorithm.
      */
+    // note: Version three intentionally opts regenerated worlds into the macro-landform layout; the version remains part of the persisted terrain seed contract.
     public const string TerrainGenerationVersion =
-    "generated_terrain_v2";
+    "generated_terrain_v3_macro_landforms";
 
     public const string RuntimeTerrainObjectName =
         "YQ_GENERATED_TERRAIN";
@@ -38,6 +39,9 @@ public static class YQGeneratedWorldTerrain
 
     public const int HeightmapResolution =
         513;
+
+    public const int MacroWaterBasinCount =
+        2;
 
     /*
      * Vey's hut is the single fixed narrative origin.
@@ -57,29 +61,208 @@ public static class YQGeneratedWorldTerrain
     private const float BaseHeightNormalized =
     0.16f;
 
-    private const float PrimaryNoiseScale =
-        0.0019f;
+    private const float ContinentalNoiseScale =
+        0.00072f;
 
-    private const float SecondaryNoiseScale =
-        0.0065f;
+    private const float RollingHillNoiseScale =
+        0.0026f;
+
+    private const float MountainRegionNoiseScale =
+        0.00115f;
+
+    private const float MountainRidgeNoiseScale =
+        0.0034f;
 
     private const float DetailNoiseScale =
-        0.024f;
+        0.018f;
 
-    private const float PrimaryAmplitude =
-        0.22f;
+    private const float ContinentalAmplitude =
+        0.052f;
 
-    private const float SecondaryAmplitude =
-        0.085f;
+    private const float RollingHillAmplitude =
+        0.042f;
 
     private const float DetailAmplitude =
-        0.022f;
+        0.007f;
+
+    private const float PrimaryBasinLongRadius =
+        118f;
+
+    private const float PrimaryBasinShortRadius =
+        76f;
+
+    private const float SecondaryBasinLongRadius =
+        94f;
+
+    private const float SecondaryBasinShortRadius =
+        62f;
+
+    private const float BasinWaterSurfaceNormalized =
+        0.112f;
 
     private const float StartupFrameBudgetSeconds =
         0.003f;
 
     private const int HeightmapUploadRowsPerFrame =
         16;
+
+    private struct MacroLandformSettings
+    {
+        public Vector2 ValleyAxis;
+        public Vector2 ValleyNormal;
+        public float ValleyOffset;
+        public Vector2 PrimaryBasinCenter;
+        public Vector2 SecondaryBasinCenter;
+    }
+
+    public struct MacroWaterBasinDescriptor
+    {
+        public readonly Vector3 CenterWorld;
+        public readonly Vector2 LongAxisXZ;
+        public readonly Vector2 ShortAxisXZ;
+        public readonly float LongRadius;
+        public readonly float ShortRadius;
+        public readonly float WaterSurfaceY;
+
+        internal MacroWaterBasinDescriptor(
+            Vector3 centerWorld,
+            Vector2 longAxisXZ,
+            Vector2 shortAxisXZ,
+            float longRadius,
+            float shortRadius,
+            float waterSurfaceY)
+        {
+            CenterWorld =
+                centerWorld;
+            LongAxisXZ =
+                longAxisXZ;
+            ShortAxisXZ =
+                shortAxisXZ;
+            LongRadius =
+                longRadius;
+            ShortRadius =
+                shortRadius;
+            WaterSurfaceY =
+                waterSurfaceY;
+        }
+
+        // note: Value-only containment lets foliage and shoreline passes share the sculpted ellipse without allocating temporary collections.
+        public bool ContainsXZ(
+            Vector3 worldPosition,
+            float radiusPadding = 0f)
+        {
+            Vector2 displacement =
+                new Vector2(
+                    worldPosition.x -
+                        CenterWorld.x,
+                    worldPosition.z -
+                        CenterWorld.z);
+
+            float safeLongRadius =
+                Mathf.Max(
+                    1f,
+                    LongRadius +
+                        radiusPadding);
+
+            float safeShortRadius =
+                Mathf.Max(
+                    1f,
+                    ShortRadius +
+                        radiusPadding);
+
+            float along =
+                Vector2.Dot(
+                    displacement,
+                    LongAxisXZ) /
+                safeLongRadius;
+
+            float across =
+                Vector2.Dot(
+                    displacement,
+                    ShortAxisXZ) /
+                safeShortRadius;
+
+            return
+                along * along +
+                across * across <=
+                1f;
+        }
+
+        public bool IsBelowWaterSurface(
+            Vector3 worldPosition,
+            float radiusPadding = 0f)
+        {
+            return
+                worldPosition.y <=
+                    WaterSurfaceY &&
+                ContainsXZ(
+                    worldPosition,
+                    radiusPadding);
+        }
+    }
+
+    public static bool TryGetMacroWaterBasin(
+        string worldSeed,
+        Terrain terrain,
+        int basinIndex,
+        out MacroWaterBasinDescriptor descriptor)
+    {
+        descriptor = default;
+
+        if (terrain == null ||
+            terrain.terrainData == null ||
+            basinIndex < 0 ||
+            basinIndex >= MacroWaterBasinCount)
+        {
+            return false;
+        }
+
+        string safeSeed =
+            string.IsNullOrWhiteSpace(worldSeed)
+                ? "yourquest_default_world"
+                : worldSeed.Trim();
+        uint seedHash = StableHash32(
+            TerrainGenerationVersion +
+            "|" +
+            safeSeed);
+        MacroLandformSettings settings =
+            CreateMacroLandformSettings(seedHash);
+        Vector2 basinCenter =
+            basinIndex == 0
+                ? settings.PrimaryBasinCenter
+                : settings.SecondaryBasinCenter;
+        float longRadius =
+            basinIndex == 0
+                ? PrimaryBasinLongRadius
+                : SecondaryBasinLongRadius;
+        float shortRadius =
+            basinIndex == 0
+                ? PrimaryBasinShortRadius
+                : SecondaryBasinShortRadius;
+        float waterSurfaceY =
+            terrain.transform.position.y +
+            terrain.terrainData.size.y *
+            BasinWaterSurfaceNormalized;
+
+        // note: Environment, settlement repair, and terrain synthesis all derive water from the same versioned seed contract, preventing visual planes from drifting away from their basins.
+        descriptor =
+            new MacroWaterBasinDescriptor(
+                new Vector3(
+                    terrain.transform.position.x +
+                        terrain.terrainData.size.x * 0.5f +
+                        basinCenter.x,
+                    waterSurfaceY,
+                    terrain.transform.position.z +
+                        terrain.terrainData.size.z * 0.5f +
+                        basinCenter.y),
+                settings.ValleyAxis,
+                settings.ValleyNormal,
+                longRadius,
+                shortRadius,
+                waterSurfaceY);
+
+        return true;
+    }
 
     public static IEnumerator BuildRoutine(
         Transform parent,
@@ -1071,20 +1254,39 @@ public static class YQGeneratedWorldTerrain
                 resolution,
                 resolution];
 
-        Vector2 primaryOffset =
+        Vector2 continentalOffset =
             SeedOffset(
                 seedHash,
                 0xA53C9E17u);
 
-        Vector2 secondaryOffset =
+        Vector2 rollingHillOffset =
             SeedOffset(
                 seedHash,
                 0x71F42D89u);
+
+        Vector2 mountainRegionOffset =
+            SeedOffset(
+                seedHash,
+                0x1B87D4A3u);
+
+        Vector2 mountainRidgeOffset =
+            SeedOffset(
+                seedHash,
+                0xE1458C29u);
 
         Vector2 detailOffset =
             SeedOffset(
                 seedHash,
                 0xC3195A47u);
+
+        Vector2 valleyOffset =
+            SeedOffset(
+                seedHash,
+                0x5F2A73D1u);
+
+        MacroLandformSettings landforms =
+            CreateMacroLandformSettings(
+                seedHash);
 
         for (int z = 0;
              z < resolution;
@@ -1093,9 +1295,13 @@ public static class YQGeneratedWorldTerrain
             FillHeightmapRow(
                 heights,
                 z,
-                primaryOffset,
-                secondaryOffset,
-                detailOffset);
+                continentalOffset,
+                rollingHillOffset,
+                mountainRegionOffset,
+                mountainRidgeOffset,
+                detailOffset,
+                valleyOffset,
+                landforms);
         }
 
         return heights;
@@ -1105,41 +1311,81 @@ public static class YQGeneratedWorldTerrain
         uint seedHash,
         float[,] heights)
     {
-        Vector2 primaryOffset =
+        Vector2 continentalOffset =
             SeedOffset(
                 seedHash,
                 0xA53C9E17u);
 
-        Vector2 secondaryOffset =
+        Vector2 rollingHillOffset =
             SeedOffset(
                 seedHash,
                 0x71F42D89u);
+
+        Vector2 mountainRegionOffset =
+            SeedOffset(
+                seedHash,
+                0x1B87D4A3u);
+
+        Vector2 mountainRidgeOffset =
+            SeedOffset(
+                seedHash,
+                0xE1458C29u);
 
         Vector2 detailOffset =
             SeedOffset(
                 seedHash,
                 0xC3195A47u);
 
+        Vector2 valleyOffset =
+            SeedOffset(
+                seedHash,
+                0x5F2A73D1u);
+
+        MacroLandformSettings landforms =
+            CreateMacroLandformSettings(
+                seedHash);
+
         float frameStartedAt =
             Time.realtimeSinceStartup;
+
+        // note: Splitting every heightmap row into narrow column blocks prevents a single noise-heavy 513-sample row from causing a loading-frame spike.
+        const int columnChunkSize =
+            32;
 
         for (int z = 0;
              z < HeightmapResolution;
              z++)
         {
-            FillHeightmapRow(
-                heights,
-                z,
-                primaryOffset,
-                secondaryOffset,
-                detailOffset);
-
-            if (Time.realtimeSinceStartup - frameStartedAt >=
-                StartupFrameBudgetSeconds)
+            for (int startX = 0;
+                 startX < HeightmapResolution;
+                 startX += columnChunkSize)
             {
-                yield return null;
-                frameStartedAt =
-                    Time.realtimeSinceStartup;
+                int endXExclusive =
+                    Mathf.Min(
+                        HeightmapResolution,
+                        startX +
+                            columnChunkSize);
+
+                FillHeightmapRow(
+                    heights,
+                    z,
+                    continentalOffset,
+                    rollingHillOffset,
+                    mountainRegionOffset,
+                    mountainRidgeOffset,
+                    detailOffset,
+                    valleyOffset,
+                    landforms,
+                    startX,
+                    endXExclusive);
+
+                if (Time.realtimeSinceStartup - frameStartedAt >=
+                    StartupFrameBudgetSeconds)
+                {
+                    yield return null;
+                    frameStartedAt =
+                        Time.realtimeSinceStartup;
+                }
             }
         }
     }
@@ -1147,12 +1393,32 @@ public static class YQGeneratedWorldTerrain
     private static void FillHeightmapRow(
         float[,] heights,
         int z,
-        Vector2 primaryOffset,
-        Vector2 secondaryOffset,
-        Vector2 detailOffset)
+        Vector2 continentalOffset,
+        Vector2 rollingHillOffset,
+        Vector2 mountainRegionOffset,
+        Vector2 mountainRidgeOffset,
+        Vector2 detailOffset,
+        Vector2 valleyOffset,
+        MacroLandformSettings landforms,
+        int startXInclusive = 0,
+        int endXExclusive = -1)
     {
         int resolution =
             HeightmapResolution;
+
+        int safeStartX =
+            Mathf.Clamp(
+                startXInclusive,
+                0,
+                resolution);
+
+        int safeEndX =
+            endXExclusive < 0
+                ? resolution
+                : Mathf.Clamp(
+                    endXExclusive,
+                    safeStartX,
+                    resolution);
 
         float normalizedZ =
             z /
@@ -1166,8 +1432,8 @@ public static class YQGeneratedWorldTerrain
             WorldSize *
                 0.5f;
 
-        for (int x = 0;
-             x < resolution;
+        for (int x = safeStartX;
+             x < safeEndX;
              x++)
         {
             float normalizedX =
@@ -1182,25 +1448,26 @@ public static class YQGeneratedWorldTerrain
                 WorldSize *
                     0.5f;
 
-            float primary =
-                FractalNoise(
+            // note: Continental lift and restrained rolling hills establish broad, traversable lowlands before sharper mountain structure is applied.
+            float continental =
+                SignedFractalNoise(
                     worldX,
                     worldZ,
-                    PrimaryNoiseScale,
-                    primaryOffset,
-                    4,
-                    0.5f,
+                    ContinentalNoiseScale,
+                    continentalOffset,
+                    3,
+                    0.54f,
                     2f);
 
-            float secondary =
-                FractalNoise(
+            float rollingHills =
+                SignedFractalNoise(
                     worldX,
                     worldZ,
-                    SecondaryNoiseScale,
-                    secondaryOffset,
+                    RollingHillNoiseScale,
+                    rollingHillOffset,
                     3,
-                    0.52f,
-                    2.05f);
+                    0.5f,
+                    2f);
 
             float detail =
                 Mathf.PerlinNoise(
@@ -1211,23 +1478,44 @@ public static class YQGeneratedWorldTerrain
                         DetailNoiseScale +
                         detailOffset.y);
 
-            primary =
-                primary * 2f - 1f;
-
-            secondary =
-                secondary * 2f - 1f;
-
             detail =
                 detail * 2f - 1f;
 
-            float height =
-                BaseHeightNormalized +
-                primary *
-                    PrimaryAmplitude +
-                secondary *
-                    SecondaryAmplitude +
-                detail *
-                    DetailAmplitude;
+            float alongValley =
+                worldX *
+                    landforms.ValleyAxis.x +
+                worldZ *
+                    landforms.ValleyAxis.y;
+
+            float acrossValley =
+                worldX *
+                    landforms.ValleyNormal.x +
+                worldZ *
+                    landforms.ValleyNormal.y;
+
+            float valleyMeander =
+                (Mathf.PerlinNoise(
+                    alongValley *
+                        0.0019f +
+                        valleyOffset.x,
+                    valleyOffset.y) *
+                    2f -
+                    1f) *
+                82f;
+
+            float valleyDistance =
+                Mathf.Abs(
+                    acrossValley -
+                    landforms.ValleyOffset -
+                    valleyMeander);
+
+            float valleyMask =
+                1f -
+                Smooth01(
+                    Mathf.InverseLerp(
+                        38f,
+                        172f,
+                        valleyDistance));
 
             float edgeDistanceX =
                 Mathf.Abs(
@@ -1246,21 +1534,167 @@ public static class YQGeneratedWorldTerrain
                     edgeDistanceX,
                     edgeDistanceZ);
 
-            float edgeFalloff =
+            float perimeterMountainBias =
                 Smooth01(
                     Mathf.InverseLerp(
-                        0.72f,
-                        1f,
+                        0.5f,
+                        0.94f,
                         edgeDistance));
 
-            height -=
-                edgeFalloff *
-                0.11f;
+            float mountainRegion =
+                Smooth01(
+                    Mathf.InverseLerp(
+                        0.5f,
+                        0.69f,
+                        FractalNoise(
+                            worldX,
+                            worldZ,
+                            MountainRegionNoiseScale,
+                            mountainRegionOffset,
+                            2,
+                            0.58f,
+                            2f)));
+
+            float ridgeShape =
+                Mathf.Pow(
+                    Smooth01(
+                        Mathf.InverseLerp(
+                            0.5f,
+                            0.94f,
+                            RidgedFractalNoise(
+                                worldX,
+                                worldZ,
+                                MountainRidgeNoiseScale,
+                                mountainRidgeOffset,
+                                3,
+                                0.52f,
+                                2.08f))),
+                    1.45f);
 
             float originDistance =
                 Mathf.Sqrt(
                     worldX * worldX +
                     worldZ * worldZ);
+
+            float originMountainRelease =
+                Smooth01(
+                    Mathf.InverseLerp(
+                        OriginBlendRadius,
+                        OriginBlendRadius +
+                            115f,
+                        originDistance));
+
+            float mountainMask =
+                Mathf.Clamp01(
+                    mountainRegion *
+                        0.82f +
+                    perimeterMountainBias *
+                        0.62f);
+
+            mountainMask *=
+                1f -
+                valleyMask *
+                    0.76f;
+
+            mountainMask *=
+                Mathf.Lerp(
+                    0.08f,
+                    1f,
+                    originMountainRelease);
+
+            float lowlandNoiseRetention =
+                1f -
+                mountainMask *
+                    0.58f;
+
+            float height =
+                BaseHeightNormalized +
+                continental *
+                    ContinentalAmplitude +
+                rollingHills *
+                    RollingHillAmplitude *
+                    lowlandNoiseRetention +
+                detail *
+                    DetailAmplitude *
+                    lowlandNoiseRetention;
+
+            // note: Regional masks keep mountain mass out of the main valley and origin approach while ridged noise supplies readable distant silhouettes instead of uniform bumps.
+            height +=
+                mountainMask *
+                (0.038f +
+                 ridgeShape *
+                    0.265f);
+
+            float valleyGrade =
+                (Mathf.PerlinNoise(
+                    alongValley *
+                        0.00085f +
+                        valleyOffset.y,
+                    valleyOffset.x) *
+                    2f -
+                    1f) *
+                0.011f;
+
+            float valleyFloor =
+                BaseHeightNormalized -
+                0.032f +
+                continental *
+                    0.016f +
+                valleyGrade;
+
+            height =
+                Mathf.Lerp(
+                    height,
+                    Mathf.Min(
+                        height,
+                        valleyFloor +
+                            rollingHills *
+                                0.006f),
+                    valleyMask *
+                        0.78f);
+
+            Vector2 worldPoint =
+                new Vector2(
+                    worldX,
+                    worldZ);
+
+            float primaryBasinMask =
+                EllipticalBasinMask(
+                    worldPoint -
+                        landforms.PrimaryBasinCenter,
+                    landforms.ValleyAxis,
+                    landforms.ValleyNormal,
+                    118f,
+                    76f);
+
+            float secondaryBasinMask =
+                EllipticalBasinMask(
+                    worldPoint -
+                        landforms.SecondaryBasinCenter,
+                    landforms.ValleyAxis,
+                    landforms.ValleyNormal,
+                    94f,
+                    62f);
+
+            float basinMask =
+                Mathf.Max(
+                    primaryBasinMask,
+                    secondaryBasinMask);
+
+            float basinFloor =
+                0.078f +
+                detail *
+                    0.0025f;
+
+            // note: Wide, gently shelved depressions reserve deterministic lake or wetland beds without forcing a runtime water implementation into the terrain authority.
+            height =
+                Mathf.Lerp(
+                    height,
+                    Mathf.Min(
+                        height,
+                        basinFloor),
+                    basinMask *
+                        0.94f);
 
             float originBlend =
                 Smooth01(
@@ -1270,12 +1704,134 @@ public static class YQGeneratedWorldTerrain
                         originDistance));
 
             heights[z, x] =
-                Mathf.Clamp01(
+                Mathf.Clamp(
                     Mathf.Lerp(
                         BaseHeightNormalized,
                         height,
-                        originBlend));
+                        originBlend),
+                    0.025f,
+                    0.88f);
         }
+    }
+
+    private static MacroLandformSettings
+        CreateMacroLandformSettings(
+            uint seedHash)
+    {
+        float angle =
+            Hash01(
+                seedHash,
+                0x86D41B59u) *
+            Mathf.PI;
+
+        Vector2 valleyAxis =
+            new Vector2(
+                Mathf.Cos(angle),
+                Mathf.Sin(angle));
+
+        Vector2 valleyNormal =
+            new Vector2(
+                -valleyAxis.y,
+                valleyAxis.x);
+
+        float valleyOffset =
+            Mathf.Lerp(
+                -62f,
+                62f,
+                Hash01(
+                    seedHash,
+                    0x3C6EF372u));
+
+        float primaryAlong =
+            Mathf.Lerp(
+                205f,
+                286f,
+                Hash01(
+                    seedHash,
+                    0xDAA66D2Bu));
+
+        float primaryAcross =
+            Mathf.Lerp(
+                -132f,
+                132f,
+                Hash01(
+                    seedHash,
+                    0x78DDE6E4u));
+
+        float secondaryAlong =
+            -Mathf.Lerp(
+                196f,
+                274f,
+                Hash01(
+                    seedHash,
+                    0x1715609Du));
+
+        float secondaryAcross =
+            Mathf.Lerp(
+                -126f,
+                126f,
+                Hash01(
+                    seedHash,
+                    0xB54CDA56u));
+
+        // note: Basin centers are derived once per seed and remain far enough from the fixed origin to preserve Vey's authored plateau.
+        return
+            new MacroLandformSettings
+            {
+                ValleyAxis =
+                    valleyAxis,
+                ValleyNormal =
+                    valleyNormal,
+                ValleyOffset =
+                    valleyOffset,
+                PrimaryBasinCenter =
+                    valleyAxis *
+                        primaryAlong +
+                    valleyNormal *
+                        primaryAcross,
+                SecondaryBasinCenter =
+                    valleyAxis *
+                        secondaryAlong +
+                    valleyNormal *
+                        secondaryAcross
+            };
+    }
+
+    private static float EllipticalBasinMask(
+        Vector2 displacement,
+        Vector2 longAxis,
+        Vector2 shortAxis,
+        float longRadius,
+        float shortRadius)
+    {
+        float along =
+            Vector2.Dot(
+                displacement,
+                longAxis) /
+            Mathf.Max(
+                1f,
+                longRadius);
+
+        float across =
+            Vector2.Dot(
+                displacement,
+                shortAxis) /
+            Mathf.Max(
+                1f,
+                shortRadius);
+
+        float ellipticalDistance =
+            Mathf.Sqrt(
+                along * along +
+                across * across);
+
+        return
+            1f -
+            Smooth01(
+                Mathf.InverseLerp(
+                    0.28f,
+                    1f,
+                    ellipticalDistance));
     }
 
     private static float FractalNoise(
@@ -1342,6 +1898,93 @@ public static class YQGeneratedWorldTerrain
             normalization;
     }
 
+    private static float SignedFractalNoise(
+        float worldX,
+        float worldZ,
+        float baseScale,
+        Vector2 offset,
+        int octaves,
+        float persistence,
+        float lacunarity)
+    {
+        return
+            FractalNoise(
+                worldX,
+                worldZ,
+                baseScale,
+                offset,
+                octaves,
+                persistence,
+                lacunarity) *
+                2f -
+            1f;
+    }
+
+    private static float RidgedFractalNoise(
+        float worldX,
+        float worldZ,
+        float baseScale,
+        Vector2 offset,
+        int octaves,
+        float persistence,
+        float lacunarity)
+    {
+        float amplitude =
+            1f;
+
+        float frequency =
+            1f;
+
+        float sum =
+            0f;
+
+        float normalization =
+            0f;
+
+        for (int octave = 0;
+             octave < octaves;
+             octave++)
+        {
+            float noise =
+                Mathf.PerlinNoise(
+                    worldX *
+                        baseScale *
+                        frequency +
+                        offset.x,
+                    worldZ *
+                        baseScale *
+                        frequency +
+                        offset.y);
+
+            float ridge =
+                1f -
+                Mathf.Abs(
+                    noise *
+                        2f -
+                    1f);
+
+            sum +=
+                ridge *
+                ridge *
+                amplitude;
+
+            normalization +=
+                amplitude;
+
+            amplitude *=
+                persistence;
+
+            frequency *=
+                lacunarity;
+        }
+
+        return
+            normalization > 0f
+                ? sum /
+                    normalization
+                : 0f;
+    }
+
     private static Vector2 SeedOffset(
         uint seed,
         uint salt)
@@ -1376,6 +2019,20 @@ public static class YQGeneratedWorldTerrain
                     113.37f,
                 y * 10000f +
                     719.91f);
+    }
+
+    private static float Hash01(
+        uint seed,
+        uint salt)
+    {
+        uint value =
+            Mix(
+                seed ^
+                salt);
+
+        return
+            (value & 0x00FFFFFFu) /
+            16777215f;
     }
 
     private static uint StableHash32(
