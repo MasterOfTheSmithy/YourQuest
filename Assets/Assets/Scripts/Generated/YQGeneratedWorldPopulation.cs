@@ -3401,21 +3401,40 @@ public static class YQGeneratedWorldPopulation
             return;
         }
 
-        float ground =
-            YQGeneratedWorldTerrain
-                .SampleWorldHeight(
-                    terrain,
-                    expectedPosition);
+        YQInvestorEnemy enemy =
+            root.GetComponent<YQInvestorEnemy>();
+
+        if ((enemy != null && enemy.allowFlight) ||
+            YQTerrainSupportComposer.IsExplicitlySuspended(
+                root))
+        {
+            // note: Only explicit flight/suspension contracts bypass terrain contact; display names alone never authorize floating placement.
+            return;
+        }
+
+        if (YQGeneratedWorldTerrain.TryGroundObject(
+                root,
+                terrain,
+                0.005f,
+                out _))
+        {
+            return;
+        }
+
+        float fallbackGround =
+            YQGeneratedWorldTerrain.SampleWorldHeight(
+                terrain,
+                expectedPosition);
 
         if (!TryGetRenderableBounds(
                 root,
-                out Bounds bounds))
+                out Bounds fallbackBounds))
         {
             Vector3 position =
                 root.transform.position;
 
             position.y =
-                ground;
+                fallbackGround;
 
             root.transform.position =
                 position;
@@ -3423,19 +3442,15 @@ public static class YQGeneratedWorldPopulation
             return;
         }
 
-        float offset =
-            ground -
-            bounds.min.y +
-            0.02f;
-
-        Vector3 rootPosition =
+        // note: A renderer rejected by the strict structural filter still receives a conservative legacy-bounds fallback instead of remaining at an arbitrary imported elevation.
+        Vector3 fallbackPosition =
             root.transform.position;
-
-        rootPosition.y +=
-            offset;
-
+        fallbackPosition.y +=
+            fallbackGround -
+            fallbackBounds.min.y -
+            0.005f;
         root.transform.position =
-            rootPosition;
+            fallbackPosition;
     }
 
     // ============================================================
@@ -5326,7 +5341,11 @@ public static class YQGeneratedWorldPopulation
         float contactHeight)
     {
         if (instance == null ||
-            !TryGetRenderableBounds(instance, out Bounds bounds))
+            YQTerrainSupportComposer.IsExplicitlySuspended(instance) ||
+            !YQGeneratedWorldTerrain.TryGetStableContactGeometry(
+                instance,
+                out Bounds bounds,
+                out float structuralBottom))
         {
             return;
         }
@@ -5337,7 +5356,7 @@ public static class YQGeneratedWorldPopulation
             0.02f,
             0.20f);
         Vector3 position = instance.transform.position;
-        position.y += contactHeight - bounds.min.y - penetration;
+        position.y += contactHeight - structuralBottom - penetration;
         instance.transform.position = position;
     }
 
@@ -5351,67 +5370,13 @@ public static class YQGeneratedWorldPopulation
             return;
         }
 
-        if (!TryGetRenderableBounds(
+        if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
                 instance,
-                out Bounds bounds))
+                out Bounds bounds,
+                out _))
         {
             return;
         }
-
-        Vector3[] samples =
-        {
-            new Vector3(
-                bounds.center.x,
-                0f,
-                bounds.center.z),
-
-            new Vector3(
-                bounds.min.x,
-                0f,
-                bounds.min.z),
-
-            new Vector3(
-                bounds.max.x,
-                0f,
-                bounds.min.z),
-
-            new Vector3(
-                bounds.min.x,
-                0f,
-                bounds.max.z),
-
-            new Vector3(
-                bounds.max.x,
-                0f,
-                bounds.max.z)
-        };
-
-        float[] heights =
-            new float[
-                samples.Length];
-
-        for (int i = 0;
-             i < samples.Length;
-             i++)
-        {
-            heights[i] =
-                YQGeneratedWorldTerrain
-                    .SampleWorldHeight(
-                        terrain,
-                        samples[i]);
-        }
-
-        Array.Sort(
-            heights);
-
-        /*
-         * Median terrain height is substantially safer for wide objects
-         * than the previous highest-point algorithm.
-         */
-        float contactHeight =
-            heights[
-                heights.Length /
-                2];
 
         /*
          * Slightly bury large objects into the terrain rather than
@@ -5424,19 +5389,12 @@ public static class YQGeneratedWorldPopulation
                 0.02f,
                 0.35f);
 
-        float offset =
-            contactHeight -
-            bounds.min.y -
-            penetration;
-
-        Vector3 position =
-            instance.transform.position;
-
-        position.y +=
-            offset;
-
-        instance.transform.position =
-            position;
+        // note: Rewards, caves, and campsite props use the shared filtered support bottom and upper-middle terrain footprint instead of raw renderer corners.
+        YQGeneratedWorldTerrain.TryGroundObject(
+            instance,
+            terrain,
+            penetration,
+            out _);
     }
 
     private static bool TryGetRenderableBounds(

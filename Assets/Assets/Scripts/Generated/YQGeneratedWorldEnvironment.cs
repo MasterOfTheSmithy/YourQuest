@@ -4216,20 +4216,12 @@ public static class YQGeneratedWorldEnvironment
         string slot)
     {
         if (instance == null ||
-            terrain == null)
+            terrain == null ||
+            YQTerrainSupportComposer.IsExplicitlySuspended(
+                instance))
         {
             return;
         }
-
-        if (!TryGetWildernessBounds(
-                instance,
-                out Bounds bounds))
-        {
-            return;
-        }
-
-        float contactY =
-            bounds.min.y;
 
         if (string.Equals(
                 slot,
@@ -4240,35 +4232,32 @@ public static class YQGeneratedWorldEnvironment
                 instance,
                 out Bounds trunkBounds))
         {
-            contactY =
-                trunkBounds.min.y;
+            if (YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                    terrain,
+                    trunkBounds,
+                    out float trunkTerrainContact,
+                    out _,
+                    out _))
+            {
+                // note: Tree contact follows the visible trunk footprint rather than an arbitrary imported root pivot or the canopy bounds.
+                Vector3 treePosition =
+                    instance.transform.position;
+                treePosition.y +=
+                    trunkTerrainContact -
+                    trunkBounds.min.y -
+                    0.05f;
+                instance.transform.position =
+                    treePosition;
+                return;
+            }
         }
 
-        Vector3 anchor =
-            instance.transform.position;
-
-        float terrainY =
-            YQGeneratedWorldTerrain
-                .SampleWorldHeight(
-                    terrain,
-                    anchor);
-
-        const float GroundEmbed =
-            0.05f;
-
-        float correction =
-            terrainY -
-            contactY -
-            GroundEmbed;
-
-        Vector3 position =
-            instance.transform.position;
-
-        position.y +=
-            correction;
-
-        instance.transform.position =
-            position;
+        // note: Ordinary wilderness props use the shared structural lower-band and footprint terrain solver, removing pivot-driven floating and sinking.
+        YQGeneratedWorldTerrain.TryGroundObject(
+            instance,
+            terrain,
+            0.05f,
+            out _);
     }
 
     // ============================================================
@@ -4420,103 +4409,13 @@ public static class YQGeneratedWorldEnvironment
     {
         if (instance == null ||
             terrain == null ||
-            !TryGetWildernessBounds(
+            !YQGeneratedWorldTerrain.TryGetStableContactGeometry(
                 instance,
-                out Bounds bounds))
+                out Bounds bounds,
+                out _))
         {
             return;
         }
-
-        Vector3 center =
-            bounds.center;
-
-        float sampleX =
-            Mathf.Clamp(
-                bounds.size.x *
-                0.28f,
-                1.5f,
-                18f);
-
-        float sampleZ =
-            Mathf.Clamp(
-                bounds.size.z *
-                0.28f,
-                1.5f,
-                18f);
-
-        Vector3[] points =
-        {
-            center,
-
-            new Vector3(
-                center.x +
-                    sampleX,
-                0f,
-                center.z),
-
-            new Vector3(
-                center.x -
-                    sampleX,
-                0f,
-                center.z),
-
-            new Vector3(
-                center.x,
-                0f,
-                center.z +
-                    sampleZ),
-
-            new Vector3(
-                center.x,
-                0f,
-                center.z -
-                    sampleZ)
-        };
-
-        float[] heights =
-            new float[
-                points.Length];
-
-        int found =
-            0;
-
-        for (int i = 0;
-             i < points.Length;
-             i++)
-        {
-            if (!InsideTerrain(
-                    terrain,
-                    points[i]))
-            {
-                continue;
-            }
-
-            heights[
-                found++] =
-                YQGeneratedWorldTerrain
-                    .SampleWorldHeight(
-                        terrain,
-                        points[i]);
-        }
-
-        if (found == 0)
-            return;
-
-        Array.Sort(
-            heights,
-            0,
-            found);
-
-        /*
-         * Median contact avoids the old highest-corner lift.
-         *
-         * A small embed is intentional: buried geometry looks natural;
-         * visible air under a cave/structure does not.
-         */
-        float contact =
-            heights[
-                found /
-                2];
 
         float penetration =
             Mathf.Clamp(
@@ -4527,19 +4426,12 @@ public static class YQGeneratedWorldEnvironment
                 0.03f,
                 1.75f);
 
-        float correction =
-            contact -
-            bounds.min.y -
-            penetration;
-
-        Vector3 position =
-            instance.transform.position;
-
-        position.y +=
-            correction;
-
-        instance.transform.position =
-            position;
+        // note: Caves and large wilderness structures share the same nine-point terrain contact contract as every other grounded generated asset.
+        YQGeneratedWorldTerrain.TryGroundObject(
+            instance,
+            terrain,
+            penetration,
+            out _);
     }
 
     private static void EnsureStaticStructuralCollision(
@@ -4960,21 +4852,18 @@ public static class YQGeneratedWorldEnvironment
             return;
         }
 
-        float terrainY =
-            YQGeneratedWorldTerrain
-                .SampleWorldHeight(
-                    terrain,
-                    anchor);
-
-        if (!TryGetWildernessBounds(
+        if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
                 root,
-                out Bounds bounds))
+                out _,
+                out _))
         {
             Vector3 position =
                 root.transform.position;
 
             position.y =
-                terrainY;
+                YQGeneratedWorldTerrain.SampleWorldHeight(
+                    terrain,
+                    anchor);
 
             root.transform.position =
                 position;
@@ -4982,19 +4871,12 @@ public static class YQGeneratedWorldEnvironment
             return;
         }
 
-        float correction =
-            terrainY -
-            bounds.min.y +
-            0.02f;
-
-        Vector3 rootPosition =
-            root.transform.position;
-
-        rootPosition.y +=
-            correction;
-
-        root.transform.position =
-            rootPosition;
+        // note: Grounded creatures use their visible lower band and the surrounding terrain footprint; the old positive offset deliberately left feet hovering.
+        YQGeneratedWorldTerrain.TryGroundObject(
+            root,
+            terrain,
+            0.005f,
+            out _);
     }
 
     private static void EnsureCharacterCollider(

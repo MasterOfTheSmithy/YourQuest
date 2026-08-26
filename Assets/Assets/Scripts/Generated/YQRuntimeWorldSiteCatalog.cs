@@ -3415,14 +3415,26 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         // note: Incoherent showcase roots were rejected before instantiation; grounding never rescans every furnished child or performs a second curation pass.
 
         Vector3 desiredAnchor = contentRoot.transform.position;
-        cell.position += new Vector3(
+        Vector3 horizontalCorrection = new Vector3(
             desiredAnchor.x - structuralBounds.center.x,
             0f,
             desiredAnchor.z - structuralBounds.center.z);
-        float terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(
-            terrain,
-            desiredAnchor);
-        float verticalDelta = terrainHeight + 0.03f - structuralBounds.min.y;
+        cell.position += horizontalCorrection;
+        structuralBounds.center += horizontalCorrection;
+        float terrainHeight;
+        if (!YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                terrain,
+                structuralBounds,
+                out terrainHeight,
+                out _,
+                out _))
+        {
+            terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(
+                terrain,
+                desiredAnchor);
+        }
+        // note: Vey's full structural footprint, after horizontal recentering, chooses the support height; the imported source pivot can no longer leave the hut hovering or buried.
+        float verticalDelta = terrainHeight - 0.015f - structuralBounds.min.y;
         cell.position += Vector3.up * verticalDelta;
 
         Debug.Log(
@@ -3612,11 +3624,19 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             break;
         }
 
-        Vector3 samplePosition = aggregate.center;
-        float terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(
-            terrain,
-            samplePosition);
-        float candidate = terrainHeight + 0.03f - structuralFloor;
+        if (!YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+                terrain,
+                aggregate,
+                out float terrainHeight,
+                out _,
+                out _))
+        {
+            completed?.Invoke(false, 0f);
+            yield break;
+        }
+
+        // note: Reviewed cells resolve terrain contact across their complete footprint; a root pivot or one center sample cannot sink one edge while leaving another in the air.
+        float candidate = terrainHeight - 0.015f - structuralFloor;
         if (!IsFinite(candidate) ||
             Mathf.Abs(candidate) > MaximumExteriorFoundationCorrection)
         {

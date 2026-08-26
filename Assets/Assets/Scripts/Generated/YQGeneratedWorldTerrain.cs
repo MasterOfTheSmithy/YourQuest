@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class YQGeneratedWorldTerrain
@@ -359,6 +360,398 @@ public static class YQGeneratedWorldTerrain
             terrain.SampleHeight(
                 worldPosition) +
             terrain.transform.position.y;
+    }
+
+    public static bool TryGetStableContactGeometry(
+        GameObject root,
+        out Bounds aggregateBounds,
+        out float structuralBottom)
+    {
+        aggregateBounds =
+            default;
+        structuralBottom =
+            0f;
+
+        if (root == null)
+            return false;
+
+        Renderer[] renderers =
+            root.GetComponentsInChildren<Renderer>(
+                true);
+        List<Vector2> lowerBandSamples =
+            new List<Vector2>();
+        bool initialized =
+            false;
+
+        for (int index = 0;
+             index < renderers.Length;
+             index++)
+        {
+            Renderer renderer =
+                renderers[index];
+
+            if (!IsStableContactRenderer(
+                    renderer))
+            {
+                continue;
+            }
+
+            Bounds bounds =
+                renderer.bounds;
+
+            if (!initialized)
+            {
+                aggregateBounds =
+                    bounds;
+                initialized =
+                    true;
+            }
+            else
+            {
+                aggregateBounds.Encapsulate(
+                    bounds);
+            }
+        }
+
+        if (!initialized)
+            return false;
+
+        float lowerBandCeiling =
+            aggregateBounds.min.y +
+            Mathf.Min(
+                8f,
+                Mathf.Max(
+                    0.6f,
+                    aggregateBounds.size.y *
+                        0.25f));
+        float totalWeight =
+            0f;
+
+        for (int index = 0;
+             index < renderers.Length;
+             index++)
+        {
+            Renderer renderer =
+                renderers[index];
+
+            if (!IsStableContactRenderer(
+                    renderer))
+            {
+                continue;
+            }
+
+            Bounds bounds =
+                renderer.bounds;
+
+            if (bounds.min.y >
+                lowerBandCeiling)
+            {
+                continue;
+            }
+
+            float footprint =
+                bounds.size.x *
+                bounds.size.z;
+
+            if (!IsFinite(footprint) ||
+                footprint <= 0.0001f)
+            {
+                continue;
+            }
+
+            float weight =
+                Mathf.Sqrt(footprint);
+            lowerBandSamples.Add(
+                new Vector2(
+                    bounds.min.y,
+                    weight));
+            totalWeight +=
+                weight;
+        }
+
+        if (lowerBandSamples.Count == 0 ||
+            !IsFinite(totalWeight) ||
+            totalWeight <= 0f)
+        {
+            structuralBottom =
+                aggregateBounds.min.y;
+            return true;
+        }
+
+        lowerBandSamples.Sort(
+            (left, right) =>
+                left.x.CompareTo(right.x));
+        float targetWeight =
+            totalWeight *
+            0.5f;
+        float accumulatedWeight =
+            0f;
+        structuralBottom =
+            lowerBandSamples[0].x;
+
+        for (int index = 0;
+             index < lowerBandSamples.Count;
+             index++)
+        {
+            accumulatedWeight +=
+                lowerBandSamples[index].y;
+
+            if (accumulatedWeight <
+                targetWeight)
+            {
+                continue;
+            }
+
+            structuralBottom =
+                lowerBandSamples[index].x;
+            break;
+        }
+
+        return IsFinite(
+            structuralBottom);
+    }
+
+    public static bool TrySampleFootprintHeight(
+        Terrain terrain,
+        Bounds bounds,
+        out float contactHeight,
+        out float minimumHeight,
+        out float maximumHeight)
+    {
+        contactHeight =
+            0f;
+        minimumHeight =
+            0f;
+        maximumHeight =
+            0f;
+
+        if (terrain == null ||
+            terrain.terrainData == null ||
+            !IsFiniteVector(bounds.center) ||
+            !IsFiniteVector(bounds.size))
+        {
+            return false;
+        }
+
+        float sampleX =
+            Mathf.Clamp(
+                bounds.extents.x *
+                    0.72f,
+                0f,
+                24f);
+        float sampleZ =
+            Mathf.Clamp(
+                bounds.extents.z *
+                    0.72f,
+                0f,
+                24f);
+        Vector3 center =
+            bounds.center;
+        Vector3[] points =
+        {
+            center,
+            new Vector3(center.x + sampleX, center.y, center.z),
+            new Vector3(center.x - sampleX, center.y, center.z),
+            new Vector3(center.x, center.y, center.z + sampleZ),
+            new Vector3(center.x, center.y, center.z - sampleZ),
+            new Vector3(center.x + sampleX, center.y, center.z + sampleZ),
+            new Vector3(center.x + sampleX, center.y, center.z - sampleZ),
+            new Vector3(center.x - sampleX, center.y, center.z + sampleZ),
+            new Vector3(center.x - sampleX, center.y, center.z - sampleZ)
+        };
+        float[] heights =
+            new float[points.Length];
+        int found =
+            0;
+        Vector3 terrainOrigin =
+            terrain.transform.position;
+        Vector3 terrainSize =
+            terrain.terrainData.size;
+
+        for (int index = 0;
+             index < points.Length;
+             index++)
+        {
+            Vector3 point =
+                points[index];
+
+            if (point.x < terrainOrigin.x ||
+                point.x > terrainOrigin.x + terrainSize.x ||
+                point.z < terrainOrigin.z ||
+                point.z > terrainOrigin.z + terrainSize.z)
+            {
+                continue;
+            }
+
+            heights[found++] =
+                SampleWorldHeight(
+                    terrain,
+                    point);
+        }
+
+        if (found == 0)
+            return false;
+
+        Array.Sort(
+            heights,
+            0,
+            found);
+        minimumHeight =
+            heights[0];
+        maximumHeight =
+            heights[found - 1];
+        // note: The upper-middle footprint sample favors slight natural embedding over a visible downslope air gap without lifting everything to one pathological corner.
+        int contactIndex =
+            Mathf.Clamp(
+                Mathf.CeilToInt(
+                    (found - 1) *
+                    0.625f),
+                0,
+                found - 1);
+        contactHeight =
+            heights[contactIndex];
+        return true;
+    }
+
+    public static bool TryGroundObject(
+        GameObject root,
+        Terrain terrain,
+        float embedDepth,
+        out float correction)
+    {
+        correction =
+            0f;
+
+        if (root == null ||
+            terrain == null ||
+            YQTerrainSupportComposer.IsExplicitlySuspended(root) ||
+            !TryGetStableContactGeometry(
+                root,
+                out Bounds bounds,
+                out float structuralBottom) ||
+            !TrySampleFootprintHeight(
+                terrain,
+                bounds,
+                out float terrainContact,
+                out _,
+                out _))
+        {
+            return false;
+        }
+
+        correction =
+            terrainContact -
+            structuralBottom -
+            Mathf.Max(
+                0f,
+                embedDepth);
+
+        if (!IsFinite(correction) ||
+            Mathf.Abs(correction) > 128f)
+        {
+            correction =
+                0f;
+            return false;
+        }
+
+        if (Mathf.Abs(correction) <
+            0.002f)
+        {
+            correction =
+                0f;
+            return true;
+        }
+
+        Vector3 position =
+            root.transform.position;
+        position.y +=
+            correction;
+        root.transform.position =
+            position;
+
+        Rigidbody body =
+            root.GetComponent<Rigidbody>();
+
+        if (body != null)
+        {
+            // note: Keep this object's physics pose aligned locally; never force a generated-world-wide transform synchronization for one grounding correction.
+            body.position =
+                position;
+        }
+
+        return true;
+    }
+
+    private static bool IsStableContactRenderer(
+        Renderer renderer)
+    {
+        if (renderer == null ||
+            !renderer.enabled ||
+            renderer is ParticleSystemRenderer ||
+            renderer is TrailRenderer ||
+            renderer is LineRenderer)
+        {
+            return false;
+        }
+
+        string objectName =
+            (renderer.name ?? string.Empty)
+                .ToLowerInvariant();
+
+        if (ContainsAny(
+                objectName,
+                "particle", "vfx", "decal", "mist", "fog",
+                "cloud", "lightbeam", "flare", "preview", "gizmo"))
+        {
+            return false;
+        }
+
+        Bounds bounds =
+            renderer.bounds;
+        return IsFiniteVector(bounds.center) &&
+            IsFiniteVector(bounds.size) &&
+            bounds.size.x > 0.01f &&
+            bounds.size.y > 0.005f &&
+            bounds.size.z > 0.01f;
+    }
+
+    private static bool IsFiniteVector(
+        Vector3 value)
+    {
+        return IsFinite(value.x) &&
+            IsFinite(value.y) &&
+            IsFinite(value.z);
+    }
+
+    private static bool IsFinite(
+        float value)
+    {
+        return !float.IsNaN(value) &&
+            !float.IsInfinity(value);
+    }
+
+    private static bool ContainsAny(
+        string value,
+        params string[] tokens)
+    {
+        if (string.IsNullOrEmpty(value) ||
+            tokens == null)
+        {
+            return false;
+        }
+
+        for (int index = 0;
+             index < tokens.Length;
+             index++)
+        {
+            if (!string.IsNullOrEmpty(tokens[index]) &&
+                value.Contains(tokens[index]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static Vector3 GroundPoint(
