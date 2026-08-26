@@ -3347,11 +3347,37 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         float frameStartedAt = Time.realtimeSinceStartup;
 
         Stack<Transform> structuralPending = new Stack<Transform>();
-        for (int childIndex = 0; childIndex < cell.childCount; childIndex++)
+        Stack<Transform> discoveryPending = new Stack<Transform>();
+        discoveryPending.Push(cell);
+
+        while (discoveryPending.Count > 0)
         {
-            Transform child = cell.GetChild(childIndex);
-            if (child != null && IsWitchHouseStructuralRoot(child.name))
-                structuralPending.Push(child);
+            Transform candidate = discoveryPending.Pop();
+            if (candidate == null)
+                continue;
+
+            if (candidate != cell &&
+                IsWitchHouseStructuralRoot(candidate.name))
+            {
+                // note: Async prefab cloning can retain an extra wrapper level, so Vey's structural roots are discovered throughout the hidden cell rather than assumed to be direct children.
+                structuralPending.Push(candidate);
+                continue;
+            }
+
+            for (int childIndex = 0;
+                 childIndex < candidate.childCount;
+                 childIndex++)
+            {
+                discoveryPending.Push(
+                    candidate.GetChild(childIndex));
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >=
+                StreamingFrameBudgetSeconds)
+            {
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
         }
 
         while (structuralPending.Count > 0)
@@ -3394,13 +3420,19 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         if (!foundStructure)
         {
-            int fallbackGrounded = 0;
-            yield return AlignCompiledCellsToTerrainRoutine(
-                contentRoot,
-                terrain,
-                count => fallbackGrounded = count);
-            completed?.Invoke(fallbackGrounded, 0);
-            yield break;
+            // note: A reviewed hut is never published floating merely because a vendor renamed or rewrapped its pieces; the filtered whole-cell support geometry is the bounded final authority.
+            if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
+                    cell.gameObject,
+                    out structuralBounds,
+                    out _))
+            {
+                cell.gameObject.SetActive(false);
+                Debug.LogError(
+                    "[YQCompiledWorldSiteInstance] WITCH HOUSE REJECTED: " +
+                    "no stable structural support geometry was found.");
+                completed?.Invoke(0, 0);
+                yield break;
+            }
         }
 
         Vector2 clusterCenter = new Vector2(

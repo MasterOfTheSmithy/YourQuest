@@ -36,10 +36,10 @@ public static class YQGeneratedWorldEnvironment
      */
 
     private const int BaseVegetationPerRegion =
-        24;
+        96;
 
     private const int BaseRockScatterPerRegion =
-        10;
+        24;
 
     private const int BaseLandformsPerRegion =
         3;
@@ -56,10 +56,10 @@ public static class YQGeneratedWorldEnvironment
     private static int _oversizedWildernessWarningLogs;
 
     private const float WildernessRadiusMin =
-        34f;
+        22f;
 
     private const float WildernessRadiusMax =
-        215f;
+        255f;
 
     private const float LandformRadiusMin =
         68f;
@@ -68,13 +68,13 @@ public static class YQGeneratedWorldEnvironment
         220f;
 
     private const float SettlementClearRadius =
-        34f;
+        22f;
 
     private const float SettlementLandformClearRadius =
         62f;
 
     private const float OriginClearRadius =
-        64f;
+        36f;
 
     private const float OriginLandformClearRadius =
         82f;
@@ -1627,8 +1627,8 @@ public static class YQGeneratedWorldEnvironment
                     multiplier) +
                 danger *
                 2,
-                12,
-                42);
+                48,
+                128);
     }
 
     private static int ResolveRockTarget(
@@ -1679,8 +1679,8 @@ public static class YQGeneratedWorldEnvironment
                     BaseRockScatterPerRegion *
                     multiplier) +
                 danger,
-                6,
-                20);
+                14,
+                38);
     }
 
     private static IEnumerator SpawnSmallScatterRoutine(
@@ -1724,9 +1724,18 @@ public static class YQGeneratedWorldEnvironment
         int spawned =
             0;
 
+        bool vegetationSlot =
+            string.Equals(
+                slot,
+                YQWorldAssetCatalog.SlotVegetation,
+                StringComparison.OrdinalIgnoreCase);
+        int clusterSize =
+            vegetationSlot
+                ? 6
+                : 3;
         int attempts =
             targetCount *
-            2;
+            4;
         float frameStartedAt = Time.realtimeSinceStartup;
 
         for (int attempt = 0;
@@ -1742,18 +1751,48 @@ public static class YQGeneratedWorldEnvironment
                 slot +
                 "|" +
                 attempt;
+            int clusterIndex =
+                attempt /
+                clusterSize;
+            string clusterSeed =
+                plan.worldSeed +
+                "|scatter_cluster|" +
+                region.regionId +
+                "|" +
+                slot +
+                "|" +
+                clusterIndex;
 
             if (!TryResolveWildernessPosition(
                     terrain,
                     plan,
                     regionCenter,
-                    seed,
+                    clusterSeed,
                     WildernessRadiusMin,
                     WildernessRadiusMax,
                     SettlementClearRadius,
                     OriginClearRadius,
                     16f,
-                    out Vector3 position))
+                    out Vector3 clusterCenter))
+            {
+                continue;
+            }
+
+            // note: Region dressing grows in deterministic groves and rock outcrops instead of isolated uniform noise, preserving palette identity while filling traversal space coherently.
+            Vector3 position =
+                clusterCenter +
+                ResolveRadialOffset(
+                    seed + "|cluster_member",
+                    vegetationSlot ? 1.5f : 0.8f,
+                    vegetationSlot ? 11f : 6f);
+
+            if (!IsWildernessPositionAllowed(
+                    terrain,
+                    plan,
+                    position,
+                    SettlementClearRadius,
+                    OriginClearRadius,
+                    16f))
             {
                 continue;
             }
@@ -1762,7 +1801,7 @@ public static class YQGeneratedWorldEnvironment
                 PickSmallScatterReference(
                     palette,
                     slot,
-                    seed);
+                    clusterSeed + "|palette");
 
             if (reference == null)
                 continue;
@@ -3883,6 +3922,33 @@ public static class YQGeneratedWorldEnvironment
                     Mathf.Sin(angle) *
                     radius);
 
+        if (!IsWildernessPositionAllowed(
+                terrain,
+                plan,
+                candidate,
+                settlementClearRadius,
+                originClearRadius,
+                encampmentClearRadius))
+        {
+            return false;
+        }
+
+        position =
+            candidate;
+
+        return true;
+    }
+
+    private static bool IsWildernessPositionAllowed(
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        Vector3 candidate,
+        float settlementClearRadius,
+        float originClearRadius,
+        float encampmentClearRadius)
+    {
+        // note: Cluster members pass the same terrain and authored-location reserves as their grove center, preventing denser dressing from invading doors, roads, or encounter staging areas.
+
         if (!InsideTerrainWithMargin(
                 terrain,
                 candidate,
@@ -3916,9 +3982,6 @@ public static class YQGeneratedWorldEnvironment
         {
             return false;
         }
-
-        position =
-            candidate;
 
         return true;
     }
