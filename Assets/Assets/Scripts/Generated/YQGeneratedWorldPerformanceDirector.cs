@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Scripting;
 
 [DefaultExecutionOrder(-80)]
 public sealed class YQGeneratedWorldPerformanceDirector : MonoBehaviour
@@ -6,9 +7,37 @@ public sealed class YQGeneratedWorldPerformanceDirector : MonoBehaviour
     private const float GameplayShadowDistance = 42f;
     private const float GameplayLodBias = 0.9f;
     private const float GameplayNearClipPlane = 0.05f;
+    private const ulong IncrementalGcSliceNanoseconds = 1000000;
+    private static bool startupBudgetConfigured;
+
+    public static void ConfigureStartupFrameBudget()
+    {
+        if (startupBudgetConfigured)
+            return;
+
+        startupBudgetConfigured = true;
+        Application.targetFrameRate = 60;
+        Application.backgroundLoadingPriority = ThreadPriority.Low;
+        QualitySettings.asyncUploadTimeSlice = 1;
+        QualitySettings.asyncUploadPersistentBuffer = true;
+        QualitySettings.maxQueuedFrames = 1;
+
+        if (GarbageCollector.isIncremental)
+        {
+            // note: Keep managed collection work bounded to a small slice so generation allocations cannot accumulate into a long reveal-frame collection.
+            GarbageCollector.incrementalTimeSliceNanoseconds =
+                IncrementalGcSliceNanoseconds;
+        }
+
+        Debug.Log(
+            "[YQGeneratedWorldPerformanceDirector] Startup anti-hang budget active. " +
+            "Background integration=Low, async upload=1ms, incremental GC=1ms.");
+    }
 
     public static void ConfigureForGeneratedWorld(Transform root)
     {
+        ConfigureStartupFrameBudget();
+
         if (root == null)
             return;
 

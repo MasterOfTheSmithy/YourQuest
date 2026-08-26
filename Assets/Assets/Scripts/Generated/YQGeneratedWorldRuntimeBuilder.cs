@@ -378,6 +378,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Instance =
             this;
 
+        // note: Apply strict loading, upload, and GC budgets before the first terrain, site, or local-model materialization task can begin.
+        YQGeneratedWorldPerformanceDirector
+            .ConfigureStartupFrameBudget();
+
         // note: The coordinator remains the single world-build owner while the selected architecture decides whether settlements use reviewed sites or the legacy comparison path.
         buildAutomatically =
             YQWorldGenerationArchitecture.AllowsLegacyRuntimeBuilder ||

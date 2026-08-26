@@ -285,6 +285,21 @@ public sealed class LlamaCppServerProcess : IDisposable
             AppendArgument(args, Supports("--ubatch-size") ? "--ubatch-size" : Supports("-ub") ? "-ub" : null, physicalBatch.ToString());
             AppendArgument(args, Supports("--prio") ? "--prio" : null, "-1");
             AppendArgument(args, Supports("--poll") ? "--poll" : null, Mathf.Clamp(config.serverPollingPercent, 0, 100).ToString());
+
+            if (Supports("--no-cache-prompt"))
+                args.Append(" --no-cache-prompt");
+
+            string cacheRamFlag = Supports("--cache-ram")
+                ? "--cache-ram"
+                : Supports("-cram")
+                    ? "-cram"
+                    : null;
+
+            // note: Startup prompts differ substantially, so host prompt caching only evicted and reallocated hundreds of megabytes between Goddess stages without useful reuse.
+            AppendArgument(args, cacheRamFlag, "0");
+
+            // note: Retain errors while suppressing per-token timing output inherited by Unity's log stream during local generation.
+            AppendArgument(args, Supports("--log-verbosity") ? "--log-verbosity" : Supports("-lv") ? "-lv" : null, "1");
         }
 
         if (config.gpuLayerCount >= 0)
@@ -367,11 +382,11 @@ public sealed class LlamaCppServerProcess : IDisposable
 
             if (lowerProcessPriority)
             {
-                // note: Windows schedules the owned model server below the game so CPU-side token work yields before starving Unity's render loop.
+                // note: The owned model server is background work; idle priority makes every Unity render/input thread win scheduler contention before inference consumes spare CPU time.
                 try
                 {
                     _ownedProcess.PriorityClass =
-                        ProcessPriorityClass.BelowNormal;
+                        ProcessPriorityClass.Idle;
                 }
                 catch
                 {

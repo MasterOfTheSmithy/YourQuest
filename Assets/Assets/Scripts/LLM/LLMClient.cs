@@ -912,8 +912,8 @@ public sealed class LLMClient : MonoBehaviour
                 { "top_k", ReadIntOption(options, "top_k", 20) },
                 { "presence_penalty", ReadFloatOption(options, "presence_penalty", 1.5f) },
                 { "repeat_penalty", ReadFloatOption(options, "repeat_penalty", 1.0f) },
-                // note: cache_prompt lets llama.cpp reuse prompt prefixes when the server supports it.
-                { "cache_prompt", true }
+                // note: Distinct world-generation prompts produced 200-300 MB cache evictions in the runtime log; responsiveness mode rejects that churn even when connecting to an external server.
+                { "cache_prompt", !config.preserveGameResponsiveness }
             };
 
             if (profile != null && profile.directMode && !profile.reasoningMode)
