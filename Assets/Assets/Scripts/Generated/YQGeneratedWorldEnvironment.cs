@@ -2591,10 +2591,10 @@ public static class YQGeneratedWorldEnvironment
                         out YQRuntimeWorldAssetEntry entry,
                         out string resolvedCategory))
                 {
-                    // note: Unsupported generated species never become misleading capsules or arbitrary models; a curated beast is labeled and factioned as fallback wildlife instead.
+                    // note: Unsupported generated species never become misleading capsules or arbitrary models; a verified curated spider is labeled and factioned as fallback wildlife instead.
                     if (!TryResolveAmbientMonsterPrefab(
                             registry,
-                            "wilderness beast",
+                            "wilderness spider",
                             seed + "|wildlife_fallback",
                             out entry,
                             out resolvedCategory))
@@ -2605,7 +2605,7 @@ public static class YQGeneratedWorldEnvironment
                     resolvedSource =
                         new AmbientMonsterSource
                         {
-                            family = "wilderness beast",
+                            family = "wilderness spider",
                             factionId = "generated_wildlife"
                         };
                 }
@@ -2777,7 +2777,8 @@ public static class YQGeneratedWorldEnvironment
             result.Add(
                 new AmbientMonsterSource
                 {
-                    family = "wilderness beast",
+                    // note: The installed creature shard contains curated spider prefabs, so this baseline cannot silently target a nonexistent beast category.
+                    family = "wilderness spider",
                     factionId = "generated_wildlife"
                 });
         }
