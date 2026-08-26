@@ -6531,8 +6531,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 witchHouseRoot.transform,
                 true);
 
-            Vector3 veyPosition = witchHouseRoot.transform.position +
-                new Vector3(0f, 0.10f, 0f);
+            // note: The fallback point is the hut's interior floor, not the reviewed cell pivot; this keeps Vey visible even when semantic circulation tags are absent from an imported cell.
+            Vector3 veyPosition = new Vector3(
+                witchHouseBounds.center.x,
+                witchHouseBounds.min.y + 1.05f,
+                witchHouseBounds.center.z);
             if (YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(
                     "origin_vey_witch_house",
                     "alchemy service room circulation poi",
@@ -6540,7 +6543,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     2,
                     out Vector3 resolvedVeyPosition))
             {
-                veyPosition = resolvedVeyPosition;
+                bool insideHutFootprint =
+                    resolvedVeyPosition.x >= witchHouseBounds.min.x - 1.5f &&
+                    resolvedVeyPosition.x <= witchHouseBounds.max.x + 1.5f &&
+                    resolvedVeyPosition.z >= witchHouseBounds.min.z - 1.5f &&
+                    resolvedVeyPosition.z <= witchHouseBounds.max.z + 1.5f &&
+                    resolvedVeyPosition.y >= witchHouseBounds.min.y + 0.35f &&
+                    resolvedVeyPosition.y <= witchHouseBounds.max.y + 1f;
+                if (insideHutFootprint)
+                    veyPosition = resolvedVeyPosition;
             }
 
             vey.transform.position =
@@ -7177,14 +7188,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         light.type =
             LightType.Directional;
 
+        // note: A restrained directional key preserves authored material response and contact shadows instead of washing the generated world into a flat white skybox.
         light.intensity =
-            1.15f;
+            0.72f;
 
         light.shadows =
             LightShadows.Soft;
 
         light.shadowStrength =
-            0.34f;
+            0.52f;
 
         light.transform.rotation =
             Quaternion.Euler(

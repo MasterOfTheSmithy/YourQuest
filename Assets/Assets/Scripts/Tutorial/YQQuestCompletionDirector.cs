@@ -141,7 +141,10 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
             case "equip_item":
                 return SumCountersByPrefix(state, "item:equip") >= required;
             case "talk_to_npc":
-                return SumCountersByPrefix(state, "dialogue:" + targetId, "dialogue:") >= required;
+                // note: A targeted talk objective must not fall back to every dialogue counter, otherwise speaking to any NPC can complete a quest meant for one named NPC.
+                return !string.IsNullOrWhiteSpace(targetId)
+                    ? SumCountersByPrefix(state, "dialogue:" + targetId) >= required
+                    : SumCountersByPrefix(state, "dialogue:") >= required;
             case "cast_spell":
                 return SumCountersByPrefix(state, "cast:projectile", "cast:pulse") >= required;
             case "defeat_enemy":

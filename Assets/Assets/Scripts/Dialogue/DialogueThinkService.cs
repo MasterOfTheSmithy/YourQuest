@@ -29,6 +29,18 @@ public sealed class DialogueThinkService : MonoBehaviour
     public bool logPrompt = false;
     public bool logRaw = false;
 
+    // note: These conversational stems are guarded separately from whole-line similarity because NPCs often repeat the same invitation with new filler.
+    private static readonly string[] RepeatedConversationMoves =
+    {
+        "tell me about",
+        "what did you mean",
+        "go on",
+        "before my stew",
+        "sit down",
+        "you said",
+        "start at the beginning"
+    };
+
     [TextArea(3, 10)]
     public string[] forbiddenPhrases =
     {
@@ -169,6 +181,9 @@ public sealed class DialogueThinkService : MonoBehaviour
         sb.AppendLine("- Answer the player's actual meaning, not just keywords.");
         sb.AppendLine("- The first sentence must directly answer or refuse the player's latest message.");
         sb.AppendLine("- If the NPC would not know something, refuse or redirect in character instead of sounding generic.");
+        sb.AppendLine("- Treat the latest player message as a new turn. Do not repeat a question, invitation, or conversational command already used in RECENT_DIALOGUE.");
+        sb.AppendLine("- If the player continues a topic, advance the exchange with a new detail or consequence; do not keep asking them to restate the same thing.");
+        sb.AppendLine("- Do not echo the player's wording as a substitute for an answer. Refer back only when the reference is necessary and add something new.");
         sb.AppendLine("- Local knowledge is strong inside this region and nearby roads, weaker a few towns away, and mostly rumor for distant nations.");
         sb.AppendLine("- Do not invent precise facts about distant cities, nations, rulers, or wars unless the snapshot or recent dialogue supports it.");
         sb.AppendLine("- Ground the reply in local place, recent dialogue, current tension, or the NPC's role.");
@@ -207,6 +222,8 @@ public sealed class DialogueThinkService : MonoBehaviour
         sb.AppendLine("- No assistant language. No explanations. No code fences. No speaker labels.");
         sb.AppendLine("- Keep the voice strictly tied to this NPC's name, job, personality, and faction.");
         sb.AppendLine("- If the old output was malformed or meta, replace it with a concise valid in-world line.");
+        sb.AppendLine("- Do not reuse the old reply's conversational move or repeat a question/invitation already present in recent dialogue.");
+        sb.AppendLine("- Answer the newest player turn with a fresh detail, decision, or consequence instead of asking for the same explanation again.");
         sb.AppendLine("- Do not apologize.");
         sb.AppendLine();
         sb.AppendLine("NPC:");
@@ -309,6 +326,8 @@ public sealed class DialogueThinkService : MonoBehaviour
                 continue;
             if (other == normCandidate || SimilarityRatio(other, normCandidate) >= similarityRejectThreshold)
                 return true;
+            if (HasRepeatedConversationMove(normCandidate, other) || HasMeaningfulTokenEcho(normCandidate, other))
+                return true;
         }
 
         List<string> recentPlayer = agent.GetRecentPlayerLines(recentPlayerLinesToCheck);
@@ -322,6 +341,89 @@ public sealed class DialogueThinkService : MonoBehaviour
         }
 
         return false;
+    }
+
+    private static bool HasRepeatedConversationMove(string candidate, string previous)
+    {
+        if (string.IsNullOrWhiteSpace(candidate) || string.IsNullOrWhiteSpace(previous))
+            return false;
+
+        for (int i = 0; i < RepeatedConversationMoves.Length; i++)
+        {
+            string move = RepeatedConversationMoves[i];
+            if (!string.IsNullOrWhiteSpace(move) &&
+                candidate.IndexOf(move, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                previous.IndexOf(move, StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasMeaningfulTokenEcho(string candidate, string previous)
+    {
+        List<string> candidateTokens = ExtractMeaningfulTokens(candidate);
+        List<string> previousTokens = ExtractMeaningfulTokens(previous);
+
+        if (candidateTokens.Count < 6 || previousTokens.Count < 6)
+            return false;
+
+        int shared = 0;
+        for (int i = 0; i < candidateTokens.Count; i++)
+        {
+            if (previousTokens.Contains(candidateTokens[i]))
+                shared++;
+        }
+
+        // note: Reject substantial wording carry-over even when the model appends a fresh clause to an old reply.
+        float candidateCoverage = (float)shared / Mathf.Max(1, candidateTokens.Count);
+        float previousCoverage = (float)shared / Mathf.Max(1, previousTokens.Count);
+        return shared >= 5 && candidateCoverage >= 0.56f && previousCoverage >= 0.42f;
+    }
+
+    private static List<string> ExtractMeaningfulTokens(string text)
+    {
+        List<string> tokens = new List<string>();
+        if (string.IsNullOrWhiteSpace(text))
+            return tokens;
+
+        string[] raw = text.ToLowerInvariant().Split(' ');
+        for (int i = 0; i < raw.Length; i++)
+        {
+            string token = raw[i].Trim('.', ',', '!', '?', ':', ';', '\"', '\'', '-', '(', ')');
+            if (token.Length < 4 || IsDialogueStopWord(token) || tokens.Contains(token))
+                continue;
+            tokens.Add(token);
+        }
+
+        return tokens;
+    }
+
+    private static bool IsDialogueStopWord(string token)
+    {
+        switch (token)
+        {
+            case "about":
+            case "before":
+            case "after":
+            case "that":
+            case "this":
+            case "with":
+            case "from":
+            case "your":
+            case "what":
+            case "when":
+            case "where":
+            case "would":
+            case "could":
+            case "should":
+            case "have":
+            case "will":
+            case "just":
+                return true;
+            default:
+                return false;
+        }
     }
 
     private bool ContainsForbiddenPhrase(string text)

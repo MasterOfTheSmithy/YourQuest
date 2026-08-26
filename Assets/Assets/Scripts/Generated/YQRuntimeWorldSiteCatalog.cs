@@ -1132,10 +1132,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     });
             }
             else if (generatedTerrain != null &&
-                     presentationMode ==
-                        YQWorldSitePresentationMode.SeamlessExterior &&
                      !UsesAuthoredTerrainRelief())
             {
+                // note: Every reviewed exterior cell is aligned to the canonical heightfield; presentation metadata may describe streaming style, but it cannot authorize a floating or buried assembly.
                 yield return AlignCompiledCellsToTerrainRoutine(
                     contentRoot,
                     generatedTerrain,

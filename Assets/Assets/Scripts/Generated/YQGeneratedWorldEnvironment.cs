@@ -35,8 +35,9 @@ public static class YQGeneratedWorldEnvironment
      * TerrainCollider remains the authoritative physical surface.
      */
 
+    // note: Native terrain vegetation carries most of the world density, so raising this baseline fills ecological gaps without multiplying expensive authored GameObjects.
     private const int BaseVegetationPerRegion =
-        128;
+        168;
 
     private const int TerrainDetailResolution =
         256;
@@ -44,8 +45,9 @@ public static class YQGeneratedWorldEnvironment
     private const int TerrainDetailPatchResolution =
         16;
 
+    // note: The native tree cap is raised enough to fill distant biome silhouettes while remaining bounded for predictable loading cost.
     private const int MaximumTerrainTreeInstances =
-        2200;
+        3400;
 
     private const int MaximumTerrainTreePrototypes =
         16;
@@ -114,6 +116,9 @@ public static class YQGeneratedWorldEnvironment
     private static int _oversizedWildernessWarningLogs;
 
     private static readonly List<Mesh> GeneratedMacroWaterMeshes =
+        new List<Mesh>();
+
+    private static readonly List<Mesh> GeneratedLivedPathMeshes =
         new List<Mesh>();
 
     private const float WildernessRadiusMin =
@@ -353,6 +358,12 @@ public static class YQGeneratedWorldEnvironment
             plan,
             registry,
             result => surfaces = result);
+
+        // note: Painted paths receive a thin conforming visual ribbon so roads remain readable on mixed terrain materials while the TerrainCollider stays authoritative.
+        yield return BuildLivedPathVisualsRoutine(
+            terrain,
+            plan,
+            registry);
 
         Debug.Log(
             "[YQGeneratedWorldEnvironment] TERRAIN SURFACE READY\n" +
@@ -1666,6 +1677,146 @@ public static class YQGeneratedWorldEnvironment
         // note: SetAlphamaps publishes each completed strip; avoiding a redundant global Terrain.Flush prevents a second full native refresh after the final strip.
         yield return null;
         completed?.Invoke(surfaces);
+    }
+
+    private static IEnumerator BuildLivedPathVisualsRoutine(
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry)
+    {
+        if (terrain == null || terrain.terrainData == null ||
+            plan == null || registry == null)
+        {
+            yield break;
+        }
+
+        Transform previous = terrain.transform.Find("YQ_Generated_LivedPaths");
+        ReleaseGeneratedLivedPathMeshes();
+        if (previous != null)
+        {
+            previous.gameObject.SetActive(false);
+            UnityEngine.Object.Destroy(previous.gameObject);
+        }
+
+        List<LivedPathSegment> paths = BuildLivedPathNetwork(plan, terrain);
+        if (paths.Count == 0)
+            yield break;
+
+        Material pathMaterial = ResolveLivedPathMaterial(plan, registry);
+        if (pathMaterial == null)
+        {
+            // note: The terrain remains usable when no approved dirt material resolves; the visual overlay never invents a cross-biome placeholder.
+            yield break;
+        }
+
+        List<Vector3> vertices = new List<Vector3>(paths.Count * 48 * 2);
+        List<Vector3> normals = new List<Vector3>(paths.Count * 48 * 2);
+        List<Vector2> uvs = new List<Vector2>(paths.Count * 48 * 2);
+        List<int> triangles = new List<int>(paths.Count * 48 * 6);
+        Vector3 terrainOrigin = terrain.transform.position;
+
+        for (int pathIndex = 0; pathIndex < paths.Count; pathIndex++)
+        {
+            LivedPathSegment path = paths[pathIndex];
+            float length = Vector2.Distance(path.start, path.end);
+            int sampleCount = Mathf.Clamp(
+                Mathf.CeilToInt(Mathf.Max(1f, length) / 8f) + 1,
+                2,
+                48);
+
+            for (int sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++)
+            {
+                float pathT = sampleIndex / (float)(sampleCount - 1);
+                Vector2 center = ResolveLivedPathCenter(path, pathT);
+                Vector2 tangent = ResolveLivedPathCenter(
+                    path,
+                    Mathf.Clamp01(pathT + 0.01f)) - center;
+                if (tangent.sqrMagnitude < 0.001f)
+                    tangent = path.end - path.start;
+                tangent.Normalize();
+                Vector2 side = new Vector2(-tangent.y, tangent.x);
+                float width = path.halfWidth * Mathf.Lerp(0.94f, 1.02f, Mathf.Sin(pathT * Mathf.PI));
+                Vector3 worldCenter = new Vector3(
+                    center.x,
+                    YQGeneratedWorldTerrain.SampleWorldHeight(
+                        terrain,
+                        new Vector3(center.x, 0f, center.y)) + 0.028f,
+                    center.y);
+                Vector3 left = worldCenter + new Vector3(-side.x * width, 0f, -side.y * width);
+                Vector3 right = worldCenter + new Vector3(side.x * width, 0f, side.y * width);
+                int vertexIndex = vertices.Count;
+                vertices.Add(left - terrainOrigin);
+                vertices.Add(right - terrainOrigin);
+                normals.Add(Vector3.up);
+                normals.Add(Vector3.up);
+                float uvY = pathT * Mathf.Max(1f, length / 4f);
+                uvs.Add(new Vector2(0f, uvY));
+                uvs.Add(new Vector2(1f, uvY));
+
+                if (sampleIndex > 0)
+                {
+                    triangles.Add(vertexIndex - 2);
+                    triangles.Add(vertexIndex);
+                    triangles.Add(vertexIndex - 1);
+                    triangles.Add(vertexIndex - 1);
+                    triangles.Add(vertexIndex);
+                    triangles.Add(vertexIndex + 1);
+                }
+            }
+
+            // note: Each road is tessellated independently and yielded once, keeping path presentation bounded even when a generated plan contains many settlements.
+            yield return null;
+        }
+
+        if (vertices.Count < 4 || triangles.Count < 6)
+            yield break;
+
+        Mesh mesh = new Mesh
+        {
+            name = "YQ_Generated_LivedPathMesh",
+            hideFlags = HideFlags.DontSave
+        };
+        mesh.SetVertices(vertices);
+        mesh.SetNormals(normals);
+        mesh.SetUVs(0, uvs);
+        mesh.SetTriangles(triangles, 0, true);
+        mesh.RecalculateBounds();
+        GeneratedLivedPathMeshes.Add(mesh);
+
+        GameObject root = new GameObject("YQ_Generated_LivedPaths");
+        root.transform.SetParent(terrain.transform, false);
+        MeshFilter filter = root.AddComponent<MeshFilter>();
+        MeshRenderer renderer = root.AddComponent<MeshRenderer>();
+        filter.sharedMesh = mesh;
+        renderer.sharedMaterial = pathMaterial;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = true;
+        renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+        renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+    }
+
+    private static Material ResolveLivedPathMaterial(
+        GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry)
+    {
+        if (plan == null || registry == null || plan.regions == null)
+            return null;
+
+        for (int regionIndex = 0; regionIndex < plan.regions.Count; regionIndex++)
+        {
+            GeneratedRegionRecord region = plan.regions[regionIndex];
+            GeneratedRegionAssetPaletteRecord palette = region != null ? FindPalette(plan, region) : null;
+            List<GeneratedAssetReferenceRecord> terrainReferences =
+                FindResolvableTerrainMaterials(palette, registry);
+            GeneratedAssetReferenceRecord pathReference = FindPathTerrainReference(terrainReferences);
+            Material material = pathReference != null
+                ? registry.ResolveMaterial(pathReference.assetPath)
+                : null;
+            if (material != null)
+                return material;
+        }
+
+        return null;
     }
 
     private static int ResolveOrCreateTerrainLayerIndex(
@@ -3850,6 +4001,19 @@ public static class YQGeneratedWorldEnvironment
         GeneratedMacroWaterMeshes.Clear();
     }
 
+    private static void ReleaseGeneratedLivedPathMeshes()
+    {
+        for (int index = 0; index < GeneratedLivedPathMeshes.Count; index++)
+        {
+            Mesh mesh = GeneratedLivedPathMeshes[index];
+            if (mesh != null)
+                UnityEngine.Object.Destroy(mesh);
+        }
+
+        // note: Runtime road meshes have explicit ownership so rebuilding a world cannot retain old path geometry in native memory.
+        GeneratedLivedPathMeshes.Clear();
+    }
+
     // ============================================================
     // TERRAIN-NATIVE VEGETATION
     // ============================================================
@@ -4112,8 +4276,8 @@ public static class YQGeneratedWorldEnvironment
                                 profile.center.x,
                                 profile.center.z)
                                 .ForestDensity)),
-                    96,
-                    340);
+                    120,
+                    460);
                 int placedForRegion = 0;
                 int attempts = target * 6;
 
@@ -4470,7 +4634,7 @@ public static class YQGeneratedWorldEnvironment
                             ResolveBiomeGroundCoverBonus(
                                 tileProfile.Biome)),
                         2,
-                        8);
+                        12);
 
                     detailMaps[layerIndex][z, x] = density;
                     detailCount += density;
@@ -5012,7 +5176,7 @@ public static class YQGeneratedWorldEnvironment
             registry,
             originAnchor,
             YQWorldAssetCatalog.SlotVegetation,
-            18,
+            28,
             44f,
             126f,
             16f,
@@ -5031,7 +5195,7 @@ public static class YQGeneratedWorldEnvironment
             registry,
             originAnchor,
             YQWorldAssetCatalog.SlotVegetation,
-            72,
+            96,
             32f,
             112f,
             14f,
@@ -5048,7 +5212,7 @@ public static class YQGeneratedWorldEnvironment
             registry,
             originAnchor,
             YQWorldAssetCatalog.SlotRock,
-            24,
+            32,
             34f,
             118f,
             14f,
@@ -5056,12 +5220,70 @@ public static class YQGeneratedWorldEnvironment
             16f,
             count => rocksSpawned = count);
 
+        // note: A second bounded pass creates an authored-looking inlay around the Goddess landmark instead of leaving the statue as an isolated prop in an otherwise empty reserve.
+        Vector3 goddessInlayCenter = originAnchor + new Vector3(30.6f, 0f, 14.6f);
+        int inlayTrees = 0;
+        int inlayVegetation = 0;
+        int inlayRocks = 0;
+        yield return SpawnSmallScatterAreaRoutine(
+            root.transform,
+            terrain,
+            plan,
+            nearestRegion,
+            nearestPalette,
+            registry,
+            goddessInlayCenter,
+            YQWorldAssetCatalog.SlotVegetation,
+            10,
+            16f,
+            34f,
+            8f,
+            0f,
+            8f,
+            count => inlayTrees = count,
+            true);
+        yield return SpawnSmallScatterAreaRoutine(
+            root.transform,
+            terrain,
+            plan,
+            nearestRegion,
+            nearestPalette,
+            registry,
+            goddessInlayCenter,
+            YQWorldAssetCatalog.SlotVegetation,
+            24,
+            10f,
+            32f,
+            8f,
+            0f,
+            8f,
+            count => inlayVegetation = count);
+        yield return SpawnSmallScatterAreaRoutine(
+            root.transform,
+            terrain,
+            plan,
+            nearestRegion,
+            nearestPalette,
+            registry,
+            goddessInlayCenter,
+            YQWorldAssetCatalog.SlotRock,
+            8,
+            14f,
+            32f,
+            8f,
+            0f,
+            8f,
+            count => inlayRocks = count);
+        treesSpawned += inlayTrees;
+        vegetationSpawned += inlayVegetation;
+        rocksSpawned += inlayRocks;
+
         Debug.Log(
             "[YQGeneratedWorldEnvironment] ORIGIN APPROACH DRESSED\n" +
             "Palette region: " + nearestRegion.displayName + "\n" +
-            "Visible trees: " + treesSpawned + "/22\n" +
-            "Vegetation: " + vegetationSpawned + "/72\n" +
-            "Rock outcrops: " + rocksSpawned + "/24");
+            "Visible trees: " + treesSpawned + "/32\n" +
+            "Vegetation: " + vegetationSpawned + "/96\n" +
+            "Rock outcrops: " + rocksSpawned + "/32");
 
         completed?.Invoke(treesSpawned, vegetationSpawned, rocksSpawned);
     }
@@ -5171,8 +5393,8 @@ public static class YQGeneratedWorldEnvironment
                         ResolveBiomeScatterMultiplier(
                             tileProfile,
                             false)),
-                    96,
-                    220);
+                    128,
+                    300);
 
             int visibleTreeTarget =
                 ResolveVisibleTreeTarget(
@@ -5372,8 +5594,8 @@ public static class YQGeneratedWorldEnvironment
                     multiplier) +
                 danger *
                 2,
-                48,
-                128);
+                72,
+                168);
     }
 
     private static int ResolveRockTarget(
@@ -5934,7 +6156,7 @@ public static class YQGeneratedWorldEnvironment
                 slot,
                 YQWorldAssetCatalog.SlotVegetation,
                 StringComparison.OrdinalIgnoreCase) &&
-            candidates.Count < 2 &&
+            candidates.Count < 4 &&
             ShouldUseFallbackUnderstory(
                 palette))
         {
