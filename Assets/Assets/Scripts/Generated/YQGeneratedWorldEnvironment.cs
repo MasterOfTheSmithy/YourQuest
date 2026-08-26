@@ -36,7 +36,7 @@ public static class YQGeneratedWorldEnvironment
      */
 
     private const int BaseVegetationPerRegion =
-        96;
+        128;
 
     private const int TerrainDetailResolution =
         256;
@@ -45,7 +45,7 @@ public static class YQGeneratedWorldEnvironment
         16;
 
     private const int MaximumTerrainTreeInstances =
-        1600;
+        2200;
 
     private const int MaximumTerrainTreePrototypes =
         16;
@@ -80,6 +80,15 @@ public static class YQGeneratedWorldEnvironment
         "Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/ThinTree.prefab"
     };
 
+    private static readonly string[] ApprovedFallbackUnderstoryPrefabs =
+    {
+        "Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab",
+        "Assets/YughuesFreeBushes2018/Prefabs/P_Bush02.prefab",
+        "Assets/YughuesFreeBushes2018/Prefabs/P_Bush03.prefab",
+        "Assets/YughuesFreeBushes2018/Prefabs/P_Bush04.prefab",
+        "Assets/YughuesFreeBushes2018/Prefabs/P_Bush05.prefab"
+    };
+
     private static readonly string[] ApprovedMacroWaterPrefabs =
     {
         "Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Water.prefab",
@@ -88,10 +97,10 @@ public static class YQGeneratedWorldEnvironment
     };
 
     private const int BaseRockScatterPerRegion =
-        24;
+        36;
 
     private const int BaseLandformsPerRegion =
-        5;
+        7;
 
     private const int BaseAmbientEncounterGroupsPerRegion =
         1;
@@ -4636,6 +4645,17 @@ public static class YQGeneratedWorldEnvironment
             parent,
             false);
 
+        uint wildernessSeedHash =
+            StableHash32(
+                YQGeneratedWorldTerrain.TerrainGenerationVersion +
+                "|" +
+                SafeText(
+                    plan.worldSeed,
+                    "yourquest_default_world"));
+        YQGeneratedWorldTilePlan wildernessTilePlan =
+            new YQGeneratedWorldTilePlan(
+                wildernessSeedHash);
+
         for (int regionIndex = 0;
              regionIndex < plan.regions.Count;
              regionIndex++)
@@ -4674,10 +4694,22 @@ public static class YQGeneratedWorldEnvironment
                         region,
                         terrain);
 
+            YQGeneratedWorldTileProfile tileProfile =
+                wildernessTilePlan.Sample(
+                    regionCenter.x,
+                    regionCenter.z);
+
             int vegetationTarget =
-                ResolveVegetationTarget(
-                    region,
-                    palette);
+                Mathf.Clamp(
+                    Mathf.RoundToInt(
+                        ResolveVegetationTarget(
+                            region,
+                            palette) *
+                        ResolveBiomeScatterMultiplier(
+                            tileProfile,
+                            false)),
+                    96,
+                    220);
 
             int visibleTreeTarget =
                 ResolveVisibleTreeTarget(
@@ -4685,9 +4717,16 @@ public static class YQGeneratedWorldEnvironment
                     palette);
 
             int rockTarget =
-                ResolveRockTarget(
-                    region,
-                    palette);
+                Mathf.Clamp(
+                    Mathf.RoundToInt(
+                        ResolveRockTarget(
+                            region,
+                            palette) *
+                        ResolveBiomeScatterMultiplier(
+                            tileProfile,
+                            true)),
+                    20,
+                    60);
 
             int visibleTreesSpawned = 0;
             yield return SpawnSmallScatterRoutine(
@@ -4923,7 +4962,56 @@ public static class YQGeneratedWorldEnvironment
                     multiplier) +
                 danger,
                 14,
-                38);
+                52);
+    }
+
+    private static float ResolveBiomeScatterMultiplier(
+        YQGeneratedWorldTileProfile profile,
+        bool rocks)
+    {
+        if (rocks)
+        {
+            // note: Geological dressing follows ruggedness and uplift, giving mountain provinces visible shelves and outcrops without scattering rocks through settlement roads.
+            return Mathf.Lerp(
+                    0.82f,
+                    1.38f,
+                    profile.Ruggedness) *
+                Mathf.Lerp(
+                    0.92f,
+                    1.12f,
+                    profile.MountainAffinity);
+        }
+
+        float biomeMultiplier;
+        switch (profile.Biome)
+        {
+            case YQGeneratedWorldBiomeKind.AncientWoodland:
+                biomeMultiplier = 1.4f;
+                break;
+
+            case YQGeneratedWorldBiomeKind.Wetland:
+                biomeMultiplier = 1.28f;
+                break;
+
+            case YQGeneratedWorldBiomeKind.Moorland:
+                biomeMultiplier = 1.18f;
+                break;
+
+            case YQGeneratedWorldBiomeKind.Highland:
+                biomeMultiplier = 0.92f;
+                break;
+
+            default:
+                biomeMultiplier = 1.08f;
+                break;
+        }
+
+        // note: Understory gets a small moisture bonus so open wet ground reads as alive even where canopy is intentionally sparse.
+        return biomeMultiplier *
+            Mathf.Lerp(
+                0.9f,
+                1.12f,
+                profile.Moisture);
     }
 
     private static IEnumerator SpawnSmallScatterRoutine(
@@ -5378,6 +5466,19 @@ public static class YQGeneratedWorldEnvironment
             slot,
             treesOnly);
 
+        if (!treesOnly &&
+            string.Equals(
+                slot,
+                YQWorldAssetCatalog.SlotVegetation,
+                StringComparison.OrdinalIgnoreCase) &&
+            candidates.Count < 2 &&
+            ShouldUseFallbackUnderstory(
+                palette))
+        {
+            AddApprovedFallbackUnderstoryReferences(
+                candidates);
+        }
+
         if (treesOnly &&
             string.Equals(
                 slot,
@@ -5580,6 +5681,73 @@ public static class YQGeneratedWorldEnvironment
         }
     }
 
+    private static bool ShouldUseFallbackUnderstory(
+        GeneratedRegionAssetPaletteRecord palette)
+    {
+        string style =
+            palette != null
+                ? SafeText(
+                    palette.styleKey,
+                    string.Empty)
+                : string.Empty;
+
+        return !ContainsAnySemantic(
+            style,
+            "desert",
+            "western",
+            "persepolis",
+            "badland",
+            "scifi",
+            "cyberpunk",
+            "container",
+            "hospital",
+            "sewer");
+    }
+
+    private static void AddApprovedFallbackUnderstoryReferences(
+        List<GeneratedAssetReferenceRecord> result)
+    {
+        if (result == null)
+            return;
+
+        for (int index = 0;
+             index < ApprovedFallbackUnderstoryPrefabs.Length;
+             index++)
+        {
+            // note: Bush fallback is used only when a curated palette has no valid low vegetation; it fills an authored gap without replacing an existing biome family.
+            AddUniqueSmallReference(
+                result,
+                new GeneratedAssetReferenceRecord
+                {
+                    assetKey = "approved_understory_bush_" + index,
+                    assetPath = ApprovedFallbackUnderstoryPrefabs[index],
+                    assetType = "prefab",
+                    slotTag = YQWorldAssetCatalog.SlotVegetation,
+                    weight = 1,
+                    scaleMin = 0.72f,
+                    scaleMax = 1.16f,
+                    footprintX = 3.5f,
+                    footprintZ = 3.5f,
+                    placementRule = "terrain_understory",
+                    rotationRule = "random_yaw",
+                    allowRepeat = true,
+                    blocksNav = false,
+                    notes = "Approved low-vegetation fallback for sparse palettes.",
+                    subTags = new List<string>
+                    {
+                        "bush",
+                        "understory",
+                        "material_repaired"
+                    },
+                    styleTags = new List<string>
+                    {
+                        "fantasy",
+                        "natural"
+                    }
+                });
+        }
+    }
+
     private static int ResolveVisibleTreeTarget(
         int vegetationTarget,
         GeneratedRegionAssetPaletteRecord palette)
@@ -5613,7 +5781,7 @@ public static class YQGeneratedWorldEnvironment
         return Mathf.Clamp(
             Mathf.RoundToInt(vegetationTarget * 0.34f),
             24,
-            42);
+            56);
     }
 
     private static bool ShouldSpawnVisibleTrees(
