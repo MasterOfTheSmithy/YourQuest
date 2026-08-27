@@ -373,6 +373,11 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         priority = YQLlmRequestPriority.StartupExclusive,
         // note: Keep JSON-mode transport enabled; the world validator remains the authority for canonical acceptance and optional voice repair.
         requireJson = true,
+        // note: Exact array counts are enforced during token generation so an undersized world cannot masquerade as a complete startup plan.
+        jsonSchema = YQLlmJsonSchema.BuildWorld(
+            GetStartupLlmRegionCount(),
+            GetStartupLlmSettlementCount(GetStartupLlmRegionCount()),
+            GetStartupLlmEncampmentCount(GetStartupLlmRegionCount())),
         // note: The world validator owns optional Goddess-prose repair before strict canonical world validation.
         deferJsonValidationToCaller = true,
         exclusiveOwner = InitialGenerationOwner,

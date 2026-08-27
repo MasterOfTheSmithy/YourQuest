@@ -79,6 +79,8 @@ public sealed class LLMClient : MonoBehaviour
         public Dictionary<string, object> optionsOverride;
         public LLMGenerationCategory category;
         public bool requireJson;
+        // note: Preserve the caller's schema with the queued request so retries constrain the identical canonical contract.
+        public Dictionary<string, object> jsonSchema;
         // note: Preserve JSON response formatting while allowing the owning domain validator to strip malformed optional prose.
         public bool deferJsonValidationToCaller;
         public int maxRetries;
@@ -244,6 +246,7 @@ public sealed class LLMClient : MonoBehaviour
             optionsOverride = request.optionsOverride,
             category = request.category,
             requireJson = request.requireJson,
+            jsonSchema = request.jsonSchema,
             deferJsonValidationToCaller = request.deferJsonValidationToCaller,
             maxRetries = request.maxRetries,
             attempt = 0,
@@ -665,7 +668,14 @@ public sealed class LLMClient : MonoBehaviour
             yield break;
         }
 
-        string json = BuildRequestJson(config, compiled.prompt, request.debugTag, options, profile, request.requireJson);
+        string json = BuildRequestJson(
+            config,
+            compiled.prompt,
+            request.debugTag,
+            options,
+            profile,
+            request.requireJson,
+            request.jsonSchema);
         float queueWait = Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt);
         float startedAt = Time.unscaledTime;
 
@@ -887,7 +897,8 @@ public sealed class LLMClient : MonoBehaviour
         string debugTag,
         Dictionary<string, object> options,
         LLMGenerationProfile profile,
-        bool forceJson)
+        bool forceJson,
+        Dictionary<string, object> jsonSchema)
     {
         bool jsonOutput = forceJson || RequiresJsonOutput(debugTag) || (profile != null && profile.preferJson);
 
@@ -931,8 +942,14 @@ public sealed class LLMClient : MonoBehaviour
 
             if (jsonOutput)
             {
-                // note: The chat endpoint treats this as a JSON preference; Unity still validates before commit.
+                // note: JSON-object mode is the compatibility fallback; an explicit schema below upgrades llama.cpp to grammar-constrained generation.
                 payload["response_format"] = new Dictionary<string, string> { { "type", "json_object" } };
+
+                if (jsonSchema != null && jsonSchema.Count > 0)
+                {
+                    // note: llama.cpp converts this per-request schema to GBNF, while the owning Unity validator still decides whether the content is semantically acceptable.
+                    payload["json_schema"] = jsonSchema;
+                }
             }
 
             return JsonConvert.SerializeObject(payload);

@@ -73,6 +73,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         priority = YQLlmRequestPriority.StartupExclusive,
         // note: Keep JSON-mode transport enabled; the origin validator remains the authority for canonical acceptance and optional voice repair.
         requireJson = true,
+        // note: Constrain the local model to the compact origin contract before the canonical domain validator evaluates its meaning.
+        jsonSchema = YQLlmJsonSchema.BuildOrigin(),
         // note: The origin validator can discard malformed optional Goddess prose without discarding valid canonical player identity.
         deferJsonValidationToCaller = true,
         maxRetries = 0,
