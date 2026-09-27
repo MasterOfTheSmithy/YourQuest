@@ -165,6 +165,14 @@ public class ProgressionThinkCycle : MonoBehaviour
             }
         }, result =>
         {
+            // note: Lifecycle terminal outcomes must not reach the progression applier or be converted into a replacement profile's decision.
+            if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted))
+            {
+                failStreak = 0;
+                return;
+            }
             // note: The decision applier runs only on a successful normalized JSON object.
             string raw = result.success ? result.text : null;
             if (string.IsNullOrWhiteSpace(raw))

@@ -8,7 +8,18 @@ using UnityEngine;
 [Serializable]
 public class PlayerState
 {
-    public int schemaVersion = 6;
+    // note: New player saves use the schema that includes accepted proposal provenance fields.
+    public int schemaVersion = YQStateContract.CurrentStateSchemaVersion;
+
+    // note: These fields make PlayerState the canonical persisted identity and mutation authority for the active player.
+    public long stateRevision;
+    public List<YQEntityIdentityRecord> identityRecords = new List<YQEntityIdentityRecord>();
+    public List<YQAcceptedContentReference> acceptedContent = new List<YQAcceptedContentReference>();
+    public List<YQEventEnvelope> eventLog = new List<YQEventEnvelope>();
+    public List<string> appliedMutationCommitKeys = new List<string>();
+    public Vector3 logicalPosition = Vector3.zero;
+    public Vector3 renderOrigin = Vector3.zero;
+    public YQPlayerCollisionContract playerCollisionContract = new YQPlayerCollisionContract();
 
     public string playerId = "player";
     public string displayName = "The Player";
@@ -77,6 +88,8 @@ public class PlayerState
     public long lastUpdatedUnix;
     public List<string> behaviorLedger = new List<string>();
     public Dictionary<string, float> behaviorCounters = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+    // note: Persist a short Goddess memory so her voice remains one character across reloads without turning presentation into canonical world facts.
+    public List<string> goddessVoiceMemory = new List<string>();
     public long lastLedgerRollupUnix = 0;
 
     public long nextSkillEligibleUnix = 0;
@@ -100,10 +113,16 @@ public class PlayerState
         equippedItemBySlot ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         reputation ??= new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         behaviorLedger ??= new List<string>();
+        goddessVoiceMemory ??= new List<string>();
         originQuestionnaireAnswers ??= new List<string>();
         identityKeywords ??= new List<string>();
         generatedOrigin ??= new GeneratedOriginRecord();
         behaviorCounters ??= new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        identityRecords ??= new List<YQEntityIdentityRecord>();
+        acceptedContent ??= new List<YQAcceptedContentReference>();
+        eventLog ??= new List<YQEventEnvelope>();
+        appliedMutationCommitKeys ??= new List<string>();
+        playerCollisionContract ??= new YQPlayerCollisionContract();
         stats ??= new StatBlock();
         EnsureQuestObjectiveCollections();
         EnsureActiveQuestSelection();
@@ -124,6 +143,47 @@ public class PlayerState
     public void Touch()
     {
         lastUpdatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        stateRevision = Math.Max(0L, stateRevision) + 1L;
+    }
+
+    public bool TryApplyMutationCommit(string commitKey, long expectedRevision, out YQMutationReceipt receipt)
+    {
+        EnsureCollections();
+        receipt = new YQMutationReceipt { commitKey = commitKey ?? string.Empty, stateRevision = stateRevision, appliedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds() };
+        if (string.IsNullOrWhiteSpace(commitKey))
+        {
+            receipt.message = "Mutation commit key is required.";
+            return false;
+        }
+        if (appliedMutationCommitKeys.Contains(commitKey))
+        {
+            receipt.message = "Mutation commit was already applied.";
+            return false;
+        }
+        if (expectedRevision >= 0 && expectedRevision != stateRevision)
+        {
+            receipt.message = "Mutation result is stale for the current state revision.";
+            return false;
+        }
+        appliedMutationCommitKeys.Add(commitKey);
+        Touch();
+        receipt.stateRevision = stateRevision;
+        receipt.applied = true;
+        receipt.message = "Mutation commit accepted.";
+        return true;
+    }
+
+    public void AppendEventEnvelope(YQEventEnvelope envelope)
+    {
+        if (envelope == null) return;
+        EnsureCollections();
+        envelope.EnsureCollections();
+        if (string.IsNullOrWhiteSpace(envelope.eventId)) envelope.eventId = Guid.NewGuid().ToString("N");
+        if (string.IsNullOrWhiteSpace(envelope.actorId)) envelope.actorId = playerId;
+        envelope.stateRevision = stateRevision;
+        envelope.occurredUnix = envelope.occurredUnix > 0 ? envelope.occurredUnix : DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        eventLog.Add(envelope);
+        Touch();
     }
 
     public void AddLedgerLine(string line, int maxLines = 80)
@@ -1511,6 +1571,8 @@ public class QuestObjectiveRecord
 [Serializable]
 public class GeneratedOriginRecord
 {
+    // note: Origin identity is assigned once and survives display-name or prose changes.
+    public string originId;
     public string source;
     public string seed;
     public string mode;

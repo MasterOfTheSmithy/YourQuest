@@ -25,6 +25,10 @@ public sealed class YQReviewedSemanticZoneRecord
     public List<string> semanticTags = new List<string>();
     public List<string> connectionSocketPaths = new List<string>();
     public List<string> streamingCellIds = new List<string>();
+
+    // note: Functional proof belongs to an exact selected cell, not every cell sharing the district's descriptive tags; legacy records remain unreviewed by default.
+    public List<YQReviewedCellFunctionContractV2> cellContractsV2 =
+        new List<YQReviewedCellFunctionContractV2>();
 }
 
 public sealed class YQReviewedSemanticSiteManifest : ScriptableObject

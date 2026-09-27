@@ -81,10 +81,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         state.EnsureCollections();
         world?.EnsureCollections();
         YQGeneratedContentCuration.CleanExistingState(state);
-
         bool originComplete = HasCompletedOrigin(state);
-        if (originComplete && state.currency <= 0)
-            state.currency = Mathf.Max(25, library != null ? library.starterCurrency : 25);
 
         RefineExistingGeneratedState(state);
         EnsureInventoryModelKeys(state);
@@ -116,6 +113,12 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         string direction = NormalizeOriginDirection(directionKey);
         string joinedTags = tags != null ? string.Join("|", tags) : string.Empty;
         string seed = "origin:" + state.playerId + ":" + direction + ":" + (stimulus ?? string.Empty) + ":" + joinedTags;
+        string grantKey = "origin-loadout:" + StableHash(seed).ToString("x8");
+        if (state.appliedMutationCommitKeys.Contains(grantKey))
+        {
+            // note: An accepted origin grant is replay-safe; reload and normalization must never mint a second loadout or currency award.
+            return granted;
+        }
         string[] slots = ResolveOriginLoadoutSlots(direction, seed, generatedLoadout);
         int level = Mathf.Max(1, state.level);
 
@@ -143,6 +146,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         state.IncCounter("origin:loadout_items", granted.Count);
         state.AddLedgerLine("Starting equipment manifested from the player's stated life direction: " + direction + ".");
         EnsureInventoryModelKeys(state);
+        state.TryApplyMutationCommit(grantKey, -1, out _);
         return granted;
     }
 

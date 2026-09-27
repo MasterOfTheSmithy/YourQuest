@@ -22,6 +22,7 @@ public sealed class YQInvestorEnemy : MonoBehaviour
     public float evadeCooldown = 1.25f;
     [Range(0f, 1f)] public float evadeChanceOnHit = 0.38f;
     public bool allowFlight;
+    public bool useBurrowMovementPresentation;
 
     private float _health;
     private float _nextAttack;
@@ -38,10 +39,9 @@ public sealed class YQInvestorEnemy : MonoBehaviour
     private EntityInfo _entityInfo;
     private Rigidbody _body;
     private Animator _animator;
-    private Renderer[] _modelRenderers;
     private GameObject _burrowSurfaceVfx;
     private bool _usesBurrowMovement;
-    private bool _burrowHidden;
+    private bool _burrowPresentationActive;
     private bool _lastMoving;
 
     public void Initialize(YQInvestorEnemySpawner spawner)
@@ -74,8 +74,8 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         if (useWispVisual && !hasImportedModel && GetComponent<YQEchoFlameWispVisual>() == null)
             gameObject.AddComponent<YQEchoFlameWispVisual>();
 
-        _modelRenderers = ResolveModelRenderers();
-        _usesBurrowMovement = hasImportedModel && !HasMovementAnimationSupport();
+        // note: Missing locomotion animation is not evidence that a creature burrows; only an explicit generated/prefab contract may enable the presentation.
+        _usesBurrowMovement = hasImportedModel && useBurrowMovementPresentation;
         _strafeSign = Random.value < 0.5f ? -1f : 1f;
         _nextSpell = Time.time + Random.Range(0.85f, 2.4f);
         _nextEvade = Time.time + Random.Range(0.45f, 1.25f);
@@ -145,6 +145,9 @@ public sealed class YQInvestorEnemy : MonoBehaviour
 
     public void ReceiveHit(int amount, GameObject source)
     {
+        // note: Destroy is deferred until frame end; simultaneous attacks must not award death XP, loot and quest credit more than once.
+        if (_health <= 0f)
+            return;
         _health -= Mathf.Max(1, amount);
         _staggerUntil = Time.time + 0.14f;
         TriggerAnimatorHit();
@@ -590,22 +593,6 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         return false;
     }
 
-    private bool HasMovementAnimationSupport()
-    {
-        if (_animator == null || !_animator.isActiveAndEnabled || _animator.runtimeAnimatorController == null)
-            return false;
-
-        return HasAnimatorParameter("Speed", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("speed", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("MoveSpeed", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("moveSpeed", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("Locomotion", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("locomotion", AnimatorControllerParameterType.Float) ||
-               HasAnimatorParameter("Moving", AnimatorControllerParameterType.Bool) ||
-               HasAnimatorParameter("moving", AnimatorControllerParameterType.Bool) ||
-               HasAnimatorState("Walk", "walk", "Run", "run", "Locomotion", "locomotion", "Crawl", "crawl");
-    }
-
     private bool PlayAnimatorState(params string[] stateNames)
     {
         if (_animator == null || !_animator.isActiveAndEnabled || _animator.runtimeAnimatorController == null || stateNames == null)
@@ -636,43 +623,6 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         return false;
     }
 
-    private bool HasAnimatorState(params string[] stateNames)
-    {
-        if (_animator == null || !_animator.isActiveAndEnabled || _animator.runtimeAnimatorController == null || stateNames == null)
-            return false;
-
-        const int layer = 0;
-        for (int i = 0; i < stateNames.Length; i++)
-        {
-            string stateName = stateNames[i];
-            if (string.IsNullOrWhiteSpace(stateName))
-                continue;
-            if (_animator.HasState(layer, Animator.StringToHash(stateName)) ||
-                _animator.HasState(layer, Animator.StringToHash("Base Layer." + stateName)))
-                return true;
-        }
-
-        return false;
-    }
-
-    private Renderer[] ResolveModelRenderers()
-    {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
-        if (renderers == null)
-            return System.Array.Empty<Renderer>();
-
-        System.Collections.Generic.List<Renderer> result = new System.Collections.Generic.List<Renderer>(renderers.Length);
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            Renderer renderer = renderers[i];
-            if (renderer == null || renderer is ParticleSystemRenderer)
-                continue;
-            result.Add(renderer);
-        }
-
-        return result.ToArray();
-    }
-
     private void SetBurrowMovementActive(bool active)
     {
         if (!_usesBurrowMovement)
@@ -682,22 +632,15 @@ public sealed class YQInvestorEnemy : MonoBehaviour
             return;
         }
 
-        if (_burrowHidden != active)
-        {
-            _burrowHidden = active;
-            for (int i = 0; i < _modelRenderers.Length; i++)
-            {
-                if (_modelRenderers[i] != null)
-                    _modelRenderers[i].enabled = !active;
-            }
-        }
+        // note: Burrow movement supplements the enemy with a surface cue; it never disables combat renderers while AI, attacks, and hit reception remain active.
+        _burrowPresentationActive = active;
 
         EnsureBurrowSurfaceVfx();
         if (_burrowSurfaceVfx == null)
             return;
 
         _burrowSurfaceVfx.transform.position = transform.position + Vector3.up * 0.08f;
-        _burrowSurfaceVfx.SetActive(active);
+        _burrowSurfaceVfx.SetActive(_burrowPresentationActive);
     }
 
     private void EnsureBurrowSurfaceVfx()

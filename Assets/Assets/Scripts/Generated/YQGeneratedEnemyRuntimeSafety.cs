@@ -8,7 +8,10 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         0.25f;
 
     private const float AudioCheckInterval =
-    2.00f;
+        2.00f;
+
+    private const float VisualCheckInterval =
+        0.40f;
 
     private const float GroundProbeAbove =
         8.0f;
@@ -52,9 +55,14 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
     private float _lastSafeRootY;
 
     private bool _hasSafeGround;
+    private Vector3 _lastSafeBodyPosition;
+    private bool _hasSafeBodyPosition;
     private AudioSource[] _cachedAudioSources;
     private Renderer[] _cachedVisualRenderers;
+    private bool[] _baselineRendererEnabled;
     private bool _explicitlySuspended;
+    private float _nextVisualCheckTime;
+    private bool _reportedVisualRecovery;
 
     private float _nextLocomotionAudioCheckTime;
 
@@ -170,6 +178,22 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
                 SuppressFalseLocomotionAudio();
             }
         }
+
+        if (Time.unscaledTime >= _nextVisualCheckTime)
+        {
+            _nextVisualCheckTime = Time.unscaledTime + VisualCheckInterval;
+            int restored = RestoreBaselineRendererVisibility(
+                _cachedVisualRenderers,
+                _baselineRendererEnabled);
+            if (restored > 0 && !_reportedVisualRecovery)
+            {
+                // note: Keep this diagnostic one-shot per hostile so a defective imported animation cannot flood the console while the visible combat body is recovered.
+                Debug.LogWarning(
+                    "[YQGeneratedEnemyRuntimeSafety] Restored " + restored +
+                    " unexpectedly disabled combat renderer(s) on " + gameObject.name + ".");
+                _reportedVisualRecovery = true;
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -197,6 +221,7 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
             GroundCheckInterval;
 
         MaintainGroundSafety();
+        MaintainWallSafety();
     }
 
     // ============================================================
@@ -324,6 +349,15 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         _cachedVisualRenderers =
             GetComponentsInChildren<Renderer>(
                 true);
+        _baselineRendererEnabled = new bool[_cachedVisualRenderers.Length];
+        for (int rendererIndex = 0;
+             rendererIndex < _cachedVisualRenderers.Length;
+             rendererIndex++)
+        {
+            // note: Only renderers intentionally enabled when the generated enemy becomes live are eligible for recovery; hidden variants remain hidden.
+            _baselineRendererEnabled[rendererIndex] =
+                IsGroundVisualRenderer(_cachedVisualRenderers[rendererIndex]);
+        }
 
         if (_body == null)
         {
@@ -348,6 +382,10 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         _lastSafeRootY =
             transform.position.y;
 
+        // note: The last accepted rigidbody pose lets the guard reject a later movement step that crosses a generated building wall.
+        _lastSafeBodyPosition = _body != null ? _body.position : transform.position;
+        _hasSafeBodyPosition = true;
+
         float phase = StablePhase01(GetInstanceID());
         // note: Generated enemies are commonly spawned in batches; deterministic phasing distributes their recovery raycasts and audio checks across later frames.
         _nextGroundCheckTime = Time.unscaledTime +
@@ -355,9 +393,59 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         _nextAudioCheckTime = Time.unscaledTime +
             phase * AudioCheckInterval;
         _nextLocomotionAudioCheckTime = _nextAudioCheckTime;
+        _nextVisualCheckTime = Time.unscaledTime +
+            phase * VisualCheckInterval;
 
         _initialized =
             true;
+    }
+
+    internal static int RestoreBaselineRendererVisibility(
+        Renderer[] renderers,
+        bool[] baselineEnabled)
+    {
+        if (renderers == null || baselineEnabled == null)
+            return 0;
+
+        int count = Mathf.Min(renderers.Length, baselineEnabled.Length);
+        bool hasRecoverableVisual = false;
+        bool anyEnabled = false;
+        for (int index = 0; index < count; index++)
+        {
+            Renderer renderer = renderers[index];
+            if (!baselineEnabled[index] || renderer == null ||
+                !renderer.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            hasRecoverableVisual = true;
+            if (renderer.enabled)
+            {
+                anyEnabled = true;
+                break;
+            }
+        }
+
+        if (!hasRecoverableVisual || anyEnabled)
+            return 0;
+
+        int restored = 0;
+        for (int index = 0; index < count; index++)
+        {
+            Renderer renderer = renderers[index];
+            if (!baselineEnabled[index] || renderer == null ||
+                !renderer.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            renderer.enabled = true;
+            restored++;
+        }
+
+        // note: Recovery is all-or-nothing and only runs when every originally visible combat renderer was disabled, preserving ordinary authored renderer/LOD selection.
+        return restored;
     }
 
     private static float StablePhase01(int instanceId)
@@ -446,19 +534,28 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         Collider rootCollider =
             GetComponent<Collider>();
 
-        if (rootCollider != null &&
-            rootCollider.enabled &&
-            !rootCollider.isTrigger)
-        {
-            return;
-        }
-
         Bounds visualBounds;
 
         if (!TryGetVisualBounds(
                 out visualBounds))
         {
             return;
+        }
+
+        if (rootCollider != null &&
+            rootCollider.enabled &&
+            !rootCollider.isTrigger &&
+            IsColliderEnvelopeCredible(rootCollider.bounds, visualBounds))
+        {
+            return;
+        }
+
+        if (rootCollider != null &&
+            rootCollider.enabled &&
+            !rootCollider.isTrigger)
+        {
+            // note: Imported root collision that substantially exceeds the visible creature creates invisible combat walls; replace it with the measured safety capsule below.
+            rootCollider.enabled = false;
         }
 
         _safetyCollider =
@@ -548,6 +645,32 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
 
         _safetyCollider.enabled =
             true;
+    }
+
+    internal static bool IsColliderEnvelopeCredible(
+        Bounds colliderBounds,
+        Bounds visualBounds)
+    {
+        if (visualBounds.size.x <= 0.01f ||
+            visualBounds.size.y <= 0.01f ||
+            visualBounds.size.z <= 0.01f)
+        {
+            return false;
+        }
+
+        bool credibleX = colliderBounds.size.x <= Mathf.Max(
+            visualBounds.size.x * 1.75f,
+            visualBounds.size.x + 0.8f);
+        bool credibleY = colliderBounds.size.y <= Mathf.Max(
+            visualBounds.size.y * 1.75f,
+            visualBounds.size.y + 1.0f);
+        bool credibleZ = colliderBounds.size.z <= Mathf.Max(
+            visualBounds.size.z * 1.75f,
+            visualBounds.size.z + 0.8f);
+        bool overlapsVisual = colliderBounds.Intersects(visualBounds);
+
+        // note: Simplified enemy collision may exceed limbs and weapons, but it must remain close to and overlap the visible combat body.
+        return credibleX && credibleY && credibleZ && overlapsVisual;
     }
 
     // ============================================================
@@ -830,6 +953,42 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
             position);
 
         ZeroVerticalVelocity();
+    }
+
+    private void MaintainWallSafety()
+    {
+        if (!_hasSafeBodyPosition || _body == null || _safetyCollider == null ||
+            !_safetyCollider.enabled || UsesSuspendedPlacement())
+            return;
+
+        Vector3 current = _body.position;
+        Vector3 delta = current - _lastSafeBodyPosition;
+        float distance = delta.magnitude;
+        if (distance <= 0.01f)
+            return;
+
+        Bounds bounds = _safetyCollider.bounds;
+        float radius = Mathf.Max(0.08f, Mathf.Min(bounds.extents.x, bounds.extents.z));
+        float half = Mathf.Max(0f, bounds.extents.y - radius);
+        Vector3 bottom = bounds.center + Vector3.down * half;
+        Vector3 top = bounds.center + Vector3.up * half;
+        Vector3 direction = delta / distance;
+        if (Physics.CapsuleCast(bottom, top, radius, direction, out RaycastHit hit,
+                distance + 0.03f, ~0, QueryTriggerInteraction.Ignore) &&
+            hit.collider != null &&
+            !(hit.collider is TerrainCollider) &&
+            !hit.collider.transform.IsChildOf(transform))
+        {
+            // note: Revert only the blocked translation and preserve tangential velocity, preventing enemies from tunnelling through walls while still allowing ordinary sliding.
+            Vector3 safe = _lastSafeBodyPosition + direction * Mathf.Max(0f, hit.distance - 0.04f);
+            _body.position = safe;
+            // note: Kinematic imported hostiles are moved by their transform; only dynamic bodies accept a velocity correction.
+            if (!_body.isKinematic)
+                _body.linearVelocity = Vector3.ProjectOnPlane(_body.linearVelocity, hit.normal);
+            return;
+        }
+
+        _lastSafeBodyPosition = current;
     }
 
     private void SetRootPosition(

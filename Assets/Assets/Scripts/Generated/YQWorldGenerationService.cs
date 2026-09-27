@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -36,6 +38,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
     _requestInFlight;
     private bool _backgroundLoreRequestInFlight;
     private float _nextBackgroundLoreRefreshTime;
+    private Coroutine _v2ShadowCompileCoroutine;
+    private GeneratedWorldPlanRecord _v2ShadowSourcePlan;
     private const string InitialGenerationOwner =
     "InitialWorldGeneration";
 
@@ -238,6 +242,14 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             result =>
             {
                 // note: Rejecting malformed model output keeps accepted world canon unchanged.
+                if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                    result.outcome == YQLlmTerminalOutcome.Superseded ||
+                    result.outcome == YQLlmTerminalOutcome.Evicted))
+                {
+                    // note: Lifecycle terminal results cannot apply background lore to a replacement world.
+                    _backgroundLoreRequestInFlight = false;
+                    return;
+                }
                 string raw = result.success ? result.text : null;
                 _backgroundLoreRequestInFlight =
                     false;
@@ -295,6 +307,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         if (requestLlmIfFallback && ShouldRequestLlmPlan(world.generatedWorldPlan))
             TryRequestWorldPlan(state, world, null);
 
+        // note: Existing saves receive the new blueprint only after the loading lock releases; accepted V1 remains live meanwhile.
+        ScheduleV2ShadowCompilation(world.generatedWorldPlan, world);
         return world.generatedWorldPlan;
     }
 
@@ -353,11 +367,15 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             // note: Startup world plans need complete compact JSON, not long prose that overloads local VRAM.
             // note: Compact canonical records leave a reliable completion margin without monopolizing the local model for several minutes.
             { "num_predict", Mathf.Clamp(worldNumPredict, 1800, 2200) },
-            { "temperature", Mathf.Clamp01(worldTemperature) },
-            { "top_p", 0.84f },
-            { "repeat_penalty", 1.05f },
-            // note: World authoring may be slow, but it must fail back to the deterministic scaffold instead of freezing the startup lock.
-            { "request_timeout_seconds", 90 }
+            // note: The JSON grammar owns structural reliability, so the prose fields receive enough sampling freedom to vary cadence and dry observations across new worlds.
+            { "temperature", Mathf.Clamp(worldTemperature, 0.50f, 0.72f) },
+            { "top_p", 0.92f },
+            // note: New profile-derived world seeds receive distinct sampling without regenerating accepted saves.
+            { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(seed) },
+            { "repeat_penalty", 1.14f },
+            { "presence_penalty", 0.22f },
+            // note: A healthy compact world plan completes well inside one minute; after that the valid deterministic scaffold is safer than holding the loading screen.
+            { "request_timeout_seconds", 60 }
         };
 
         _requestInFlight = true;
@@ -387,6 +405,16 @@ public sealed class YQWorldGenerationService : MonoBehaviour
     },
     result =>
     {
+        // note: Success, timeout, and malformed output all complete the optional authored-world phase; the accepted plan or deterministic scaffold can now proceed to construction.
+        if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+            result.outcome == YQLlmTerminalOutcome.Superseded ||
+            result.outcome == YQLlmTerminalOutcome.Evicted))
+        {
+            // note: A profile/lifecycle terminal result is reported to the owning service but cannot advance or mutate a replacement world.
+            _requestInFlight = false;
+            return;
+        }
+        YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
         // note: Only a successfully normalized object reaches the deterministic plan parser.
         string raw = result.success ? result.text : null;
         _requestInFlight = false;
@@ -450,7 +478,42 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                         ? targetWorld.generatedWorldPlan
                         : null);
 
-                return;
+            return;
+        }
+
+        YQAcceptedProposal acceptedProposal;
+        if (!YQContentProposalBoundary.TryPrepare(
+            raw,
+            "llm_world_plan_v1",
+            prompt,
+            "world_plan_v1",
+            root => YQContentProposalBoundary.ValidateRequiredProperties(root, "schemaVersion", "source", "worldSeed", "summary", "regions", "settlements", "encampments", "routes"),
+            null,
+            root => root["regions"] is JArray && root["settlements"] is JArray && root["encampments"] is JArray && root["routes"] is JArray,
+            out acceptedProposal,
+            out string proposalError))
+        {
+            LastWorldGenerationMessage = "World proposal rejected at the generic commit boundary: " + proposalError;
+            Debug.LogWarning("[YQWorldGenerationService] " + LastWorldGenerationMessage);
+            onReady?.Invoke(targetWorld != null ? targetWorld.generatedWorldPlan : null);
+            return;
+        }
+
+        YQMutationReceipt proposalReceipt = null;
+        bool proposalCommitted = targetWorld != null && YQContentProposalBoundary.TryCommit(
+            targetWorld,
+            "world-plan-proposal:" + seed,
+            YQStableEntityKind.World,
+            acceptedProposal,
+            result.worldStateRevision,
+            out proposalReceipt);
+        if (!proposalCommitted)
+        {
+            LastWorldGenerationMessage = "World proposal could not be committed: " +
+                (proposalReceipt != null ? proposalReceipt.message : "world state was unavailable");
+            Debug.LogWarning("[YQWorldGenerationService] " + LastWorldGenerationMessage);
+            onReady?.Invoke(targetWorld != null ? targetWorld.generatedWorldPlan : null);
+            return;
         }
 
         ApplyPlanToWorldState(
@@ -709,7 +772,10 @@ targetWorld);
             plan.factions.Add(faction);
         }
 
-        return NormalizePlan(plan, plan.worldSeed, string.Empty);
+        plan = NormalizePlan(plan, plan.worldSeed, string.Empty);
+        // note: Only fresh generated output opts into versioned cell/street geometry; loading accepted saves never runs this switch.
+        YQProceduralSettlementLayout.EnableNewWorld(plan);
+        return plan;
     }
 
     private bool TryParseWorldPlan(
@@ -790,6 +856,9 @@ targetWorld);
             root.Remove(
                 "goddessVoice");
 
+            // note: Model-authored semantics may request cells but cannot smuggle accepted Unity bindings or geometry into a fresh world.
+            RemoveGeneratedRuntimeAuthority(root);
+
             string canonicalJson =
                 root.ToString(
                     Formatting.None);
@@ -812,6 +881,9 @@ targetWorld);
                     plan,
                     seed,
                     canonicalJson);
+
+            // note: Geometry authority is engine-generated, not trusted from the model's JSON.
+            YQProceduralSettlementLayout.EnableNewWorld(plan);
 
 
             /*
@@ -926,9 +998,14 @@ targetWorld);
  * Only accept the presentation bundle AFTER the canonical world
  * itself has passed every structural and uniqueness validator.
  */
+            goddessVoice = YQGoddessGenerationDialogue.EnsureWorldVoice(
+                goddessVoice,
+                plan,
+                PlayerStateManager.Instance != null
+                    ? PlayerStateManager.Instance.state
+                    : null);
             YQGoddessGenerationDialogue
-                .SetWorldVoice(
-                    goddessVoice);
+                .SetWorldVoice(goddessVoice);
 
             return true;
             
@@ -1467,6 +1544,9 @@ targetWorld);
             TrimList(region.verboseInternals, 8, 220);
         }
 
+        // note: Deterministic biome coverage keeps finite worlds compositionally complete when an LLM plan omits an arid or alpine region.
+        EnsureBiomeCoverage(plan, seed);
+
         for (int i = plan.settlements.Count - 1; i >= 0; i--)
         {
             GeneratedSettlementRecord settlement = plan.settlements[i];
@@ -1478,6 +1558,7 @@ targetWorld);
 
             settlement.EnsureCollections();
             settlement.displayName = TrimTo(Safe(settlement.displayName, "Generated Settlement " + (i + 1)), 72);
+            settlement.cellRoleIntents = YQCompiledWorldSiteBindingService.NormalizeCellRoleIntents(settlement.cellRoleIntents);
             settlement.settlementId = SafeId(settlement.settlementId, "settlement", settlement.displayName, seed + ":settlement:" + i);
             settlement.regionId = SafeRegionId(plan, settlement.regionId, i);
             settlement.kind = NormalizeKey(Safe(settlement.kind, "settlement"));
@@ -1515,6 +1596,7 @@ targetWorld);
 
             encampment.EnsureCollections();
             encampment.displayName = TrimTo(Safe(encampment.displayName, "Generated Enemy Site " + (i + 1)), 72);
+            encampment.cellRoleIntents = YQCompiledWorldSiteBindingService.NormalizeCellRoleIntents(encampment.cellRoleIntents);
             encampment.encampmentId = SafeId(encampment.encampmentId, "encampment", encampment.displayName, seed + ":encampment:" + i);
             encampment.regionId = SafeRegionId(plan, encampment.regionId, i);
             encampment.kind = NormalizeKey(Safe(encampment.kind, "site"));
@@ -1616,6 +1698,9 @@ targetWorld);
             AddWorldQuestHooksToLocation(plan, poi.poiId, poi.questHookIds);
         }
 
+        // note: Keep every generated world visually legible by reserving a small deterministic set of reviewed Nordic wayhouse POIs when the LLM plan supplied too few landmarks.
+        EnsureCuratedNordicPointsOfInterest(plan, seed);
+
         for (int i = plan.worldQuestHooks.Count - 1; i >= 0; i--)
         {
             GeneratedWorldQuestHookRecord hook = plan.worldQuestHooks[i];
@@ -1660,11 +1745,84 @@ targetWorld);
             TrimList(item.tags, 8, 50);
         }
 
+        // note: Semantic normalization is converted into persisted causal geography before any runtime builder can request coordinates.
+        YQGeneratedWorldSpatialPlanner.EnsureSpatialPlan(plan);
         YQWorldAssetCatalog.EnsureAssetPalettes(plan);
         return plan;
     }
 
-    private static void ApplyPlanToWorldState(GeneratedWorldPlanRecord plan, WorldState world)
+    private static void EnsureBiomeCoverage(GeneratedWorldPlanRecord plan, string seed)
+    {
+        if (plan == null || plan.regions == null || plan.regions.Count == 0)
+            return;
+
+        bool hasArid = false;
+        bool hasAlpine = false;
+        bool hasTemperate = false;
+        for (int i = 0; i < plan.regions.Count; i++)
+        {
+            GeneratedRegionRecord region = plan.regions[i];
+            if (region == null)
+                continue;
+
+            string text = (region.displayName + " " + region.terrainProfile + " " + region.climateProfile + " " +
+                (region.biomeTags != null ? string.Join(" ", region.biomeTags) : string.Empty)).ToLowerInvariant();
+            hasArid |= ContainsBiomeKeyword(text, "desert", "arid", "badland", "wasteland", "sand");
+            hasAlpine |= ContainsBiomeKeyword(text, "snow", "snowline", "tundra", "alpine", "frost", "ice");
+            hasTemperate |= ContainsBiomeKeyword(text, "forest", "woodland", "temperate", "meadow", "green", "grass");
+        }
+
+        // note: Existing authored region styles remain authoritative; only missing semantic coverage is appended to stable regions.
+        if (!hasArid)
+        {
+            int index = PositiveHash((seed ?? string.Empty) + ":biome:arid") % plan.regions.Count;
+            GeneratedRegionRecord region = plan.regions[index];
+            AddUnique(region.biomeTags, "desert");
+            region.terrainProfile = TrimTo(region.terrainProfile + "; arid basin, sun-baked soil, and sparse scrub", 160);
+            region.climateProfile = TrimTo(region.climateProfile + "; hot and dry seasonal winds", 160);
+        }
+
+        if (!hasAlpine)
+        {
+            int index = PositiveHash((seed ?? string.Empty) + ":biome:alpine") % plan.regions.Count;
+            if (plan.regions.Count > 1)
+            {
+                int aridIndex = PositiveHash((seed ?? string.Empty) + ":biome:arid") % plan.regions.Count;
+                if (index == aridIndex)
+                    index = (index + 1) % plan.regions.Count;
+            }
+
+            GeneratedRegionRecord region = plan.regions[index];
+            AddUnique(region.biomeTags, "snowline");
+            region.terrainProfile = TrimTo(region.terrainProfile + "; alpine slopes, snowfields, and cold stone", 160);
+            region.climateProfile = TrimTo(region.climateProfile + "; freezing nights and persistent snowfall", 160);
+        }
+
+        if (!hasTemperate)
+        {
+            int index = PositiveHash((seed ?? string.Empty) + ":biome:temperate") % plan.regions.Count;
+            GeneratedRegionRecord region = plan.regions[index];
+            AddUnique(region.biomeTags, "forest");
+            region.terrainProfile = TrimTo(region.terrainProfile + "; temperate forest floor and meadow clearings", 160);
+            region.climateProfile = TrimTo(region.climateProfile + "; temperate rainfall and mild seasons", 160);
+        }
+    }
+
+    private static bool ContainsBiomeKeyword(string text, params string[] keywords)
+    {
+        if (string.IsNullOrWhiteSpace(text) || keywords == null)
+            return false;
+
+        for (int i = 0; i < keywords.Length; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(keywords[i]) && text.IndexOf(keywords[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void ApplyPlanToWorldState(GeneratedWorldPlanRecord plan, WorldState world)
     {
         if (plan == null || world == null)
             return;
@@ -1677,6 +1835,12 @@ targetWorld);
         world.globalFlags["worldplan:encampments"] = plan.encampments.Count;
         world.globalFlags["worldplan:asset_palettes"] = plan.assetPalettes != null ? plan.assetPalettes.Count : 0f;
         world.globalFlags["worldplan:source_is_llm"] = IsLlmPlan(plan) ? 1f : 0f;
+        GeneratedSpatialWorldPlanRecord spatial =
+            YQGeneratedWorldSpatialPlanner.EnsureSpatialPlan(plan);
+        world.globalFlags["worldplan:spatial_locations"] = spatial.locations.Count;
+        world.globalFlags["worldplan:spatial_routes"] = spatial.routes.Count;
+        world.globalFlags["worldplan:unreachable_locations"] = spatial.metrics.unreachableLocationCount;
+        world.globalFlags["worldplan:traversable_fraction"] = spatial.metrics.estimatedTraversableFraction;
         world.AppendCanon("Generated world plan active for seed " + plan.worldSeed + ": " + plan.summary, 64);
 
         for (int i = 0; i < plan.regions.Count; i++)
@@ -1758,6 +1922,162 @@ targetWorld);
 
         world.lastLLMRationale = plan.source + ": " + plan.designNotes;
         world.TouchNow();
+
+        // note: Semantic application is synchronous and cheap; the heavier V2 spatial shadow is explicitly deferred out of locked loading.
+        ScheduleV2ShadowCompilation(plan, world);
+    }
+
+    private void ScheduleV2ShadowCompilation(
+        GeneratedWorldPlanRecord plan,
+        WorldState world)
+    {
+        if (!YQWorldGenerationArchitecture.RunsV2Shadow ||
+            plan == null ||
+            world == null)
+        {
+            return;
+        }
+
+        if (YQSpatialPlanVersionRouter.TryValidateAcceptedV2(
+                plan,
+                out string existingFailure))
+        {
+            ApplyV2ShadowMetrics(world, plan.spatialPlanV2);
+            return;
+        }
+
+        // note: Stronger validation must not turn an accepted saved world into an automatic regeneration request. Preserve it for explicit repair review.
+        if (plan.spatialPlanV2?.acceptanceState == GeneratedSpatialPlanAcceptanceState.Accepted)
+        {
+            Debug.LogWarning("[YQWorldGenerationService] Accepted V2 snapshot retained unchanged; explicit repair review required: " + existingFailure);
+            return;
+        }
+
+        if (_v2ShadowCompileCoroutine != null &&
+            ReferenceEquals(_v2ShadowSourcePlan, plan))
+        {
+            return;
+        }
+
+        if (_v2ShadowCompileCoroutine != null)
+        {
+            StopCoroutine(_v2ShadowCompileCoroutine);
+        }
+
+        _v2ShadowSourcePlan = plan;
+        _v2ShadowCompileCoroutine = StartCoroutine(
+            CompileV2ShadowWhenSafe(plan, world));
+    }
+
+    private IEnumerator CompileV2ShadowWhenSafe(
+        GeneratedWorldPlanRecord sourcePlan,
+        WorldState targetWorld)
+    {
+        // note: StartCoroutine advances immediately, so this unconditional first yield keeps all V2 work off the caller's frame.
+        yield return null;
+
+        while (YQGeneratedWorldRuntimeBuilder
+                   .IsInitialGenerationGameplayLocked)
+        {
+            yield return null;
+        }
+
+        // note: A further quiet frame separates player unlock from the first shadow-planning stage.
+        yield return null;
+
+        if (!ReferenceEquals(targetWorld.generatedWorldPlan, sourcePlan) ||
+            sourcePlan.spatialPlanV2?.acceptanceState == GeneratedSpatialPlanAcceptanceState.Accepted)
+        {
+            ClearV2ShadowCompilation(sourcePlan);
+            yield break;
+        }
+
+        GeneratedSpatialWorldPlanV2Record compiled = null;
+        string failure = string.Empty;
+        IEnumerator compiler = YQSpatialBlueprintCompilerV2.CompileRoutine(
+            sourcePlan,
+            (result, message) =>
+            {
+                compiled = result;
+                failure = message ?? string.Empty;
+            });
+
+        while (compiler.MoveNext())
+        {
+            yield return compiler.Current;
+        }
+
+        // note: Another owner may have accepted a snapshot while this coroutine yielded; never replace that newly accepted state with this older compilation.
+        if (!ReferenceEquals(targetWorld.generatedWorldPlan, sourcePlan) ||
+            sourcePlan.spatialPlanV2?.acceptanceState == GeneratedSpatialPlanAcceptanceState.Accepted)
+        {
+            ClearV2ShadowCompilation(sourcePlan);
+            yield break;
+        }
+
+        if (compiled == null || !string.IsNullOrWhiteSpace(failure))
+        {
+            Debug.LogWarning(
+                "[YQWorldGenerationService] Deferred V2 shadow blueprint rejected: " +
+                (string.IsNullOrWhiteSpace(failure)
+                    ? "no accepted artifact was produced."
+                    : failure));
+            ClearV2ShadowCompilation(sourcePlan);
+            yield break;
+        }
+
+        sourcePlan.spatialPlanV2 = compiled;
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(
+                sourcePlan,
+                out failure))
+        {
+            sourcePlan.spatialPlanV2 = null;
+            Debug.LogWarning(
+                "[YQWorldGenerationService] Deferred V2 shadow artifact failed its persistence gate: " +
+                failure);
+            ClearV2ShadowCompilation(sourcePlan);
+            yield break;
+        }
+
+        ApplyV2ShadowMetrics(targetWorld, compiled);
+        targetWorld.TouchNow();
+
+        // note: The accepted artifact rides the world's next normal autosave; shadow planning never introduces a surprise full-state serialization frame.
+        ClearV2ShadowCompilation(sourcePlan);
+    }
+
+    private void ClearV2ShadowCompilation(
+        GeneratedWorldPlanRecord sourcePlan)
+    {
+        if (!ReferenceEquals(_v2ShadowSourcePlan, sourcePlan))
+        {
+            return;
+        }
+
+        _v2ShadowSourcePlan = null;
+        _v2ShadowCompileCoroutine = null;
+    }
+
+    private static void ApplyV2ShadowMetrics(
+        WorldState world,
+        GeneratedSpatialWorldPlanV2Record compiled)
+    {
+        if (world == null || compiled?.blueprint?.metrics == null)
+        {
+            return;
+        }
+
+        YQSpatialBlueprintMetricsV2 metrics = compiled.blueprint.metrics;
+        // note: Diagnostics expose shadow coverage without allowing shadow coordinates to leak into the active V1 materializer.
+        world.globalFlags["worldplan:v2_shadow_accepted"] = 1f;
+        world.globalFlags["worldplan:v2_region_domains"] = metrics.regionCount;
+        world.globalFlags["worldplan:v2_terrain_fields"] = metrics.terrainFieldCount;
+        world.globalFlags["worldplan:v2_hydrology_features"] = metrics.hydrologyFeatureCount;
+        world.globalFlags["worldplan:v2_sites"] = metrics.siteCount;
+        world.globalFlags["worldplan:v2_routes"] = metrics.routeCount;
+        world.globalFlags["worldplan:v2_crossings"] = metrics.crossingCount;
+        world.globalFlags["worldplan:v2_relationships"] = metrics.relationshipCount;
+        world.globalFlags["worldplan:v2_connected_settlements"] = metrics.connectedSettlementCount;
     }
 
     private static string BuildBackgroundLoreRefreshPrompt(
@@ -2440,6 +2760,68 @@ targetWorld);
         record.EnsureCollections();
     }
 
+    private static void EnsureCuratedNordicPointsOfInterest(
+        GeneratedWorldPlanRecord plan,
+        string seed)
+    {
+        if (plan == null || plan.regions == null || plan.regions.Count == 0)
+            return;
+
+        plan.EnsureCollections();
+        const int minimumCuratedCount = 2;
+        int existingCurated = 0;
+        for (int index = 0; index < plan.pointsOfInterest.Count; index++)
+        {
+            GeneratedPointOfInterestRecord poi = plan.pointsOfInterest[index];
+            string kind = poi != null ? poi.kind ?? string.Empty : string.Empty;
+            bool curated = poi != null &&
+                ((poi.tags != null && poi.tags.Contains("curated_nordic_hut")) ||
+                 kind.IndexOf("nord", StringComparison.OrdinalIgnoreCase) >= 0);
+            if (curated)
+                existingCurated++;
+        }
+
+        for (int slot = existingCurated; slot < minimumCuratedCount; slot++)
+        {
+            GeneratedRegionRecord region = plan.regions[
+                (int)((uint)PositiveHash(seed + "|curated_nordic_poi|region|" + slot) %
+                      (uint)plan.regions.Count)];
+            if (region == null)
+                continue;
+
+            string poiId = SafeId(
+                "curated_nordic_hut_" + (slot + 1),
+                "poi",
+                "nordic wayhouse",
+                seed + ":curated_nordic_poi:" + slot);
+            bool duplicate = false;
+            for (int existingIndex = 0; existingIndex < plan.pointsOfInterest.Count; existingIndex++)
+            {
+                if (plan.pointsOfInterest[existingIndex] != null &&
+                    string.Equals(plan.pointsOfInterest[existingIndex].poiId, poiId, StringComparison.OrdinalIgnoreCase))
+                {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate)
+                continue;
+
+            plan.pointsOfInterest.Add(new GeneratedPointOfInterestRecord
+            {
+                poiId = poiId,
+                regionId = region.regionId,
+                displayName = slot == 0 ? "Nordic Wayhouse" : "Pinewatch Hut",
+                kind = "nordic_hut",
+                deterministicSeed = StableHex(seed + ":curated_nordic_poi:" + slot),
+                lore = "A maintained timber wayhouse set beside the travelled road.",
+                gameplayHook = "Rest, resupply, and discover a local trail marker.",
+                visualStyleKey = "nordic",
+                tags = new List<string> { "curated_nordic_hut", "route_frontage", "rest_stop" }
+            });
+        }
+    }
+
     private static void UpsertWorldQuestHookRecord(
         GeneratedWorldPlanRecord plan,
         string hookId,
@@ -2942,6 +3324,7 @@ targetWorld);
                 requiredRegions);
 
         recent.AppendLine("WORLD_PLAN_SEED: " + seed);
+        recent.AppendLine(YQGoddessGenerationDialogue.BuildSaveVoiceVariationContract(seed));
         recent.AppendLine("PLAYABLE_RUNTIME_TARGET: " + Mathf.Min(targetPlayableHoursMin, targetPlayableHoursMax) + "-" + Mathf.Max(targetPlayableHoursMin, targetPlayableHoursMax) + " hours before old details must roll into summaries.");
         recent.AppendLine(
     "REQUIRED_EXACT_WORLD_COUNTS");
@@ -2969,6 +3352,10 @@ targetWorld);
                     state));
         // note: The model sees only the current reviewed semantic allow-list; deferred packs and Unity paths can never enter generated canon.
         recent.AppendLine(BuildRuntimeSiteCapabilitiesForPrompt());
+        // note: The same exact role vocabulary is enforced during normalization and consumed by the runtime selector.
+        recent.AppendLine("CELL_ROLE_INTENTS: For each settlement and hostile site, provide 2-6 distinct cellRoleIntents in priority order from: " +
+            YQCompiledWorldSiteBindingService.CellRoleVocabulary +
+            ". Choose roles for that location's purpose and regional style; do not copy one list into every site. These are requests for authored cells, not invented asset identities or guarantees that a cell is available.");
         recent.AppendLine("WORLD_RULES: unique seeded identities; one coherent style key per region; settlements have useful services and resident roles; hostile sites match their faction/monster/theme; output semantic intent, never Unity paths.");
 
         string task =
@@ -2977,11 +3364,11 @@ targetWorld);
             requiredRegions + " unique regions, " +
             requiredSettlements + " unique settlements, and " +
             requiredEncampments + " unique hostile sites. " +
-            "Complete regions, settlements, encampments, and routes before optional goddessVoice. " +
+            "Complete regions, settlements, encampments, and routes before the required goddessVoice presentation bundle. " +
             "Every settlement/site references one generated regionId; every settlement chooses one approved siteStyleIntent compatible with its region; every site faction matches its monster family and chosen regional style. " +
             "Each region needs distinct grid coordinates, terrain, lore, and one approved style key. " +
             "Generate all names and IDs from WORLD_PLAN_SEED and PLAYER_ORIGIN; never copy examples, fallbacks, or another world. " +
-            "Omit unspecified boilerplate; deterministic normalization supplies it. Names are 1-4 words and every prose value is at most 8 words. " +
+            "Omit unspecified boilerplate; deterministic normalization supplies it. Names are 1-4 words and every canonical prose value outside goddessVoice is at most 8 words. " +
             "Do not emit POIs, quest hooks, Unity paths, markdown, commentary, or text outside the single JSON object.";
 
         string schema =
@@ -3010,6 +3397,8 @@ targetWorld);
                 "\"gridX\":0," +
                 "\"gridY\":0," +
                 "\"siteStyleIntent\":\"approved semantic style key\"," +
+                "\"siteRoleIntent\":\"short functional purpose\"," +
+                "\"cellRoleIntents\":[\"service\",\"residential\",\"circulation\"]," +
                 "\"marketBias\":\"short market\"," +
                 "\"serviceSlots\":[\"service\",\"service\"]," +
                 "\"residentRoles\":[\"merchant\",\"guard\",\"notable\"]" +
@@ -3023,6 +3412,8 @@ targetWorld);
                 "\"gridX\":0," +
                 "\"gridY\":0," +
                 "\"siteStyleIntent\":\"approved semantic style key\"," +
+                "\"siteRoleIntent\":\"short functional purpose\"," +
+                "\"cellRoleIntents\":[\"defense\",\"reward\",\"circulation\"]," +
                 "\"inhabitantFactionId\":\"stable_faction_id\"," +
                 "\"monsterFamily\":\"short enemy\"," +
                 "\"layoutIntent\":\"short layout\"" +
@@ -3036,13 +3427,13 @@ targetWorld);
                 "\"travelHook\":\"short travel\"" +
                 "}]," +
                 "\"goddessVoice\":{" +
-                "\"completion\":\"reaction to the accepted world\"," +
-                "\"terrain\":\"terrain materialization line\"," +
-                "\"environment\":\"environment binding line\"," +
-                "\"populationPrelude\":\"transition to inhabitants\"," +
-                "\"populationMaterialization\":\"inhabitant placement line\"," +
-                "\"reveal\":\"final handoff line\"," +
-                "\"ambientLines\":[\"short grounded world-materialization thought\"]," +
+                "\"completion\":\"full first-person spoken welcome from the Goddess\"," +
+                "\"terrain\":\"full first-person spoken terrain thought\"," +
+                "\"environment\":\"full first-person spoken wilderness thought\"," +
+                "\"populationPrelude\":\"full first-person transition to inhabitants\"," +
+                "\"populationMaterialization\":\"full first-person thought about inhabitants\"," +
+                "\"reveal\":\"full first-person spoken handoff to the player\"," +
+                "\"ambientLines\":[\"first-person grounded world thought\"]," +
                 "\"locations\":[]" +
                 "}" +
 "}");
@@ -3054,6 +3445,35 @@ targetWorld);
             schema,
             recent.ToString(),
             BuildLedger(state));
+    }
+
+    internal static void RemoveGeneratedRuntimeAuthority(JObject root)
+    {
+        if (root == null) return;
+        // note: Match Json.NET's case-insensitive member binding when rejecting engine-owned fields.
+        foreach (JProperty property in root.Properties().ToArray())
+        {
+            if (string.Equals(property.Name, "spatialPlanV2", StringComparison.OrdinalIgnoreCase))
+            {
+                property.Remove();
+                continue;
+            }
+            if (!string.Equals(property.Name, "settlements", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(property.Name, "encampments", StringComparison.OrdinalIgnoreCase)) continue;
+            if (!(property.Value is JArray sites)) continue;
+            foreach (JToken token in sites)
+            {
+                if (!(token is JObject site)) continue;
+                foreach (JProperty field in site.Properties().ToArray())
+                {
+                    string name = field.Name.ToLowerInvariant();
+                    if (name == "runtimesitekitid" || name == "runtimesitesemanticstyle" ||
+                        name == "runtimesitebindingversion" || name == "procedurallayout" ||
+                        name == "proceduralblocktarget" || name == "prefermeasuredstructuralcells")
+                        field.Remove();
+                }
+            }
+        }
     }
 
     private static string BuildRuntimeSiteCapabilitiesForPrompt()
@@ -3069,27 +3489,41 @@ targetWorld);
 
         StringBuilder capabilities = new StringBuilder(
             "APPROVED_WORLD_SITE_STYLES: ");
+        bool emittedSettlement = false;
 
         for (int index = 0; index < catalog.Sites.Count; index++)
         {
             YQRuntimeWorldSiteRecord site = catalog.Sites[index];
 
-            if (site == null)
+            if (site == null ||
+                site.siteKind != YQAuthoredSiteKind.Settlement ||
+                !site.spatiallyValidated ||
+                !site.seamlessPlacementEligible)
                 continue;
 
-            if (capabilities[capabilities.Length - 1] != ' ')
+            if (emittedSettlement)
                 capabilities.Append(", ");
 
+            // note: The Goddess prompt advertises only reviewed exterior settlement profiles and their semantic vocabulary; interior, dungeon, and landmark kits cannot be mistaken for towns.
             capabilities
                 .Append(site.semanticStyleKey)
                 .Append('|')
-                .Append(site.siteKind)
+                .Append("settlement")
                 .Append('|')
-                .Append(site.topology);
+                .Append(site.topology)
+                .Append('|')
+                .Append(string.Join("/", site.semanticTags ??
+                    new List<string>()));
+            emittedSettlement = true;
+        }
+
+        if (!emittedSettlement)
+        {
+            return "APPROVED_WORLD_SITE_STYLES: unavailable; use the regional semantic style and let deterministic validation defer physical binding.";
         }
 
         capabilities.Append(
-            ". Choose semantic style keys only; never output kit IDs, resource keys, prefab names, or asset paths.");
+            ". Choose semantic style keys only; catalog tags describe intent, not proof of independently playable cells. The engine must validate actual cell functions and may reject an unavailable composition. Never output kit IDs, resource keys, prefab names, or asset paths.");
         return capabilities.ToString();
     }
 

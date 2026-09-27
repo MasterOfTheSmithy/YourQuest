@@ -21,6 +21,9 @@ internal static class YQGeneratedMaterialSanitizer
 
     private static void SanitizeGeneratedMaterials()
     {
+        // note: The generated material folder is optional in a clean checkout; skip the editor pass instead of asking AssetDatabase to search a missing path.
+        if (!AssetDatabase.IsValidFolder(GeneratedMaterialFolder))
+            return;
         string[] materialGuids = AssetDatabase.FindAssets("t:Material", new[] { GeneratedMaterialFolder });
         bool changedAny = false;
         for (int i = 0; i < materialGuids.Length; i++)

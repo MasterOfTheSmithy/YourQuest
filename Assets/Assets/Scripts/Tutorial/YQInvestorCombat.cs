@@ -7,21 +7,30 @@ using UnityEditor;
 #endif
 
 [DisallowMultipleComponent]
+// note: Read this frame's movement/camera pose, then deliver animation feedback before the visual driver's Update (150).
+[DefaultExecutionOrder(100)]
 public sealed class YQInvestorCombat : MonoBehaviour
 {
     public float attackRange = 2.1f;
     public float attackRadius = 1.15f;
     public int lightAttackDamage = 20;
     public float attackCooldown = 0.28f;
+    [Range(0f, 0.2f)] public float meleeInputBuffer = 0.12f;
     public float spellCooldown = 0.65f;
     public float interactRange = 2.55f;
     [Range(0.02f, 0.3f)] public float interactAimRadius = 0.14f;
 
     private readonly Collider[] _attackHits = new Collider[24];
+    // note: Bounded reusable physics buffers keep melee obstruction checks allocation-free after setup.
+    private readonly RaycastHit[] _meleeOcclusionHits = new RaycastHit[32];
+    private readonly Collider[] _meleeOriginHits = new Collider[16];
     private readonly Collider[] _pulseHits = new Collider[32];
     private readonly RaycastHit[] _interactHits = new RaycastHit[16];
+    private readonly HashSet<int> _damagedEnemies = new HashSet<int>();
 
     private float _nextAttackTime;
+    private float _queuedAttackUntil = float.NegativeInfinity;
+    private YQInvestorPlayerMotor _motor;
     private float _nextSpellTime;
     private YQInvestorVitals _vitals;
     private ActionRecorder _recorder;
@@ -31,6 +40,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
     private void Awake()
     {
+        _motor = GetComponent<YQInvestorPlayerMotor>();
         _vitals = GetComponent<YQInvestorVitals>();
         _recorder = GetComponent<ActionRecorder>();
         _equipmentVisual = GetComponent<YQPlayerEquipmentVisual>();
@@ -40,23 +50,41 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
     private void Update()
     {
-        YQInvestorPlayerMotor motor = GetComponent<YQInvestorPlayerMotor>();
-        if (motor != null && !motor.IsAuthoritative)
+        // note: Bootstrap can add the motor after combat's Awake; resolve it lazily once, then reuse the authoritative controller.
+        if (_motor == null)
+            _motor = GetComponent<YQInvestorPlayerMotor>();
+        if ((_motor != null && !_motor.IsAuthoritative) ||
+            RuntimeModalUiBlocker.IsBlocked ||
+            YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked ||
+            (_vitals != null && _vitals.IsDead))
+        {
+            // note: Neither loading nor modal UI can queue an attack that fires when gameplay unlocks.
+            _queuedAttackUntil = float.NegativeInfinity;
             return;
-
-        // note: Combat input must stay dark while the Goddess owns initial generation.
-        if (RuntimeModalUiBlocker.IsBlocked)
-            return;
+        }
 
         Mouse mouse = Mouse.current;
         Keyboard kb = Keyboard.current;
 
         if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            _queuedAttackUntil = Time.time + Mathf.Clamp(meleeInputBuffer, 0f, 0.2f);
+        // note: Preserve at most one short-lived press near cooldown completion; holding the button does not create automatic attacks.
+        if (Time.time <= _queuedAttackUntil && Time.time >= _nextAttackTime)
+        {
+            _queuedAttackUntil = float.NegativeInfinity;
             TryAttack();
+        }
         if (mouse != null && mouse.rightButton.wasPressedThisFrame)
             TryCastPulse();
         if (kb != null && kb.eKey.wasPressedThisFrame)
             TryInteract();
+    }
+
+    private void OnDisable()
+    {
+        // note: Disabling/re-enabling this player must never replay pending combat input.
+        _queuedAttackUntil = float.NegativeInfinity;
+        _damagedEnemies.Clear();
     }
 
     private void TryAttack()
@@ -69,20 +97,46 @@ public sealed class YQInvestorCombat : MonoBehaviour
         int equipmentBonus = Content != null ? Content.GetAttackBonus(state) : 0;
         int damage = lightAttackDamage + equipmentBonus + (state != null ? Mathf.Max(0, state.stats.attack / 4) : 0);
 
-        Vector3 origin = transform.position + transform.forward * attackRange + Vector3.up;
-        int hitBufferCount = Physics.OverlapSphereNonAlloc(origin, attackRadius, _attackHits, ~0, QueryTriggerInteraction.Ignore);
+        // note: Measure reach from the player, not from a sphere already placed an entire weapon range ahead.
+        Vector3 origin = transform.position + Vector3.up * (_motor != null && _motor.IsCrouching ? 0.75f : 1.1f);
+        Camera aimCamera = _motor != null ? _motor.playerCamera : _viewCamera;
+        Vector3 aimDirection = aimCamera != null ? aimCamera.transform.forward : transform.forward;
+        float reach = Mathf.Max(0.1f, attackRange);
+        float width = Mathf.Max(0.01f, attackRadius);
+        int hitBufferCount = IsMeleeOriginClear(origin)
+            ? Physics.OverlapSphereNonAlloc(origin, reach, _attackHits, ~0, QueryTriggerInteraction.Ignore)
+            : 0;
         GameObject firstTarget = null;
+        float nearestTargetDistanceSquared = float.PositiveInfinity;
         int hitCount = 0;
+        // note: Imported characters often have several colliders; one swing applies one damage event per enemy, not per collider.
+        _damagedEnemies.Clear();
         for (int i = 0; i < hitBufferCount; i++)
         {
             Collider c = _attackHits[i];
-            if (c == null)
+            if (c == null || IsOwnCollider(c))
                 continue;
             YQInvestorEnemy enemy = c.GetComponentInParent<YQInvestorEnemy>();
-            if (enemy == null)
+            if (enemy == null || _damagedEnemies.Contains(enemy.GetInstanceID()))
                 continue;
-            if (firstTarget == null)
+
+            // note: Collider surfaces, rather than pivots, determine reach for both large and close enemies.
+            Vector3 targetPoint = c.ClosestPoint(origin);
+            Vector3 toTarget = targetPoint - origin;
+            float distanceSquared = toTarget.sqrMagnitude;
+            float forwardDistance = Vector3.Dot(toTarget, aimDirection);
+            float sidewaysSquared = Mathf.Max(0f, distanceSquared - forwardDistance * forwardDistance);
+            if (distanceSquared > reach * reach || forwardDistance < 0f || sidewaysSquared > width * width ||
+                !HasClearMeleePath(origin, targetPoint, enemy))
+                continue;
+
+            // note: Deduplicate only accepted hits; an occluded limb must not reject another exposed collider on the same enemy.
+            _damagedEnemies.Add(enemy.GetInstanceID());
+            if (distanceSquared < nearestTargetDistanceSquared)
+            {
+                nearestTargetDistanceSquared = distanceSquared;
                 firstTarget = enemy.gameObject;
+            }
             enemy.ReceiveHit(damage, gameObject);
             hitCount++;
         }
@@ -98,6 +152,44 @@ public sealed class YQInvestorCombat : MonoBehaviour
             state.AddLedgerLine(hitCount > 0 ? "The player landed a melee strike with equipped gear." : "The player swung and missed in live combat.");
             state.IncCounter(hitCount > 0 ? "combat:hit" : "combat:miss", 1f);
         }
+    }
+
+    private bool IsMeleeOriginClear(Vector3 origin)
+    {
+        // note: Rays do not reliably report a collider containing their origin; reject strikes starting inside solid scenery.
+        int count = Physics.OverlapSphereNonAlloc(origin, 0.02f, _meleeOriginHits, ~0, QueryTriggerInteraction.Ignore);
+        if (count == _meleeOriginHits.Length)
+            return false;
+        for (int i = 0; i < count; i++)
+        {
+            Collider obstacle = _meleeOriginHits[i];
+            if (obstacle == null || IsOwnCollider(obstacle) || obstacle.GetComponentInParent<YQInvestorEnemy>() != null)
+                continue;
+            return false;
+        }
+        return true;
+    }
+
+    private bool HasClearMeleePath(Vector3 origin, Vector3 targetPoint, YQInvestorEnemy target)
+    {
+        Vector3 delta = targetPoint - origin;
+        float distance = delta.magnitude;
+        if (distance <= 0.001f)
+            return true;
+
+        // note: Inspect every returned hit because non-alloc casts are unordered; neither walls nor closed doors are damage-transparent.
+        int count = Physics.RaycastNonAlloc(origin, delta / distance, _meleeOcclusionHits, distance,
+            ~0, QueryTriggerInteraction.Ignore);
+        if (count == _meleeOcclusionHits.Length)
+            return false;
+        for (int i = 0; i < count; i++)
+        {
+            Collider obstacle = _meleeOcclusionHits[i].collider;
+            if (obstacle == null || IsOwnCollider(obstacle) || obstacle.GetComponentInParent<YQInvestorEnemy>() == target)
+                continue;
+            return false;
+        }
+        return true;
     }
 
     private void TryCastPulse()
@@ -137,10 +229,12 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
         int hitBufferCount = Physics.OverlapSphereNonAlloc(transform.position, 5f, _pulseHits, ~0, QueryTriggerInteraction.Ignore);
         int affected = 0;
+        // note: Pulse damage follows the same one-event-per-enemy rule while reusing the collection between casts.
+        _damagedEnemies.Clear();
         for (int i = 0; i < hitBufferCount; i++)
         {
             YQInvestorEnemy enemy = _pulseHits[i] != null ? _pulseHits[i].GetComponentInParent<YQInvestorEnemy>() : null;
-            if (enemy == null)
+            if (enemy == null || !_damagedEnemies.Add(enemy.GetInstanceID()))
                 continue;
             enemy.ReceiveHit(power, gameObject);
             affected++;
@@ -166,6 +260,33 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
         if (hit.collider == null)
             return;
+
+        YQGeneratedLandmarkResource landmarkResource = hit.collider.GetComponentInParent<YQGeneratedLandmarkResource>();
+        if (landmarkResource != null)
+        {
+            // note: Landmark harvesting uses the authoritative interaction ray and save path, making the required resource site usable in normal travel.
+            landmarkResource.TryUse(gameObject);
+            _recorder?.RecordInteract(landmarkResource.gameObject);
+            return;
+        }
+
+        YQGeneratedSettlementService settlementService = hit.collider.GetComponentInParent<YQGeneratedSettlementService>();
+        if (settlementService != null)
+        {
+            // note: Settlement services consume the same authoritative interaction input as doors and pickups, so the beta itinerary has a real gameplay endpoint.
+            settlementService.TryUse(gameObject);
+            _recorder?.RecordInteract(settlementService.gameObject);
+            return;
+        }
+
+        YQGeneratedFish fish = hit.collider.GetComponentInParent<YQGeneratedFish>();
+        if (fish != null)
+        {
+            // note: Fishing uses the same E interaction ray as doors and pickups while the fish owns the skill gate and inventory write.
+            if (fish.TryCatch(gameObject))
+                _recorder?.RecordInteract(fish.gameObject);
+            return;
+        }
 
         if (TryOpenDialogueFromCollider(hit.collider))
             return;
@@ -286,6 +407,12 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (collider.GetComponentInParent<YQInvestorLootableCorpse>() != null)
             return true;
         if (collider.GetComponentInParent<YQInvestorShrine>() != null)
+            return true;
+        if (collider.GetComponentInParent<YQGeneratedFish>() != null)
+            return true;
+        if (collider.GetComponentInParent<YQGeneratedLandmarkResource>() != null)
+            return true;
+        if (collider.GetComponentInParent<YQGeneratedSettlementService>() != null)
             return true;
 
         EntityInfo info = collider.GetComponentInParent<EntityInfo>();

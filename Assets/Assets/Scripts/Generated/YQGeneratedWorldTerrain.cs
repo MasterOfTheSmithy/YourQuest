@@ -1,6 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEngine;
 
 public enum YQGeneratedWorldPlacementCategory
@@ -42,6 +46,142 @@ public static class YQGeneratedWorldTerrain
 
     public const int MacroWaterBasinCount =
         2;
+
+    public const string ProfileTerrainSnapshotDocumentId =
+        "generated_terrain_heightmap_v1";
+
+    [Serializable]
+    public sealed class ProfileTerrainSnapshotRecord
+    {
+        public int schemaVersion = 1;
+        public bool hasTerrain;
+        public string ownerProfileId;
+        public string worldId;
+        public string worldSeed;
+        public string planFingerprint;
+        public string terrainGenerationVersion;
+        public int heightmapResolution;
+        public float sizeX;
+        public float sizeY;
+        public float sizeZ;
+        public float positionX;
+        public float positionY;
+        public float positionZ;
+        public int uncompressedByteCount;
+        public string heightmapChecksum;
+        public string compressedHeightmapBase64;
+    }
+
+    // note: Review tools sample the same accepted V2 height function as runtime without creating terrain, changing authority, or retaining mutable save records.
+    public sealed class V2HeightSampler
+    {
+        private readonly YQSpatialBlueprintTerrainSamplerV2 spatialSampler;
+        private readonly Vector2 detailOffset;
+
+        // note: Keep repeated support-point results local to one heightmap job so workers never share mutable cache state.
+        internal sealed class SpatialSamplingSession : IDisposable
+        {
+            private const int MaximumCachedSpatialSamples = 8192;
+            private readonly YQSpatialBlueprintTerrainSamplerV2 spatialSampler;
+            private readonly Vector2 detailOffset;
+            private readonly Dictionary<Vector2, YQSpatialTerrainSampleV2> samples =
+                new Dictionary<Vector2, YQSpatialTerrainSampleV2>(4096);
+
+            internal int SpatialSampleEvaluations { get; private set; }
+            internal int SpatialSampleCacheHits { get; private set; }
+
+            internal SpatialSamplingSession(
+                YQSpatialBlueprintTerrainSamplerV2 spatialSampler,
+                Vector2 detailOffset)
+            {
+                this.spatialSampler = spatialSampler;
+                this.detailOffset = detailOffset;
+            }
+
+            internal float SampleNormalized(float worldX, float worldZ)
+            {
+                // note: Cached and uncached sessions share the exact accepted height formula and only differ in reuse of pure spatial samples.
+                return SampleV2HeightNormalized(
+                    spatialSampler, detailOffset, worldX, worldZ, this);
+            }
+
+            internal YQSpatialTerrainSampleV2 SampleSpatial(
+                YQSpatialBlueprintTerrainSamplerV2 sampler,
+                float worldX,
+                float worldZ)
+            {
+                if (!ReferenceEquals(sampler, spatialSampler))
+                    throw new InvalidOperationException("spatial sample session belongs to a different accepted sampler");
+
+                Vector2 key = new Vector2(worldX, worldZ);
+                bool cacheable = !float.IsNaN(worldX) && !float.IsInfinity(worldX) &&
+                    !float.IsNaN(worldZ) && !float.IsInfinity(worldZ);
+                if (cacheable && samples.TryGetValue(key, out YQSpatialTerrainSampleV2 cached))
+                {
+                    SpatialSampleCacheHits++;
+                    return cached;
+                }
+
+                SpatialSampleEvaluations++;
+                YQSpatialTerrainSampleV2 sampled = sampler.Sample(worldX, worldZ);
+                if (cacheable && samples.Count < MaximumCachedSpatialSamples)
+                    samples.Add(key, sampled);
+                return sampled;
+            }
+
+            public void Dispose()
+            {
+                // note: Release the bounded per-task cache immediately after its heightmap completes or is canceled.
+                samples.Clear();
+            }
+        }
+
+        internal V2HeightSampler(
+            YQSpatialBlueprintTerrainSamplerV2 spatialSampler,
+            Vector2 detailOffset)
+        {
+            this.spatialSampler = spatialSampler;
+            this.detailOffset = detailOffset;
+        }
+
+        public float SampleNormalized(float worldX, float worldZ)
+        {
+            // note: This returns the generated heightmap sample before Unity's grid interpolation or any explicitly applied local terrain repair.
+            return SampleV2HeightNormalized(
+                spatialSampler, detailOffset, worldX, worldZ, null);
+        }
+
+        internal SpatialSamplingSession BeginSpatialSamplingSession()
+        {
+            return spatialSampler != null
+                ? new SpatialSamplingSession(spatialSampler, detailOffset)
+                : null;
+        }
+    }
+
+    public static bool TryCreateV2HeightSampler(
+        GeneratedWorldPlanRecord plan,
+        out V2HeightSampler sampler,
+        out string failure)
+    {
+        sampler = null;
+        if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(
+                plan,
+                out YQSpatialBlueprintTerrainSamplerV2 prepared,
+                out failure))
+        {
+            return false;
+        }
+
+        // note: Preserve the runtime versioned seed and detail salt exactly, including its whitespace/default-seed behavior.
+        string safeSeed = string.IsNullOrWhiteSpace(plan.worldSeed)
+            ? "yourquest_default_world"
+            : plan.worldSeed.Trim();
+        uint seedHash = StableHash32(TerrainGenerationVersion + "|" + safeSeed);
+        sampler = new V2HeightSampler(
+            prepared, SeedOffset(seedHash, 0xC3195A47u));
+        return true;
+    }
 
     /*
      * Vey's hut is the single fixed narrative origin.
@@ -100,11 +240,13 @@ public static class YQGeneratedWorldTerrain
     private const float BasinWaterSurfaceNormalized =
         0.112f;
 
+    // note: Use a measured ten-millisecond startup slice so height synthesis finishes in practical time while leaving the rest of the frame for title presentation.
     private const float StartupFrameBudgetSeconds =
-        0.003f;
+        0.010f;
 
+    // note: Upload larger delayed-height strips to reduce native TerrainData call overhead without publishing a partially valid terrain.
     private const int HeightmapUploadRowsPerFrame =
-        16;
+        64;
 
     private struct MacroLandformSettings
     {
@@ -269,7 +411,380 @@ public static class YQGeneratedWorldTerrain
         string worldSeed,
         Action<Terrain> completed)
     {
-        DestroyExisting();
+        // note: Legacy callers retain deterministic seed-only terrain while active generated worlds provide the full semantic plan overload below.
+        yield return BuildRoutineInternal(parent, worldSeed, null, completed);
+    }
+
+    public static IEnumerator BuildRoutine(
+        Transform parent,
+        GeneratedWorldPlanRecord plan,
+        Action<Terrain> completed)
+    {
+        yield return BuildRoutineInternal(
+            parent,
+            plan != null ? plan.worldSeed : string.Empty,
+            plan,
+            completed);
+    }
+
+    public static IEnumerator BuildCandidateRoutine(Transform stagingParent, GeneratedWorldPlanRecord plan, Action<Terrain> completed)
+    {
+        // note: Candidate terrain is explicitly owned by an inactive staging hierarchy and never replaces globally named live terrain.
+        if (stagingParent == null || stagingParent.gameObject.activeInHierarchy)
+            throw new InvalidOperationException("Candidate terrain requires an inactive staging parent.");
+        // note: Staged data requires an explicit receiving owner; a missing callback cannot silently orphan a generated heightfield.
+        if (completed == null) throw new ArgumentNullException(nameof(completed));
+        yield return BuildRoutineInternal(stagingParent, plan != null ? plan.worldSeed : string.Empty, plan, completed, false);
+    }
+
+    // note: Persist a compressed, quantized copy of the finalized heightfield so Continue restores profile terrain instead of resynthesizing it from a seed.
+    public static IEnumerator CaptureProfileSnapshotRoutine(
+        Terrain terrain,
+        string profileId,
+        WorldState world,
+        string planFingerprint,
+        Action<string> completed)
+    {
+        if (!TryResolveProfileTerrainIdentity(profileId, world, planFingerprint, out string ownerProfileId, out string worldId, out string worldSeed) ||
+            terrain == null || terrain.terrainData == null)
+        {
+            completed?.Invoke(CreateEmptyProfileSnapshotJson());
+            yield break;
+        }
+
+        TerrainData data = terrain.terrainData;
+        int resolution = data.heightmapResolution;
+        if (resolution < 33 || resolution > 1025)
+        {
+            throw new InvalidOperationException("Cannot persist unsupported terrain heightmap resolution " + resolution + ".");
+        }
+
+        float[,] heights = data.GetHeights(0, 0, resolution, resolution);
+        byte[] raw = new byte[checked(resolution * resolution * 2)];
+        using (MemoryStream compressed = new MemoryStream())
+        {
+            using (DeflateStream compressor = new DeflateStream(compressed, System.IO.Compression.CompressionLevel.Fastest, true))
+            {
+                for (int startRow = 0; startRow < resolution; startRow += HeightmapUploadRowsPerFrame)
+                {
+                    int endRow = Mathf.Min(resolution, startRow + HeightmapUploadRowsPerFrame);
+                    int offset = startRow * resolution * 2;
+                    for (int row = startRow; row < endRow; row++)
+                    {
+                        for (int column = 0; column < resolution; column++)
+                        {
+                            int quantized = Mathf.RoundToInt(Mathf.Clamp01(heights[row, column]) * 65535f);
+                            raw[offset++] = (byte)(quantized & 0xff);
+                            raw[offset++] = (byte)(quantized >> 8);
+                        }
+                    }
+
+                    int byteCount = (endRow - startRow) * resolution * 2;
+                    compressor.Write(raw, startRow * resolution * 2, byteCount);
+                    // note: Yield between bounded row batches so profile terrain capture shares rendered startup frames with world readiness work.
+                    yield return null;
+                }
+            }
+
+            byte[] payload = compressed.ToArray();
+            Vector3 size = data.size;
+            Vector3 position = terrain.transform.position;
+            ProfileTerrainSnapshotRecord record = new ProfileTerrainSnapshotRecord
+            {
+                schemaVersion = 1,
+                hasTerrain = true,
+                ownerProfileId = ownerProfileId,
+                worldId = worldId,
+                worldSeed = worldSeed,
+                planFingerprint = planFingerprint,
+                terrainGenerationVersion = TerrainGenerationVersion,
+                heightmapResolution = resolution,
+                sizeX = size.x,
+                sizeY = size.y,
+                sizeZ = size.z,
+                positionX = position.x,
+                positionY = position.y,
+                positionZ = position.z,
+                uncompressedByteCount = raw.Length,
+                heightmapChecksum = HashBytes(raw),
+                compressedHeightmapBase64 = Convert.ToBase64String(payload)
+            };
+            completed?.Invoke(JsonUtility.ToJson(record));
+        }
+    }
+
+    // note: Restore only a checksummed heightfield whose profile, world, seed, and accepted-plan fingerprint all match the selected save.
+    public static IEnumerator BuildCandidateFromProfileSnapshotRoutine(
+        Transform stagingParent,
+        string snapshotJson,
+        string profileId,
+        WorldState world,
+        string planFingerprint,
+        Action<Terrain> completed,
+        Action<string> rejected = null)
+    {
+        if (stagingParent == null || stagingParent.gameObject.activeInHierarchy)
+            throw new InvalidOperationException("Profile terrain restoration requires an inactive staging parent.");
+        if (completed == null)
+            throw new ArgumentNullException(nameof(completed));
+        if (!TryResolveProfileTerrainIdentity(profileId, world, planFingerprint, out string ownerProfileId, out string worldId, out string worldSeed))
+        {
+            rejected?.Invoke("selected profile/world identity is incomplete or mismatched");
+            completed(null);
+            yield break;
+        }
+        if (!TryReadProfileTerrainSnapshot(
+                snapshotJson, ownerProfileId, worldId, worldSeed, planFingerprint,
+                out ProfileTerrainSnapshotRecord record, out byte[] raw, out string rejectionReason))
+        {
+            rejected?.Invoke(rejectionReason);
+            completed(null);
+            yield break;
+        }
+
+        TerrainData data = new TerrainData
+        {
+            name = "YQ_ProfileTerrainData_" + ShortSeed(StableHash32(worldSeed)),
+            heightmapResolution = record.heightmapResolution,
+            size = new Vector3(record.sizeX, record.sizeY, record.sizeZ)
+        };
+        Terrain terrain = null;
+        bool transferred = false;
+        try
+        {
+            int resolution = record.heightmapResolution;
+            for (int startRow = 0; startRow < resolution; startRow += HeightmapUploadRowsPerFrame)
+            {
+                int rowCount = Mathf.Min(HeightmapUploadRowsPerFrame, resolution - startRow);
+                float[,] strip = new float[rowCount, resolution];
+                int sourceOffset = startRow * resolution * 2;
+                for (int row = 0; row < rowCount; row++)
+                {
+                    for (int column = 0; column < resolution; column++)
+                    {
+                        int quantized = raw[sourceOffset] | (raw[sourceOffset + 1] << 8);
+                        strip[row, column] = quantized / 65535f;
+                        sourceOffset += 2;
+                    }
+                }
+
+                data.SetHeightsDelayLOD(0, startRow, strip);
+                // note: Restore uploads in the same bounded native strips used by generated startup terrain.
+                yield return null;
+            }
+
+            if (stagingParent == null || stagingParent.gameObject.activeInHierarchy)
+                throw new InvalidOperationException("Profile terrain staging ownership changed during restoration.");
+
+            data.SyncHeightmap();
+            terrain = CreateTerrainObject(stagingParent, data, new Vector3(record.positionX, record.positionY, record.positionZ));
+            terrain.gameObject.name = RuntimeTerrainObjectName + "_Candidate";
+            completed(terrain);
+            transferred = true;
+        }
+        finally
+        {
+            // note: A cancelled restore releases its unpublished Unity terrain and native heightfield.
+            if (!transferred)
+            {
+                if (terrain != null)
+                {
+                    if (Application.isPlaying) UnityEngine.Object.Destroy(terrain.gameObject);
+                    else UnityEngine.Object.DestroyImmediate(terrain.gameObject);
+                }
+                if (data != null)
+                {
+                    if (Application.isPlaying) UnityEngine.Object.Destroy(data);
+                    else UnityEngine.Object.DestroyImmediate(data);
+                }
+            }
+        }
+    }
+
+    public static string CreateEmptyProfileSnapshotJson()
+    {
+        return JsonUtility.ToJson(new ProfileTerrainSnapshotRecord { schemaVersion = 1, hasTerrain = false });
+    }
+
+    private static bool TryResolveProfileTerrainIdentity(
+        string profileId,
+        WorldState world,
+        string planFingerprint,
+        out string ownerProfileId,
+        out string worldId,
+        out string worldSeed)
+    {
+        ownerProfileId = string.Empty;
+        worldId = string.Empty;
+        worldSeed = string.Empty;
+        if (world == null || world.worldIdentity == null || world.generatedWorldPlan == null ||
+            string.IsNullOrWhiteSpace(profileId) || string.IsNullOrWhiteSpace(planFingerprint))
+            return false;
+
+        ownerProfileId = world.worldIdentity.ownerProfileId;
+        worldId = world.worldIdentity.worldId;
+        worldSeed = world.generatedWorldPlan.worldSeed;
+        return string.Equals(ownerProfileId, profileId, StringComparison.OrdinalIgnoreCase) &&
+               !string.IsNullOrWhiteSpace(worldId) &&
+               !string.IsNullOrWhiteSpace(worldSeed);
+    }
+
+    private static bool TryReadProfileTerrainSnapshot(
+        string snapshotJson,
+        string expectedProfileId,
+        string expectedWorldId,
+        string expectedWorldSeed,
+        string expectedPlanFingerprint,
+        out ProfileTerrainSnapshotRecord record,
+        out byte[] raw,
+        out string failure)
+    {
+        record = null;
+        raw = null;
+        failure = string.Empty;
+        if (string.IsNullOrWhiteSpace(snapshotJson))
+        {
+            failure = "profile revision contains no terrain snapshot";
+            return false;
+        }
+
+        try
+        {
+            record = JsonUtility.FromJson<ProfileTerrainSnapshotRecord>(snapshotJson);
+            if (record == null)
+                failure = "profile terrain snapshot could not be parsed";
+            else if (record.schemaVersion != 1 || !record.hasTerrain)
+                failure = "profile terrain snapshot schema or terrain-presence flag is invalid";
+            else if (!string.Equals(record.ownerProfileId, expectedProfileId, StringComparison.OrdinalIgnoreCase))
+                failure = "snapshot profile identity does not match the selected profile";
+            else if (!string.Equals(record.worldId, expectedWorldId, StringComparison.OrdinalIgnoreCase))
+                failure = "snapshot world identity does not match the selected world";
+            else if (!string.Equals(record.worldSeed, expectedWorldSeed, StringComparison.Ordinal))
+                failure = "snapshot world seed does not match the selected world";
+            else if (!string.Equals(record.planFingerprint, expectedPlanFingerprint, StringComparison.Ordinal))
+                failure = "accepted world-plan fingerprint changed since the terrain snapshot was captured";
+            else if (record.heightmapResolution < 33 || record.heightmapResolution > 1025 ||
+                     ((record.heightmapResolution - 1) & (record.heightmapResolution - 2)) != 0)
+                failure = "snapshot heightmap resolution is invalid";
+            else if (record.uncompressedByteCount != checked(record.heightmapResolution * record.heightmapResolution * 2))
+                failure = "snapshot heightmap byte count is invalid";
+            else if (string.IsNullOrWhiteSpace(record.compressedHeightmapBase64) ||
+                     record.compressedHeightmapBase64.Length > record.uncompressedByteCount * 2L)
+                failure = "snapshot compressed heightmap payload is missing or oversized";
+            else if (!IsFinitePositive(record.sizeX) || !IsFinitePositive(record.sizeY) || !IsFinitePositive(record.sizeZ) ||
+                     !IsFiniteSnapshotFloat(record.positionX) || !IsFiniteSnapshotFloat(record.positionY) || !IsFiniteSnapshotFloat(record.positionZ))
+                failure = "snapshot terrain transform or dimensions are invalid";
+            if (!string.IsNullOrEmpty(failure))
+                return false;
+
+            byte[] compressed = Convert.FromBase64String(record.compressedHeightmapBase64);
+            raw = new byte[record.uncompressedByteCount];
+            using (MemoryStream source = new MemoryStream(compressed, false))
+            using (DeflateStream decompressor = new DeflateStream(source, CompressionMode.Decompress))
+            {
+                int offset = 0;
+                while (offset < raw.Length)
+                {
+                    int read = decompressor.Read(raw, offset, Mathf.Min(65536, raw.Length - offset));
+                    if (read <= 0)
+                    {
+                        failure = "snapshot heightmap decompressed to fewer bytes than its header declares";
+                        return false;
+                    }
+                    offset += read;
+                }
+                if (decompressor.ReadByte() != -1)
+                {
+                    failure = "snapshot heightmap contains bytes beyond its declared dimensions";
+                    return false;
+                }
+            }
+
+            if (!string.Equals(record.heightmapChecksum, HashBytes(raw), StringComparison.OrdinalIgnoreCase))
+            {
+                failure = "snapshot heightmap checksum does not match its payload";
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception exception) when (exception is ArgumentException || exception is FormatException || exception is InvalidDataException || exception is IOException || exception is OverflowException)
+        {
+            record = null;
+            raw = null;
+            failure = "snapshot payload is malformed (" + exception.GetType().Name + ")";
+            return false;
+        }
+    }
+
+    private static string HashBytes(byte[] bytes)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] digest = sha256.ComputeHash(bytes);
+            StringBuilder result = new StringBuilder(digest.Length * 2);
+            for (int index = 0; index < digest.Length; index++)
+                result.Append(digest[index].ToString("x2"));
+            return result.ToString();
+        }
+    }
+
+    private static bool IsFiniteSnapshotFloat(float value)
+    {
+        return !float.IsNaN(value) && !float.IsInfinity(value);
+    }
+
+    private static bool IsFinitePositive(float value)
+    {
+        return IsFiniteSnapshotFloat(value) && value > 0f && value <= 100000f;
+    }
+
+    private static IEnumerator BuildRoutineInternal(
+        Transform parent,
+        string worldSeed,
+        GeneratedWorldPlanRecord plan,
+        Action<Terrain> completed,
+        bool replaceExisting = true)
+    {
+        GeneratedSpatialWorldPlanRecord spatialPlanV1 = null;
+        YQSpatialBlueprintTerrainSamplerV2 spatialSamplerV2 = null;
+        if (plan != null)
+        {
+            if (!YQWorldGenerationArchitecture.TryResolveRuntimeAuthority(
+                    plan,
+                    out YQSpatialPlanAuthority authority,
+                    out string authorityFailure))
+            {
+                // note: An invalid authoritative plan fails before replacing the existing terrain; V1 and V2 coordinates are never combined as a recovery shortcut.
+                Debug.LogError(
+                    "[YQGeneratedWorldTerrain] Spatial authority rejected: " +
+                    authorityFailure);
+                completed?.Invoke(null);
+                yield break;
+            }
+
+            if (authority == YQSpatialPlanAuthority.AcceptedV2)
+            {
+                if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(
+                        plan,
+                        out spatialSamplerV2,
+                        out string samplerFailure))
+                {
+                    Debug.LogError(
+                        "[YQGeneratedWorldTerrain] Accepted V2 terrain could not be prepared: " +
+                        samplerFailure);
+                    completed?.Invoke(null);
+                    yield break;
+                }
+            }
+            else
+            {
+                spatialPlanV1 =
+                    YQGeneratedWorldSpatialPlanner.EnsureSpatialPlan(plan);
+            }
+        }
+
+        if (replaceExisting) DestroyExisting();
 
         string safeSeed =
             string.IsNullOrWhiteSpace(worldSeed)
@@ -287,14 +802,26 @@ public static class YQGeneratedWorldTerrain
                 HeightmapResolution,
                 HeightmapResolution];
 
+        YQStartupLoadingScreen.SetGenerationWorkStage(
+            "Forming the terrain",
+            2,
+            8,
+            "Calculating continental shape, valleys, hills, and mountain ridges",
+            0.61f);
         // note: Height synthesis is deliberately row-budgeted so Goddess text, camera motion, and loading VFX receive a rendered frame during terrain creation.
         yield return GenerateHeightmapRoutine(
             seedHash,
-            heights);
+            heights,
+            spatialPlanV1,
+            spatialSamplerV2);
+        // note: Upload the shared sampled surface unchanged. Hill shaping belongs upstream of the sampler's water, route, cave, and site contracts; a tile-wide smoothing pass here would overwrite those contracts and diverge from placement review.
 
         TerrainData terrainData =
             new TerrainData();
-
+        Terrain terrain = null;
+        bool transferred = false;
+        try
+        {
         terrainData.name =
             "YQ_GeneratedTerrainData_" +
             ShortSeed(seedHash);
@@ -312,6 +839,17 @@ public static class YQGeneratedWorldTerrain
              startRow < HeightmapResolution;
              startRow += HeightmapUploadRowsPerFrame)
         {
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Forming the terrain",
+                2,
+                8,
+                "Uploading terrain height rows " + (startRow + 1) + "-" +
+                Mathf.Min(startRow + HeightmapUploadRowsPerFrame, HeightmapResolution) +
+                " of " + HeightmapResolution,
+                Mathf.Lerp(
+                    0.63f,
+                    0.65f,
+                    startRow / (float)HeightmapResolution));
             int rowCount =
                 Mathf.Min(
                     HeightmapUploadRowsPerFrame,
@@ -342,10 +880,21 @@ public static class YQGeneratedWorldTerrain
             yield return null;
         }
 
-        Terrain terrain =
+        // note: Revalidate staging ownership after cooperative uploads; the parent may have been removed or activated while yielding.
+        if (!replaceExisting && (parent == null || parent.gameObject.activeInHierarchy))
+            throw new InvalidOperationException("Candidate terrain staging ownership changed during generation.");
+        terrain =
             CreateTerrainObject(
                 parent,
                 terrainData);
+        if (!replaceExisting) terrain.gameObject.name = RuntimeTerrainObjectName + "_Candidate";
+
+        YQStartupLoadingScreen.SetGenerationWorkStage(
+            "Forming the terrain",
+            2,
+            8,
+            "Terrain collider and renderer are ready",
+            0.65f);
 
         LogBuild(
             safeSeed,
@@ -353,6 +902,25 @@ public static class YQGeneratedWorldTerrain
 
         completed?.Invoke(
             terrain);
+        transferred = true;
+        }
+        finally
+        {
+            // note: Iterator cancellation and callback failure release data that has not transferred to the caller.
+            if (!transferred)
+            {
+                if (terrain != null)
+                {
+                    if (Application.isPlaying) UnityEngine.Object.Destroy(terrain.gameObject);
+                    else UnityEngine.Object.DestroyImmediate(terrain.gameObject);
+                }
+                if (terrainData != null)
+                {
+                    if (Application.isPlaying) UnityEngine.Object.Destroy(terrainData);
+                    else UnityEngine.Object.DestroyImmediate(terrainData);
+                }
+            }
+        }
     }
 
     public static Terrain Build(
@@ -414,7 +982,8 @@ public static class YQGeneratedWorldTerrain
 
     private static Terrain CreateTerrainObject(
         Transform parent,
-        TerrainData terrainData)
+        TerrainData terrainData,
+        Vector3? restoredPosition = null)
     {
         GameObject terrainObject =
             Terrain.CreateTerrainGameObject(
@@ -432,10 +1001,10 @@ public static class YQGeneratedWorldTerrain
 
         // note: Terrain coordinates begin at the lower-left corner, so the runtime object is centered around the deterministic world origin.
         terrainObject.transform.position =
-            new Vector3(
-                -WorldSize * 0.5f,
-                0f,
-                -WorldSize * 0.5f);
+            restoredPosition ?? new Vector3(
+                    -WorldSize * 0.5f,
+                    0f,
+                    -WorldSize * 0.5f);
 
         Terrain terrain =
             terrainObject.GetComponent<Terrain>();
@@ -894,20 +1463,15 @@ public static class YQGeneratedWorldTerrain
                 bounds.min.y;
         }
 
-        if (resolvedCategory ==
-                YQGeneratedWorldPlacementCategory.Structure &&
-            terrainVariation >
-                Mathf.Clamp(
-                    footprint * 0.10f,
-                    0.55f,
-                    3.5f))
+        if (resolvedCategory == YQGeneratedWorldPlacementCategory.Structure)
         {
-            // note: A rigid structure on residual slope favors the footprint median plus bounded burial; this closes downhill air gaps without dragging the full building below the lowest sample.
-            terrainContact =
-                Mathf.Lerp(
-                    minimumTerrain,
-                    terrainContact,
-                    0.72f);
+            // note: A rigid foundation must satisfy both the downhill air gap and uphill embedment limits; averaging cannot repair an incompatible slope.
+            float lowestSupportedBottom = maximumTerrain - 0.65f;
+            float highestSupportedBottom = minimumTerrain + 0.18f;
+            if (lowestSupportedBottom > highestSupportedBottom) return false;
+            terrainContact = Mathf.Clamp(terrainContact - categoryEmbed,
+                lowestSupportedBottom, highestSupportedBottom);
+            categoryEmbed = 0f;
         }
 
         correction =
@@ -1306,7 +1870,9 @@ public static class YQGeneratedWorldTerrain
                 detailOffset,
                 valleyOffset,
                 landforms,
-                tilePlan);
+                tilePlan,
+                null,
+                null);
         }
 
         return heights;
@@ -1314,7 +1880,9 @@ public static class YQGeneratedWorldTerrain
 
     private static IEnumerator GenerateHeightmapRoutine(
         uint seedHash,
-        float[,] heights)
+        float[,] heights,
+        GeneratedSpatialWorldPlanRecord spatialPlan,
+        YQSpatialBlueprintTerrainSamplerV2 spatialSamplerV2)
     {
         Vector2 continentalOffset =
             SeedOffset(
@@ -1352,7 +1920,8 @@ public static class YQGeneratedWorldTerrain
 
         YQGeneratedWorldTilePlan tilePlan =
             new YQGeneratedWorldTilePlan(
-                seedHash);
+                seedHash,
+                spatialPlan);
 
         float frameStartedAt =
             Time.realtimeSinceStartup;
@@ -1365,6 +1934,22 @@ public static class YQGeneratedWorldTerrain
              z < HeightmapResolution;
              z++)
         {
+            if ((z & 15) == 0)
+            {
+                // note: Coarse row reporting keeps the loading UI truthful without allocating a new status string for every heightmap row.
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Forming the terrain",
+                    2,
+                    8,
+                    "Synthesizing height row " + (z + 1) + " of " +
+                    HeightmapResolution,
+                    Mathf.Lerp(
+                        0.61f,
+                        0.63f,
+                        z / (float)HeightmapResolution));
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+            }
+
             for (int startX = 0;
                  startX < HeightmapResolution;
                  startX += columnChunkSize)
@@ -1386,6 +1971,8 @@ public static class YQGeneratedWorldTerrain
                     valleyOffset,
                     landforms,
                     tilePlan,
+                    spatialPlan,
+                    spatialSamplerV2,
                     startX,
                     endXExclusive);
 
@@ -1400,6 +1987,77 @@ public static class YQGeneratedWorldTerrain
         }
     }
 
+    private static float SampleV2HeightNormalized(
+        YQSpatialBlueprintTerrainSamplerV2 spatialSampler,
+        Vector2 detailOffset,
+        float worldX,
+        float worldZ,
+        V2HeightSampler.SpatialSamplingSession spatialSession)
+    {
+        // note: V2 owns macro terrain; seed detail is suppressed around water, roads, caves, and site reserves before applying the unchanged height limits.
+        YQSpatialTerrainSampleV2 planned = spatialSession != null
+            ? spatialSession.SampleSpatial(spatialSampler, worldX, worldZ)
+            : spatialSampler.Sample(worldX, worldZ);
+        float microDetail = Mathf.PerlinNoise(
+            worldX * DetailNoiseScale + detailOffset.x,
+            worldZ * DetailNoiseScale + detailOffset.y) * 2f - 1f;
+        float protectedMask = Mathf.Max(
+            planned.waterMask,
+            Mathf.Max(
+                planned.routeMask,
+                Mathf.Max(planned.siteReserveMask, planned.caveMassMask)));
+        float detailStrength = Mathf.Lerp(
+            0.0025f,
+            0.008f,
+            planned.ruggedness) * (1f - protectedMask);
+        float acceptedElevation = planned.elevationNormalized;
+        if (protectedMask < 0.65f)
+        {
+            // note: A four-way support sample softens only cliff-like inland breaks, preserving authored water, routes, caves, and settlement reserves.
+            const float supportRadius = 6f;
+            const float naturalSlopeDegrees = 40f;
+            float neighbourAverage = 0f;
+            float maximumGrade = 0f;
+            for (int supportIndex = 0; supportIndex < 4; supportIndex++)
+            {
+                float offsetX = supportIndex == 0 ? supportRadius : supportIndex == 1 ? -supportRadius : 0f;
+                float offsetZ = supportIndex == 2 ? supportRadius : supportIndex == 3 ? -supportRadius : 0f;
+                float supportX = worldX + offsetX;
+                float supportZ = worldZ + offsetZ;
+                YQSpatialTerrainSampleV2 support = spatialSession != null
+                    ? spatialSession.SampleSpatial(spatialSampler, supportX, supportZ)
+                    : spatialSampler.Sample(supportX, supportZ);
+                neighbourAverage += support.elevationNormalized;
+                maximumGrade = Mathf.Max(
+                    maximumGrade,
+                    Mathf.Abs(planned.elevationNormalized - support.elevationNormalized) *
+                        TerrainHeight / supportRadius);
+            }
+            neighbourAverage /= 4f;
+            if (maximumGrade > Mathf.Tan(naturalSlopeDegrees * Mathf.Deg2Rad))
+            {
+                // note: Fully converge extreme inland breaks to the supported datum; the prior partial blend still allowed isolated 70-degree walls on otherwise unprotected hills.
+                float naturalGrade = Mathf.Tan(naturalSlopeDegrees * Mathf.Deg2Rad);
+                float severity = Mathf.InverseLerp(naturalGrade, naturalGrade + 0.45f, maximumGrade);
+                float blend = Mathf.Lerp(0.76f, 1f, severity);
+                float maximumNaturalDelta = Mathf.Tan(naturalSlopeDegrees * Mathf.Deg2Rad) * supportRadius / TerrainHeight;
+                // note: Clamp the isolated sample against its local support datum so hills roll into slopes instead of terminating in a sheer vertical face.
+                float limitedElevation = Mathf.Clamp(
+                    planned.elevationNormalized,
+                    neighbourAverage - maximumNaturalDelta,
+                    neighbourAverage + maximumNaturalDelta);
+                acceptedElevation = Mathf.Lerp(
+                    planned.elevationNormalized,
+                    limitedElevation,
+                    blend);
+            }
+        }
+        return Mathf.Clamp(
+            acceptedElevation + microDetail * detailStrength,
+            0.025f,
+            0.88f);
+    }
+
     private static void FillHeightmapRow(
         float[,] heights,
         int z,
@@ -1411,6 +2069,8 @@ public static class YQGeneratedWorldTerrain
         Vector2 valleyOffset,
         MacroLandformSettings landforms,
         YQGeneratedWorldTilePlan tilePlan,
+        GeneratedSpatialWorldPlanRecord spatialPlan,
+        YQSpatialBlueprintTerrainSamplerV2 spatialSamplerV2,
         int startXInclusive = 0,
         int endXExclusive = -1)
     {
@@ -1458,6 +2118,14 @@ public static class YQGeneratedWorldTerrain
                     WorldSize -
                 WorldSize *
                     0.5f;
+
+            if (spatialSamplerV2 != null)
+            {
+                // note: Runtime and isolated placement review share one height function so review cannot drift from the generated V2 surface.
+                heights[z, x] = SampleV2HeightNormalized(
+                    spatialSamplerV2, detailOffset, worldX, worldZ, null);
+                continue;
+            }
 
             // note: The shared tile profile gives terrain, future foliage, and streaming passes one continuously blended regional authority at this world position.
             YQGeneratedWorldTileProfile tileProfile =
@@ -1709,6 +2377,17 @@ public static class YQGeneratedWorldTerrain
                     valleyMask *
                         0.78f);
 
+            if (spatialPlan != null)
+            {
+                // note: The macro terrain now follows the same persisted ridge, valley, and basin field that scored settlements and routes.
+                float plannedElevation =
+                    YQGeneratedWorldSpatialPlanner.EvaluateElevation(
+                        spatialPlan,
+                        new Vector2(worldX, worldZ));
+                float plannedHeight = Mathf.Lerp(0.095f, 0.56f, plannedElevation);
+                height = Mathf.Lerp(height, plannedHeight, 0.68f);
+            }
+
             Vector2 worldPoint =
                 new Vector2(
                     worldX,
@@ -1733,9 +2412,11 @@ public static class YQGeneratedWorldTerrain
                     62f);
 
             float basinMask =
-                Mathf.Max(
-                    primaryBasinMask,
-                    secondaryBasinMask);
+                spatialPlan != null
+                    ? EvaluateSpatialLakeMask(spatialPlan, worldPoint)
+                    : Mathf.Max(
+                        primaryBasinMask,
+                        secondaryBasinMask);
 
             float basinFloor =
                 0.078f +
@@ -1768,6 +2449,40 @@ public static class YQGeneratedWorldTerrain
                     0.025f,
                     0.88f);
         }
+    }
+
+    private static float EvaluateSpatialLakeMask(
+        GeneratedSpatialWorldPlanRecord spatialPlan,
+        Vector2 worldPoint)
+    {
+        float strongest = 0f;
+        if (spatialPlan == null || spatialPlan.macroFeatures == null)
+            return strongest;
+
+        for (int i = 0; i < spatialPlan.macroFeatures.Count; i++)
+        {
+            GeneratedSpatialFeatureRecord feature = spatialPlan.macroFeatures[i];
+            if (feature == null ||
+                !string.Equals(feature.featureKind, "lake_basin", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            float radians = -feature.headingDegrees * Mathf.Deg2Rad;
+            float sin = Mathf.Sin(radians);
+            float cos = Mathf.Cos(radians);
+            Vector2 delta = worldPoint - new Vector2(feature.centerX, feature.centerZ);
+            Vector2 local = new Vector2(
+                delta.x * cos - delta.y * sin,
+                delta.x * sin + delta.y * cos);
+            float nx = local.x / Mathf.Max(1f, feature.radiusX);
+            float nz = local.y / Mathf.Max(1f, feature.radiusZ);
+            strongest = Mathf.Max(
+                strongest,
+                Mathf.Clamp01(1f - Mathf.Sqrt(nx * nx + nz * nz)));
+        }
+
+        return strongest;
     }
 
     private static MacroLandformSettings

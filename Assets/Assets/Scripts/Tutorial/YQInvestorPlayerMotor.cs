@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterController))]
+[DefaultExecutionOrder(-100)]
 public sealed class YQInvestorPlayerMotor : MonoBehaviour
 {
     public static YQInvestorPlayerMotor ActiveMotor { get; private set; }
@@ -95,11 +96,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private CharacterController _controller;
     private Vector3 _planarVelocity;
     private Vector3 _dashDirection;
+    private Vector3 _lastRequestedMoveDisplacement;
+    private Vector3 _lastActualMoveDisplacement;
     private Vector3 _cameraBobLocalOffset;
     private Vector3 _thirdPersonCameraVelocity;
     private Vector2 _moveInput;
     private readonly RaycastHit[] _cameraHits = new RaycastHit[12];
     private readonly RaycastHit[] _stepProbeHits = new RaycastHit[8];
+    // note: Reuse overlap storage when testing whether the crouched player can safely stand.
+    private readonly Collider[] _standingClearanceHits = new Collider[24];
     private float _verticalVelocity;
     private float _yaw;
     private float _pitch;
@@ -113,20 +118,47 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private bool _isSprinting;
     private bool _isClimbing;
     private bool _isCrouching;
+    // note: Preserve a dash-start event for one motor tick so long frames cannot hide a valid dash that completed before the next observer sample.
+    private bool _dashStartedThisFrame;
+    // note: Retain the previous dash-key state so a delivered key edge remains reliable when InputSystem wasPressedThisFrame is unavailable during a background/editor frame.
     private bool _wasCrouching;
     private bool _dashStartedGrounded;
     private bool _lastFirstPerson;
+    private Collider _lastBlockingControllerCollider;
+    private Vector3 _lastBlockingControllerContactPoint;
+    private Vector3 _lastBlockingControllerContactNormal;
+    private int _blockingControllerContactCount;
+    private CollisionFlags _lastMoveCollisionFlags;
+    private bool _lastMoveRejectedByTraversalGate;
 
     private bool _generationMovementLocked;
     private bool _deactivatedDuplicate;
     private float _standingControllerHeight;
     private Vector3 _standingControllerCenter;
-
     public bool IsAuthoritative => !_deactivatedDuplicate && ActiveMotor == this;
     public bool IsCrouching => _isCrouching;
+    // note: Animation reads the motor's grounded state, excluding the stale contact on a jump's launch frame.
+    public bool IsGrounded => _controller != null && _controller.isGrounded && _verticalVelocity <= 0f;
+    // note: Expose the production gate state so verification can distinguish an input-delivery failure from an intentional motor early return.
+    public bool CanProcessMovementInput => isActiveAndEnabled && IsAuthoritative &&
+        _controller != null && _controller.enabled && cameraPivot != null && playerCamera != null &&
+        !YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked && !RuntimeModalUiBlocker.IsBlocked;
     public bool IsDashing => _dashTimeRemaining > 0f;
+    // note: Verification and animation-adjacent observers can distinguish a dash that began and completed within one long frame from a rejected dash.
+    public bool DashStartedThisFrame => _dashStartedThisFrame;
     public bool IsSprinting => _isSprinting;
     public Vector2 MoveInput => _moveInput;
+    // note: Streaming uses the motor's already-computed planar velocity so lookahead follows CharacterController motion without duplicating movement state.
+    public Vector3 PlanarVelocity => _planarVelocity;
+    // note: Verification distinguishes requested speed from collision-resolved movement and names the contact that stopped the authoritative capsule.
+    internal Vector3 LastRequestedMoveDisplacement => _lastRequestedMoveDisplacement;
+    internal Vector3 LastActualMoveDisplacement => _lastActualMoveDisplacement;
+    internal CollisionFlags LastMoveCollisionFlags => _lastMoveCollisionFlags;
+    internal bool LastMoveRejectedByTraversalGate => _lastMoveRejectedByTraversalGate;
+    internal Collider LastBlockingControllerCollider => _lastBlockingControllerCollider;
+    internal Vector3 LastBlockingControllerContactPoint => _lastBlockingControllerContactPoint;
+    internal Vector3 LastBlockingControllerContactNormal => _lastBlockingControllerContactNormal;
+    internal int BlockingControllerContactCount => _blockingControllerContactCount;
 
     private void Awake()
     {
@@ -151,6 +183,22 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         Cursor.visible = false;
     }
 
+    private void Start()
+    {
+        // note: Capture the already-configured authoritative controller after all Awake methods have completed, without retuning gameplay.
+        if (IsAuthoritative)
+            CaptureCanonicalPlayerContract();
+    }
+
+    private void CaptureCanonicalPlayerContract()
+    {
+        // note: Persist the physical envelope and supported movement speeds as testable canonical state, not as a second player authority.
+        PlayerStateManager manager = PlayerStateManager.Instance;
+        if (manager == null || manager.state == null || !YQPlayerContractCapture.TryCapture(gameObject, walkSpeed, sprintSpeed, out YQPlayerCollisionContract contract))
+            return;
+        manager.state.playerCollisionContract = contract;
+    }
+
     private void Update()
     {
         if (!IsAuthoritative)
@@ -164,6 +212,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         float dt =
             Time.deltaTime;
+        _dashStartedThisFrame = false;
 
         AlignCameraPivot(dt);
 
@@ -187,6 +236,12 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
                     "Initial-generation movement lock APPLIED.");
             }
 
+            // note: Initial generation may suspend locomotion, but it must never suspend the player's look input or camera presentation.
+            HandleLook(dt);
+
+            // note: Keep the gameplay camera following the live look pivot while generation owns only movement readiness; generation must never freeze camera presentation.
+            HandleCamera(Time.unscaledDeltaTime);
+
             ClearInitialGenerationLocomotion(
                 dt);
 
@@ -205,26 +260,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         if (RuntimeModalUiBlocker.IsBlocked)
         {
-            _moveInput =
-                Vector2.zero;
+            // note: The generation overlay is not allowed to capture the camera; only ordinary menus and conversations suppress look input.
+            if (YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked ||
+                YQStartupLoadingScreen.IsGenerationVisible)
+                HandleLook(dt);
+            // note: Modal pause sets game delta to zero; presentation must still settle its FOV and pose before startup qualifies the first playable view.
+            HandleCamera(Time.unscaledDeltaTime);
 
-            _isSprinting =
-                false;
-
-            _isClimbing =
-                false;
-
-            UpdateCrouchState(
-                false,
-                _controller != null &&
-                _controller.isGrounded,
-                dt);
-
-            vitals?.SetSprinting(
-                false);
-
-            HandleCamera(dt);
-
+            // note: A menu or conversation discards buffered movement and dodge momentum instead of resuming an old dash when it closes.
+            ClearInitialGenerationLocomotion(dt);
             return;
         }
 
@@ -250,6 +294,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         _planarVelocity =
             Vector3.zero;
 
+
         _verticalVelocity =
             0f;
 
@@ -261,6 +306,8 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         _isSprinting =
             false;
+
+
 
         _isClimbing =
             false;
@@ -298,7 +345,9 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
          *
          * Camera presentation may continue to settle normally.
          */
-        HandleCamera(dt);
+        // note: Locked movement keeps presentation on the real clock so unpausing cannot expand a previously frozen camera beyond the qualified view.
+        AlignCameraPivot(dt);
+        HandleCamera(Time.unscaledDeltaTime);
     }
     private void HandleLook(float dt)
     {
@@ -306,11 +355,16 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             return;
 
         Vector2 delta = Mouse.current.delta.ReadValue();
+        if (delta.sqrMagnitude <= 0.000001f)
+            return;
+
         _yaw += delta.x * sensitivityX;
         _pitch -= delta.y * sensitivityY;
         _pitch = Mathf.Clamp(_pitch, pitchMin, pitchMax);
         transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
         cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+
+        // note: Let HandleCamera build the candidate camera from this pose before validation; validating here would submit the previous camera frustum and fail to admit the view the player actually requested.
     }
 
     private void HandleMove(float dt)
@@ -332,16 +386,19 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             sprintHeld = kb.leftShiftKey.isPressed;
             jumpPressed = kb.spaceKey.wasPressedThisFrame;
             jumpHeld = kb.spaceKey.isPressed;
+            // note: Dash follows the production Input System press edge; verification must deliver real device events rather than add a second input contract.
             dashPressed = kb.qKey.wasPressedThisFrame;
             crouchHeld = kb.leftCtrlKey.isPressed || kb.rightCtrlKey.isPressed;
             if (kb.tKey.wasPressedThisFrame)
                 ToggleCameraMode();
         }
 
+
         move = Vector2.ClampMagnitude(move, 1f);
         _moveInput = move;
         Vector3 wish = transform.forward * move.y + transform.right * move.x;
-        bool grounded = _controller.isGrounded;
+        // note: CharacterController grounding describes the previous Move; takeoff must not refresh coyote time while vertical velocity is still upward.
+        bool grounded = _controller.isGrounded && _verticalVelocity <= 0f;
         if (grounded)
             _lastGroundedTime = Time.time;
         UpdateCrouchState(crouchHeld, grounded, dt);
@@ -395,8 +452,13 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         Vector3 requestedPlanarMotion = _planarVelocity * dt;
         Vector3 movementStart = transform.position;
-        CollisionFlags movementFlags = _controller.Move(
+        // note: Route normal movement through the same capsule gate used by dash, climb, and step assistance.
+        CollisionFlags movementFlags = MoveWithTraversalGate(
             requestedPlanarMotion + Vector3.up * (_verticalVelocity * dt));
+        // note: Stop upward integration on ceiling contact so low ceilings do not leave the player pressing upward for the rest of a jump.
+        if ((movementFlags & CollisionFlags.Above) != 0 && _verticalVelocity > 0f)
+            _verticalVelocity = 0f;
+
 
         if (grounded && !jumped &&
             (movementFlags & CollisionFlags.Sides) != 0)
@@ -451,18 +513,71 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         }
 
         float startY = transform.position.y;
-        _controller.Move(Vector3.up * assistHeight);
+        MoveWithTraversalGate(Vector3.up * assistHeight);
         float actualRise = transform.position.y - startY;
         if (actualRise < assistHeight * 0.72f)
         {
             // note: A ceiling or overhang rejected the lift; settle back immediately and preserve the original blocking collision.
-            _controller.Move(Vector3.down * Mathf.Max(0f, actualRise));
+            MoveWithTraversalGate(Vector3.down * Mathf.Max(0f, actualRise));
             return;
         }
 
         // note: This fallback runs only after CharacterController reports a grounded side collision and the space above the obstacle is clear, allowing irregular imported stair risers without climbing walls.
-        _controller.Move(requestedPlanarMotion);
-        _controller.Move(Vector3.down * (actualRise + 0.10f));
+        MoveWithTraversalGate(requestedPlanarMotion);
+        MoveWithTraversalGate(Vector3.down * (actualRise + 0.10f));
+    }
+
+    private CollisionFlags MoveWithTraversalGate(Vector3 displacement)
+    {
+        YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        Vector3 movementStart = transform.position;
+        Vector3 requestedDisplacement = displacement;
+        _lastRequestedMoveDisplacement = requestedDisplacement;
+        _lastActualMoveDisplacement = Vector3.zero;
+        _lastMoveCollisionFlags = CollisionFlags.None;
+        _lastMoveRejectedByTraversalGate = false;
+        bool startedTraversable = streamer != null && streamer.isActiveAndEnabled &&
+            streamer.TryValidateCurrentTraversability(movementStart, _controller.radius, _controller.skinWidth, out _);
+        if (streamer != null && streamer.isActiveAndEnabled &&
+            !streamer.TryConstrainMovement(
+                transform.position,
+                displacement,
+                _controller.radius,
+                _controller.skinWidth,
+                out _))
+        {
+            // note: Reject the entire controller step when its clearance sweep is blocked; CharacterController resolution can add sideways motion to both horizontal and vertical moves.
+            _lastMoveRejectedByTraversalGate = true;
+            return CollisionFlags.None;
+        }
+
+        // note: Observe collision-resolved motion immediately, before another owner can change publication, without correcting or hiding the actual movement result.
+        CollisionFlags flags = _controller.Move(displacement);
+        _lastMoveCollisionFlags = flags;
+        _lastActualMoveDisplacement = transform.position - movementStart;
+        if (startedTraversable && !streamer.TryValidateCurrentTraversability(
+                transform.position, _controller.radius, _controller.skinWidth, out string failure))
+        {
+            Debug.LogError("[YQInvestorPlayerMotor] COLLISION LEFT CERTIFIED SWEEP start=" + movementStart.ToString("F4") +
+                " requested=" + requestedDisplacement.ToString("F4") + " submitted=" + displacement.ToString("F4") +
+                " actual=" + (transform.position - movementStart).ToString("F4") +
+                " position=" + transform.position.ToString("F4") + " radius=" + _controller.radius +
+                " skin=" + _controller.skinWidth + " step=" + _controller.stepOffset + " flags=" + flags + " failure=" + failure);
+        }
+        return flags;
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // note: Retain only side contacts opposing requested movement so runtime verification can identify physical blockers without allocating in the motor hot path.
+        if (hit == null || hit.collider == null || hit.normal.y >= 0.65f ||
+            Vector3.Dot(hit.moveDirection, hit.normal) >= -0.05f)
+            return;
+
+        _lastBlockingControllerCollider = hit.collider;
+        _lastBlockingControllerContactPoint = hit.point;
+        _lastBlockingControllerContactNormal = hit.normal;
+        _blockingControllerContactCount++;
     }
 
     private bool HasExternalStepProbeHit(
@@ -517,11 +632,20 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         if (!buffered || !coyote)
             return false;
 
+        // note: A crouched jump cannot expand into a low ceiling or spend stamina while its standing shape is blocked.
+        if (!HasStandingClearance())
+            return false;
+
         _lastJumpPressedTime = -999f;
         if (!SpendStamina(jumpStaminaCost))
             return false;
 
+        _isCrouching = false;
+        _wasCrouching = false;
+        UpdateCrouchController(0f);
         _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        // note: One grounded/coyote opportunity buys one jump; a second press in the grace window cannot buy an unintended air jump.
+        _lastGroundedTime = float.NegativeInfinity;
         actionRecorder?.RecordJump();
         GetComponent<YQPlayerEquipmentVisual>()?.PlayJumpFeedback();
         return true;
@@ -556,8 +680,12 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         _dashStartedGrounded = grounded;
         _dashTimeRemaining = Mathf.Max(0.05f, dashDuration);
+        _dashStartedThisFrame = true;
         _nextDashTime = Time.time + dashCooldown;
         _isCrouching = false;
+        // note: Establish the checked standing shape before the dash moves, not gradually during its travel.
+        _wasCrouching = false;
+        UpdateCrouchController(0f);
         _planarVelocity = _dashDirection * sprintSpeed;
         actionRecorder?.RecordDodge();
         GetComponent<YQPlayerEquipmentVisual>()?.PlayRollFeedback();
@@ -567,10 +695,48 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     {
         bool targetCrouch = crouchHeld && grounded && _dashTimeRemaining <= 0f && !_isClimbing;
         _isCrouching = targetCrouch;
+        // note: Resolve obstruction before publishing/recording the stance used by movement, camera, and animation.
+        UpdateCrouchController(dt);
         if (_isCrouching && !_wasCrouching)
             actionRecorder?.RecordCrouch();
         _wasCrouching = _isCrouching;
-        UpdateCrouchController(dt);
+    }
+
+    private bool HasStandingClearance()
+    {
+        if (_controller == null)
+            return false;
+        float standingHeight = _standingControllerHeight > 0.1f ? _standingControllerHeight : 1.8f;
+        if (_controller.height >= standingHeight - 0.001f)
+            return true;
+
+        // note: Sweep the upper sphere through the added headroom; unchanged feet/floor contacts must not prevent standing.
+        Vector3 scale = transform.lossyScale;
+        float radius = _controller.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z));
+        float height = Mathf.Max(standingHeight * Mathf.Abs(scale.y), radius * 2f);
+        float inset = Mathf.Min(0.02f, _controller.skinWidth * Mathf.Abs(scale.y));
+        Vector3 center = transform.TransformPoint(_standingControllerCenter);
+        Vector3 offset = transform.up * Mathf.Max(0f, height * 0.5f - radius);
+        float currentHeight = Mathf.Max(_controller.height * Mathf.Abs(scale.y), radius * 2f);
+        Vector3 currentTop = transform.TransformPoint(_controller.center) +
+            transform.up * Mathf.Max(0f, currentHeight * 0.5f - radius);
+        int hitCount = Physics.OverlapCapsuleNonAlloc(currentTop, center + offset,
+            Mathf.Max(0.001f, radius - inset), _standingClearanceHits, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+
+        // note: A full buffer may have omitted a blocking collider; keep crouching instead of guessing it is clear.
+        if (hitCount == _standingClearanceHits.Length)
+            return false;
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider obstacle = _standingClearanceHits[i];
+            if (obstacle == null || obstacle == _controller || obstacle.transform.IsChildOf(transform))
+                continue;
+            if (Physics.GetIgnoreLayerCollision(gameObject.layer, obstacle.gameObject.layer) ||
+                Physics.GetIgnoreCollision(_controller, obstacle))
+                continue;
+            return false;
+        }
+        return true;
     }
 
     private void UpdateCrouchController(float dt)
@@ -579,32 +745,49 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             return;
 
         float standingHeight = _standingControllerHeight > 0.1f ? _standingControllerHeight : 1.8f;
-        Vector3 standingCenter = _standingControllerCenter == Vector3.zero ? new Vector3(0f, standingHeight * 0.5f, 0f) : _standingControllerCenter;
-        float targetHeight = _isCrouching ? Mathf.Clamp(crouchHeight, 0.72f, standingHeight) : standingHeight;
+        Vector3 standingCenter = _standingControllerCenter;
+        // note: All stand-up paths, including modal locks and dash continuation, share the same geometry gate.
+        if (!_isCrouching && !HasStandingClearance())
+            _isCrouching = true;
+        float minimumHeight = Mathf.Min(standingHeight, Mathf.Max(0.72f, _controller.radius * 2f));
+        float targetHeight = _isCrouching ? Mathf.Clamp(crouchHeight, minimumHeight, standingHeight) : standingHeight;
         Vector3 targetCenter = _isCrouching
-            ? new Vector3(standingCenter.x, targetHeight * 0.5f, standingCenter.z)
+            // note: Preserve the authored capsule bottom, even when its standing center is not half its height.
+            ? standingCenter - Vector3.up * ((standingHeight - targetHeight) * 0.5f)
             : standingCenter;
 
         float blend = 1f - Mathf.Exp(-Mathf.Max(0.01f, crouchTransitionSharpness) * Mathf.Max(0f, dt));
         if (dt <= 0f)
             blend = 1f;
-        _controller.height = Mathf.Lerp(_controller.height, targetHeight, blend);
-        _controller.center = Vector3.Lerp(_controller.center, targetCenter, blend);
+        float nextHeight = Mathf.Lerp(_controller.height, targetHeight, blend);
+        Vector3 nextCenter = Vector3.Lerp(_controller.center, targetCenter, blend);
+        // note: Avoid repeatedly rebuilding an unchanged controller shape after the stance has settled.
+        if (Mathf.Abs(_controller.height - nextHeight) > 0.0001f ||
+            (_controller.center - nextCenter).sqrMagnitude > 0.00000001f)
+        {
+            _controller.height = nextHeight;
+            _controller.center = nextCenter;
+        }
     }
 
     private void ApplyDash(float dt)
     {
-        _dashTimeRemaining = Mathf.Max(0f, _dashTimeRemaining - dt);
+        // note: The last frame spends only the remaining dash time, keeping travel distance stable across frame rates and occasional long frames.
+        float dashStep = Mathf.Min(Mathf.Max(0f, dt), _dashTimeRemaining);
+        _dashTimeRemaining = Mathf.Max(0f, _dashTimeRemaining - dashStep);
         float speed = dashDistance / Mathf.Max(0.05f, dashDuration);
         if (!_dashStartedGrounded)
             speed *= airDashSpeedMultiplier;
 
         if (!_controller.isGrounded)
-            _verticalVelocity += gravity * 0.45f * dt;
+            _verticalVelocity += gravity * 0.45f * dashStep;
         else if (_verticalVelocity < -1f)
             _verticalVelocity = -1f;
 
-        _controller.Move((_dashDirection * speed + Vector3.up * _verticalVelocity) * dt);
+        CollisionFlags flags = MoveWithTraversalGate(
+            (_dashDirection * speed + Vector3.up * _verticalVelocity) * dashStep);
+        if ((flags & CollisionFlags.Above) != 0 && _verticalVelocity > 0f)
+            _verticalVelocity = 0f;
     }
 
     private bool TryClimb(float dt, Vector2 move, Vector3 wish, bool jumpHeld)
@@ -613,9 +796,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             return false;
         if (!TryGetClimbSurface(wish, out RaycastHit hit))
             return false;
+        // note: Climbing must not unfold a crouched capsule into the underside of a ledge.
+        if (!HasStandingClearance())
+            return false;
         if (!SpendStamina(climbStaminaPerSecond * dt))
             return false;
 
+        _isCrouching = false;
+        _wasCrouching = false;
+        UpdateCrouchController(0f);
         _isClimbing = true;
         _verticalVelocity = 0f;
         _planarVelocity = Vector3.zero;
@@ -623,7 +812,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         Vector3 side = Vector3.ProjectOnPlane(transform.right, hit.normal).normalized * (move.x * climbSideSpeed);
         Vector3 climb = Vector3.up * climbSpeed;
         Vector3 stick = -hit.normal * climbStickSpeed;
-        _controller.Move((side + climb + stick) * dt);
+        MoveWithTraversalGate((side + climb + stick) * dt);
 
         _lastGroundedTime = Time.time;
         actionRecorder?.RecordClimb();
@@ -644,6 +833,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         float surfaceAngle = Vector3.Angle(hit.normal, Vector3.up);
         return surfaceAngle >= climbMinSurfaceAngle && surfaceAngle <= climbMaxSurfaceAngle;
     }
+
 
     private bool SpendStamina(float amount)
     {
@@ -678,6 +868,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             Quaternion feedbackRotation = cameraPivot.rotation * Quaternion.Euler(0f, 0f, UpdateCameraRoll(dt));
             Vector3 targetPosition = cameraPivot.TransformPoint(firstPersonCameraLocalOffset) + UpdateFirstPersonCameraOffset(dt);
             playerCamera.transform.SetPositionAndRotation(targetPosition, feedbackRotation);
+            ValidateAndRememberCameraPose();
             return;
         }
 
@@ -696,6 +887,27 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             float rotationBlend = modeChanged ? 1f : 1f - Mathf.Exp(-Mathf.Max(0.01f, thirdPersonRotationSharpness) * dt);
             playerCamera.transform.rotation = Quaternion.Slerp(playerCamera.transform.rotation, targetRotation, rotationBlend);
         }
+        ValidateAndRememberCameraPose();
+    }
+
+    private void ValidateAndRememberCameraPose()
+    {
+        YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        if (streamer == null)
+            return;
+
+        // note: Make the exact post-motion camera frustum receive same-authority ground before Unity renders; queued work remains responsible for full semantic presentation.
+        if (!streamer.TryEnsureCurrentCameraGround(out _))
+            streamer.RequestCameraViewAdmission();
+
+        // note: This camera-frame probe must observe only; the follow-up request owns any changed-frustum admission.
+        if (streamer.TryValidateCurrentVisualCoverage(out _))
+        {
+            return;
+        }
+
+        // note: Queue the candidate frustum while leaving the player's requested camera pose untouched; streaming must catch up to the view, never move the view back.
+        streamer.RequestCameraViewAdmission();
     }
 
     public void ToggleCameraMode()

@@ -19,6 +19,15 @@ public sealed class NpcDialogueAgent : MonoBehaviour
     private NpcDialogueSession _session;
     private bool _sessionLoaded;
     private string _loadedSessionNpcId = string.Empty;
+    private PlayerState _loadedSessionPlayer;
+    private int _replySequence;
+
+    private void OnDisable()
+    {
+        // note: Streaming out an NPC retires its pending reply; it must not revive or write memory after removal.
+        _replySequence++;
+        IsThinking = false;
+    }
 
     public string NpcId => !string.IsNullOrWhiteSpace(npcId) ? npcId.Trim() : (_entityInfo != null ? _entityInfo.entityId : "npc_unknown");
     public string NpcName => !string.IsNullOrWhiteSpace(npcName) ? npcName.Trim() : (_entityInfo != null ? _entityInfo.displayName : "NPC");
@@ -49,6 +58,10 @@ public sealed class NpcDialogueAgent : MonoBehaviour
 
     public void SendPlayerMessage(string playerText, Action<string> onNpcReplyText)
     {
+        EnsureSessionLoaded();
+        // note: One NPC owns one in-flight turn; overlapping submissions used to reorder its transcript.
+        if (IsThinking || !isActiveAndEnabled)
+            return;
         if (string.IsNullOrWhiteSpace(playerText))
         {
             onNpcReplyText?.Invoke(null);
@@ -58,6 +71,12 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         string trimmed = playerText.Trim();
         CommitPlayerLine(trimmed);
         IsThinking = true;
+        int sequence = ++_replySequence;
+        PlayerState player = _loadedSessionPlayer;
+        string identity = NpcId;
+        Func<bool> stillCurrent = () => this != null && isActiveAndEnabled &&
+            sequence == _replySequence && ReferenceEquals(player, PlayerStateManager.Instance?.state) &&
+            string.Equals(identity, NpcId, StringComparison.OrdinalIgnoreCase);
 
         DialogueThinkService service = DialogueThinkService.Instance;
         if (service == null)
@@ -70,6 +89,8 @@ public sealed class NpcDialogueAgent : MonoBehaviour
 
         service.RequestNpcReply(this, trimmed, npcReply =>
         {
+            if (!stillCurrent())
+                return;
             IsThinking = false;
             string final = string.IsNullOrWhiteSpace(npcReply) ? null : npcReply.Trim();
             if (string.IsNullOrWhiteSpace(final))
@@ -77,7 +98,7 @@ public sealed class NpcDialogueAgent : MonoBehaviour
             if (!string.IsNullOrWhiteSpace(final))
                 CommitNpcLine(final);
             onNpcReplyText?.Invoke(LastNpcLine);
-        });
+        }, stillCurrent);
     }
 
     public void CommitPlayerLine(string text)
@@ -96,6 +117,8 @@ public sealed class NpcDialogueAgent : MonoBehaviour
 
     public void ClearRecent()
     {
+        // note: Clearing a transcript also cancels ownership of a reply built from that transcript.
+        _replySequence++;
         EnsureSessionLoaded();
         _session.recentTurns.Clear();
         LastNpcLine = string.Empty;
@@ -193,6 +216,7 @@ public sealed class NpcDialogueAgent : MonoBehaviour
 
     public string BuildPersonaBlock()
     {
+        // note: This provider intentionally exposes only public identity and role facts; session transcript and private NPC knowledge never enter the model prompt here.
         StringBuilder sb = new StringBuilder(640);
         sb.AppendLine("name: " + NpcName);
         sb.AppendLine("id: " + NpcId);
@@ -277,7 +301,8 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         string currentId = NpcId;
         if (!_sessionLoaded)
             return;
-        if (string.Equals(_loadedSessionNpcId, currentId, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(_loadedSessionNpcId, currentId, StringComparison.OrdinalIgnoreCase) &&
+            ReferenceEquals(_loadedSessionPlayer, PlayerStateManager.Instance?.state))
             return;
 
         _sessionLoaded = false;
@@ -333,13 +358,19 @@ public sealed class NpcDialogueAgent : MonoBehaviour
     {
         ResolveIdentity();
         string currentId = NpcId;
-        if (_sessionLoaded && string.Equals(_loadedSessionNpcId, currentId, StringComparison.OrdinalIgnoreCase))
+        PlayerState currentPlayer = PlayerStateManager.Instance?.state;
+        if (_sessionLoaded && string.Equals(_loadedSessionNpcId, currentId, StringComparison.OrdinalIgnoreCase) &&
+            ReferenceEquals(_loadedSessionPlayer, currentPlayer))
             return;
 
+        // note: The same authored Vey object may survive a profile load; discard its previous in-memory conversation too.
+        _replySequence++;
+        IsThinking = false;
+        _loadedSessionPlayer = currentPlayer;
         _sessionLoaded = true;
         _loadedSessionNpcId = currentId;
 
-        if (persistTranscriptAcrossSessions && NpcDialogueSessionStore.TryLoad(currentId, out NpcDialogueSession loaded) && loaded != null)
+        if (persistTranscriptAcrossSessions && currentPlayer != null && NpcDialogueSessionStore.TryLoad(currentId, out NpcDialogueSession loaded) && loaded != null)
         {
             _session = loaded;
             _session.npcEntityId = currentId;
@@ -370,7 +401,8 @@ public sealed class NpcDialogueAgent : MonoBehaviour
 
     private void SaveSession()
     {
-        if (!persistTranscriptAcrossSessions || _session == null)
+        if (!persistTranscriptAcrossSessions || _session == null || _loadedSessionPlayer == null ||
+            !ReferenceEquals(_loadedSessionPlayer, PlayerStateManager.Instance?.state))
             return;
 
         _session.npcEntityId = NpcId;

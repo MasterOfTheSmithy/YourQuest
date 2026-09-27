@@ -28,6 +28,7 @@ public class PlayerStateManager : MonoBehaviour
     private string BackupSavePath => SavePath + ".bak";
 
     private float nextAutosaveTime;
+    public string LastLoadStatus { get; private set; } = "not_loaded";
 
     private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
     {
@@ -69,59 +70,102 @@ public class PlayerStateManager : MonoBehaviour
 
     public void LoadOrCreate()
     {
-        bool loaded = TryLoadState(SavePath, out PlayerState loadedState);
-        if (!loaded && TryLoadState(BackupSavePath, out loadedState))
+        bool hadPersistentState = File.Exists(SavePath) || File.Exists(BackupSavePath);
+        string backupFailure = string.Empty;
+        bool loaded = TryLoadState(SavePath, out PlayerState loadedState, out string primaryFailure);
+        if (!loaded && TryLoadState(BackupSavePath, out loadedState, out backupFailure))
         {
             // note: A valid previous version is safer than silently resetting a player's permanent history.
             Debug.LogWarning("[PlayerStateManager] Primary save was unreadable; recovered the last known-good backup.");
             loaded = true;
+            LastLoadStatus = "recovered_backup";
         }
 
         if (loaded)
         {
             state = loadedState ?? new PlayerState();
+            if (LastLoadStatus == "not_loaded") LastLoadStatus = "loaded";
         }
         else
         {
-            // note: This path is reserved for a first run or double-corruption fallback.
+            // note: Unsupported future schemas fail closed and never overwrite the user's only unreadable save with defaults.
             state = new PlayerState();
+            LastLoadStatus = hadPersistentState && ((primaryFailure ?? string.Empty).IndexOf("Unsupported", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                (backupFailure ?? string.Empty).IndexOf("Unsupported", StringComparison.OrdinalIgnoreCase) >= 0)
+                ? "unsupported_version" : "created_default";
         }
 
         NormalizeState();
 
-        if (!File.Exists(SavePath))
+        if (!hadPersistentState && !File.Exists(SavePath))
             Save();
     }
 
     public void Save()
     {
+        TrySave(out _);
+    }
+
+    public bool TrySave(out string failure)
+    {
+        failure = string.Empty;
         try
         {
-            NormalizeState();
-            state.Touch();
-            string json = JsonConvert.SerializeObject(state, JsonSettings);
+            if (!TryPrepareSnapshot(out string json, out failure))
+                return false;
             WriteAtomically(json);
+            return true;
         }
         catch (Exception e)
         {
+            failure = e.Message;
             Debug.LogWarning("[PlayerStateManager] Save failed:\n" + e);
+            return false;
         }
     }
 
-    private bool TryLoadState(string path, out PlayerState loaded)
+    public bool TryPrepareSnapshot(out string json, out string failure)
+    {
+        json = string.Empty;
+        failure = string.Empty;
+        try
+        {
+            NormalizeState();
+            json = JsonConvert.SerializeObject(state, JsonSettings);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            failure = exception.Message;
+            return false;
+        }
+    }
+
+    private bool TryLoadState(string path, out PlayerState loaded, out string failure)
     {
         loaded = null;
+        failure = string.Empty;
         if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             return false;
 
         try
         {
             // note: Do not change the authoritative runtime state until a complete JSON document is accepted.
-            loaded = JsonConvert.DeserializeObject<PlayerState>(File.ReadAllText(path), JsonSettings);
-            return loaded != null;
+            if (!YQStateMigrations.TryNormalizePlayerDocument(File.ReadAllText(path), out string normalizedJson, out _, out failure))
+                return false;
+            loaded = JsonConvert.DeserializeObject<PlayerState>(normalizedJson, JsonSettings);
+            YQMigrationResult migration = null;
+            if (loaded == null || !YQStateMigrations.TryMigrate(loaded, out migration))
+            {
+                failure = loaded == null ? "Player record was null." : migration.message;
+                Debug.LogError("[PlayerStateManager] Load rejected: " + failure);
+                return false;
+            }
+            return true;
         }
         catch (Exception exception)
         {
+            failure = exception.Message;
             Debug.LogWarning("[PlayerStateManager] Save file could not be read: " + Path.GetFileName(path) + "\n" + exception);
             return false;
         }
@@ -150,15 +194,8 @@ public class PlayerStateManager : MonoBehaviour
         }
         catch (PlatformNotSupportedException)
         {
-            // note: Constrained platforms still finish the temporary write before the final overwrite fallback.
-            File.Copy(temporaryPath, SavePath, true);
-            File.Delete(temporaryPath);
-        }
-        catch (IOException)
-        {
-            // note: This fallback covers filesystems that cannot perform a native replace operation.
-            File.Copy(temporaryPath, SavePath, true);
-            File.Delete(temporaryPath);
+            // note: Unsupported atomic replacement is observable failure; the previous accepted save remains untouched.
+            throw new IOException("This filesystem does not support atomic player-save replacement.");
         }
     }
 
@@ -198,7 +235,7 @@ public class PlayerStateManager : MonoBehaviour
             }
 
             if (string.IsNullOrWhiteSpace(item.itemId))
-                item.itemId = Guid.NewGuid().ToString("N");
+                item.itemId = YQStateContract.LegacyId(YQStableEntityKind.Item, state.playerId, i, 0);
             if (string.IsNullOrWhiteSpace(item.displayName))
                 item.displayName = "Unknown Item";
             if (string.IsNullOrWhiteSpace(item.itemType))
@@ -217,7 +254,7 @@ public class PlayerStateManager : MonoBehaviour
             }
 
             if (string.IsNullOrWhiteSpace(skill.skillId))
-                skill.skillId = Guid.NewGuid().ToString("N");
+                skill.skillId = YQStateContract.LegacyId(YQStableEntityKind.Content, state.playerId, i, 0);
             if (string.IsNullOrWhiteSpace(skill.name))
                 skill.name = "Unknown Skill";
             if (skill.tier <= 0)
@@ -236,7 +273,7 @@ public class PlayerStateManager : MonoBehaviour
             }
 
             if (string.IsNullOrWhiteSpace(quest.questId))
-                quest.questId = Guid.NewGuid().ToString("N");
+                quest.questId = YQStateContract.LegacyId(YQStableEntityKind.Quest, state.playerId, i, quest.createdUnix);
             if (string.IsNullOrWhiteSpace(quest.name))
                 quest.name = "Unknown Quest";
             if (string.IsNullOrWhiteSpace(quest.status))
@@ -255,7 +292,7 @@ public class PlayerStateManager : MonoBehaviour
             }
 
             if (string.IsNullOrWhiteSpace(record.classId))
-                record.classId = Guid.NewGuid().ToString("N");
+                record.classId = YQStateContract.LegacyId(YQStableEntityKind.Content, state.playerId, i, record.unlockedUnix);
             if (string.IsNullOrWhiteSpace(record.name))
                 record.name = "Unknown Class";
         }
@@ -270,10 +307,13 @@ public class PlayerStateManager : MonoBehaviour
             }
 
             if (string.IsNullOrWhiteSpace(record.titleId))
-                record.titleId = Guid.NewGuid().ToString("N");
+                record.titleId = YQStateContract.LegacyId(YQStableEntityKind.Content, state.playerId, i, record.acquiredUnix);
             if (string.IsNullOrWhiteSpace(record.name))
                 record.name = "Unknown Title";
         }
+
+        // note: Register identities only after legacy fields have been assigned so migration is repeatable and label-independent.
+        YQStateIdentity.EnsurePlayerState(state);
     }
 
     private void TryAutosave()
@@ -316,7 +356,22 @@ public class PlayerStateManager : MonoBehaviour
     {
         NormalizeState();
         state.lastPosition = pos;
+        state.logicalPosition = pos;
         state.Touch();
+    }
+
+    private void OnApplicationQuit()
+    {
+        // note: The profile owner performs the paired commit; this fallback protects standalone state-manager scenes.
+        if (YQProfileSaveSystem.Instance == null)
+            TrySave(out _);
+    }
+
+    private void OnDestroy()
+    {
+        // note: Clear the singleton so scene reloads cannot route mutations to a destroyed player state owner.
+        if (Instance == this)
+            Instance = null;
     }
 
     public void GrantXp(int amount)

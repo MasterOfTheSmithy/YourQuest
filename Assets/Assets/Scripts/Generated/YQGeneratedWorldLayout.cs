@@ -5,7 +5,7 @@ using UnityEngine;
 public static class YQGeneratedWorldLayout
 {
     public const string LayoutVersion =
-        "generated_world_layout_v2_footprints";
+        "generated_world_layout_v3_spatial_authority";
 
     /*
      * Vey's origin owns the center of the generated world.
@@ -13,6 +13,20 @@ public static class YQGeneratedWorldLayout
      */
     public const float OriginReserveRadius =
         88f;
+
+    // note: The authored summit datum is shared by terrain grading, statue placement, reservations, and route clearance.
+    public static readonly Vector3 OriginGoddessSummitOffset =
+        new Vector3(30.6f, 0f, 14.6f);
+
+    // note: Keep the authored WitchHouse on the north side of the origin reserve, clear of near-spawn cave anchors while remaining close to Vey's start.
+    public static readonly Vector3 OriginWitchHouseOffset =
+        new Vector3(0f, 0f, 30f);
+
+    private const float OriginLandmarkReserveRadius = 7f;
+    private const float OriginLandmarkRouteMargin = 1f;
+    private const float OriginLandmarkCornerClearance = 0.25f;
+    private const float OriginWitchHouseReserveRadius = 14f;
+    private const float OriginWitchHouseRouteMargin = 2f;
 
     /*
      * The first player-facing settlement is a visible destination from
@@ -35,6 +49,8 @@ public static class YQGeneratedWorldLayout
     private const float SiteSeparation = 24f;
 
     private static YQRuntimeWorldSiteCatalog spatialCatalog;
+    private static readonly Dictionary<string, Vector3> runtimeSettlementAnchors =
+        new Dictionary<string, Vector3>(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, Vector3> runtimeEncampmentAnchors =
         new Dictionary<string, Vector3>(StringComparer.OrdinalIgnoreCase);
 
@@ -43,13 +59,30 @@ public static class YQGeneratedWorldLayout
     private static void ResetSpatialCatalog()
     {
         spatialCatalog = null;
+        runtimeSettlementAnchors.Clear();
         runtimeEncampmentAnchors.Clear();
     }
 
     public static void ClearRuntimeEncampmentAnchors()
     {
-        // note: Runtime anchor corrections are deterministic build products, never persisted mutable world authority.
+        // note: Runtime construction-anchor corrections are deterministic build products, never persisted mutable world authority.
+        runtimeSettlementAnchors.Clear();
         runtimeEncampmentAnchors.Clear();
+    }
+
+    public static void SetRuntimeSettlementAnchor(
+        string settlementId,
+        Vector3 anchor)
+    {
+        if (string.IsNullOrWhiteSpace(settlementId) ||
+            float.IsNaN(anchor.x) || float.IsInfinity(anchor.x) ||
+            float.IsNaN(anchor.z) || float.IsInfinity(anchor.z))
+        {
+            return;
+        }
+
+        // note: Geometry, population, paths, and foliage all consume the same terrain-prepass-approved settlement location.
+        runtimeSettlementAnchors[settlementId] = anchor;
     }
 
     public static void SetRuntimeEncampmentAnchor(
@@ -99,6 +132,34 @@ public static class YQGeneratedWorldLayout
         if (region == null)
             return Vector3.zero;
 
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        {
+            if (YQSpatialMaterializationResolverV2.TryGetPrepared(
+                    plan,
+                    out YQPreparedSpatialMaterializationV2 prepared,
+                    out string failure) &&
+                prepared.TryGetRegion(
+                    region.regionId,
+                    out YQSpatialMaterializationRegionV2 domain))
+            {
+                // note: Authoritative V2 region domains are returned directly; grid fallbacks and V1 coordinates are forbidden after cutover.
+                return new Vector3(domain.centerX, 0f, domain.centerZ);
+            }
+
+            return RejectMissingV2Anchor(
+                "region " + region.regionId,
+                failure);
+        }
+
+        if (YQGeneratedWorldSpatialPlanner.TryGetRegion(
+                plan,
+                region.regionId,
+                out GeneratedSpatialRegionRecord spatialRegion))
+        {
+            // note: Regions now use the same persisted causal centers that score settlements, terrain features, and travel corridors.
+            return KeepInsideWorld(new Vector3(spatialRegion.centerX, 0f, spatialRegion.centerZ));
+        }
+
         GridBounds bounds =
             CalculateWorldGridBounds(
                 plan);
@@ -137,6 +198,65 @@ public static class YQGeneratedWorldLayout
     {
         if (settlement == null)
             return Vector3.zero;
+
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        {
+            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+                    plan,
+                    out YQPreparedSpatialMaterializationV2 prepared,
+                    out string failure) ||
+                !prepared.TryGetSiteBySemanticId(
+                    settlement.settlementId,
+                    out YQSpatialMaterializationSiteV2 site) ||
+                site.kind != YQSiteKindV2.Settlement)
+            {
+                return RejectMissingV2Anchor(
+                    "settlement " + settlement.settlementId,
+                    failure);
+            }
+
+            Vector3 accepted = new Vector3(site.x, 0f, site.z);
+            if (runtimeSettlementAnchors.TryGetValue(
+                    settlement.settlementId,
+                    out Vector3 runtimeV2Anchor))
+            {
+                float dx = runtimeV2Anchor.x - accepted.x;
+                float dz = runtimeV2Anchor.z - accepted.z;
+                if (dx * dx + dz * dz <= 0.01f)
+                {
+                    // note: Runtime terrain construction may publish only the finalized Y value; accepted V2 horizontal coordinates remain immutable.
+                    accepted.y = runtimeV2Anchor.y;
+                }
+                else
+                {
+                    Debug.LogError(
+                        "[YQGeneratedWorldLayout] Ignored a relocated V2 settlement anchor for " +
+                        settlement.settlementId + ".");
+                }
+            }
+
+            return accepted;
+        }
+
+        if (!string.IsNullOrWhiteSpace(settlement.settlementId) &&
+            runtimeSettlementAnchors.TryGetValue(
+                settlement.settlementId,
+                out Vector3 runtimeAnchor))
+        {
+            return runtimeAnchor;
+        }
+
+        if (YQGeneratedWorldSpatialPlanner.TryGetLocation(
+                plan,
+                settlement.settlementId,
+                out GeneratedSpatialLocationRecord spatialLocation))
+        {
+            // note: Runtime terrain repair may adjust this anchor later, but the persisted scored plan remains its deterministic starting authority.
+            return PlaceFootprintSafely(
+                new Vector3(spatialLocation.worldX, 0f, spatialLocation.worldZ),
+                Mathf.Max(spatialLocation.footprintRadius, ResolveFootprintRadius(settlement.runtimeSiteKitId)),
+                SafeSeed(plan) + "|" + SafeString(settlement.settlementId) + "|spatial");
+        }
 
         float footprintRadius = ResolveFootprintRadius(
             settlement.runtimeSiteKitId);
@@ -219,6 +339,252 @@ public static class YQGeneratedWorldLayout
             placementSeed + "|settlement_final");
     }
 
+    public static bool TryBuildOriginLandmarkDetour(
+        Vector2 start,
+        Vector2 end,
+        float corridorHalfWidth,
+        out Vector2[] waypoints)
+    {
+        waypoints = null;
+        Vector2 goddessCenter = new Vector2(
+            YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginGoddessSummitOffset.x,
+            YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginGoddessSummitOffset.z);
+        float goddessRadius = OriginLandmarkReserveRadius +
+            Mathf.Max(0f, corridorHalfWidth) +
+            OriginLandmarkRouteMargin;
+        Vector2 witchHouseCenter = new Vector2(
+            YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginWitchHouseOffset.x,
+            YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginWitchHouseOffset.z);
+        float witchHouseRadius = OriginWitchHouseReserveRadius +
+            Mathf.Max(0f, corridorHalfWidth) +
+            OriginWitchHouseRouteMargin;
+        bool crossesGoddessReserve = SegmentIntersectsCircle(
+            start, end, goddessCenter, goddessRadius);
+        bool crossesWitchHouseReserve = SegmentIntersectsCircle(
+            start, end, witchHouseCenter, witchHouseRadius);
+        if (!crossesGoddessReserve && !crossesWitchHouseReserve)
+            return false;
+        if ((start - goddessCenter).sqrMagnitude < goddessRadius * goddessRadius ||
+            (end - goddessCenter).sqrMagnitude < goddessRadius * goddessRadius ||
+            (start - witchHouseCenter).sqrMagnitude < witchHouseRadius * witchHouseRadius ||
+            (end - witchHouseCenter).sqrMagnitude < witchHouseRadius * witchHouseRadius)
+        {
+            // note: Interior accepted controls are filtered at the route level; a true endpoint overlap remains visible to route acceptance.
+            return false;
+        }
+
+        // note: One visibility graph routes around both authored footprints so detouring one cannot send an earlier leg through the other.
+        const int ringPointCount = 64;
+        int nodeCount = 2 + ringPointCount * 2;
+        Vector2[] nodes = new Vector2[nodeCount];
+        nodes[0] = start;
+        nodes[1] = end;
+        int nextNodeIndex = 2;
+        for (int circleIndex = 0; circleIndex < 2; circleIndex++)
+        {
+            Vector2 center = circleIndex == 0 ? goddessCenter : witchHouseCenter;
+            float radius = circleIndex == 0 ? goddessRadius : witchHouseRadius;
+            float ringRadius = radius + OriginLandmarkCornerClearance;
+            for (int pointIndex = 0; pointIndex < ringPointCount; pointIndex++)
+            {
+                float angle = (Mathf.PI * 2f * pointIndex) / ringPointCount;
+                nodes[nextNodeIndex++] = center +
+                    new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * ringRadius;
+            }
+        }
+
+        float[] distance = new float[nodeCount];
+        int[] previous = new int[nodeCount];
+        bool[] visited = new bool[nodeCount];
+        for (int index = 0; index < nodeCount; index++)
+        {
+            distance[index] = float.PositiveInfinity;
+            previous[index] = -1;
+        }
+        distance[0] = 0f;
+
+        for (int step = 0; step < nodeCount; step++)
+        {
+            int current = -1;
+            float currentDistance = float.PositiveInfinity;
+            for (int index = 0; index < nodeCount; index++)
+            {
+                if (!visited[index] && distance[index] < currentDistance)
+                {
+                    current = index;
+                    currentDistance = distance[index];
+                }
+            }
+            if (current < 0 || current == 1)
+                break;
+            visited[current] = true;
+
+            for (int candidate = 0; candidate < nodeCount; candidate++)
+            {
+                if (candidate == current || visited[candidate] ||
+                    !SegmentClearsCircle(nodes[current], nodes[candidate], goddessCenter, goddessRadius) ||
+                    !SegmentClearsCircle(nodes[current], nodes[candidate], witchHouseCenter, witchHouseRadius))
+                {
+                    continue;
+                }
+
+                float candidateDistance = currentDistance +
+                    Vector2.Distance(nodes[current], nodes[candidate]);
+                if (candidateDistance < distance[candidate])
+                {
+                    distance[candidate] = candidateDistance;
+                    previous[candidate] = current;
+                }
+            }
+        }
+
+        if (previous[1] < 0)
+            return false;
+
+        // note: Return only intermediate physical points; callers retain the accepted route endpoints and identity.
+        List<Vector2> reversed = new List<Vector2>(nodeCount);
+        int cursor = 1;
+        while (cursor != 0 && reversed.Count < nodeCount)
+        {
+            if (cursor != 1)
+                reversed.Add(nodes[cursor]);
+            cursor = previous[cursor];
+            if (cursor < 0)
+                return false;
+        }
+        if (cursor != 0 || reversed.Count == 0)
+            return false;
+        reversed.Reverse();
+        waypoints = reversed.ToArray();
+        return true;
+    }
+
+    public static void FilterOriginLandmarkRouteControlPoints(
+        List<Vector2> controlPoints,
+        float corridorHalfWidth)
+    {
+        if (controlPoints == null || controlPoints.Count < 3)
+            return;
+
+        // note: Collapse only temporary interior controls inside protected origin footprints; the persisted route endpoints remain authoritative.
+        int sourceCount = controlPoints.Count;
+        int writeIndex = 1;
+        for (int index = 1; index < sourceCount - 1; index++)
+        {
+            if (!IsOriginLandmarkRouteControlPointInsideReserve(
+                    controlPoints[index], corridorHalfWidth))
+            {
+                controlPoints[writeIndex++] = controlPoints[index];
+            }
+        }
+        controlPoints[writeIndex] = controlPoints[sourceCount - 1];
+        int filteredCount = writeIndex + 1;
+        if (filteredCount < sourceCount)
+            controlPoints.RemoveRange(filteredCount, sourceCount - filteredCount);
+    }
+
+    public static bool IsOriginLandmarkRouteControlPointInsideReserve(
+        Vector2 point,
+        float corridorHalfWidth)
+    {
+        Vector2 origin = new Vector2(
+            YQGeneratedWorldTerrain.OriginWorldPosition.x,
+            YQGeneratedWorldTerrain.OriginWorldPosition.z);
+        Vector2 goddessCenter = origin + new Vector2(
+            OriginGoddessSummitOffset.x,
+            OriginGoddessSummitOffset.z);
+        float goddessRadius = OriginLandmarkReserveRadius +
+            Mathf.Max(0f, corridorHalfWidth) +
+            OriginLandmarkRouteMargin;
+        if ((point - goddessCenter).sqrMagnitude < goddessRadius * goddessRadius)
+            return true;
+
+        // note: Use the same expanded hut reserve as segment routing so an interior control cannot disable its collider-safe detour.
+        Vector2 witchHouseCenter = origin + new Vector2(
+            OriginWitchHouseOffset.x,
+            OriginWitchHouseOffset.z);
+        float witchHouseRadius = OriginWitchHouseReserveRadius +
+            Mathf.Max(0f, corridorHalfWidth) +
+            OriginWitchHouseRouteMargin;
+        return (point - witchHouseCenter).sqrMagnitude <
+            witchHouseRadius * witchHouseRadius;
+    }
+
+    private static bool SegmentIntersectsCircle(Vector2 start, Vector2 end, Vector2 center, float radius)
+    {
+        return DistancePointToSegmentSquared(center, start, end) < radius * radius;
+    }
+
+    private static bool SegmentClearsCircle(Vector2 start, Vector2 end, Vector2 center, float radius)
+    {
+        return DistancePointToSegmentSquared(center, start, end) >= radius * radius;
+    }
+
+    private static float DistancePointToSegmentSquared(Vector2 point, Vector2 start, Vector2 end)
+    {
+        Vector2 delta = end - start;
+        float lengthSquared = delta.sqrMagnitude;
+        if (lengthSquared < 0.0001f)
+            return (point - start).sqrMagnitude;
+        float t = Mathf.Clamp01(Vector2.Dot(point - start, delta) / lengthSquared);
+        return (point - (start + delta * t)).sqrMagnitude;
+    }
+
+    private static bool SegmentClearsRect(Vector2 start, Vector2 end, Vector2 min, Vector2 max)
+    {
+        if (!TryGetSegmentRectInterval(start, end, min, max, out float entry, out float exit))
+            return true;
+        return exit - entry <= 0.0001f;
+    }
+
+    private static bool TryGetSegmentRectInterval(
+        Vector2 start,
+        Vector2 end,
+        Vector2 min,
+        Vector2 max,
+        out float entry,
+        out float exit)
+    {
+        entry = 0f;
+        exit = 1f;
+        Vector2 delta = end - start;
+        if (!ClipSegmentAxis(start.x, delta.x, min.x, max.x, ref entry, ref exit) ||
+            !ClipSegmentAxis(start.y, delta.y, min.y, max.y, ref entry, ref exit))
+            return false;
+        float midpoint = (entry + exit) * 0.5f;
+        return exit > entry && IsInsideOpenRect(start + delta * midpoint, min, max);
+    }
+
+    private static bool ClipSegmentAxis(
+        float origin,
+        float delta,
+        float minimum,
+        float maximum,
+        ref float entry,
+        ref float exit)
+    {
+        if (Mathf.Abs(delta) < 0.0001f)
+            return origin >= minimum && origin <= maximum;
+        float inverse = 1f / delta;
+        float first = (minimum - origin) * inverse;
+        float second = (maximum - origin) * inverse;
+        if (first > second)
+        {
+            float swap = first;
+            first = second;
+            second = swap;
+        }
+        entry = Mathf.Max(entry, first);
+        exit = Mathf.Min(exit, second);
+        return exit >= entry;
+    }
+
+    private static bool IsInsideOpenRect(Vector2 point, Vector2 min, Vector2 max)
+    {
+        return point.x > min.x && point.x < max.x &&
+            point.y > min.y && point.y < max.y;
+    }
+
     public static Vector3 GetSettlementAnchor(
         GeneratedWorldPlanRecord plan,
         GeneratedSettlementRecord settlement,
@@ -229,7 +595,7 @@ public static class YQGeneratedWorldLayout
                 plan,
                 settlement);
 
-        if (terrain != null)
+        if (terrain != null && IsFiniteHorizontal(position))
         {
             position =
                 YQGeneratedWorldTerrain.GroundPoint(
@@ -246,12 +612,58 @@ public static class YQGeneratedWorldLayout
         if (encampment == null)
             return Vector3.zero;
 
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        {
+            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+                    plan,
+                    out YQPreparedSpatialMaterializationV2 prepared,
+                    out string failure) ||
+                !prepared.TryGetSiteBySemanticId(
+                    encampment.encampmentId,
+                    out YQSpatialMaterializationSiteV2 site) ||
+                site.kind != YQSiteKindV2.HostileSite)
+            {
+                return RejectMissingV2Anchor(
+                    "hostile site " + encampment.encampmentId,
+                    failure);
+            }
+
+            Vector3 accepted = new Vector3(site.x, 0f, site.z);
+            if (runtimeEncampmentAnchors.TryGetValue(
+                    encampment.encampmentId,
+                    out Vector3 runtimeV2Anchor))
+            {
+                float dx = runtimeV2Anchor.x - accepted.x;
+                float dz = runtimeV2Anchor.z - accepted.z;
+                if (dx * dx + dz * dz <= 0.01f)
+                    accepted.y = runtimeV2Anchor.y;
+                else
+                    Debug.LogError(
+                        "[YQGeneratedWorldLayout] Ignored a relocated V2 hostile-site anchor for " +
+                        encampment.encampmentId + ".");
+            }
+
+            return accepted;
+        }
+
         if (!string.IsNullOrWhiteSpace(encampment.encampmentId) &&
             runtimeEncampmentAnchors.TryGetValue(
                 encampment.encampmentId,
                 out Vector3 runtimeAnchor))
         {
             return runtimeAnchor;
+        }
+
+        if (YQGeneratedWorldSpatialPlanner.TryGetLocation(
+                plan,
+                encampment.encampmentId,
+                out GeneratedSpatialLocationRecord spatialLocation))
+        {
+            // note: Hostile sites are selected for road pressure and terrain suitability before authored site geometry is streamed.
+            return PlaceFootprintSafely(
+                new Vector3(spatialLocation.worldX, 0f, spatialLocation.worldZ),
+                Mathf.Max(spatialLocation.footprintRadius, ResolveFootprintRadius(encampment.runtimeSiteKitId)),
+                SafeSeed(plan) + "|" + SafeString(encampment.encampmentId) + "|spatial");
         }
 
         float footprintRadius = ResolveFootprintRadius(
@@ -325,7 +737,7 @@ public static class YQGeneratedWorldLayout
                 plan,
                 encampment);
 
-        if (terrain != null)
+        if (terrain != null && IsFiniteHorizontal(position))
         {
             position =
                 YQGeneratedWorldTerrain.GroundPoint(
@@ -346,7 +758,7 @@ public static class YQGeneratedWorldLayout
                 plan,
                 region);
 
-        if (terrain != null)
+        if (terrain != null && IsFiniteHorizontal(position))
         {
             position =
                 YQGeneratedWorldTerrain.GroundPoint(
@@ -595,6 +1007,28 @@ public static class YQGeneratedWorldLayout
 
         // note: The terrain prepass remains the final fail-closed validator if a densely packed plan cannot fit after deterministic displacement attempts.
         return position;
+    }
+
+    private static Vector3 RejectMissingV2Anchor(
+        string label,
+        string failure)
+    {
+        // note: Non-finite coordinates force construction validation to reject the site instead of silently mixing V1 fallback placement into a V2 world.
+        Debug.LogError(
+            "[YQGeneratedWorldLayout] Missing authoritative V2 anchor for " +
+            label + ": " +
+            (string.IsNullOrWhiteSpace(failure)
+                ? "the accepted materialization projection has no matching record."
+                : failure));
+        return new Vector3(float.NaN, 0f, float.NaN);
+    }
+
+    private static bool IsFiniteHorizontal(Vector3 position)
+    {
+        return !float.IsNaN(position.x) &&
+               !float.IsInfinity(position.x) &&
+               !float.IsNaN(position.z) &&
+               !float.IsInfinity(position.z);
     }
 
     private static Vector3 PushAwayFromSettlements(

@@ -26,6 +26,21 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
     private float _progress;
 
+    private string _generationPhase =
+        "Preparing world generation";
+
+    private string _generationSubstep =
+        "Waiting for the first accepted world record";
+
+    private int _generationStepIndex = 1;
+
+    private int _generationStepCount = 1;
+
+    private string _generationProgressLabel =
+        "STEP 1 OF 1  /  PREPARING WORLD GENERATION  /  0%";
+
+    private static readonly string[] ThinkingDotFrames = { ".", "..", "..." };
+
     private int _warnings;
 
     private int _errors;
@@ -118,11 +133,14 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     private bool _generationMode;
     private bool _generationFailure;
     private Action _retryGeneration;
+    private string _retryGenerationLabel = "Retry generation";
     private Action _returnToTitle;
     private bool _ordinaryLogStackTracesSuppressed;
     private StackTraceLogType _previousOrdinaryLogStackTraceType;
 
     private bool _finishingGenerationPresentation;
+
+    private float _handoffBlackoutAlpha;
 
     private GUIStyle _titleStyle;
 
@@ -173,6 +191,18 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
     public static YQStartupLoadingScreen Current =>
         s_instance;
+
+    // note: Expose the active generation phase to the beta control surface so a long build can be diagnosed without guessing from editor responsiveness.
+    public static string CurrentGenerationPhase =>
+        s_instance != null ? s_instance._generationPhase : string.Empty;
+
+    // note: Expose the active generation substep alongside its phase so memory or throughput stalls identify the exact materialization operation.
+    public static string CurrentGenerationSubstep =>
+        s_instance != null ? s_instance._generationSubstep : string.Empty;
+
+    // note: Publish the loading screen's truthful progress value for unattended fixture and regression evidence.
+    public static float CurrentGenerationProgress =>
+        s_instance != null ? s_instance._progress : 0f;
 
     // ============================================================
     // SHOW
@@ -225,8 +255,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         s_instance.SuppressOrdinaryLogStackTraces();
 
-        // note: Initial generation keeps the baked Goddess stage alive behind the transparent HUD instead of unloading it into a blank screen.
-        YQTitleEnvironmentLoader.HoldForWorldGeneration();
+        // note: Initial generation may show progress over the world, but it must never hand camera ownership to the title/Goddess stage; the live gameplay camera remains free to look while generation catches up.
+        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
 
         s_instance._title =
             GenerationTitle;
@@ -261,10 +291,53 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             progress);
     }
 
+    public static void SetGenerationWorkStage(
+        string phase,
+        int stepIndex,
+        int stepCount,
+        string substep,
+        float progress)
+    {
+        // note: Do not create a loading-screen object for ordinary post-startup builds solely to expose diagnostics.
+        if (!YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked && s_instance == null)
+            return;
+
+        EnsureInstance();
+        // note: Keep the truthful phase available to diagnostics even after the full-screen generation lock is released; only the visible HUD remains gated.
+        s_instance._generationPhase = string.IsNullOrWhiteSpace(phase)
+            ? "Forming the world"
+            : phase.Trim();
+        s_instance._generationSubstep = string.IsNullOrWhiteSpace(substep)
+            ? "Working..."
+            : substep.Trim();
+        s_instance._generationStepCount = Mathf.Max(1, stepCount);
+        s_instance._generationStepIndex = Mathf.Clamp(
+            stepIndex,
+            1,
+            s_instance._generationStepCount);
+        s_instance._progress = Mathf.Clamp01(progress);
+        s_instance.RefreshGenerationProgressLabel();
+
+        if (!YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked)
+            return;
+
+        // note: Mechanical progress is intentionally separate from Goddess dialogue so frequent truthful substeps never pollute or restart her thought transcript.
+        s_instance.enabled = true;
+    }
+
+    public static void SetGenerationSubstep(string substep)
+    {
+        // note: Nested loaders may explain current work without changing their parent's phase number, percentage, or dialogue.
+        if (!YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked || s_instance == null)
+            return;
+        s_instance._generationSubstep = string.IsNullOrWhiteSpace(substep) ? "Working..." : substep.Trim();
+    }
+
     public static void ShowGenerationFailure(
         string status,
         Action retryGeneration,
-        Action returnToTitle)
+        Action returnToTitle,
+        string retryLabel = "Retry generation")
     {
         YQStartupLoadingScreen screen = ShowGeneration(
             status,
@@ -276,6 +349,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         // note: A watchdog stop remains an interactive terminal state instead of impersonating an endlessly running loading screen.
         screen._generationFailure = true;
         screen._retryGeneration = retryGeneration;
+        // note: Camera-only recovery must not imply that accepted world content will be regenerated.
+        screen._retryGenerationLabel = string.IsNullOrWhiteSpace(retryLabel) ? "Retry generation" : retryLabel;
         screen._returnToTitle = returnToTitle;
     }
 
@@ -287,6 +362,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         // note: Clear stale recovery callbacks before a fresh deterministic attempt resumes normal progress reporting.
         s_instance._generationFailure = false;
         s_instance._retryGeneration = null;
+        s_instance._retryGenerationLabel = "Retry generation";
         s_instance._returnToTitle = null;
     }
 
@@ -300,14 +376,18 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         }
 
         // note: Disable immediately before deferred destruction so an orphaned modal cannot consume another frame of input.
-        s_instance.enabled =
+        YQStartupLoadingScreen orphan = s_instance;
+        orphan.enabled =
             false;
 
-        s_instance.gameObject.SetActive(
+        orphan.gameObject.SetActive(
             false);
 
+        // note: Clear the static owner before deferred destruction so bootstrap can create the ordinary loading screen instead of reusing this inactive generation view.
+        s_instance = null;
+
         Destroy(
-            s_instance.gameObject);
+            orphan.gameObject);
     }
 
     private static void EnsureInstance()
@@ -354,6 +434,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             _progress =
                 Mathf.Clamp01(
                     progress);
+            RefreshGenerationProgressLabel();
 
             return;
         }
@@ -367,6 +448,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         _progress =
             Mathf.Clamp01(
                 progress);
+        RefreshGenerationProgressLabel();
 
         if (_generationMode &&
             !string.Equals(
@@ -457,8 +539,14 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     }
 
     public IEnumerator FinishGenerationAndHide(
-        float revealHoldSeconds = 0f)
+        float revealHoldSeconds = 0f,
+        Action revealGameplay = null,
+        Func<bool> canRevealGameplay = null,
+        Action handoffFailed = null)
     {
+        // note: Validation is repeated after asynchronous boundaries; the original build may have been replaced while presentation waited.
+        if (!CanContinueGenerationHandoff(canRevealGameplay))
+            yield break;
         // note: Mark the intentional final reveal so the unlocked-state safety guard does not cut off its closing line.
         _finishingGenerationPresentation =
             true;
@@ -471,16 +559,45 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                     revealHoldSeconds);
         }
 
+        if (!CanContinueGenerationHandoff(canRevealGameplay))
+            yield break;
+
         SetStage(
             "Entering YourQuest...",
             1f);
 
-        yield return
-            new WaitForSecondsRealtime(
-                0.45f);
+        if (!CanContinueGenerationHandoff(canRevealGameplay))
+            yield break;
+        SetGenerationWorkStage("Entering the world", 9, 9,
+            "Keeping the live gameplay camera active while generation UI closes", 0.99f);
+        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
+        if (!CanContinueGenerationHandoff(canRevealGameplay))
+            yield break;
 
+        // note: Reveal is immediate because generation never owns or hides the gameplay camera; additive title cleanup can finish independently.
+        revealGameplay?.Invoke();
+
+        // note: The title-stage handoff may destroy this presentation owner while its delayed coroutine is unwinding; do not dereference a destroyed Unity object.
+        if (this == null)
+            yield break;
         Destroy(
             gameObject);
+    }
+
+    private bool CanContinueGenerationHandoff(Func<bool> canRevealGameplay)
+    {
+        if (canRevealGameplay == null || canRevealGameplay())
+            return true;
+        // note: Invalidated work returns to a visible loading state; it never hides the recovery UI or releases movement.
+        CancelGenerationHandoff();
+        return false;
+    }
+
+    public void CancelGenerationHandoff()
+    {
+        // note: Coroutine ownership stays with the builder; this only resets the presentation after that work is stopped or invalidated.
+        _finishingGenerationPresentation = false;
+        _handoffBlackoutAlpha = 0f;
     }
 
     // ============================================================
@@ -790,6 +907,22 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         _nextGenerationLineSwapTime =
             0f;
+
+        // note: A new loading transaction must never inherit a completed phase label from the previous world.
+        _generationPhase = "Preparing world generation";
+        _generationSubstep = "Waiting for the first accepted world record";
+        _generationStepIndex = 1;
+        _generationStepCount = 1;
+        RefreshGenerationProgressLabel();
+    }
+
+    private void RefreshGenerationProgressLabel()
+    {
+        // note: Cache the composed label when progress changes so OnGUI does not allocate uppercase and percentage strings every loading frame.
+        _generationProgressLabel =
+            "STEP " + _generationStepIndex + " OF " + _generationStepCount +
+            "  /  " + _generationPhase.ToUpperInvariant() + "  /  " +
+            Mathf.RoundToInt(Mathf.Clamp01(_progress) * 100f) + "%";
     }
 
     private void SetGenerationTranscriptTarget(
@@ -1149,6 +1282,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         if (_generationMode)
         {
             DrawGenerationHud();
+            DrawHandoffBlackout();
             return;
         }
 
@@ -1564,10 +1698,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 "Securing connection",
                 StringComparison.Ordinal))
         {
-            string[] frames = { ".", "..", "..." };
             int frame = Mathf.FloorToInt(Time.unscaledTime * 2.4f) %
-                frames.Length;
-            dialogue = "Securing connection" + frames[frame];
+                ThinkingDotFrames.Length;
+            dialogue = "Securing connection" + ThinkingDotFrames[frame];
         }
 
         Rect dialogueRect = new Rect(
@@ -1595,12 +1728,19 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         GUI.Label(
             new Rect(
                 progressRect.x,
-                progressRect.y - 25f,
+                progressRect.y - 46f,
                 progressRect.width,
                 20f),
-            "WORLD FORMATION  /  " +
-            Mathf.RoundToInt(Mathf.Clamp01(_progress) * 100f) + "%",
+            _generationProgressLabel,
             _generationPhaseStyle);
+        GUI.Label(
+            new Rect(
+                progressRect.x,
+                progressRect.y - 24f,
+                progressRect.width,
+                20f),
+            _generationSubstep,
+            _smallStyle);
         DrawRect(
             progressRect,
             new Color(0.01f, 0.04f, 0.07f, 0.72f));
@@ -1649,6 +1789,17 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             DrawGenerationFailureActions(margin);
     }
 
+    private void DrawHandoffBlackout()
+    {
+        if (_handoffBlackoutAlpha <= 0f)
+            return;
+
+        // note: One full-screen fill masks the camera swap without render textures, extra cameras, or a one-frame world flash.
+        DrawRect(
+            new Rect(0f, 0f, Screen.width, Screen.height),
+            new Color(0f, 0f, 0f, _handoffBlackoutAlpha));
+    }
+
     private void DrawGenerationFailureActions(float margin)
     {
         const float buttonWidth = 170f;
@@ -1661,7 +1812,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         // note: Recovery controls prove the presentation is responsive and let the player choose a clean retry or a safe return instead of waiting forever.
         if (GUI.Button(
                 new Rect(x, y, buttonWidth, buttonHeight),
-                "Retry generation"))
+                _retryGenerationLabel))
         {
             Action retry = _retryGeneration;
             ClearGenerationFailure();

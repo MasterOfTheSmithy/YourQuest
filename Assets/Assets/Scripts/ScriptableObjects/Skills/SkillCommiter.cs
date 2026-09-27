@@ -9,6 +9,12 @@ public static class SkillCommitter
 {
     public static SkillData Commit(EmergentSkill draft, PlayerProfile profile = null)
     {
+        // note: Preserve the old serialized caller while routing its live mutation to canonical PlayerState.
+        return CommitCanonical(draft, profile != null ? profile.State : PlayerStateManager.Instance?.state);
+    }
+
+    public static SkillData CommitCanonical(EmergentSkill draft, PlayerState state)
+    {
         if (draft == null)
         {
             Debug.LogWarning("[SkillCommitter] Draft is null.");
@@ -98,16 +104,27 @@ public static class SkillCommitter
         Debug.LogWarning("[SkillCommitter] Commit called at runtime; asset creation requires UNITY_EDITOR.");
 #endif
 
-        // Optional: update player profile
-        if (profile != null)
+        // note: Commit the accepted skill and equipment selection into the canonical player snapshot, never into a mutable profile mirror.
+        if (state != null)
         {
-            profile.AddSkill(committedSkill.skillName);
-
-            // ? If this was an upgrade, prefer replacing the equipped skill.
-            if (upgradeTarget != null)
-                profile.ReplaceEquippedSkill(committedSkill);
-            else
-                profile.EquipSkill(committedSkill);
+            state.EnsureCollections();
+            state.UpsertSkill(new SkillRecord
+            {
+                skillId = committedSkill.skillId,
+                familyId = committedSkill.familyId,
+                parentSkillId = committedSkill.parentSkillId,
+                tier = committedSkill.tier,
+                rank = 1,
+                unlocked = true,
+                name = committedSkill.skillName,
+                description = committedSkill.description,
+                type = committedSkill.type.ToString(),
+                context = committedSkill.context,
+                environment = committedSkill.environment,
+                learnedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            });
+            state.equippedSkillBySlot[committedSkill.type.ToString()] = committedSkill.skillId;
+            state.Touch();
         }
 
         return committedSkill;

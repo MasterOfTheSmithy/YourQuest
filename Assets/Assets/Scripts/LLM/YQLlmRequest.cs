@@ -9,6 +9,16 @@ public enum YQLlmRequestPriority
     StartupExclusive = 2
 }
 
+public enum YQLlmTerminalOutcome
+{
+    AcceptedResponse = 0,
+    Failed = 1,
+    InvalidResponse = 2,
+    Cancelled = 3,
+    Superseded = 4,
+    Evicted = 5
+}
+
 public sealed class YQLlmRequest
 {
     // note: The prompt is immutable once queued so diagnostics and retries describe the same intended work.
@@ -23,6 +33,16 @@ public sealed class YQLlmRequest
     public bool deferJsonValidationToCaller;
     public bool disableTimeout;
     public string exclusiveOwner;
+    // note: These optional stamps let callers pin a request to a profile/world snapshot; omitted values are captured at admission.
+    public string profileId;
+    public string worldId;
+    public int generationEpoch = -1;
+    public string ownerId;
+    public long playerStateRevision = -1;
+    public long worldStateRevision = -1;
+    // note: Callers can omit a revision only when their proposal is independent of mutable state; profile, world, and epoch ownership remain mandatory.
+    public bool bindPlayerStateRevision = true;
+    public bool bindWorldStateRevision = true;
     public int maxRetries = -1;
     public Dictionary<string, object> optionsOverride;
 }
@@ -63,9 +83,9 @@ public static class YQLlmJsonSchema
                 { "ability", ability },
                 { "quest", Object(new Dictionary<string, object> { { "name", String() }, { "description", String() } }, "name", "description") },
                 { "loadout", Array(loadoutEntry, 3, 3) },
-                { "goddessVoice", BuildGoddessVoice(includeWorldFields: false) }
+                { "goddessVoice", BuildGoddessVoice(includeWorldFields: false, expectedLocationCount: 0) }
             },
-            "source", "directionKey", "stimulus", "className", "titleName", "ability", "quest", "loadout");
+            "source", "directionKey", "stimulus", "className", "titleName", "ability", "quest", "loadout", "goddessVoice");
     }
 
     public static Dictionary<string, object> BuildWorld(int regionCount, int settlementCount, int encampmentCount)
@@ -112,16 +132,45 @@ public static class YQLlmJsonSchema
                 { "settlements", Array(settlement, settlementCount, settlementCount) },
                 { "encampments", Array(encampment, encampmentCount, encampmentCount) },
                 { "routes", Array(route, 1, 64) },
-                { "goddessVoice", BuildGoddessVoice(includeWorldFields: true) }
+                { "goddessVoice", BuildGoddessVoice(includeWorldFields: true, expectedLocationCount: settlementCount) }
             },
-            "schemaVersion", "source", "worldSeed", "summary", "regions", "settlements", "encampments", "routes");
+            "schemaVersion", "source", "worldSeed", "summary", "regions", "settlements", "encampments", "routes", "goddessVoice");
     }
 
-    private static Dictionary<string, object> BuildGoddessVoice(bool includeWorldFields)
+    public static bool ValidateFactoryContracts(out string error)
+    {
+        // note: This validator exercises the same schema factories sent to llama.cpp without making a model request or entering Play Mode.
+        Dictionary<string, object> origin = BuildOrigin();
+        Dictionary<string, object> world = BuildWorld(4, 2, 3);
+
+        if (!TryValidateNode(origin, "origin", out error) ||
+            !TryValidateNode(world, "world", out error))
+        {
+            return false;
+        }
+
+        // note: Fixed collection sizes are gameplay contracts, so postflight verifies the factories preserve their requested deterministic counts.
+        if (!TryValidateArrayBounds(world, "regions", 4, 4, out error) ||
+            !TryValidateArrayBounds(world, "settlements", 2, 2, out error) ||
+            !TryValidateArrayBounds(world, "encampments", 3, 3, out error))
+        {
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    private static Dictionary<string, object> BuildGoddessVoice(
+        bool includeWorldFields,
+        int expectedLocationCount)
     {
         Dictionary<string, object> properties = new Dictionary<string, object>
         {
-            { "completion", String() }, { "nextPrelude", String() }, { "ambientLines", Array(String(), 0, 8) }
+            { "completion", String() },
+            { "nextPrelude", String() },
+            // note: Structured minimums guarantee enough authored thoughts for the loading transcript instead of allowing an empty optional array.
+            { "ambientLines", Array(String(), includeWorldFields ? 4 : 2, includeWorldFields ? 6 : 4) }
         };
 
         if (includeWorldFields)
@@ -138,11 +187,27 @@ public static class YQLlmJsonSchema
                         { "locationId", String() }, { "settlementMaterialization", String() }, { "buildingMaterialization", String() }
                     },
                     "locationId", "settlementMaterialization", "buildingMaterialization"),
-                0,
-                32);
+                expectedLocationCount,
+                expectedLocationCount);
         }
 
-        return Object(properties);
+        // note: Goddess prose is a required generated presentation contract now; strict grammar protects canonical JSON while preventing the small model from silently omitting every interesting line.
+        return includeWorldFields
+            ? Object(
+                properties,
+                "completion",
+                "terrain",
+                "environment",
+                "populationPrelude",
+                "populationMaterialization",
+                "reveal",
+                "ambientLines",
+                "locations")
+            : Object(
+                properties,
+                "completion",
+                "nextPrelude",
+                "ambientLines");
     }
 
     private static Dictionary<string, object> Object(Dictionary<string, object> properties, params string[] required)
@@ -176,6 +241,125 @@ public static class YQLlmJsonSchema
     {
         return new Dictionary<string, object> { { "type", "integer" } };
     }
+
+    private static bool TryValidateNode(
+        Dictionary<string, object> node,
+        string path,
+        out string error)
+    {
+        if (node == null || !node.TryGetValue("type", out object typeValue) ||
+            !(typeValue is string type))
+        {
+            error = path + ": schema node has no string type.";
+            return false;
+        }
+
+        if (string.Equals(type, "object", StringComparison.Ordinal))
+        {
+            if (!node.TryGetValue("properties", out object propertiesValue) ||
+                !(propertiesValue is Dictionary<string, object> properties))
+            {
+                error = path + ": object schema has no property map.";
+                return false;
+            }
+
+            if (!node.TryGetValue("additionalProperties", out object additionalValue) ||
+                !(additionalValue is bool additionalProperties) ||
+                additionalProperties)
+            {
+                error = path + ": object schema must reject undeclared properties.";
+                return false;
+            }
+
+            if (node.TryGetValue("required", out object requiredValue))
+            {
+                if (!(requiredValue is string[] required))
+                {
+                    error = path + ": required property list has the wrong type.";
+                    return false;
+                }
+
+                for (int index = 0; index < required.Length; index++)
+                {
+                    if (string.IsNullOrWhiteSpace(required[index]) ||
+                        !properties.ContainsKey(required[index]))
+                    {
+                        error = path + ": required property is missing from the declared property map: " + required[index];
+                        return false;
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, object> property in properties)
+            {
+                if (!(property.Value is Dictionary<string, object> child))
+                {
+                    error = path + "." + property.Key + ": property schema has the wrong type.";
+                    return false;
+                }
+
+                if (!TryValidateNode(child, path + "." + property.Key, out error))
+                    return false;
+            }
+
+            error = string.Empty;
+            return true;
+        }
+
+        if (string.Equals(type, "array", StringComparison.Ordinal))
+        {
+            if (!node.TryGetValue("items", out object itemsValue) ||
+                !(itemsValue is Dictionary<string, object> items) ||
+                !node.TryGetValue("minItems", out object minimumValue) ||
+                !(minimumValue is int minimum) ||
+                !node.TryGetValue("maxItems", out object maximumValue) ||
+                !(maximumValue is int maximum) ||
+                minimum < 0 || maximum < minimum)
+            {
+                error = path + ": array schema has invalid items or bounds.";
+                return false;
+            }
+
+            return TryValidateNode(items, path + "[]", out error);
+        }
+
+        if (string.Equals(type, "string", StringComparison.Ordinal) ||
+            string.Equals(type, "integer", StringComparison.Ordinal))
+        {
+            error = string.Empty;
+            return true;
+        }
+
+        error = path + ": unsupported schema type " + type + ".";
+        return false;
+    }
+
+    private static bool TryValidateArrayBounds(
+        Dictionary<string, object> root,
+        string propertyName,
+        int expectedMinimum,
+        int expectedMaximum,
+        out string error)
+    {
+        // note: Navigate only the known root property contract; structural validation above already proves every intermediate value is a schema dictionary.
+        Dictionary<string, object> properties =
+            (Dictionary<string, object>)root["properties"];
+        Dictionary<string, object> array =
+            (Dictionary<string, object>)properties[propertyName];
+        int minimum = (int)array["minItems"];
+        int maximum = (int)array["maxItems"];
+
+        if (minimum != expectedMinimum || maximum != expectedMaximum)
+        {
+            error = "world." + propertyName +
+                ": expected bounds " + expectedMinimum + ".." + expectedMaximum +
+                " but found " + minimum + ".." + maximum + ".";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
 }
 
 public readonly struct YQLlmRequestResult
@@ -184,12 +368,19 @@ public readonly struct YQLlmRequestResult
     public readonly string debugTag;
     public readonly LLMGenerationCategory category;
     public readonly bool success;
+    public readonly YQLlmTerminalOutcome outcome;
     public readonly string text;
     public readonly string error;
     public readonly int attemptCount;
     public readonly float queueWaitSeconds;
     public readonly float generationSeconds;
     public readonly LLMCompiledPrompt compiledPrompt;
+    public readonly string profileId;
+    public readonly string worldId;
+    public readonly int generationEpoch;
+    public readonly string ownerId;
+    public readonly long playerStateRevision;
+    public readonly long worldStateRevision;
 
     // note: Capture response metadata with the content so callers can decide whether to accept, retry, or use fallback.
     public YQLlmRequestResult(
@@ -197,22 +388,36 @@ public readonly struct YQLlmRequestResult
         string debugTag,
         LLMGenerationCategory category,
         bool success,
+        YQLlmTerminalOutcome outcome,
         string text,
         string error,
         int attemptCount,
         float queueWaitSeconds,
         float generationSeconds,
-        LLMCompiledPrompt compiledPrompt)
+        LLMCompiledPrompt compiledPrompt,
+        string profileId = null,
+        string worldId = null,
+        int generationEpoch = -1,
+        string ownerId = null,
+        long playerStateRevision = -1,
+        long worldStateRevision = -1)
     {
         this.requestId = requestId;
         this.debugTag = debugTag ?? string.Empty;
         this.category = category;
         this.success = success;
+        this.outcome = outcome;
         this.text = text;
         this.error = error ?? string.Empty;
         this.attemptCount = attemptCount;
         this.queueWaitSeconds = queueWaitSeconds;
         this.generationSeconds = generationSeconds;
         this.compiledPrompt = compiledPrompt;
+        this.profileId = profileId ?? string.Empty;
+        this.worldId = worldId ?? string.Empty;
+        this.generationEpoch = generationEpoch;
+        this.ownerId = ownerId ?? string.Empty;
+        this.playerStateRevision = playerStateRevision;
+        this.worldStateRevision = worldStateRevision;
     }
 }

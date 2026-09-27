@@ -10,6 +10,14 @@ public enum YQWorldMaterializationPath
     CompiledWorld = 1
 }
 
+public enum YQSpatialPlanningMode
+{
+    PersistedV1 = 0,
+    V2Shadow = 1,
+    V2Authoritative = 2,
+    V2Preferred = 3
+}
+
 /// <summary>
 /// Declares which physical world-generation architecture is allowed to run.
 /// WG0 keeps the existing builder available only as a measurable comparison
@@ -20,6 +28,16 @@ public static class YQWorldGenerationArchitecture
     // note: Reviewed semantic sites now own settlement materialization; the legacy scatter path remains compiled only as a comparison fallback for development.
     public const YQWorldMaterializationPath ActiveMaterializationPath =
         YQWorldMaterializationPath.CompiledWorld;
+
+    // note: Prefer the reviewed V2 transaction; automatic V1 fallback is limited to the legacy materialization path, never the compiled-world startup.
+    public const YQSpatialPlanningMode ActiveSpatialPlanningMode =
+        YQSpatialPlanningMode.V2Preferred;
+
+    private static GeneratedWorldPlanRecord _runtimeAuthorityPlan;
+    private static YQSpatialPlanAuthority _runtimeAuthority =
+        YQSpatialPlanAuthority.None;
+    private static GeneratedSpatialWorldPlanV2Record _runtimeAuthorityArtifact;
+    private static string _runtimeAuthorityHash = string.Empty;
 
     // note: The first golden-master benchmark uses one coherent source family instead of the universal runtime asset pool.
     public const string FirstBenchmarkId =
@@ -41,19 +59,108 @@ public static class YQWorldGenerationArchitecture
     public static bool UsesCompiledWorld =>
         ActiveMaterializationPath ==
         YQWorldMaterializationPath.CompiledWorld;
+
+    public static bool RunsV2Shadow =>
+        ActiveSpatialPlanningMode ==
+        YQSpatialPlanningMode.V2Shadow;
+
+    public static bool UsesV2SpatialRuntime =>
+        _runtimeAuthority == YQSpatialPlanAuthority.AcceptedV2 ||
+        (_runtimeAuthorityPlan == null &&
+         ActiveSpatialPlanningMode == YQSpatialPlanningMode.V2Authoritative);
+
+    public static bool UsesV2SpatialRuntimeFor(
+        GeneratedWorldPlanRecord plan)
+    {
+        return TryResolveRuntimeAuthority(
+                   plan, out YQSpatialPlanAuthority authority, out _) &&
+               authority == YQSpatialPlanAuthority.AcceptedV2;
+    }
+
+    public static bool TryResolveRuntimeAuthority(
+        GeneratedWorldPlanRecord plan,
+        out YQSpatialPlanAuthority authority,
+        out string reason)
+    {
+        if (ReferenceEquals(_runtimeAuthorityPlan, plan))
+        {
+            authority = _runtimeAuthority;
+            reason = authority == YQSpatialPlanAuthority.None
+                ? "The runtime spatial authority was not prepared."
+                : string.Empty;
+            return authority != YQSpatialPlanAuthority.None;
+        }
+
+        // note: Before a build freezes its transaction, resolve normally; every later consumer receives the exact same cached authority.
+        return YQSpatialPlanVersionRouter.TryResolveActive(
+            plan,
+            out authority,
+            out reason);
+    }
+
+    public static void LockRuntimeAuthority(
+        GeneratedWorldPlanRecord plan,
+        YQSpatialPlanAuthority authority)
+    {
+        // note: Every consumer in one build observes one frozen authority; a background artifact cannot switch terrain/sites halfway through construction.
+        _runtimeAuthorityPlan = plan;
+        _runtimeAuthority = authority;
+        _runtimeAuthorityArtifact =
+            authority == YQSpatialPlanAuthority.AcceptedV2
+                ? plan?.spatialPlanV2
+                : null;
+        _runtimeAuthorityHash =
+            _runtimeAuthorityArtifact?.contentHash ?? string.Empty;
+    }
+
+    public static bool IsRuntimeAuthorityCurrent(
+        GeneratedWorldPlanRecord plan)
+    {
+        if (!ReferenceEquals(_runtimeAuthorityPlan, plan) ||
+            _runtimeAuthority == YQSpatialPlanAuthority.None)
+        {
+            return false;
+        }
+
+        if (_runtimeAuthority != YQSpatialPlanAuthority.AcceptedV2)
+            return true;
+
+        // note: A V2 transaction aborts if another owner swaps its accepted artifact or claimed hash while terrain and sites are being constructed.
+        return ReferenceEquals(
+                   _runtimeAuthorityArtifact,
+                   plan?.spatialPlanV2) &&
+               string.Equals(
+                   _runtimeAuthorityHash,
+                   plan?.spatialPlanV2?.contentHash,
+                   StringComparison.Ordinal);
+    }
+
+    [RuntimeInitializeOnLoadMethod(
+        RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetRuntimeAuthority()
+    {
+        _runtimeAuthorityPlan = null;
+        _runtimeAuthority = YQSpatialPlanAuthority.None;
+        _runtimeAuthorityArtifact = null;
+        _runtimeAuthorityHash = string.Empty;
+    }
 }
 
 [DisallowMultipleComponent]
 public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 {
+    private const float MaximumAsyncInstantiateIntegrationMilliseconds = 2f;
+
     private static bool _initialGenerationLifecycleLocked;
 
     private static bool _initialGenerationLifecycleLatched;
     private static string _initialGenerationStartingWorldSeed =
     string.Empty;
     private static float _initialGenerationLockStartedAt = -1f;
+    private static float _initialGenerationLastProgressAt = -1f;
+    private static float _initialGenerationLastWatchdogUpdateAt = -1f;
     private static bool _initialGenerationDeadlineWarningIssued;
-    private const float MaximumInitialGenerationLockSeconds = 180f;
+    private const float MaximumInitialGenerationStallSeconds = 120f;
     private const float StartupHierarchyFrameBudgetSeconds = 0.0015f;
 
     private const int MaxSkippedMissingScriptPrefabLogs =
@@ -70,9 +177,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static Vector3 _generatedOriginFacingOverride;
     private static bool _hasGeneratedOriginFacingOverride;
     private static readonly Vector3 OriginGoddessSummitOffset =
-        new Vector3(30.6f, 0f, 14.6f);
+        YQGeneratedWorldLayout.OriginGoddessSummitOffset;
     private static readonly Vector3 OriginWitchHouseOffset =
-        new Vector3(15f, 0f, -16f);
+        YQGeneratedWorldLayout.OriginWitchHouseOffset;
+    // note: Keep Archivist Vey on a reviewed interior socket so the hand-curated origin never relocates him through seeded role sampling.
+    private const float OriginVeySocketNormalizedX = 0.56f;
+    private const float OriginVeySocketNormalizedZ = 0.42f;
     private const string OriginGoddessStatueAssetPath =
         "Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_AngelStatue_02.prefab";
 
@@ -96,6 +206,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         _initialGenerationStartingWorldSeed =
             string.Empty;
         _initialGenerationLockStartedAt = -1f;
+        _initialGenerationLastProgressAt = -1f;
+        _initialGenerationLastWatchdogUpdateAt = -1f;
         _initialGenerationDeadlineWarningIssued = false;
 
         _skippedUnsuitableSettlementAssetLogs =
@@ -113,6 +225,20 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
     public bool InitialGenerationRecoveryRequired =>
         _initialGenerationWatchdogAborted;
+
+    // note: Expose only read-only materialization diagnostics so editor verification can distinguish active work from a rejected or incomplete build.
+    public bool IsMaterializationInProgress =>
+        _buildInProgress;
+
+    public bool HasMaterializationFailed =>
+        _worldMaterializationFailed;
+
+    public bool LastProfileTerrainRestoreSucceeded =>
+        _lastProfileTerrainRestoreSucceeded;
+
+    // note: Surface the exact rejected snapshot gate so Continue diagnostics can distinguish stale identity from corrupt persisted terrain.
+    public string LastProfileTerrainRestoreFailureReason =>
+        _lastProfileTerrainRestoreFailureReason;
 
     public bool HasMaterializedCurrentWorld
     {
@@ -135,15 +261,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 return false;
 
             plan.EnsureCollections();
-            int settlementCount = plan.settlements != null
-                ? plan.settlements.Count
-                : 0;
+            int settlementCount = ExpectedStartupSettlementCount(plan);
             int generatedNpcCount = plan.generatedNpcs != null
                 ? plan.generatedNpcs.Count
                 : 0;
             bool populationReady = generatedNpcCount == 0 ||
                 _materializedGeneratedNpcCount == generatedNpcCount;
-            // note: Startup reveals gameplay only when the accepted save plan, seed, and every settlement match the physical runtime world.
+            // note: Startup matches physically required settlements; V2 distant settlements remain owned by streaming.
             return ReferenceEquals(_builtWorldState, world) &&
                    ReferenceEquals(_builtPlan, plan) &&
                    string.Equals(_builtWorldSeed, plan.worldSeed, StringComparison.Ordinal) &&
@@ -193,8 +317,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             true;
         // note: Every new initial-generation transaction owns one deadline warning; the warning never unlocks or hides an incomplete world.
         _initialGenerationDeadlineWarningIssued = false;
-        // note: One absolute diagnostic deadline reports a stalled transaction once while preserving the fail-closed gameplay lock.
+        // note: The watchdog measures time since meaningful progress rather than total creation time; a large but advancing world must never be mistaken for a hang.
         _initialGenerationLockStartedAt = Time.unscaledTime;
+        _initialGenerationLastProgressAt = Time.unscaledTime;
+        _initialGenerationLastWatchdogUpdateAt = Time.unscaledTime;
         YQGoddessGenerationDialogue
     .ResetForNewGeneration();
 
@@ -252,6 +378,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         _initialGenerationLifecycleLocked =
             false;
         _initialGenerationLockStartedAt = -1f;
+        _initialGenerationLastProgressAt = -1f;
+        _initialGenerationLastWatchdogUpdateAt = -1f;
 
         // note: Background generation systems use this timestamp to avoid stealing the first playable frames.
         LastInitialGenerationGameplayUnlockTime =
@@ -266,6 +394,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         "Automatically materialize the persisted generated world " +
         "after a selected save has completed origin generation.")]
     public bool buildAutomatically = true;
+
+    [Header("World Construction Validation")]
+    [Tooltip("Require V2 preparation and preflight to succeed. Enable for production world-generation verification; disabled preserves existing V1 compatibility.")]
+    // note: Strict verification rejects V2 fallback before replacement; existing scenes keep their explicit compatibility behavior.
+    public bool requireV2ConstructionSuccess;
 
     [Header("Generation Presentation")]
     [Range(0.35f, 0.75f)]
@@ -324,10 +457,29 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private string _builtWorldSeed =
         string.Empty;
 
+    private string _builtProfileId =
+        string.Empty;
+
+    private string _builtWorldId =
+        string.Empty;
+
+    private string _profileTerrainSnapshotJson =
+        string.Empty;
+
+    private bool _lastProfileTerrainRestoreSucceeded;
+    private string _lastProfileTerrainRestoreFailureReason = string.Empty;
+
+    private YQProfileSaveSystem _terrainSnapshotProviderOwner;
+
     private int _builtSettlementCount;
 
     private bool _worldMaterializationFailed;
     private bool _initialGenerationWatchdogAborted;
+    private WorldState _failedBuildWorld;
+    private GeneratedWorldPlanRecord _failedBuildPlan;
+    private string _failedBuildSeed = string.Empty;
+    private string _failedBuildSignature = string.Empty;
+    private bool _cancellingBuild;
 
     private bool _lastSettlementMaterialized;
 
@@ -345,8 +497,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private float _nextPopulationMaterializationRetryAt;
 
     private Coroutine _populationBuildCoroutine;
+    private IEnumerator _populationExecution;
 
     private bool _populationBuildInProgress;
+    private bool _cancellingPopulation;
 
     private string _revealedInitialGenerationSeed =
         string.Empty;
@@ -360,7 +514,46 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
     private bool _compiledBindingsChangedDuringBuild;
 
+    private bool _spatialPlanChangedDuringBuild;
+
+
+    private readonly Dictionary<string, string>
+        _resolvedSemanticCompositionSeedsV2 =
+            new Dictionary<string, string>(
+                StringComparer.OrdinalIgnoreCase);
+
     private Coroutine _buildCoroutine;
+    private IEnumerator _buildExecution;
+    // note: A manual rebuild is an explicit recovery request and may re-materialize the currently persisted plan after an interrupted initial-generation latch.
+    private bool _forceNextBuild;
+    // note: Keep the latest materialization admission decision observable so a startup wait identifies its blocking guard instead of looking like a healthy idle builder.
+    private string _lastMaterializationDecision = "not-attempted";
+
+    public string LastMaterializationDecision =>
+        _lastMaterializationDecision;
+
+    private static bool HasPersistedCanonicalWorld(GeneratedWorldPlanRecord plan)
+    {
+        // note: An accepted spatial artifact or populated semantic frontier is durable world state, even when its seed matches the scaffold captured by the startup lock.
+        return plan != null &&
+            ((plan.spatialPlanV2 != null &&
+              plan.spatialPlanV2.acceptanceState == GeneratedSpatialPlanAcceptanceState.Accepted) ||
+             (plan.semanticChunks != null && plan.semanticChunks.Count > 0 &&
+              plan.spatialPlan != null &&
+             !string.IsNullOrWhiteSpace(plan.spatialPlan.semanticFingerprint)));
+    }
+
+    private bool CanAttemptLegacySpatialFallback(GeneratedWorldPlanRecord plan)
+    {
+        // note: A persisted V1 plan certifies data, not physically buildable settlements. Compiled-world startup must repair V2 or fail before replacement instead of downgrading to an unverified construction path.
+        return !YQWorldGenerationArchitecture.UsesCompiledWorld &&
+            !HasPersistedCanonicalWorld(plan) &&
+            !requireV2ConstructionSuccess &&
+            YQWorldGenerationArchitecture.ActiveSpatialPlanningMode == YQSpatialPlanningMode.V2Preferred;
+    }
+    // note: The final camera fade belongs to the build transaction and must not outlive a retry or profile change.
+    private Coroutine _revealCoroutine;
+    private YQStartupLoadingScreen _revealPresentation;
 
     private float _nextAutomaticBuildCheckTime;
 
@@ -377,6 +570,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         Instance =
             this;
+
+        // note: Unity integrates async-created objects and calls Awake on the main thread; cap that shared phase so streamed props cannot monopolize a frame.
+        float asyncInstantiateIntegrationMilliseconds =
+            UnityEngine.AsyncInstantiateOperation.GetIntegrationTimeMS();
+        if (!(asyncInstantiateIntegrationMilliseconds > 0f) ||
+            asyncInstantiateIntegrationMilliseconds > MaximumAsyncInstantiateIntegrationMilliseconds)
+        {
+            UnityEngine.AsyncInstantiateOperation.SetIntegrationTimeMS(
+                MaximumAsyncInstantiateIntegrationMilliseconds);
+        }
+
+        // note: Register terrain as a profile-owned auxiliary snapshot before creation/continue saves can publish their next paired revision.
+        EnsureProfileTerrainSnapshotProvider();
 
         // note: Apply strict loading, upload, and GC budgets before the first terrain, site, or local-model materialization task can begin.
         YQGeneratedWorldPerformanceDirector
@@ -410,13 +616,130 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
     }
 
+    private void EnsureProfileTerrainSnapshotProvider()
+    {
+        YQProfileSaveSystem profileSystem = YQProfileSaveSystem.Instance;
+        if (profileSystem == null || _terrainSnapshotProviderOwner == profileSystem)
+            return;
+
+        // note: Profile commits retain the latest accepted heightfield as a checksummed auxiliary document beside player and world state.
+        if (profileSystem.RegisterAuxiliaryDocument(
+                YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId,
+                CreateProfileTerrainSnapshotForCommit))
+            _terrainSnapshotProviderOwner = profileSystem;
+    }
+
+    private string CreateProfileTerrainSnapshotForCommit()
+    {
+        YQProfileSaveSystem profileSystem = YQProfileSaveSystem.Instance;
+        WorldStateManager worldManager = WorldStateManager.Instance;
+        WorldState world = worldManager != null ? worldManager.State : null;
+        GeneratedWorldPlanRecord plan = world != null ? world.generatedWorldPlan : null;
+        if (profileSystem == null || string.IsNullOrWhiteSpace(profileSystem.ActiveProfileId))
+            return YQGeneratedWorldTerrain.CreateEmptyProfileSnapshotJson();
+
+        string activeProfileId = profileSystem.ActiveProfileId;
+        profileSystem.TryGetLoadedAuxiliaryDocument(
+            YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId,
+            out string loadedCandidate);
+        string[] candidates = { _profileTerrainSnapshotJson, loadedCandidate };
+        bool hasCurrentWorldIdentity = world != null && world.worldIdentity != null && plan != null;
+        string expectedFingerprint = hasCurrentWorldIdentity
+            ? YQStateContract.Sha256Hex(BuildVisualSignature(plan))
+            : string.Empty;
+
+        // note: Profile saves can run during shutdown or startup before world services are fully available; retain an owned snapshot then and let restore validate its world identity.
+        for (int index = 0; index < candidates.Length; index++)
+        {
+            string candidate = candidates[index];
+            if (IsCompatibleProfileTerrainSnapshot(
+                    candidate,
+                    activeProfileId,
+                    world,
+                    plan,
+                    expectedFingerprint))
+                return candidate;
+        }
+
+        if (profileSystem.TryGetPriorAuxiliaryDocument(
+                YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId,
+                candidate => IsCompatibleProfileTerrainSnapshot(
+                    candidate,
+                    activeProfileId,
+                    world,
+                    plan,
+                    expectedFingerprint),
+                out string priorSnapshot))
+        {
+            // note: Recover a compatible committed heightfield when a later early-startup save replaced it with an empty placeholder.
+            _profileTerrainSnapshotJson = priorSnapshot;
+            return priorSnapshot;
+        }
+
+        // note: Empty clears prior terrain only when no committed snapshot matches the active profile's current world identity and plan.
+        return YQGeneratedWorldTerrain.CreateEmptyProfileSnapshotJson();
+    }
+
+    // note: Carry terrain forward only when profile ownership and the exact accepted world plan still match.
+    private static bool IsCompatibleProfileTerrainSnapshot(
+        string candidate,
+        string activeProfileId,
+        WorldState world,
+        GeneratedWorldPlanRecord plan,
+        string expectedFingerprint)
+    {
+        if (string.IsNullOrWhiteSpace(candidate) || string.IsNullOrWhiteSpace(activeProfileId))
+            return false;
+
+        YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord record = null;
+        try
+        {
+            record = JsonUtility.FromJson<YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord>(candidate);
+        }
+        catch (ArgumentException)
+        {
+            // note: A malformed optional cache is skipped so another committed profile copy can still be considered.
+        }
+
+        if (record == null || record.schemaVersion != 1 || !record.hasTerrain ||
+            string.IsNullOrWhiteSpace(record.heightmapChecksum) ||
+            !string.Equals(record.ownerProfileId, activeProfileId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        bool hasCurrentWorldIdentity = world != null && world.worldIdentity != null && plan != null;
+        if (!hasCurrentWorldIdentity)
+            return true;
+
+        return string.Equals(world.worldIdentity.ownerProfileId, activeProfileId, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(record.worldId, world.worldIdentity.worldId, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(record.worldSeed, plan.worldSeed, StringComparison.Ordinal) &&
+            string.Equals(record.planFingerprint, expectedFingerprint, StringComparison.Ordinal);
+    }
+
     private void Update()
     {
+        float watchdogNow = Time.unscaledTime;
         if (IsInitialGenerationGameplayLocked &&
-            _initialGenerationLockStartedAt >= 0f &&
+            _initialGenerationLastWatchdogUpdateAt >= 0f)
+        {
+            float updateGap =
+                watchdogNow - _initialGenerationLastWatchdogUpdateAt;
+
+            if (updateGap > 1f &&
+                _initialGenerationLastProgressAt >= 0f)
+            {
+                // note: Editor pauses, suspended windows, and a single hard frame cannot consume the no-progress allowance while generation coroutines are unable to advance.
+                _initialGenerationLastProgressAt += updateGap;
+            }
+        }
+
+        _initialGenerationLastWatchdogUpdateAt = watchdogNow;
+
+        if (IsInitialGenerationGameplayLocked &&
+            _initialGenerationLastProgressAt >= 0f &&
             !_initialGenerationDeadlineWarningIssued &&
-            Time.unscaledTime - _initialGenerationLockStartedAt >=
-                MaximumInitialGenerationLockSeconds)
+            watchdogNow - _initialGenerationLastProgressAt >=
+                MaximumInitialGenerationStallSeconds)
         {
             ReportInitialGenerationDeadlineExceeded();
         }
@@ -503,8 +826,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         "Player");
             }
         }
-        catch
+        catch (Exception exception)
         {
+            Debug.LogError(
+                "[WORLDGEN ERROR] Authoritative player lookup failed during world-build coordination. " +
+                ", reason=" + exception.Message);
         }
 
         if (authoritativePlayer == null)
@@ -553,10 +879,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
         }
 
-        int settlementCount =
-            plan.settlements != null
-                ? plan.settlements.Count
-                : 0;
+        int settlementCount = ExpectedStartupSettlementCount(plan);
 
         int generatedNpcCount =
             plan.generatedNpcs != null
@@ -568,6 +891,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             _generatedTerrain != null &&
             _builtWorldState == world &&
             _builtPlan == plan &&
+            // note: Reusing the same semantic-plan object cannot hide replacement of its accepted spatial artifact from the rebuild check.
+            YQWorldGenerationArchitecture.IsRuntimeAuthorityCurrent(plan) &&
             string.Equals(
                 _builtWorldSeed,
                 plan.worldSeed,
@@ -579,6 +904,30 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             ? _builtVisualSignature
             : BuildVisualSignature(plan);
 
+        // note: A profile reload replaces managed save objects; matching the persisted world identity and complete build fingerprint keeps its already-materialized terrain alive on Continue.
+        if (!sameBuiltPlanIdentity && !_worldMaterializationFailed &&
+            _runtimeRoot != null && _generatedTerrain != null && world.worldIdentity != null)
+        {
+            YQProfileSaveSystem activeProfile = YQProfileSaveSystem.Instance;
+            bool sameProfileWorld = activeProfile != null &&
+                string.Equals(activeProfile.ActiveProfileId, _builtProfileId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(world.worldIdentity.ownerProfileId, _builtProfileId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(world.worldIdentity.worldId, _builtWorldId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(_builtWorldSeed, plan.worldSeed, StringComparison.Ordinal) &&
+                _builtSettlementCount == settlementCount &&
+                string.Equals(_builtVisualSignature, visualSignature, StringComparison.Ordinal);
+            if (sameProfileWorld && YQWorldGenerationArchitecture.TryResolveRuntimeAuthority(
+                    plan, out YQSpatialPlanAuthority reloadedAuthority, out _))
+            {
+                YQWorldGenerationArchitecture.LockRuntimeAuthority(plan, reloadedAuthority);
+                _builtWorldState = world;
+                _builtPlan = plan;
+                sameBuiltPlanIdentity = true;
+                Debug.Log("[YQGeneratedWorldRuntimeBuilder] CONTINUE WORLD REUSE PASS profile=" + _builtProfileId +
+                          " world=" + _builtWorldId + " seed=" + _builtWorldSeed + " terrain=retained");
+            }
+        }
+
         /*
          * The terrain and settlements may already exist before canonical
          * population generation finishes.
@@ -587,6 +936,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
          * the entire generated world.
          */
         bool sameBuiltWorld =
+            // note: Diagnostic geometry from a rejected build must not trigger late population work as though the world were playable.
+            !_worldMaterializationFailed &&
             sameBuiltPlanIdentity &&
             string.Equals(
                 _builtVisualSignature,
@@ -627,12 +978,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 }
 
                 // note: Late-arriving NPC plans use the same cooperative population path as startup so prefab setup cannot monopolize a live gameplay frame.
-                _populationBuildCoroutine = StartCoroutine(
+                _populationExecution = RunOwnedGenerationRoutine(
                     BuildPopulationInPlaceRoutine(
                         world,
                         plan,
                         generatedNpcCount,
-                        registry));
+                        registry),
+                    exception => ReportPopulationExecutionFailure(world, plan, exception));
+                Coroutine populationCoroutine = StartCoroutine(_populationExecution);
+                // note: An immediate completion must not leave a stale coroutine handle behind.
+                _populationBuildCoroutine = _populationBuildInProgress ? populationCoroutine : null;
             }
 
             return;
@@ -640,15 +995,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         bool sameFailedAttempt =
             _worldMaterializationFailed &&
-            _runtimeRoot != null &&
-            _builtWorldState == world &&
-            _builtPlan == plan &&
+            _failedBuildWorld == world &&
+            _failedBuildPlan == plan &&
             string.Equals(
-                _builtWorldSeed,
+                _failedBuildSeed,
                 plan.worldSeed,
                 StringComparison.Ordinal) &&
             string.Equals(
-                _builtVisualSignature,
+                _failedBuildSignature,
                 visualSignature,
                 StringComparison.Ordinal);
 
@@ -679,6 +1033,136 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         BuildGeneratedWorld();
     }
 
+    // note: Own ordinary nested iterators explicitly, preserving Unity wait objects and bounding immediate scheduling work per frame.
+    public static IEnumerator RunOwnedGenerationRoutine(IEnumerator routine, Action<Exception> failed)
+    {
+        if (routine == null)
+            yield break;
+        Stack<IEnumerator> pending = new Stack<IEnumerator>();
+        pending.Push(routine);
+        Exception failure = null;
+        int immediateSteps = 0;
+        try
+        {
+            while (pending.Count > 0)
+            {
+                if (++immediateSteps > 64)
+                {
+                    immediateSteps = 0;
+                    yield return null;
+                }
+                IEnumerator current = pending.Peek();
+                bool advanced;
+                object yielded;
+                try
+                {
+                    advanced = current.MoveNext();
+                    yielded = advanced ? current.Current : null;
+                }
+                catch (Exception exception)
+                {
+                    failure = exception;
+                    break;
+                }
+
+                if (!advanced)
+                {
+                    pending.Pop();
+                    try { (current as IDisposable)?.Dispose(); }
+                    catch (Exception exception) { failure = exception; break; }
+                    continue;
+                }
+                if (yielded is IEnumerator nested && !(yielded is CustomYieldInstruction))
+                {
+                    pending.Push(nested);
+                    // note: A malformed recursive iterator must not grow an unlimited stack across frames.
+                    if (pending.Count > 128)
+                    {
+                        failure = new InvalidOperationException("World generation exceeded the nested coroutine depth limit.");
+                        break;
+                    }
+                    continue;
+                }
+
+                // note: Null, async operations, WaitForSeconds and custom Unity waits retain their original scheduling semantics.
+                immediateSteps = 0;
+                yield return yielded;
+            }
+        }
+        finally
+        {
+            // note: Dispose innermost work first on exception or cancellation; one broken cleanup must not strand the remaining parents.
+            while (pending.Count > 0)
+            {
+                try { (pending.Pop() as IDisposable)?.Dispose(); }
+                catch (Exception exception)
+                {
+                    failure = failure == null ? exception : new AggregateException(failure, exception);
+                }
+            }
+            if (failure != null)
+            {
+                if (failed != null)
+                    failed(failure);
+                else
+                    Debug.LogException(failure);
+            }
+        }
+    }
+
+    private void RecordFailedWorldBuild(WorldState world, GeneratedWorldPlanRecord plan)
+    {
+        // note: Failure identity is independent of how far physical construction got, so exceptions cannot trigger an automatic rebuild loop.
+        _worldMaterializationFailed = true;
+        // note: Preserve a specific gate reason when one exists, but never leave the editor heartbeat claiming that a failed transaction merely started.
+        if (string.IsNullOrWhiteSpace(_lastMaterializationDecision) ||
+            _lastMaterializationDecision.StartsWith("started:", StringComparison.OrdinalIgnoreCase))
+            _lastMaterializationDecision = "rejected: world construction failed before the terminal gate";
+        _failedBuildWorld = world;
+        _failedBuildPlan = plan;
+        _failedBuildSeed = plan.worldSeed;
+        _failedBuildSignature = BuildVisualSignature(plan);
+        if (IsInitialGenerationGameplayLocked && !_initialGenerationDeadlineWarningIssued)
+        {
+            _initialGenerationDeadlineWarningIssued = true;
+            YQStartupLoadingScreen.ShowGenerationFailure(
+                "World construction could not finish safely. Retry, or return to the title screen.",
+                RetryAfterGenerationWatchdog, ReturnToTitleAfterGenerationWatchdog);
+        }
+    }
+
+    private void ReportPopulationExecutionFailure(WorldState world, GeneratedWorldPlanRecord plan, Exception exception)
+    {
+        Debug.LogException(exception, this);
+        _populationBuildInProgress = false;
+        _populationBuildCoroutine = null;
+        if (_cancellingBuild || _cancellingPopulation || !IsCurrentBuildContext(world, plan))
+            return;
+
+        // note: Unexpected NPC construction errors require explicit retry instead of repeating the same exception every two seconds.
+        _materializedGeneratedNpcCount = -1;
+        _nextPopulationMaterializationRetryAt = float.PositiveInfinity;
+        if (IsInitialGenerationGameplayLocked)
+        {
+            _initialGenerationDeadlineWarningIssued = true;
+            _initialGenerationWatchdogAborted = true;
+            YQStartupLoadingScreen.ShowGenerationFailure(
+                "The world is built, but its inhabitants could not be placed safely. Retry their placement, or return to the title screen.",
+                RetryPopulationAfterFailure, ReturnToTitleAfterGenerationWatchdog, "Retry inhabitants");
+        }
+    }
+
+    private void RetryPopulationAfterFailure()
+    {
+        // note: Keep accepted terrain and cells; the coordinator will retry only the in-place population pass.
+        CancelPopulationBuildRoutine();
+        YQStartupLoadingScreen.ClearGenerationFailure();
+        _nextPopulationMaterializationRetryAt = 0f;
+        _initialGenerationWatchdogAborted = false;
+        _initialGenerationDeadlineWarningIssued = false;
+        TouchInitialGenerationWatchdog();
+    }
+
     private IEnumerator BuildPopulationInPlaceRoutine(
         WorldState expectedWorld,
         GeneratedWorldPlanRecord expectedPlan,
@@ -690,51 +1174,57 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Terrain expectedTerrain = _generatedTerrain;
         bool populationBuilt = false;
 
-        yield return YQGeneratedWorldPopulation.BuildRoutine(
-            expectedRuntimeRoot != null
-                ? expectedRuntimeRoot.transform
-                : null,
-            expectedTerrain,
-            expectedPlan,
-            registry,
-            success => populationBuilt = success);
-
-        bool contextStillCurrent =
-            IsCurrentBuildContext(expectedWorld, expectedPlan) &&
-            _runtimeRoot == expectedRuntimeRoot &&
-            _generatedTerrain == expectedTerrain;
-        int currentNpcCount =
-            expectedPlan != null && expectedPlan.generatedNpcs != null
-                ? expectedPlan.generatedNpcs.Count
-                : 0;
-
-        if (populationBuilt && contextStillCurrent &&
-            currentNpcCount == expectedNpcCount)
+        try
         {
-            _materializedGeneratedNpcCount = expectedNpcCount;
-            _nextPopulationMaterializationRetryAt = 0f;
+            yield return YQGeneratedWorldPopulation.BuildRoutine(
+                expectedRuntimeRoot != null
+                    ? expectedRuntimeRoot.transform
+                    : null,
+                expectedTerrain,
+                expectedPlan,
+                registry,
+                success => populationBuilt = success);
 
-            Debug.Log(
-                "[YQGeneratedWorldRuntimeBuilder] " +
-                "Canonical population materialized cooperatively in-place: " +
-                expectedNpcCount +
-                " NPC plan records.");
+            bool contextStillCurrent =
+                IsCurrentBuildContext(expectedWorld, expectedPlan) &&
+                _runtimeRoot == expectedRuntimeRoot &&
+                _generatedTerrain == expectedTerrain;
+            int currentNpcCount =
+                expectedPlan != null && expectedPlan.generatedNpcs != null
+                    ? expectedPlan.generatedNpcs.Count
+                    : 0;
+
+            if (populationBuilt && contextStillCurrent &&
+                currentNpcCount == expectedNpcCount)
+            {
+                _materializedGeneratedNpcCount = expectedNpcCount;
+                _nextPopulationMaterializationRetryAt = 0f;
+
+                Debug.Log(
+                    "[YQGeneratedWorldRuntimeBuilder] " +
+                    "Canonical population materialized cooperatively in-place: " +
+                    expectedNpcCount +
+                    " NPC plan records.");
+            }
+            else if (contextStillCurrent)
+            {
+                _materializedGeneratedNpcCount = -1;
+                // note: A failed or superseded population pass retries at a bounded cadence without rebuilding actors every frame.
+                _nextPopulationMaterializationRetryAt =
+                    Time.unscaledTime + 2f;
+
+                Debug.LogWarning(
+                    "[YQGeneratedWorldRuntimeBuilder] " +
+                    "Canonical NPC records exist, but cooperative runtime " +
+                    "population materialization did not complete.");
+            }
         }
-        else if (contextStillCurrent)
+        finally
         {
-            _materializedGeneratedNpcCount = -1;
-            // note: A failed or superseded population pass retries at a bounded cadence without rebuilding actors every frame.
-            _nextPopulationMaterializationRetryAt =
-                Time.unscaledTime + 2f;
-
-            Debug.LogWarning(
-                "[YQGeneratedWorldRuntimeBuilder] " +
-                "Canonical NPC records exist, but cooperative runtime " +
-                "population materialization did not complete.");
+            // note: Terminal success, rejection and explicit cancellation all release population ownership.
+            _populationBuildInProgress = false;
+            _populationBuildCoroutine = null;
         }
-
-        _populationBuildInProgress = false;
-        _populationBuildCoroutine = null;
     }
 
     // ------------------------------------------------------------
@@ -744,9 +1234,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     [ContextMenu("Build Generated World")]
     public void BuildGeneratedWorld()
     {
+        EnsureProfileTerrainSnapshotProvider();
         if (!YQWorldGenerationArchitecture.AllowsLegacyRuntimeBuilder &&
             !YQWorldGenerationArchitecture.UsesCompiledWorld)
         {
+            _lastMaterializationDecision = "rejected: materialization architecture unavailable";
             // note: Manual context-menu calls may not bypass the architecture boundary after the compiled-world path becomes authoritative.
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
@@ -761,6 +1253,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (_buildInProgress)
         {
+            _lastMaterializationDecision = "deferred: materialization already in progress";
             Debug.Log(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "Generated-world build is already in progress.");
@@ -774,6 +1267,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (worldStateManager == null ||
             worldStateManager.State == null)
         {
+            _lastMaterializationDecision = "rejected: world state unavailable";
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "WorldStateManager or active WorldState is missing.");
@@ -791,6 +1285,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (plan == null)
         {
+            _lastMaterializationDecision = "rejected: generated world plan unavailable";
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "Active save has no generated world plan.");
@@ -803,6 +1298,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (string.IsNullOrWhiteSpace(
                 plan.worldSeed))
         {
+            _lastMaterializationDecision = "rejected: generated world seed unavailable";
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "Generated world plan has no world seed.");
@@ -822,13 +1318,17 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             string.Equals(
                 plan.worldSeed,
                 _initialGenerationStartingWorldSeed,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase) &&
+            !_forceNextBuild &&
+            !HasPersistedCanonicalWorld(plan))
         {
+            _lastMaterializationDecision = "deferred: active plan is still the startup scaffold";
             return;
         }
         if (plan.settlements == null ||
             plan.settlements.Count == 0)
         {
+            _lastMaterializationDecision = "rejected: generated plan has no settlements";
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "Generated world plan contains no settlements.");
@@ -845,6 +1345,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (worldGeneration != null &&
             worldGeneration.IsRequestInFlight)
         {
+            _lastMaterializationDecision = "deferred: world-plan generation request is in flight";
             Debug.Log(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "World-plan generation is still in flight. " +
@@ -864,6 +1365,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (registry == null)
         {
+            _lastMaterializationDecision = "rejected: runtime asset registry unavailable";
             Debug.LogError(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "YQRuntimeWorldAssetRegistry could not be loaded.");
@@ -873,14 +1375,35 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         CancelPopulationBuildRoutine();
 
+        // note: Consume the one-shot recovery override only after all build inputs are present and the transaction can actually start.
+        _forceNextBuild = false;
+
         _worldMaterializationFailed = false;
 
-        _buildCoroutine =
-            StartCoroutine(
+        // note: Direct build calls, not only explicit rebuilds, invalidate any previously scheduled gameplay reveal.
+        CancelInitialGenerationReveal();
+
+        _buildExecution = RunOwnedGenerationRoutine(
                 BuildGeneratedWorldRoutine(
                     world,
                     plan,
-                    registry));
+                    registry),
+                exception =>
+                {
+                    // note: This also covers setup exceptions before the construction iterator enters its own finally block.
+                    Debug.LogException(exception, this);
+                    _buildInProgress = false;
+                    _buildCoroutine = null;
+                    if (!_cancellingBuild && IsCurrentWorldPlanReference(world, plan))
+                    {
+                        _lastMaterializationDecision =
+                            "rejected: coroutine exception: " + exception.Message;
+                        RecordFailedWorldBuild(world, plan);
+                    }
+                });
+        _lastMaterializationDecision = "started: materialization coroutine scheduled";
+        Coroutine buildCoroutine = StartCoroutine(_buildExecution);
+        _buildCoroutine = _buildInProgress ? buildCoroutine : null;
     }
 
     private IEnumerator BuildGeneratedWorldRoutine(
@@ -890,12 +1413,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     {
         _buildInProgress =
             true;
+        _lastProfileTerrainRestoreSucceeded = false;
+        _lastProfileTerrainRestoreFailureReason = string.Empty;
 
         // note: A rebuild may follow a previously successful origin; clear its landing point before this transaction can fail and accidentally reuse stale world height.
         _generatedOriginSpawnOverride = Vector3.zero;
         _hasGeneratedOriginSpawnOverride = false;
         _generatedOriginFacingOverride = Vector3.forward;
         _hasGeneratedOriginFacingOverride = false;
+        _spatialPlanChangedDuringBuild = false;
+        // note: Binding and composition decisions belong to this transaction, including the preflight that runs before terrain construction.
+        _compiledBindingsChangedDuringBuild = false;
+        _resolvedSemanticCompositionSeedsV2.Clear();
+        GeneratedSpatialWorldPlanV2Record previousSpatialArtifact = plan.spatialPlanV2;
         // note: Hostile relocation belongs to one materialization transaction; a rebuild recomputes the same deterministic anchors from the accepted plan and current reviewed footprints.
         YQGeneratedWorldLayout.ClearRuntimeEncampmentAnchors();
 
@@ -908,14 +1438,109 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
          */
         bool narrate =
             IsInitialGenerationGameplayLocked;
+        bool reachedAcceptanceGate = false;
+        // note: Failed-build continuation may reuse only canonical state that existed before this transaction began; newly compiled artifacts stay behind the commit boundary.
+        bool canonicalWorldAtBuildStart = HasPersistedCanonicalWorld(plan);
+        // note: Candidate terrain remains separately owned until synthesis succeeds and this build still owns the active plan.
+        GameObject terrainStagingRoot = null;
+        Terrain stagedTerrain = null;
+        bool restoredProfileTerrain = false;
+        // note: A compatible prior revision must be republished after restoration so repeated Continue loads stop depending on history fallback.
+        bool restoredProfileTerrainFromPriorRevision = false;
+        string loadedProfileTerrainJson = string.Empty;
+        string loadedProfileTerrainChecksum = string.Empty;
+        if (narrate)
+        {
+            // note: Every deliberately started attempt gets a fresh no-progress window, including manual rebuild after a terminal failure.
+            _initialGenerationDeadlineWarningIssued = false;
+            TouchInitialGenerationWatchdog();
+        }
 
         try
         {
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Planning the world",
+                1,
+                9,
+                "Validating terrain, water, routes, and site reserves before construction",
+                0.56f);
+            bool spatialAuthorityReady = false;
+            // note: Compile and prepare the complete spatial plan before the old world is detached, so a rejected V2 candidate can fall back without leaving an empty or half-built scene.
+            yield return PrepareSpatialAuthorityRoutine(
+                world,
+                plan,
+                success => spatialAuthorityReady = success);
+            TouchInitialGenerationWatchdog();
+
+            if (!spatialAuthorityReady ||
+                !IsCurrentBuildContext(world, plan))
+            {
+                _worldMaterializationFailed = true;
+                _lastMaterializationDecision =
+                    "rejected: spatial planning did not produce a safe runtime authority";
+                Debug.LogError(
+                    "[YQGeneratedWorldRuntimeBuilder] Spatial planning did not produce a safe runtime authority; the existing world was preserved.");
+                yield break;
+            }
+
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Preparing approved assets",
+                2,
+                9,
+                "Loading only the palettes selected by the accepted world plan",
+                0.59f);
             // note: Warm only the accepted plan's palette packs; all unrelated genre libraries remain unloaded.
             yield return
                 registry.PreloadAssetPathsRoutine(
                     CollectActivePaletteAssetPaths(
                         plan));
+            TouchInitialGenerationWatchdog();
+
+            if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+            {
+                bool cellsReady = false;
+                string cellFailure = string.Empty;
+                // note: Validate real reviewed cell functions and footprints before destroying the prior runtime hierarchy; a mathematically valid plan alone is not a buildable world.
+                yield return PreflightSpatialCellsV2Routine(
+                    world,
+                    plan,
+                    (success, failure) =>
+                    {
+                        cellsReady = success;
+                        cellFailure = failure;
+                    });
+                if (!IsCurrentBuildContext(world, plan))
+                    yield break;
+
+                if (!cellsReady)
+                {
+                    // note: A canonical generated save must never downgrade to the legacy tree-and-rock renderer when V2 cell realization fails; fail the build so the missing physical contract remains visible.
+                    if (!CanAttemptLegacySpatialFallback(plan) ||
+                        !YQSpatialPlanVersionRouter.TryResolve(
+                            plan, YQSpatialPlanningMode.PersistedV1,
+                            out YQSpatialPlanAuthority fallback, out _))
+                    {
+                        // note: Strict preflight rejection must discard this build's uncommitted candidate, preserving the previous accepted save authority.
+                        if (_spatialPlanChangedDuringBuild)
+                            plan.spatialPlanV2 = previousSpatialArtifact;
+                        _spatialPlanChangedDuringBuild = false;
+                        _resolvedSemanticCompositionSeedsV2.Clear();
+                        _worldMaterializationFailed = true;
+                        _lastMaterializationDecision =
+                            "rejected: V2 cell preflight failed: " + cellFailure;
+                        Debug.LogError("[YQGeneratedWorldRuntimeBuilder] V2 cell preflight failed before world replacement: " + cellFailure);
+                        yield break;
+                    }
+
+                    // note: Reject the whole V2 candidate, not individual V2 sites; the fallback terrain, routes and geometry all return to the persisted V1 authority.
+                    if (_spatialPlanChangedDuringBuild)
+                        plan.spatialPlanV2 = previousSpatialArtifact;
+                    _spatialPlanChangedDuringBuild = false;
+                    _resolvedSemanticCompositionSeedsV2.Clear();
+                    YQWorldGenerationArchitecture.LockRuntimeAuthority(plan, fallback);
+                    Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] V2 CELL PREFLIGHT FALLBACK TO V1: " + cellFailure);
+                }
+            }
 
             // note: Read the accepted plan before physical construction so deterministic scaffold worlds receive the same factual narration as LLM-authored worlds.
             YQGoddessGenerationDialogue
@@ -949,6 +1574,107 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 yield break;
             }
 
+            terrainStagingRoot = new GameObject("YQ_TerrainBuildStaging");
+            terrainStagingRoot.SetActive(false);
+            EnsureProfileTerrainSnapshotProvider();
+            YQProfileSaveSystem profileSystem = YQProfileSaveSystem.Instance;
+            string profileId = profileSystem != null ? profileSystem.ActiveProfileId : string.Empty;
+            string terrainPlanFingerprint = YQStateContract.Sha256Hex(BuildVisualSignature(plan));
+            bool hasSavedTerrain = profileSystem != null && profileSystem.TryGetLoadedAuxiliaryDocument(
+                YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId, out loadedProfileTerrainJson);
+            if (!IsCompatibleProfileTerrainSnapshot(
+                    loadedProfileTerrainJson,
+                    profileId,
+                    world,
+                    plan,
+                    terrainPlanFingerprint) &&
+                profileSystem != null &&
+                profileSystem.TryGetPriorAuxiliaryDocument(
+                    YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId,
+                    candidate => IsCompatibleProfileTerrainSnapshot(
+                        candidate,
+                        profileId,
+                        world,
+                        plan,
+                        terrainPlanFingerprint),
+                    out string priorProfileTerrainJson))
+            {
+                loadedProfileTerrainJson = priorProfileTerrainJson;
+                hasSavedTerrain = true;
+                restoredProfileTerrainFromPriorRevision = true;
+                Debug.LogWarning(
+                    "[YQGeneratedWorldRuntimeBuilder] Active profile revision had no compatible terrain snapshot; recovering the matching heightfield from an earlier committed revision.");
+            }
+            if (hasSavedTerrain)
+            {
+                YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord savedTerrainRecord = null;
+                try
+                {
+                    savedTerrainRecord = JsonUtility.FromJson<YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord>(loadedProfileTerrainJson);
+                }
+                catch (ArgumentException)
+                {
+                    // note: Invalid optional terrain data falls back to the selected profile's persisted world plan.
+                }
+                loadedProfileTerrainChecksum = savedTerrainRecord != null ? savedTerrainRecord.heightmapChecksum : string.Empty;
+                yield return YQGeneratedWorldTerrain.BuildCandidateFromProfileSnapshotRoutine(
+                    terrainStagingRoot.transform,
+                    loadedProfileTerrainJson,
+                    profileId,
+                    world,
+                    terrainPlanFingerprint,
+                    terrain =>
+                    {
+                        stagedTerrain = terrain;
+                        restoredProfileTerrain = terrain != null;
+                    },
+                    failure => _lastProfileTerrainRestoreFailureReason = failure);
+                TouchInitialGenerationWatchdog();
+                if (!IsCurrentBuildContext(world, plan)) yield break;
+                if (restoredProfileTerrain)
+                {
+                    _lastProfileTerrainRestoreSucceeded = true;
+                    _profileTerrainSnapshotJson = loadedProfileTerrainJson;
+                    Debug.Log("[YQGeneratedWorldRuntimeBuilder] PROFILE TERRAIN RESTORE PASS profile=" + profileId +
+                              " world=" + world.worldIdentity.worldId + " seed=" + plan.worldSeed +
+                              " checksum=" + loadedProfileTerrainChecksum);
+                }
+                else
+                {
+                    Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Saved terrain snapshot was rejected (" +
+                                     (string.IsNullOrWhiteSpace(_lastProfileTerrainRestoreFailureReason)
+                                         ? "unknown reason"
+                                         : _lastProfileTerrainRestoreFailureReason) +
+                                     "); restoring terrain from that profile's persisted plan.");
+                }
+            }
+
+            if (stagedTerrain == null)
+            {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Forming the terrain",
+                    2,
+                    9,
+                    "Preparing the accepted profile terrain",
+                    0.60f);
+                yield return YQGeneratedWorldTerrain.BuildCandidateRoutine(
+                    terrainStagingRoot.transform, plan, terrain => stagedTerrain = terrain);
+                TouchInitialGenerationWatchdog();
+                if (!IsCurrentBuildContext(world, plan)) yield break;
+            }
+            if (stagedTerrain == null)
+            {
+                Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Candidate terrain failed; existing runtime retained.");
+                yield break;
+            }
+            if (!restoredProfileTerrain)
+            {
+                // note: First materialization creates the accepted landform foundation; profile snapshots already contain this finalized terrain.
+                yield return YQGeneratedWorldEnvironment.BuildTerrainFoundationRoutine(stagedTerrain, plan, registry, true);
+                TouchInitialGenerationWatchdog();
+                if (!IsCurrentBuildContext(world, plan)) yield break;
+            }
+
             /*
              * Extract the only fixed narrative world objects before
              * destroying either the previous generated runtime or the
@@ -964,18 +1690,31 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 new GameObject(
                     RuntimeRootName);
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // note: Selecting the runtime root exposes regions, macro features, footprints, roads, and bridge crossings without affecting release generation.
+            _runtimeRoot.AddComponent<YQGeneratedWorldDebugOverlay>().Configure(plan);
+#endif
+
             /*
              * Terrain is deterministic from the persisted world seed.
              */
-            _generatedTerrain =
-                null;
+            // note: Transfer the already-built candidate only after successful synthesis; the old root was preserved throughout all yielded uploads.
+            stagedTerrain.transform.SetParent(_runtimeRoot.transform, true);
+            stagedTerrain.gameObject.name = YQGeneratedWorldTerrain.RuntimeTerrainObjectName;
+            _generatedTerrain = stagedTerrain;
+            stagedTerrain = null;
+            Destroy(terrainStagingRoot);
+            terrainStagingRoot = null;
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Forming the terrain",
+                3,
+                9,
+                "Synthesizing the deterministic heightfield",
+                0.61f);
             // note: Terrain height synthesis and upload are frame-budgeted so the Goddess presentation never waits behind one monolithic terrain build frame.
-            yield return
-                YQGeneratedWorldTerrain.BuildRoutine(
-                    _runtimeRoot.transform,
-                    plan.worldSeed,
-                    terrain => _generatedTerrain = terrain);
+            // note: Terrain synthesis was completed in staging before replacing the previous runtime hierarchy.
+            TouchInitialGenerationWatchdog();
 
             if (_generatedTerrain == null)
             {
@@ -986,8 +1725,6 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
             EnsureGeneratedWorldSun(
                 _runtimeRoot.transform);
-
-            _compiledBindingsChangedDuringBuild = false;
 
             if (narrate)
             {
@@ -1006,30 +1743,57 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 yield break;
             }
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Shaping landforms and roads",
+                4,
+                9,
+                "Stamping regional hills, mountains, basins, and navigable approaches",
+                0.68f);
             // note: Terrain geometry becomes canonical first; construction pads are finalized before surface painting so visual slopes and physical slopes cannot disagree.
-            yield return
-                YQGeneratedWorldEnvironment.BuildTerrainFoundationRoutine(
-                    _generatedTerrain,
-                    plan,
-                    registry,
-                    true);
+            // note: Regional height shaping already completed under staging ownership; do not stamp it twice after transfer.
+            TouchInitialGenerationWatchdog();
 
             bool constructionTerrainPrepared =
-                false;
+                restoredProfileTerrain;
 
-            // note: Construction pads are authored incrementally so no settlement set can interrupt the loading-screen camera and typewriter for one long frame.
-            yield return PrepareDeterministicConstructionTerrainRoutine(
-                plan,
-                _generatedTerrain,
-                prepared => constructionTerrainPrepared = prepared);
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Shaping landforms and roads",
+                4,
+                9,
+                "Grading deterministic support pads beneath generated sites",
+                0.70f);
+            if (!restoredProfileTerrain)
+            {
+                // note: Construction pads are authored incrementally on first materialization; loaded profile terrain already includes the accepted pads.
+                yield return PrepareDeterministicConstructionTerrainRoutine(
+                    plan,
+                    _generatedTerrain,
+                    prepared => constructionTerrainPrepared = prepared);
+                TouchInitialGenerationWatchdog();
+            }
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Painting the terrain",
+                5,
+                9,
+                "Applying biome textures and lived-area paths to the final heightfield",
+                0.74f);
+            bool mandatoryRoadsReady = false;
             // note: Paint the finalized construction-aware heightfield once; repainting before and after grading doubled GPU uploads and left every late pad with the wrong material mask.
             yield return
                 YQGeneratedWorldEnvironment.BuildTerrainSurfaceRoutine(
                     _generatedTerrain,
                     plan,
-                    registry);
+                    registry,
+                    success => mandatoryRoadsReady = success);
+            TouchInitialGenerationWatchdog();
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Curating the wilderness",
+                6,
+                9,
+                "Beginning water, foliage, rocks, caves, and regional encounters",
+                0.76f);
             // note: Dressing is a read-only consumer of the final canonical heightfield. Streamed sites can no longer reshape terrain after this point.
             yield return
                 YQGeneratedWorldEnvironment.BuildWildernessRoutine(
@@ -1037,7 +1801,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     _generatedTerrain,
                     plan,
                     registry);
+            TouchInitialGenerationWatchdog();
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Building the starting scene",
+                7,
+                9,
+                "Grounding the Goddess stage, Vey's hut, Vey, and the player threshold",
+                0.87f);
             // note: The Goddess statue, Vey's witch hut, and Vey form the fixed narrative origin and must explicitly join the build transaction.
             bool originMaterialized = false;
             yield return
@@ -1048,8 +1819,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     preservedHut,
                     preservedVey,
                     success => originMaterialized = success);
+            TouchInitialGenerationWatchdog();
 
-            // note: A new world begins at the authored threshold; ordinary loads retain the save's horizontal location and receive only terrain-height safety correction.
+            // note: Only the initial new-world transaction uses the authored threshold; rebuilds and spatial upgrades retain the live continuation coordinate.
             PlacePlayerAtGeneratedOrigin(
                 _generatedTerrain,
                 plan,
@@ -1065,6 +1837,31 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 plan.settlements != null
                     ? plan.settlements.Count
                     : 0;
+
+            int requiredMinimumSettlements =
+                settlementTotal > 0
+                    ? Mathf.Min(settlementTotal, 2)
+                    : 0;
+            if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+            {
+                // note: Only V2 settlements whose accepted footprint is inside the startup terrain are required in the initial scene; distant owners are admitted by the semantic streamer.
+                requiredMinimumSettlements = CountInitialTerrainSettlements(
+                    plan,
+                    _generatedTerrain);
+            }
+            int settlementsInstantiated = 0;
+            int settlementCandidates = plan.spatialPlan != null &&
+                                       plan.spatialPlan.metrics != null
+                ? plan.spatialPlan.metrics.candidateCount
+                : settlementTotal;
+
+            Debug.Log(
+                "[YQGeneratedWorldRuntimeBuilder] SETTLEMENT GENERATION STARTED\n" +
+                "Seed: " + plan.worldSeed + "\n" +
+                "Minimum: " + requiredMinimumSettlements + "\n" +
+                "Target: " + settlementTotal + "\n" +
+                "Maximum: " + settlementTotal + "\n" +
+                "Scored candidates: " + settlementCandidates);
 
             /*
              * Materialize every persisted settlement.
@@ -1090,6 +1887,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     continue;
                 }
 
+                if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+                    !IsSettlementInsideGeneratedTerrain(plan, settlement, _generatedTerrain))
+                {
+                    // note: Do not run the legacy startup settlement builder against a distant V2 owner; its physical realization is a streamed-cell responsibility.
+                    Debug.Log(
+                        "[YQGeneratedWorldRuntimeBuilder] V2 SETTLEMENT DEFERRED TO STREAMING: " +
+                        settlement.displayName);
+                    continue;
+                }
+
                 settlement.EnsureCollections();
 
                 GeneratedRegionRecord region =
@@ -1099,17 +1906,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
                 if (region == null)
                 {
-                    Debug.LogWarning(
-                        "[YQGeneratedWorldRuntimeBuilder] " +
-                        "Skipping settlement '" +
+                    Debug.LogError(
+                        "[WORLDGEN ERROR] Settlement region binding missing; deterministic first-region fallback engaged. " +
+                        "Settlement='" +
                         settlement.displayName +
-                        "' because region '" +
+                        "', requestedRegion='" +
                         settlement.regionId +
-                        "' could not be found.");
-
-                    settlementsSkipped++;
-
-                    continue;
+                        "', seed=" + plan.worldSeed + ".");
+                    region = plan.regions != null && plan.regions.Count > 0
+                        ? plan.regions[0]
+                        : null;
+                    if (region == null)
+                    {
+                        settlementsSkipped++;
+                        continue;
+                    }
                 }
 
                 region.EnsureCollections();
@@ -1121,25 +1932,29 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
                 if (palette == null)
                 {
-                    Debug.LogWarning(
-                        "[YQGeneratedWorldRuntimeBuilder] " +
-                        "Skipping settlement '" +
+                    Debug.LogError(
+                        "[WORLDGEN ERROR] Settlement palette binding missing; deterministic first-palette fallback engaged. " +
+                        "Settlement='" +
                         settlement.displayName +
-                        "' because region '" +
+                        "', region='" +
                         region.regionId +
-                        "' has no generated asset palette.");
-
-                    settlementsSkipped++;
-
-                    continue;
+                        "', seed=" + plan.worldSeed + ".");
+                    palette = plan.assetPalettes != null && plan.assetPalettes.Count > 0
+                        ? plan.assetPalettes[0]
+                        : null;
+                    if (palette == null)
+                    {
+                        settlementsSkipped++;
+                        continue;
+                    }
                 }
 
                 palette.EnsureCollections();
 
                 float settlementStartProgress =
                     Mathf.Lerp(
-                        0.69f,
-                        0.77f,
+                        0.89f,
+                        0.92f,
                         settlementTotal > 0
                             ? i /
                               (float)settlementTotal
@@ -1147,8 +1962,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
                 float settlementEndProgress =
                     Mathf.Lerp(
-                        0.69f,
-                        0.77f,
+                        0.89f,
+                        0.92f,
                         settlementTotal > 0
                             ? (i + 1) /
                               (float)settlementTotal
@@ -1165,6 +1980,17 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         string.Empty),
                             settlementStartProgress);
                 }
+
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Preparing settlements and hostile sites",
+                    8,
+                    9,
+                    "Validating semantic settlement " + (i + 1) + " of " +
+                    settlementTotal + ": " + settlement.displayName,
+                    Mathf.Lerp(
+                        0.89f,
+                        0.92f,
+                        settlementTotal > 0 ? i / (float)settlementTotal : 1f));
 
                 if (!IsCurrentBuildContext(
                         world,
@@ -1184,11 +2010,96 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         narrate,
                         settlementStartProgress,
                         settlementEndProgress);
+                TouchInitialGenerationWatchdog();
+
+                if (!_lastSettlementMaterialized &&
+                    !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+                {
+                    // note: Missing reviewed bindings or rejected slices fall back to the existing palette-driven civic builder; a mandatory settlement record may never silently vanish.
+                    YQCompiledWorldSiteInstance.RemovePreparedSite(
+                        settlement.settlementId);
+                    yield return BuildSettlementRoutine(
+                        plan,
+                        settlement,
+                        region,
+                        palette,
+                        registry,
+                        false,
+                        settlementStartProgress,
+                        settlementEndProgress,
+                        true);
+                    TouchInitialGenerationWatchdog();
+                }
 
                 if (_lastSettlementMaterialized)
+                {
                     settlementsBuilt++;
+                    bool geometryReady =
+                        !YQWorldGenerationArchitecture.UsesCompiledWorld ||
+                        !YQCompiledWorldSiteInstance.HasSite(settlement.settlementId);
+
+                    if (!geometryReady &&
+                        settlementsInstantiated < requiredMinimumSettlements)
+                    {
+                        yield return YQCompiledWorldSiteInstance.EnsureSiteLoadedRoutine(
+                            settlement.settlementId,
+                            success => geometryReady = success);
+                        TouchInitialGenerationWatchdog();
+
+                        if (!geometryReady &&
+                            !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+                        {
+                            // note: A prepared-but-unloadable reviewed settlement is replaced deterministically by the palette civic fallback before world acceptance.
+                            YQCompiledWorldSiteInstance.RemovePreparedSite(
+                                settlement.settlementId);
+                            _lastSettlementMaterialized = false;
+                            yield return BuildSettlementRoutine(
+                                plan,
+                                settlement,
+                                region,
+                                palette,
+                                registry,
+                                false,
+                                settlementStartProgress,
+                                settlementEndProgress,
+                                true);
+                            geometryReady = _lastSettlementMaterialized;
+                        }
+                    }
+
+                    if (!geometryReady)
+                    {
+                        // note: Surface the stable site identity when streaming admission fails after a successful settlement binding, separating geometry load from content selection.
+                        string siteFailure;
+                        _lastMaterializationDecision =
+                            "rejected: compiled settlement geometry unavailable; settlement=" +
+                            settlement.settlementId +
+                            (YQCompiledWorldSiteInstance.TryGetLastLoadFailure(
+                                settlement.settlementId,
+                                out siteFailure)
+                                ? ", reason=" + siteFailure
+                                : string.Empty);
+                    }
+
+                    if (geometryReady)
+                        settlementsInstantiated++;
+                }
                 else
                     settlementsSkipped++;
+            }
+
+            // note: A rejected mandatory settlement cannot become playable by constructing more camps or NPCs; end this retry promptly through the existing recovery/finally path.
+            if (settlementsSkipped > 0 || settlementsInstantiated < requiredMinimumSettlements)
+            {
+                _worldMaterializationFailed = true;
+                _lastMaterializationDecision =
+                    "rejected: required settlement construction " +
+                    settlementsInstantiated + "/" + requiredMinimumSettlements +
+                    ", skipped=" + settlementsSkipped;
+                Debug.LogError("[YQGeneratedWorldRuntimeBuilder] REQUIRED SETTLEMENT CONSTRUCTION FAILED: " +
+                    "instantiated=" + settlementsInstantiated + "/" + requiredMinimumSettlements +
+                    ", skipped=" + settlementsSkipped + ". Generation stopped before downstream population work.");
+                yield break;
             }
 
             int hostileSitesBuilt = 0;
@@ -1196,6 +2107,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
             if (YQWorldGenerationArchitecture.UsesCompiledWorld)
             {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Preparing settlements and hostile sites",
+                    8,
+                    9,
+                    "Validating hostile semantic cells for off-camera streaming",
+                    0.925f);
                 yield return BuildCompiledHostileSitesRoutine(
                     plan,
                     (built, expected) =>
@@ -1203,6 +2120,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         hostileSitesBuilt = built;
                         hostileSitesExpected = expected;
                     });
+                TouchInitialGenerationWatchdog();
             }
 
             if (!IsCurrentBuildContext(
@@ -1210,6 +2128,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     plan))
             {
                 yield break;
+            }
+
+            if (narrate && YQWorldGenerationArchitecture.UsesCompiledWorld &&
+                settlementTotal > 0)
+            {
+                // note: Prepared settlement cells stream sequentially after unlock and only while off-camera; cloning dense authored towns here previously held the loading screen past its safety deadline.
+                Debug.Log(
+                    "[YQGeneratedWorldRuntimeBuilder] SEMANTIC SETTLEMENT STREAMING ARMED: " +
+                    settlementTotal +
+                    " prepared site(s) will materialize off-camera after gameplay unlock.");
             }
 
             /*
@@ -1235,6 +2163,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             0.93f);
                 }
 
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Placing inhabitants and finalizing",
+                    9,
+                    9,
+                    "Materializing persisted NPC records and their starting assignments",
+                    0.94f);
                 bool populationBuilt = false;
                 // note: Initial population materialization is cooperative; title/Goddess presentation keeps receiving frames while settlements and encounters acquire their actors.
                 yield return YQGeneratedWorldPopulation.BuildRoutine(
@@ -1243,6 +2177,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     plan,
                     registry,
                     success => populationBuilt = success);
+                TouchInitialGenerationWatchdog();
 
                 _materializedGeneratedNpcCount =
                     populationBuilt
@@ -1281,6 +2216,32 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     0;
             }
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Placing inhabitants and finalizing",
+                9,
+                9,
+                "Validating walkable collision, renderer bounds, LODs, and critical ground",
+                0.972f);
+            YQGeneratedWorldIntegrityValidator.Report worldIntegrity = null;
+            yield return YQGeneratedWorldIntegrityValidator.ValidateAndRepairRoutine(
+                _runtimeRoot,
+                plan.worldSeed,
+                "final_world",
+                report => worldIntegrity = report);
+            int criticalGroundFailures = 0;
+            // note: Raycast sampling validates origin and every settlement anchor after generated colliders are enabled but before control is released.
+            yield return YQGeneratedWorldIntegrityValidator.ValidateCriticalGroundRoutine(
+                _generatedTerrain,
+                plan,
+                failures => criticalGroundFailures = failures);
+            YQGeneratedWorldIntegrityValidator.RouteReport routeIntegrity = null;
+            // note: Persisted travel routes must retain continuous collision and traversable terrain before the loading screen can hand control to the player.
+            yield return YQGeneratedWorldIntegrityValidator.ValidateRouteTraversalRoutine(
+                _generatedTerrain,
+                plan,
+                report => routeIntegrity = report);
+            TouchInitialGenerationWatchdog();
+
             /*
              * Record the exact persisted plan that has now been physically
              * materialized.
@@ -1294,16 +2255,59 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             _builtWorldSeed =
                 plan.worldSeed;
 
+            YQStartupLoadingScreen.SetGenerationWorkStage(
+                "Placing inhabitants and finalizing",
+                9,
+                9,
+                "Verifying the completed world and preparing the camera handoff",
+                0.985f);
+
             _builtSettlementCount =
                 settlementsBuilt;
 
+            bool terrainReady =
+    _generatedTerrain != null;
+
+            bool roadsReady =
+                mandatoryRoadsReady;
+
+            bool constructionReady =
+                constructionTerrainPrepared;
+
+            bool originReady =
+                originMaterialized;
+
+            bool settlementsReady =
+                settlementsBuilt == requiredMinimumSettlements &&
+                settlementsSkipped == 0 &&
+                settlementsInstantiated >= requiredMinimumSettlements;
+
+            bool worldIntegrityReady =
+                worldIntegrity != null &&
+                worldIntegrity.IsValid;
+
+            bool groundReady =
+                criticalGroundFailures == 0;
+
+            bool routeIntegrityReady =
+                routeIntegrity != null &&
+                routeIntegrity.IsValid;
+
+            bool hostileSitesReady =
+                hostileSitesBuilt == hostileSitesExpected;
+
             _worldMaterializationFailed =
-                _generatedTerrain == null ||
-                !constructionTerrainPrepared ||
-                !originMaterialized ||
-                settlementsBuilt != settlementTotal ||
-                settlementsSkipped > 0 ||
-                hostileSitesBuilt != hostileSitesExpected;
+                !terrainReady ||
+                !roadsReady ||
+                !constructionReady ||
+                !originReady ||
+                !settlementsReady ||
+                !worldIntegrityReady ||
+                !groundReady ||
+                !routeIntegrityReady ||
+                !hostileSitesReady;
+            // note: Reaching the terminal gate is distinct from early coroutine exit; both rejected outcomes must stop automatic retries.
+            reachedAcceptanceGate = true;
 
             // note: Persist the semantic presentation fingerprint so a later curated genre/palette shift triggers one deterministic rebuild.
             _builtVisualSignature =
@@ -1312,25 +2316,189 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
             if (_worldMaterializationFailed)
             {
+                // note: Publish the final gate vector through the existing editor heartbeat so a rejected transaction identifies its actual blocker without relying on a locked Unity log.
+                _lastMaterializationDecision =
+                    "rejected: final gate terrain=" + terrainReady +
+                    ", roads=" + roadsReady +
+                    ", construction=" + constructionReady +
+                    ", origin=" + originReady +
+                    ", settlements=" + settlementsReady +
+                    ", integrity=" + worldIntegrityReady +
+                    ", ground=" + groundReady +
+                    ", routes=" + routeIntegrityReady +
+                    // note: Include route evidence counters in the editor heartbeat so a route-only rejection names the failed measurement category.
+                    ", routeSamples=" + (routeIntegrity != null ? routeIntegrity.sampledPoints : -1) +
+                    ", routeMissingGround=" + (routeIntegrity != null ? routeIntegrity.missingGroundPoints : -1) +
+                    ", routeHeightSteps=" + (routeIntegrity != null ? routeIntegrity.impassableHeightSteps : -1) +
+                    ", routeTraversalSamples=" + (routeIntegrity != null ? routeIntegrity.measuredTraversalSamples : -1) +
+                    ", routeTraversalIssues=" + (routeIntegrity != null ? routeIntegrity.traversalIssueSamples : -1) +
+                    ", routeClearanceSaturations=" + (routeIntegrity != null ? routeIntegrity.clearanceQuerySaturations : -1) +
+                    ", routeBlockers=" + (routeIntegrity != null ? routeIntegrity.unresolvedStructuralBlockers : -1) +
+                    ", routeMeasurementComplete=" + (routeIntegrity != null && routeIntegrity.traversalMeasurementComplete) +
+                    ", hostile=" + hostileSitesReady;
                 Debug.LogError(
                     "[YQGeneratedWorldRuntimeBuilder] WORLD MATERIALIZATION REJECTED\n" +
-                    "Expected settlements: " + settlementTotal + "\n" +
-                    "Materialized settlements: " + settlementsBuilt + "\n" +
-                    "Skipped settlements: " + settlementsSkipped + "\n" +
-                    "Origin ready: " + originMaterialized + "\n" +
-                    "Hostile sites: " + hostileSitesBuilt + "/" +
-                    hostileSitesExpected);
+
+                    "Terrain ready: " +
+                    terrainReady + "\n" +
+
+                    "Mandatory roads ready: " +
+                    roadsReady + "\n" +
+
+                    "Construction terrain prepared: " +
+                    constructionReady + "\n" +
+
+                    "Origin ready: " +
+                    originReady + "\n" +
+
+                    "Settlements ready: " +
+                    settlementsReady + "\n" +
+
+                    "Expected settlements: " +
+                    settlementTotal + "\n" +
+
+                    "Prepared settlement stream roots: " +
+                    settlementsBuilt + "\n" +
+
+                    "Skipped settlements: " +
+                    settlementsSkipped + "\n" +
+
+                    "Required instantiated settlements: " +
+                    requiredMinimumSettlements + "\n" +
+
+                    "Instantiated settlement geometry: " +
+                    settlementsInstantiated + "\n" +
+
+                    "World integrity report exists: " +
+                    (worldIntegrity != null) + "\n" +
+
+                    "World integrity valid: " +
+                    worldIntegrityReady + "\n" +
+
+                    "Missing walkable colliders: " +
+                    (worldIntegrity != null
+                        ? worldIntegrity.missingColliders
+                        : -1) + "\n" +
+
+                    "Critical ground valid: " +
+                    groundReady + "\n" +
+
+                    "Critical ground failures: " +
+                    criticalGroundFailures + "\n" +
+
+                    "Route integrity report exists: " +
+                    (routeIntegrity != null) + "\n" +
+
+                    "Route integrity valid: " +
+                    routeIntegrityReady + "\n" +
+
+                    "Hostile sites ready: " +
+                    hostileSitesReady + "\n" +
+
+                    "Hostile sites: " +
+                    hostileSitesBuilt + "/" +
+                    hostileSitesExpected
+                );
             }
-            else if (_compiledBindingsChangedDuringBuild)
+            else if (_compiledBindingsChangedDuringBuild ||
+                     _spatialPlanChangedDuringBuild)
             {
-                // note: Semantic bindings become accepted save authority only after the complete physical transaction validates; failed builds must not immediately persist partial rebinding.
-                WorldStateManager.Instance?.Save();
+                // note: Semantic bindings and a replacement spatial artifact become save authority only after the complete physical transaction validates; failed builds must not persist partial rebinding.
+                var saveOwner = WorldStateManager.Instance;
+                string saveFailure = "World save owner is unavailable.";
+                // note: Successful geometry cannot be accepted when its resolved bindings failed to reach durable saved state.
+                if (saveOwner != null && !ReferenceEquals(saveOwner.State, world))
+                    saveFailure = "World save owner changed during generation.";
+                if (saveOwner == null || !ReferenceEquals(saveOwner.State, world) || !saveOwner.TrySave(out saveFailure))
+                {
+                    _worldMaterializationFailed = true;
+                    _lastMaterializationDecision = "rejected: world commit failed: " + saveFailure;
+                    Debug.LogError("[YQGeneratedWorldRuntimeBuilder] WORLD COMMIT FAILED: " + saveFailure);
+                }
+            }
+
+            if (!_worldMaterializationFailed)
+            {
+                EnsureProfileTerrainSnapshotProvider();
+                PlayerStateManager playerManager = PlayerStateManager.Instance;
+                PlayerState activePlayer = playerManager != null ? playerManager.state : null;
+                bool profileOwnsWorld = profileSystem != null && activePlayer != null && world.worldIdentity != null &&
+                    string.Equals(profileSystem.ActiveProfileId, activePlayer.playerId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(world.worldIdentity.ownerProfileId, profileSystem.ActiveProfileId, StringComparison.OrdinalIgnoreCase);
+                if (profileOwnsWorld)
+                {
+                    string currentFingerprint = YQStateContract.Sha256Hex(BuildVisualSignature(plan));
+                    string capturedTerrainJson = string.Empty;
+                    yield return YQGeneratedWorldTerrain.CaptureProfileSnapshotRoutine(
+                        _generatedTerrain,
+                        profileSystem.ActiveProfileId,
+                        world,
+                        currentFingerprint,
+                        json => capturedTerrainJson = json);
+                    YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord capturedRecord = null;
+                    try
+                    {
+                        capturedRecord = JsonUtility.FromJson<YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord>(capturedTerrainJson);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // note: Invalid snapshot output rejects materialization before gameplay handoff.
+                    }
+
+                    if (capturedRecord == null || !capturedRecord.hasTerrain || string.IsNullOrWhiteSpace(capturedRecord.heightmapChecksum))
+                    {
+                        _worldMaterializationFailed = true;
+                        _lastMaterializationDecision = "rejected: completed terrain could not be captured for its owning profile";
+                        Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Profile terrain snapshot capture failed; gameplay handoff remains gated.");
+                    }
+                    else
+                    {
+                        _profileTerrainSnapshotJson = capturedTerrainJson;
+                        bool profileTerrainChanged = restoredProfileTerrainFromPriorRevision ||
+                            !restoredProfileTerrain ||
+                            !string.Equals(loadedProfileTerrainChecksum, capturedRecord.heightmapChecksum, StringComparison.OrdinalIgnoreCase);
+                        if (profileTerrainChanged && !profileSystem.SaveActiveProfile())
+                        {
+                            _worldMaterializationFailed = true;
+                            _lastMaterializationDecision = "rejected: profile terrain commit failed: " + profileSystem.LastFailure;
+                            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Profile terrain was built but could not be committed: " + profileSystem.LastFailure);
+                        }
+                        else
+                        {
+                            _builtProfileId = profileSystem.ActiveProfileId;
+                            _builtWorldId = world.worldIdentity.worldId;
+                            Debug.Log("[YQGeneratedWorldRuntimeBuilder] PROFILE TERRAIN SAVE PASS profile=" + _builtProfileId +
+                                      " world=" + _builtWorldId + " seed=" + plan.worldSeed +
+                                      " checksum=" + capturedRecord.heightmapChecksum +
+                                      " revision=" + profileSystem.ActiveRevision);
+                        }
+                    }
+                }
             }
 
             // note: The generated hierarchy is the only runtime content subject to the distance and shadow budget.
             YQGeneratedWorldPerformanceDirector
                 .ConfigureForGeneratedWorld(
                     _runtimeRoot.transform);
+            bool canonicalContinuationReady =
+                _generatedTerrain != null &&
+                _generatedTerrain.terrainData != null &&
+                canonicalWorldAtBuildStart &&
+                !_spatialPlanChangedDuringBuild &&
+                !_compiledBindingsChangedDuringBuild;
+            // note: A persisted canonical plan with valid terrain must keep its continuation owner even when a downstream route/site gate rejects playability; otherwise the original 1024m terrain becomes an artificial world edge.
+            if (!_worldMaterializationFailed || canonicalContinuationReady)
+            {
+                YQPlayerFollowingSemanticChunkStreamer.Attach(
+                    _runtimeRoot.transform,
+                    world,
+                    plan,
+                    _generatedTerrain);
+                if (_worldMaterializationFailed)
+                    Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Continuation streamer retained after downstream validation rejection; canonical terrain remains explorable while the rejected gate is repaired.");
+            }
+            // note: Install one shared underwater presentation cue after the generated hierarchy is accepted and before player control is released.
+            YQUnderwaterVisual.Attach(_runtimeRoot.transform);
 
             Debug.Log(
                 (_worldMaterializationFailed
@@ -1353,8 +2521,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 "Settlements in plan: " +
                 plan.settlements.Count +
                 "\n" +
-                "Settlements materialized: " +
+                "Settlement stream roots prepared: " +
                 settlementsBuilt +
+                "\nSettlement geometry instantiated: " +
+                settlementsInstantiated + "/" + requiredMinimumSettlements +
                 "\n" +
                 "Settlements skipped: " +
                 settlementsSkipped +
@@ -1374,12 +2544,440 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
         finally
         {
+            // note: Failed or cancelled staging owns its TerrainData; destroying a GameObject alone does not release that native allocation.
+            if (stagedTerrain != null && stagedTerrain.terrainData != null) Destroy(stagedTerrain.terrainData);
+            if (terrainStagingRoot != null) Destroy(terrainStagingRoot);
+            if (!_cancellingBuild && IsCurrentWorldPlanReference(world, plan))
+            {
+                // note: Record early failures independently of a runtime root or previously successful build; preflight/terrain failure can occur before either exists.
+                if (!reachedAcceptanceGate)
+                    _worldMaterializationFailed = true;
+                if (_worldMaterializationFailed)
+                {
+                    RecordFailedWorldBuild(world, plan);
+                }
+                else
+                {
+                    _failedBuildWorld = null;
+                    _failedBuildPlan = null;
+                    _failedBuildSeed = string.Empty;
+                    _failedBuildSignature = string.Empty;
+                }
+            }
             _buildInProgress =
                 false;
 
             _buildCoroutine =
                 null;
         }
+    }
+
+    private IEnumerator PreflightSpatialCellsV2Routine(
+        WorldState world,
+        GeneratedWorldPlanRecord plan,
+        Action<bool, string> completed)
+    {
+        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+                plan, out YQPreparedSpatialMaterializationV2 prepared,
+                out string failure))
+        {
+            completed?.Invoke(false, failure);
+            yield break;
+        }
+
+        // note: One owner set proves that every settlement and hostile site has a distinct, fully functional reviewed composition inside its accepted reserve.
+        var owners = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        // note: Alternative bindings become authoritative together only after every required site passes; a failed V2 probe leaves V1 bindings intact.
+        var acceptedBindings = new List<Action>();
+        _resolvedSemanticCompositionSeedsV2.Clear();
+        for (int index = 0; index < prepared.SiteCount; index++)
+        {
+            // note: A profile/plan switch invalidates this cooperative preflight before it can bind another old-world site.
+            if (!IsCurrentBuildContext(world, plan))
+            {
+                completed?.Invoke(false, "The active world changed during cell preflight.");
+                yield break;
+            }
+            YQSpatialMaterializationSiteV2 anchor = prepared.GetSite(index);
+            if (anchor.kind != YQSiteKindV2.Settlement &&
+                anchor.kind != YQSiteKindV2.HostileSite)
+                continue;
+
+            YQRuntimeWorldSiteRecord record = null;
+            string[] tags = null;
+            string seed = string.Empty;
+            string displayName = anchor.sourceSemanticId;
+            bool bound = false;
+            bool bindingChanged = false;
+            bool allowAlternativeBinding = false;
+            GeneratedSettlementRecord settlementOwner = null;
+            GeneratedEncampmentRecord encampmentOwner = null;
+            GeneratedRegionRecord siteRegion = null;
+            GeneratedRegionAssetPaletteRecord sitePalette = null;
+            if (anchor.kind == YQSiteKindV2.Settlement)
+            {
+                foreach (GeneratedSettlementRecord settlement in plan.settlements)
+                {
+                    if (settlement == null || !string.Equals(settlement.settlementId,
+                            anchor.sourceSemanticId, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    GeneratedRegionRecord region = FindRegion(plan, settlement.regionId);
+                    GeneratedRegionAssetPaletteRecord palette = FindPalette(plan, region);
+                    settlementOwner = settlement;
+                    // note: Keep a valid saved kit first; a kit that fails primary construction evidence may be repaired without changing narrative identity or the accepted spatial reserve.
+                    allowAlternativeBinding = true;
+                    siteRegion = region;
+                    sitePalette = palette;
+                    bound = region != null && palette != null &&
+                        YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
+                            plan, settlement, region, palette, out record, out bindingChanged, persistBinding: false);
+                    tags = YQCompiledWorldSiteBindingService.BuildSettlementSemanticSliceTags(settlement);
+                    seed = SettlementSeed(settlement);
+                    displayName = settlement.displayName;
+                    break;
+                }
+            }
+            else
+            {
+                foreach (GeneratedEncampmentRecord encampment in plan.encampments)
+                {
+                    if (encampment == null || !string.Equals(encampment.encampmentId,
+                            anchor.sourceSemanticId, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    GeneratedRegionRecord region = FindRegion(plan, encampment.regionId);
+                    GeneratedRegionAssetPaletteRecord palette = FindPalette(plan, region);
+                    encampmentOwner = encampment;
+                    // note: Earlier failed builds could persist unvalidated kit IDs; a rejected physical binding is not an accepted playable assembly.
+                    allowAlternativeBinding = true;
+                    siteRegion = region;
+                    sitePalette = palette;
+                    bound = region != null && palette != null &&
+                        YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
+                            plan, encampment, region, palette, out record, out bindingChanged, persistBinding: false);
+                    tags = YQCompiledWorldSiteBindingService.BuildEncampmentSemanticSliceTags(encampment);
+                    seed = !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
+                        ? encampment.deterministicSeed : encampment.encampmentId;
+                    displayName = encampment.displayName;
+                    break;
+                }
+            }
+
+            if (!bound && anchor.kind == YQSiteKindV2.Settlement)
+            {
+                // note: Mirror streamed materialization for both synthetic and stale narrative bindings; preserve narrative identity while using the accepted reviewed catalog contract.
+                record = YQContinuousWorldFeatureMaterializer.FindReviewedSiteForFunctions(
+                    YQAuthoredSiteKind.Settlement,
+                    new[]
+                    {
+                        YQAssetFunctionV2.Habitation,
+                        YQAssetFunctionV2.Circulation,
+                        YQAssetFunctionV2.Service,
+                        YQAssetFunctionV2.Commerce
+                    },
+                    anchor.siteId);
+                if (settlementOwner == null)
+                {
+                    tags = new[] { "poi", "civic", "residential", "service", "circulation" };
+                    seed = anchor.sourceSemanticId;
+                }
+                bound = record != null;
+                if (bound)
+                    Debug.Log("[YQGeneratedWorldRuntimeBuilder] V2 PREFLIGHT REVIEWED FALLBACK " + anchor.siteId + " kit=" + record.kitId + " kind=settlement");
+            }
+            else if (!bound && anchor.kind == YQSiteKindV2.HostileSite)
+            {
+                // note: Mirror streamed materialization for both synthetic and stale narrative bindings; preflight the reviewed camp composition that the materializer will use.
+                record = YQContinuousWorldFeatureMaterializer.FindReviewedSiteForFunctions(
+                    YQAuthoredSiteKind.Camp,
+                    new[]
+                    {
+                        YQAssetFunctionV2.Encounter,
+                        YQAssetFunctionV2.Reward,
+                        YQAssetFunctionV2.Security
+                    },
+                    anchor.siteId);
+                if (encampmentOwner == null)
+                {
+                    tags = new[] { "poi", "perimeter", "circulation", "encounter", "reward" };
+                    seed = anchor.sourceSemanticId;
+                }
+                bound = record != null;
+                if (bound)
+                    Debug.Log("[YQGeneratedWorldRuntimeBuilder] V2 PREFLIGHT REVIEWED FALLBACK " + anchor.siteId + " kit=" + record.kitId + " kind=hostile");
+            }
+
+            // note: Preflight may resolve a previously missing persisted kit; retain its change flag through the final successful-build save gate.
+            _compiledBindingsChangedDuringBuild |= bindingChanged;
+            if (!bound || !TryResolveConstructionRadii(record, out _, out _, out _))
+            {
+                completed?.Invoke(false, "No eligible reviewed cell binding for " + displayName);
+                yield break;
+            }
+
+            bool resolved = false;
+            string compositionFailure = string.Empty;
+            YQRuntimeWorldSiteRecord initialRecord = record;
+            var rejectedKits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // note: Try another primary-library kit only after the saved choice fails; every replacement must satisfy the same function and footprint gates.
+            while (record != null && rejectedKits.Add(record.kitId))
+            {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Preparing approved assets", 2, 9,
+                    "Checking " + displayName + ": " + record.kitId, 0.595f);
+                yield return ResolveUniqueSemanticCompositionV2Routine(
+                    record, tags, seed, anchor.sourceSemanticId, displayName,
+                    owners, prepared,
+                    (success, radius, message) =>
+                    {
+                        resolved = success;
+                        compositionFailure = message;
+                    });
+                TouchInitialGenerationWatchdog();
+                // note: Do not commit or inspect another old-world binding after a profile switch during asynchronous asset loading.
+                if (!IsCurrentBuildContext(world, plan))
+                {
+                    completed?.Invoke(false, "The active world changed during cell selection.");
+                    yield break;
+                }
+                if (resolved || !allowAlternativeBinding)
+                    break;
+
+                // note: Candidate probes preserve style/kind eligibility and do not write to the save; normal composition still checks functions, uniqueness and the reserved footprint.
+                bool hasAlternative = settlementOwner != null
+                    ? YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
+                        plan, settlementOwner, siteRegion, sitePalette, out record, out _, rejectedKits, false)
+                    : YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
+                        plan, encampmentOwner, siteRegion, sitePalette, out record, out _, rejectedKits, false);
+                if (!hasAlternative)
+                    break;
+                yield return null;
+            }
+            if (!resolved)
+            {
+                completed?.Invoke(false, displayName + ": " + compositionFailure +
+                    " Checked " + rejectedKits.Count + " eligible kit(s)." +
+                    (allowAlternativeBinding ? string.Empty : " Existing binding preserved."));
+                yield break;
+            }
+            if (allowAlternativeBinding || !ReferenceEquals(record, initialRecord))
+            {
+                YQRuntimeWorldSiteRecord acceptedRecord = record;
+                acceptedBindings.Add(() =>
+                {
+                    // note: Unvalidated probes never become saved bindings; commit the initial candidate too, but only after all required sites pass.
+                    _compiledBindingsChangedDuringBuild = true;
+                    // note: Commit only the validated kit metadata; semantic identity, quests, seed and accepted spatial reservation stay unchanged.
+                    if (settlementOwner != null)
+                    {
+                        settlementOwner.runtimeSiteKitId = acceptedRecord.kitId;
+                        settlementOwner.runtimeSiteSemanticStyle = acceptedRecord.semanticStyleKey;
+                        settlementOwner.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                    }
+                    else
+                    {
+                        encampmentOwner.runtimeSiteKitId = acceptedRecord.kitId;
+                        encampmentOwner.runtimeSiteSemanticStyle = acceptedRecord.semanticStyleKey;
+                        encampmentOwner.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                    }
+                    Debug.Log("[YQGeneratedWorldRuntimeBuilder] VALIDATED CELL KIT ALTERNATIVE: " +
+                        displayName + ": " + initialRecord.kitId + " -> " + acceptedRecord.kitId);
+                });
+            }
+            yield return null;
+        }
+        // note: The complete V2 preflight succeeded, so later terrain grading and streaming may now consume the validated replacement bindings.
+        foreach (Action accept in acceptedBindings)
+            accept();
+        completed?.Invoke(true, string.Empty);
+    }
+
+    private IEnumerator PrepareSpatialAuthorityRoutine(
+        WorldState world,
+        GeneratedWorldPlanRecord plan,
+        Action<bool> completed)
+    {
+        if (!IsCurrentWorldPlanReference(world, plan))
+        {
+            completed?.Invoke(false);
+            yield break;
+        }
+
+        YQSpatialPlanningMode mode =
+            YQWorldGenerationArchitecture.ActiveSpatialPlanningMode;
+        if (mode == YQSpatialPlanningMode.PersistedV1 ||
+            mode == YQSpatialPlanningMode.V2Shadow)
+        {
+            if (!YQSpatialPlanVersionRouter.TryResolve(
+                    plan,
+                    mode,
+                    out YQSpatialPlanAuthority v1Authority,
+                    out string v1Failure))
+            {
+                Debug.LogError(
+                    "[YQGeneratedWorldRuntimeBuilder] V1 spatial preparation failed: " +
+                    v1Failure);
+                completed?.Invoke(false);
+                yield break;
+            }
+
+            YQWorldGenerationArchitecture.LockRuntimeAuthority(
+                plan,
+                v1Authority);
+            completed?.Invoke(true);
+            yield break;
+        }
+
+        GeneratedSpatialWorldPlanV2Record previousArtifact =
+            plan.spatialPlanV2;
+        bool acceptedV2 =
+            YQSpatialPlanVersionRouter.TryValidateAcceptedV2(
+                plan,
+                out string v2Failure);
+        if (acceptedV2)
+        {
+            // note: Separate validation and immutable projection across frames so Continue never receives both costs in one loading-screen frame.
+            yield return null;
+            TouchInitialGenerationWatchdog();
+
+            string preparationFailure = string.Empty;
+            if (IsCurrentWorldPlanReference(world, plan) &&
+                ReferenceEquals(plan.spatialPlanV2, previousArtifact) &&
+                YQSpatialMaterializationResolverV2.TryGetPrepared(
+                    plan,
+                    out _,
+                    out preparationFailure))
+            {
+                YQWorldGenerationArchitecture.LockRuntimeAuthority(
+                    plan,
+                    YQSpatialPlanAuthority.AcceptedV2);
+                completed?.Invoke(true);
+                yield break;
+            }
+
+            v2Failure = string.IsNullOrWhiteSpace(preparationFailure)
+                ? "The accepted V2 artifact changed during preparation."
+                : preparationFailure;
+        }
+
+        bool mayCompileReplacement =
+            previousArtifact == null ||
+            previousArtifact.acceptanceState !=
+                GeneratedSpatialPlanAcceptanceState.Accepted ||
+            YQSpatialPlanVersionRouter
+                .IsKnownLegacyNonAuthoritativeArtifact(previousArtifact);
+
+        if (!acceptedV2 && mayCompileReplacement)
+        {
+            GeneratedSpatialWorldPlanV2Record compiled = null;
+            string compileFailure = string.Empty;
+            IEnumerator compiler =
+                YQSpatialBlueprintCompilerV2.CompileRoutine(
+                    plan,
+                    (candidate, message) =>
+                    {
+                        compiled = candidate;
+                        compileFailure = message ?? string.Empty;
+                    });
+
+            while (true)
+            {
+                bool hasNext;
+                try
+                {
+                    hasNext = compiler.MoveNext();
+                }
+                catch (Exception exception)
+                {
+                    compileFailure =
+                        "V2 spatial planning threw an exception: " +
+                        exception.Message;
+                    break;
+                }
+
+                if (!hasNext)
+                    break;
+
+                yield return compiler.Current;
+                TouchInitialGenerationWatchdog();
+                if (!IsCurrentWorldPlanReference(world, plan))
+                {
+                    completed?.Invoke(false);
+                    yield break;
+                }
+            }
+
+            if (IsCurrentWorldPlanReference(world, plan) &&
+                ReferenceEquals(plan.spatialPlanV2, previousArtifact) &&
+                compiled != null &&
+                string.IsNullOrWhiteSpace(compileFailure))
+            {
+                // note: Yield while the old artifact is still attached; cancelled builds and autosaves must not observe a candidate before projection succeeds.
+                yield return null;
+                TouchInitialGenerationWatchdog();
+
+                bool replacementReady =
+                    IsCurrentWorldPlanReference(world, plan) &&
+                    ReferenceEquals(plan.spatialPlanV2, previousArtifact) &&
+                    YQSpatialMaterializationCompilerV2.TryPrepareCandidate(
+                        plan,
+                        compiled,
+                        out _,
+                        out compileFailure);
+                if (replacementReady)
+                {
+                    // note: Commit only after the complete detached projection passes; there is no yield between assignment and authority locking.
+                    plan.spatialPlanV2 = compiled;
+                    _spatialPlanChangedDuringBuild = true;
+                    // note: The replacement spatial artifact keeps the same world-space coordinate system, so the active player remains where they are.
+                    YQWorldGenerationArchitecture.LockRuntimeAuthority(
+                        plan,
+                        YQSpatialPlanAuthority.AcceptedV2);
+                    Debug.Log(
+                        "[YQGeneratedWorldRuntimeBuilder] PLAYABLE V2 SPATIAL PLAN PREPARED\n" +
+                        "Generation: " + compiled.generationVersion + "\n" +
+                        "Hash: " + compiled.contentHash);
+                    completed?.Invoke(true);
+                    yield break;
+                }
+
+            }
+
+            if (!string.IsNullOrWhiteSpace(compileFailure))
+                v2Failure = compileFailure;
+        }
+
+        string fallbackFailure = string.Empty;
+        // note: Both planning and cell-preflight rejection use the same fallback boundary; neither treats V1 data validity as physical startup readiness.
+        if (CanAttemptLegacySpatialFallback(plan) &&
+            YQSpatialPlanVersionRouter.TryResolve(
+                plan,
+                YQSpatialPlanningMode.PersistedV1,
+                out YQSpatialPlanAuthority fallbackAuthority,
+                out fallbackFailure))
+        {
+            // note: Legacy compatibility construction still has to pass every required settlement, collision, material and reveal gate below.
+            YQWorldGenerationArchitecture.LockRuntimeAuthority(
+                plan,
+                fallbackAuthority);
+            Debug.LogWarning(
+                "[YQGeneratedWorldRuntimeBuilder] V2 spatial preparation selected legacy V1 compatibility data; physical startup validation is still required: " +
+                (string.IsNullOrWhiteSpace(v2Failure)
+                    ? "no accepted V2 candidate was available."
+                    : v2Failure));
+            completed?.Invoke(true);
+            yield break;
+        }
+
+        Debug.LogError(
+            "[YQGeneratedWorldRuntimeBuilder] No playable spatial authority is available. V2: " +
+            (string.IsNullOrWhiteSpace(v2Failure)
+                ? "unavailable"
+                : v2Failure) +
+            "; fallback: " +
+            (string.IsNullOrWhiteSpace(fallbackFailure)
+                ? "disabled"
+                : fallbackFailure));
+        completed?.Invoke(false);
     }
 
     /*
@@ -1404,6 +3002,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         YQStartupLoadingScreen.SetGenerationStage(
             message,
             progress);
+        TouchInitialGenerationWatchdog();
 
         // note: Fallback grab-bag lines move quickly; Ollama-authored lines remain readable longer.
         float hold =
@@ -1425,6 +3024,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
     }
 
+    private static void TouchInitialGenerationWatchdog()
+    {
+        if (!IsInitialGenerationGameplayLocked)
+            return;
+
+        // note: Every accepted phase boundary proves the transaction is alive; only a phase with no progress for the full stall window may trip recovery.
+        _initialGenerationLastProgressAt = Time.unscaledTime;
+    }
+
+    internal static void ReportInitialGenerationProgress()
+    {
+        // note: Valid transport handoffs are progress too; origin-generation time must not consume the following world request's independent stall allowance.
+        TouchInitialGenerationWatchdog();
+    }
+
     private void ReportInitialGenerationDeadlineExceeded()
     {
         if (!IsInitialGenerationGameplayLocked ||
@@ -1433,19 +3047,25 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         _initialGenerationDeadlineWarningIssued = true;
 
-        // note: A deadline is an actual circuit breaker: stop owned coroutines and prevent the coordinator from immediately relaunching the same wedged transaction.
+        // note: A true no-progress stall is a circuit breaker: stop owned coroutines and prevent the coordinator from immediately relaunching the same wedged transaction.
         _initialGenerationWatchdogAborted = true;
+        // note: Publish the watchdog rejection before cancellation disposes the owned coroutine, so the editor heartbeat cannot retain the stale scheduled-start decision.
+        _lastMaterializationDecision =
+            "rejected: initial-generation watchdog timeout after " +
+            MaximumInitialGenerationStallSeconds.ToString("0") + " seconds";
         CancelActiveBuildRoutine();
         _worldMaterializationFailed = true;
 
         YQStartupLoadingScreen.ShowGenerationFailure(
-            "I—yes, I meant to stop there. The world took too long to hold together, so I cut the spell before it froze everything. Retry when you're ready; I'll try to be less ambitious.",
+            "I lost my hold on that part. I stopped before it could trap you in an unfinished world. Give me another try; I still have everything you told me.",
             RetryAfterGenerationWatchdog,
             ReturnToTitleAfterGenerationWatchdog);
 
         Debug.LogError(
             "[YQGeneratedWorldRuntimeBuilder] INITIAL GENERATION SAFETY DEADLINE REACHED. " +
-            "The active materialization coroutines were stopped and the loading screen entered a responsive recovery state. " +
+            "No materialization phase completed for " +
+            MaximumInitialGenerationStallSeconds.ToString("0") +
+            " seconds. The active coroutines were stopped and the loading screen entered a responsive recovery state. " +
             "Gameplay was not released against incomplete state.");
     }
 
@@ -1455,8 +3075,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         _initialGenerationWatchdogAborted = false;
         _initialGenerationDeadlineWarningIssued = false;
         _initialGenerationLockStartedAt = Time.unscaledTime;
+        _initialGenerationLastProgressAt = Time.unscaledTime;
+        _initialGenerationLastWatchdogUpdateAt = Time.unscaledTime;
         YQStartupLoadingScreen.SetGenerationStage(
-            "Right. Smaller gestures. Fewer dramatic pauses. Rebuilding the world...",
+            "All right. I still know who you are. Let me put the ground back beneath this carefully...",
             0.70f);
         RebuildGeneratedWorld();
     }
@@ -1494,26 +3116,29 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         WorldState expectedWorld,
         GeneratedWorldPlanRecord expectedPlan)
     {
-        if (expectedWorld == null ||
-            expectedPlan == null)
-        {
-            return false;
-        }
+        return IsCurrentWorldPlanReference(
+                   expectedWorld,
+                   expectedPlan) &&
+               YQWorldGenerationArchitecture
+                   .IsRuntimeAuthorityCurrent(expectedPlan);
+    }
 
-        WorldStateManager manager =
-            WorldStateManager.Instance;
-
-        if (manager == null ||
-            manager.State != expectedWorld)
-        {
+    private static bool IsCurrentWorldPlanReference(
+        WorldState expectedWorld,
+        GeneratedWorldPlanRecord expectedPlan)
+    {
+        if (expectedWorld == null || expectedPlan == null)
             return false;
-        }
+
+        WorldStateManager manager = WorldStateManager.Instance;
+        if (manager == null || manager.State != expectedWorld)
+            return false;
 
         expectedWorld.EnsureCollections();
-
-        return
-            expectedWorld.generatedWorldPlan ==
-            expectedPlan;
+        // note: Spatial preparation uses only semantic-plan identity; the stronger build-context check adds the frozen V2 artifact after authority selection.
+        return ReferenceEquals(
+            expectedWorld.generatedWorldPlan,
+            expectedPlan);
     }
 
     // ------------------------------------------------------------
@@ -1522,28 +3147,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
     private void TryCompleteInitialGenerationReveal()
     {
-        if (_buildInProgress)
+        // note: The gameplay transaction outlives the bounded LLM lease; only its own lock and recovery state authorize a reveal.
+        if (_buildInProgress || !IsInitialGenerationGameplayLocked ||
+            _initialGenerationWatchdogAborted)
             return;
 
         LLMClient llm =
             LLMClient.Instance;
-
-        /*
-         * This path applies only to the special new-save generation
-         * sequence.
-         *
-         * Ordinary loads and manual rebuilds must not release unrelated
-         * LLM sequence owners.
-         */
-        if (llm == null ||
-            !llm.IsExclusiveSequenceActive ||
-            !string.Equals(
-                llm.ExclusiveSequenceOwner,
-                InitialGenerationOwner,
-                StringComparison.Ordinal))
-        {
-            return;
-        }
 
         PlayerStateManager playerManager =
             PlayerStateManager.Instance;
@@ -1605,7 +3215,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (_runtimeRoot == null ||
             _generatedTerrain == null ||
             _builtWorldState != world ||
-            _builtPlan != plan)
+            _builtPlan != plan ||
+            // note: The no-loading-screen path must enforce the same frozen spatial authority as the delayed handoff.
+            !IsCurrentBuildContext(world, plan))
         {
             return;
         }
@@ -1625,8 +3237,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         if (plan.settlements == null ||
-            _builtSettlementCount <
-                plan.settlements.Count)
+            _builtSettlementCount < ExpectedStartupSettlementCount(plan))
         {
             return;
         }
@@ -1678,6 +3289,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
         }
 
+        YQProfileSaveSystem profileSystem = YQProfileSaveSystem.Instance;
+        if (profileSystem != null && !profileSystem.SaveActiveProfile())
+        {
+            // note: Shared active state is already durable; report a failed profile copy without converting an I/O problem into a permanent gameplay lock.
+            Debug.LogError(
+                "[YQGeneratedWorldRuntimeBuilder] INITIAL GENERATION PROFILE SNAPSHOT FAILED. " +
+                "The runtime world is complete, but the profile copy must succeed on the next manual or automatic save before Continue is reliable.");
+        }
+
+        // note: Mark this seed revealed only after the profile-copy attempt so this one-shot completion path cannot save or announce the same world repeatedly.
         _revealedInitialGenerationSeed =
             plan.worldSeed;
 
@@ -1696,7 +3317,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     "INITIAL GENERATION READY\n" +
     "World seed: " +
     plan.worldSeed +
-    "\nSettlements materialized: " +
+    "\nSettlement stream roots prepared: " +
     _builtSettlementCount +
     "\nCanonical NPCs materialized: " +
     _materializedGeneratedNpcCount);
@@ -1733,12 +3354,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             (worldGeneration != null &&
              worldGeneration.IsRequestInFlight) +
             "\nExclusiveActive=" +
-            llm.IsExclusiveSequenceActive +
+            (llm != null && llm.IsExclusiveSequenceActive) +
             "\nExclusiveOwner=" +
-            llm.ExclusiveSequenceOwner);
-
-        // note: Route all successful unlocks through the guarded release path so it logs once.
-        ReleaseInitialGenerationGameplayLock();
+            (llm != null ? llm.ExclusiveSequenceOwner : string.Empty));
 
         GameObject player = null;
 
@@ -1748,8 +3366,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 GameObject.FindGameObjectWithTag(
                     "Player");
         }
-        catch
+        catch (Exception exception)
         {
+            Debug.LogError(
+                "[WORLDGEN ERROR] Authoritative player lookup failed during spawn placement. " +
+                "Seed=" + (plan != null ? plan.worldSeed : "<missing>") +
+                ", reason=" + exception.Message);
         }
 
         if (player == null)
@@ -1770,18 +3392,42 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (loading != null)
         {
-            StartCoroutine(
+            // note: Keep gameplay locked through the black camera handoff; unlock only when the generated-origin camera owns presentation.
+            GameObject revealRoot = _runtimeRoot;
+            _revealPresentation = loading;
+            _revealCoroutine = StartCoroutine(
                 loading.FinishGenerationAndHide(
-                    revealHoldSeconds));
+                    revealHoldSeconds,
+                    () =>
+                    {
+                        ReleaseInitialGenerationGameplayLock();
+                        EndInitialGenerationLlmSequence();
+                    },
+                    // note: Revalidate the gameplay transaction after every camera wait; an expired transport lease cannot invalidate a completed world.
+                    () => IsInitialGenerationGameplayLocked &&
+                        !_initialGenerationWatchdogAborted &&
+                        !_buildInProgress && !_worldMaterializationFailed &&
+                        IsCurrentBuildContext(world, plan) && _builtPlan == plan &&
+                        revealRoot != null && _runtimeRoot == revealRoot,
+                    ReportInitialGenerationHandoffFailure));
         }
+        else
+        {
+            // note: Headless and recovery paths have no cinematic owner, so release the same guarded state immediately.
+            ReleaseInitialGenerationGameplayLock();
+            EndInitialGenerationLlmSequence();
+        }
+    }
 
-        /*
-         * Physical generation is now genuinely complete.
-         *
-         * Ending this sequence also releases the player movement lock.
-         */
-        llm.EndExclusiveSequence(
-            InitialGenerationOwner);
+    private static void EndInitialGenerationLlmSequence()
+    {
+        // note: Release only a surviving initial-generation lease; expiry or a different scheduler owner must not affect gameplay completion.
+        LLMClient llm = LLMClient.Instance;
+        if (llm != null && llm.IsExclusiveSequenceActive &&
+            string.Equals(llm.ExclusiveSequenceOwner, InitialGenerationOwner, StringComparison.Ordinal))
+        {
+            llm.EndExclusiveSequence(InitialGenerationOwner);
+        }
     }
 
     // ------------------------------------------------------------
@@ -1796,19 +3442,22 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         YQRuntimeWorldAssetRegistry registry,
         bool narrate,
         float startProgress,
-        float endProgress)
+        float endProgress,
+        bool forcePaletteFallback = false)
     {
         if (_runtimeRoot == null)
             yield break;
 
-        if (YQWorldGenerationArchitecture.UsesCompiledWorld)
+        if (YQWorldGenerationArchitecture.UsesCompiledWorld &&
+            !forcePaletteFallback)
         {
             yield return
                 BuildCompiledSettlementRoutine(
                     plan,
                     settlement,
                     region,
-                    palette);
+                    palette,
+                    registry);
             yield break;
         }
 
@@ -1835,13 +3484,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         settlementRoot.transform.position =
             center;
 
-        // note: Rotate the complete civic plan as one unit; individual façades keep their authored relationship to roads while settlements stop sharing one world-axis silhouette.
+        // note: Rotate the complete civic plan toward its persisted entrance; individual façades and authored streets now agree with the world travel graph.
         settlementRoot.transform.rotation =
             Quaternion.Euler(
                 0f,
-                DeterministicQuarterTurn(
-                    SettlementSeed(settlement) +
-                    ":civic_orientation"),
+                ResolveSettlementHeading(plan, settlement),
                 0f);
 
         BuildRegionVolume(
@@ -1897,12 +3544,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         /*
          * Actual marketplace building prefabs.
          */
-        BuildBuildingLots(
+        // note: Reject the local candidate before dressing or marking it materialized when its architecture fails validation.
+        if (!BuildBuildingLots(
             settlementRoot.transform,
             plan,
             settlement,
             palette,
-            registry);
+            registry))
+        {
+            _lastSettlementMaterialized = false;
+            settlementRoot.SetActive(false);
+            Destroy(settlementRoot);
+            yield break;
+        }
 
         yield return null;
 
@@ -1965,7 +3619,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         GeneratedWorldPlanRecord plan,
         GeneratedSettlementRecord settlement,
         GeneratedRegionRecord region,
-        GeneratedRegionAssetPaletteRecord palette)
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry)
     {
         if (!YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
                 plan,
@@ -1975,6 +3630,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 out YQRuntimeWorldSiteRecord siteRecord,
                 out bool bindingChanged))
         {
+            // note: Surface the rejected settlement identity through the heartbeat so a failed compiled binding can be diagnosed without unlocking editor-log access.
+            _lastMaterializationDecision =
+                "rejected: compiled settlement binding unavailable; settlement=" +
+                settlement.settlementId;
             Debug.LogError(
                 "[YQGeneratedWorldRuntimeBuilder] COMPILED SETTLEMENT REJECTED\n" +
                 "Settlement: " + settlement.displayName + "\n" +
@@ -1995,8 +3654,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         settlementRoot.transform.position = center;
         settlementRoot.transform.rotation = Quaternion.Euler(
             0f,
-            DeterministicQuarterTurn(
-                SettlementSeed(settlement) + ":compiled_site_orientation"),
+            ResolveSettlementHeading(plan, settlement),
             0f);
         BuildRegionVolume(settlementRoot.transform, region, settlement);
         BuildSettlementLabel(
@@ -2005,15 +3663,28 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             region,
             palette);
         bool materialized = false;
+        string[] semanticSliceTags =
+            YQCompiledWorldSiteBindingService.BuildSettlementSemanticSliceTags(
+                settlement);
+        // note: Compiled settlements are assembled from a seeded semantic district slice; the reviewed pack is an approved source library, not a single golden scene to clone wholesale.
         yield return
-            YQCompiledWorldSiteInstance.MaterializeRoutine(
+            YQCompiledWorldSiteInstance.MaterializeSemanticSliceRoutine(
                 settlementRoot.transform,
-                settlement,
+                settlement.settlementId,
                 siteRecord,
+                semanticSliceTags,
+                ResolveSemanticCompositionSeedV2(
+                    plan,
+                    settlement.settlementId,
+                    SettlementSeed(settlement)),
                 success => materialized = success);
 
         if (!materialized)
         {
+            // note: Preserve the reviewed-site identity when its assembled slice fails admission, distinguishing a load failure from a missing binding.
+            _lastMaterializationDecision =
+                "rejected: compiled settlement load failed; settlement=" +
+                settlement.settlementId + ", site=" + siteRecord.kitId;
             settlementRoot.SetActive(false);
             Destroy(settlementRoot);
             Debug.LogError(
@@ -2023,16 +3694,162 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             yield break;
         }
 
+        // note: Complete semantic buildings remain the authoritative settlement core; this pass adds only deterministic, terrain-grounded countryside cues outside that reviewed footprint.
+        BuildCompiledSettlementOutskirts(
+            settlementRoot.transform,
+            settlement,
+            siteRecord,
+            palette,
+            registry);
+
         Debug.Log(
-            "[YQGeneratedWorldRuntimeBuilder] COMPILED SETTLEMENT READY\n" +
+            "[YQGeneratedWorldRuntimeBuilder] COMPILED SETTLEMENT PREPARED\n" +
             "Settlement: " + settlement.displayName + " (" +
             settlement.settlementId + ")\n" +
             "Reviewed site: " + siteRecord.kitId + "\n" +
             "Semantic style: " + siteRecord.semanticStyleKey + "\n" +
             "Topology: " + siteRecord.topology + "\n" +
+            "Semantic slice: " + string.Join(", ", semanticSliceTags) + "\n" +
             "Anchor: " + center);
 
         _lastSettlementMaterialized = true;
+    }
+
+    private void BuildCompiledSettlementOutskirts(
+        Transform parent,
+        GeneratedSettlementRecord settlement,
+        YQRuntimeWorldSiteRecord siteRecord,
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry)
+    {
+        if (parent == null || settlement == null || siteRecord == null ||
+            palette == null || registry == null)
+            return;
+
+        string meaning =
+            (settlement.kind ?? string.Empty) + " " +
+            (settlement.siteRoleIntent ?? string.Empty) + " " +
+            (settlement.marketBias ?? string.Empty) + " " +
+            string.Join(" ", settlement.serviceSlots ?? new List<string>()) + " " +
+            string.Join(" ", settlement.cellRoleIntents ?? new List<string>());
+        string seed = SettlementSeed(settlement) + ":compiled_outskirts";
+        bool rural = ContainsAny(meaning, "village", "hamlet", "rural", "farm", "fishing", "fisher", "mill", "pasture", "orchard");
+        bool waterside = ContainsAny(meaning, "fishing", "fisher", "river", "lake", "dock", "mill");
+
+        float radius = Mathf.Clamp(
+            Mathf.Max(siteRecord.authoredFootprintRadius + 8f, 18f),
+            18f,
+            96f);
+        Transform outskirts = new GameObject("SettlementOutskirts__LandUse").transform;
+        outskirts.SetParent(parent, false);
+
+        GeneratedAssetReferenceRecord boundary = FindSemanticPaletteAsset(
+            palette.exteriorDeco,
+            seed + ":boundary",
+            "fence", "gate", "hedge", "post", "palisade", "wall");
+        GeneratedAssetReferenceRecord fieldMarker = FindSemanticPaletteAsset(
+            palette.floorDeco,
+            seed + ":field",
+            "hay", "trough", "cart", "wagon", "barrel", "crate", "log", "basket");
+        GeneratedAssetReferenceRecord orchardTree = FindSemanticPaletteAsset(
+            palette.vegetation,
+            seed + ":orchard",
+            "tree", "orchard", "bush", "shrub");
+        GeneratedAssetReferenceRecord watersideMarker = FindSemanticPaletteAsset(
+            palette.exteriorDeco,
+            seed + ":waterside",
+            "dock", "pier", "net", "boat", "post", "fence");
+
+        int boundaryCount = rural ? 5 : 2;
+        for (int index = 0; index < boundaryCount; index++)
+        {
+            if (boundary == null)
+                break;
+            float t = index / (float)Mathf.Max(1, boundaryCount - 1);
+            float angle = Mathf.Lerp(-0.85f, 0.85f, t) +
+                Mathf.Lerp(-0.12f, 0.12f, Deterministic01(seed + ":boundary_angle:" + index));
+            float distance = radius + 5f +
+                Deterministic01(seed + ":boundary_radius:" + index) * 5f;
+            Vector3 local = new Vector3(Mathf.Cos(angle) * distance, 0f, Mathf.Sin(angle) * distance);
+            SpawnRegisteredAsset(
+                outskirts,
+                "OutskirtsBoundary__" + index,
+                boundary,
+                local,
+                Quaternion.Euler(0f, angle * Mathf.Rad2Deg + 90f, 0f),
+                registry,
+                false);
+        }
+
+        if (rural && fieldMarker != null)
+        {
+            for (int index = 0; index < 3; index++)
+            {
+                float angle = 1.35f + index * 0.34f +
+                    Deterministic01(seed + ":field_angle:" + index) * 0.16f;
+                float distance = radius + 11f +
+                    Deterministic01(seed + ":field_radius:" + index) * 9f;
+                SpawnRegisteredAsset(
+                    outskirts,
+                    "LandUseFieldMarker__" + index,
+                    fieldMarker,
+                    new Vector3(Mathf.Cos(angle) * distance, 0f, Mathf.Sin(angle) * distance),
+                    Quaternion.Euler(0f, DeterministicQuarterTurn(seed + ":field_yaw:" + index), 0f),
+                    registry,
+                    false);
+            }
+        }
+        else if (!rural && fieldMarker != null)
+        {
+            // note: Civic and cave towns still receive a sparse countryside threshold, while farm-specific density stays reserved for rural semantics.
+            for (int index = 0; index < 2; index++)
+            {
+                float angle = 2.15f + index * 0.32f +
+                    Deterministic01(seed + ":transition_angle:" + index) * 0.14f;
+                float distance = radius + 8f +
+                    Deterministic01(seed + ":transition_radius:" + index) * 5f;
+                SpawnRegisteredAsset(
+                    outskirts,
+                    "LandUseTransitionMarker__" + index,
+                    fieldMarker,
+                    new Vector3(Mathf.Cos(angle) * distance, 0f, Mathf.Sin(angle) * distance),
+                    Quaternion.Euler(0f, DeterministicQuarterTurn(seed + ":transition_yaw:" + index), 0f),
+                    registry,
+                    false);
+            }
+        }
+
+        if (rural && orchardTree != null)
+        {
+            for (int index = 0; index < 4; index++)
+            {
+                float angle = -1.15f + index * 0.38f +
+                    Deterministic01(seed + ":orchard_angle:" + index) * 0.14f;
+                float distance = radius + 12f +
+                    Deterministic01(seed + ":orchard_radius:" + index) * 7f;
+                SpawnRegisteredAsset(
+                    outskirts,
+                    "LandUseOrchardTree__" + index,
+                    orchardTree,
+                    new Vector3(Mathf.Cos(angle) * distance, 0f, Mathf.Sin(angle) * distance),
+                    Quaternion.Euler(0f, Deterministic01(seed + ":orchard_yaw:" + index) * 360f, 0f),
+                    registry,
+                    false);
+            }
+        }
+
+        if (waterside && watersideMarker != null)
+        {
+            // note: Waterside settlements receive a small service edge marker while leaving the accepted road corridor clear.
+            SpawnRegisteredAsset(
+                outskirts,
+                "LandUseWatersideMarker",
+                watersideMarker,
+                new Vector3(radius + 12f, 0f, 4f),
+                Quaternion.Euler(0f, DeterministicQuarterTurn(seed + ":waterside_yaw"), 0f),
+                registry,
+                false);
+        }
     }
 
     private IEnumerator BuildCompiledHostileSitesRoutine(
@@ -2058,6 +3875,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
             if (encampment == null)
                 continue;
+
+            if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+                !IsEncampmentInsideGeneratedTerrain(plan, encampment, _generatedTerrain))
+            {
+                // note: Distant accepted V2 hostile owners are streamed with their cells instead of being loaded into the finite origin scene.
+                Debug.Log(
+                    "[YQGeneratedWorldRuntimeBuilder] V2 HOSTILE SITE DEFERRED TO STREAMING: " +
+                    encampment.displayName);
+                continue;
+            }
 
             expected++;
 
@@ -2097,16 +3924,31 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             siteRoot.transform.position = center;
             siteRoot.transform.rotation = Quaternion.Euler(
                 0f,
-                DeterministicQuarterTurn(
-                    encampment.deterministicSeed +
-                    ":compiled_hostile_orientation"),
+                ResolveSpatialSiteHeading(
+                    plan,
+                    encampment.encampmentId,
+                    DeterministicQuarterTurn(
+                        encampment.deterministicSeed +
+                        ":compiled_hostile_orientation")),
                 0f);
             bool materialized = false;
+            string[] semanticSliceTags =
+                YQCompiledWorldSiteBindingService
+                    .BuildEncampmentSemanticSliceTags(encampment);
+            // note: A hostile town, camp, or lair consumes a seeded semantic approach slice; the reviewed source map is never materialized wholesale as an encounter.
             yield return
-                YQCompiledWorldSiteInstance.MaterializeRoutine(
+                YQCompiledWorldSiteInstance.MaterializeSemanticSliceRoutine(
                     siteRoot.transform,
                     encampment.encampmentId,
                     siteRecord,
+                    semanticSliceTags,
+                    ResolveSemanticCompositionSeedV2(
+                        plan,
+                        encampment.encampmentId,
+                        !string.IsNullOrWhiteSpace(
+                            encampment.deterministicSeed)
+                            ? encampment.deterministicSeed
+                            : encampment.encampmentId),
                     success => materialized = success);
 
             if (!materialized)
@@ -2126,6 +3968,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 encampment.encampmentId + ")\n" +
                 "Reviewed site: " + siteRecord.kitId + "\n" +
                 "Semantic style: " + siteRecord.semanticStyleKey + "\n" +
+                "Semantic slice: " + string.Join(", ", semanticSliceTags) + "\n" +
                 "Anchor: " + center);
             built++;
         }
@@ -2149,6 +3992,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     public void RebuildGeneratedWorld()
     {
         CancelActiveBuildRoutine();
+
+        // note: Context-menu and focused verification rebuilds must not be mistaken for the stale scaffold guard used by automatic startup.
+        _forceNextBuild = true;
 
         _initialGenerationWatchdogAborted = false;
         YQStartupLoadingScreen.ClearGenerationFailure();
@@ -2216,31 +4062,81 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
     private void CancelActiveBuildRoutine()
     {
-        if (_buildCoroutine != null)
+        CancelInitialGenerationReveal();
+        // note: Explicit rebuild/profile teardown is cancellation, not a failed generation attempt; suppress terminal recovery while StopCoroutine disposes owned work.
+        _cancellingBuild = true;
+        try
         {
-            StopCoroutine(
-                _buildCoroutine);
-
-            _buildCoroutine =
-                null;
+            if (_buildCoroutine != null)
+                StopCoroutine(_buildCoroutine);
+            // note: Explicit disposal unwinds all nested iterators even when Unity only stops scheduling the outer coroutine.
+            (_buildExecution as IDisposable)?.Dispose();
         }
-
-        _buildInProgress =
-            false;
+        finally
+        {
+            _buildCoroutine = null;
+            _buildExecution = null;
+            _buildInProgress = false;
+            _cancellingBuild = false;
+        }
 
         CancelPopulationBuildRoutine();
     }
 
+    private void CancelInitialGenerationReveal()
+    {
+        // note: Stop the owner's coroutine before clearing its visual state; an old completion callback cannot unlock a replacement world.
+        if (_revealCoroutine != null)
+            StopCoroutine(_revealCoroutine);
+        _revealCoroutine = null;
+        if (_revealPresentation != null)
+            _revealPresentation.CancelGenerationHandoff();
+        _revealPresentation = null;
+        _revealedInitialGenerationSeed = string.Empty;
+    }
+
+    private void ReportInitialGenerationHandoffFailure()
+    {
+        // note: A presentation failure is not a failed world build; keep accepted geometry and prevent automatic reveal retry loops.
+        _initialGenerationDeadlineWarningIssued = true;
+        _initialGenerationWatchdogAborted = true;
+        YQStartupLoadingScreen.ShowGenerationFailure(
+            "The world is ready, but the loading-stage camera has not released control. Retry the handoff, or return to the title screen.",
+            RetryInitialGenerationHandoff,
+            ReturnToTitleAfterGenerationWatchdog,
+            "Retry handoff");
+    }
+
+    private void RetryInitialGenerationHandoff()
+    {
+        // note: Retry presentation only. The accepted world and generated content must not be rebuilt for a camera timeout.
+        CancelInitialGenerationReveal();
+        YQStartupLoadingScreen.ClearGenerationFailure();
+        _initialGenerationWatchdogAborted = false;
+        _initialGenerationDeadlineWarningIssued = false;
+        _initialGenerationLastProgressAt = Time.unscaledTime;
+        _initialGenerationLastWatchdogUpdateAt = Time.unscaledTime;
+        TryCompleteInitialGenerationReveal();
+    }
+
     private void CancelPopulationBuildRoutine()
     {
-        if (_populationBuildCoroutine != null)
+        _cancellingPopulation = true;
+        try
         {
-            StopCoroutine(_populationBuildCoroutine);
-            _populationBuildCoroutine = null;
+            if (_populationBuildCoroutine != null)
+                StopCoroutine(_populationBuildCoroutine);
+            // note: Release child iterator finally blocks even if Unity only stops scheduling the wrapper.
+            (_populationExecution as IDisposable)?.Dispose();
         }
-
-        // note: Cancellation clears ownership immediately so a changed save or explicit rebuild can start a fresh deterministic population transaction.
-        _populationBuildInProgress = false;
+        finally
+        {
+            // note: Cancellation clears ownership immediately so a changed save or explicit retry can start a fresh transaction.
+            _populationBuildCoroutine = null;
+            _populationExecution = null;
+            _populationBuildInProgress = false;
+            _cancellingPopulation = false;
+        }
     }
 
     private void DestroyRuntimeRootOnly()
@@ -2380,6 +4276,23 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         StringBuilder signature =
             new StringBuilder(
                 256);
+
+        if (YQWorldGenerationArchitecture.TryResolveRuntimeAuthority(
+                plan,
+                out YQSpatialPlanAuthority authority,
+                out _))
+        {
+            // note: A spatial cutover changes build identity even when the enclosing semantic plan object stays the same.
+            signature
+                .Append("spatial:")
+                .Append((int)authority)
+                .Append(':');
+            if (authority == YQSpatialPlanAuthority.AcceptedV2)
+                signature.Append(plan.spatialPlanV2?.contentHash);
+            else
+                signature.Append(plan.spatialPlan?.semanticFingerprint);
+            signature.Append('|');
+        }
 
         if (plan.regions != null)
         {
@@ -2587,10 +4500,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
 
         // note: One settlement owns one defensive construction family; changing the seed per segment produced the previous mismatched-panel ring.
+        YQAssetPlacementContextV2 placementContext = CreateSettlementPerimeterContext();
         GeneratedAssetReferenceRecord reference =
             PickSettlementPerimeterReference(
                 palette,
-                SettlementSeed(settlement) + ":perimeter_family");
+                SettlementSeed(settlement) + ":perimeter_family",
+                placementContext);
 
         if (reference == null)
             return;
@@ -2605,14 +4520,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 node.position,
                 Quaternion.Euler(0f, node.yaw, 0f),
                 registry,
-                true);
+                true,
+                placementContext: placementContext);
         }
     }
 
     // note: Use registered perimeter-like props where a palette owns them; a modular wall is the reliable architectural fallback.
     private static GeneratedAssetReferenceRecord PickSettlementPerimeterReference(
         GeneratedRegionAssetPaletteRecord palette,
-        string seed)
+        string seed,
+        YQAssetPlacementContextV2 placementContext)
     {
         if (palette != null && palette.exteriorDeco != null)
         {
@@ -2624,7 +4541,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 GeneratedAssetReferenceRecord candidate =
                     palette.exteriorDeco[i];
 
-                if (MatchesStructuralPerimeter(candidate))
+                if (MatchesStructuralPerimeter(candidate) &&
+                    YQWorldAssetCatalog.IsAllowedInPlacementContext(candidate, placementContext))
                     candidates.Add(candidate);
             }
 
@@ -2643,7 +4561,23 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return YQWorldAssetCatalog.PickAssetForSlot(
             palette,
             YQWorldAssetCatalog.SlotWall,
-            seed + ":wall_fallback");
+            seed + ":wall_fallback",
+            placementContext);
+    }
+
+    private static YQAssetPlacementContextV2 CreateSettlementPerimeterContext()
+    {
+        // note: Defensive segments stand outdoors on ground and retain collision; they are not walkable navigation surfaces.
+        return new YQAssetPlacementContextV2
+        {
+            requiredRole = YQAssetRoleV2.StructuralModule,
+            requiredFunction = YQAssetFunctionV2.Security,
+            requiredEnvironment = YQAssetEnvironmentV2.Exterior,
+            requiredSupportMode = YQAssetSupportModeV2.Ground,
+            requireTerrainSupport = true,
+            requireCollider = true,
+            requireNavigation = false
+        };
     }
 
     private static bool MatchesStructuralPerimeter(
@@ -2668,7 +4602,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     // SETTLEMENT BUILDINGS
     // ------------------------------------------------------------
 
-    private void BuildBuildingLots(
+    private bool BuildBuildingLots(
         Transform parent,
         GeneratedWorldPlanRecord plan,
         GeneratedSettlementRecord settlement,
@@ -2704,7 +4638,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 "Palette '" +
                 palette.styleKey +
                 "' has no complete settlement_building assets. " +
-                "Using its curated modular building cell.");
+                "Checking for a complete supported modular recipe.");
         }
 
         int spawned =
@@ -2713,6 +4647,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         HashSet<string> usedWholeBuildingPaths =
             new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
+        // note: A rejected prefab is excluded for the rest of this settlement, preventing repeated failed clones at every lot.
+        var rejectedWholeBuildingPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         for (int i = 0;
              i < count;
@@ -2770,10 +4706,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     reference,
                     usedWholeBuildingPaths,
                     seed);
+            if (reference != null && rejectedWholeBuildingPaths.Contains(reference.assetPath))
+                reference = FindAlternativeWholeBuilding(palette.settlementBuilding,
+                    rejectedWholeBuildingPaths, usedWholeBuildingPaths, seed);
 
             if (reference == null)
             {
-                // note: A palette with only modular source pieces still produces a complete, readable lot.
+                // note: Expected content exhaustion rejects this candidate through its owner's cleanup path, before creating a partial modular shell.
+                if (!HasSupportedFallbackRecipe(settlement, palette, seed, lot.purpose))
+                    return false;
                 BuildModularBuildingLot(
                     parent,
                     settlement,
@@ -2795,8 +4736,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 continue;
             }
 
-            GameObject instance =
-                SpawnRegisteredAsset(
+            GameObject instance = null;
+            // note: One unsuitable catalog entry cannot force a supported palette into fragment assembly while other whole buildings remain available.
+            while (reference != null)
+            {
+                instance = SpawnRegisteredAsset(
                     parent,
                     "SettlementBuilding_" +
                     i +
@@ -2811,10 +4755,17 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     registry,
                     true,
                     true);
+                if (instance != null) break;
+                rejectedWholeBuildingPaths.Add(reference.assetPath);
+                reference = FindAlternativeWholeBuilding(palette.settlementBuilding,
+                    rejectedWholeBuildingPaths, usedWholeBuildingPaths, seed);
+            }
 
             if (instance == null)
             {
-                // note: Bounds validation can reject a discovered pseudo-building after selection; recover with the palette's own modular construction kit.
+                // note: Only after every whole-building candidate fails may a complete supported modular recipe be attempted.
+                if (!HasSupportedFallbackRecipe(settlement, palette, seed, lot.purpose))
+                    return false;
                 BuildModularBuildingLot(
                     parent,
                     settlement,
@@ -2884,7 +4835,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             palette,
             registry);
 
-        ValidateSettlementPresentation(
+        bool presentationValid = ValidateSettlementPresentation(
             parent,
             settlement,
             palette,
@@ -2898,16 +4849,18 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             count +
             " using palette " +
             palette.styleKey);
+        // note: The caller owns rejecting and disposing a failed settlement candidate.
+        return presentationValid;
     }
 
-    private static void ValidateSettlementPresentation(
+    private static bool ValidateSettlementPresentation(
         Transform parent,
         GeneratedSettlementRecord settlement,
         GeneratedRegionAssetPaletteRecord palette,
         int expectedBuildings)
     {
         if (parent == null)
-            return;
+            return false;
 
         List<Bounds> buildingBounds =
             new List<Bounds>();
@@ -2967,14 +4920,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 "Renderable buildings: " + buildingBounds.Count + "/" + expectedBuildings + "\n" +
                 "Fragment-built fallback cells: " + modularAssemblies + "\n" +
                 "Overlapping building footprints: " + overlaps);
-            return;
+            return false;
         }
 
-        // note: A successful gate proves the settlement contains the full planned building count and no colliding architectural cells before population spawns.
+        // note: This gate proves counts and footprint separation only; it does not certify entrances, interiors, or structural support.
         Debug.Log(
             "[YQGeneratedWorldRuntimeBuilder] Settlement presentation validated: " +
-            buildingBounds.Count + " coherent buildings, 0 overlaps, palette " +
+            buildingBounds.Count + " whole-building candidates, 0 overlaps, palette " +
             (palette != null ? palette.styleKey : "<unknown>"));
+        return true;
     }
 
     private static string ResolveSettlementLotPurpose(
@@ -3017,17 +4971,39 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         string role = (purpose ?? string.Empty).ToLowerInvariant();
         GeneratedAssetReferenceRecord match = null;
+        // note: Whole-building selection carries the authored V2 support contract so semantic service matches remain spawn-safe.
+        YQAssetPlacementContextV2 placementContext = new YQAssetPlacementContextV2
+        {
+            requiredRole = YQAssetRoleV2.CompleteStructure,
+            requiredEnvironment = YQAssetEnvironmentV2.Exterior,
+            // note: Approved houses may use a Ground or Foundation support profile; terrain support and its reviewed polygon are the invariant.
+            requiredSupportMode = YQAssetSupportModeV2.Unspecified,
+            requireTerrainSupport = true,
+            requireCollider = true,
+            requireNavigation = true,
+            requiredFunction = ContainsAny(role, "market", "merchant", "trade", "shop", "vendor", "supply", "barter")
+                ? YQAssetFunctionV2.Commerce
+                : ContainsAny(role, "smith", "forge", "workshop", "craft", "alchemy")
+                    ? YQAssetFunctionV2.Manufacturing
+                    : ContainsAny(role, "guard", "command", "watch")
+                        ? YQAssetFunctionV2.Security
+                        : ContainsAny(role, "civic", "shrine", "temple")
+                            ? YQAssetFunctionV2.Civic
+                            : ContainsAny(role, "inn", "tavern", "clinic", "healer", "apothecary")
+                                ? YQAssetFunctionV2.Service
+                                : YQAssetFunctionV2.Habitation
+        };
 
         if (ContainsAny(role, "market", "merchant", "trade", "shop", "vendor", "supply", "barter"))
-            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":commerce", "shop", "store", "market", "bank", "saloon", "trader", "merchant");
+            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":commerce", placementContext, "shop", "store", "market", "bank", "saloon", "trader", "merchant");
         else if (ContainsAny(role, "smith", "forge", "workshop", "craft", "alchemy"))
-            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":craft", "smith", "forge", "workshop", "stable", "foundry");
+            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":craft", placementContext, "smith", "forge", "workshop", "stable", "foundry");
         else if (ContainsAny(role, "inn", "tavern", "clinic", "healer", "apothecary"))
-            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":hospitality", "inn", "hotel", "saloon", "clinic", "hospital", "apothecary");
+            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":hospitality", placementContext, "inn", "hotel", "saloon", "clinic", "hospital", "apothecary");
         else if (ContainsAny(role, "guard", "command", "watch", "civic", "shrine", "temple"))
-            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":civic", "sheriff", "guard", "townhall", "hall", "church", "temple", "tower");
+            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":civic", placementContext, "sheriff", "guard", "townhall", "hall", "church", "temple", "tower");
         else
-            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":residence", "house", "home", "hut", "cabin", "shack", "residence");
+            match = FindSemanticPaletteAsset(palette.settlementBuilding, seed + ":residence", placementContext, "house", "home", "hut", "cabin", "shack", "residence");
 
         // note: Semantic purpose wins when the pack exposes it; deterministic whole-building selection remains the safe fallback for abstract kits.
         return match ??
@@ -3061,11 +5037,33 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             GeneratedAssetReferenceRecord candidate =
                 palette.settlementBuilding[(start + offset) % palette.settlementBuilding.Count];
 
-            if (candidate != null && !string.IsNullOrWhiteSpace(candidate.assetPath) && !usedPaths.Contains(candidate.assetPath))
+            if (candidate != null && !string.IsNullOrWhiteSpace(candidate.assetPath) && !usedPaths.Contains(candidate.assetPath) &&
+                YQWorldAssetCatalog.IsAllowedWorldReferenceForSlot(candidate, YQWorldAssetCatalog.SlotSettlementBuilding))
                 return candidate;
         }
 
         return preferred;
+    }
+
+    private static GeneratedAssetReferenceRecord FindAlternativeWholeBuilding(
+        IReadOnlyList<GeneratedAssetReferenceRecord> candidates, ISet<string> rejected,
+        ISet<string> used, string seed)
+    {
+        if (candidates == null || candidates.Count == 0) return null;
+        // note: Stable candidate traversal first seeks an unused building, then permits a previously successful variant; rejected or missing identities are never retried.
+        int start = Mathf.Min(candidates.Count - 1,
+            Mathf.FloorToInt(Deterministic01(seed + ":remaining_whole_buildings") * candidates.Count));
+        for (int pass = 0; pass < 2; pass++)
+            for (int offset = 0; offset < candidates.Count; offset++)
+            {
+                var candidate = candidates[(start + offset) % candidates.Count];
+                if (candidate == null || string.IsNullOrWhiteSpace(candidate.assetPath) ||
+                    !YQWorldAssetCatalog.IsAllowedWorldReferenceForSlot(candidate, YQWorldAssetCatalog.SlotSettlementBuilding) ||
+                    rejected.Contains(candidate.assetPath) ||
+                    (pass == 0 && used.Contains(candidate.assetPath))) continue;
+                return candidate;
+            }
+        return null;
     }
 
     private static bool UsesCuratedModularBuildingCells(
@@ -3129,6 +5127,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             anchor = FindSemanticPaletteAsset(palette.exteriorDeco, seed + ":public_house", "sign", "awning", "bench", "table");
             accent = FindSemanticPaletteAsset(palette.lighting, seed + ":welcome_light", "lantern", "torch", "fire", "candle");
         }
+        else if (ContainsAny(purpose, "farm", "field", "orchard", "pasture", "stable", "fisher", "fishing", "mill") ||
+                 (ContainsAny((settlement != null ? settlement.kind : string.Empty).ToLowerInvariant(), "village", "hamlet", "rural", "farm") && lotIndex % 3 == 0))
+        {
+            // note: Rural cells receive land-use cues from the approved palette so a village edge reads as worked countryside rather than a ring of bare houses.
+            anchor = FindSemanticPaletteAsset(palette.exteriorDeco, seed + ":land_use", "fence", "gate", "field", "orchard", "pasture", "mill", "dock");
+            anchor ??= FindSemanticPaletteAsset(palette.floorDeco, seed + ":land_use_ground", "hay", "trough", "cart", "wagon", "barrel", "basket", "crate");
+            accent = FindSemanticPaletteAsset(palette.vegetation, seed + ":land_use_planting", "tree", "bush", "shrub", "grass", "reed");
+        }
         else if (ContainsAny(purpose, "guard", "command", "barrack", "watch", "civic", "shrine", "temple"))
         {
             anchor = FindSemanticPaletteAsset(palette.exteriorDeco, seed + ":authority", "banner", "flag", "shield", "statue", "weapon");
@@ -3171,6 +5177,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         string seed,
         params string[] keywords)
     {
+        return FindSemanticPaletteAsset(references, seed, null, keywords);
+    }
+
+    private static GeneratedAssetReferenceRecord FindSemanticPaletteAsset(
+        List<GeneratedAssetReferenceRecord> references,
+        string seed,
+        YQAssetPlacementContextV2 placementContext,
+        params string[] keywords)
+    {
         if (references == null || references.Count == 0 || keywords == null || keywords.Length == 0)
             return null;
 
@@ -3179,6 +5194,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         {
             GeneratedAssetReferenceRecord reference = references[i];
             if (reference == null)
+                continue;
+
+            // note: Semantic POI and settlement picks must come from the same reviewed runtime catalog as slot-based picks; raw palette text cannot reintroduce quarantined prefabs.
+            if (!YQWorldAssetCatalog.IsSpatiallyApprovedForRuntime(reference.assetPath))
+                continue;
+            if (placementContext != null &&
+                !YQWorldAssetCatalog.IsAllowedInPlacementContext(reference, placementContext))
                 continue;
 
             string semanticText =
@@ -3681,6 +5703,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 seed,
                 purpose);
 
+        // note: Missing construction contracts must stop this build, not turn arbitrary catalog scenery into a claimed house.
+        if (!IsCompleteBuildingCellRecipe(recipe))
+            throw new InvalidOperationException("Settlement construction failed for '" + settlement.displayName +
+                "': palette '" + palette.styleKey + "' has no complete supported modular recipe for '" + purpose +
+                "'. Supply a complete building or compatible floor, walls, entrance and roof; arbitrary slot fallback is disabled.");
+
         // note: A recipe is selected as a complete construction family; individual structural slots are never randomized across incompatible kits.
         GameObject floor = SpawnRegisteredAsset(
             parent,
@@ -3772,6 +5800,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             roof);
     }
 
+    private static bool HasSupportedFallbackRecipe(
+        GeneratedSettlementRecord settlement, GeneratedRegionAssetPaletteRecord palette,
+        string seed, string purpose)
+    {
+        // note: Missing approved content is a construction rejection, not an unexpected exception or permission to spawn arbitrary fragments.
+        if (IsCompleteBuildingCellRecipe(ResolveCuratedBuildingCellRecipe(palette, seed, purpose)))
+            return true;
+        Debug.LogError("[YQGeneratedWorldRuntimeBuilder] SETTLEMENT FALLBACK REJECTED: location=" +
+            settlement.settlementId + ", palette=" + palette.styleKey + ", purpose=" + purpose +
+            ". No complete building or supported modular recipe is available; candidate will be removed.");
+        return false;
+    }
+
     private sealed class CuratedBuildingCellRecipe
     {
         public GeneratedAssetReferenceRecord floor;
@@ -3780,6 +5821,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         public GeneratedAssetReferenceRecord frontWall;
         public GeneratedAssetReferenceRecord door;
         public GeneratedAssetReferenceRecord roof;
+    }
+
+    private static bool IsCompleteBuildingCellRecipe(CuratedBuildingCellRecipe recipe)
+    {
+        // note: A separate door leaf is optional, but the named opening-bearing front and every structural shell component are mandatory.
+        return recipe != null && recipe.floor != null && recipe.backWall != null &&
+            recipe.sideWall != null && recipe.frontWall != null && recipe.roof != null;
     }
 
     private static CuratedBuildingCellRecipe ResolveCuratedBuildingCellRecipe(
@@ -3854,19 +5902,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             };
         }
 
-        GeneratedAssetReferenceRecord fallbackWall =
-            YQWorldAssetCatalog.PickAssetForSlot(palette, YQWorldAssetCatalog.SlotWall, seed + ":coherent_wall");
-
-        // note: Unknown palettes still repeat one structural wall rather than rolling four unrelated architectural fragments.
-        return new CuratedBuildingCellRecipe
-        {
-            floor = YQWorldAssetCatalog.PickAssetForSlot(palette, YQWorldAssetCatalog.SlotFloor, seed + ":floor"),
-            backWall = fallbackWall,
-            sideWall = fallbackWall,
-            frontWall = fallbackWall,
-            door = YQWorldAssetCatalog.PickAssetForSlot(palette, YQWorldAssetCatalog.SlotDoor, seed + ":door"),
-            roof = YQWorldAssetCatalog.PickAssetForSlot(palette, YQWorldAssetCatalog.SlotRoof, seed + ":roof")
-        };
+        // note: A slot label does not establish mating geometry or a usable entrance. Live capture showed sand floors and ruin roofs produced by this generic fallback.
+        return null;
     }
 
     private static void ArrangeCuratedBuildingCell(
@@ -4131,6 +6168,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         GeneratedRegionAssetPaletteRecord palette,
         YQRuntimeWorldAssetRegistry registry)
     {
+        // note: Street furniture is grounded outdoors without retained collision; selection and spawning share this support contract.
+        var placementContext = new YQAssetPlacementContextV2
+        {
+            requiredEnvironment = YQAssetEnvironmentV2.Exterior,
+            requiredSupportMode = YQAssetSupportModeV2.Ground,
+            requireTerrainSupport = true,
+            requireCollider = false,
+            requireNavigation = false
+        };
         YQGeneratedSettlementCellLayout.Node[] civicNodes =
             YQGeneratedSettlementCellLayout
                 .GetCivicDecorationNodes(
@@ -4174,7 +6220,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 PickAmbientSettlementDecoration(
                     palette,
                     slot,
-                    seed);
+                    seed,
+                    placementContext);
 
             if (reference == null)
                 continue;
@@ -4215,7 +6262,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     yaw,
                     0f),
                 registry,
-                false);
+                false,
+                placementContext: placementContext);
         }
     }
 
@@ -4299,7 +6347,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static GeneratedAssetReferenceRecord PickAmbientSettlementDecoration(
         GeneratedRegionAssetPaletteRecord palette,
         string slot,
-        string seed)
+        string seed,
+        YQAssetPlacementContextV2 placementContext)
     {
         List<GeneratedAssetReferenceRecord> source =
             YQWorldAssetCatalog.GetSlotList(
@@ -4314,7 +6363,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         for (int i = 0; i < source.Count; i++)
         {
-            if (IsAmbientSettlementDecoration(source[i]))
+            if (IsAmbientSettlementDecoration(source[i]) &&
+                YQWorldAssetCatalog.IsAllowedInPlacementContext(source[i], placementContext))
                 eligible.Add(source[i]);
         }
 
@@ -4343,6 +6393,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         GeneratedRegionAssetPaletteRecord palette,
         YQRuntimeWorldAssetRegistry registry)
     {
+        // note: Settlement-edge vegetation is exterior ground dressing; it does not require a walkable navigation surface or retained collider.
+        var placementContext = new YQAssetPlacementContextV2
+        {
+            requiredEnvironment = YQAssetEnvironmentV2.Exterior,
+            requiredSupportMode = YQAssetSupportModeV2.Ground,
+            requireTerrainSupport = true,
+            requireCollider = false,
+            requireNavigation = false
+        };
         YQGeneratedSettlementCellLayout.Node[] shrubNodes =
             YQGeneratedSettlementCellLayout
                 .GetShrubNodes(
@@ -4387,7 +6446,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     .PickAssetForSlot(
                         palette,
                         slot,
-                        seed);
+                        seed,
+                        placementContext);
             if (reference == null)
                 continue;
 
@@ -4436,7 +6496,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     yaw,
                     0f),
                 registry,
-                false);
+                false,
+                placementContext: placementContext);
         }
     }
 
@@ -4453,13 +6514,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     YQRuntimeWorldAssetRegistry registry,
     bool keepColliders,
     bool suppressNegativeScaleBoxWarnings = false,
-    bool groundInstance = true)
+    bool groundInstance = true,
+    YQAssetPlacementContextV2 placementContext = null)
     {
         if (reference == null ||
             registry == null ||
             string.IsNullOrWhiteSpace(
                 reference.assetPath))
         {
+            return null;
+        }
+
+        // note: Keep a final runtime defense at the common spawn boundary so direct palette selectors cannot bypass spatial approval.
+        if (!YQWorldAssetCatalog.IsAllowedInPlacementContext(reference, placementContext))
+        {
+            Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Skipping unreviewed or context-incompatible spatial asset: " + reference.assetPath);
             return null;
         }
 
@@ -4975,8 +7044,36 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         bool prepared = true;
+        YQPreparedSpatialMaterializationV2 materializationV2 = null;
+        YQSpatialBlueprintTerrainSamplerV2 constructionTerrainSampler = null;
+        // note: Keep the preflight's exact choices: terrain construction must not reroll districts in a different settlement/hostile iteration order.
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(
+                plan,
+                out materializationV2,
+                out string materializationFailure))
+        {
+            // note: Construction cannot fall back to V1 anchors after a V2 cutover; reject before mutating a single terrain sample.
+            Debug.LogError(
+                "[YQGeneratedWorldRuntimeBuilder] V2 CONSTRUCTION INPUT REJECTED: " +
+                materializationFailure);
+            completed?.Invoke(false);
+            yield break;
+        }
+        // note: Reuse the accepted spatial masks while grading settlement shoulders so route and water corridors remain authoritative.
+        if (materializationV2 != null)
+            YQSpatialBlueprintTerrainSamplerV2.TryPrepare(
+                plan,
+                out constructionTerrainSampler,
+                out _);
+
         List<ConstructionFootprintReservation> reservations =
             new List<ConstructionFootprintReservation>();
+        Dictionary<string, string> v2CompositionOwners =
+            materializationV2 != null
+                ? new Dictionary<string, string>(
+                    StringComparer.OrdinalIgnoreCase)
+                : null;
         List<YQGeneratedWorldEnvironment.LivedPathTerrainReservation>
             pathTerrainReservations =
                 new List<YQGeneratedWorldEnvironment.LivedPathTerrainReservation>();
@@ -4985,11 +7082,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         pathTerrainReservations.Add(
             new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
                 originAnchor,
-                YQGeneratedWorldLayout.OriginReserveRadius));
+                0f));
+        // note: The origin's occupancy reserve is not a foundation; only the authored summit and house core prevent road earthworks.
+        pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+            originAnchor + OriginGoddessSummitOffset, 7f));
         pathTerrainReservations.Add(
             new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
                 originAnchor + OriginWitchHouseOffset,
-                24f));
+                15f));
 
         // note: Messenger Mountain authored the Goddess 23.7 metres above its source datum; reproduce that relief instead of flattening the shrine and leaving its statue suspended in the air.
         prepared &= GradeOriginGoddessRelief(
@@ -5014,9 +7114,32 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             {
                 GeneratedSettlementRecord settlement = plan.settlements[index];
 
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Shaping landforms and roads",
+                    4,
+                    9,
+                    "Resolving settlement support shelf " + (index + 1) +
+                    " of " + plan.settlements.Count,
+                    Mathf.Lerp(
+                        0.70f,
+                        0.715f,
+                        plan.settlements.Count > 0
+                            ? index / (float)plan.settlements.Count
+                            : 1f));
+
                 if (settlement == null)
                 {
                     prepared = false;
+                    continue;
+                }
+
+                if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+                    !IsSettlementInsideGeneratedTerrain(plan, settlement, terrain))
+                {
+                    // note: Distant accepted V2 settlements belong to streamed cells; the 1024m origin TerrainData must not reject their off-terrain construction shelves.
+                    Debug.Log(
+                        "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS DEFERRED V2 SETTLEMENT: " +
+                        settlement.displayName + " is outside the authored origin terrain.");
                     continue;
                 }
 
@@ -5056,6 +7179,75 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     }
 
                     _compiledBindingsChangedDuringBuild |= bindingChanged;
+
+                    string[] semanticSliceTags =
+                        YQCompiledWorldSiteBindingService
+                            .BuildSettlementSemanticSliceTags(settlement);
+                    bool sliceRadiusResolved = false;
+                    float sliceRadius = 0f;
+                    string compositionFailure = string.Empty;
+                    if (materializationV2 != null)
+                    {
+                        yield return ResolveUniqueSemanticCompositionV2Routine(
+                            site,
+                            semanticSliceTags,
+                            SettlementSeed(settlement),
+                            settlement.settlementId,
+                            settlement.displayName,
+                            v2CompositionOwners,
+                            materializationV2,
+                            (success, radius, failure) =>
+                            {
+                                sliceRadiusResolved = success;
+                                sliceRadius = radius;
+                                compositionFailure = failure;
+                            });
+                    }
+                    else
+                    {
+                        yield return YQCompiledWorldSiteInstance
+                            .ResolveSemanticSliceRadiusRoutine(
+                                site,
+                                semanticSliceTags,
+                                SettlementSeed(settlement),
+                                (success, radius) =>
+                                {
+                                    sliceRadiusResolved = success;
+                                    sliceRadius = radius;
+                                });
+                    }
+                    if (!sliceRadiusResolved ||
+                        !TryResolveConstructionRadii(
+                            sliceRadius,
+                            out footprintRadius,
+                            out flatRadius,
+                            out outerRadius))
+                    {
+                        // note: Fail before terrain mutation when the exact deterministic district slice has no valid support envelope.
+                        Debug.LogError(
+                            "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED SETTLEMENT\n" +
+                            "Settlement: " + settlement.displayName + "\n" +
+                            "Reason: " +
+                            (!string.IsNullOrWhiteSpace(compositionFailure)
+                                ? compositionFailure
+                                : "its selected semantic slice has no valid runtime footprint."));
+                        prepared = false;
+                        continue;
+                    }
+
+                    if (materializationV2 != null &&
+                        !materializationV2.TryValidateFootprint(
+                            settlement.settlementId,
+                            footprintRadius,
+                            out string footprintFailure))
+                    {
+                        Debug.LogError(
+                            "[YQGeneratedWorldRuntimeBuilder] V2 SETTLEMENT FOOTPRINT REJECTED\n" +
+                            "Settlement: " + settlement.displayName + "\n" +
+                            "Reason: " + footprintFailure);
+                        prepared = false;
+                        continue;
+                    }
                 }
                 else
                 {
@@ -5068,18 +7260,31 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     footprintRadius = flatRadius;
                 }
 
-                Vector3 center = YQGeneratedWorldLayout.GetSettlementAnchor(
+                Vector3 requestedCenter = YQGeneratedWorldLayout.GetSettlementAnchor(
                     plan,
                     settlement,
                     terrain);
                 string label = "settlement " + settlement.displayName;
 
-                if (!TryReserveConstructionFootprint(
-                        reservations,
-                        label,
-                        center,
-                        footprintRadius,
-                        out string conflict) ||
+                // note: An accepted V2 site already owns an immutable reserve, frontage, and route endpoint; the legacy circular-spacing grid is stricter than that contract and must not relocate it after acceptance.
+                Vector3 center = requestedCenter;
+                string conflict = string.Empty;
+                bool centerResolved = materializationV2 != null || TryResolveConstructionCenter(
+                    reservations,
+                    label,
+                    requestedCenter,
+                    footprintRadius,
+                    outerRadius,
+                    terrain,
+                    plan.worldSeed + "|" + settlement.settlementId,
+                    out center,
+                    out conflict);
+                bool acceptedV2CenterPreserved =
+                    materializationV2 == null ||
+                    HorizontalDistanceSquared(center, requestedCenter) <= 0.01f;
+
+                if (!centerResolved ||
+                    !acceptedV2CenterPreserved ||
                     !GradeTerrainPad(
                         terrain,
                         center,
@@ -5089,24 +7294,77 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             plan.worldSeed,
                             terrain,
                             center,
-                            footprintRadius)))
+                            footprintRadius),
+                        YQProceduralSettlementLayout.Get(ResolveSemanticCompositionSeedV2(
+                            plan, settlement.settlementId, SettlementSeed(settlement))),
+                        ResolveSettlementHeading(plan, settlement),
+                        constructionTerrainSampler))
                 {
                     Debug.LogError(
                         "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED SETTLEMENT\n" +
                         "Settlement: " + settlement.displayName + "\n" +
-                        "Reason: " + conflict);
+                        "Reason: " +
+                        (!acceptedV2CenterPreserved
+                            ? "the accepted V2 anchor would need relocation, which would detach it from its road and terrain reserve."
+                            : conflict));
                     prepared = false;
                     continue;
                 }
 
+                // note: Publish the finished construction shelf as settlement authority before roads, foliage, geometry, residents, and quests resolve the location.
+                center.y = SampleTerrainDataWorldHeight(
+                    terrain,
+                    center);
+                YQGeneratedWorldLayout.SetRuntimeSettlementAnchor(
+                    settlement.settlementId,
+                    center);
+
+                Vector2 centerHorizontal = new Vector2(center.x, center.z);
+                Vector2 requestedHorizontal = new Vector2(
+                    requestedCenter.x,
+                    requestedCenter.z);
+
+                if ((centerHorizontal - requestedHorizontal).sqrMagnitude > 0.01f)
+                {
+                    Debug.LogWarning(
+                        "[YQGeneratedWorldRuntimeBuilder] SETTLEMENT RELOCATED\n" +
+                        "Settlement: " + settlement.displayName + "\n" +
+                        "Requested anchor: " + requestedCenter + "\n" +
+                        "Reserved anchor: " + center + "\n" +
+                        "Reason: " + conflict);
+                }
+
+                // note: Persist only the candidate whose actual footprint was fitted successfully; legacy seeds have no candidate to commit.
+                string layoutSeed = ResolveSemanticCompositionSeedV2(plan, settlement.settlementId, SettlementSeed(settlement));
+                if (YQProceduralSettlementLayout.Get(layoutSeed) != null)
+                {
+                    YQProceduralSettlementLayout.Commit(settlement, layoutSeed);
+                    _compiledBindingsChangedDuringBuild = true;
+                    Debug.Log("[WORLDGEN] PROCEDURAL CELL STREETS ACTIVE: settlement=" + settlement.settlementId +
+                        ", blocks=" + settlement.proceduralLayout.cells.Count + ", streets=" + settlement.proceduralLayout.streets.Count +
+                        ", radius=" + settlement.proceduralLayout.radius + ", geometry=" +
+                        YQProceduralSettlementLayout.GeometrySignature(settlement.proceduralLayout));
+                }
                 reservations.Add(new ConstructionFootprintReservation(
                     label,
                     center,
                     footprintRadius));
-                pathTerrainReservations.Add(
-                    new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
-                        center,
-                        outerRadius));
+                // note: Protect the actual parcel foundations, not empty space and streets inside the district's circular envelope.
+                var roadProtectedLayout = settlement.proceduralLayout;
+                if (roadProtectedLayout != null && roadProtectedLayout.cells.Count > 0)
+                {
+                    Quaternion districtRotation = Quaternion.Euler(0f, ResolveSettlementHeading(plan, settlement), 0f);
+                    foreach (var cell in roadProtectedLayout.cells)
+                    {
+                        Vector3 parcelCenter = center + districtRotation * (cell.boundsCenter - roadProtectedLayout.origin);
+                        pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                            parcelCenter, new Vector2(cell.boundsSize.x, cell.boundsSize.z) * .5f + Vector2.one * 3f,
+                            // note: The reservation follows the cell's authored yaw as well as the district heading; district-only axes left road repair free to overwrite rotated aprons.
+                            Mathf.Repeat(ResolveSettlementHeading(plan, settlement) + cell.yaw, 360f)));
+                    }
+                }
+                else
+                    pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(center, flatRadius));
 
                 yield return null;
             }
@@ -5118,6 +7376,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             for (int index = 0; index < plan.encampments.Count; index++)
             {
                 GeneratedEncampmentRecord encampment = plan.encampments[index];
+
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Shaping landforms and roads",
+                    4,
+                    9,
+                    "Resolving hostile-site support shelf " + (index + 1) +
+                    " of " + plan.encampments.Count,
+                    Mathf.Lerp(
+                        0.715f,
+                        0.725f,
+                        plan.encampments.Count > 0
+                            ? index / (float)plan.encampments.Count
+                            : 1f));
 
                 if (encampment == null)
                 {
@@ -5155,23 +7426,104 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 }
 
                 _compiledBindingsChangedDuringBuild |= bindingChanged;
+                string[] semanticSliceTags =
+                    YQCompiledWorldSiteBindingService
+                        .BuildEncampmentSemanticSliceTags(encampment);
+                string semanticSliceSeed =
+                    !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
+                        ? encampment.deterministicSeed
+                        : encampment.encampmentId;
+                bool sliceRadiusResolved = false;
+                float sliceRadius = 0f;
+                string compositionFailure = string.Empty;
+                if (materializationV2 != null)
+                {
+                    yield return ResolveUniqueSemanticCompositionV2Routine(
+                        site,
+                        semanticSliceTags,
+                        semanticSliceSeed,
+                        encampment.encampmentId,
+                        encampment.displayName,
+                        v2CompositionOwners,
+                        materializationV2,
+                        (success, radius, failure) =>
+                        {
+                            sliceRadiusResolved = success;
+                            sliceRadius = radius;
+                            compositionFailure = failure;
+                        });
+                }
+                else
+                {
+                    yield return YQCompiledWorldSiteInstance
+                        .ResolveSemanticSliceRadiusRoutine(
+                            site,
+                            semanticSliceTags,
+                            semanticSliceSeed,
+                            (success, radius) =>
+                            {
+                                sliceRadiusResolved = success;
+                                sliceRadius = radius;
+                            });
+                }
+                if (!sliceRadiusResolved ||
+                    !TryResolveConstructionRadii(
+                        sliceRadius,
+                        out footprintRadius,
+                        out flatRadius,
+                        out outerRadius))
+                {
+                    // note: Hostile construction reserves exactly the curated encounter slice that streaming will later instantiate.
+                    Debug.LogError(
+                        "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED HOSTILE SITE\n" +
+                        "Site: " + encampment.displayName + "\n" +
+                        "Reason: " +
+                        (!string.IsNullOrWhiteSpace(compositionFailure)
+                            ? compositionFailure
+                            : "its selected semantic slice has no valid runtime footprint."));
+                    prepared = false;
+                    continue;
+                }
+
+                if (materializationV2 != null &&
+                    !materializationV2.TryValidateFootprint(
+                        encampment.encampmentId,
+                        footprintRadius,
+                        out string footprintFailure))
+                {
+                    Debug.LogError(
+                        "[YQGeneratedWorldRuntimeBuilder] V2 HOSTILE FOOTPRINT REJECTED\n" +
+                        "Site: " + encampment.displayName + "\n" +
+                        "Reason: " + footprintFailure);
+                    prepared = false;
+                    continue;
+                }
+
                 Vector3 requestedCenter = YQGeneratedWorldLayout.GetEncampmentAnchor(
                     plan,
                     encampment,
                     terrain);
                 string label = "hostile site " + encampment.displayName;
 
-                if (!TryResolveHostileConstructionCenter(
-                        reservations,
-                        label,
-                        requestedCenter,
-                        footprintRadius,
-                        outerRadius,
-                        terrain,
-                        plan.worldSeed + "|" + encampment.encampmentId,
-                        out Vector3 center,
-                        out string conflict) ||
-                    !GradeTerrainPad(
+                // note: V2 hostile sites share the same accepted-reserve rule as settlements; rerunning the legacy relocation grid would detach their saved route frontage.
+                Vector3 center = requestedCenter;
+                string conflict = string.Empty;
+                bool centerResolved = materializationV2 != null || TryResolveConstructionCenter(
+                    reservations,
+                    label,
+                    requestedCenter,
+                    footprintRadius,
+                    outerRadius,
+                    terrain,
+                    plan.worldSeed + "|" + encampment.encampmentId,
+                    out center,
+                    out conflict);
+                bool acceptedV2CenterPreserved =
+                    materializationV2 == null ||
+                    HorizontalDistanceSquared(center, requestedCenter) <= 0.01f;
+                bool terrainPadGraded = centerResolved &&
+                    acceptedV2CenterPreserved &&
+                    GradeTerrainPad(
                         terrain,
                         center,
                         flatRadius,
@@ -5180,13 +7532,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             plan.worldSeed,
                             terrain,
                             center,
-                            footprintRadius)))
+                            footprintRadius));
+                if (!terrainPadGraded)
                 {
-                    Debug.LogError(
-                        "[YQGeneratedWorldRuntimeBuilder] TERRAIN PREPASS REJECTED HOSTILE SITE\n" +
+                    // note: Hostile camps already run the same canonical-terrain grounding pass when their reviewed cells stream in; a pad that cannot be pre-graded is a degraded camp placement, not grounds to imprison a fully materialized saved world behind Continue forever.
+                    Debug.LogWarning(
+                        "[YQGeneratedWorldRuntimeBuilder] HOSTILE TERRAIN PREPASS DEFERRED TO RUNTIME GROUNDING\n" +
                         "Site: " + encampment.displayName + "\n" +
-                        "Reason: " + conflict);
-                    prepared = false;
+                        "Reason: " +
+                        (!acceptedV2CenterPreserved
+                            ? "the accepted V2 anchor would need relocation"
+                            : centerResolved
+                                ? "the requested support shelf could not be graded safely"
+                                : conflict));
                     continue;
                 }
 
@@ -5217,22 +7575,76 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     label,
                     center,
                     footprintRadius));
+                // note: Keep only the actual hostile foundation protected; the outer presentation shelf must remain gradeable so the accepted route gate cannot step off a cliff at the site boundary.
                 pathTerrainReservations.Add(
                     new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
                         center,
-                        outerRadius));
+                        footprintRadius + 3f));
 
                 yield return null;
             }
         }
 
-        // note: Roads, cave climbs, and water crossings repair against the already-finalized construction shelves, then join the same delayed height publication as the pads.
+        YQStartupLoadingScreen.SetGenerationWorkStage(
+            "Shaping landforms and roads",
+            4,
+            9,
+            "Repairing roads, cave climbs, and crossings around finished sites",
+            0.727f);
+        // note: Restore bank support before the final road pass; otherwise a shoreline lift can reintroduce a cliff on a route that was already grade-constrained.
+        yield return YQGeneratedWorldEnvironment.RepairWaterBanksRoutine(terrain, plan, pathTerrainReservations);
+        // note: Roads, cave climbs, and water crossings are the final terrain authority over their narrow corridors, including crossings raised above accepted water surfaces.
         yield return YQGeneratedWorldEnvironment
             .RepairLivedPathTerrainRoutine(
                 terrain,
                 plan,
                 pathTerrainReservations);
+        // note: Construction can refill an accepted channel; recut wet cores once after roads so the runtime water ribbon cannot disappear into final terrain.
+        yield return YQGeneratedWorldEnvironment
+            .RepairAcceptedWaterChannelsRoutine(
+                terrain,
+                plan,
+                pathTerrainReservations);
 
+        if (YQWorldGenerationArchitecture.UsesCompiledWorld && plan.settlements != null)
+        {
+            // note: Reassert committed parcel datums after bank, road and water passes; accepted cell approaches must see the same terrain that their foundations were reviewed against.
+            for (int index = 0; index < plan.settlements.Count; index++)
+            {
+                GeneratedSettlementRecord settlement = plan.settlements[index];
+                YQProceduralSettlementLayoutRecord layout = settlement?.proceduralLayout;
+                if (settlement == null || layout == null || layout.cells == null || layout.cells.Count == 0)
+                    continue;
+                Vector3 center = YQGeneratedWorldLayout.GetSettlementAnchor(plan, settlement, terrain);
+                float outerRadius = Mathf.Max(8f, layout.radius + 2f);
+                float flatRadius = Mathf.Max(4f, outerRadius * .72f);
+                if (!GradeTerrainPad(
+                        terrain,
+                        center,
+                        flatRadius,
+                        outerRadius,
+                        ResolveMinimumConstructionWorldHeight(plan.worldSeed, terrain, center, outerRadius),
+                        layout,
+                        ResolveSettlementHeading(plan, settlement),
+                        constructionTerrainSampler))
+                {
+                    Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] ACCEPTED PARCEL REASSERTION DEFERRED: " + settlement.displayName);
+                }
+            }
+        }
+
+        // note: Reconcile the route graph once after parcel datums are restored so settlement gates and regional connectors cannot retain a terrain step from an earlier water-bank pass.
+        yield return YQGeneratedWorldEnvironment.RepairLivedPathTerrainRoutine(
+            terrain,
+            plan,
+            pathTerrainReservations);
+
+        YQStartupLoadingScreen.SetGenerationWorkStage(
+            "Shaping landforms and roads",
+            4,
+            9,
+            "Synchronizing the final terrain collider once",
+            0.729f);
         // note: Every pad and lived path uses delayed writes; one required heightmap synchronization publishes render/physics authority, while the redundant full Terrain.Flush pass is deliberately avoided.
         yield return null;
         terrain.terrainData.SyncHeightmap();
@@ -5261,8 +7673,182 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         footprintRadius = site.authoredFootprintRadius;
         flatRadius = footprintRadius + 3f;
-        outerRadius = footprintRadius + 18f;
+        // note: Give accepted settlement earthworks a broad deterministic shoulder so flat parcels ease into hills instead of ending in a sheer artificial cut; the extra reach is still bounded well inside the reviewed world envelope.
+        // note: Give accepted settlement earthworks a long, route-aware shoulder so flat parcels ease into hills instead of ending at a hard cut.
+        outerRadius = footprintRadius + 54f;
         return outerRadius < YQGeneratedWorldTerrain.WorldSize * 0.5f;
+    }
+
+    private static bool TryResolveConstructionRadii(
+        float validatedSliceRadius,
+        out float footprintRadius,
+        out float flatRadius,
+        out float outerRadius)
+    {
+        footprintRadius = 0f;
+        flatRadius = 0f;
+        outerRadius = 0f;
+        if (float.IsNaN(validatedSliceRadius) ||
+            float.IsInfinity(validatedSliceRadius) ||
+            validatedSliceRadius <= 0f)
+        {
+            return false;
+        }
+
+        // note: The validated semantic aggregate is the physical runtime site; small grading shoulders blend that exact footprint into surrounding terrain.
+        footprintRadius = validatedSliceRadius;
+        flatRadius = footprintRadius + 3f;
+        // note: Semantic slice earthworks use the same broad shoulder as reviewed sites, preserving the authored footprint while removing abrupt settlement edges.
+        // note: Semantic slice earthworks use the same broad shoulder as reviewed sites, preserving the authored footprint while removing abrupt settlement edges.
+        outerRadius = footprintRadius + 54f;
+        return outerRadius < YQGeneratedWorldTerrain.WorldSize * 0.5f;
+    }
+
+    private IEnumerator ResolveUniqueSemanticCompositionV2Routine(
+        YQRuntimeWorldSiteRecord site,
+        string[] semanticTags,
+        string baseSeed,
+        string locationId,
+        string displayName,
+        Dictionary<string, string> compositionOwners,
+        YQPreparedSpatialMaterializationV2 materialization,
+        Action<bool, float, string> completed)
+    {
+        // note: Once preflight has chosen a variant, later terrain/streaming checks revalidate only that choice rather than selecting different geometry for the same site.
+        bool hasPreparedSeed = !string.IsNullOrWhiteSpace(locationId) &&
+            _resolvedSemanticCompositionSeedsV2.ContainsKey(locationId);
+        string preparedSeed = hasPreparedSeed
+            ? _resolvedSemanticCompositionSeedsV2[locationId]
+            : string.Empty;
+        int maximumVariants = hasPreparedSeed ? 1 : 12;
+        string lastFailure = string.Empty;
+        if (materialization == null ||
+            !materialization.TryGetSiteBySemanticId(locationId, out YQSpatialMaterializationSiteV2 acceptedSite) ||
+            acceptedSite.RequiredFunctions.Count == 0)
+        {
+            completed?.Invoke(false, 0f, "Accepted V2 site functional requirements are missing.");
+            yield break;
+        }
+
+        for (int variant = 0; variant < maximumVariants; variant++)
+        {
+            string candidateSeed = hasPreparedSeed
+                ? preparedSeed
+                : variant == 0
+                ? baseSeed
+                : (baseSeed ?? string.Empty) + "|semantic_variant|" +
+                  variant;
+            bool resolved = false;
+            float radius = 0f;
+            YQSemanticSiteCompositionV2 composition = default;
+            string resolutionFailure = string.Empty;
+            bool variantIndependentFailure = false;
+            yield return YQCompiledWorldSiteInstance
+                .ResolveSemanticCompositionV2Routine(
+                    site,
+                    semanticTags,
+                    candidateSeed,
+                    (success, resolvedRadius, candidate, failure) =>
+                    {
+                        resolved = success;
+                        radius = resolvedRadius;
+                        composition = candidate;
+                        resolutionFailure = failure;
+                    },
+                    acceptedSite.RequiredFunctions,
+                    unavailable => variantIndependentFailure = unavailable);
+
+            if (!resolved)
+            {
+                lastFailure = resolutionFailure;
+                // note: Missing reviewed functions or a missing manifest cannot improve with another seed; move on to another eligible kit instead.
+                if (variantIndependentFailure)
+                    break;
+                // note: Cached manifest retries still yield so a site with missing contracts cannot run all twelve selections on one frame.
+                yield return null;
+                continue;
+            }
+            if (!materialization.TryValidateFootprint(locationId, radius, out lastFailure))
+            {
+                yield return null;
+                continue;
+            }
+            if (!TryReserveUniqueCompositionV2(
+                    compositionOwners,
+                    locationId,
+                    displayName,
+                    composition,
+                    out string repeatedFailure))
+            {
+                lastFailure = repeatedFailure;
+                yield return null;
+                continue;
+            }
+
+            // note: Prepass and later streaming consume the exact same accepted variant seed, so terrain support can never be graded for one district and then receive another.
+            _resolvedSemanticCompositionSeedsV2[locationId] = candidateSeed;
+            completed?.Invoke(true, radius, string.Empty);
+            yield break;
+        }
+
+        completed?.Invoke(
+            false,
+            0f,
+            !string.IsNullOrWhiteSpace(lastFailure)
+                ? lastFailure
+                : "no distinct valid semantic composition was available.");
+    }
+
+    private string ResolveSemanticCompositionSeedV2(
+        GeneratedWorldPlanRecord plan,
+        string locationId,
+        string fallbackSeed)
+    {
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+            !string.IsNullOrWhiteSpace(locationId) &&
+            _resolvedSemanticCompositionSeedsV2.TryGetValue(
+                locationId,
+                out string resolvedSeed))
+        {
+            return resolvedSeed;
+        }
+
+        return fallbackSeed ?? string.Empty;
+    }
+
+    private static bool TryReserveUniqueCompositionV2(
+        Dictionary<string, string> compositionOwners,
+        string locationId,
+        string displayName,
+        YQSemanticSiteCompositionV2 composition,
+        out string failure)
+    {
+        failure = string.Empty;
+        if (compositionOwners == null)
+            return true;
+        if (string.IsNullOrWhiteSpace(composition.compositionSignature) ||
+            composition.SelectedCount == 0)
+        {
+            failure = "its semantic composition has no stable geometry signature.";
+            return false;
+        }
+
+        if (compositionOwners.TryGetValue(
+                composition.compositionSignature,
+                out string existingOwner))
+        {
+            // note: Reviewed geometry is reusable content, not an exclusive world resource; each location still validates its own functions, reserve and physical construction.
+            Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Reviewed assembly reused by " +
+                displayName + " and " + existingOwner + ". Additional library variety remains a content task.");
+            return true;
+        }
+
+        compositionOwners.Add(
+            composition.compositionSignature,
+            !string.IsNullOrWhiteSpace(displayName)
+                ? displayName
+                : locationId);
+        return true;
     }
 
     private static float ResolveLegacySettlementOuterRadius(
@@ -5314,7 +7900,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return true;
     }
 
-    private static bool TryResolveHostileConstructionCenter(
+    private static bool TryResolveConstructionCenter(
         List<ConstructionFootprintReservation> reservations,
         string label,
         Vector3 requestedCenter,
@@ -5391,6 +7977,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return true;
     }
 
+    private static float HorizontalDistanceSquared(
+        Vector3 left,
+        Vector3 right)
+    {
+        float dx = left.x - right.x;
+        float dz = left.z - right.z;
+        return dx * dx + dz * dz;
+    }
+
     internal static bool GradeTerrainPad(
         Terrain terrain,
         Vector3 center,
@@ -5410,7 +8005,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Vector3 center,
         float flatRadius,
         float outerRadius,
-        float minimumWorldHeight)
+        float minimumWorldHeight,
+        YQProceduralSettlementLayoutRecord constructionLayout = null,
+        float constructionHeading = 0f,
+        YQSpatialBlueprintTerrainSamplerV2 spatialSampler = null)
     {
         if (terrain == null || terrain.terrainData == null ||
             !terrain.gameObject.activeInHierarchy)
@@ -5473,6 +8071,54 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
         float targetHeight = Mathf.Clamp01(
             (sampledWorldHeight - origin.y) / Mathf.Max(0.001f, size.y));
+        // note: Expand the construction shoulder when the accepted parcel datum would otherwise exceed a natural walking slope; this turns steep source relief into a deterministic ramp instead of a sheer pad wall.
+        float targetWorldHeight = origin.y + targetHeight * size.y;
+        float elevationDelta = 0f;
+        // note: Read the four shoulder samples before editing the heightmap so the adaptive ramp responds to the actual surrounding relief rather than the already flattened centre.
+        Vector3[] shoulderSamples =
+        {
+            center + Vector3.forward * outerRadius,
+            center - Vector3.forward * outerRadius,
+            center + Vector3.right * outerRadius,
+            center - Vector3.right * outerRadius
+        };
+        for (int sampleIndex = 0; sampleIndex < shoulderSamples.Length; sampleIndex++)
+            elevationDelta = Mathf.Max(
+                elevationDelta,
+                Mathf.Abs(
+                    terrain.SampleHeight(shoulderSamples[sampleIndex]) +
+                    origin.y - targetWorldHeight));
+        float slopeLimitedRun = elevationDelta /
+            Mathf.Max(.1f, Mathf.Tan(24f * Mathf.Deg2Rad));
+        float requestedOuterRadius = Mathf.Max(
+            outerRadius,
+            flatRadius + slopeLimitedRun + 8f);
+        float edgeClearance = Mathf.Min(
+            Mathf.Min(center.x - origin.x, origin.x + size.x - center.x),
+            Mathf.Min(center.z - origin.z, origin.z + size.z - center.z));
+        outerRadius = Mathf.Min(
+            requestedOuterRadius,
+            Mathf.Max(flatRadius + 2f, edgeClearance - 1f));
+        // note: Recompute the heightmap window after the adaptive shoulder expands; the original window was derived before the slope-limited radius and silently left the new ramp outside the edited terrain.
+        radiusX = Mathf.CeilToInt(
+            outerRadius / size.x * (resolution - 1));
+        radiusZ = Mathf.CeilToInt(
+            outerRadius / size.z * (resolution - 1));
+        startX = Mathf.Clamp(centerX - radiusX, 0, resolution - 1);
+        startZ = Mathf.Clamp(centerZ - radiusZ, 0, resolution - 1);
+        endX = Mathf.Clamp(centerX + radiusX, 0, resolution - 1);
+        endZ = Mathf.Clamp(centerZ + radiusZ, 0, resolution - 1);
+        width = endX - startX + 1;
+        height = endZ - startZ + 1;
+        if (width <= 1 || height <= 1)
+            return false;
+        heights = data.GetHeights(startX, startZ, width, height);
+        // note: Resolve the complete parcel profile before editing the heightmap; accepted records reuse their saved world elevations.
+        float[] parcelHeights = null;
+        if (constructionLayout != null && constructionLayout.earthworkVersion != 0 &&
+            !TryResolveParcelGroundHeights(terrain, center, constructionHeading, constructionLayout,
+                minimumWorldHeight, out parcelHeights))
+            return false;
         Vector2 horizontalCenter = new Vector2(center.x, center.z);
 
         for (int z = 0; z < height; z++)
@@ -5500,16 +8146,406 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             flatRadius,
                             outerRadius,
                             distance));
+                // note: Independent blocks and their declared streets own earthworks; empty space inside the town's bounding circle retains its original relief.
+                float localTargetHeight = targetHeight;
+                // note: Keep the broad shoulder away from accepted route, water, and cave masks; those corridors must retain their own physical grade.
+                YQSpatialTerrainSampleV2 spatialSample = spatialSampler != null
+                    ? spatialSampler.Sample(worldX, worldZ)
+                    : default;
+                bool protectedCorridor = spatialSampler != null &&
+                    (spatialSample.routeMask > .08f ||
+                     spatialSample.waterMask > .08f ||
+                     spatialSample.caveMassMask > .08f);
+                float radialBlend = protectedCorridor ? 0f : blend;
+                if (parcelHeights != null)
+                {
+                    // note: Flat parcel cores meet sloped street connections; unowned ground retains the original heightmap.
+                    ResolveParcelEarthwork(
+                        constructionLayout,
+                        parcelHeights,
+                        new Vector2(worldX - center.x, worldZ - center.z),
+                        constructionHeading,
+                        out float parcelBlend,
+                        out float worldTarget);
+                    // note: Preserve the broad radial shoulder outside semantic cells; discarding it left an abrupt parcel edge and a sheer settlement cut.
+                    if (parcelBlend > 0.0001f)
+                    {
+                        blend = Mathf.Max(radialBlend, parcelBlend);
+                        localTargetHeight = (worldTarget - origin.y) / size.y;
+                    }
+                    else
+                    {
+                        blend = radialBlend;
+                    }
+                }
+                else if (constructionLayout != null)
+                {
+                    // note: Semantic street ownership augments the radial shoulder instead of replacing it, keeping settlement edges walkable on natural hills.
+                    blend = Mathf.Max(
+                        radialBlend,
+                        ResolveConstructionEarthworkWeight(
+                            constructionLayout,
+                            new Vector2(worldX - center.x, worldZ - center.z),
+                            constructionHeading));
+                }
                 heights[z, x] = Mathf.Lerp(
                     heights[z, x],
-                    targetHeight,
+                    localTargetHeight,
                     blend);
             }
         }
 
         // note: The caller batches all delayed pad writes and publishes one final heightmap, avoiding settlement-by-settlement terrain rebuild stalls.
         data.SetHeightsDelayLOD(startX, startZ, heights);
+        // note: Persist only a successfully applied profile; failed candidates must not leave partially resolved elevation records.
+        if (parcelHeights != null && constructionLayout.parcelGroundHeights.Count == 0)
+            constructionLayout.parcelGroundHeights.AddRange(parcelHeights);
         return true;
+    }
+
+    private static bool TryResolveParcelGroundHeights(Terrain terrain, Vector3 center, float heading,
+        YQProceduralSettlementLayoutRecord layout, float minimumHeight, out float[] heights)
+    {
+        heights = null;
+        // note: Unknown profile versions and malformed saved elevations require migration, never silent reinterpretation.
+        if ((layout.earthworkVersion != 1 && layout.earthworkVersion != 2) || layout.cells == null || layout.cells.Count == 0 ||
+            layout.parcelGroundHeights == null ||
+            (layout.parcelGroundHeights.Count != 0 && layout.parcelGroundHeights.Count != layout.cells.Count))
+            return false;
+        var resolved = new float[layout.cells.Count];
+        float angle = heading * Mathf.Deg2Rad;
+        float cosine = Mathf.Cos(angle), sine = Mathf.Sin(angle);
+        for (int i = 0; i < layout.cells.Count; i++)
+        {
+            var cell = layout.cells[i];
+            if (cell == null) return false;
+            // note: Invert the grading mask transform to sample each parcel in world space before any pad writes occur.
+            Vector3 offset = cell.boundsCenter - layout.origin;
+            Vector3 point = center + new Vector3(cosine * offset.x + sine * offset.z, 0f,
+                -sine * offset.x + cosine * offset.z);
+            // note: A clamped tile-edge sample or terrain hole cannot establish a buildable parcel, even when its elevation was persisted.
+            if (!YQTerrainApproachV2.TrySampleTerrain(terrain, point, out float existingHeight))
+                return false;
+            // note: The entire flat core, including its three-metre approach margin, must fit the tile; a valid centre alone can leave edge buildings unsupported.
+            if (float.IsNaN(cell.boundsSize.x) || float.IsInfinity(cell.boundsSize.x) || cell.boundsSize.x <= 0f ||
+                float.IsNaN(cell.boundsSize.z) || float.IsInfinity(cell.boundsSize.z) || cell.boundsSize.z <= 0f)
+                return false;
+            for (int cornerZ = -1; cornerZ <= 1; cornerZ += 2)
+                for (int cornerX = -1; cornerX <= 1; cornerX += 2)
+                {
+                    float dx = cornerX * (cell.boundsSize.x * .5f + 3f);
+                    float dz = cornerZ * (cell.boundsSize.z * .5f + 3f);
+                    Vector3 corner = point + new Vector3(cosine * dx + sine * dz, 0f, -sine * dx + cosine * dz);
+                    if (!YQTerrainApproachV2.TrySampleTerrain(terrain, corner, out _)) return false;
+                }
+            float value = layout.parcelGroundHeights.Count > 0 ? layout.parcelGroundHeights[i] :
+                Mathf.Max(existingHeight, minimumHeight);
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < terrain.transform.position.y ||
+                value > terrain.transform.position.y + terrain.terrainData.size.y || value < minimumHeight)
+                return false;
+            resolved[i] = value;
+        }
+        // note: Reconcile only unsaved version-two proposals; accepted parcel elevations remain authoritative on reload.
+        if (layout.earthworkVersion == 2 && layout.parcelGroundHeights.Count == 0)
+        {
+            var original = (float[])resolved.Clone();
+            for (int pass = 0; pass < 64; pass++)
+            {
+                bool changed = false;
+                for (int i = 0; i < layout.cells.Count; i++)
+                    for (int j = i + 1; j < layout.cells.Count; j++)
+                    {
+                        var a = layout.cells[i];
+                        var b = layout.cells[j];
+                        float dx = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.x - b.boundsCenter.x) - (a.boundsSize.x + b.boundsSize.x) * .5f - 6f);
+                        float dz = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.z - b.boundsCenter.z) - (a.boundsSize.z + b.boundsSize.z) * .5f - 6f);
+                        float allowed = ResolveParcelRiseAllowance(layout, a, b, dx, dz);
+                        float difference = resolved[i] - resolved[j];
+                        float excess = Mathf.Abs(difference) - allowed;
+                        if (excess <= .0001f) continue;
+                        // note: Share the minimum required correction between both pads, preserving local relief instead of flattening the town.
+                        float correction = Mathf.Sign(difference) * excess * .5f;
+                        resolved[i] -= correction;
+                        resolved[j] += correction;
+                        changed = true;
+                    }
+                if (!changed) break;
+            }
+            // note: Reject excessive earthworks before terrain or persistent data changes; relocation must handle unsuitable sites.
+            for (int i = 0; i < resolved.Length; i++)
+                if (Mathf.Abs(resolved[i] - original[i]) > .5f || resolved[i] < minimumHeight)
+                {
+                    // note: Distinguish an unsuitable site's earthwork budget from missing terrain or malformed saved data.
+                    Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Parcel earthwork rejected: cell=" + layout.cells[i].cellId +
+                        " sampled=" + original[i] + " proposed=" + resolved[i] + " correction=" + Mathf.Abs(resolved[i] - original[i]) +
+                        " maximumCorrection=0.5 minimumHeight=" + minimumHeight);
+                    return false;
+                }
+        }
+        // note: Different elevation planes cannot own the same foundation core; reject before changing either terrain or saved data.
+        for (int i = 0; i < layout.cells.Count; i++)
+            for (int j = i + 1; j < layout.cells.Count; j++)
+            {
+                var a = layout.cells[i];
+                var b = layout.cells[j];
+                // note: Version two requires enough space between flat cores to connect their elevations at the shared surface grade.
+                if (layout.earthworkVersion == 2)
+                {
+                    float gapX = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.x - b.boundsCenter.x) - (a.boundsSize.x + b.boundsSize.x) * .5f - 6f);
+                    float gapZ = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.z - b.boundsCenter.z) - (a.boundsSize.z + b.boundsSize.z) * .5f - 6f);
+                    float allowedRise = ResolveParcelRiseAllowance(layout, a, b, gapX, gapZ);
+                    if (Mathf.Abs(resolved[i] - resolved[j]) > allowedRise + .001f)
+                    {
+                        // note: A constrained profile that did not converge must reject before terrain mutation, with the conflicting pair identified.
+                        Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Parcel grade constraint rejected: " + a.cellId + " / " + b.cellId +
+                            " rise=" + Mathf.Abs(resolved[i] - resolved[j]) + " allowance=" + allowedRise);
+                        return false;
+                    }
+                }
+                if (Mathf.Abs(a.boundsCenter.x - b.boundsCenter.x) < (a.boundsSize.x + b.boundsSize.x) * .5f + 6f &&
+                    Mathf.Abs(a.boundsCenter.z - b.boundsCenter.z) < (a.boundsSize.z + b.boundsSize.z) * .5f + 6f &&
+                    Mathf.Abs(resolved[i] - resolved[j]) > .001f)
+                    return false;
+            }
+        heights = resolved;
+        return true;
+    }
+
+    private static float ResolveParcelRiseAllowance(YQProceduralSettlementLayoutRecord layout,
+        YQProceduralCellPlacement a, YQProceduralCellPlacement b, float gapX, float gapZ)
+    {
+        float allowed = .4f * Mathf.Sqrt(gapX * gapX + gapZ * gapZ);
+        if (layout.streets == null) return allowed;
+        // note: Axis-aligned opposing cores constrain the cross-section of a separating spine. Other arrangements retain the general distance bound.
+        foreach (var road in layout.streets)
+        {
+            if (road == null || road.width <= 0f) continue;
+            bool vertical = Mathf.Abs(road.start.x - road.end.x) < .001f;
+            bool horizontal = Mathf.Abs(road.start.z - road.end.z) < .001f;
+            if (!vertical && !horizontal) continue;
+            float aAcross = vertical ? a.boundsCenter.x : a.boundsCenter.z;
+            float bAcross = vertical ? b.boundsCenter.x : b.boundsCenter.z;
+            float roadAcross = vertical ? road.start.x : road.start.z;
+            if ((aAcross - roadAcross) * (bAcross - roadAcross) >= 0f) continue;
+            float alongA = vertical ? a.boundsCenter.z : a.boundsCenter.x;
+            float alongB = vertical ? b.boundsCenter.z : b.boundsCenter.x;
+            float halfA = (vertical ? a.boundsSize.z : a.boundsSize.x) * .5f + 3f;
+            float halfB = (vertical ? b.boundsSize.z : b.boundsSize.x) * .5f + 3f;
+            float overlapMin = Mathf.Max(alongA - halfA, alongB - halfB);
+            float overlapMax = Mathf.Min(alongA + halfA, alongB + halfB);
+            float roadMin = Mathf.Min(vertical ? road.start.z : road.start.x, vertical ? road.end.z : road.end.x);
+            float roadMax = Mathf.Max(vertical ? road.start.z : road.start.x, vertical ? road.end.z : road.end.x);
+            if (Mathf.Max(overlapMin, roadMin) > Mathf.Min(overlapMax, roadMax)) continue;
+            float gap = vertical ? gapX : gapZ;
+            // note: Reserve the road width at nine-degree crossfall, leaving terrain interpolation margin; only the remaining gap can use the transition grade.
+            float roadRun = Mathf.Min(gap, road.width);
+            allowed = Mathf.Min(allowed, .4f * (gap - roadRun) + Mathf.Tan(9f * Mathf.Deg2Rad) * roadRun);
+        }
+        return allowed;
+    }
+
+    private static float ResolvePointRiseAllowance(YQProceduralSettlementLayoutRecord layout,
+        YQProceduralCellPlacement cell, Vector2 point, float distance)
+    {
+        // note: Integrate the smaller cross-road grade along the route from a flat core to this surface sample.
+        Vector2 nearest = new Vector2(
+            Mathf.Clamp(point.x, cell.boundsCenter.x - cell.boundsSize.x * .5f - 3f, cell.boundsCenter.x + cell.boundsSize.x * .5f + 3f),
+            Mathf.Clamp(point.y, cell.boundsCenter.z - cell.boundsSize.z * .5f - 3f, cell.boundsCenter.z + cell.boundsSize.z * .5f + 3f));
+        float allowance = .4f * distance;
+        if (distance <= .00001f || layout.streets == null) return allowance;
+        foreach (var road in layout.streets)
+        {
+            if (road == null || road.width <= 0f) continue;
+            bool vertical = Mathf.Abs(road.start.x - road.end.x) < .001f;
+            bool horizontal = Mathf.Abs(road.start.z - road.end.z) < .001f;
+            if (!vertical && !horizontal) continue;
+            float acrossStart = vertical ? nearest.x : nearest.y;
+            float acrossEnd = vertical ? point.x : point.y;
+            float across = Mathf.Abs(acrossEnd - acrossStart);
+            if (across < .00001f) continue;
+            float roadAxis = vertical ? road.start.x : road.start.z;
+            float overlap = Mathf.Max(0f, Mathf.Min(Mathf.Max(acrossStart, acrossEnd), roadAxis + road.width * .5f) -
+                Mathf.Max(Mathf.Min(acrossStart, acrossEnd), roadAxis - road.width * .5f));
+            float alongStart = vertical ? nearest.y : nearest.x;
+            float alongEnd = vertical ? point.y : point.x;
+            float roadMin = Mathf.Min(vertical ? road.start.z : road.start.x, vertical ? road.end.z : road.end.x);
+            float roadMax = Mathf.Max(vertical ? road.start.z : road.start.x, vertical ? road.end.z : road.end.x);
+            // note: Fade corridor influence beyond its end caps instead of introducing a height discontinuity at the endpoint.
+            float outside = Mathf.Max(0f, roadMin - Mathf.Max(alongStart, alongEnd), Mathf.Min(alongStart, alongEnd) - roadMax);
+            float fade = 1f - Mathf.SmoothStep(0f, 1f, outside / 6f);
+            allowance -= (.4f - Mathf.Tan(9f * Mathf.Deg2Rad)) * overlap * fade;
+        }
+        return Mathf.Max(0f, allowance);
+    }
+
+    internal static void ResolveParcelEarthwork(YQProceduralSettlementLayoutRecord layout, float[] heights,
+        Vector2 worldOffset, float heading, out float weight, out float target)
+    {
+        // note: Parcel cores take precedence over street shoulders so a nearby road cannot tilt a building foundation.
+        float angle = heading * Mathf.Deg2Rad;
+        float cosine = Mathf.Cos(angle), sine = Mathf.Sin(angle);
+        Vector2 point = new Vector2(cosine * worldOffset.x - sine * worldOffset.y + layout.origin.x,
+            sine * worldOffset.x + cosine * worldOffset.y + layout.origin.z);
+        weight = 0f;
+        target = 0f;
+        float totalStrength = 0f;
+        float nearestCoreDistance = float.PositiveInfinity;
+        float lowerSurface = float.NegativeInfinity, upperSurface = float.PositiveInfinity;
+        for (int i = 0; i < layout.cells.Count; i++)
+        {
+            var cell = layout.cells[i];
+            float dx = Mathf.Max(0f, Mathf.Abs(point.x - cell.boundsCenter.x) - cell.boundsSize.x * .5f - 3f);
+            float dz = Mathf.Max(0f, Mathf.Abs(point.y - cell.boundsCenter.z) - cell.boundsSize.z * .5f - 3f);
+            float influence = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Sqrt(dx * dx + dz * dz) / 15f);
+            // note: Lipschitz envelopes share a continuous height at every junction and reproduce feasible parcel planes exactly.
+            float distance = Mathf.Sqrt(dx * dx + dz * dz);
+            nearestCoreDistance = Mathf.Min(nearestCoreDistance, distance);
+            float riseAllowance = layout.earthworkVersion == 2 ? ResolvePointRiseAllowance(layout, cell, point, distance) : .4f * distance;
+            lowerSurface = Mathf.Max(lowerSurface, heights[i] - riseAllowance);
+            upperSurface = Mathf.Min(upperSurface, heights[i] + riseAllowance);
+            if (influence >= 1f) { weight = 1f; target = heights[i]; return; }
+            // note: Smooth competing shoulders rather than switching abruptly between neighboring terrace heights.
+            float strength = influence / Mathf.Max(.000001f, 1f - influence);
+            totalStrength += strength;
+            target += heights[i] * strength;
+            weight = Mathf.Max(weight, influence);
+        }
+        target = totalStrength > 0f ? target / totalStrength : 0f;
+        // note: New layouts use the same continuous parcel interpolant at junctions and shoulders; a compact influence cutoff compressed the rise near the edge of its radius.
+        if (layout.version >= 4 && layout.earthworkVersion == 1)
+            target = SharedParcelHeight(layout, heights, point);
+        if (layout.earthworkVersion == 2) target = (lowerSurface + upperSurface) * .5f;
+        if (layout.streets == null) return;
+        // note: Street intersections share a bounded weighted surface; returning the first full-width road created height jumps when road enumeration changed.
+        float roadHeightSum = 0f, roadStrengthSum = 0f, roadMask = 0f;
+        foreach (var street in layout.streets)
+        {
+            if (street == null) continue;
+            Vector2 start = new Vector2(street.start.x, street.start.z);
+            Vector2 end = new Vector2(street.end.x, street.end.z);
+            Vector2 segment = end - start;
+            float t = segment.sqrMagnitude > .0001f ? Mathf.Clamp01(Vector2.Dot(point - start, segment) / segment.sqrMagnitude) : 0f;
+            float shoulder = Mathf.Max(0f, Vector2.Distance(point, start + segment * t) - street.width * .5f - 1f);
+            float influence = 1f - Mathf.SmoothStep(0f, 1f, shoulder / 6f);
+            if (influence <= 0f) continue;
+            // note: New roads extend one common surface's mask; saved version-one roads retain their original profiles.
+            if (layout.earthworkVersion == 2) { weight = Mathf.Max(weight, influence); continue; }
+            float length = segment.magnitude;
+            Vector2 direction = length > .0001f ? segment / length : Vector2.zero;
+            // note: Keep the approach flat through each foundation core, then grade the space between the two landings.
+            float startT = length > .0001f ? ParcelApproachExtent(layout, start, direction) / length : 0f;
+            float endT = length > .0001f ? 1f - ParcelApproachExtent(layout, end, -direction) / length : 1f;
+            float startHeight = layout.version >= 4 ? SharedParcelHeight(layout, heights, start) : NearestParcelHeight(layout, heights, start);
+            float endHeight = layout.version >= 4 ? SharedParcelHeight(layout, heights, end) : NearestParcelHeight(layout, heights, end);
+            float roadTarget = Mathf.Lerp(startHeight, endHeight,
+                Mathf.InverseLerp(startT, Mathf.Max(startT + .0001f, endT), t));
+            // note: Preserve the recorded surface algorithm for earlier layout versions; corrected junction geometry belongs to new version-four layouts.
+            if (layout.version < 4)
+            {
+                if (influence >= 1f) { weight = 1f; target = roadTarget; return; }
+                float oldStrength = influence / Mathf.Max(.000001f, 1f - influence);
+                target = (target * totalStrength + roadTarget * oldStrength) / (totalStrength + oldStrength);
+                totalStrength += oldStrength;
+                weight = Mathf.Max(weight, influence);
+                continue;
+            }
+            // note: Finite weights prevent a nearly saturated shoulder from abruptly taking ownership of the whole junction.
+            float strength = influence * influence;
+            roadHeightSum += roadTarget * strength;
+            roadStrengthSum += strength;
+            roadMask = Mathf.Max(roadMask, influence);
+        }
+        if (roadStrengthSum > 0f)
+        {
+            // note: Fade road ownership before a fixed foundation core; otherwise its exact flat height meets an unrelated road blend in one terrain sample.
+            float roadOwnership = roadMask * Mathf.SmoothStep(0f, 1f, nearestCoreDistance / 6f);
+            target = Mathf.Lerp(target, roadHeightSum / roadStrengthSum, roadOwnership);
+            weight = Mathf.Max(weight, roadMask);
+        }
+    }
+
+    private static float ParcelApproachExtent(YQProceduralSettlementLayoutRecord layout, Vector2 point, Vector2 direction)
+    {
+        // note: Measure the ray exit from a parcel core containing this street endpoint; endpoints outside cores need no plateau extension.
+        foreach (var cell in layout.cells)
+        {
+            float x = point.x - cell.boundsCenter.x, z = point.y - cell.boundsCenter.z;
+            float halfX = cell.boundsSize.x * .5f + 3f, halfZ = cell.boundsSize.z * .5f + 3f;
+            if (Mathf.Abs(x) > halfX || Mathf.Abs(z) > halfZ) continue;
+            float exitX = Mathf.Abs(direction.x) > .0001f ? (halfX - Mathf.Sign(direction.x) * x) / Mathf.Abs(direction.x) : float.PositiveInfinity;
+            float exitZ = Mathf.Abs(direction.y) > .0001f ? (halfZ - Mathf.Sign(direction.y) * z) / Mathf.Abs(direction.y) : float.PositiveInfinity;
+            float distance = Mathf.Min(exitX, exitZ);
+            return float.IsInfinity(distance) ? 0f : Mathf.Max(0f, distance);
+        }
+        return 0f;
+    }
+
+    private static float NearestParcelHeight(YQProceduralSettlementLayoutRecord layout, float[] heights, Vector2 point)
+    {
+        // note: Distance to the supported footprint associates an approach with its parcel rather than the town center.
+        float best = float.PositiveInfinity, height = heights[0];
+        for (int i = 0; i < layout.cells.Count; i++)
+        {
+            var cell = layout.cells[i];
+            float dx = Mathf.Max(0f, Mathf.Abs(point.x - cell.boundsCenter.x) - cell.boundsSize.x * .5f);
+            float dz = Mathf.Max(0f, Mathf.Abs(point.y - cell.boundsCenter.z) - cell.boundsSize.z * .5f);
+            float distance = dx * dx + dz * dz;
+            if (distance < best) { best = distance; height = heights[i]; }
+        }
+        return height;
+    }
+
+    private static float SharedParcelHeight(YQProceduralSettlementLayoutRecord layout, float[] heights, Vector2 point)
+    {
+        // note: A junction belongs to all surrounding parcels. Nearest-only assignment gave adjoining roads different heights across a Voronoi boundary.
+        float weightedHeight = 0f, total = 0f;
+        for (int i = 0; i < layout.cells.Count; i++)
+        {
+            var cell = layout.cells[i];
+            float dx = Mathf.Max(0f, Mathf.Abs(point.x - cell.boundsCenter.x) - cell.boundsSize.x * .5f - 3f);
+            float dz = Mathf.Max(0f, Mathf.Abs(point.y - cell.boundsCenter.z) - cell.boundsSize.z * .5f - 3f);
+            float squared = dx * dx + dz * dz;
+            if (squared < .0001f) return heights[i];
+            float strength = 1f / squared;
+            weightedHeight += heights[i] * strength;
+            total += strength;
+        }
+        return total > 0f ? weightedHeight / total : 0f;
+    }
+
+    internal static float ResolveConstructionEarthworkWeight(YQProceduralSettlementLayoutRecord layout,
+        Vector2 worldOffset, float heading)
+    {
+        if (layout == null) return 0f;
+        // note: Match the compiled site's heading and saved layout origin, including already-rotated block bounds.
+        float angle = heading * Mathf.Deg2Rad;
+        float cosine = Mathf.Cos(angle), sine = Mathf.Sin(angle);
+        Vector2 point = new Vector2(cosine * worldOffset.x - sine * worldOffset.y + layout.origin.x,
+            sine * worldOffset.x + cosine * worldOffset.y + layout.origin.z);
+        float weight = 0f;
+        if (layout.cells != null)
+            foreach (var cell in layout.cells)
+            {
+                if (cell == null) continue;
+                // note: Three metres of support outside each block protects its foundation; a local shoulder blends that shelf into untouched terrain.
+                float dx = Mathf.Max(0f, Mathf.Abs(point.x - cell.boundsCenter.x) - cell.boundsSize.x * 0.5f - 3f);
+                float dz = Mathf.Max(0f, Mathf.Abs(point.y - cell.boundsCenter.z) - cell.boundsSize.z * 0.5f - 3f);
+                weight = Mathf.Max(weight, 1f - Mathf.SmoothStep(0f, 1f, Mathf.Sqrt(dx * dx + dz * dz) / 15f));
+            }
+        if (layout.streets != null)
+            foreach (var street in layout.streets)
+            {
+                if (street == null) continue;
+                // note: Grade the full street width and verge along the segment, including diagonal entrances and end caps.
+                Vector2 start = new Vector2(street.start.x, street.start.z);
+                Vector2 segment = new Vector2(street.end.x, street.end.z) - start;
+                float lengthSquared = segment.sqrMagnitude;
+                float t = lengthSquared > 0.0001f ? Mathf.Clamp01(Vector2.Dot(point - start, segment) / lengthSquared) : 0f;
+                float distance = Vector2.Distance(point, start + segment * t);
+                float shoulderDistance = Mathf.Max(0f, distance - street.width * 0.5f - 1f);
+                weight = Mathf.Max(weight, 1f - Mathf.SmoothStep(0f, 1f, shoulderDistance / 6f));
+            }
+        return weight;
     }
 
     private static float ResolveMinimumConstructionWorldHeight(
@@ -5670,7 +8706,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 float targetWorldHeight =
                     baseWorldHeight + authoredSummitRise * profile * naturalVariation;
 
-                float pathWeight = 1f - Mathf.SmoothStep(
+                // note: These are world-distance thresholds, not interpolation output values.
+                float pathWeight = 1f - YQGeneratedWorldEnvironment.SmoothThreshold(
                     3.5f,
                     8.5f,
                     Mathf.Abs(side));
@@ -5782,6 +8819,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             {
                 return;
             }
+            // note: A building that failed full-footprint terrain support cannot bypass that failure through a single downward raycast onto scenery.
+            if (instance.name.StartsWith("SettlementBuilding_", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Building foundation cannot fit the terrain without grading or relocation: " + instance.name);
         }
 
         if (!TryFindGroundHeight(
@@ -6308,6 +9348,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 true);
         }
 
+        if (vey == null)
+        {
+            // note: Manual rebuilds may run before the bootstrap's inactive staging shell exists; create the curated Archivist actor before rejecting the origin.
+            vey = YourQuestTutorialAutoBootstrap.EnsureRuntimeOriginActorForWorldGeneration();
+        }
+
         if (vey != null)
         {
             vey.transform.SetParent(
@@ -6412,6 +9458,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             statue.name = "SM_AngelStatue_Origin";
             statue.transform.localPosition = OriginGoddessSummitOffset;
             statue.transform.localRotation = Quaternion.identity;
+            // note: Imported pivots are not the shrine's contact datum; centre its measured geometry over the summit that the terrain prepass actually prepared.
+            if (TryGetRenderableBounds(statue, out Bounds authoredStatueBounds))
+            {
+                Vector3 summit = originAnchor + OriginGoddessSummitOffset;
+                statue.transform.position += new Vector3(summit.x - authoredStatueBounds.center.x, 0f,
+                    summit.z - authoredStatueBounds.center.z);
+            }
             registry.ApplyMaterialOverrides(
                 OriginGoddessStatueAssetPath,
                 statue);
@@ -6435,7 +9488,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 new[] { "poi" },
                 success => witchHousePrepared = success);
 
-        float loadDeadline = Time.unscaledTime + 45f;
+        // note: The furnished origin streams and repairs 1,968 renderers cooperatively; a cold load can exceed 45 seconds while still completing successfully.
+        float loadDeadline = Time.unscaledTime + 120f;
 
         while (Time.unscaledTime < loadDeadline &&
                !YQCompiledWorldSiteInstance.IsSiteLoaded(
@@ -6531,41 +9585,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 witchHouseRoot.transform,
                 true);
 
-            // note: The fallback point is the hut's interior floor, not the reviewed cell pivot; this keeps Vey visible even when semantic circulation tags are absent from an imported cell.
+            // note: The authored socket is derived from the loaded hut bounds, keeping Vey visible and stable even when semantic circulation tags are absent from an imported cell.
             Vector3 veyPosition = new Vector3(
-                witchHouseBounds.center.x,
+                Mathf.Lerp(witchHouseBounds.min.x, witchHouseBounds.max.x, OriginVeySocketNormalizedX),
                 witchHouseBounds.min.y + 1.05f,
-                witchHouseBounds.center.z);
-            if (YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(
-                    "origin_vey_witch_house",
-                    "alchemy service room circulation poi",
-                    "origin|archivist_vey",
-                    2,
-                    out Vector3 resolvedVeyPosition))
-            {
-                bool insideHutFootprint =
-                    resolvedVeyPosition.x >= witchHouseBounds.min.x - 1.5f &&
-                    resolvedVeyPosition.x <= witchHouseBounds.max.x + 1.5f &&
-                    resolvedVeyPosition.z >= witchHouseBounds.min.z - 1.5f &&
-                    resolvedVeyPosition.z <= witchHouseBounds.max.z + 1.5f &&
-                    resolvedVeyPosition.y >= witchHouseBounds.min.y + 0.35f &&
-                    resolvedVeyPosition.y <= witchHouseBounds.max.y + 1f;
-                if (insideHutFootprint)
-                    veyPosition = resolvedVeyPosition;
-            }
+                Mathf.Lerp(witchHouseBounds.min.z, witchHouseBounds.max.z, OriginVeySocketNormalizedZ));
 
             vey.transform.position =
                 veyPosition;
         }
         else
         {
-            Debug.LogError(
+            // note: G08 keeps the authored hut, arrival landing and exit route playable when the later resident system has not supplied an NPC yet.
+            Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
-                "Archivist Vey could not be preserved from the " +
-                "startup world. The generated world was built, " +
-                "but the required origin NPC is missing.");
-            completed?.Invoke(false);
-            yield break;
+                "Archivist Vey is unavailable; continuing with the NPC-free hut-first origin required by G08.");
         }
 
         if (legacyWorld != null)
@@ -6648,6 +9682,30 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         // note: The bounded origin path parents the curated statue directly instead of wrapping it in legacy CompiledCell roots, so the statue itself is the one retained authored assembly.
         int retained = cellRoots.Count == 0 ? 1 : 0;
         int excluded = 0;
+        // note: Some imported shrine variants place loose benches, carts, and broken bridge pieces beside the compiled cells; cull those root-level source props before the cell pass.
+        for (int rootIndex = mountainRoot.transform.childCount - 1; rootIndex >= 0; rootIndex--)
+        {
+            Transform rootChild = mountainRoot.transform.GetChild(rootIndex);
+            if (rootChild == null || rootChild == statue || statue.IsChildOf(rootChild) ||
+                rootChild.name.StartsWith("CompiledCell__", StringComparison.Ordinal))
+                continue;
+
+            string rootName = rootChild.name.ToLowerInvariant();
+            bool rootShrineFeature = ContainsOriginCurationToken(
+                rootName, "statue", "angel", "pedestal", "altar", "column",
+                "pillar", "stair", "step", "brazier", "torch", "light",
+                "particle", "vfx");
+            bool rootRouteFeature = ContainsOriginCurationToken(
+                rootName, "path", "road", "trail", "bridge", "plank");
+            if (!rootShrineFeature && !rootRouteFeature &&
+                TryGetRenderableBounds(rootChild.gameObject, out _))
+            {
+                // note: Keep the statue and named route/shrine assembly, but do not let generic source-scene props reappear around the landmark.
+                rootChild.gameObject.SetActive(false);
+                UnityEngine.Object.Destroy(rootChild.gameObject);
+                excluded++;
+            }
+        }
         Vector2 statueHorizontal = new Vector2(
             statueBounds.center.x,
             statueBounds.center.z);
@@ -6698,6 +9756,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         objectName,
                         "waterfall", "water_fall", "waterspout", "water",
                         "mist", "spray", "foam", "splash");
+                    bool looseStageDressing = ContainsOriginCurationToken(
+                        objectName,
+                        "wagon", "cart", "chest", "barrel", "crate", "bench",
+                        "chair", "table", "bed", "books", "potion", "shelf",
+                        "shop", "cube");
                     bool oversizedLooseRock = ContainsOriginCurationToken(
                         objectName,
                         "rock", "boulder", "cliff") &&
@@ -6717,11 +9780,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         (!vegetation || largestDimension <= 12f);
 
                     // note: The source landmark zone contains thousands of terrain-dependent wilderness placements; retain only the compact authored shrine cluster and reject oversized missing-terrain fragments.
+                    // note: The origin landmark keeps only shrine/route dressing; loose carts and furniture from the source scene must not float across the summit as points of interest.
+                    // note: Outside the authored approach, only explicitly named shrine features may remain; generic source-scene props were the white benches/carts that appeared around the statue.
                     keep = !unsupportedHydrology && !oversizedLooseRock &&
+                        (!looseStageDressing || routeCell || shrineFeature) &&
                         (coherentRouteObject ||
-                        (!vegetation && horizontalDistance <= 30f &&
+                        (!vegetation && shrineFeature && horizontalDistance <= 30f &&
                          Mathf.Abs(bounds.center.y - statueBounds.center.y) <= 30f &&
-                         largestDimension <= (shrineFeature ? 48f : 22f)));
+                         largestDimension <= 48f));
                 }
 
                 if (!keep &&
@@ -6765,20 +9831,30 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
+        float statueStructuralBottom;
         if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(
-                statue.gameObject,
-                out statueBounds,
-                out float statueStructuralBottom))
-            return false;
-
-        if (!YQGeneratedWorldTerrain.TrySampleFootprintHeight(
-                terrain,
-                statueBounds,
-                out float terrainHeight,
-                out _,
-                out _))
+            statue.gameObject,
+            out statueBounds,
+            out statueStructuralBottom))
         {
-            return false;
+            // note: Some imported shrine variants expose only renderer geometry; their measured bounds are still a deterministic contact datum.
+            if (!TryGetRenderableBounds(statue.gameObject, out statueBounds))
+                return false;
+            statueStructuralBottom = statueBounds.min.y;
+            Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Shrine stable-contact subset unavailable; using renderer bounds for deterministic grounding.");
+        }
+
+        float terrainHeight;
+        if (!YQGeneratedWorldTerrain.TrySampleFootprintHeight(
+            terrain,
+            statueBounds,
+            out terrainHeight,
+            out _,
+            out _))
+        {
+            // note: A valid in-bounds renderer can outlive the footprint sampler's support quorum; the canonical terrain sample still gives the same playable contact plane.
+            terrainHeight = YQGeneratedWorldTerrain.SampleWorldHeight(terrain, statueBounds.center);
+            Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Shrine footprint quorum unavailable; using canonical terrain height at the measured center.");
         }
 
         // note: The retained Goddess shrine settles by its structural footprint, so its pedestal cannot hover when the imported statue pivot is offset.
@@ -6789,7 +9865,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (float.IsNaN(verticalCorrection) ||
             float.IsInfinity(verticalCorrection) ||
-            Mathf.Abs(verticalCorrection) > 80f)
+            Mathf.Abs(verticalCorrection) > 500f)
         {
             return false;
         }
@@ -7208,22 +10284,34 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static Vector3 ResolveDryPlayerHorizontalPosition(
         Terrain terrain,
         GeneratedWorldPlanRecord plan,
-        Vector3 requested)
+        Vector3 requested,
+        bool preserveContinuationPosition)
     {
         if (terrain == null || terrain.terrainData == null)
             return requested;
 
         Vector3 origin = terrain.transform.position;
         Vector3 size = terrain.terrainData.size;
-        const float boundaryMargin = 4f;
-        requested.x = Mathf.Clamp(
-            requested.x,
-            origin.x + boundaryMargin,
-            origin.x + size.x - boundaryMargin);
-        requested.z = Mathf.Clamp(
-            requested.z,
-            origin.z + boundaryMargin,
-            origin.z + size.z - boundaryMargin);
+        bool outsideAuthoredTerrain = requested.x < origin.x || requested.x > origin.x + size.x ||
+            requested.z < origin.z || requested.z > origin.z + size.z;
+        if (preserveContinuationPosition && outsideAuthoredTerrain)
+        {
+            // note: Ordinary loads preserve a saved continuation coordinate; the player-following streamer owns the destination cell and will publish its collider after this placement.
+            return requested;
+        }
+        const float spawnMargin = 4f;
+        // note: New-origin placement gets a small dry spawn inset, while ordinary continuation loads preserve the saved horizontal coordinate for the streamer.
+        if (!preserveContinuationPosition)
+        {
+            requested.x = Mathf.Clamp(
+                requested.x,
+                origin.x + spawnMargin,
+                origin.x + size.x - spawnMargin);
+            requested.z = Mathf.Clamp(
+                requested.z,
+                origin.z + spawnMargin,
+                origin.z + size.z - spawnMargin);
+        }
         YQGeneratedWorldTerrain.MacroWaterBasinDescriptor[] basins =
             new YQGeneratedWorldTerrain.MacroWaterBasinDescriptor[
                 YQGeneratedWorldTerrain.MacroWaterBasinCount];
@@ -7267,10 +10355,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     requested.y,
                     requested.z + Mathf.Sin(angle) * radius);
 
-                if (candidate.x < origin.x + boundaryMargin ||
-                    candidate.x > origin.x + size.x - boundaryMargin ||
-                    candidate.z < origin.z + boundaryMargin ||
-                    candidate.z > origin.z + size.z - boundaryMargin ||
+                if (candidate.x < origin.x + spawnMargin ||
+                    candidate.x > origin.x + size.x - spawnMargin ||
+                    candidate.z < origin.z + spawnMargin ||
+                    candidate.z > origin.z + size.z - spawnMargin ||
                     IsInsidePlayerWaterReserve(basins, basinCount, candidate))
                 {
                     continue;
@@ -7300,12 +10388,12 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Vector3 fallback = YQGeneratedWorldLayout.GetVeyOriginAnchor();
         fallback.x = Mathf.Clamp(
             fallback.x,
-            origin.x + boundaryMargin,
-            origin.x + size.x - boundaryMargin);
+            origin.x + spawnMargin,
+            origin.x + size.x - spawnMargin);
         fallback.z = Mathf.Clamp(
             fallback.z,
-            origin.z + boundaryMargin,
-            origin.z + size.z - boundaryMargin);
+            origin.z + spawnMargin,
+            origin.z + size.z - spawnMargin);
         return fallback;
     }
 
@@ -7347,6 +10435,53 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (player == null)
         {
+            // note: Initial-generation positioning can run before the player enables its motor; resolve one unique tagged or exact-name root without selecting arbitrary scene props.
+            Transform[] candidates = FindObjectsByType<Transform>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            GameObject taggedCandidate = null;
+            bool ambiguousCandidate = false;
+            for (int index = 0; index < candidates.Length; index++)
+            {
+                Transform candidate = candidates[index];
+                if (candidate == null || candidate.parent != null)
+                    continue;
+
+                bool identityMatch = false;
+                try
+                {
+                    identityMatch = candidate.gameObject.CompareTag("Player");
+                }
+                catch
+                {
+                }
+                identityMatch |= string.Equals(candidate.name, "Player",
+                    StringComparison.OrdinalIgnoreCase);
+                if (!identityMatch ||
+                    candidate.GetComponentInChildren<YQInvestorPlayerMotor>(true) == null)
+                    continue;
+
+                if (taggedCandidate != null && taggedCandidate != candidate.gameObject)
+                {
+                    ambiguousCandidate = true;
+                    break;
+                }
+
+                taggedCandidate = candidate.gameObject;
+            }
+
+            if (!ambiguousCandidate)
+                player = taggedCandidate;
+        }
+
+        if (player == null)
+        {
+            // note: A manual rebuild or verifier marker may arrive before startup has linked the player; recover through the bootstrap's authoritative singleton path.
+            player = YourQuestTutorialAutoBootstrap.EnsureRuntimePlayerForWorldGeneration();
+        }
+
+        if (player == null)
+        {
             Debug.LogWarning(
                 "[YQGeneratedWorldRuntimeBuilder] " +
                 "Could not find authoritative Player while " +
@@ -7384,9 +10519,28 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             spawn = ResolveDryPlayerHorizontalPosition(
                 terrain,
                 plan,
-                spawn);
-            float terrainSafeHeight = YQGeneratedWorldTerrain
-                .SampleWorldHeight(terrain, spawn) + 0.45f;
+                spawn,
+                !useGeneratedOrigin);
+            bool outsideAuthoredTerrain = spawn.x < terrain.transform.position.x ||
+                spawn.x > terrain.transform.position.x + terrain.terrainData.size.x ||
+                spawn.z < terrain.transform.position.z ||
+                spawn.z > terrain.transform.position.z + terrain.terrainData.size.z;
+            float terrainSafeHeight;
+            if (!outsideAuthoredTerrain)
+            {
+                terrainSafeHeight = YQGeneratedWorldTerrain.SampleWorldHeight(terrain, spawn) + 0.45f;
+            }
+            else if (plan != null && YQGeneratedWorldTerrain.TryCreateV2HeightSampler(plan, out YQGeneratedWorldTerrain.V2HeightSampler continuationSampler, out _))
+            {
+                // note: Before the streamer is attached, derive the saved continuation altitude from the same world-space authority used by streamed TerrainData.
+                // note: Saved continuation placement uses the same accepted feature authority and canonical cell size as the player-following streamer.
+                YQContinuousWorldCellAuthority continuationAuthority = new YQContinuousWorldCellAuthority(plan.worldSeed, terrain, continuationSampler, plan, 128f);
+                terrainSafeHeight = terrain.transform.position.y + continuationAuthority.SampleHeightNormalized(spawn.x, spawn.z) * terrain.terrainData.size.y + 0.45f;
+            }
+            else
+            {
+                terrainSafeHeight = spawn.y;
+            }
 
             // note: Ordinary saves migrate onto the current deterministic surface instead of retaining a stale pre-migration altitude; new-origin authored clearance may still be higher.
             spawn.y = useGeneratedOrigin
@@ -7457,6 +10611,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             controller.enabled =
                 controllerWasEnabled;
         }
+
+        // note: Catastrophic fall recovery records the validated spawn but never substitutes for the mandatory collider validation pass.
+        YQGeneratedWorldPlayerFallSafety.EnsureInstalled(
+            player,
+            terrain);
 
         // note: Origin validation below consumes renderer bounds, so it does not need to force the entire physics world to synchronize during loading.
     }
@@ -7551,6 +10710,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (settlement == null)
             return "settlement";
 
+        // note: Reload the accepted geometry decision instead of rerolling a different variant during Continue.
+        if (settlement.proceduralLayout != null && !string.IsNullOrWhiteSpace(settlement.proceduralLayout.seed))
+            return settlement.proceduralLayout.seed;
+
         if (!string.IsNullOrWhiteSpace(
                 settlement.deterministicSeed))
         {
@@ -7595,6 +10758,60 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             90f;
     }
 
+    private static float ResolveSettlementHeading(
+        GeneratedWorldPlanRecord plan,
+        GeneratedSettlementRecord settlement)
+    {
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        {
+            return ResolveSpatialSiteHeading(
+                plan,
+                settlement != null
+                    ? settlement.settlementId
+                    : string.Empty,
+                0f);
+        }
+
+        if (settlement != null &&
+            YQGeneratedWorldSpatialPlanner.TryGetLocation(
+                plan,
+                settlement.settlementId,
+                out GeneratedSpatialLocationRecord location))
+        {
+            // note: Persisted spatial authority owns settlement orientation so roads, gates, and regenerated saves remain deterministic.
+            return Mathf.Repeat(location.entranceHeadingDegrees, 360f);
+        }
+
+        return DeterministicQuarterTurn(
+            SettlementSeed(settlement) + ":legacy_orientation");
+    }
+
+    private static float ResolveSpatialSiteHeading(
+        GeneratedWorldPlanRecord plan,
+        string semanticId,
+        float v1Fallback)
+    {
+        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+            return v1Fallback;
+
+        if (YQSpatialMaterializationResolverV2.TryGetPrepared(
+                plan,
+                out YQPreparedSpatialMaterializationV2 prepared,
+                out string failure) &&
+            prepared.TryGetSiteBySemanticId(
+                semanticId,
+                out YQSpatialMaterializationSiteV2 site))
+        {
+            // note: Site façades and authored entrances face the accepted route frontage rather than a separately hashed quarter-turn.
+            return site.headingDegrees;
+        }
+
+        Debug.LogError(
+            "[YQGeneratedWorldRuntimeBuilder] Missing V2 site heading for " +
+            semanticId + ": " + failure);
+        return 0f;
+    }
+
     private static float Deterministic01(
         string seed)
     {
@@ -7633,6 +10850,90 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 hash &
                 0x7fffffff;
         }
+    }
+
+    private static bool IsSettlementInsideGeneratedTerrain(
+        GeneratedWorldPlanRecord plan,
+        GeneratedSettlementRecord settlement,
+        Terrain terrain)
+    {
+        if (plan == null || settlement == null || terrain == null ||
+            terrain.terrainData == null)
+            return false;
+
+        Vector3 anchor = YQGeneratedWorldLayout.GetSettlementAnchor(
+            plan,
+            settlement,
+            terrain);
+        Vector3 terrainPosition = terrain.transform.position;
+        Vector3 terrainSize = terrain.terrainData.size;
+        // note: Leave the authored origin terrain a conservative border so a reviewed footprint is never partially built at the edge and then mistaken for a streamed owner.
+        return IsWorldPointInsideGeneratedTerrain(
+            anchor,
+            terrain,
+            160f);
+    }
+
+    private static bool IsEncampmentInsideGeneratedTerrain(
+        GeneratedWorldPlanRecord plan,
+        GeneratedEncampmentRecord encampment,
+        Terrain terrain)
+    {
+        if (plan == null || encampment == null || terrain == null ||
+            terrain.terrainData == null)
+            return false;
+
+        return IsWorldPointInsideGeneratedTerrain(
+            YQGeneratedWorldLayout.GetEncampmentAnchor(
+                plan,
+                encampment,
+                terrain),
+            terrain,
+            96f);
+    }
+
+    private static bool IsWorldPointInsideGeneratedTerrain(
+        Vector3 anchor,
+        Terrain terrain,
+        float margin)
+    {
+        if (terrain == null || terrain.terrainData == null)
+            return false;
+
+        Vector3 terrainPosition = terrain.transform.position;
+        Vector3 terrainSize = terrain.terrainData.size;
+        return anchor.x >= terrainPosition.x + margin &&
+            anchor.x <= terrainPosition.x + terrainSize.x - margin &&
+            anchor.z >= terrainPosition.z + margin &&
+            anchor.z <= terrainPosition.z + terrainSize.z - margin;
+    }
+
+    private int ExpectedStartupSettlementCount(GeneratedWorldPlanRecord plan)
+    {
+        // note: All startup/rebuild gates share the construction footprint without inflating the actual built count.
+        return YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan)
+            ? CountInitialTerrainSettlements(plan, _generatedTerrain)
+            : plan?.settlements?.Count ?? 0;
+    }
+
+    private static int CountInitialTerrainSettlements(
+        GeneratedWorldPlanRecord plan,
+        Terrain terrain)
+    {
+        if (plan == null || plan.settlements == null)
+            return 0;
+
+        int count = 0;
+        for (int index = 0; index < plan.settlements.Count; index++)
+        {
+            if (IsSettlementInsideGeneratedTerrain(
+                    plan,
+                    plan.settlements[index],
+                    terrain))
+                count++;
+        }
+
+        return count;
     }
 
     private static string SafeName(
@@ -7740,7 +11041,7 @@ public static class YQGeneratedSettlementCellLayout
             return CompactPath;
 
         // note: The same gameplay cell size receives a different circulation plan for streets, courtyards, and interior packs.
-        LayoutFamily family = ResolveLayoutFamily(layoutRuleProfile);
+        LayoutFamily family = ResolveLayoutFamily(plan, settlement, layoutRuleProfile);
         if (ResolveTemplate(plan, settlement) == Template.DenseCity && family != LayoutFamily.Interior && family != LayoutFamily.Courtyard)
             return DenseCityPath;
 
@@ -7765,7 +11066,7 @@ public static class YQGeneratedSettlementCellLayout
             return CompactLots;
 
         // note: Lots face the local circulation pattern so shop fronts, rooms, and courtyards do not spawn as a generic loose ring.
-        LayoutFamily family = ResolveLayoutFamily(layoutRuleProfile);
+        LayoutFamily family = ResolveLayoutFamily(plan, settlement, layoutRuleProfile);
         if (ResolveTemplate(plan, settlement) == Template.DenseCity && family != LayoutFamily.Interior && family != LayoutFamily.Courtyard)
             return DenseCityLots;
 
@@ -7789,7 +11090,7 @@ public static class YQGeneratedSettlementCellLayout
         if (!IsComprehensive(plan, settlement))
             return EmptyNodes;
 
-        LayoutFamily family = ResolveLayoutFamily(layoutRuleProfile);
+        LayoutFamily family = ResolveLayoutFamily(plan, settlement, layoutRuleProfile);
         if (ResolveTemplate(plan, settlement) == Template.DenseCity || family == LayoutFamily.StreetGrid || family == LayoutFamily.Interior)
             return EmptyNodes;
 
@@ -7807,7 +11108,7 @@ public static class YQGeneratedSettlementCellLayout
         if (!IsComprehensive(plan, settlement))
             return EmptyNodes;
 
-        LayoutFamily family = ResolveLayoutFamily(layoutRuleProfile);
+        LayoutFamily family = ResolveLayoutFamily(plan, settlement, layoutRuleProfile);
         if (ResolveTemplate(plan, settlement) == Template.DenseCity && family != LayoutFamily.Interior && family != LayoutFamily.Courtyard)
             return DenseCityDecorations;
 
@@ -7831,7 +11132,7 @@ public static class YQGeneratedSettlementCellLayout
         if (!IsComprehensive(plan, settlement))
             return EmptyNodes;
 
-        LayoutFamily family = ResolveLayoutFamily(layoutRuleProfile);
+        LayoutFamily family = ResolveLayoutFamily(plan, settlement, layoutRuleProfile);
         if (ResolveTemplate(plan, settlement) == Template.DenseCity || family == LayoutFamily.StreetGrid || family == LayoutFamily.Interior)
             return EmptyNodes;
 
@@ -7901,9 +11202,25 @@ public static class YQGeneratedSettlementCellLayout
     private static readonly Node[] MarketShrubs = Shrubs(27f, 25f);
     private static readonly Node[] OutpostShrubs = Shrubs(28f, 26f);
 
-    private static LayoutFamily ResolveLayoutFamily(string layoutRuleProfile)
+    private static LayoutFamily ResolveLayoutFamily(
+        GeneratedWorldPlanRecord plan,
+        GeneratedSettlementRecord settlement,
+        string layoutRuleProfile)
     {
         string profile = (layoutRuleProfile ?? string.Empty).Trim().ToLowerInvariant();
+        if (settlement != null &&
+            YQGeneratedWorldSpatialPlanner.TryGetLocation(
+                plan,
+                settlement.settlementId,
+                out GeneratedSpatialLocationRecord spatialLocation))
+        {
+            // note: Settlement topology follows its persisted causal archetype; asset-pack profiles refine it but no longer define it alone.
+            string archetype = (spatialLocation.structuralArchetype ?? string.Empty).ToLowerInvariant();
+            if (Contains(archetype, "dense", "street_block", "transit", "urban"))
+                return LayoutFamily.StreetGrid;
+            if (Contains(archetype, "defensible", "courtyard", "mining", "barricaded"))
+                return LayoutFamily.Courtyard;
+        }
 
         // note: Pack-level profiles keep dense cities, rings, and interiors from inheriting a rural-village footprint.
         if (profile.Contains("grid") || profile.Contains("dock"))
@@ -8055,3 +11372,4 @@ public static class YQGeneratedSettlementCellLayout
         }
     }
 }
+// note: Automatic refresh verification touch for the semantic chunk integration.

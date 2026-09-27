@@ -14,6 +14,7 @@ public sealed class OllamaRequest
     public string model;
     public string prompt;
     public bool stream;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public string keep_alive;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public object format;
     public Dictionary<string, object> options;
 }
@@ -47,14 +48,21 @@ public sealed class LLMClient : MonoBehaviour
         _processing ||
         _exclusiveQueue.Count > 0 ||
         _highPriorityQueue.Count > 0 ||
-        _normalQueue.Count > 0;
+        _normalQueue.Count > 0 ||
+        _retryingRequests.Count > 0;
 
     public bool HasPendingHighPriorityRequests => _highPriorityQueue.Count > 0;
 
     public int PendingRequestCount =>
         _exclusiveQueue.Count +
         _highPriorityQueue.Count +
-        _normalQueue.Count;
+        _normalQueue.Count +
+        _retryingRequests.Count;
+
+    public long ActiveRequestId => _activeRequestValid ? _activeRequest.id : 0;
+    public float ActiveRequestAgeSeconds => _activeRequestValid
+        ? Mathf.Max(0f, Time.unscaledTime - _activeRequestStartedAt)
+        : 0f;
 
     public bool LastRequestFailed { get; private set; }
     public string LastError { get; private set; } = string.Empty;
@@ -94,6 +102,13 @@ public sealed class LLMClient : MonoBehaviour
         public bool highPriority;
         public string exclusiveOwner;
         public bool disableTimeout;
+        // note: Admission stamps keep a response tied to the live profile, world, lifecycle epoch, and relevant revisions.
+        public string profileId;
+        public string worldId;
+        public int generationEpoch;
+        public string ownerId;
+        public long playerStateRevision;
+        public long worldStateRevision;
     }
 
     private readonly Queue<QueuedRequest> _exclusiveQueue = new Queue<QueuedRequest>();
@@ -101,11 +116,36 @@ public sealed class LLMClient : MonoBehaviour
     private readonly Queue<QueuedRequest> _normalQueue = new Queue<QueuedRequest>();
 
     private LLMRuntimeConfig _activeConfig;
+    private bool _usingRuntimeDefaultConfig;
+    private bool _runtimeBackendResolved;
     private LlamaCppServerProcess _llamaServer;
+    private UnityWebRequest _activeWebRequest;
     private string _exclusiveSequenceOwner = string.Empty;
     private bool _processing;
     private bool _quitting;
+    private float _lastLlmActivityTime;
     private long _nextRequestId = 1;
+    private int _consecutiveHighPriorityRequests;
+    private readonly HashSet<long> _terminalRequestIds = new HashSet<long>();
+    private readonly Dictionary<long, QueuedRequest> _retryingRequests = new Dictionary<long, QueuedRequest>();
+    private QueuedRequest _activeRequest;
+    private bool _activeRequestValid;
+    private float _activeRequestStartedAt;
+    private float _exclusiveSequenceStartedAt;
+
+    public int QueueEvictionCount { get; private set; }
+    public int CancellationCount { get; private set; }
+    public int SupersededRequestCount { get; private set; }
+    public int MalformedResponseCount { get; private set; }
+    public int TimeoutFailureCount { get; private set; }
+    public int MaxObservedQueueDepth { get; private set; }
+    public float LastQueuedLatencySeconds { get; private set; }
+    public float LastActiveLatencySeconds { get; private set; }
+    public float TotalQueuedLatencySeconds { get; private set; }
+    public float TotalActiveLatencySeconds { get; private set; }
+
+    // note: Category counters expose scheduler health without logging private prompts or full model transcripts.
+    private readonly Dictionary<LLMGenerationCategory, int> _categoryTerminalCounts = new Dictionary<LLMGenerationCategory, int>();
 
     private void Awake()
     {
@@ -118,22 +158,75 @@ public sealed class LLMClient : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        _usingRuntimeDefaultConfig = runtimeConfig == null;
         _activeConfig = runtimeConfig != null
             ? runtimeConfig
             : LLMRuntimeConfig.CreateRuntimeDefault();
 
         _llamaServer = new LlamaCppServerProcess();
+        _lastLlmActivityTime = Time.realtimeSinceStartup;
         RuntimeState = _activeConfig.enableRuntimeLlm ? YQLlmRuntimeState.Starting : YQLlmRuntimeState.Disabled;
+        YQServiceLifecycle.RegisterTeardown(InvalidateForProfileLifecycle);
+        // note: Unity invokes Application.quitting for editor Play Mode stops as well as player shutdown, so the owned llama process is closed even when OnApplicationQuit ordering is skipped.
+        Application.quitting += HandleApplicationQuitting;
+    }
+
+    private void Update()
+    {
+        if (_quitting)
+            return;
+
+        LLMRuntimeConfig config = ActiveConfig();
+        if (IsExclusiveSequenceActive &&
+            Time.realtimeSinceStartup - _exclusiveSequenceStartedAt >
+            Mathf.Max(15, config != null ? config.exclusiveSequenceTimeoutSeconds : 120))
+        {
+            // note: A vanished startup owner cannot keep lower-priority work locked indefinitely; terminalize its work before releasing the lease.
+            CancelRequestsOwnedBy(_exclusiveSequenceOwner, YQLlmTerminalOutcome.Superseded, "Exclusive LLM sequence exceeded its bounded lease.");
+            string expiredOwner = _exclusiveSequenceOwner;
+            _exclusiveSequenceOwner = string.Empty;
+            Debug.LogWarning("[LLMClient] Exclusive sequence lease expired: " + expiredOwner);
+            EnsureQueueProcessorRunning();
+        }
+
+        if (_llamaServer == null || !_llamaServer.OwnsProcess)
+            return;
+
+        if (config == null || !config.closeOwnedServerWhenIdle ||
+            _processing || _activeWebRequest != null ||
+            _exclusiveQueue.Count > 0 || _highPriorityQueue.Count > 0 || _normalQueue.Count > 0)
+            return;
+
+        float idleSeconds = Time.realtimeSinceStartup - _lastLlmActivityTime;
+        if (idleSeconds < Mathf.Max(5, config.ownedServerIdleTimeoutSeconds))
+            return;
+
+        // note: Stop only the process launched by this client so its model leaves VRAM; a user-managed server remains available.
+        _llamaServer.StopOwnedProcess();
+        RuntimeState = YQLlmRuntimeState.Disabled;
+        Debug.Log("[LLMClient] Closed owned llama-server after " + idleSeconds.ToString("0") + "s idle.");
     }
 
     private void OnApplicationQuit()
     {
-        _quitting = true;
+        BeginShutdown();
+        DisposeOwnedRuntime();
+    }
+
+    private void HandleApplicationQuitting()
+    {
+        // note: Route the engine-wide quit signal through the same idempotent teardown used by the component lifecycle.
+        BeginShutdown();
         DisposeOwnedRuntime();
     }
 
     private void OnDestroy()
     {
+        BeginShutdown();
+        // note: Remove the quit callback before releasing the persistent client so a later scene teardown cannot invoke a stale delegate.
+        Application.quitting -= HandleApplicationQuitting;
+        YQServiceLifecycle.UnregisterTeardown(InvalidateForProfileLifecycle);
+
         if (Instance == this)
             Instance = null;
 
@@ -164,6 +257,7 @@ public sealed class LLMClient : MonoBehaviour
         }
 
         _exclusiveSequenceOwner = normalizedOwner;
+        _exclusiveSequenceStartedAt = Time.realtimeSinceStartup;
         Debug.Log("[LLMClient] EXCLUSIVE SEQUENCE BEGIN: " + _exclusiveSequenceOwner);
         EnsureQueueProcessorRunning();
         return true;
@@ -187,7 +281,10 @@ public sealed class LLMClient : MonoBehaviour
         }
 
         Debug.Log("[LLMClient] EXCLUSIVE SEQUENCE END: " + _exclusiveSequenceOwner);
+        // note: Releasing an owner with queued work must terminalize that work; otherwise the exclusive queue would be stranded once ordinary scheduling resumes.
+        CancelRequestsOwnedBy(normalizedOwner, YQLlmTerminalOutcome.Superseded, "Exclusive sequence ended before all owned requests were dispatched.");
         _exclusiveSequenceOwner = string.Empty;
+        _exclusiveSequenceStartedAt = 0f;
         EnsureQueueProcessorRunning();
     }
 
@@ -201,12 +298,12 @@ public sealed class LLMClient : MonoBehaviour
         Enqueue(prompt, onResponse, string.IsNullOrWhiteSpace(debugTag) ? "SendOnce" : debugTag);
     }
 
-    public void Submit(YQLlmRequest request, Action<YQLlmRequestResult> onComplete)
+    public long Submit(YQLlmRequest request, Action<YQLlmRequestResult> onComplete)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.prompt))
         {
             CompleteDirectFailure(onComplete, request, "LLM request prompt was empty.");
-            return;
+            return 0;
         }
 
         string tag = string.IsNullOrWhiteSpace(request.debugTag) ? "LLMRequest" : request.debugTag.Trim();
@@ -217,7 +314,7 @@ public sealed class LLMClient : MonoBehaviour
         if (exclusive && string.IsNullOrWhiteSpace(owner))
         {
             CompleteDirectFailure(onComplete, request, "Exclusive LLM requests require an explicit sequence owner.");
-            return;
+            return 0;
         }
 
         if (exclusive && !IsExclusiveSequenceActive)
@@ -226,20 +323,24 @@ public sealed class LLMClient : MonoBehaviour
         if (exclusive && !string.Equals(_exclusiveSequenceOwner, owner, StringComparison.Ordinal))
         {
             CompleteDirectFailure(onComplete, request, "Another exclusive LLM sequence currently owns the runtime.");
-            return;
+            return 0;
         }
 
         if (!TryReserveQueueSlot(important, out string queueError))
         {
             RecordFailure(queueError, tag);
             CompleteDirectFailure(onComplete, request, queueError);
-            return;
+            return 0;
         }
 
         float now = Time.unscaledTime;
+        CaptureRequestBinding(request, tag, out string profileId, out string worldId, out int generationEpoch, out string ownerId, out long playerRevision, out long worldRevision);
+        if (exclusive)
+            ownerId = owner;
+        long requestId = _nextRequestId++;
         QueuedRequest queued = new QueuedRequest
         {
-            id = _nextRequestId++,
+            id = requestId,
             prompt = request.prompt,
             onCompleted = onComplete,
             debugTag = tag,
@@ -255,10 +356,17 @@ public sealed class LLMClient : MonoBehaviour
             exclusive = exclusive,
             highPriority = important,
             exclusiveOwner = owner,
-            disableTimeout = request.disableTimeout
+            disableTimeout = request.disableTimeout,
+            profileId = profileId,
+            worldId = worldId,
+            generationEpoch = generationEpoch,
+            ownerId = ownerId,
+            playerStateRevision = playerRevision,
+            worldStateRevision = worldRevision
         };
 
         QueueRequest(queued, important);
+        return requestId;
     }
 
     public void Enqueue(string prompt, Action<string> onResponse, string debugTag = null)
@@ -380,6 +488,18 @@ public sealed class LLMClient : MonoBehaviour
             exclusiveOwner = exclusiveOwner ?? string.Empty,
             disableTimeout = disableTimeout
         };
+        YQLlmRequest legacyBinding = new YQLlmRequest
+        {
+            profileId = string.Empty,
+            worldId = string.Empty,
+            generationEpoch = -1,
+            ownerId = request.debugTag,
+            playerStateRevision = -1,
+            worldStateRevision = -1
+        };
+        CaptureRequestBinding(legacyBinding, request.debugTag, out request.profileId, out request.worldId, out request.generationEpoch, out request.ownerId, out request.playerStateRevision, out request.worldStateRevision);
+        if (exclusive)
+            request.ownerId = exclusiveOwner ?? string.Empty;
 
         QueueRequest(request, request.highPriority);
     }
@@ -393,7 +513,40 @@ public sealed class LLMClient : MonoBehaviour
         else
             _normalQueue.Enqueue(request);
 
+        MaxObservedQueueDepth = Mathf.Max(MaxObservedQueueDepth, PendingRequestCount);
+
         EnsureQueueProcessorRunning();
+    }
+
+    private void CaptureRequestBinding(
+        YQLlmRequest request,
+        string debugTag,
+        out string profileId,
+        out string worldId,
+        out int generationEpoch,
+        out string ownerId,
+        out long playerRevision,
+        out long worldRevision)
+    {
+        PlayerState player = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        profileId = !string.IsNullOrWhiteSpace(request.profileId)
+            ? request.profileId.Trim()
+            : (YQProfileSaveSystem.Instance != null ? YQProfileSaveSystem.Instance.ActiveProfileId : string.Empty);
+        if (string.IsNullOrWhiteSpace(profileId) && player != null)
+            profileId = player.playerId ?? string.Empty;
+
+        worldId = !string.IsNullOrWhiteSpace(request.worldId)
+            ? request.worldId.Trim()
+            : (world != null && world.worldIdentity != null ? world.worldIdentity.worldId : string.Empty);
+        generationEpoch = request.generationEpoch >= 0 ? request.generationEpoch : YQServiceLifecycle.RequestEpoch;
+        ownerId = string.IsNullOrWhiteSpace(request.ownerId) ? debugTag : request.ownerId.Trim();
+        playerRevision = !request.bindPlayerStateRevision
+            ? -1
+            : request.playerStateRevision >= 0 ? request.playerStateRevision : player != null ? player.stateRevision : -1;
+        worldRevision = !request.bindWorldStateRevision
+            ? -1
+            : request.worldStateRevision >= 0 ? request.worldStateRevision : world != null ? world.stateRevision : -1;
     }
 
     private void CompleteDirectFailure(Action<YQLlmRequestResult> callback, YQLlmRequest request, string error)
@@ -403,6 +556,7 @@ public sealed class LLMClient : MonoBehaviour
             request != null ? request.debugTag : string.Empty,
             request != null ? request.category : LLMGenerationCategory.Default,
             false,
+            YQLlmTerminalOutcome.Failed,
             null,
             error,
             0,
@@ -419,22 +573,64 @@ public sealed class LLMClient : MonoBehaviour
         string error,
         float queueWaitSeconds,
         float generationSeconds,
-        LLMCompiledPrompt compiled)
+        LLMCompiledPrompt compiled,
+        YQLlmTerminalOutcome requestedOutcome = YQLlmTerminalOutcome.Failed)
     {
+        if (!_terminalRequestIds.Add(request.id))
+            return;
+
+        YQLlmTerminalOutcome outcome = success ? YQLlmTerminalOutcome.AcceptedResponse : requestedOutcome;
         YQLlmRequestResult result = new YQLlmRequestResult(
             request.id,
             request.debugTag,
             request.category,
             success,
+            outcome,
             text,
             error,
             request.attempt + 1,
             queueWaitSeconds,
             generationSeconds,
-            compiled);
+            compiled,
+            request.profileId,
+            request.worldId,
+            request.generationEpoch,
+            request.ownerId,
+            request.playerStateRevision,
+            request.worldStateRevision);
+
+        LastQueuedLatencySeconds = queueWaitSeconds;
+        LastActiveLatencySeconds = generationSeconds;
+        TotalQueuedLatencySeconds += Mathf.Max(0f, queueWaitSeconds);
+        TotalActiveLatencySeconds += Mathf.Max(0f, generationSeconds);
+        if (request.category != LLMGenerationCategory.Default)
+        {
+            _categoryTerminalCounts.TryGetValue(request.category, out int count);
+            _categoryTerminalCounts[request.category] = count + 1;
+        }
+        if (outcome == YQLlmTerminalOutcome.Superseded)
+            SupersededRequestCount++;
+
+        if (logRequestSummaries)
+        {
+            // note: Terminal telemetry records queue depth, category, outcome, and separate latency clocks without emitting private prompt history.
+            Debug.Log(
+                "[LLMClient] Terminal #" + request.id +
+                FormatTag(request.debugTag) +
+                ": outcome=" + outcome +
+                ", category=" + request.category +
+                ", queueDepth=" + PendingRequestCount +
+                ", queuedLatency=" + queueWaitSeconds.ToString("0.00") +
+                "s, activeLatency=" + generationSeconds.ToString("0.00") + "s");
+        }
 
         PublishCompletion(result, request.onCompleted);
         SafeInvoke(request.onResponse, success ? text : null, request.debugTag);
+    }
+
+    public int GetTerminalCount(LLMGenerationCategory category)
+    {
+        return _categoryTerminalCounts.TryGetValue(category, out int count) ? count : 0;
     }
 
     private void PublishCompletion(YQLlmRequestResult result, Action<YQLlmRequestResult> callback)
@@ -485,6 +681,7 @@ public sealed class LLMClient : MonoBehaviour
             maxRetries +
             "): " +
             TruncateForLog(error));
+        _retryingRequests[request.id] = request;
         StartCoroutine(RequeueAfterRetryDelay(request));
         return true;
     }
@@ -501,6 +698,7 @@ public sealed class LLMClient : MonoBehaviour
         // note: Backoff prevents a faulted local runtime from being hammered by multiple immediate retries.
         yield return new WaitForSecondsRealtime(delay);
 
+        _retryingRequests.Remove(request.id);
         if (_quitting)
             yield break;
 
@@ -542,7 +740,12 @@ public sealed class LLMClient : MonoBehaviour
             if (ShouldAbandonQueuedRequest(request))
                 continue;
 
+            _activeRequest = request;
+            _activeRequestValid = true;
+            _activeRequestStartedAt = Time.unscaledTime;
             yield return SendOnceCoroutine(request);
+            _activeRequestValid = false;
+            _activeRequestStartedAt = 0f;
 
             if (ActiveConfig().staggerResponseHandoffAcrossFrames)
             {
@@ -573,23 +776,31 @@ public sealed class LLMClient : MonoBehaviour
             request = _exclusiveQueue.Dequeue();
             if (!string.Equals(request.exclusiveOwner, _exclusiveSequenceOwner, StringComparison.Ordinal))
             {
-                Debug.LogWarning("[LLMClient] Preserving stale exclusive request '" + request.debugTag + "' for ordinary execution.");
-                _normalQueue.Enqueue(request);
+                // note: An exclusive request whose owner lease disappeared is stale work, not ordinary work; terminalize it so it cannot cross a generation boundary.
+                CompleteRequest(request, false, null, "Exclusive owner no longer matches the active lease.", 0f, 0f, default, YQLlmTerminalOutcome.Superseded);
                 return TryDequeueNextRequest(out request);
             }
 
             return true;
         }
 
-        if (_highPriorityQueue.Count > 0)
+        LLMRuntimeConfig config = ActiveConfig();
+        int highBurstLimit = Mathf.Clamp(config != null ? config.maxConsecutiveHighPriorityRequests : 3, 1, 8);
+        bool serveNormalForFairness = _highPriorityQueue.Count > 0 &&
+            _normalQueue.Count > 0 &&
+            _consecutiveHighPriorityRequests >= highBurstLimit;
+
+        if (_highPriorityQueue.Count > 0 && !serveNormalForFairness)
         {
             request = _highPriorityQueue.Dequeue();
+            _consecutiveHighPriorityRequests++;
             return true;
         }
 
         if (_normalQueue.Count > 0)
         {
             request = _normalQueue.Dequeue();
+            _consecutiveHighPriorityRequests = 0;
             return true;
         }
 
@@ -599,6 +810,13 @@ public sealed class LLMClient : MonoBehaviour
 
     private IEnumerator SendOnceCoroutine(QueuedRequest request)
     {
+        _lastLlmActivityTime = Time.realtimeSinceStartup;
+        if (!IsRequestCurrent(request))
+        {
+            CompleteRequest(request, false, null, "Request ownership is no longer current.", 0f, 0f, default, YQLlmTerminalOutcome.Superseded);
+            yield break;
+        }
+
         LLMRuntimeConfig config = ActiveConfig();
         if (config == null || !config.enableRuntimeLlm)
         {
@@ -640,7 +858,28 @@ public sealed class LLMClient : MonoBehaviour
             yield break;
         }
 
-        if (config.backend == YQLlmBackend.LlamaCpp)
+        if (_usingRuntimeDefaultConfig && !_runtimeBackendResolved)
+        {
+            bool backendReady = false;
+            string backendMessage = string.Empty;
+            yield return EnsureRuntimeDefaultBackend(config, (ok, message) =>
+            {
+                backendReady = ok;
+                backendMessage = message;
+            });
+
+            if (!backendReady)
+            {
+                RuntimeState = YQLlmRuntimeState.Faulted;
+                RecordFailure(backendMessage, request.debugTag);
+                if (!TryScheduleTransientRetry(request, backendMessage))
+                    CompleteRequest(request, false, null, backendMessage, 0f, 0f, compiled);
+                yield break;
+            }
+        }
+
+        if (config.backend == YQLlmBackend.LlamaCpp &&
+            (!_usingRuntimeDefaultConfig || _runtimeBackendResolved))
         {
             bool ready = false;
             string readyMessage = string.Empty;
@@ -716,13 +955,29 @@ public sealed class LLMClient : MonoBehaviour
             www.SetRequestHeader("Content-Type", "application/json");
             www.SetRequestHeader("Accept", "application/json");
 
+            // note: Retain only the in-flight transport so Play Mode shutdown can abort local inference immediately instead of waiting for the HTTP timeout or model completion.
+            _activeWebRequest = www;
             yield return www.SendWebRequest();
+            if (ReferenceEquals(_activeWebRequest, www))
+                _activeWebRequest = null;
+
+            if (_quitting || _terminalRequestIds.Contains(request.id))
+                yield break;
+
+            if (!IsRequestCurrent(request))
+            {
+                CompleteRequest(request, false, null, "Request completed after its profile/world ownership became stale.", queueWait, Mathf.Max(0f, Time.unscaledTime - startedAt), compiled, YQLlmTerminalOutcome.Superseded);
+                yield break;
+            }
 
             float generationSeconds = Mathf.Max(0f, Time.unscaledTime - startedAt);
             if (www.result != UnityWebRequest.Result.Success)
             {
                 string bodyText = www.downloadHandler != null ? www.downloadHandler.text : string.Empty;
                 RuntimeState = YQLlmRuntimeState.Faulted;
+                if (!string.IsNullOrWhiteSpace(www.error) &&
+                    www.error.IndexOf("timeout", StringComparison.OrdinalIgnoreCase) >= 0)
+                    TimeoutFailureCount++;
                 string transportError =
                     "LLM request failed at " +
                     url +
@@ -747,6 +1002,7 @@ public sealed class LLMClient : MonoBehaviour
             if (!TryExtractResponseText(raw, config.backend, out string modelText, out string responseError))
             {
                 RuntimeState = YQLlmRuntimeState.Faulted;
+                MalformedResponseCount++;
                 // note: Preserve a bounded copy of the successful HTTP envelope so backend schema or finish-reason failures are diagnosable without flooding the Unity Console.
                 string extractionError =
                     "LLM returned an unusable response: " +
@@ -755,7 +1011,7 @@ public sealed class LLMClient : MonoBehaviour
                     TruncateForLog(raw);
                 RecordFailure(extractionError, request.debugTag);
                 if (!TryScheduleTransientRetry(request, extractionError))
-                    CompleteRequest(request, false, null, extractionError, queueWait, generationSeconds, compiled);
+                    CompleteRequest(request, false, null, extractionError, queueWait, generationSeconds, compiled, YQLlmTerminalOutcome.InvalidResponse);
                 yield break;
             }
 
@@ -769,10 +1025,22 @@ public sealed class LLMClient : MonoBehaviour
                 !request.deferJsonValidationToCaller &&
                 !TryNormalizeJsonObject(modelText, out modelText, out string jsonError))
             {
+                MalformedResponseCount++;
                 RuntimeState = YQLlmRuntimeState.Ready;
                 string structuredError = "LLM returned invalid structured JSON: " + jsonError;
                 RecordFailure(structuredError, request.debugTag);
                 CompleteRequest(request, false, null, structuredError, queueWait, generationSeconds, compiled);
+                yield break;
+            }
+
+            LLMRuntimeConfig responseConfig = ActiveConfig();
+            int responseLimit = Mathf.Clamp(responseConfig != null ? responseConfig.maxResponseCharacters : 60000, 1024, 100000);
+            if (modelText != null && modelText.Length > responseLimit)
+            {
+                MalformedResponseCount++;
+                string oversizedError = "LLM response exceeded the " + responseLimit + " character response envelope.";
+                RecordFailure(oversizedError, request.debugTag);
+                CompleteRequest(request, false, null, oversizedError, queueWait, generationSeconds, compiled, YQLlmTerminalOutcome.InvalidResponse);
                 yield break;
             }
 
@@ -781,6 +1049,7 @@ public sealed class LLMClient : MonoBehaviour
                 // note: A successful transport must never publish an empty generation as accepted canonical content.
                 const string emptyCompletionError =
                     "LLM response normalization produced empty model text.";
+                MalformedResponseCount++;
                 RuntimeState = YQLlmRuntimeState.Faulted;
                 RecordFailure(emptyCompletionError, request.debugTag);
                 if (!TryScheduleTransientRetry(request, emptyCompletionError))
@@ -792,13 +1061,15 @@ public sealed class LLMClient : MonoBehaviour
                         emptyCompletionError,
                         queueWait,
                         generationSeconds,
-                        compiled);
+                        compiled,
+                        YQLlmTerminalOutcome.InvalidResponse);
                 }
                 yield break;
             }
 
             RuntimeState = YQLlmRuntimeState.Ready;
             ClearFailure();
+            _lastLlmActivityTime = Time.realtimeSinceStartup;
 
             if (logRequestSummaries)
             {
@@ -821,6 +1092,12 @@ public sealed class LLMClient : MonoBehaviour
                 yield return null;
             }
 
+            if (!IsRequestCurrent(request))
+            {
+                CompleteRequest(request, false, null, "Request became stale before application.", queueWait, generationSeconds, compiled, YQLlmTerminalOutcome.Superseded);
+                yield break;
+            }
+
             CompleteRequest(request, true, modelText, string.Empty, queueWait, generationSeconds, compiled);
         }
     }
@@ -833,13 +1110,101 @@ public sealed class LLMClient : MonoBehaviour
         yield return _llamaServer.EnsureReady(config, onComplete);
     }
 
+    private IEnumerator EnsureRuntimeDefaultBackend(LLMRuntimeConfig config, Action<bool, string> onComplete)
+    {
+        // note: Prefer the project's owned llama.cpp runtime so the no-config path remains deterministic even when Ollama is installed but unhealthy.
+        bool llamaReady = false;
+        yield return ProbeLocalHealth(config.BuildBaseUrl() + "/health", 2, (ok, _) => llamaReady = ok);
+        if (llamaReady)
+        {
+            config.backend = YQLlmBackend.LlamaCpp;
+            _runtimeBackendResolved = true;
+            onComplete?.Invoke(true, "Connected to the available llama.cpp server.");
+            yield break;
+        }
+
+        // note: Start the configured local server before considering a separately managed Ollama process.
+        config.backend = YQLlmBackend.LlamaCpp;
+        bool started = false;
+        string startupMessage = string.Empty;
+        yield return EnsureLlamaCppReady(config, (ok, message) =>
+        {
+            started = ok;
+            startupMessage = message;
+        });
+        if (started)
+        {
+            _runtimeBackendResolved = true;
+            onComplete?.Invoke(true, startupMessage);
+            yield break;
+        }
+
+        // note: Ollama remains a compatibility fallback when the owned executable or model cannot be started.
+        bool ollamaReady = false;
+        string ollamaBase = string.IsNullOrWhiteSpace(config.ollamaApiUrl)
+            ? apiUrl
+            : config.ollamaApiUrl;
+        string ollamaProbe = (ollamaBase ?? string.Empty).Trim().TrimEnd('/') + "/api/tags";
+        yield return ProbeLocalHealth(ollamaProbe, 2, (ok, _) => ollamaReady = ok);
+        if (ollamaReady)
+        {
+            config.backend = YQLlmBackend.Ollama;
+            _runtimeBackendResolved = true;
+            onComplete?.Invoke(true, "Connected to the available Ollama server after llama.cpp startup failed.");
+            yield break;
+        }
+
+        config.backend = YQLlmBackend.Ollama;
+        onComplete?.Invoke(false,
+            "No local LLM backend is reachable. llama.cpp: " + startupMessage +
+            "; Ollama endpoint: " + ollamaProbe);
+    }
+
+    private static IEnumerator ProbeLocalHealth(string url, int timeoutSeconds, Action<bool, string> onComplete)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri parsed) ||
+            (!string.Equals(parsed.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+             !string.Equals(parsed.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
+        {
+            onComplete?.Invoke(false, "Invalid local LLM health URL.");
+            yield break;
+        }
+
+        using (UnityWebRequest request = UnityWebRequest.Get(parsed.AbsoluteUri))
+        {
+            request.timeout = Mathf.Max(1, timeoutSeconds);
+            yield return request.SendWebRequest();
+            bool ok = request.result == UnityWebRequest.Result.Success && request.responseCode >= 200 && request.responseCode < 500;
+            onComplete?.Invoke(ok, ok ? string.Empty : request.error);
+        }
+    }
+
     private LLMRuntimeConfig ActiveConfig()
     {
         if (runtimeConfig != null)
+        {
+            _usingRuntimeDefaultConfig = false;
+            _runtimeBackendResolved = true;
             _activeConfig = runtimeConfig;
+        }
 
         if (_activeConfig == null)
+        {
+            _usingRuntimeDefaultConfig = true;
+            _runtimeBackendResolved = false;
             _activeConfig = LLMRuntimeConfig.CreateRuntimeDefault();
+        }
+
+        if (_usingRuntimeDefaultConfig)
+        {
+            // note: Runtime-created clients still honor scene/bootstrap legacy fields while defaulting to the owned llama.cpp backend.
+            if (!_runtimeBackendResolved)
+                _activeConfig.backend = YQLlmBackend.LlamaCpp;
+            if (!string.IsNullOrWhiteSpace(apiUrl))
+                _activeConfig.ollamaApiUrl = apiUrl;
+            if (!string.IsNullOrWhiteSpace(model))
+                _activeConfig.ollamaModel = model;
+        }
 
         return _activeConfig;
     }
@@ -983,6 +1348,10 @@ public sealed class LLMClient : MonoBehaviour
             model = string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel,
             prompt = prompt,
             stream = false,
+            // note: Ollama unloads its model after the same bounded idle window used by the owned llama.cpp server.
+            keep_alive = config.closeOwnedServerWhenIdle
+                ? Mathf.Max(5, config.ownedServerIdleTimeoutSeconds).ToString() + "s"
+                : null,
             format = jsonOutput ? "json" : null,
             options = ollamaOptions
         };
@@ -1040,12 +1409,153 @@ public sealed class LLMClient : MonoBehaviour
         if (important && _normalQueue.Count > 0)
         {
             // note: A stale background item is cheaper to lose than player-facing dialogue or startup generation.
-            _normalQueue.Dequeue();
+            QueuedRequest evicted = _normalQueue.Dequeue();
+            QueueEvictionCount++;
+            CompleteRequest(
+                evicted,
+                false,
+                null,
+                "Background request evicted to admit higher-priority work.",
+                Mathf.Max(0f, Time.unscaledTime - evicted.firstQueuedAt),
+                0f,
+                default,
+                YQLlmTerminalOutcome.Evicted);
             return true;
         }
 
         error = "LLM request queue is full (" + PendingRequestCount + "/" + maxDepth + ").";
         return false;
+    }
+
+    public bool CancelRequest(long requestId, string reason = null)
+    {
+        if (requestId <= 0 || _terminalRequestIds.Contains(requestId))
+            return false;
+
+        return TerminalizeRequestById(
+            requestId,
+            YQLlmTerminalOutcome.Cancelled,
+            string.IsNullOrWhiteSpace(reason) ? "LLM request cancelled by its owner." : reason,
+            true);
+    }
+
+    private void InvalidateForProfileLifecycle()
+    {
+        // note: Profile switches supersede every outstanding model result before the shared state managers are replaced.
+        CancelAllPending(YQLlmTerminalOutcome.Superseded, "LLM request superseded by a profile lifecycle transition.");
+        _exclusiveSequenceOwner = string.Empty;
+        _exclusiveSequenceStartedAt = 0f;
+        EnsureQueueProcessorRunning();
+    }
+
+    private void CancelRequestsOwnedBy(string owner, YQLlmTerminalOutcome outcome, string reason)
+    {
+        if (string.IsNullOrWhiteSpace(owner))
+            return;
+
+        List<long> ids = new List<long>();
+        CollectOwnedIds(_exclusiveQueue, owner, ids);
+        CollectOwnedIds(_highPriorityQueue, owner, ids);
+        CollectOwnedIds(_normalQueue, owner, ids);
+        foreach (KeyValuePair<long, QueuedRequest> retry in _retryingRequests)
+        {
+            if (string.Equals(retry.Value.ownerId, owner, StringComparison.Ordinal))
+                ids.Add(retry.Key);
+        }
+        if (_activeRequestValid && string.Equals(_activeRequest.ownerId, owner, StringComparison.Ordinal))
+            ids.Add(_activeRequest.id);
+
+        for (int index = 0; index < ids.Count; index++)
+            TerminalizeRequestById(ids[index], outcome, reason, true);
+    }
+
+    private void CancelAllPending(YQLlmTerminalOutcome outcome, string reason)
+    {
+        List<long> ids = new List<long>();
+        CollectIds(_exclusiveQueue, ids);
+        CollectIds(_highPriorityQueue, ids);
+        CollectIds(_normalQueue, ids);
+        foreach (KeyValuePair<long, QueuedRequest> retry in _retryingRequests)
+            ids.Add(retry.Key);
+        if (_activeRequestValid)
+            ids.Add(_activeRequest.id);
+
+        for (int index = 0; index < ids.Count; index++)
+            TerminalizeRequestById(ids[index], outcome, reason, true);
+    }
+
+    private void CollectOwnedIds(Queue<QueuedRequest> queue, string owner, List<long> ids)
+    {
+        foreach (QueuedRequest request in queue)
+        {
+            if (string.Equals(request.ownerId, owner, StringComparison.Ordinal))
+                ids.Add(request.id);
+        }
+    }
+
+    private void CollectIds(Queue<QueuedRequest> queue, List<long> ids)
+    {
+        foreach (QueuedRequest request in queue)
+            ids.Add(request.id);
+    }
+
+    private bool TerminalizeRequestById(long requestId, YQLlmTerminalOutcome outcome, string reason, bool countCancellation)
+    {
+        if (_terminalRequestIds.Contains(requestId))
+            return false;
+
+        QueuedRequest request;
+        if (TryRemoveQueuedRequest(_exclusiveQueue, requestId, out request) ||
+            TryRemoveQueuedRequest(_highPriorityQueue, requestId, out request) ||
+            TryRemoveQueuedRequest(_normalQueue, requestId, out request))
+        {
+            if (countCancellation && outcome == YQLlmTerminalOutcome.Cancelled)
+                CancellationCount++;
+            CompleteRequest(request, false, null, reason, Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt), 0f, default, outcome);
+            return true;
+        }
+
+        if (_retryingRequests.TryGetValue(requestId, out request))
+        {
+            _retryingRequests.Remove(requestId);
+            if (countCancellation && outcome == YQLlmTerminalOutcome.Cancelled)
+                CancellationCount++;
+            CompleteRequest(request, false, null, reason, Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt), 0f, default, outcome);
+            return true;
+        }
+
+        if (_activeRequestValid && _activeRequest.id == requestId)
+        {
+            request = _activeRequest;
+            if (countCancellation && outcome == YQLlmTerminalOutcome.Cancelled)
+                CancellationCount++;
+            CompleteRequest(request, false, null, reason, Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt), Mathf.Max(0f, Time.unscaledTime - _activeRequestStartedAt), default, outcome);
+            AbortActiveWebRequest();
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryRemoveQueuedRequest(Queue<QueuedRequest> queue, long requestId, out QueuedRequest removed)
+    {
+        removed = default;
+        bool found = false;
+        int count = queue.Count;
+        for (int index = 0; index < count; index++)
+        {
+            QueuedRequest candidate = queue.Dequeue();
+            if (!found && candidate.id == requestId)
+            {
+                removed = candidate;
+                found = true;
+            }
+            else
+            {
+                queue.Enqueue(candidate);
+            }
+        }
+        return found;
     }
 
     private bool ShouldAbandonQueuedRequest(QueuedRequest request)
@@ -1063,8 +1573,40 @@ public sealed class LLMClient : MonoBehaviour
             age.ToString("0.0") +
             "s behind generation/busy work.",
             request.debugTag);
+        QueueEvictionCount++;
 
-        CompleteRequest(request, false, null, LastError, age, 0f, default);
+        CompleteRequest(request, false, null, LastError, age, 0f, default, YQLlmTerminalOutcome.Evicted);
+        return true;
+    }
+
+    private bool IsRequestCurrent(QueuedRequest request)
+    {
+        if (request.generationEpoch >= 0 && !YQServiceLifecycle.IsCurrent(request.generationEpoch))
+            return false;
+
+        string activeProfileId = YQProfileSaveSystem.Instance != null
+            ? YQProfileSaveSystem.Instance.ActiveProfileId
+            : (PlayerStateManager.Instance != null && PlayerStateManager.Instance.state != null
+                ? PlayerStateManager.Instance.state.playerId
+                : string.Empty);
+        if (!string.IsNullOrWhiteSpace(request.profileId) &&
+            !string.Equals(request.profileId, activeProfileId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        WorldState activeWorld = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        string activeWorldId = activeWorld != null && activeWorld.worldIdentity != null
+            ? activeWorld.worldIdentity.worldId
+            : string.Empty;
+        if (!string.IsNullOrWhiteSpace(request.worldId) &&
+            !string.Equals(request.worldId, activeWorldId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        PlayerState player = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        if (request.playerStateRevision >= 0 && (player == null || player.stateRevision != request.playerStateRevision))
+            return false;
+        if (request.worldStateRevision >= 0 && (activeWorld == null || activeWorld.stateRevision != request.worldStateRevision))
+            return false;
+
         return true;
     }
 
@@ -1370,11 +1912,44 @@ public sealed class LLMClient : MonoBehaviour
             return;
 
         LLMRuntimeConfig config = ActiveConfig();
-        if (config != null && config.closeOwnedServerOnQuit)
-            _llamaServer.StopOwnedProcess();
-
-        _llamaServer.Dispose();
+        // note: Preserve an explicitly externalized owned server when requested; normal config defaults still close it on teardown.
+        _llamaServer.Dispose(config == null || config.closeOwnedServerOnQuit);
         _llamaServer = null;
+    }
+
+    private void BeginShutdown()
+    {
+        if (_quitting)
+            return;
+
+        _quitting = true;
+        _lastLlmActivityTime = Time.realtimeSinceStartup;
+        // note: Teardown terminalizes queued, retrying, and active work so every admitted request receives exactly one terminal result.
+        CancelAllPending(YQLlmTerminalOutcome.Cancelled, "LLM client is shutting down.");
+        _exclusiveSequenceOwner = string.Empty;
+        _exclusiveSequenceStartedAt = 0f;
+
+        // note: Background curation is disposable during teardown; aborting its loopback request prevents Unity from appearing hung while exiting Play Mode.
+        AbortActiveWebRequest();
+    }
+
+    private void AbortActiveWebRequest()
+    {
+        UnityWebRequest request = _activeWebRequest;
+        _activeWebRequest = null;
+        if (request == null)
+            return;
+
+        try
+        {
+            request.Abort();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning(
+                "[LLMClient] Could not abort the active request during shutdown: " +
+                ex.Message);
+        }
     }
 
     private void SafeInvoke(Action<string> cb, string value)

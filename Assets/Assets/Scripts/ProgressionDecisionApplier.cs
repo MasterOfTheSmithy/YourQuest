@@ -218,15 +218,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
         if (snapshotBuilder == null)
             snapshotBuilder = FindFirstObjectByType<SituationSnapshotBuilder>();
 
-        if (playerProfile != null)
-            return;
-
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
-            playerProfile = player.GetComponent<PlayerProfile>();
-
-        if (playerProfile == null)
-            playerProfile = FindFirstObjectByType<PlayerProfile>();
+        // note: Progression decisions already commit through PlayerStateManager; retain this serialized field only until old scene references are retired.
     }
 
     private bool TryQueueSkillOffer(JObject payload, string modelReason, float confidence, bool isSpell, out string reason)

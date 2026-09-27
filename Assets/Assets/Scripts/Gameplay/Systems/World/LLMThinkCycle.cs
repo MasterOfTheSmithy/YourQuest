@@ -205,6 +205,14 @@ public class LLMThinkCycle : MonoBehaviour
             }
         }, result =>
         {
+            if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted))
+            {
+                // note: A stale world response cannot trigger fallback mutation against the replacement profile's event accumulator.
+                inRepair = false;
+                return;
+            }
             string raw = result.success ? result.text : null;
             if (string.IsNullOrWhiteSpace(raw))
             {
@@ -312,6 +320,14 @@ public class LLMThinkCycle : MonoBehaviour
         }, result =>
         {
             string repaired = result.success ? result.text : null;
+            if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted))
+            {
+                // note: Repair terminal states are observable but never fall back into a different profile's world state.
+                inRepair = false;
+                return;
+            }
             if (logRawResponse)
                 Debug.Log("[LLMThinkCycle] REPAIRED:\n" + repaired);
 

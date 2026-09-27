@@ -23,7 +23,8 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
     private float _stopOngoingRepairTime;
     private int _quietOngoingPasses;
 
-    private static readonly string[] BaseTextureProperties = { "_BaseMap", "_MainTex", "_Albedo", "_BaseColorMap", "_DiffuseMap", "_ColorMap", "_BaseColorTexture", "_ColorTexture", "_MainTexture", "_Texture2D" };
+    // note: Befour Studios' authored bridge planks expose their albedo as _BaseTexture; retain that source texture when adapting the material to URP.
+    private static readonly string[] BaseTextureProperties = { "_BaseMap", "_MainTex", "_Albedo", "_BaseColorMap", "_BaseTexture", "_DiffuseMap", "_ColorMap", "_BaseColorTexture", "_ColorTexture", "_MainTexture", "_Texture2D" };
     private static readonly string[] BaseColorProperties = { "_BaseColor", "_Color", "_TintColor" };
     private static readonly string[] NormalTextureProperties = { "_BumpMap", "_NormalMap" };
     private static readonly string[] MetallicTextureProperties = { "_MetallicGlossMap", "_MetallicMap", "_MetallicRoughnessMap", "_MaskMap" };
@@ -54,6 +55,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
     private static readonly string[] FallbackSkipTokens = { "missingmaterial", "missing", "runtimeurp", "repaired", "assettest", "material", "materials", "mat", "mesh", "renderer", "object", "gameobject", "prefab", "model", "models", "lod", "group", "human", "male", "female", "base" };
     private static readonly string[] NumberedFamilyPrefixes = { "sword", "dagger", "axe", "hammer", "club", "bow", "crossbow", "shield", "staff", "chest" };
     private static readonly Dictionary<string, Material> s_runtimeRepairMaterialCache = new Dictionary<string, Material>(System.StringComparer.OrdinalIgnoreCase);
+    public static string LastRepairRoutineStep { get; private set; } = string.Empty;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRuntimeMaterialCache()
@@ -66,6 +68,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
 
         s_runtimeRepairMaterialCache.Clear();
+        LastRepairRoutineStep = string.Empty;
     }
 
     private enum TextureSearchKind
@@ -180,7 +183,103 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         int repaired = RepairMaterialHierarchy(root);
         repaired += RepairTextMeshes(root.GetComponentsInChildren<TextMesh>(true));
         repaired += RepairTmpText(root.GetComponentsInChildren<TMP_Text>(true));
+        repaired += StabilizeLodHierarchy(root);
         return repaired;
+    }
+
+    public static int StabilizeLodHierarchy(GameObject root)
+    {
+        if (root == null)
+            return 0;
+
+        LODGroup[] groups = root.GetComponentsInChildren<LODGroup>(true);
+        System.Array.Sort(groups, (left, right) =>
+            GetTransformDepth(right != null ? right.transform : null).CompareTo(
+                GetTransformDepth(left != null ? left.transform : null)));
+        HashSet<Renderer> claimed = new HashSet<Renderer>();
+        int repairedGroups = 0;
+
+        for (int groupIndex = 0; groupIndex < groups.Length; groupIndex++)
+        {
+            LODGroup group = groups[groupIndex];
+            if (group == null)
+                continue;
+
+            LOD[] sourceLods = group.GetLODs();
+            List<LOD> stableLods = new List<LOD>(sourceLods.Length);
+            // note: A trunk may legitimately appear in several levels of one tree; only a different owning group may claim it.
+            HashSet<Renderer> groupRenderers = new HashSet<Renderer>();
+            for (int lodIndex = 0; lodIndex < sourceLods.Length; lodIndex++)
+            {
+                Renderer[] sourceRenderers = sourceLods[lodIndex].renderers;
+                List<Renderer> validRenderers = new List<Renderer>(
+                    sourceRenderers != null ? sourceRenderers.Length : 0);
+                for (int rendererIndex = 0;
+                     sourceRenderers != null && rendererIndex < sourceRenderers.Length;
+                     rendererIndex++)
+                {
+                    Renderer renderer = sourceRenderers[rendererIndex];
+                    if (renderer != null && !claimed.Contains(renderer) && !validRenderers.Contains(renderer))
+                    { validRenderers.Add(renderer); groupRenderers.Add(renderer); }
+                }
+
+                if (validRenderers.Count == 0)
+                    continue;
+
+                float previousThreshold = stableLods.Count > 0
+                    ? stableLods[stableLods.Count - 1].screenRelativeTransitionHeight
+                    : 1f;
+                // note: Retain the imported transition distances and blend widths when valid; arbitrary shared thresholds make dissimilar tree meshes pop nearby.
+                float threshold = sourceLods[lodIndex].screenRelativeTransitionHeight;
+                if (float.IsNaN(threshold) || threshold < 0f || threshold >= previousThreshold)
+                    threshold = ResolveStableLodThreshold(stableLods.Count,previousThreshold);
+                stableLods.Add(new LOD(threshold, validRenderers.ToArray())
+                { fadeTransitionWidth = sourceLods[lodIndex].fadeTransitionWidth });
+            }
+
+            if (stableLods.Count == 0)
+            {
+                // note: An empty imported LODGroup may cull renderers owned elsewhere in its hierarchy; disabling only that invalid controller preserves the actual visual.
+                group.enabled = false;
+                repairedGroups++;
+                continue;
+            }
+
+            group.SetLODs(stableLods.ToArray());
+            claimed.UnionWith(groupRenderers);
+            group.RecalculateBounds();
+            repairedGroups++;
+        }
+
+        // note: Deepest groups own shared vendor renderers, blank LOD levels are removed, and recalculated bounds follow runtime actor scaling.
+        return repairedGroups;
+    }
+
+    private static int GetTransformDepth(Transform transform)
+    {
+        int depth = 0;
+        while (transform != null)
+        {
+            depth++;
+            transform = transform.parent;
+        }
+
+        return depth;
+    }
+
+    private static float ResolveStableLodThreshold(
+        int lodIndex,
+        float previousThreshold)
+    {
+        float desired = lodIndex switch
+        {
+            0 => 0.18f,
+            1 => 0.075f,
+            2 => 0.03f,
+            3 => 0.012f,
+            _ => Mathf.Max(0.001f, previousThreshold * 0.45f)
+        };
+        return Mathf.Min(desired, previousThreshold - 0.0005f);
     }
 
     public static int RepairMaterialHierarchy(GameObject root)
@@ -190,7 +289,39 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
         // note: Generated world assets use a material-only scoped pass; unrelated text traversal is reserved for UI/text repair ownership.
         Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
-        return RepairRenderers(renderers);
+        Dictionary<string, Material> recoverySources =
+            BuildMaterialRecoverySources(renderers);
+        return RepairRenderers(renderers, false, recoverySources);
+    }
+
+    public static bool NeedsMaterialRepair(GameObject root)
+    {
+        if (root == null)
+            return false;
+
+        // note: Streamed ecology usually arrives with already-valid URP materials; avoid rebuilding every renderer hierarchy when no repair is needed.
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+        {
+            Renderer renderer = renderers[rendererIndex];
+            if (renderer == null || IsVfxGraphRenderer(renderer))
+                continue;
+
+            Material[] materials = renderer.sharedMaterials;
+            int requiredSlotCount = ResolveRequiredMaterialSlotCount(renderer);
+            if (materials == null || materials.Length < requiredSlotCount)
+                return true;
+
+            bool particleMaterial = renderer is ParticleSystemRenderer;
+            for (int materialIndex = 0; materialIndex < requiredSlotCount; materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (material == null || ShouldRepairMaterial(material, renderer, particleMaterial))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     public static IEnumerator RepairMaterialHierarchyRoutine(
@@ -204,22 +335,45 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
 
         int repaired = 0;
+        List<Renderer> gatheredRenderers = new List<Renderer>();
+        Dictionary<string, Material> recoverySources =
+            new Dictionary<string, Material>(System.StringComparer.OrdinalIgnoreCase);
         Stack<Transform> pending = new Stack<Transform>();
         pending.Push(root.transform);
         float frameStartedAt = Time.realtimeSinceStartup;
         while (pending.Count > 0)
         {
             Transform current = pending.Pop();
+            LastRepairRoutineStep = "child expansion on " + current.name + " (children=" + current.childCount + ")";
             for (int childIndex = 0;
                  childIndex < current.childCount;
                  childIndex++)
             {
                 pending.Push(current.GetChild(childIndex));
+                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                {
+                    // note: Large authored prefab nodes can have thousands of children; split their expansion instead of waiting for the whole node.
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
             }
 
+            LastRepairRoutineStep = "renderer lookup on " + current.name;
             Renderer[] renderers = current.GetComponents<Renderer>();
             for (int index = 0; index < renderers.Length; index++)
-                repaired += RepairRenderer(renderers[index], false);
+            {
+                LastRepairRoutineStep = "material source scan on " + renderers[index].name;
+                gatheredRenderers.Add(renderers[index]);
+                RegisterMaterialRecoverySources(
+                    renderers[index],
+                    recoverySources);
+                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                {
+                    // note: A transform with many renderer/material slots shares the same bounded scan allowance as hierarchy expansion.
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
+            }
 
             if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
             {
@@ -229,7 +383,124 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             }
         }
 
+        for (int index = 0; index < gatheredRenderers.Count; index++)
+        {
+            LastRepairRoutineStep = "material assignment on " + gatheredRenderers[index].name;
+            repaired += RepairRenderer(
+                gatheredRenderers[index],
+                false,
+                recoverySources);
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            {
+                // note: Material assignment is a separately budgeted phase so gathering valid LOD sibling sources cannot make the repair frame unbounded.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
         completed?.Invoke(repaired);
+    }
+
+    public static IEnumerator ValidateMaterialHierarchyRoutine(
+        GameObject root,
+        System.Action<int, int> completed)
+    {
+        if (root == null)
+        {
+            completed?.Invoke(0, 0);
+            yield break;
+        }
+
+        int validatedRenderers = 0;
+        int unresolvedSlots = 0;
+        Stack<Transform> pending = new Stack<Transform>();
+        pending.Push(root.transform);
+        float frameStartedAt = Time.realtimeSinceStartup;
+        while (pending.Count > 0)
+        {
+            Transform current = pending.Pop();
+            for (int childIndex = 0; childIndex < current.childCount; childIndex++)
+                pending.Push(current.GetChild(childIndex));
+
+            Renderer[] renderers = current.GetComponents<Renderer>();
+            for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+            {
+                Renderer renderer = renderers[rendererIndex];
+                if (renderer == null || IsVfxGraphRenderer(renderer) ||
+                    renderer.GetComponent<TextMesh>() != null)
+                {
+                    continue;
+                }
+
+                validatedRenderers++;
+                Material[] materials = renderer.sharedMaterials;
+                int requiredSlots = ResolveRequiredMaterialSlotCount(renderer);
+                for (int slot = 0; slot < requiredSlots; slot++)
+                {
+                    Material material = materials != null && slot < materials.Length
+                        ? materials[slot]
+                        : null;
+                    if (!IsRuntimeMaterialUsable(material))
+                        unresolvedSlots++;
+                }
+            }
+
+            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            {
+                // note: Final material coverage is verified cooperatively before a streamed cell becomes visible, preventing a dense site validation spike.
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
+            }
+        }
+
+        completed?.Invoke(validatedRenderers, unresolvedSlots);
+    }
+
+    // note: Editor scene review uses the same material acceptance contract as runtime streaming, without duplicating shader rules.
+    public static bool IsRuntimeMaterialUsable(Material material)
+    {
+        if (material == null || material.shader == null ||
+            !material.shader.isSupported)
+        {
+            return false;
+        }
+
+        string shaderName = material.shader.name ?? string.Empty;
+        return !string.IsNullOrWhiteSpace(shaderName) &&
+               !shaderName.Contains("InternalErrorShader") &&
+               IsPipelineCompatible(shaderName, material.GetTag("RenderPipeline", false, string.Empty),
+                   UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is
+                       UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset);
+    }
+
+    internal static Material ResolveGeneratedSurfaceMaterial(Material source, Renderer sourceRenderer)
+    {
+        // note: Generated ribbons have no instantiated prefab hierarchy; reuse the existing texture-preserving adapter and its cache for their imported source surface.
+        if (source == null)
+            return null;
+        Material resolved = CreateRuntimeRepairMaterial(source, sourceRenderer, false, !IsRuntimeMaterialUsable(source));
+        return IsRuntimeMaterialUsable(resolved) ? resolved : null;
+    }
+
+    internal static bool IsPipelineCompatible(string shaderName, string pipelineTag, bool usingUrp)
+    {
+        // note: GPU shader support is not render-pipeline compatibility. HDRP graphs can compile successfully yet render magenta in URP.
+        if (!usingUrp)
+            return true;
+        // note: A supported graph with no active pipeline subshader can still draw magenta; URP graphs declare UniversalPipeline explicitly.
+        if ((shaderName ?? string.Empty).StartsWith("Shader Graphs/", System.StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(pipelineTag, "UniversalPipeline", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        // note: Built-in lit shaders have no pipeline tag but still require conversion in URP; GPU support alone cannot approve their forward/deferred passes.
+        if (string.Equals(shaderName, "Standard", System.StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(shaderName, "Standard (Specular setup)", System.StringComparison.OrdinalIgnoreCase) ||
+            (shaderName ?? string.Empty).StartsWith("Legacy Shaders/", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        if (!string.IsNullOrEmpty(pipelineTag) &&
+            !string.Equals(pipelineTag, "UniversalPipeline", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        return !(shaderName ?? string.Empty).StartsWith("HDRP/", System.StringComparison.OrdinalIgnoreCase) &&
+               !(shaderName ?? string.Empty).StartsWith("HDRenderPipeline/", System.StringComparison.OrdinalIgnoreCase);
     }
 
     public static int ForceRepairHierarchy(GameObject root)
@@ -287,12 +558,26 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
     private static int RepairRenderers(Renderer[] renderers)
     {
-        return RepairRenderers(renderers, false);
+        return RepairRenderers(
+            renderers,
+            false,
+            BuildMaterialRecoverySources(renderers));
     }
 
     private static int RepairRenderers(
         Renderer[] renderers,
         bool forceUrpMaterialRepair)
+    {
+        return RepairRenderers(
+            renderers,
+            forceUrpMaterialRepair,
+            BuildMaterialRecoverySources(renderers));
+    }
+
+    private static int RepairRenderers(
+        Renderer[] renderers,
+        bool forceUrpMaterialRepair,
+        IReadOnlyDictionary<string, Material> recoverySources)
     {
         int repairedCount = 0;
         if (renderers == null)
@@ -301,14 +586,16 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         for (int i = 0; i < renderers.Length; i++)
             repairedCount += RepairRenderer(
                 renderers[i],
-                forceUrpMaterialRepair);
+                forceUrpMaterialRepair,
+                recoverySources);
 
         return repairedCount;
     }
 
     private static int RepairRenderer(
         Renderer renderer,
-        bool forceUrpMaterialRepair)
+        bool forceUrpMaterialRepair,
+        IReadOnlyDictionary<string, Material> recoverySources = null)
     {
         if (renderer == null || IsVfxGraphRenderer(renderer))
             return 0;
@@ -319,17 +606,43 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             return RepairTextMesh(textMesh) ? 1 : 0;
 
         Material[] materials = renderer.sharedMaterials;
+        int requiredSlotCount = ResolveRequiredMaterialSlotCount(renderer);
+        if (materials == null)
+            materials = new Material[requiredSlotCount];
+        else if (materials.Length < requiredSlotCount)
+            System.Array.Resize(ref materials, requiredSlotCount);
+
+        // note: Resolve hierarchy classification once per renderer; repeated ancestor-name scans per slot slowed streamed prefab repair.
+        bool generatedStructuralRenderer = IsGeneratedStructuralRenderer(renderer);
         bool changed = false;
         int repairedCount = 0;
         bool particleMaterial = renderer is ParticleSystemRenderer;
+        Material siblingSource = null;
+        for (int slot = 0; slot < materials.Length; slot++)
+        {
+            if (materials[slot] != null)
+            {
+                siblingSource = materials[slot];
+                break;
+            }
+        }
 
         for (int slot = 0; slot < materials.Length; slot++)
         {
+            bool missingSlot = materials[slot] == null;
+            Material source = materials[slot];
+            if (missingSlot)
+            {
+                source = ResolveMaterialRecoverySource(
+                    renderer,
+                    slot,
+                    recoverySources) ?? siblingSource;
+            }
             Material repaired = CreateRuntimeRepairMaterial(
-                materials[slot],
+                source,
                 renderer,
                 particleMaterial,
-                forceUrpMaterialRepair);
+                forceUrpMaterialRepair || missingSlot || generatedStructuralRenderer);
             if (repaired != null && repaired != materials[slot])
             {
                 materials[slot] = repaired;
@@ -338,9 +651,182 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             }
         }
 
+        // note: Structural meshes always finish with opaque depth state so water, chests, chairs, and other child props cannot draw through walls after import conversion.
+        if (generatedStructuralRenderer)
+        {
+            for (int slot = 0; slot < materials.Length; slot++)
+            {
+                Material material = materials[slot];
+                if (material == null || !HasInvalidOpaqueDepth(material))
+                    continue;
+                Material corrected = new Material(material)
+                {
+                    name = material.name + "_StructuralDepth",
+                    hideFlags = HideFlags.DontSave
+                };
+                Shader opaqueShader = FindRepairShader(false);
+                if (opaqueShader == null)
+                    continue;
+                corrected.shader = opaqueShader;
+                corrected.shaderKeywords = System.Array.Empty<string>();
+                CopyMaterialSurface(material, corrected, false, renderer);
+                materials[slot] = corrected;
+                changed = true;
+            }
+        }
+        // note: Publish repaired and depth-corrected slots together so one renderer crosses the native material boundary only once.
         if (changed)
             renderer.sharedMaterials = materials;
         return repairedCount;
+    }
+
+    private static Dictionary<string, Material> BuildMaterialRecoverySources(
+        Renderer[] renderers)
+    {
+        Dictionary<string, Material> sources =
+            new Dictionary<string, Material>(System.StringComparer.OrdinalIgnoreCase);
+        for (int index = 0;
+             renderers != null && index < renderers.Length;
+             index++)
+        {
+            RegisterMaterialRecoverySources(renderers[index], sources);
+        }
+
+        return sources;
+    }
+
+    private static void RegisterMaterialRecoverySources(
+        Renderer renderer,
+        IDictionary<string, Material> sources)
+    {
+        if (renderer == null || sources == null || IsVfxGraphRenderer(renderer))
+            return;
+
+        Material[] materials = renderer.sharedMaterials;
+        for (int slot = 0;
+             materials != null && slot < materials.Length;
+             slot++)
+        {
+            Material material = materials[slot];
+            if (!IsRuntimeMaterialUsable(material))
+                continue;
+
+            AddMaterialRecoverySource(
+                sources,
+                BuildMaterialRecoveryKey(renderer, slot, true),
+                material);
+            AddMaterialRecoverySource(
+                sources,
+                BuildMaterialRecoveryKey(renderer, slot, false),
+                material);
+        }
+    }
+
+    private static void AddMaterialRecoverySource(
+        IDictionary<string, Material> sources,
+        string key,
+        Material material)
+    {
+        if (string.IsNullOrWhiteSpace(key) || material == null ||
+            sources.ContainsKey(key))
+        {
+            return;
+        }
+
+        sources[key] = material;
+    }
+
+    private static Material ResolveMaterialRecoverySource(
+        Renderer renderer,
+        int slot,
+        IReadOnlyDictionary<string, Material> sources)
+    {
+        if (renderer == null || sources == null)
+            return null;
+
+        string meshKey = BuildMaterialRecoveryKey(renderer, slot, true);
+        if (!string.IsNullOrWhiteSpace(meshKey) &&
+            sources.TryGetValue(meshKey, out Material recovered))
+        {
+            // note: A missing LOD surface first reuses the corresponding valid surface from the same normalized mesh family.
+            return recovered;
+        }
+
+        string rendererKey = BuildMaterialRecoveryKey(renderer, slot, false);
+        return !string.IsNullOrWhiteSpace(rendererKey) &&
+               sources.TryGetValue(rendererKey, out recovered)
+            ? recovered
+            : null;
+    }
+
+    private static string BuildMaterialRecoveryKey(
+        Renderer renderer,
+        int slot,
+        bool useMeshIdentity)
+    {
+        if (renderer == null)
+            return string.Empty;
+
+        string identity;
+        if (useMeshIdentity)
+        {
+            // note: Particle/trail renderers have no MeshFilter. Unity's missing-component object requires its overloaded null check; ?. can throw during title-stage Awake.
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            Mesh mesh = renderer is SkinnedMeshRenderer skinned
+                ? skinned.sharedMesh
+                : filter != null ? filter.sharedMesh : null;
+            identity = NormalizeLodIdentity(mesh != null ? mesh.name : string.Empty);
+        }
+        else
+        {
+            identity = NormalizeLodIdentity(renderer.name);
+        }
+
+        if (string.IsNullOrWhiteSpace(identity) || identity == "mesh" ||
+            identity == "renderer")
+        {
+            return string.Empty;
+        }
+
+        return (useMeshIdentity ? "mesh|" : "renderer|") +
+            identity + "|slot|" + slot;
+    }
+
+    internal static string NormalizeLodIdentity(string value)
+    {
+        string normalized = ToSearchText(value).Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+            return string.Empty;
+
+        for (int digit = 0; digit <= 9; digit++)
+        {
+            normalized = normalized.Replace(" lod" + digit, " lod");
+            normalized = normalized.Replace(" lod " + digit, " lod");
+        }
+
+        // note: Vendor LOD meshes commonly differ only by a trailing LOD number; collapsing it permits exact-family recovery without borrowing from unrelated assets.
+        return normalized.Trim();
+    }
+
+    internal static int ResolveRequiredMaterialSlotCount(Renderer renderer)
+    {
+        if (renderer == null || IsVfxGraphRenderer(renderer))
+            return 0;
+
+        int required = renderer.sharedMaterials != null
+            ? renderer.sharedMaterials.Length
+            : 0;
+        if (renderer is SkinnedMeshRenderer skinned && skinned.sharedMesh != null)
+            required = Mathf.Max(required, skinned.sharedMesh.subMeshCount);
+        else
+        {
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter != null && filter.sharedMesh != null)
+                required = Mathf.Max(required, filter.sharedMesh.subMeshCount);
+        }
+
+        // note: A visible renderer always owns at least one resolved surface slot; zero-length material arrays previously bypassed repair entirely.
+        return Mathf.Max(1, required);
     }
 
     private static Material CreateRuntimeRepairMaterial(
@@ -365,6 +851,8 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
         Material repaired = effectiveSource != null ? new Material(effectiveSource) : new Material(shader);
         repaired.shader = shader;
+        // note: Foreign shader keywords must not select invalid URP variants; CopyMaterialSurface restores supported normal, emission, cutout and surface keywords from the original textures/properties.
+        repaired.shaderKeywords = System.Array.Empty<string>();
         repaired.name = (effectiveSource != null ? effectiveSource.name : "MissingMaterial") + "_RuntimeURP";
         repaired.hideFlags = HideFlags.DontSave;
         CopyMaterialSurface(effectiveSource, repaired, vfxMaterial, renderer);
@@ -410,6 +898,11 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
         if (shaderName.Contains("InternalErrorShader"))
             return true;
+        // note: Test pipeline compatibility before the generic Shader Graph and particle exemptions; those names do not prove URP support.
+        if (!IsPipelineCompatible(shaderName, material.GetTag("RenderPipeline", false, string.Empty),
+                UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is
+                    UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset))
+            return true;
         if (particleMaterial)
             return false;
         if (shaderName.StartsWith("Universal Render Pipeline/") || shaderName.StartsWith("Shader Graphs/"))
@@ -419,7 +912,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             if (LooksLikeAlertWorldSurfaceMaterial(material, renderer))
                 return true;
             if (LooksSemanticallyOpaque(material, renderer) &&
-                HasTransparentSurfaceFlags(material))
+                (HasTransparentSurfaceFlags(material) || HasInvalidOpaqueDepth(material)))
             {
                 // note: Some converted HDRP solids retain a transparent queue/tag despite using a valid URP shader; force one scoped opaque adapter instead of accepting see-through architecture.
                 return true;
@@ -632,6 +1125,10 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         if (renderer is ParticleSystemRenderer)
             return true;
 
+        // note: Generated walls, roofs, floors, doors, and foundations must write depth even when an imported material carries stale transparent flags.
+        if (IsGeneratedStructuralRenderer(renderer))
+            return false;
+
         if (LooksSemanticallyTransparent(source, renderer))
             return true;
 
@@ -656,6 +1153,32 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         return IsEnabledSurfaceProperty(source, "_Surface") ||
                IsEnabledSurfaceProperty(source, "_SurfaceType") ||
                IsStandardTransparentMode(source);
+    }
+
+    private static bool IsGeneratedStructuralRenderer(Renderer renderer)
+    {
+        if (renderer == null || renderer.gameObject == null)
+            return false;
+
+        string text = string.Empty;
+        Transform current = renderer.transform;
+        int depth = 0;
+        while (current != null && depth++ < 8)
+        {
+            text += " " + current.name;
+            current = current.parent;
+        }
+        text = ToSearchText(text);
+        if (ContainsAny(text, new[] { " glass ", " window ", " water ", " liquid ", " transparent ", " translucent " }))
+            return false;
+        // note: Compiled semantic cells are authored structural assemblies even when imported mesh names are generic cubes or shop pieces; classify them as depth-writing unless explicitly transparent.
+        return ContainsAny(text, new[]
+        {
+            " wall ", " roof ", " beam ", " floor ", " door ", " frame ",
+            " foundation ", " house ", " hut ", " building ", " settlement ",
+            " cabin ", " tower ", " fence ", " palisade ", " compiledcell ",
+            " compiledsitecontent "
+        });
     }
 
     private static bool LooksSemanticallyTransparent(
@@ -698,6 +1221,14 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 ? renderer.gameObject.name
                 : string.Empty));
         return ContainsAny(text, SolidObjectNameHints);
+    }
+
+    private static bool HasInvalidOpaqueDepth(Material material)
+    {
+        // note: An opaque shader with depth writes disabled or an always-pass test can expose doors and loot through structural walls.
+        return (material.HasProperty("_ZWrite") && material.GetFloat("_ZWrite") < .5f) ||
+            (material.HasProperty("_ZTest") && Mathf.RoundToInt(material.GetFloat("_ZTest")) ==
+                (int)UnityEngine.Rendering.CompareFunction.Always);
     }
 
     private static bool HasTransparentSurfaceFlags(Material material)
@@ -824,6 +1355,9 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
     private static bool LooksLikeVfxMaterial(Material material, Renderer renderer)
     {
+        // note: Timber beams and shields are solid meshes, not additive effects; semantic geometry takes precedence over ambiguous VFX name hints.
+        if (!(renderer is ParticleSystemRenderer) && LooksSemanticallyOpaque(material, renderer))
+            return false;
         string materialName = material != null ? material.name : string.Empty;
         string shaderName = material != null && material.shader != null ? material.shader.name : string.Empty;
         string rendererName = renderer != null ? renderer.name : string.Empty;
@@ -852,16 +1386,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         if (source != null && (!LooksLikeBrokenGeneratedMaterial(source, renderer) || HasUsableBaseTexture(source)))
             return source;
 
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            // note: AssetDatabase material searches are editor tooling only; Play Mode must not scan huge imports at startup.
-            Material fallback = FindEditorFallbackMaterial(source, renderer);
-            if (fallback != null)
-                return fallback;
-        }
-#endif
-
+        // note: Runtime and validation paths never fuzzy-search the project-wide material library; hierarchy/LOD family recovery is bounded and cannot import thousands of unrelated assets or choose a coincidental name match.
         return source;
     }
 
@@ -1067,41 +1592,33 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
 #if UNITY_EDITOR
 
+    // note: Editor conversion reuses the runtime repair surface mapping while allowing particle materials to select the URP particle shader.
+    public static Material CreateEditorUrpMaterialVariant(
+        Material source,
+        Renderer renderer,
+        bool particleMaterial)
+    {
+        Shader shader = FindRepairShader(particleMaterial);
+        if (shader == null)
+            return null;
+
+        // note: The effective source may be a curated sibling material when the imported slot is missing or unusable.
+        Material effectiveSource = ResolveEffectiveSourceMaterial(source, renderer);
+        Material converted = new Material(shader)
+        {
+            name = (effectiveSource != null ? effectiveSource.name : "MissingMaterial") + "_YQ_URP"
+        };
+
+        CopyMaterialSurface(effectiveSource, converted, particleMaterial, renderer);
+        return converted;
+    }
+
     public static Material CreateEditorUrpLitMaterial(
         Material source,
         Renderer renderer)
     {
-        Shader shader =
-            FindRepairShader(
-                false);
-
-        if (shader == null)
-            return null;
-
-        // note: The registry builder persists this texture-preserving URP copy; imported HDRP materials remain untouched.
-        Material effectiveSource =
-            ResolveEffectiveSourceMaterial(
-                source,
-                renderer);
-
-        Material converted =
-            new Material(
-                shader)
-            {
-                name =
-                    (effectiveSource != null
-                        ? effectiveSource.name
-                        : "MissingMaterial") +
-                    "_YQ_URP"
-            };
-
-        CopyMaterialSurface(
-            effectiveSource,
-            converted,
-            false,
-            renderer);
-
-        return converted;
+        // note: Keep the original lit entry point for existing editor callers while routing it through the shared variant implementation.
+        return CreateEditorUrpMaterialVariant(source, renderer, false);
     }
 
     public static Material ResolveEditorMaterialForRuntimeBake(
@@ -1420,6 +1937,13 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             return bestTexture;
 
 #if UNITY_EDITOR
+        // note: Runtime streaming must match the built player and cannot perform editor asset searches on the main thread; bound textures and sibling-material recovery remain available during Play Mode.
+        if (Application.isPlaying)
+        {
+            matchedPropertyName = null;
+            return null;
+        }
+
         return FindNearbyEditorTexture(material, ResolveTextureSearchKind(propertyNames), out matchedPropertyName);
 #else
         return null;
@@ -1722,7 +2246,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         for (int i = 0; i < BaseColorProperties.Length; i++)
         {
             string propertyName = BaseColorProperties[i];
-            if (!material.HasProperty(propertyName))
+            if (!IsReadableColorProperty(material, propertyName))
                 continue;
 
             try
@@ -1762,8 +2286,27 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
     private static void SetColorIfPresent(Material material, string propertyName, Color color)
     {
-        if (material != null && material.HasProperty(propertyName))
+        if (IsReadableColorProperty(material, propertyName))
             material.SetColor(propertyName, color);
+    }
+
+    private static bool IsReadableColorProperty(
+        Material material,
+        string propertyName)
+    {
+        if (material == null || material.shader == null ||
+            string.IsNullOrWhiteSpace(propertyName))
+        {
+            return false;
+        }
+
+        int propertyIndex = material.shader.FindPropertyIndex(propertyName);
+        if (propertyIndex < 0)
+            return false;
+
+        // note: HasProperty may be true for a texture/float sharing a conventional color name; checking the shader type prevents Unity from logging an error before GetColor/SetColor can be caught.
+        return material.shader.GetPropertyType(propertyIndex) ==
+            UnityEngine.Rendering.ShaderPropertyType.Color;
     }
 
     private static void SetFloatIfPresent(Material material, string propertyName, float value)
@@ -1847,6 +2390,8 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 "_DstBlend",
                 (float)UnityEngine.Rendering.BlendMode.Zero);
             SetFloatIfPresent(material, "_ZWrite", 1f);
+            // note: Converted opaque architecture must participate in the normal scene depth test.
+            SetFloatIfPresent(material, "_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
             material.renderQueue = -1;
             material.SetOverrideTag("RenderType", string.Empty);
             material.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
@@ -1910,3 +2455,4 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         material.EnableKeyword("_ALPHATEST_ON");
     }
 }
+// note: The adjacent-texture search remains an edit-mode recovery tool.

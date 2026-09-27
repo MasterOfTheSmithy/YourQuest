@@ -54,6 +54,8 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
     private int _modeButtonCount;
     private string _mode = string.Empty;
     private bool _isCompleting;
+    private int _completionSession;
+    private PlayerState _completionState;
     private bool _startupPhaseResolved = true;
 
     public bool StartupPhaseResolved => _startupPhaseResolved;
@@ -114,6 +116,13 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
 
     private void OpenModeSelection()
     {
+        // note: Both Start and the bootstrap can open this UI. Claim the stage at their common entry so neither route skips the cinematic.
+        _startupPhaseResolved = false;
+        YQTitleEnvironmentLoader.HoldForOriginQuestionnaire();
+        // note: Reopening the questionnaire retires any callback owned by the previous session.
+        _completionSession++;
+        _completionState = null;
+        _isCompleting = false;
         _answers.Clear();
         _questionIndex = 0;
         _mode = string.Empty;
@@ -203,6 +212,8 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
 
         state.EnsureCollections();
         _isCompleting = true;
+        _completionState = state;
+        int completionSession = ++_completionSession;
         ShowCompletionWait();
         List<string> answerSnapshot = new List<string>(_answers);
         YQOriginGenerationService originGenerator = YQOriginGenerationService.Instance != null
@@ -210,14 +221,15 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
             : FindAnyObjectByType<YQOriginGenerationService>();
         if (originGenerator != null && originGenerator.TryRequestOrigin(state, _mode, answerSnapshot, generated =>
             {
-                _isCompleting = false;
+                // note: A delayed or duplicate callback must not award an origin to another session.
+                if (this == null || completionSession != _completionSession || !_isCompleting)
+                    return;
                 FinalizeQuestionnaire(generated);
             }))
         {
             return;
         }
 
-        _isCompleting = false;
         FinalizeQuestionnaire(null);
     }
 
@@ -225,6 +237,10 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
     {
         PlayerStateManager psm = PlayerStateManager.Instance;
         PlayerState state = psm != null ? psm.state : null;
+        // note: Both generated and offline fallback paths share the same single-use acceptance gate.
+        if (!_isCompleting || !YQOriginGenerationService.CanApplyOriginResult(_completionState, state, _completionState?.playerId))
+            return;
+        _isCompleting = false;
         if (state == null)
         {
             Close();
@@ -333,6 +349,14 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
 
         }
         psm.Save();
+
+        // note: The accepted origin belongs to the selected profile immediately; copying only the shared active files left the profile folder at its pre-questionnaire snapshot and made Continue reopen this screen.
+        YQProfileSaveSystem profileSystem = YQProfileSaveSystem.Instance;
+        if (profileSystem != null && !profileSystem.SaveActiveProfile())
+        {
+            Debug.LogWarning(
+                "[YQOriginQuestionnaireUI] Accepted origin could not be copied to the active profile snapshot yet.");
+        }
         Close();
     }
 
@@ -469,7 +493,7 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
         return records;
     }
 
-    private static List<QuestObjectiveRecord> BuildDefaultOriginObjectives()
+    public static List<QuestObjectiveRecord> BuildDefaultOriginObjectives()
     {
         List<QuestObjectiveRecord> records = new List<QuestObjectiveRecord>();
         EnsureObjective(records, "origin_manifested", "origin:equipment_manifested", string.Empty, string.Empty, "The goddess manifests gear from the player's answers.");
@@ -1025,6 +1049,10 @@ public sealed class YQOriginQuestionnaireUI : MonoBehaviour
 
     private void Close()
     {
+        // note: Closing consumes callback ownership without modifying a newly loaded player's state.
+        _completionSession++;
+        _completionState = null;
+        _isCompleting = false;
         _startupPhaseResolved = true;
         SetVisible(false);
         RuntimeModalUiBlocker.SetMenuOpen(false);

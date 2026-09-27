@@ -186,7 +186,8 @@ Example:
             return;
         }
 
-        SkillData committed = SkillCommitter.Commit(candidate, playerProfile);
+        // note: The debug tool keeps its serialized profile reference for compatibility but mutates only canonical PlayerState.
+        SkillData committed = SkillCommitter.CommitCanonical(candidate, PlayerStateManager.Instance?.state);
 
         if (committed != null)
         {
@@ -262,5 +263,4 @@ Example:
 
     #endregion
 }
-
 

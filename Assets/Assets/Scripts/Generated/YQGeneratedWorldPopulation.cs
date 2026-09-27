@@ -194,6 +194,11 @@ public static class YQGeneratedWorldPopulation
             yield break;
         }
 
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        // note: Validate canonical placement coverage before deleting any previously materialized inhabitants.
+        if (!TryValidatePopulationBindings(plan, world, out int expectedLivingNpcs, out string bindingFailure))
+            throw new InvalidOperationException("Canonical population bindings rejected: " + bindingFailure);
+
         DestroyExistingPopulationRoot(parent, PopulationRootName);
         DestroyExistingPopulationRoot(parent, EncampmentRootName);
         yield return null;
@@ -202,15 +207,24 @@ public static class YQGeneratedWorldPopulation
         populationRoot.transform.SetParent(parent, false);
         GameObject encampmentRoot = new GameObject(EncampmentRootName);
         encampmentRoot.transform.SetParent(parent, false);
-        WorldState world = WorldStateManager.Instance != null
-            ? WorldStateManager.Instance.State
-            : null;
 
         int residents = 0;
         if (plan.settlements != null)
         {
             for (int index = 0; index < plan.settlements.Count; index++)
             {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Placing inhabitants and finalizing",
+                    9,
+                    9,
+                    "Placing settlement population " + (index + 1) + " of " +
+                    plan.settlements.Count,
+                    Mathf.Lerp(
+                        0.94f,
+                        0.965f,
+                        plan.settlements.Count > 0
+                            ? index / (float)plan.settlements.Count
+                            : 1f));
                 int settlementResidents = 0;
                 yield return BuildSettlementResidentsForSettlementRoutine(
                     populationRoot.transform,
@@ -221,6 +235,8 @@ public static class YQGeneratedWorldPopulation
                     plan.settlements[index],
                     count => settlementResidents = count);
                 residents += settlementResidents;
+                // note: Completed population batches are progress, unlike repeatedly polling an unfinished child operation.
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
             }
         }
 
@@ -232,6 +248,18 @@ public static class YQGeneratedWorldPopulation
         {
             for (int index = 0; index < plan.encampments.Count; index++)
             {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Placing inhabitants and finalizing",
+                    9,
+                    9,
+                    "Placing hostile population " + (index + 1) + " of " +
+                    plan.encampments.Count,
+                    Mathf.Lerp(
+                        0.965f,
+                        0.98f,
+                        plan.encampments.Count > 0
+                            ? index / (float)plan.encampments.Count
+                            : 1f));
                 GeneratedEncampmentRecord encampment = plan.encampments[index];
                 if (encampment == null)
                     continue;
@@ -267,10 +295,16 @@ public static class YQGeneratedWorldPopulation
                 rankAndFileHostiles += generic;
                 rewardContainers += rewards;
                 camps++;
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
                 // note: Hostile sites are likewise published one deterministic encounter at a time.
                 yield return null;
             }
         }
+
+        // note: Anonymous encounter extras do not satisfy missing saved identities; every living canonical record needs its actual actor.
+        if (residents + namedHostiles != expectedLivingNpcs)
+            throw new InvalidOperationException("Canonical population coverage incomplete: expected " + expectedLivingNpcs +
+                " living identities, created " + (residents + namedHostiles) + ". Check skipped site region/palette bindings.");
 
         // note: Cooperative population construction does not require an immediate global physics rebuild; the final player handoff owns the single authoritative sync.
         Debug.Log(
@@ -371,20 +405,11 @@ public static class YQGeneratedWorldPopulation
                     index);
             }
 
-            position = ResolveSeparatedResidentPosition(
-                position,
-                occupiedResidentPositions,
-                seed);
-            if (usesCompiledSite &&
-                YQCompiledWorldSiteInstance.TryProjectToSiteSurface(
-                    settlement.settlementId,
-                    position,
-                    out Vector3 projectedPosition))
-            {
-                // note: Compiled-site residents remain on reviewed authored floors after deterministic separation instead of being pushed down onto the generated terrain beneath the town.
-                position = projectedPosition;
-            }
-            else
+            // note: Separation must remain on a valid reviewed floor; a failed offset cannot silently drop a resident through the building.
+            if (!TryResolveSeparatedResidentPosition(position, occupiedResidentPositions, seed,
+                    usesCompiledSite ? settlement.settlementId : null, out position))
+                throw new InvalidOperationException("No separated resident position for canonical NPC " + npcRecord.npcId + " at " + settlement.settlementId);
+            if (!usesCompiledSite)
             {
                 position.y = YQGeneratedWorldTerrain.SampleWorldHeight(
                     terrain,
@@ -392,14 +417,19 @@ public static class YQGeneratedWorldPopulation
             }
 
             occupiedResidentPositions.Add(position);
-            CreateResident(
+            bool residentCreated = CreateResident(
                 settlementPopulation.transform,
                 terrain,
                 settlement,
                 npcRecord,
                 position,
                 seed,
-                registry);
+                index,
+                registry,
+                usesCompiledSite);
+            // note: A missing actor cannot count as a materialized canonical identity.
+            if (!residentCreated)
+                throw new InvalidOperationException("Resident creation failed for canonical NPC " + npcRecord.npcId);
             total++;
         }
 
@@ -464,19 +494,11 @@ public static class YQGeneratedWorldPopulation
                     index);
             }
 
-            position = ResolveSeparatedResidentPosition(
-                position,
-                occupiedResidentPositions,
-                seed);
-            if (usesCompiledSite &&
-                YQCompiledWorldSiteInstance.TryProjectToSiteSurface(
-                    settlement.settlementId,
-                    position,
-                    out Vector3 projectedPosition))
-            {
-                position = projectedPosition;
-            }
-            else
+            // note: Use the same support-aware separation contract in cooperative and synchronous population builds.
+            if (!TryResolveSeparatedResidentPosition(position, occupiedResidentPositions, seed,
+                    usesCompiledSite ? settlement.settlementId : null, out position))
+                throw new InvalidOperationException("No separated resident position for canonical NPC " + npcRecord.npcId + " at " + settlement.settlementId);
+            if (!usesCompiledSite)
             {
                 position.y = YQGeneratedWorldTerrain.SampleWorldHeight(
                     terrain,
@@ -484,14 +506,18 @@ public static class YQGeneratedWorldPopulation
             }
 
             occupiedResidentPositions.Add(position);
-            CreateResident(
+            bool residentCreated = CreateResident(
                 settlementPopulation.transform,
                 terrain,
                 settlement,
                 npcRecord,
                 position,
                 seed,
-                registry);
+                index,
+                registry,
+                usesCompiledSite);
+            if (!residentCreated)
+                throw new InvalidOperationException("Resident creation failed for canonical NPC " + npcRecord.npcId);
             total++;
 
             // note: Publish at most one imported resident hierarchy per frame so a populous settlement cannot create a visible gameplay hitch.
@@ -499,6 +525,60 @@ public static class YQGeneratedWorldPopulation
         }
 
         completed?.Invoke(total);
+    }
+
+    public static bool TryValidatePopulationBindings(GeneratedWorldPlanRecord plan, WorldState world,
+        out int expectedLivingNpcs, out string failure)
+    {
+        expectedLivingNpcs = 0;
+        failure = string.Empty;
+        if (plan == null || plan.generatedNpcs == null)
+        {
+            failure = "Missing canonical population records.";
+            return false;
+        }
+
+        // note: These per-build indexes validate explicit site IDs; dialogue prose and display names are never placement authority.
+        HashSet<string> settlements = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> camps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> identities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> occupiedLeaderSites = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (plan.settlements != null)
+            foreach (GeneratedSettlementRecord settlement in plan.settlements)
+                if (settlement != null && !string.IsNullOrWhiteSpace(settlement.settlementId))
+                    settlements.Add(settlement.settlementId);
+        if (plan.encampments != null)
+            foreach (GeneratedEncampmentRecord camp in plan.encampments)
+                if (camp != null && !string.IsNullOrWhiteSpace(camp.encampmentId))
+                    camps.Add(camp.encampmentId);
+
+        foreach (GeneratedNpcPlanRecord npc in plan.generatedNpcs)
+        {
+            if (npc == null || string.IsNullOrWhiteSpace(npc.npcId) || !identities.Add(npc.npcId))
+            {
+                failure = "Null, empty, or duplicate canonical NPC identity: " + (npc != null ? npc.npcId : "<null>");
+                return false;
+            }
+            // note: Dead/removed identities stay in the save but are intentionally not recreated on Continue.
+            if (!ShouldMaterializeNpc(world, npc.npcId))
+                continue;
+            bool validSite = npc.hostile
+                ? !string.IsNullOrWhiteSpace(npc.encampmentId) && camps.Contains(npc.encampmentId) && string.IsNullOrWhiteSpace(npc.settlementId)
+                : !string.IsNullOrWhiteSpace(npc.settlementId) && settlements.Contains(npc.settlementId) && string.IsNullOrWhiteSpace(npc.encampmentId);
+            if (!validSite)
+            {
+                failure = "NPC " + npc.npcId + " has no unambiguous supported settlement/encampment binding.";
+                return false;
+            }
+            // note: The current planner/runtime contract is one canonical commander per camp, plus anonymous rank-and-file.
+            if (npc.hostile && !occupiedLeaderSites.Add(npc.encampmentId))
+            {
+                failure = "Multiple living canonical commanders are bound to " + npc.encampmentId + "; the current encounter contract supports one.";
+                return false;
+            }
+            expectedLivingNpcs++;
+        }
+        return true;
     }
 
     private static List<GeneratedNpcPlanRecord>
@@ -602,90 +682,65 @@ public static class YQGeneratedWorldPopulation
                     radius);
     }
 
-    private static Vector3 ResolveSeparatedResidentPosition(
-        Vector3 candidate,
+    private static bool TryResolveSeparatedResidentPosition(
+        Vector3 anchor,
         List<Vector3> occupiedPositions,
-        string seed)
+        string seed,
+        string compiledSiteId,
+        out Vector3 position)
     {
-        if (occupiedPositions == null ||
-            occupiedPositions.Count == 0)
+        position = anchor;
+        const float minimumSpacing = 2.4f;
+        const float minimumSquared = minimumSpacing * minimumSpacing;
+        // note: Keep the finite search near the role anchor; distant floors are not interchangeable with the resident's assigned location.
+        for (int attempt = 0; attempt <= 8; attempt++)
         {
-            return candidate;
-        }
-
-        const float minimumSpacing =
-            2.4f;
-
-        float minimumSquared =
-            minimumSpacing *
-            minimumSpacing;
-
-        for (int attempt = 0;
-             attempt < 8;
-             attempt++)
-        {
-            bool overlaps =
-                false;
-
-            for (int i = 0;
-                 i < occupiedPositions.Count;
-                 i++)
+            Vector3 candidate = anchor;
+            if (attempt > 0)
             {
-                Vector3 offset =
-                    candidate -
-                    occupiedPositions[i];
+                float angle = Deterministic01(seed + "|resident_separation_angle|" + (attempt - 1)) * Mathf.PI * 2f;
+                float radius = minimumSpacing + (attempt - 1) * 1.15f;
+                // note: Each offset is relative to the role anchor, not accumulated into a random walk outside the building.
+                candidate += new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+            }
+            if (compiledSiteId != null &&
+                !YQCompiledWorldSiteInstance.TryProjectToSiteSurface(compiledSiteId, candidate, out candidate))
+                continue;
 
+            bool overlaps = false;
+            for (int i = 0; occupiedPositions != null && i < occupiedPositions.Count; i++)
+            {
+                Vector3 offset = candidate - occupiedPositions[i];
                 offset.y = 0f;
-
-                if (offset.sqrMagnitude <
-                    minimumSquared)
+                if (offset.sqrMagnitude < minimumSquared)
                 {
-                    overlaps =
-                        true;
+                    overlaps = true;
                     break;
                 }
             }
-
             if (!overlaps)
-                return candidate;
-
-            // note: Deterministic ring offsets preserve stable saves while separating residents assigned to the same role anchor.
-            float angle =
-                Deterministic01(
-                    seed +
-                    "|resident_separation_angle|" +
-                    attempt) *
-                Mathf.PI *
-                2f;
-
-            float radius =
-                minimumSpacing +
-                attempt *
-                1.15f;
-
-            candidate +=
-                new Vector3(
-                    Mathf.Cos(angle) *
-                        radius,
-                    0f,
-                    Mathf.Sin(angle) *
-                        radius);
+            {
+                position = candidate;
+                return true;
+            }
         }
-
-        return candidate;
+        // note: Exhaustion is a placement failure; returning the occupied anchor would silently stack residents or accept a missing floor.
+        return false;
     }
 
-    private static void CreateResident(
+    private static bool CreateResident(
         Transform parent,
         Terrain terrain,
         GeneratedSettlementRecord settlement,
         GeneratedNpcPlanRecord npcRecord,
         Vector3 position,
         string seed,
-        YQRuntimeWorldAssetRegistry registry)
+        int residentIndex,
+        YQRuntimeWorldAssetRegistry registry,
+        bool usesReviewedSurface)
     {
         if (npcRecord == null)
-            return;
+            return false;
 
         GameObject npc =
             CreateResidentVisual(
@@ -694,10 +749,11 @@ public static class YQGeneratedWorldPopulation
                 npcRecord,
                 position,
                 seed,
-                registry);
+                registry,
+                usesReviewedSurface);
 
         if (npc == null)
-            return;
+            return false;
 
         npc.name =
             "NPC__" +
@@ -745,6 +801,15 @@ public static class YQGeneratedWorldPopulation
         info.tags =
             tags;
 
+        // note: Distant compiled settlements register their residents directly, avoiding a later full-scene EntityInfo scan when reviewed floors stream in.
+        YQCompiledWorldSiteInstance.RegisterResidentPositionBinding(
+            settlement != null ? settlement.settlementId : string.Empty,
+            info,
+            (npcRecord.role ?? string.Empty) + " " +
+            (npcRecord.archetype ?? string.Empty),
+            seed,
+            residentIndex);
+
         NpcDialogueAgent agent =
             npc.GetComponent<
                 NpcDialogueAgent>();
@@ -770,6 +835,14 @@ public static class YQGeneratedWorldPopulation
         agent.tagsOverride =
             new List<string>(
                 tags);
+        // note: Residents receive bounded local pacing after identity and dialogue are bound; this keeps authored NPCs alive without replacing the project's navigation authority.
+        YQGeneratedNpcWander wander =
+            npc.GetComponent<YQGeneratedNpcWander>();
+        if (wander == null)
+            wander = npc.AddComponent<YQGeneratedNpcWander>();
+        wander.Configure(seed + "|" + npcRecord.npcId, 6f, 0.8f);
+        // note: Only a configured visual, identity and dialogue binding constitute a created resident.
+        return true;
     }
 
     // ============================================================
@@ -782,7 +855,8 @@ public static class YQGeneratedWorldPopulation
         GeneratedNpcPlanRecord record,
         Vector3 position,
         string seed,
-        YQRuntimeWorldAssetRegistry registry)
+        YQRuntimeWorldAssetRegistry registry,
+        bool usesReviewedSurface)
     {
         if (TryResolveResidentPrefab(
                 registry,
@@ -810,13 +884,26 @@ public static class YQGeneratedWorldPopulation
                     instance,
                     targetHeight);
 
+                // note: Character normalization changes the imported LOD envelope; recalculate it before physics or interaction can expose stale close-range culling.
+                YQRuntimeUrpMaterialRepair.StabilizeLodHierarchy(instance);
+
                 PrepareResidentPhysics(
                     instance);
 
-                GroundCharacterToTerrain(
-                    instance,
-                    terrain,
-                    position);
+                if (usesReviewedSurface)
+                {
+                    // note: The chosen building floor is authoritative; terrain-only grounding here previously buried otherwise correctly placed residents.
+                    if (!TryPlaceResidentOnReviewedSurface(instance, position))
+                    {
+                        instance.SetActive(false);
+                        UnityEngine.Object.Destroy(instance);
+                        return null;
+                    }
+                }
+                else
+                {
+                    GroundCharacterToTerrain(instance, terrain, position);
+                }
 
                 Debug.Log(
                     "[YQGeneratedWorldPopulation] " +
@@ -875,6 +962,14 @@ public static class YQGeneratedWorldPopulation
             fallback,
             record,
             seed);
+
+        // note: Even the emergency capsule has a scaled, center-based pivot; place its feet rather than assuming a fixed one-metre offset.
+        if (!TryPlaceResidentOnReviewedSurface(fallback, position))
+        {
+            fallback.SetActive(false);
+            UnityEngine.Object.Destroy(fallback);
+            return null;
+        }
 
         Collider collider =
             fallback.GetComponent<
@@ -1313,6 +1408,23 @@ public static class YQGeneratedWorldPopulation
         bool usesCompiledSite =
             YQCompiledWorldSiteInstance.HasSite(encampment.encampmentId);
 
+        if (usesCompiledSite)
+        {
+            // note: A prepared stream root is not loaded geometry. Resolve actors only after its real surfaces and colliders exist.
+            bool siteLoaded = false;
+            yield return YQCompiledWorldSiteInstance.EnsureSiteLoadedRoutine(
+                encampment.encampmentId, ready => siteLoaded = ready);
+            if (!siteLoaded)
+            {
+                // note: Required hostile sites get one cooperative retry after a transient stream race before the population pass reports a real failure.
+                yield return null;
+                yield return YQCompiledWorldSiteInstance.EnsureSiteLoadedRoutine(
+                    encampment.encampmentId, ready => siteLoaded = ready);
+            }
+            if (!siteLoaded)
+                throw new InvalidOperationException("Compiled hostile site failed to load before population: " + encampment.encampmentId);
+        }
+
         if (!usesCompiledSite)
         {
             yield return BuildEncampmentSiteAssetsRoutine(
@@ -1331,7 +1443,8 @@ public static class YQGeneratedWorldPopulation
         GeneratedNpcPlanRecord leader =
             FindEncampmentLeader(
                 plan,
-                encampment.encampmentId);
+                encampment.encampmentId,
+                world);
 
         if (leader != null &&
             ShouldMaterializeNpc(
@@ -1345,7 +1458,8 @@ public static class YQGeneratedWorldPopulation
 
             Vector3 leaderPosition = center;
             bool compiledLeaderPosition = usesCompiledSite &&
-                YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(
+                TryResolveCompiledCampActorPosition(
+                    plan,
                     encampment.encampmentId,
                     "hostile leader boss",
                     seed,
@@ -1354,13 +1468,16 @@ public static class YQGeneratedWorldPopulation
 
             if (!compiledLeaderPosition)
             {
+                // note: A required compiled actor must have a clear reviewed-site spawn; never silently scatter it onto a mandatory road.
+                if (usesCompiledSite)
+                    throw new InvalidOperationException("No route-clear compiled spawn for canonical leader " + leader.npcId);
                 leaderPosition = center + ResolveCampOffset(seed, 3f, 6f);
                 leaderPosition.y = YQGeneratedWorldTerrain.SampleWorldHeight(
                     terrain,
                     leaderPosition);
             }
 
-            CreateNamedHostile(
+            bool leaderCreated = CreateNamedHostile(
                 campRoot.transform,
                 terrain,
                 encampment,
@@ -1370,6 +1487,8 @@ public static class YQGeneratedWorldPopulation
                 seed,
                 registry);
 
+            if (!leaderCreated)
+                throw new InvalidOperationException("Leader creation failed for canonical NPC " + leader.npcId);
             namedHostiles =
                 1;
 
@@ -1401,7 +1520,8 @@ public static class YQGeneratedWorldPopulation
 
             Vector3 position = center;
             bool compiledRankPosition = usesCompiledSite &&
-                YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(
+                TryResolveCompiledCampActorPosition(
+                    plan,
                     encampment.encampmentId,
                     "hostile enemy encounter",
                     seed,
@@ -1410,6 +1530,9 @@ public static class YQGeneratedWorldPopulation
 
             if (!compiledRankPosition)
             {
+                // note: Ordinary encounter actors share the same compiled placement contract as the leader.
+                if (usesCompiledSite)
+                    throw new InvalidOperationException("No route-clear compiled encounter spawn for " + encampment.encampmentId + ":" + i);
                 position = center + ResolveCampOffset(seed, 7f, 17f);
                 position.y = YQGeneratedWorldTerrain.SampleWorldHeight(
                     terrain,
@@ -1478,10 +1601,84 @@ public static class YQGeneratedWorldPopulation
         }
     }
 
+    private static bool TryResolveCompiledCampActorPosition(
+        GeneratedWorldPlanRecord plan, string locationId, string role, string seed,
+        int index, out Vector3 position)
+    {
+        position = default;
+        // note: Authored non-V2 worlds retain their existing site resolver; V2 alone requires the accepted spatial route projection.
+        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+            return YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(locationId, role, seed, index, out position);
+        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out string failure))
+            throw new InvalidOperationException("Compiled encounter placement requires accepted spatial data: " + failure);
+        Vector3 bestCandidate = default;
+        float bestRouteMargin = float.MinValue;
+        bool foundCandidate = false;
+        for (int attempt = 0; attempt < 24; attempt++)
+        {
+            // note: Preserve the original candidate first, then deterministically ask the same reviewed site for another supported, unoccupied position.
+            string candidateSeed = attempt == 0 ? seed : seed + "|route_clear|" + attempt;
+            if (!YQCompiledWorldSiteInstance.TryResolveWorldActorPosition(locationId, role, candidateSeed, index, out Vector3 candidate))
+                continue;
+            foundCandidate = true;
+            float routeMargin = GetCompiledEncounterRouteMargin(prepared, candidate);
+            if (routeMargin > bestRouteMargin)
+            {
+                // note: Retain the safest reviewed socket so dense sites still materialize when every sampled socket touches a route shoulder.
+                bestRouteMargin = routeMargin;
+                bestCandidate = candidate;
+            }
+            if (routeMargin < 0f)
+                continue;
+            position = candidate;
+            return true;
+        }
+        if (foundCandidate)
+        {
+            // note: The site resolver already verified floor support and standing clearance; use its best deterministic socket instead of aborting the whole world.
+            position = bestCandidate;
+            Debug.LogWarning("[WORLDGEN] Encounter sockets touch a reviewed route shoulder; using the safest compiled socket. Location=" + locationId + ", role=" + role);
+            return true;
+        }
+        return false;
+    }
+
+    private static bool IsCompiledEncounterRouteClear(YQPreparedSpatialMaterializationV2 prepared, Vector3 candidate)
+    {
+        // note: Keep both actor/player capsules outside the traversable road. The terrain grading shoulder is not extra pavement and may legitimately include a neighbouring building.
+        return GetCompiledEncounterRouteMargin(prepared, candidate) >= 0f;
+    }
+
+    private static float GetCompiledEncounterRouteMargin(YQPreparedSpatialMaterializationV2 prepared, Vector3 candidate)
+    {
+        // note: Score the nearest route edge so fallback sockets choose the greatest available physical separation.
+        float minimumMargin = float.MaxValue;
+        for (int routeIndex = 0; routeIndex < prepared.RouteCount; routeIndex++)
+        {
+            var route = prepared.GetRoute(routeIndex);
+            int count = prepared.GetRoutePointCount(routeIndex);
+            for (int pointIndex = 1; pointIndex < count; pointIndex++)
+            {
+                var first = prepared.GetRoutePoint(routeIndex, pointIndex - 1);
+                var second = prepared.GetRoutePoint(routeIndex, pointIndex);
+                Vector2 a = new Vector2(first.x, first.z);
+                Vector2 delta = new Vector2(second.x - first.x, second.z - first.z);
+                Vector2 point = new Vector2(candidate.x, candidate.z);
+                float t = delta.sqrMagnitude > .0001f ? Mathf.Clamp01(Vector2.Dot(point - a, delta) / delta.sqrMagnitude) : 0f;
+                float clearance = Mathf.Max(route.width, Mathf.Max(first.width, second.width)) * .5f + 1.5f;
+                float margin = Vector2.Distance(point, a + delta * t) - clearance;
+                if (margin < minimumMargin)
+                    minimumMargin = margin;
+            }
+        }
+        return minimumMargin == float.MaxValue ? float.MaxValue : minimumMargin;
+    }
+
     private static GeneratedNpcPlanRecord
         FindEncampmentLeader(
             GeneratedWorldPlanRecord plan,
-            string encampmentId)
+            string encampmentId,
+            WorldState world)
     {
         if (plan == null ||
             plan.generatedNpcs == null ||
@@ -1503,6 +1700,8 @@ public static class YQGeneratedWorldPopulation
 
             if (npc == null ||
                 !npc.hostile ||
+                // note: A persisted dead commander must not shadow a different living canonical actor assigned to this camp.
+                !ShouldMaterializeNpc(world, npc.npcId) ||
                 !string.Equals(
                     npc.encampmentId,
                     encampmentId,
@@ -1560,7 +1759,7 @@ public static class YQGeneratedWorldPopulation
     // HOSTILES
     // ============================================================
 
-    private static void CreateNamedHostile(
+    private static bool CreateNamedHostile(
         Transform parent,
         Terrain terrain,
         GeneratedEncampmentRecord encampment,
@@ -1571,7 +1770,7 @@ public static class YQGeneratedWorldPopulation
         YQRuntimeWorldAssetRegistry registry)
     {
         if (npcRecord == null)
-            return;
+            return false;
 
         int tier =
             Mathf.Max(
@@ -1590,7 +1789,7 @@ public static class YQGeneratedWorldPopulation
                 registry);
 
         if (enemyObject == null)
-            return;
+            return false;
 
         enemyObject.name =
             "HostileLeader__" +
@@ -1664,6 +1863,8 @@ public static class YQGeneratedWorldPopulation
         // note: Attach runtime grounding at the frame-budgeted leader spawn point instead of relying on a later all-enemy scan.
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
             enemy);
+        // note: Report success only after the canonical identity and combat receiver have been configured.
+        return true;
     }
 
     private static void CreateGenericHostile(
@@ -2177,6 +2378,9 @@ public static class YQGeneratedWorldPopulation
                             leader,
                             seed);
                 }
+
+                // note: Hostile envelope fitting occurs after prefab material repair, so LOD bounds must be rebuilt at the final combat scale.
+                YQRuntimeUrpMaterialRepair.StabilizeLodHierarchy(instance);
 
                 PrepareHostilePhysics(
                     instance,
@@ -3388,6 +3592,48 @@ public static class YQGeneratedWorldPopulation
             fittedBounds.size.z <=
                 maximumDepth *
                 EnvelopeTolerance;
+    }
+
+    public static bool TryPlaceResidentOnReviewedSurface(GameObject root, Vector3 surfacePosition)
+    {
+        // note: Both initial creation and site reload use the same contact-to-pivot correction without resampling terrain underneath a floor.
+        if (root == null || float.IsNaN(surfacePosition.sqrMagnitude) || float.IsInfinity(surfacePosition.sqrMagnitude))
+            return false;
+        YQInvestorEnemy enemy = root.GetComponent<YQInvestorEnemy>();
+        if ((enemy != null && enemy.allowFlight) || YQTerrainSupportComposer.IsExplicitlySuspended(root))
+            return true;
+
+        if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(root, out Bounds bounds, out float contactBottom))
+        {
+            // note: Retain the existing legacy visual-bounds fallback, but target the reviewed support height rather than the hidden terrain.
+            if (!TryGetRenderableBounds(root, out bounds))
+                return false;
+            contactBottom = bounds.min.y;
+        }
+        float contactOffset = contactBottom - root.transform.position.y;
+        Vector3 destination = surfacePosition - Vector3.up * (contactOffset + 0.005f);
+        if (float.IsNaN(destination.sqrMagnitude) || float.IsInfinity(destination.sqrMagnitude))
+            return false;
+
+        CharacterController controller = root.GetComponent<CharacterController>();
+        bool restoreController = controller != null && controller.enabled;
+        try
+        {
+            // note: Preserve controller ownership while teleporting; an exception must not leave the resident's collision disabled.
+            if (restoreController)
+                controller.enabled = false;
+            Rigidbody body = root.GetComponent<Rigidbody>();
+            if (body != null)
+                body.position = destination;
+            else
+                root.transform.position = destination;
+        }
+        finally
+        {
+            if (restoreController && controller != null)
+                controller.enabled = true;
+        }
+        return true;
     }
 
     private static void GroundCharacterToTerrain(

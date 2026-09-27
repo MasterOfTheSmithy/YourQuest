@@ -34,21 +34,23 @@ public class UpgradeOfferManager : MonoBehaviour
     public void OfferReplacementIfRelevant(SkillData newSkill, SkillData parentSkill)
     {
         if (newSkill == null || parentSkill == null) return;
-        if (playerProfile == null)
+        PlayerStateManager stateManager = PlayerStateManager.Instance;
+        PlayerState state = stateManager != null ? stateManager.state : null;
+        if (state == null)
         {
-            Debug.LogWarning("[UpgradeOffer] No PlayerProfile assigned.");
+            Debug.LogWarning("[UpgradeOffer] Canonical PlayerState is unavailable.");
             return;
         }
+        state.EnsureCollections();
 
-        var equippedId = playerProfile.GetEquippedSkillId(newSkill.type);
+        string equippedId = state.equippedSkillBySlot.TryGetValue(newSkill.type.ToString(), out string currentId) ? currentId : null;
 
         bool parentEquipped = !string.IsNullOrWhiteSpace(equippedId) && equippedId == parentSkill.skillId;
         bool slotOccupied = !string.IsNullOrWhiteSpace(equippedId);
 
         if (!slotOccupied)
         {
-            playerProfile.EquipSkill(newSkill);
-            PlayerStateManager.Instance?.EquipSkill(newSkill);
+            stateManager.EquipSkill(newSkill);
             return;
         }
 
@@ -68,7 +70,6 @@ public class UpgradeOfferManager : MonoBehaviour
         if (activeOffer == null) return;
         var offer = activeOffer.Value;
 
-        playerProfile.ReplaceEquippedSkill(offer.newSkill);
         PlayerStateManager.Instance?.EquipSkill(offer.newSkill);
 
         activeOffer = null;
@@ -109,6 +110,12 @@ public class UpgradeOfferManager : MonoBehaviour
         public string currentlyEquippedSkillId;
         public string reason;
     }
-}
 
+    private void OnDestroy()
+    {
+        // note: Release the singleton on scene teardown so a new profile cannot inherit this offer queue.
+        if (Instance == this)
+            Instance = null;
+    }
+}
 

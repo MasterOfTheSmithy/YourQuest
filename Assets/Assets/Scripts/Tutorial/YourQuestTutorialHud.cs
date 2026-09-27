@@ -9,6 +9,8 @@ using UnityEngine.UI;
 public sealed class YourQuestTutorialHud : MonoBehaviour
 {
     private Canvas _canvas;
+    // note: Startup diagnostics observe the actual rendered HUD gate rather than inferring UI visibility from service readiness.
+    public bool IsPresentationVisible => isActiveAndEnabled && _canvas != null && _canvas.isActiveAndEnabled;
     private TMP_Text _identityText;
     private TMP_Text _healthValueText;
     private TMP_Text _staminaValueText;

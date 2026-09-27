@@ -15,8 +15,9 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private const string HumanAnimatorControllerPath = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Demo Files/Human (Male & Female).controller";
     private const float ThirdPersonAvatarHeight = 1.86f;
     private const float AvatarGroundClearance = 0.015f;
-    private const float FirstPersonWeaponMaximumSize = 0.29f;
-    private const float FirstPersonOffhandMaximumSize = 0.24f;
+    // note: Equipment targets are world-space extents relative to the normalized 1.86 m avatar, not arbitrary prefab units.
+    private const float FirstPersonWeaponMaximumSize = 0.44f;
+    private const float FirstPersonOffhandMaximumSize = 0.34f;
     private static readonly string[] BaseTextureProperties = { "_BaseMap", "_MainTex", "_Albedo", "_BaseColorMap", "_DiffuseMap", "_ColorMap" };
 
     private readonly struct SlotVisual
@@ -37,18 +38,19 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
     private static readonly SlotVisual[] Slots =
     {
-        new SlotVisual("weapon", new Vector3(0.34f, 1.02f, 0.12f), new Vector3(12f, 4f, 84f), 0.46f),
-        new SlotVisual("offhand", new Vector3(-0.34f, 1.00f, 0.12f), new Vector3(12f, -14f, -70f), 0.36f),
+        new SlotVisual("weapon", new Vector3(0.34f, 1.02f, 0.12f), new Vector3(12f, 4f, 84f), 0.86f),
+        new SlotVisual("offhand", new Vector3(-0.34f, 1.00f, 0.12f), new Vector3(12f, -14f, -70f), 0.70f),
         new SlotVisual("head", new Vector3(0f, 1.67f, 0.01f), Vector3.zero, 0.36f),
-        new SlotVisual("chest", new Vector3(0f, 1.08f, 0.02f), Vector3.zero, 0.58f),
+        new SlotVisual("chest", new Vector3(0f, 1.08f, 0.02f), Vector3.zero, 0.72f),
         new SlotVisual("gloves", new Vector3(0.34f, 0.95f, 0.03f), new Vector3(0f, 0f, 12f), 0.24f),
         new SlotVisual("belt", new Vector3(0f, 0.84f, 0.02f), Vector3.zero, 0.42f),
-        new SlotVisual("legs", new Vector3(0f, 0.58f, 0.01f), Vector3.zero, 0.48f),
-        new SlotVisual("boots", new Vector3(0.15f, 0.13f, 0.04f), Vector3.zero, 0.24f),
+        new SlotVisual("legs", new Vector3(0f, 0.58f, 0.01f), Vector3.zero, 0.82f),
+        new SlotVisual("boots", new Vector3(0.15f, 0.13f, 0.04f), Vector3.zero, 0.34f),
         new SlotVisual("necklace", new Vector3(0f, 1.39f, 0.10f), new Vector3(0f, 0f, 0f), 0.22f),
         new SlotVisual("ring_left", new Vector3(-0.41f, 0.96f, 0.17f), Vector3.zero, 0.09f),
         new SlotVisual("ring_right", new Vector3(0.41f, 0.96f, 0.17f), Vector3.zero, 0.09f),
-        new SlotVisual("trinket", new Vector3(0f, 0.96f, -0.14f), Vector3.zero, 0.18f)
+        new SlotVisual("trinket", new Vector3(0f, 0.96f, -0.14f), Vector3.zero, 0.24f),
+        new SlotVisual("cloak", Vector3.zero, Vector3.zero, 1.05f)
     };
 
     private static readonly string[] NativeWearableSlots = { "head", "chest", "gloves", "belt", "legs", "boots", "cloak" };
@@ -72,6 +74,18 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private CharacterController _controller;
     private YQInvestorPlayerMotor _motor;
     private Animator _animator;
+    // note: Cache controller contracts once per binding instead of allocating Animator.parameters for every parameter every frame.
+    private Animator _parameterAnimator;
+    private RuntimeAnimatorController _parameterController;
+    private readonly Dictionary<string, AnimatorControllerParameterType> _parameterTypes = new Dictionary<string, AnimatorControllerParameterType>(StringComparer.Ordinal);
+    private bool _jumpUsesAnimation;
+    private bool _jumpAnimationInFlight;
+    private bool _nativeCrouchAnimation;
+    private readonly Transform[] _crouchBones = new Transform[7];
+    private readonly Quaternion[] _preCrouchRotations = new Quaternion[7];
+    private Vector3 _preCrouchHipPosition;
+    private bool _crouchPoseApplied;
+    private float _crouchLegLength;
     private string _lastSignature = string.Empty;
     private string _lastFirstPersonSignature = string.Empty;
     private float _nextPollTime;
@@ -147,6 +161,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
     private void Update()
     {
+        // note: Remove last frame's fallback offsets before the Animator evaluates a fresh pose.
+        RestoreCrouchPose();
         if (_motor == null)
             _motor = GetComponent<YQInvestorPlayerMotor>();
         if (_motor != null && !_motor.IsAuthoritative)
@@ -228,6 +244,10 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     public void PlayJumpFeedback()
     {
         _jumpKickUntil = Time.time + 0.28f;
+        // note: This is called only after the authoritative motor accepts and pays for a jump.
+        _jumpUsesAnimation = TriggerFirstAnimator("bRunningJump1", "Jump", "jump") ||
+            PlayFirstAnimatorState("RunningJump01", "Jump", "jump");
+        _jumpAnimationInFlight = _jumpUsesAnimation;
     }
 
     private void QueueCastAnimatorEnd(string triggerName, float delaySeconds)
@@ -340,6 +360,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             animator.keepAnimatorStateOnDisable = true;
             _animator = animator;
+            BindCrouchPose();
             ResetAnimatorToIdle();
         }
 
@@ -388,7 +409,6 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             itemVisual.transform.SetParent(anchor, false);
             itemVisual.transform.localPosition = Vector3.zero;
             itemVisual.transform.localRotation = Quaternion.identity;
-            itemVisual.transform.localScale = Vector3.one;
             PrepareVisualInstance(itemVisual);
             YQRuntimeUrpMaterialRepair.RepairHierarchy(itemVisual);
             if (nativeWearable)
@@ -399,6 +419,9 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             else
             {
                 NormalizeEquippedInstance(itemVisual, anchor, slot.MaxSize);
+                // note: A delayed bounds sample catches imported LOD/skinned meshes that finish initialization after the equip frame.
+                if (Application.isPlaying)
+                    StartCoroutine(StabilizeThirdPersonItemScaleRoutine(itemVisual, anchor, slot.MaxSize));
             }
             ApplyItemTint(itemVisual, item);
 
@@ -657,7 +680,6 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         itemVisual.transform.SetParent(anchorGo.transform, false);
         itemVisual.transform.localPosition = Vector3.zero;
         itemVisual.transform.localRotation = Quaternion.identity;
-        itemVisual.transform.localScale = Vector3.one;
         PrepareVisualInstance(itemVisual);
         YQRuntimeUrpMaterialRepair.RepairHierarchy(itemVisual);
         NormalizeEquippedInstance(itemVisual, itemVisual.transform, maxSize);
@@ -701,6 +723,23 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             NormalizeEquippedInstance(itemVisual, itemVisual.transform, maximumSize);
     }
 
+    private static IEnumerator StabilizeThirdPersonItemScaleRoutine(
+        GameObject itemVisual,
+        Transform anchor,
+        float maximumSize)
+    {
+        yield return null;
+
+        if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize);
+
+        // note: A final end-of-frame sample avoids a one-frame size jump when a renderer's bounds become valid after animation/skinning.
+        yield return new WaitForEndOfFrame();
+
+        if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize);
+    }
+
     private GameObject CreateItemVisual(InventoryItemRecord item, SlotVisual slot)
     {
         string prefabPath = item != null ? item.prefabKey : string.Empty;
@@ -714,6 +753,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             GameObject instance = Instantiate(prefab);
             if (!LooksLikeFullHumanoidCharacterVisual(instance))
             {
+                // note: Imported roots start from unit scale; fallback primitives retain their authored shape until the shared extent pass.
+                instance.transform.localScale = Vector3.one;
                 RepairMissingRendererMaterials(instance, ResolveItemColor(item));
                 return instance;
             }
@@ -899,18 +940,19 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         float castCurve = Mathf.Sin((1f - castKick) * Mathf.PI);
         float rollCurve = rollKick > 0f ? Mathf.Sin((1f - rollKick) * Mathf.PI) : 0f;
         float jumpCurve = jumpKick > 0f ? Mathf.Sin((1f - jumpKick) * Mathf.PI) : 0f;
+        // note: A skeletal jump supplies its own pose; do not tilt/lift the whole avatar a second time.
+        if (_jumpUsesAnimation)
+            jumpCurve = 0f;
         _visualRig.localPosition = _rigBaseLocalPosition + new Vector3(
             0.035f * _meleeSide * meleeCurve,
-            bob - 0.01f * rollCurve + 0.08f * jumpCurve - 0.03f * _crouchBlend,
+            bob - 0.01f * rollCurve + 0.08f * jumpCurve,
             0.055f * castCurve - 0.06f * meleeCurve + 0.18f * rollCurve);
         _visualRig.localRotation = Quaternion.Euler(
-            lean - 7f * meleeCurve - 3f * castCurve - 14f * rollCurve - 10f * jumpCurve - 15f * _crouchBlend,
+            lean - 7f * meleeCurve - 3f * castCurve - 14f * rollCurve - 10f * jumpCurve,
             9f * _meleeSide * meleeCurve,
             -sway - 11f * _meleeSide * meleeCurve + 5f * castCurve);
-        _visualRig.localScale = new Vector3(
-            Mathf.Lerp(1f, 1.04f, _crouchBlend),
-            Mathf.Lerp(1f, 0.72f, _crouchBlend),
-            Mathf.Lerp(1f, 1.04f, _crouchBlend));
+        // note: Crouching bends the skeleton or uses the controller; never squash body/equipment proportions.
+        _visualRig.localScale = Vector3.one;
     }
 
     private void AnimateFirstPersonRoot(float speed)
@@ -1059,10 +1101,19 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         SetAnimatorBool("Crouch", crouching);
         SetAnimatorBool("crouch", crouching);
         SetAnimatorBool("Crouching", crouching);
+        SetAnimatorBool("IsCrouching", crouching);
         SetAnimatorBool("isCrouching", crouching);
         SetAnimatorBool("Dashing", dashing);
         SetAnimatorBool("isDashing", dashing);
-        bool grounded = _controller == null || _controller.isGrounded;
+        bool grounded = _motor != null ? _motor.IsGrounded : _controller == null || _controller.isGrounded;
+        if (_jumpAnimationInFlight && grounded)
+        {
+            // note: End the imported jump on physical landing instead of finishing an airborne pose while already walking.
+            _jumpAnimationInFlight = false;
+            AnimatorStateInfo currentState = _animator.GetCurrentAnimatorStateInfo(0);
+            if (currentState.IsName("Base Layer.RunningJump01") && _animator.HasState(0, Animator.StringToHash("Base Layer.Locomotion")))
+                _animator.CrossFadeInFixedTime("Base Layer.Locomotion", 0.1f, 0);
+        }
         SetAnimatorBool("Grounded", grounded);
         SetAnimatorBool("grounded", grounded);
         SetAnimatorBool("IsGrounded", grounded);
@@ -1336,10 +1387,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             return;
 
         float largest = Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
-        if (largest > 0.01f)
+        if (IsFinite(largest) && largest > 0.0001f && IsFinite(maxSize) && maxSize > 0.0001f)
         {
-            float scale = Mathf.Clamp(maxSize / largest, 0.04f, 2.25f);
-            instance.transform.localScale *= scale;
+            // note: Scale by measured world bounds so assets authored in different unit systems land at the same human-scale extent.
+            float scale = Mathf.Clamp(maxSize / largest, 0.02f, 6f);
+            Vector3 currentScale = instance.transform.localScale;
+            if (!IsFinite(currentScale) || currentScale.sqrMagnitude < 0.000001f)
+                currentScale = Vector3.one;
+            instance.transform.localScale = currentScale * scale;
         }
 
         if (TryGetBounds(instance, out bounds))
@@ -2381,15 +2436,88 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (_animator == null || !_animator.isActiveAndEnabled || _animator.runtimeAnimatorController == null || string.IsNullOrWhiteSpace(parameterName))
             return false;
 
-        AnimatorControllerParameter[] parameters = _animator.parameters;
-        for (int i = 0; i < parameters.Length; i++)
+        if (_parameterAnimator != _animator || _parameterController != _animator.runtimeAnimatorController)
         {
-            AnimatorControllerParameter parameter = parameters[i];
-            if (parameter.type == type && string.Equals(parameter.name, parameterName, StringComparison.Ordinal))
-                return true;
+            // note: Swapping an avatar/controller invalidates the cached contract, including negative lookups.
+            _parameterAnimator = _animator;
+            _parameterController = _animator.runtimeAnimatorController;
+            _parameterTypes.Clear();
+            AnimatorControllerParameter[] parameters = _animator.parameters;
+            for (int i = 0; i < parameters.Length; i++)
+                _parameterTypes[parameters[i].name] = parameters[i].type;
         }
 
-        return false;
+        return _parameterTypes.TryGetValue(parameterName, out AnimatorControllerParameterType actualType) && actualType == type;
+    }
+
+    private void BindCrouchPose()
+    {
+        // note: Keep the imported controller intact; its missing crouch action uses a reversible humanoid pose overlay.
+        RestoreCrouchPose();
+        Array.Clear(_crouchBones, 0, _crouchBones.Length);
+        _nativeCrouchAnimation = HasAnimatorParameter("Crouch", AnimatorControllerParameterType.Bool) ||
+            HasAnimatorParameter("crouch", AnimatorControllerParameterType.Bool) ||
+            HasAnimatorParameter("Crouching", AnimatorControllerParameterType.Bool) ||
+            HasAnimatorParameter("IsCrouching", AnimatorControllerParameterType.Bool) ||
+            HasAnimatorParameter("isCrouching", AnimatorControllerParameterType.Bool);
+        if (_animator == null || !_animator.isHuman || _nativeCrouchAnimation)
+            return;
+
+        HumanBodyBones[] bones = { HumanBodyBones.Hips, HumanBodyBones.LeftUpperLeg, HumanBodyBones.LeftLowerLeg,
+            HumanBodyBones.LeftFoot, HumanBodyBones.RightUpperLeg, HumanBodyBones.RightLowerLeg, HumanBodyBones.RightFoot };
+        for (int i = 0; i < bones.Length; i++)
+        {
+            _crouchBones[i] = _animator.GetBoneTransform(bones[i]);
+            if (_crouchBones[i] == null)
+            {
+                Array.Clear(_crouchBones, 0, _crouchBones.Length);
+                Debug.LogWarning("[YourQuest] Crouch pose unavailable: player avatar is missing a required leg bone.", this);
+                return;
+            }
+        }
+        _crouchLegLength = Vector3.Distance(_crouchBones[1].position, _crouchBones[2].position) +
+            Vector3.Distance(_crouchBones[2].position, _crouchBones[3].position);
+    }
+
+    private void LateUpdate()
+    {
+        // note: Apply after skeletal animation so walking and attacks keep playing underneath the crouch pose.
+        if (_crouchBlend <= 0f || _nativeCrouchAnimation || _crouchBones[0] == null ||
+            _animator == null || !_animator.isActiveAndEnabled || (_motor != null && !_motor.IsAuthoritative))
+            return;
+        for (int i = 0; i < _crouchBones.Length; i++)
+            _preCrouchRotations[i] = _crouchBones[i].localRotation;
+        _preCrouchHipPosition = _crouchBones[0].localPosition;
+        _crouchPoseApplied = true;
+
+        // note: Opposing thigh/knee/ankle bends preserve proportions; lower hips by the lost vertical leg reach.
+        float angle = 52f * _crouchBlend;
+        Vector3 axis = transform.right;
+        _crouchBones[0].position -= transform.up * (_crouchLegLength * (1f - Mathf.Cos(angle * Mathf.Deg2Rad)));
+        for (int leg = 1; leg <= 4; leg += 3)
+        {
+            _crouchBones[leg].rotation = Quaternion.AngleAxis(-angle, axis) * _crouchBones[leg].rotation;
+            _crouchBones[leg + 1].rotation = Quaternion.AngleAxis(angle * 2f, axis) * _crouchBones[leg + 1].rotation;
+            _crouchBones[leg + 2].rotation = Quaternion.AngleAxis(-angle, axis) * _crouchBones[leg + 2].rotation;
+        }
+    }
+
+    private void RestoreCrouchPose()
+    {
+        if (!_crouchPoseApplied)
+            return;
+        // note: Restore local values to prevent drift across frames, disabling, or avatar replacement.
+        for (int i = 0; i < _crouchBones.Length; i++)
+            if (_crouchBones[i] != null)
+                _crouchBones[i].localRotation = _preCrouchRotations[i];
+        if (_crouchBones[0] != null)
+            _crouchBones[0].localPosition = _preCrouchHipPosition;
+        _crouchPoseApplied = false;
+    }
+
+    private void OnDisable()
+    {
+        RestoreCrouchPose();
     }
 
     private static GameObject LoadPrefab(string path)
@@ -2435,6 +2563,8 @@ internal sealed class YQPlayerVisualAuthorityRepair : MonoBehaviour
     }
 }
 
+// note: Socket followers sample the final animated/crouched pose, not the pre-overlay leg positions.
+[DefaultExecutionOrder(200)]
 internal sealed class YQEquipmentBoneFollower : MonoBehaviour
 {
     private Transform _target;

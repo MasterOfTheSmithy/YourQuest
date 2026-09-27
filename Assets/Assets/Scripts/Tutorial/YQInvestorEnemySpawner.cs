@@ -21,12 +21,17 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
     public string semanticRegionId = "region_unknown";
     public string enemyDisplayName = "Echo Marauder";
     public string enemyPrefabPath = string.Empty;
+    // note: A non-empty seed makes streamed fixture encounter placement independent of Unity's global random stream and load order.
+    public string deterministicSeed = string.Empty;
     public bool allowImportedPrefabModelsInPlay = false;
     public bool requireOriginComplete = true;
     public bool requirePlayerNear = true;
     public bool despawnWhenPlayerFar = true;
     public string requiredCounter = string.Empty;
     public float requiredCounterMinimum = 1f;
+    // note: Completed encounters use a durable counter gate so unloading and revisiting a site cannot resurrect defeated enemies.
+    public string completedCounter = string.Empty;
+    public float completedCounterMinimum = 1f;
     public float gatedSpawnRetryInterval = 1.25f;
     public float playerActivationDistance = 34f;
     public float playerFarDespawnDistance = 58f;
@@ -81,8 +86,8 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
 
         for (int i = 0; i < enemyCount; i++)
         {
-            Vector3 offset = Random.insideUnitSphere * Mathf.Max(0f, spawnRadius);
-            offset.y = 0f;
+            // note: Use a stable polar sample for accepted streamed fixtures; legacy unseeded spawners retain their existing random distribution.
+            Vector3 offset = ResolveSpawnOffset(i);
             Vector3 pos = transform.position + offset;
             if (!TryGetGroundedEnemyPosition(pos, out pos, EnemyGroundOffset, null))
                 pos.y = Mathf.Min(pos.y, EnemyGroundOffset);
@@ -131,6 +136,8 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
             enemy.allowFlight = IsFlyingEnemy(enemyPrefabPath, enemyDisplayName);
             enemy.Initialize(this);
             ApplyRarity(enemy, i);
+            // note: Apply the same per-hostile grounding recovery used by generated-world population so streamed encounters cannot remain below or above their accepted site surface.
+            YQGeneratedEnemyRuntimeSafety.EnsureAttached(enemy);
             _alive.Add(enemy);
         }
     }
@@ -155,6 +162,14 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
 
             state.EnsureCollections();
             if (!state.behaviorCounters.TryGetValue(requiredCounter.Trim(), out float value) || value < requiredCounterMinimum)
+                return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(completedCounter) && state != null)
+        {
+            state.EnsureCollections();
+            if (state.behaviorCounters.TryGetValue(completedCounter.Trim(), out float completed) &&
+                completed >= completedCounterMinimum)
                 return false;
         }
 
@@ -330,7 +345,11 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
         if (enemy == null)
             return;
 
-        float roll = Mathf.Repeat(Random.value + seedOffset * 0.173f, 1f);
+        // note: Stable rarity keeps the encounter presentation reproducible across unload/reload and does not consume the global random stream.
+        float roll = ResolveStableJitter(
+            enemy.displayName + "|rarity|" + seedOffset,
+            0f,
+            1f);
         if (roll > 0.985f)
             enemy.ApplyVariant("legendary", new Color(1f, 0.72f, 0.22f, 1f), 1.55f, 2.25f, 1.8f);
         else if (roll > 0.94f)
@@ -339,6 +358,22 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
             enemy.ApplyVariant("rare", new Color(0.42f, 0.78f, 1f, 1f), 1.15f, 1.35f, 1.2f);
         else
             enemy.ApplyVariant("common", Color.white, 1f, 1f, 1f);
+    }
+
+    private Vector3 ResolveSpawnOffset(int index)
+    {
+        float radius = Mathf.Max(0f, spawnRadius);
+        if (string.IsNullOrWhiteSpace(deterministicSeed) || radius <= 0.001f)
+        {
+            Vector3 random = Random.insideUnitSphere * radius;
+            random.y = 0f;
+            return random;
+        }
+
+        // note: Square-root radial sampling preserves even area coverage while the angle and radius remain keyed to the accepted site identity.
+        float angle = ResolveStableJitter(deterministicSeed + "|angle|" + index, 0f, Mathf.PI * 2f);
+        float distance = Mathf.Sqrt(ResolveStableJitter(deterministicSeed + "|radius|" + index, 0f, 1f)) * radius;
+        return new Vector3(Mathf.Cos(angle) * distance, 0f, Mathf.Sin(angle) * distance);
     }
 
     private GameObject TryCreateModel(Transform parent, string label)

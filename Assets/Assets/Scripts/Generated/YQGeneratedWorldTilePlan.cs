@@ -59,6 +59,8 @@ public sealed class YQGeneratedWorldTilePlan
             NodeCount,
             NodeCount];
 
+    private readonly GeneratedSpatialWorldPlanRecord spatialPlan;
+
     private struct NodeProfile
     {
         public float uplift;
@@ -69,7 +71,16 @@ public sealed class YQGeneratedWorldTilePlan
 
     public YQGeneratedWorldTilePlan(
         uint seedHash)
+        : this(seedHash, null)
     {
+    }
+
+    public YQGeneratedWorldTilePlan(
+        uint seedHash,
+        GeneratedSpatialWorldPlanRecord semanticSpatialPlan)
+    {
+        // note: Seed noise supplies local variation while persisted region meaning controls the broad ecological target.
+        spatialPlan = semanticSpatialPlan;
         NodeProfile[,] rawNodes =
             new NodeProfile[
                 NodeCount,
@@ -291,6 +302,11 @@ public sealed class YQGeneratedWorldTilePlan
                 north,
                 blendZ);
 
+        ApplySemanticRegionalProfile(
+            ref profile,
+            worldX,
+            worldZ);
+
         float mountainAffinity =
             Mathf.Clamp01(
                 profile.uplift *
@@ -333,6 +349,60 @@ public sealed class YQGeneratedWorldTilePlan
                 profile.forest,
                 mountainAffinity,
                 drainageAffinity);
+    }
+
+    private void ApplySemanticRegionalProfile(
+        ref NodeProfile profile,
+        float worldX,
+        float worldZ)
+    {
+        if (spatialPlan == null || spatialPlan.regions == null || spatialPlan.regions.Count == 0)
+            return;
+
+        float totalWeight = 0f;
+        float uplift = 0f;
+        float ruggedness = 0f;
+        float moisture = 0f;
+        float forest = 0f;
+        for (int i = 0; i < spatialPlan.regions.Count; i++)
+        {
+            GeneratedSpatialRegionRecord region = spatialPlan.regions[i];
+            if (region == null)
+                continue;
+            float distance = Vector2.Distance(
+                new Vector2(worldX, worldZ),
+                new Vector2(region.centerX, region.centerZ));
+            float weight = Mathf.Clamp01(1f - distance / Mathf.Max(1f, region.radius * 1.35f));
+            weight = weight * weight * (3f - 2f * weight);
+            if (weight <= 0f)
+                continue;
+
+            float regionalForest = Mathf.Clamp01(
+                region.moisture * 0.78f +
+                (1f - region.ruggedness) * 0.18f -
+                region.civilizationDensity * 0.14f);
+            if (string.Equals(spatialPlan.structuralTheme, "cyberpunk", System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(spatialPlan.structuralTheme, "noir_city", System.StringComparison.OrdinalIgnoreCase))
+            {
+                regionalForest *= 0.28f;
+            }
+
+            uplift += Mathf.Clamp01(region.elevationBias) * weight;
+            ruggedness += Mathf.Clamp01(region.ruggedness) * weight;
+            moisture += Mathf.Clamp01(region.moisture) * weight;
+            forest += regionalForest * weight;
+            totalWeight += weight;
+        }
+
+        if (totalWeight <= 0.001f)
+            return;
+
+        float semanticBlend = Mathf.Clamp01(totalWeight * 0.52f);
+        // note: Wide blended influence bands prevent hard biome seams while making theme and region descriptions structurally visible.
+        profile.uplift = Mathf.Lerp(profile.uplift, uplift / totalWeight, semanticBlend);
+        profile.ruggedness = Mathf.Lerp(profile.ruggedness, ruggedness / totalWeight, semanticBlend);
+        profile.moisture = Mathf.Lerp(profile.moisture, moisture / totalWeight, semanticBlend);
+        profile.forest = Mathf.Lerp(profile.forest, forest / totalWeight, semanticBlend);
     }
 
     public YQGeneratedWorldTileProfile GetTileProfile(

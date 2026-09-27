@@ -156,6 +156,10 @@ public sealed class YQAssetKitManifest
     public List<string> forbiddenKitIds = new List<string>();
     public List<string> validationIssues = new List<string>();
 
+    // note: The V2 style contract is additive; version zero leaves every existing catalog record on the legacy descriptive-tag path.
+    public YQKitStyleContractV2 styleV2 =
+        new YQKitStyleContractV2();
+
     public void EnsureCollections()
     {
         genreTags ??= new List<string>();
@@ -164,6 +168,8 @@ public sealed class YQAssetKitManifest
         compatibleAccentKitIds ??= new List<string>();
         forbiddenKitIds ??= new List<string>();
         validationIssues ??= new List<string>();
+        styleV2 ??= new YQKitStyleContractV2();
+        styleV2.EnsureCollections();
     }
 }
 
@@ -208,6 +214,10 @@ public sealed class YQSpatialAssetRecord
     public List<string> semanticTags = new List<string>();
     public List<string> validationIssues = new List<string>();
 
+    // note: Reviewed V2 spatial intelligence lives beside legacy inference so raw discovery remains useful evidence without becoming placement authority.
+    public YQAssetCurationContractV2 curationV2 =
+        new YQAssetCurationContractV2();
+
     public void EnsureCollections()
     {
         entranceSocketCandidates ??= new List<string>();
@@ -215,6 +225,8 @@ public sealed class YQSpatialAssetRecord
         dressingSocketCandidates ??= new List<string>();
         semanticTags ??= new List<string>();
         validationIssues ??= new List<string>();
+        curationV2 ??= new YQAssetCurationContractV2();
+        curationV2.EnsureCollections();
     }
 }
 
@@ -235,140 +247,5 @@ public sealed class YQMaterialAssetRecord
     public void EnsureCollections()
     {
         validationIssues ??= new List<string>();
-    }
-}
-
-[CreateAssetMenu(
-    fileName = "YQWorldAssetIntakeCatalog",
-    menuName = "YourQuest/AAA World Asset Intake Catalog")]
-public sealed class YQWorldAssetIntakeCatalog : ScriptableObject
-{
-    public const string CurrentSchemaVersion =
-        "world_asset_intake_v3";
-
-    [SerializeField]
-    private string schemaVersion =
-        CurrentSchemaVersion;
-
-    [SerializeField]
-    private string scanScope =
-        string.Empty;
-
-    [SerializeField]
-    private string generatedUtc =
-        string.Empty;
-
-    [SerializeField]
-    private List<YQAssetKitManifest> kits =
-        new List<YQAssetKitManifest>();
-
-    [SerializeField]
-    private List<YQSpatialAssetRecord> spatialAssets =
-        new List<YQSpatialAssetRecord>();
-
-    [SerializeField]
-    private List<YQMaterialAssetRecord> materials =
-        new List<YQMaterialAssetRecord>();
-
-    public string SchemaVersion => schemaVersion;
-    public string ScanScope => scanScope;
-    public string GeneratedUtc => generatedUtc;
-    public IReadOnlyList<YQAssetKitManifest> Kits => kits;
-    public IReadOnlyList<YQSpatialAssetRecord> SpatialAssets => spatialAssets;
-    public IReadOnlyList<YQMaterialAssetRecord> Materials => materials;
-
-    public void SetRecords(
-        string newScanScope,
-        string newGeneratedUtc,
-        List<YQAssetKitManifest> newKits,
-        List<YQSpatialAssetRecord> newSpatialAssets,
-        List<YQMaterialAssetRecord> newMaterials)
-    {
-        // note: One editor transaction replaces the complete intake snapshot so stale asset eligibility cannot survive a rescan.
-        schemaVersion = CurrentSchemaVersion;
-        scanScope = newScanScope ?? string.Empty;
-        generatedUtc = newGeneratedUtc ?? string.Empty;
-        kits = newKits ?? new List<YQAssetKitManifest>();
-        spatialAssets = newSpatialAssets ?? new List<YQSpatialAssetRecord>();
-        materials = newMaterials ?? new List<YQMaterialAssetRecord>();
-
-        EnsureCollections();
-    }
-
-    public void EnsureCollections()
-    {
-        kits ??= new List<YQAssetKitManifest>();
-        spatialAssets ??= new List<YQSpatialAssetRecord>();
-        materials ??= new List<YQMaterialAssetRecord>();
-
-        for (int i = 0; i < kits.Count; i++)
-            kits[i]?.EnsureCollections();
-
-        for (int i = 0; i < spatialAssets.Count; i++)
-            spatialAssets[i]?.EnsureCollections();
-
-        for (int i = 0; i < materials.Count; i++)
-            materials[i]?.EnsureCollections();
-    }
-
-    public void RecalculateKitSpatialCounts()
-    {
-        EnsureCollections();
-
-        Dictionary<string, YQAssetKitManifest> kitsById =
-            new Dictionary<string, YQAssetKitManifest>(
-                StringComparer.OrdinalIgnoreCase);
-
-        for (int i = 0; i < kits.Count; i++)
-        {
-            YQAssetKitManifest kit =
-                kits[i];
-
-            if (kit == null ||
-                string.IsNullOrWhiteSpace(kit.kitId))
-            {
-                continue;
-            }
-
-            kit.prefabCount = 0;
-            kit.candidatePrefabCount = 0;
-            kit.repairRequiredPrefabCount = 0;
-            kit.spatialReviewPrefabCount = 0;
-
-            kitsById[kit.kitId] =
-                kit;
-        }
-
-        for (int i = 0; i < spatialAssets.Count; i++)
-        {
-            YQSpatialAssetRecord record =
-                spatialAssets[i];
-
-            if (record == null ||
-                string.IsNullOrWhiteSpace(record.kitId) ||
-                !kitsById.TryGetValue(
-                    record.kitId,
-                    out YQAssetKitManifest kit))
-            {
-                continue;
-            }
-
-            kit.prefabCount++;
-
-            switch (record.disposition)
-            {
-                case YQAssetIntakeDisposition.Candidate:
-                    kit.candidatePrefabCount++;
-                    break;
-
-                case YQAssetIntakeDisposition.NeedsSpatialReview:
-                    kit.spatialReviewPrefabCount++;
-                    break;
-
-                default:
-                    kit.repairRequiredPrefabCount++;
-                    break;
-            }
-        }
     }
 }

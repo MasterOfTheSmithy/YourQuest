@@ -221,6 +221,13 @@ public static class YQRuntimeWorldSiteCatalogBuilder
                     ? YQWorldSitePresentationMode.SeamlessExterior
                     : streaming.PresentationMode,
                 structureUsagePolicy = runtimeStructurePolicy,
+                // note: Cache only source-reviewed capabilities so selection can reject unsuitable kits before loading their prefab graphs.
+                reviewedFunctionsV2 = Enum.GetValues(typeof(YQAssetFunctionV2))
+                    .Cast<YQAssetFunctionV2>()
+                    .Where(function => function != YQAssetFunctionV2.None &&
+                        YQSiteFunctionContractsV2.TryValidateAvailableFunctions(
+                            semantic, new[] { function }, runtimeStructurePolicy, out _))
+                    .ToList(),
                 maximumEnterableStructures =
                     runtimeMaximumEnterableStructures,
                 semanticTags = semantic.Zones
@@ -376,7 +383,7 @@ internal sealed class YQRuntimeWorldSiteSpatialMetadata
 
 internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
 {
-    public const string MetadataVersion = "reviewed-site-spatial-1.1.0";
+    public const string MetadataVersion = "reviewed-site-spatial-1.2.0-settlement-slices";
 
     private const float MaximumRuntimeRadius = 225f;
     private const float MaximumSeamlessDimension = 461f;
@@ -440,7 +447,10 @@ internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
                 ref aggregate,
                 ref aggregateInitialized,
                 ref instanceTotal,
-                result);
+                result,
+                semantic != null &&
+                semantic.Topology ==
+                    YQSemanticExtractionTopology.SettlementDistricts);
         }
 
         if (!aggregateInitialized)
@@ -460,7 +470,7 @@ internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
             failures.Add("active authored-instance complexity is zero");
         else if (result.ActiveInstanceCount > MaximumRuntimeInstanceCount)
         {
-            // note: Spatially valid geometry can still be operationally unsafe; Nordic's 145k authored roots is quarantined until it receives purpose-built HLOD/cell reduction.
+            // note: Spatially valid geometry can still be operationally unsafe; settlement sites are reduced to a bounded authored district before this budget is evaluated.
             failures.Add(
                 "active instance count " +
                 result.ActiveInstanceCount.ToString(
@@ -545,7 +555,8 @@ internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
         ref Bounds aggregate,
         ref bool aggregateInitialized,
         ref long instanceTotal,
-        YQRuntimeWorldSiteSpatialMetadata result)
+        YQRuntimeWorldSiteSpatialMetadata result,
+        bool compactSettlementSlice)
     {
         if (streaming == null)
         {
@@ -557,34 +568,41 @@ internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
             StringComparer.OrdinalIgnoreCase);
         bool duplicateAssignment = false;
 
-        for (int zoneIndex = 0;
-             zoneIndex < semantic.Zones.Count;
-             zoneIndex++)
+        if (compactSettlementSlice)
         {
-            YQReviewedSemanticZoneRecord zone = semantic.Zones[zoneIndex];
-
-            if (zone == null || zone.streamingCellIds == null)
+            activeIds = SelectCompactSettlementCellIds(semantic, streaming);
+        }
+        else
+        {
+            for (int zoneIndex = 0;
+                 zoneIndex < semantic.Zones.Count;
+                 zoneIndex++)
             {
-                failures.Add("semantic zone " + zoneIndex +
-                    " has no streaming-cell selection");
-                continue;
-            }
+                YQReviewedSemanticZoneRecord zone = semantic.Zones[zoneIndex];
 
-            for (int cellIndex = 0;
-                 cellIndex < zone.streamingCellIds.Count;
-                 cellIndex++)
-            {
-                string id = zone.streamingCellIds[cellIndex];
-
-                if (string.IsNullOrWhiteSpace(id))
+                if (zone == null || zone.streamingCellIds == null)
                 {
                     failures.Add("semantic zone " + zoneIndex +
-                        " contains an empty active-cell ID");
+                        " has no streaming-cell selection");
                     continue;
                 }
 
-                if (!activeIds.Add(id))
-                    duplicateAssignment = true;
+                for (int cellIndex = 0;
+                     cellIndex < zone.streamingCellIds.Count;
+                     cellIndex++)
+                {
+                    string id = zone.streamingCellIds[cellIndex];
+
+                    if (string.IsNullOrWhiteSpace(id))
+                    {
+                        failures.Add("semantic zone " + zoneIndex +
+                            " contains an empty active-cell ID");
+                        continue;
+                    }
+
+                    if (!activeIds.Add(id))
+                        duplicateAssignment = true;
+                }
             }
         }
 
@@ -691,6 +709,263 @@ internal static class YQRuntimeWorldSiteSpatialMetadataCompiler
             foundationCandidates,
             ref aggregate,
             ref aggregateInitialized);
+    }
+
+    private sealed class CompactSettlementCell
+    {
+        public string id = string.Empty;
+        public Vector3 center;
+        public Vector3 size;
+        public int sourceInstanceCount;
+        public HashSet<string> tags = new HashSet<string>(
+            StringComparer.OrdinalIgnoreCase);
+    }
+
+    private const int CompactSettlementInstanceBudget = 18000;
+    private const int CompactSettlementCellLimit = 24;
+    private const int CompactSettlementAnchorLimit = 64;
+    private const float CompactSettlementRadiusLimit = 210f;
+    private const float CompactSettlementVerticalLimit = 140f;
+
+    private static HashSet<string> SelectCompactSettlementCellIds(
+        YQReviewedSemanticSiteManifest semantic,
+        YQAuthoredSiteStreamingManifest streaming)
+    {
+        HashSet<string> selected = new HashSet<string>(
+            StringComparer.OrdinalIgnoreCase);
+        if (semantic == null || streaming == null)
+            return selected;
+
+        Dictionary<string, YQAuthoredSiteStreamingCellRecord> cellsById =
+            new Dictionary<string, YQAuthoredSiteStreamingCellRecord>(
+                StringComparer.OrdinalIgnoreCase);
+        for (int index = 0; index < streaming.Cells.Count; index++)
+        {
+            YQAuthoredSiteStreamingCellRecord cell = streaming.Cells[index];
+            if (cell != null && !string.IsNullOrWhiteSpace(cell.StableCellId))
+                cellsById[cell.StableCellId] = cell;
+        }
+
+        Dictionary<string, HashSet<string>> tagsByCellId =
+            new Dictionary<string, HashSet<string>>(
+                StringComparer.OrdinalIgnoreCase);
+        for (int zoneIndex = 0; zoneIndex < semantic.Zones.Count; zoneIndex++)
+        {
+            YQReviewedSemanticZoneRecord zone = semantic.Zones[zoneIndex];
+            if (zone == null || zone.streamingCellIds == null)
+                continue;
+
+            for (int cellIndex = 0;
+                 cellIndex < zone.streamingCellIds.Count;
+                 cellIndex++)
+            {
+                string id = zone.streamingCellIds[cellIndex];
+                if (string.IsNullOrWhiteSpace(id))
+                    continue;
+
+                if (!tagsByCellId.TryGetValue(id, out
+                        HashSet<string> tags))
+                {
+                    tags = new HashSet<string>(
+                        StringComparer.OrdinalIgnoreCase);
+                    tagsByCellId.Add(id, tags);
+                }
+
+                if (zone.semanticTags == null)
+                    continue;
+
+                for (int tagIndex = 0; tagIndex < zone.semanticTags.Count;
+                     tagIndex++)
+                {
+                    string tag = zone.semanticTags[tagIndex];
+                    if (!string.IsNullOrWhiteSpace(tag))
+                        tags.Add(tag);
+                }
+            }
+        }
+
+        List<CompactSettlementCell> candidates =
+            new List<CompactSettlementCell>();
+        foreach (KeyValuePair<string, HashSet<string>> entry in tagsByCellId)
+        {
+            if (!cellsById.TryGetValue(entry.Key, out
+                    YQAuthoredSiteStreamingCellRecord cell) ||
+                cell.CellPrefab == null ||
+                !IsValidBounds(cell.AuthoredLocalPosition,
+                    cell.LocalBoundsCenter,
+                    cell.LocalBoundsSize) ||
+                cell.LocalBoundsSize.x > CompactSettlementRadiusLimit * 2f ||
+                cell.LocalBoundsSize.z > CompactSettlementRadiusLimit * 2f ||
+                cell.LocalBoundsSize.y > CompactSettlementVerticalLimit)
+            {
+                continue;
+            }
+
+            candidates.Add(new CompactSettlementCell
+            {
+                id = entry.Key,
+                center = cell.AuthoredLocalPosition + cell.LocalBoundsCenter,
+                size = cell.LocalBoundsSize,
+                sourceInstanceCount = Mathf.Max(1, cell.SourceInstanceCount),
+                tags = entry.Value
+            });
+        }
+
+        if (candidates.Count == 0)
+            return selected;
+
+        candidates.Sort((left, right) =>
+        {
+            int roleScore = ResolveSettlementRoleScore(right.tags).CompareTo(
+                ResolveSettlementRoleScore(left.tags));
+            if (roleScore != 0)
+                return roleScore;
+            int cost = left.sourceInstanceCount.CompareTo(
+                right.sourceInstanceCount);
+            return cost != 0
+                ? cost
+                : string.Compare(left.id, right.id,
+                    StringComparison.OrdinalIgnoreCase);
+        });
+
+        int anchorCount = Mathf.Min(
+            CompactSettlementAnchorLimit,
+            candidates.Count);
+        int bestScore = int.MinValue;
+        List<string> bestIds = new List<string>();
+
+        for (int anchorIndex = 0; anchorIndex < anchorCount; anchorIndex++)
+        {
+            CompactSettlementCell anchor = candidates[anchorIndex];
+            if (anchor.sourceInstanceCount > CompactSettlementInstanceBudget)
+                continue;
+
+            Bounds aggregate = new Bounds(anchor.center, anchor.size);
+            int instanceTotal = anchor.sourceInstanceCount;
+            HashSet<string> clusterIds = new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase)
+            {
+                anchor.id
+            };
+            HashSet<string> clusterRoles = new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
+            AddSettlementRoles(anchor.tags, clusterRoles);
+
+            List<CompactSettlementCell> nearby = candidates
+                .Where(candidate => !string.Equals(candidate.id, anchor.id,
+                    StringComparison.OrdinalIgnoreCase))
+                .OrderBy(candidate =>
+                    (candidate.center - anchor.center).sqrMagnitude)
+                .ThenByDescending(candidate =>
+                    ResolveSettlementRoleScore(candidate.tags))
+                .ThenBy(candidate => candidate.sourceInstanceCount)
+                .ThenBy(candidate => candidate.id,
+                    StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            for (int index = 0;
+                 index < nearby.Count &&
+                 clusterIds.Count < CompactSettlementCellLimit;
+                 index++)
+            {
+                CompactSettlementCell candidate = nearby[index];
+                if (candidate.sourceInstanceCount >
+                    CompactSettlementInstanceBudget - instanceTotal)
+                {
+                    continue;
+                }
+
+                Bounds combined = aggregate;
+                combined.Encapsulate(new Bounds(
+                    candidate.center,
+                    candidate.size));
+                Vector3 horizontalExtents = new Vector3(
+                    combined.extents.x,
+                    0f,
+                    combined.extents.z);
+                if (horizontalExtents.magnitude > CompactSettlementRadiusLimit ||
+                    combined.size.y > CompactSettlementVerticalLimit)
+                {
+                    continue;
+                }
+
+                clusterIds.Add(candidate.id);
+                aggregate = combined;
+                instanceTotal += candidate.sourceInstanceCount;
+                AddSettlementRoles(candidate.tags, clusterRoles);
+            }
+
+            int score = clusterRoles.Count * 10000 +
+                Mathf.Min(instanceTotal, CompactSettlementInstanceBudget) -
+                Mathf.RoundToInt(new Vector3(
+                    aggregate.extents.x,
+                    0f,
+                    aggregate.extents.z).magnitude * 10f);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestIds = clusterIds.ToList();
+            }
+        }
+
+        for (int index = 0; index < bestIds.Count; index++)
+            selected.Add(bestIds[index]);
+        return selected;
+    }
+
+    private static int ResolveSettlementRoleScore(
+        IReadOnlyCollection<string> tags)
+    {
+        int score = 0;
+        if (ContainsTag(tags, "poi"))
+            score += 100;
+        if (ContainsTag(tags, "civic"))
+            score += 90;
+        if (ContainsTag(tags, "residential"))
+            score += 80;
+        if (ContainsTag(tags, "service"))
+            score += 70;
+        if (ContainsTag(tags, "circulation"))
+            score += 60;
+        return score;
+    }
+
+    private static void AddSettlementRoles(
+        IReadOnlyCollection<string> tags,
+        HashSet<string> roles)
+    {
+        string[] knownRoles =
+        {
+            "poi",
+            "civic",
+            "residential",
+            "service",
+            "circulation"
+        };
+        for (int index = 0; index < knownRoles.Length; index++)
+        {
+            if (ContainsTag(tags, knownRoles[index]))
+                roles.Add(knownRoles[index]);
+        }
+    }
+
+    private static bool ContainsTag(
+        IReadOnlyCollection<string> tags,
+        string value)
+    {
+        if (tags == null)
+            return false;
+
+        foreach (string tag in tags)
+        {
+            if (string.Equals(tag, value,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void AnalyzeLegacyZones(
@@ -884,6 +1159,11 @@ public static class YQRuntimeWorldSitePostflightValidator
     {
         YQRuntimeWorldSitePostflightResult result =
             new YQRuntimeWorldSitePostflightResult();
+
+        // note: Structured generation contracts are validated alongside site assets so one offline production gate covers both semantic input and deterministic runtime binding.
+        if (!YQLlmJsonSchema.ValidateFactoryContracts(out string schemaError))
+            result.errors.Add("LLM JSON schema contract: " + schemaError);
+
         YQRuntimeWorldSiteCatalog catalog =
             AssetDatabase.LoadAssetAtPath<YQRuntimeWorldSiteCatalog>(
                 YQRuntimeWorldSiteCatalogBuilder.CatalogPath);

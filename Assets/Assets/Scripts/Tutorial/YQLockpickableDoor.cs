@@ -13,16 +13,45 @@ public sealed class YQLockpickableDoor : MonoBehaviour
     private Quaternion _closedRotation;
     private Collider[] _colliders;
 
+    // note: Empty IDs preserve legacy doors; reviewed generated doors use the existing world save and retain their authored collision shape.
+    [SerializeField] private string generatedDoorId = string.Empty;
+    [SerializeField] private bool preserveAuthoredCollider;
+    public string GeneratedDoorId => generatedDoorId;
+
+    public void ConfigureGeneratedBinding(string doorId, string label, string locationRegionId,
+        bool startsLocked, float difficulty, Vector3 reviewedOpenEuler)
+    {
+        if (gameObject.activeInHierarchy)
+            throw new System.InvalidOperationException("Configure a generated door before activation.");
+        generatedDoorId = doorId;
+        preserveAuthoredCollider = true;
+        displayName = label;
+        regionId = locationRegionId;
+        locked = startsLocked;
+        lockDifficulty = difficulty;
+        openEuler = reviewedOpenEuler;
+    }
+
     private void Awake()
     {
         _closedRotation = transform.localRotation;
-        BoxCollider box = YQInteractableColliderUtility.EnsureTightBox(
-            gameObject,
-            new Vector3(1.2f, 2.05f, 0.24f),
-            new Vector3(0f, 1.02f, 0f),
-            new Vector3(0.65f, 1.15f, 0.16f),
-            new Vector3(2.05f, 2.25f, 0.48f));
-        _colliders = box != null ? new Collider[] { box } : GetComponentsInChildren<Collider>(true);
+        if (preserveAuthoredCollider)
+        {
+            // note: Source doors may face local X rather than Z; axis-clamping their bounds made interaction colliders thicker or narrower than the actual leaf.
+            _colliders = GetComponentsInChildren<Collider>(true);
+        }
+        else
+        {
+            BoxCollider box = YQInteractableColliderUtility.EnsureTightBox(
+                gameObject,
+                new Vector3(1.2f, 2.05f, 0.24f),
+                new Vector3(0f, 1.02f, 0f),
+                new Vector3(0.65f, 1.15f, 0.16f),
+                new Vector3(2.05f, 2.25f, 0.48f));
+            _colliders = box != null ? new Collider[] { box } : GetComponentsInChildren<Collider>(true);
+        }
+        if (YQCellDoorBindingsV2.WasOpened(WorldStateManager.Instance?.State, generatedDoorId))
+            ApplyOpenPose();
     }
 
     public bool TryInteract(GameObject player)
@@ -100,13 +129,8 @@ public sealed class YQLockpickableDoor : MonoBehaviour
         if (_opened)
             return false;
 
-        _opened = true;
-        transform.localRotation = _closedRotation * Quaternion.Euler(openEuler);
-        for (int i = 0; i < _colliders.Length; i++)
-        {
-            if (_colliders[i] != null)
-                _colliders[i].enabled = false;
-        }
+        ApplyOpenPose();
+        YQCellDoorBindingsV2.RecordOpened(WorldStateManager.Instance?.State, generatedDoorId);
 
         state?.AddLedgerLine("The player opened " + displayName + ".");
         state?.IncCounter("interact:door", 1f);
@@ -114,5 +138,18 @@ public sealed class YQLockpickableDoor : MonoBehaviour
         GeneratedRpgContentService.Instance?.SetInventoryMessage("Opened " + displayName + ".");
         psm?.Save();
         return true;
+    }
+
+    private void ApplyOpenPose()
+    {
+        // note: Restore streamed door state without replaying sounds, quest counters or lockpick rewards.
+        _opened = true;
+        locked = false;
+        transform.localRotation = _closedRotation * Quaternion.Euler(openEuler);
+        if (_colliders == null)
+            return;
+        for (int index = 0; index < _colliders.Length; index++)
+            if (_colliders[index] != null)
+                _colliders[index].enabled = false;
     }
 }

@@ -56,6 +56,10 @@ public sealed class YQLockpickableLoot : MonoBehaviour
     [Min(0)]
     public int rewardLevelOverride;
 
+    // note: Reviewed cell storage keeps its authored interaction collision instead of the legacy generic chest envelope.
+    [SerializeField] private bool preserveReviewedCollider;
+    public bool PreservesReviewedCollider => preserveReviewedCollider;
+
     // ============================================================
     // RUNTIME STATE
     // ============================================================
@@ -110,7 +114,7 @@ public sealed class YQLockpickableLoot : MonoBehaviour
             GetComponentInChildren<
                 Renderer>();
 
-        YQInteractableColliderUtility
+        if (!preserveReviewedCollider) YQInteractableColliderUtility
             .EnsureTightBox(
                 gameObject,
                 new Vector3(
@@ -167,6 +171,18 @@ public sealed class YQLockpickableLoot : MonoBehaviour
      *     false,
      *     4);
      */
+    public void ConfigureReviewedGeneratedLoot(string persistentId, string generatedRegionId,
+        string generatedDisplayName, int generatedGold, bool generatedLocked,
+        float generatedLockDifficulty, int generatedRewardLevel)
+    {
+        // note: Set collision ownership before Awake; the binder has already validated the exact inactive chest geometry.
+        if (gameObject.activeInHierarchy)
+            throw new InvalidOperationException("Configure reviewed storage before activation.");
+        preserveReviewedCollider = true;
+        ConfigureGeneratedLoot(persistentId, generatedRegionId, generatedDisplayName, generatedGold,
+            generatedLocked, generatedLockDifficulty, false, generatedRewardLevel);
+    }
+
     public void ConfigureGeneratedLoot(
         string persistentId,
         string generatedRegionId,

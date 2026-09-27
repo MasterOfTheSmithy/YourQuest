@@ -60,6 +60,9 @@ public static class YQRuntimeCreatureAssetIndex
     private const string PreferredMimicPath =
         CreaturePackAnchorPath;
 
+    private const string HumanPackAnchorPath =
+        "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human Male (v4).prefab";
+
     private static readonly string[] MonsterFamilyOrder =
     {
         RockMonster,
@@ -150,6 +153,42 @@ public static class YQRuntimeCreatureAssetIndex
                 candidates,
                 seed +
                 "|human");
+
+        if (result == null)
+        {
+            // note: Resolve the approved Human v4 anchor directly when lazy-shard category enumeration is empty, keeping resident visuals on an authored human instead of an emergency capsule.
+            GameObject anchoredPrefab =
+                registry.ResolvePrefab(
+                    HumanPackAnchorPath);
+            if (anchoredPrefab != null)
+            {
+                result =
+                    new YQRuntimeWorldAssetEntry
+                    {
+                        assetPath = HumanPackAnchorPath,
+                        prefab = anchoredPrefab
+                    };
+                resolvedCategory =
+                    HumanMale;
+            }
+        }
+
+        if (result == null)
+        {
+            // note: Keep a real authored human visible when legacy completeness markers reject an otherwise usable body; runtime material repair and physics preparation still run on the selected prefab.
+            for (int index = 0; index < entries.Count; index++)
+            {
+                YQRuntimeWorldAssetEntry entry = entries[index];
+                string path = entry != null ? entry.assetPath ?? string.Empty : string.Empty;
+                if (entry != null && entry.prefab != null &&
+                    path.IndexOf("/_Prefabs/Characters/Human ", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    result = entry;
+                    resolvedCategory = path.IndexOf("Female", System.StringComparison.OrdinalIgnoreCase) >= 0 ? HumanFemale : HumanMale;
+                    break;
+                }
+            }
+        }
 
         return
             result != null &&
@@ -624,9 +663,31 @@ public static class YQRuntimeCreatureAssetIndex
         if (registry == null)
             return null;
 
-        // note: All approved humans and monsters live in the dedicated Characters pack shard, loaded only when population materializes.
-        return registry.GetEntriesForAssetPath(
-            PreferredMimicPath);
+        // note: Lazy registries split humans and monster families into separate pack shards; enumerate each approved creature shard so residents cannot be stranded in the mimic-only shard.
+        string[] shardAnchors =
+        {
+            HumanPackAnchorPath,
+            PreferredMimicPath,
+            "Assets/Magic Pig Games (Infinity PBR)/Characters/Rock Monster/_Prefabs/RockMonster.prefab",
+            "Assets/Magic Pig Games (Infinity PBR)/Characters/Spiders/_Prefabs/Spider.prefab",
+            "Assets/Magic Pig Games (Infinity PBR)/Characters/Dragons/_Prefabs/Dragon.prefab",
+            "Assets/Magic Pig Games (Infinity PBR)/Characters/Demons/_Prefabs/Demons.prefab",
+            "Assets/Magic Pig Games (Infinity PBR)/Characters/Devils/Prefabs/Devils.prefab"
+        };
+        List<YQRuntimeWorldAssetEntry> combined = new List<YQRuntimeWorldAssetEntry>();
+        HashSet<string> seen = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        for (int anchorIndex = 0; anchorIndex < shardAnchors.Length; anchorIndex++)
+        {
+            IReadOnlyList<YQRuntimeWorldAssetEntry> shard = registry.GetEntriesForAssetPath(shardAnchors[anchorIndex]);
+            if (shard == null) continue;
+            for (int entryIndex = 0; entryIndex < shard.Count; entryIndex++)
+            {
+                YQRuntimeWorldAssetEntry entry = shard[entryIndex];
+                if (entry == null || entry.prefab == null || !seen.Add(entry.assetPath ?? string.Empty)) continue;
+                combined.Add(entry);
+            }
+        }
+        return combined;
     }
 
     private static List<string> GetAvailableMonsterFamilies(
@@ -1135,7 +1196,13 @@ public static class YQRuntimeCreatureAssetIndex
         GameObject prefab =
             entry.prefab;
 
-        if (HasEquipmentObjectMarker(
+        // note: The authored Human v4 bodies carry equipment marker children by design; accept only the four complete character roots while retaining the generic modular-item rejection below.
+        bool authoredHumanBody =
+            (entry.assetPath ?? string.Empty).IndexOf(
+                "/_Prefabs/Characters/Human ",
+                System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+        if (!authoredHumanBody && HasEquipmentObjectMarker(
         prefab))
         {
             return false;
@@ -1833,6 +1900,14 @@ public static class YQRuntimeCreatureAssetIndex
 
 #if UNITY_EDITOR
 
+    [MenuItem("YourQuest/Generated World/Rebuild Human + Monster Registry (Batch)")]
+    public static void RebuildEditorCreatureRegistryBatch()
+    {
+        // note: Refresh the dedicated creature registry from existing complete prefabs; this indexes assets without converting materials or changing authored prefabs.
+        EditorCreatureRegistrySynchronizer.Synchronize();
+        EditorApplication.Exit(0);
+    }
+
     private static class EditorCreatureRegistrySynchronizer
     {
         [MenuItem(
@@ -1843,7 +1918,7 @@ public static class YQRuntimeCreatureAssetIndex
             Synchronize();
         }
 
-        private static void Synchronize()
+        public static void Synchronize()
         {
             if (EditorApplication
                 .isPlayingOrWillChangePlaymode)

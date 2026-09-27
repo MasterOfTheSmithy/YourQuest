@@ -29,6 +29,47 @@ public static class YQSemanticSiteProductionCompiler
         public readonly List<string> tags = new List<string>();
     }
 
+    [MenuItem("Tools/YourQuest/Testing/Verify Semantic Classification Integrity")]
+    public static void VerifyClassificationIntegrity()
+    {
+        // note: Exercise the actual partition/record pipeline using metadata only; no assets, scenes or saved worlds are created or changed.
+        var profile = new YQSemanticExtractionProfile
+        {
+            kitId = "classification_fixture",
+            topology = YQSemanticExtractionTopology.SettlementDistricts,
+            minimumAssemblies = 2, maximumAssemblies = 2,
+            requiredSemanticOutputs = new List<string> { "residential", "service", "circulation" }
+        };
+        var cells = new List<CellPlan>();
+        for (int index = 0; index < 2; index++)
+        {
+            var cell = new YQAuthoredSiteStreamingCellRecord();
+            cell.Configure("fixture_" + index, null, new Vector3(index * 40, 0, 0),
+                new Vector3(0, 2, 0), new Vector3(10, 4, 10), 1, index == 1, 0, index == 1 ? 10 : 0);
+            cells.Add(new CellPlan { record = cell, worldCenter = cell.AuthoredLocalPosition + cell.LocalBoundsCenter });
+        }
+        List<ZonePlan> first = BuildZones(profile, cells);
+        var records = BuildZoneRecords(new YQWorldPackProductionRecord { displayName = "Fixture" }, profile, first);
+        if (records.Count != 2 || records.Sum(zone => zone.sourceInstanceCount) != 2)
+            throw new InvalidOperationException("Semantic classification lost source cells.");
+        foreach (var zone in records)
+        {
+            if (zone.districtFunction != YQDistrictFunction.Unknown ||
+                zone.semanticTags.Any(tag => profile.requiredSemanticOutputs.Contains(tag)))
+                throw new InvalidOperationException("A spatial partition fabricated a requested gameplay role.");
+        }
+        if (records.Count(zone => zone.semanticTags.Contains("structural_support_measured")) != 1)
+            throw new InvalidOperationException("Measured structure evidence was lost or fabricated.");
+        profile.requiredSemanticOutputs.Reverse();
+        List<ZonePlan> reordered = BuildZones(profile, cells);
+        if (!first.Select(zone => zone.stableId).SequenceEqual(reordered.Select(zone => zone.stableId)))
+            throw new InvalidOperationException("Requested role order changed physical cell identity.");
+        Directory.CreateDirectory("Logs");
+        File.WriteAllText("Logs/YQSemanticClassificationVerification.txt",
+            "PASS: no fabricated roles, unknown district preservation, measured support evidence, source coverage and role-order-independent IDs.");
+        Debug.Log("[YQSemanticSiteProductionCompiler] Semantic classification integrity fixtures passed.");
+    }
+
     [MenuItem(
         "Tools/YourQuest/AAA World Generation/Production Queue/Semantics/Compile Next Semantic Candidate")]
     public static void CompileNextSemanticCandidate()
@@ -80,6 +121,17 @@ public static class YQSemanticSiteProductionCompiler
             Debug.LogError(
                 "[YQSemanticSiteProductionCompiler] " + record.displayName +
                 " does not have both an authored semantic profile and an approved streaming manifest.");
+            return false;
+        }
+
+        // note: Repartitioning an approved manifest would invalidate reviewed cell identities and saved references; compile only unaccepted candidates here.
+        string existingPath = SemanticRoot + "/" + record.kitId + "/YQ_" + record.kitId +
+            "_ReviewedSemanticSite.asset";
+        var existing = AssetDatabase.LoadAssetAtPath<YQReviewedSemanticSiteManifest>(existingPath);
+        if (existing != null && existing.ReleaseEligible)
+        {
+            Debug.LogError("[YQSemanticSiteProductionCompiler] Approved semantic manifest preserved: " +
+                record.kitId + ". Create an explicitly versioned candidate before replacing accepted cells.");
             return false;
         }
 
@@ -268,10 +320,8 @@ public static class YQSemanticSiteProductionCompiler
         for (int zoneIndex = 0; zoneIndex < zones.Count; zoneIndex++)
         {
             ZonePlan zone = zones[zoneIndex];
-            zone.role = profile.requiredSemanticOutputs.Count > 0
-                ? profile.requiredSemanticOutputs[
-                    zoneIndex % profile.requiredSemanticOutputs.Count]
-                : "zone";
+            // note: Spatial partitions are not semantic proof. A requested service/home/encounter role cannot be assigned by array index.
+            zone.role = "unclassified";
             zone.stableId = "yq_semantic_" + profile.kitId + "_" +
                 Sanitize(zone.role) + "_" + (zoneIndex + 1).ToString("00");
             zone.worldBounds = BoundsForCells(zone.cells);
@@ -281,15 +331,10 @@ public static class YQSemanticSiteProductionCompiler
             zone.tags.Add("streaming_safe");
             zone.tags.Add(profile.topology.ToString().ToLowerInvariant());
 
-            for (int outputIndex = zoneIndex;
-                 outputIndex < profile.requiredSemanticOutputs.Count;
-                 outputIndex += zones.Count)
-            {
-                zone.tags.Add(profile.requiredSemanticOutputs[outputIndex]);
-            }
-
-            if (!zone.tags.Contains(zone.role))
-                zone.tags.Add(zone.role);
+            zone.tags.Add("requires_semantic_review");
+            // note: Measured support is useful review evidence, but does not claim a furnished home, shop, or accessible road.
+            if (zone.cells.Any(cell => cell.record.HasStructuralFoundation))
+                zone.tags.Add("structural_support_measured");
         }
     }
 
@@ -665,7 +710,9 @@ public static class YQSemanticSiteProductionCompiler
             return YQDistrictFunction.Service;
         if (tags.Contains("defense") || tags.Contains("perimeter"))
             return YQDistrictFunction.Defensive;
-        return YQDistrictFunction.MixedUse;
+        // note: Unknown contents must remain unknown instead of being promoted to a mixed-use district.
+        return tags.Contains("civic") || tags.Contains("circulation") || tags.Contains("mixed_use")
+            ? YQDistrictFunction.MixedUse : YQDistrictFunction.Unknown;
     }
 
     private static int GetSourceInstanceCount(

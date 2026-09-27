@@ -21,8 +21,6 @@ public sealed class YQActiveQuestWorldHighlight : MonoBehaviour
     private float _nextRefreshTime;
     private float _nextFullTargetScanTime;
     private bool _hasTarget;
-    private bool _usingPlayerFallback;
-    private Transform _player;
     private Transform _resolvedTarget;
     private string _resolvedQuestKey = string.Empty;
     private const float FullTargetRescanInterval = 5f;
@@ -112,12 +110,12 @@ public sealed class YQActiveQuestWorldHighlight : MonoBehaviour
         position = Vector3.zero;
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
         QuestRecord quest = state != null ? state.GetActiveQuest() : null;
-        if (quest == null)
+        QuestObjectiveRecord objective = GetTrackedObjective(quest);
+        if (objective == null || string.IsNullOrWhiteSpace(objective.targetId))
             return false;
 
         string questKey =
-            (quest.questId ?? quest.name ?? string.Empty) +
-            "|" + quest.updatedUnix;
+            state.playerId + "|" + quest.questId + "|" + objective.type + "|" + objective.targetId;
         bool sameObjectiveState = string.Equals(
             questKey,
             _resolvedQuestKey,
@@ -133,144 +131,60 @@ public sealed class YQActiveQuestWorldHighlight : MonoBehaviour
                 return true;
             }
 
-            ResolvePlayerPosition();
-            if (_usingPlayerFallback && _player != null)
-            {
-                position = ProjectToGround(
-                    _player.position + _player.forward * 8f);
-                return true;
-            }
-        }
-
-        string query = BuildQuestQuery(quest);
-        float bestScore = float.MinValue;
-        Transform best = null;
-        Vector3 playerPosition = ResolvePlayerPosition();
-
-        EntityInfo[] entities = FindObjectsByType<EntityInfo>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < entities.Length; i++)
-        {
-            EntityInfo info = entities[i];
-            if (info == null)
-                continue;
-
-            float score = ScoreEntity(info, query, playerPosition);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = info.transform;
-            }
-        }
-
-        RegionVolume[] regions = FindObjectsByType<RegionVolume>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < regions.Length; i++)
-        {
-            RegionVolume region = regions[i];
-            if (region == null)
-                continue;
-
-            float score = ScoreRegion(region, query, playerPosition);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = region.transform;
-            }
-        }
-
-        if (best != null && bestScore >= 12f)
-        {
-            _resolvedQuestKey = questKey;
-            _resolvedTarget = best;
-            _usingPlayerFallback = false;
-            _nextFullTargetScanTime =
-                Time.unscaledTime + FullTargetRescanInterval;
-            position = ProjectToGround(best.position);
-            return true;
-        }
-
-        if (_player == null)
+            // note: Negative lookup caching prevents missing/streamed-out targets from forcing a scene scan every refresh.
             return false;
+        }
+
+        Transform best = null;
+        bool regionTarget = string.Equals(objective.type, "enter_region", StringComparison.OrdinalIgnoreCase);
+        // note: Mark the actual persisted objective target, never a scene object whose name happens to resemble quest prose.
+        if (!regionTarget)
+        {
+            EntityInfo[] entities = FindObjectsByType<EntityInfo>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < entities.Length; i++)
+            {
+                EntityInfo info = entities[i];
+                if (info != null && string.Equals(info.entityId, objective.targetId, StringComparison.OrdinalIgnoreCase))
+                {
+                    best = info.transform;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            RegionVolume[] regions = FindObjectsByType<RegionVolume>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < regions.Length; i++)
+            {
+                RegionVolume region = regions[i];
+                if (region != null && string.Equals(region.regionId, objective.targetId, StringComparison.OrdinalIgnoreCase))
+                {
+                    best = region.transform;
+                    break;
+                }
+            }
+        }
 
         _resolvedQuestKey = questKey;
-        _resolvedTarget = null;
-        _usingPlayerFallback = true;
-        _nextFullTargetScanTime =
-            Time.unscaledTime + FullTargetRescanInterval;
-        position = ProjectToGround(_player.position + _player.forward * 8f);
+        _resolvedTarget = best;
+        _nextFullTargetScanTime = Time.unscaledTime + FullTargetRescanInterval;
+        if (best == null)
+            return false;
+        position = ProjectToGround(best.position);
         return true;
     }
 
-    private Vector3 ResolvePlayerPosition()
+    public static QuestObjectiveRecord GetTrackedObjective(QuestRecord quest)
     {
-        if (_player == null)
-        {
-            GameObject playerObject = GameObject.FindWithTag("Player");
-            if (playerObject != null)
-                _player = playerObject.transform;
-        }
-
-        return _player != null ? _player.position : Vector3.zero;
+        // note: A non-spatial current step (equip, cast, wait) should not point toward a later NPC or an invented spot in front of the player.
+        if (quest?.objectives == null)
+            return null;
+        foreach (QuestObjectiveRecord objective in quest.objectives)
+            if (objective != null && !objective.completed)
+                return objective;
+        return null;
     }
 
-    private static string BuildQuestQuery(QuestRecord quest)
-    {
-        string tags = quest.tags != null ? string.Join(" ", quest.tags) : string.Empty;
-        return Normalize((quest.name ?? string.Empty) + " " + (quest.description ?? string.Empty) + " " + tags);
-    }
-
-    private static float ScoreEntity(EntityInfo info, string query, Vector3 playerPosition)
-    {
-        string haystack = Normalize(info.displayName + " " + info.entityId + " " + info.factionId + " " + (info.tags != null ? string.Join(" ", info.tags) : string.Empty));
-        float score = CountSharedTokens(query, haystack) * 10f;
-        bool hasDialogueAgent = info.GetComponent<NpcDialogueAgent>() != null || info.GetComponentInParent<NpcDialogueAgent>() != null;
-
-        if (query.Contains("talk") || query.Contains("speak") || query.Contains("ask"))
-        {
-            if (hasDialogueAgent && info.hostility != Hostility.Hostile)
-                score += 16f;
-            else
-                score -= 18f;
-            if (haystack.Contains("archivist") || haystack.Contains("warden") || haystack.Contains("guide"))
-                score += 22f;
-        }
-
-        if (query.Contains("defeat") || query.Contains("hostile") || query.Contains("combat") || query.Contains("echo") || query.Contains("ember"))
-        {
-            if (info.hostility == Hostility.Hostile)
-                score += 28f;
-        }
-
-        if (query.Contains("shrine") && haystack.Contains("shrine"))
-            score += 45f;
-
-        if (info.isNotable)
-            score += 4f;
-
-        return score - DistancePenalty(info.transform.position, playerPosition);
-    }
-
-    private static float ScoreRegion(RegionVolume region, string query, Vector3 playerPosition)
-    {
-        string tags = region.tags != null ? string.Join(" ", region.tags) : string.Empty;
-        string haystack = Normalize(region.regionId + " " + region.regionName + " " + tags + " " + region.gameObject.name);
-        float score = CountSharedTokens(query, haystack) * 8f;
-        if (query.Contains("ember") && haystack.Contains("ember"))
-            score += 30f;
-        if (query.Contains("vault") && haystack.Contains("vault"))
-            score += 30f;
-        if ((query.Contains("archive") || query.Contains("archivist")) && haystack.Contains("hub"))
-            score += 18f;
-        if (query.Contains("shrine") && haystack.Contains("shrine"))
-            score += 30f;
-        return score - DistancePenalty(region.transform.position, playerPosition) * 0.5f;
-    }
-
-    private static float DistancePenalty(Vector3 worldPosition, Vector3 playerPosition)
-    {
-        if (playerPosition == Vector3.zero)
-            return 0f;
-        return Vector3.Distance(playerPosition, worldPosition) * 0.08f;
-    }
 
     private Vector3 ProjectToGround(Vector3 position)
     {
@@ -278,8 +192,16 @@ public sealed class YQActiveQuestWorldHighlight : MonoBehaviour
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 30f, ~0, QueryTriggerInteraction.Ignore))
             return hit.point + Vector3.up * groundLift;
 
-        position.y = groundLift;
+        // note: Unloaded ground must not relocate an otherwise valid high-altitude target to sea level.
+        position.y += groundLift;
         return position;
+    }
+
+    private void OnDestroy()
+    {
+        // note: The glow material is runtime-owned and must be released with its marker.
+        if (_discMaterial != null)
+            Destroy(_discMaterial);
     }
 
     private void SetVisible(bool visible)

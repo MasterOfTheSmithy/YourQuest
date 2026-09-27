@@ -140,6 +140,13 @@ public class YourQuestTutorialLLMOrchestrator : MonoBehaviour
         }, result =>
         {
             // note: A failed request uses the established deterministic tutorial fallback.
+            if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted))
+            {
+                // note: A replacement profile must not receive even deterministic tutorial mutation from an older request.
+                return;
+            }
             string raw = result.success ? result.text : null;
             if (string.IsNullOrWhiteSpace(raw))
                 apply(fallbackJson);

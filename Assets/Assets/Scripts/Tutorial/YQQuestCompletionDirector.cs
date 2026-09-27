@@ -56,8 +56,14 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
         }
 
         QuestRecord active = state.GetActiveQuest();
-        if (active != null && active.completedUnix <= 0 && ShouldCompleteFromProgress(state, active))
-            changed |= CompleteQuest(state, active);
+        if (active != null && active.completedUnix <= 0)
+        {
+            // note: Persist completed steps even while later objectives remain outstanding.
+            bool complete = EvaluateObjectives(state, active, out bool objectiveChanged);
+            changed |= objectiveChanged;
+            if (complete)
+                changed |= CompleteQuest(state, active);
+        }
 
         if (changed)
             manager.Save();
@@ -89,6 +95,12 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
 
     private static bool ShouldCompleteFromObjectives(PlayerState state, QuestRecord quest)
     {
+        return EvaluateObjectives(state, quest, out _);
+    }
+
+    public static bool EvaluateObjectives(PlayerState state, QuestRecord quest, out bool changed)
+    {
+        changed = false;
         if (state == null || quest == null)
             return false;
 
@@ -102,7 +114,11 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
         {
             QuestObjectiveRecord objective = quest.objectives[i];
             if (objective == null)
+            {
+                // note: Missing objective records are invalid content, not an automatically completed quest.
+                allComplete = false;
                 continue;
+            }
 
             if (objective.completed)
                 continue;
@@ -111,6 +127,8 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
             {
                 objective.completed = true;
                 objective.completedUnix = now;
+                changed = true;
+                quest.updatedUnix = now;
             }
             else
             {
@@ -127,13 +145,23 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
             return false;
 
         float required = Mathf.Max(1f, objective.requiredCount <= 0f ? 1f : objective.requiredCount);
+        string type = (objective.type ?? string.Empty).Trim().ToLowerInvariant();
+        string targetId = (objective.targetId ?? string.Empty).Trim();
+        // note: Broad generated prefixes must not bypass an explicit target, including similarly named NPC IDs.
+        if (!string.IsNullOrWhiteSpace(targetId))
+        {
+            if (type == "talk_to_npc")
+                return SumCountersByPrefix(state, "dialogue:" + targetId) >= required;
+            if (type == "defeat_enemy" || type == "kill_enemy")
+                return SumCountersByPrefix(state, "kill:" + targetId) >= required;
+            if (type == "pickup_item")
+                return SumCountersByPrefix(state, "pickup:item:" + targetId) >= required;
+        }
         if (!string.IsNullOrWhiteSpace(objective.counterKey) && ReadCounter(state, objective.counterKey) >= required)
             return true;
         if (!string.IsNullOrWhiteSpace(objective.counterPrefix) && SumCountersByPrefix(state, objective.counterPrefix) >= required)
             return true;
 
-        string type = (objective.type ?? string.Empty).Trim().ToLowerInvariant();
-        string targetId = objective.targetId ?? string.Empty;
         switch (type)
         {
             case "origin_manifested":
@@ -195,7 +223,7 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
             for (int i = 0; i < prefixes.Length; i++)
             {
                 string prefix = prefixes[i];
-                if (!string.IsNullOrWhiteSpace(prefix) && key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                if (CounterMatchesPrefix(key, prefix))
                 {
                     total += pair.Value;
                     break;
@@ -204,6 +232,14 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
         }
 
         return total;
+    }
+
+    public static bool CounterMatchesPrefix(string key, string prefix)
+    {
+        // note: Counters are colon-delimited contracts, so npc_1 cannot also count npc_10.
+        return !string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(prefix) &&
+               key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) &&
+               (key.Length == prefix.Length || prefix[prefix.Length - 1] == ':' || key[prefix.Length] == ':');
     }
 
     private static int EstimateRequiredCount(string text)

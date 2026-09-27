@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -16,8 +17,14 @@ public sealed class LlamaCppServerProcess : IDisposable
 
     public void Dispose()
     {
+        Dispose(true);
+    }
+
+    public void Dispose(bool stopOwnedProcess)
+    {
         _disposed = true;
-        StopOwnedProcess();
+        if (stopOwnedProcess)
+            StopOwnedProcess();
     }
 
     public void StopOwnedProcess()
@@ -30,7 +37,10 @@ public sealed class LlamaCppServerProcess : IDisposable
             if (!_ownedProcess.HasExited)
             {
                 // note: Only the process launched by YourQuest is terminated; external llama servers are left alone.
-                _ownedProcess.Kill();
+                // note: Terminate the complete owned process tree so a launcher or worker child cannot survive the game's shutdown.
+                TerminateOwnedProcessTree(_ownedProcess);
+                // note: Wait briefly for the operating system to reap the owned server before releasing its handle.
+                _ownedProcess.WaitForExit(2000);
             }
         }
         catch (Exception ex)
@@ -43,6 +53,26 @@ public sealed class LlamaCppServerProcess : IDisposable
             _ownedProcess = null;
             _ownsProcess = false;
         }
+    }
+
+    private static void TerminateOwnedProcessTree(Process process)
+    {
+        // note: Unity's supported Process API varies by editor runtime; prefer tree termination when available without binding the project to a newer overload.
+        MethodInfo killTree = typeof(Process).GetMethod(
+            "Kill",
+            BindingFlags.Instance | BindingFlags.Public,
+            null,
+            new[] { typeof(bool) },
+            null);
+        if (killTree != null)
+        {
+            // note: Reflection keeps the complete-tree shutdown behavior on runtimes that expose it while preserving compilation on older Unity profiles.
+            killTree.Invoke(process, new object[] { true });
+            return;
+        }
+
+        // note: Older Unity profiles can still terminate the owned server itself; the normal process handle cleanup follows immediately.
+        process.Kill();
     }
 
     public IEnumerator EnsureReady(LLMRuntimeConfig config, Action<bool, string> onComplete)
@@ -80,6 +110,10 @@ public sealed class LlamaCppServerProcess : IDisposable
             yield break;
         }
 
+        // note: Dispose an exited owned process before replacing it so retries never retain a stale handle or server state.
+        if (_ownedProcess != null)
+            StopOwnedProcess();
+
         if (!TryResolveExecutable(config.llamaServerExecutablePath, out string executablePath, out string executableError))
         {
             onComplete?.Invoke(false, executableError + " Last health probe: " + probeError);
@@ -111,7 +145,12 @@ public sealed class LlamaCppServerProcess : IDisposable
             yield break;
         }
 
-        yield return WaitForHealth(baseUrl, config.startupTimeoutSeconds, onComplete);
+        yield return WaitForHealth(baseUrl, config.startupTimeoutSeconds, (ok, message) =>
+        {
+            if (!ok)
+                StopOwnedProcess();
+            onComplete?.Invoke(ok, message);
+        });
     }
 
     public bool HasOwnedProcessExited()

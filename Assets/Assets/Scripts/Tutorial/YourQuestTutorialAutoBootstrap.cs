@@ -14,6 +14,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
 {
     public static bool GameplayRuntimeReady { get; private set; }
     public static bool GameplayPresentationReleased { get; private set; }
+    public static string GameplayPresentationWaitReason { get; private set; } = string.Empty;
 
     private static bool s_created;
     private static readonly object StartupBlockToken = new object();
@@ -35,7 +36,6 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
     private const string AmbientHumAudio = "Assets/Magic Pig Games (Infinity PBR)/Audio/Battle Sound Library/Magic (Stereo)/Generic/Humming & Pulsing/Humming_Loop_4_S.wav";
     private const string FireLoopAudio = "Assets/Magic Pig Games (Infinity PBR)/Audio/Battle Sound Library/Magic (Stereo)/Fire/Loop/Fire_Loop_Small_S.wav";
     private const string RuntimeWorldVersionMarker = "YQ_World_FinishedTutorial_v9";
-    private const string TutorialProgressCounter = "tutorial:finished_level:v2";
     private static readonly Dictionary<string, AudioClip> s_audioClipCache = new Dictionary<string, AudioClip>(StringComparer.OrdinalIgnoreCase);
     private bool _bootStarted;
 
@@ -52,6 +52,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         RuntimeModalUiBlocker.Release(StartupBlockToken);
         GameplayRuntimeReady = false;
         GameplayPresentationReleased = false;
+        GameplayPresentationWaitReason = string.Empty;
         bootstrap.StartCoroutine(bootstrap.BootstrapRoutine());
     }
 
@@ -62,13 +63,18 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         s_created = false;
         GameplayRuntimeReady = false;
         GameplayPresentationReleased = false;
+        GameplayPresentationWaitReason = string.Empty;
         s_audioClipCache.Clear();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void CreateBootstrap()
     {
-        if (s_created)
+        // note: The isolated editor traversal fixture owns one existing player motor and intentionally has no production save/bootstrap services.
+        if (YQHomeTraversalReview.IsIsolatedReview)
+            return;
+        // note: Enter Play Mode without domain reload can retain the old latch after its bootstrap object was destroyed; the live object is the authoritative ownership check.
+        if (s_created && FindFirstObjectByType<YourQuestTutorialAutoBootstrap>() != null)
             return;
 
         GameObject root = new GameObject("__YQ_InvestorBootstrap");
@@ -211,19 +217,103 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
             yield return null;
         }
 
-        if (ownsOrdinaryLoading && loading != null &&
-            !YQStartupLoadingScreen.IsGenerationVisible)
-            yield return loading.FinishAndHide();
-
-        while (YQStartupLoadingScreen.IsVisible)
+        while (YQStartupLoadingScreen.IsGenerationVisible)
         {
-            // note: The player remains startup-blocked until the Goddess camera and its closing generation line have completely handed presentation back to gameplay.
+            // note: The generation owner closes its own presentation; ordinary loading remains until the final streamed-view certificate is ready.
             yield return null;
         }
+        loading = YQStartupLoadingScreen.Current;
+        if (loading == null)
+            loading = YQStartupLoadingScreen.Show("YourQuest", "Preparing your surroundings");
+        loading.SetStage("Preparing nearby terrain and wildlife", 0.96f);
 
+        // note: Use normal player-loop frames, not rendering callbacks that can stop when the Editor Game view is hidden. The motor updates its camera before this coroutine resumes.
+        yield return null;
+        float nextVisualCoverageDiagnosticAt = 0f;
+        int preparedCameraFrames = 0;
+        // note: Materialization and streamer attachment are separate coroutine boundaries; never release presentation while the active view preparation owner is still absent.
+        while (preparedCameraFrames < 2)
+        {
+            YQPlayerFollowingSemanticChunkStreamer visibleWorld = YQPlayerFollowingSemanticChunkStreamer.Active;
+            string visualCoverageFailure = "active streamer is not attached";
+            if (visibleWorld != null && visibleWorld.TryValidatePreparedViewEnvelope(out visualCoverageFailure))
+            {
+                // note: Require two consecutive normal camera frames; a changed view restarts qualification without hiding the loading UI.
+                preparedCameraFrames++;
+            }
+            else
+            {
+                preparedCameraFrames = 0;
+                GameplayPresentationWaitReason = visualCoverageFailure;
+                if (Time.unscaledTime >= nextVisualCoverageDiagnosticAt)
+                {
+                    Debug.Log("[YourQuestTutorialAutoBootstrap] STARTUP VISUAL COVERAGE WAIT failure=" + visualCoverageFailure +
+                        (visibleWorld == null ? string.Empty : " lifecycle=" + visibleWorld.LifecycleDiagnostics));
+                    nextVisualCoverageDiagnosticAt = Time.unscaledTime + 10f;
+                }
+            }
+            if (preparedCameraFrames < 2)
+                yield return null;
+        }
+
+        // note: Reassert the one authoritative motor at the playable handoff so a prior title or recovery teardown cannot leave the live player visually present but inert.
+        YQInvestorPlayerMotor authoritativeMotor = YQInvestorPlayerMotor.ActiveMotor;
+        if (authoritativeMotor != null && authoritativeMotor.IsAuthoritative)
+            authoritativeMotor.enabled = true;
+        // note: Keep the loading gate until the additive title scene has finished exiting and the authoritative gameplay camera has rendered through two stable player-loop frames.
+        int qualifiedGameplayCameraFrames = 0;
+        float nextCameraHandoffDiagnosticAt = 0f;
+        while (qualifiedGameplayCameraFrames < 2)
+        {
+            YQTitleEnvironmentLoader.ReleaseWorldGeneration();
+            authoritativeMotor = YQInvestorPlayerMotor.ActiveMotor;
+            Camera gameplayCamera = authoritativeMotor != null && authoritativeMotor.IsAuthoritative
+                ? authoritativeMotor.playerCamera
+                : null;
+            bool gameplayCameraReady = gameplayCamera != null && gameplayCamera.isActiveAndEnabled;
+            bool titleStageReleased = YQTitleEnvironmentLoader.IsWorldGenerationStageReleased;
+            if (gameplayCameraReady && titleStageReleased)
+            {
+                qualifiedGameplayCameraFrames++;
+            }
+            else
+            {
+                qualifiedGameplayCameraFrames = 0;
+                GameplayPresentationWaitReason = !titleStageReleased
+                    ? "title environment presentation is still transitioning"
+                    : "authoritative gameplay camera is inactive";
+                if (Time.unscaledTime >= nextCameraHandoffDiagnosticAt)
+                {
+                    Debug.Log("[YourQuestTutorialAutoBootstrap] STARTUP CAMERA HANDOFF WAIT reason=" +
+                        GameplayPresentationWaitReason + " camera=" +
+                        (gameplayCamera == null ? "missing" : gameplayCamera.isActiveAndEnabled.ToString()) +
+                        " titleStageReleased=" + titleStageReleased);
+                    nextCameraHandoffDiagnosticAt = Time.unscaledTime + 10f;
+                }
+            }
+            if (qualifiedGameplayCameraFrames < 2)
+                yield return null;
+        }
+
+        // note: Record the qualified camera projection at the release edge so later coverage failures can be distinguished from a loading-camera handoff.
+        Camera qualifiedCamera = authoritativeMotor != null && authoritativeMotor.IsAuthoritative
+            ? authoritativeMotor.playerCamera
+            : null;
+        if (qualifiedCamera != null)
+            Debug.Log("[YourQuestTutorialAutoBootstrap] STARTUP VIEW QUALIFIED fov=" + qualifiedCamera.fieldOfView +
+                " position=" + qualifiedCamera.transform.position + " rotation=" + qualifiedCamera.transform.eulerAngles +
+                " timeScale=" + Time.timeScale);
+        // note: Startup owns the final modal boundary; clear stale menu, dialogue, and manual tokens before handing the live clock to gameplay.
+        RuntimeModalUiBlocker.ClearAll();
         RuntimeModalUiBlocker.Release(StartupBlockToken);
         // note: This is the single presentation-release edge consumed by gameplay HUDs; service readiness alone is intentionally insufficient.
         GameplayPresentationReleased = true;
+        GameplayPresentationWaitReason = string.Empty;
+        // note: Retire loading in the same handoff that enables HUD/input, eliminating the blank blocked interval after either New Journey or Continue.
+        if (loading != null)
+            Destroy(loading.gameObject);
+        Debug.Log("[YourQuestTutorialAutoBootstrap] GAMEPLAY PRESENTATION RELEASED player=" +
+            (authoritativeMotor != null ? authoritativeMotor.name : "<missing>"));
     }
 
     private void EnsureStartupServices()
@@ -235,6 +325,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         EnsureSingleton<RuntimeModalUiBlocker>("RuntimeModalUiBlocker");
         EnsureSingleton<YQProfileSaveSystem>("YQProfileSaveSystem");
         EnsureSingleton<YQTitleScreenUI>("YQTitleScreenUI");
+        EnsureSingleton<YQProductionBaselineDiagnostics>("YQProductionBaselineDiagnostics");
     }
 
     private void EnsureGameplayServices()
@@ -407,6 +498,38 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         // note: The player camera is created after the title scene during production startup, so hand it to the title stage before Unity can run two cameras or listeners together.
         YQTitleEnvironmentLoader.SuppressGameplayPresentationUntilRelease(
             Camera.main);
+    }
+
+    public static GameObject EnsureRuntimePlayerForWorldGeneration()
+    {
+        // note: World validation can be triggered by a persisted-world marker before the title coroutine reaches gameplay; provide the same single player owner instead of letting generation run without a traversal shape.
+        GameObject player = EnsureSingleAuthoritativePlayer();
+        if (player == null)
+        {
+            BuildPlayer();
+            player = EnsureSingleAuthoritativePlayer();
+        }
+        return player;
+    }
+
+    public static GameObject EnsureRuntimeOriginActorForWorldGeneration()
+    {
+        // note: A verifier-triggered build can predate the ordinary staging coroutine; recover the persisted Archivist identity through the same curated actor factory.
+        NpcDialogueAgent[] agents = FindObjectsByType<NpcDialogueAgent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int index = 0; index < agents.Length; index++)
+        {
+            if (agents[index] != null && string.Equals(agents[index].npcId, "npc_archivist_01", StringComparison.OrdinalIgnoreCase))
+                return agents[index].gameObject;
+        }
+
+        EnsureOriginActorStaging();
+        agents = FindObjectsByType<NpcDialogueAgent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int index = 0; index < agents.Length; index++)
+        {
+            if (agents[index] != null && string.Equals(agents[index].npcId, "npc_archivist_01", StringComparison.OrdinalIgnoreCase))
+                return agents[index].gameObject;
+        }
+        return null;
     }
 
     private static void EnsureOriginActorStaging()
@@ -768,274 +891,101 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
             wsm.SetCurrentRegion("origin_forest", originComplete ? "Whisperroot Clearing" : "Goddess Threshold");
 
         content?.EnsureBaselineGeneratedState(psm.state, wsm.State);
-        YQWorldGenerationService.Instance?.EnsureWorldPlan(psm.state, wsm.State, originComplete);
+        // note: Loading an existing save must materialize its persisted plan immediately; optional LLM replacement belongs only to the explicit origin-commit path and must not block physical traversal startup.
+        YQWorldGenerationService.Instance?.EnsureWorldPlan(psm.state, wsm.State, false);
         YQGeneratedContentCuration.CleanExistingState(psm.state);
         if (originComplete)
             EnsureTutorialQuestChain(psm.state);
-        else
-            RemoveObsoleteTutorialQuests(psm.state, true);
         psm.state.GetActiveQuest();
         psm.Save();
         wsm.Save();
     }
 
-    private static void EnsureTutorialQuestChain(PlayerState state)
+    public static void EnsureTutorialQuestChain(PlayerState state)
     {
         if (state == null)
             return;
-
         state.EnsureCollections();
-        bool resetForThisTutorial = state.behaviorCounters == null || !state.behaviorCounters.ContainsKey(TutorialProgressCounter);
-        RemoveObsoleteTutorialQuests(state, resetForThisTutorial);
-        if (resetForThisTutorial)
-        {
-            ClearTutorialCounters(state);
-        }
 
-        long now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        UpsertTutorialQuest(state, "tutorial_01_talk_archivist", "Speak With Archivist Vey",
-            "Talk to Archivist Vey between the Goddess statue and witch hut. She marks the first trial around what you do, not where you stand.",
-            new[] { "tutorial_main", "dialogue", "talk", "archivist", "guide", "quest_giver" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_02_claim_training_kit", "Inspect and Equip Manifested Gear",
-            "Use the gear the goddess manifested from your answers. Equip a weapon or armor piece before the route turns hostile.",
-            new[] { "tutorial_main", "origin_manifest", "item", "gear", "equip", "weapon" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_03_restore_at_shrine", "Recover at the Shrine",
-            "Activate the Shrine of First Breath. Restore health, stamina, and mana before committing to the locked path.",
-            new[] { "tutorial_main", "shrine", "restore", "recover" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_04_open_practice_lock", "Open the Practice Lock",
-            "Pick the Practice Lock Gate or the Practice Locked Cache. The first lock is deterministic so the lesson is clear.",
-            new[] { "tutorial_main", "lockpick", "door", "chest", "practice" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_05_wake_mimic", "Open the Too-Quiet Chest",
-            "Open the too-quiet chest in the side alcove. Some rewards wait until your hand proves the risk.",
-            new[] { "tutorial_main", "mimic", "chest" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_06_cast_spell", "Cast Into the Trial Yard",
-            "Cast a spell once with right click at the focus stone. Watch for the mana read and impact feedback.",
-            new[] { "tutorial_main", "spell", "cast", "mana", "trial" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_07_defeat_and_loot", "Defeat and Loot the First Echo",
-            "Defeat one echo enemy in the trial yard, then loot the residue it leaves behind for a concrete reward.",
-            new[] { "tutorial_main", "combat", "defeat", "echo", "loot", "corpse" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_08_choose_offer", "Choose a Progression Offer",
-            "Accept or decline the progression offer when it appears. Skills, spells, and titles answer your stimulus.",
-            new[] { "tutorial_main", "progression", "offer", "accept", "decline", "skill" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_09_cross_snow_gate", "Cross the First Snow Gate",
-            "Step through the north gate into the First Snow Trial. The region matters, but the next response still starts with you.",
-            new[] { "tutorial_main", "region", "first road", "snow", "trial", "north" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_10_report_warden", "Report to Warden Thorne",
-            "Talk to Warden Thorne at the snow gate to finish the tutorial loop. Save and profile tools are in pause.",
-            new[] { "tutorial_main", "dialogue", "report", "warden", "save", "profile", "quest_giver" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_11_north_oath", "North Road: Hold the Frostglass Oath",
-            "Speak with Warden Thorne, defeat one frost hostile, and claim the Frostglass Ward. The north road tests whether your first answer becomes a guard, a counter, or a retreat.",
-            new[] { "tutorial_main", "cardinal", "north", "frost", "dialogue", "combat", "item", "ward" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_12_east_cinder", "East Road: Temper the Cinder Vow",
-            "Speak with Cinder Prefect Mael, survive one ember monster, and take the Cinder Trial Blade. The east road burns away bravado until only repeatable courage is left.",
-            new[] { "tutorial_main", "cardinal", "east", "fire", "dialogue", "combat", "item", "weapon" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_13_south_auralith", "South Road: Answer Auralith's Root",
-            "Speak with Root-Sibyl Ivara, face one living-terrain monster, and recover the Auralith Seed Charm. The south road belongs to the old natural precursor, but the skill must belong to you.",
-            new[] { "tutorial_main", "cardinal", "south", "nature", "auralith", "dialogue", "combat", "item", "trinket" }, now, resetForThisTutorial);
-        UpsertTutorialQuest(state, "tutorial_14_west_tide", "West Road: Map the Tideglass Step",
-            "Speak with Tide Cartographer Sera, defeat one shore monster, and claim the Tideglass Step Boots. The west road measures how you reposition when the floor refuses to stay still.",
-            new[] { "tutorial_main", "cardinal", "west", "water", "dialogue", "combat", "item", "boots" }, now, resetForThisTutorial);
-
-        if (resetForThisTutorial)
-            state.behaviorCounters[TutorialProgressCounter] = 1f;
-
-        QuestRecord generatedOriginQuest = FindFirstQuestWithTag(state, "origin_generated");
-        if (generatedOriginQuest != null && !IsCompletedQuest(generatedOriginQuest))
-        {
-            state.SetActiveQuest(generatedOriginQuest.questId);
-            state.Touch();
-            return;
-        }
-
-        SelectFirstIncompleteTutorialQuest(state);
-        state.Touch();
-    }
-
-    private static void UpsertTutorialQuest(PlayerState state, string questId, string name, string description, string[] tags, long now, bool reset)
-    {
-        QuestRecord quest = FindQuestById(state, questId);
-        if (quest == null)
-        {
-            quest = new QuestRecord
-            {
-                questId = questId,
-                createdUnix = now,
-                status = "offer"
-            };
-            state.quests.Add(quest);
-        }
-        else if (reset)
-        {
-            quest.status = "offer";
-            quest.completedUnix = 0;
-            quest.rewardGold = 0;
-            quest.rewardXp = 0;
-        }
-
-        quest.name = name;
-        quest.description = description;
-        quest.tags = tags ?? System.Array.Empty<string>();
-        quest.updatedUnix = now;
-    }
-
-    private static QuestRecord FindQuestById(PlayerState state, string questId)
-    {
-        if (state == null || state.quests == null || string.IsNullOrWhiteSpace(questId))
-            return null;
-
+        // note: Accepted quests and counters are save authority. The old demo reseed deleted the origin quest
+        // and reset equipment/dialogue evidence immediately after questionnaire completion.
+        QuestRecord originQuest = null;
         for (int i = 0; i < state.quests.Count; i++)
         {
-            QuestRecord quest = state.quests[i];
-            if (quest != null && string.Equals(quest.questId, questId, System.StringComparison.OrdinalIgnoreCase))
-                return quest;
-        }
-
-        return null;
-    }
-
-    private static QuestRecord FindFirstQuestWithTag(PlayerState state, string tag)
-    {
-        if (state == null || state.quests == null || string.IsNullOrWhiteSpace(tag))
-            return null;
-
-        for (int i = 0; i < state.quests.Count; i++)
-        {
-            QuestRecord quest = state.quests[i];
-            if (quest != null && HasTag(quest, tag))
-                return quest;
-        }
-
-        return null;
-    }
-
-    private static void SelectFirstIncompleteTutorialQuest(PlayerState state)
-    {
-        string[] orderedQuestIds =
-        {
-            "tutorial_01_talk_archivist",
-            "tutorial_02_claim_training_kit",
-            "tutorial_03_restore_at_shrine",
-            "tutorial_04_open_practice_lock",
-            "tutorial_05_wake_mimic",
-            "tutorial_06_cast_spell",
-            "tutorial_07_defeat_and_loot",
-            "tutorial_08_choose_offer",
-            "tutorial_09_cross_snow_gate",
-            "tutorial_10_report_warden",
-            "tutorial_11_north_oath",
-            "tutorial_12_east_cinder",
-            "tutorial_13_south_auralith",
-            "tutorial_14_west_tide"
-        };
-
-        for (int i = 0; i < orderedQuestIds.Length; i++)
-        {
-            QuestRecord quest = FindQuestById(state, orderedQuestIds[i]);
-            if (quest == null || IsCompletedQuest(quest))
+            QuestRecord candidate = state.quests[i];
+            if (candidate == null)
                 continue;
-
-            state.SetActiveQuest(quest.questId);
-            return;
-        }
-    }
-
-    private static bool IsCompletedQuest(QuestRecord quest)
-    {
-        if (quest == null)
-            return true;
-
-        if (quest.completedUnix > 0)
-            return true;
-
-        string status = quest.status ?? string.Empty;
-        return status.Equals("complete", System.StringComparison.OrdinalIgnoreCase) ||
-               status.Equals("completed", System.StringComparison.OrdinalIgnoreCase) ||
-               status.Equals("failed", System.StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static void RemoveObsoleteTutorialQuests(PlayerState state, bool includeCurrentTutorialQuests)
-    {
-        if (state == null || state.quests == null)
-            return;
-
-        for (int i = state.quests.Count - 1; i >= 0; i--)
-        {
-            QuestRecord quest = state.quests[i];
-            if (quest == null)
-                continue;
-
-            string name = quest.name ?? string.Empty;
-            if (name.Equals("Wake Beneath the Green Roof", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Read the Four Roads", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Wake in Vey's Forest Hut", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Read the Four Thresholds", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Hold the Frostglass Oath", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Temper the Cinder Vow", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Answer Auralith's Root", System.StringComparison.OrdinalIgnoreCase) ||
-                name.Equals("Map the Tideglass Step", System.StringComparison.OrdinalIgnoreCase) ||
-                (includeCurrentTutorialQuests && HasTag(quest, "tutorial_main")))
+            bool originTag = candidate.tags != null && Array.Exists(candidate.tags,
+                tag => string.Equals(tag, "origin_generated", StringComparison.OrdinalIgnoreCase));
+            bool originName = !string.IsNullOrWhiteSpace(state.generatedOrigin?.questName) &&
+                string.Equals(candidate.name, state.generatedOrigin.questName, StringComparison.Ordinal);
+            if (originTag || originName)
             {
-                state.quests.RemoveAt(i);
+                originQuest = candidate;
+                break;
             }
         }
 
-        state.activeQuestId = string.Empty;
-    }
-
-    private static bool HasTag(QuestRecord quest, string tag)
-    {
-        if (quest == null || quest.tags == null || string.IsNullOrWhiteSpace(tag))
-            return false;
-
-        for (int i = 0; i < quest.tags.Length; i++)
+        if (originQuest == null && !string.IsNullOrWhiteSpace(state.generatedOrigin?.questName))
         {
-            if (string.Equals(quest.tags[i], tag, System.StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static void ClearTutorialCounters(PlayerState state)
-    {
-        if (state == null || state.behaviorCounters == null)
-            return;
-
-        string[] prefixes =
-        {
-            "dialogue:npc_archivist_01",
-            "dialogue:npc_warden_01",
-            "dialogue:npc_cinder_01",
-            "dialogue:npc_root_sibyl_01",
-            "dialogue:npc_tide_cartographer_01",
-            "pickup:",
-            "item:equip",
-            "item:consume",
-            "interact:shrine",
-            "lockpick:",
-            "mimic:",
-            "cast:",
-            "combat:",
-            "kill:region_ice_north",
-            "kill:region_fire_east",
-            "kill:region_jungle_south",
-            "kill:region_water_west",
-            "loot:"
-        };
-
-        List<string> keys = new List<string>(state.behaviorCounters.Keys);
-        for (int i = 0; i < keys.Count; i++)
-        {
-            string key = keys[i] ?? string.Empty;
-            for (int p = 0; p < prefixes.Length; p++)
+            // note: Recover only a quest actually recorded in the accepted origin, not fourteen fixed demo quests.
+            // Older affected saves lost the quest ID; a stable recovery ID prevents repeated restoration duplicates.
+            GeneratedOriginRecord origin = state.generatedOrigin;
+            string description = string.Empty;
+            if (!string.IsNullOrWhiteSpace(origin.rawJson))
             {
-                if (key.StartsWith(prefixes[p], System.StringComparison.OrdinalIgnoreCase))
+                try
                 {
-                    state.behaviorCounters.Remove(key);
-                    break;
+                    description = (string)Newtonsoft.Json.Linq.JObject.Parse(origin.rawJson)["quest"]?["description"] ?? string.Empty;
+                }
+                catch (Newtonsoft.Json.JsonException)
+                {
+                    Debug.LogWarning("[YourQuestTutorialAutoBootstrap] Origin quest presentation could not be recovered; accepted name and onboarding objectives were preserved.");
                 }
             }
+            originQuest = new QuestRecord
+            {
+                questId = "origin_recovered_" + Hash128.Compute(state.playerId + "|" + origin.seed),
+                name = origin.questName,
+                description = description,
+                status = "offer",
+                tags = new[] { "origin_generated", "tutorial_main" },
+                objectives = YQOriginQuestionnaireUI.BuildDefaultOriginObjectives(),
+                generationSource = origin.source,
+                generatorPromptHash = origin.seed,
+                payloadJson = origin.rawJson,
+                createdUnix = origin.generatedUnix,
+                updatedUnix = origin.generatedUnix
+            };
+            state.quests.Add(originQuest);
+            // note: Recovered progress is determined from existing event counters, without awarding items or regenerating the origin.
+            YQQuestCompletionDirector.EvaluateObjectives(state, originQuest, out _);
+            state.Touch();
         }
+
+        QuestRecord selected = null;
+        for (int i = 0; i < state.quests.Count; i++)
+        {
+            QuestRecord candidate = state.quests[i];
+            if (candidate != null && string.Equals(candidate.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase))
+            {
+                selected = candidate;
+                break;
+            }
+        }
+        // note: Continue preserves a valid user-selected quest, even if the origin quest remains incomplete.
+        if (selected != null && selected.completedUnix <= 0 &&
+            !string.Equals(selected.status, "complete", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(selected.status, "completed", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(selected.status, "failed", StringComparison.OrdinalIgnoreCase))
+            return;
+        if (originQuest != null && originQuest.completedUnix <= 0 &&
+            !string.Equals(originQuest.status, "complete", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(originQuest.status, "completed", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(originQuest.status, "failed", StringComparison.OrdinalIgnoreCase))
+            state.SetActiveQuest(originQuest.questId);
+        else
+            state.GetActiveQuest();
     }
 
     private static T EnsureSingleton<T>(string name) where T : Component
@@ -1282,7 +1232,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         YourQuestTutorialWorldHelpers.CreateSpawner(root.transform, new Vector3(-63.5f, 1f, -4.8f), "tide_wilds", "region_water_west", "Brinecap Lurker", 1, MushroomMonsterPrefab, new Color(0.24f, 0.54f, 0.62f, 1f), new Color(0.58f, 0.88f, 0.94f, 1f));
     }
 
-    private void BuildPlayer()
+    private static void BuildPlayer()
     {
         GameObject player = new GameObject("Player");
         DontDestroyOnLoad(player);
@@ -1315,8 +1265,10 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
             GameObject camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
             cam = camGo.AddComponent<Camera>();
-            camGo.AddComponent<AudioListener>();
         }
+        // note: A reused gameplay camera needs the same single-listener contract as a newly constructed camera.
+        if (cam.GetComponent<AudioListener>() == null)
+            cam.gameObject.AddComponent<AudioListener>();
         cam.transform.position = player.transform.position + new Vector3(0f, 1.6f, -3.5f);
 
         motor.cameraPivot = pivot;

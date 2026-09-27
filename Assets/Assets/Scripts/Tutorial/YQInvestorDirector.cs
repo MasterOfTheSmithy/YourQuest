@@ -1,6 +1,7 @@
 // Assets/Assets/Scripts/Tutorial/YQInvestorDirector.cs
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -295,9 +296,13 @@ public sealed class YQInvestorDirector : MonoBehaviour
         }
 
         _pendingTags.Add(tag);
-        string directive = "Player-oriented curation rules: every generated offer must answer the player's observed stimulus directly. Use regions as pressure/context only. Do not name skills, classes, or titles after region ids or biome names. The tutorial fiction begins at an ancient Goddess statue beside Archivist Vey's witch hut, with four cardinal mentor roads: Warden Thorne north, Cinder Prefect Mael east, Root-Sibyl Ivara south, and Tide Cartographer Sera west. For nature evidence, use Auralith, the First Green, as a godlike precursor anchor while keeping the skill or quest about the player. Avoid generated/fluff wording. Every root JSON object must also contain goddessLine: 2-3 short present-tense sentences spoken by a razor-smart anxious young machine-Goddess who is actively helping the player, masks protectiveness with dry irritation, leaks one specific worry, then abruptly regains control. Ground it only in the accepted event from this response. Never mention AI, LLM, model, generation, phase, validation, JSON, code, Unity, director, queue, delay, or system status.";
+        string directive = "Player-oriented curation rules: every generated offer must answer the player's observed stimulus directly. Use regions as pressure/context only. Do not name skills, classes, or titles after region ids or biomes. The tutorial fiction begins at the Goddess statue beside Archivist Vey's witch hut, with four cardinal mentor roads. For nature evidence, use Auralith, the First Green, as an optional lore anchor while keeping the skill or quest about the player. Avoid generic fantasy filler. Every root JSON object must also contain goddessLine: 2-3 short present-tense sentences spoken by one persistent, benevolent but high-strung Goddess who is trying to make the perfect world for this player. She is intelligent, controlling, dryly sarcastic, occasionally bratty, and quietly possessive of her creation. Ground the line in the accepted event and one relevant detail from GODDESS_PERSISTENT_CONTEXT. If the player has repeatedly behaved in difficult or contradictory ways, let her composure fray gradually through a clipped clause, defensive aside, or sharper joke; keep the underlying care and never become cruel. Do not mention AI, LLM, model, generation, phase, validation, JSON, code, Unity, director, queue, delay, system status, or hidden machinery.";
+        PlayerState currentPlayer = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        if (string.IsNullOrWhiteSpace(LastDirectorMessage) && currentPlayer != null && currentPlayer.goddessVoiceMemory != null && currentPlayer.goddessVoiceMemory.Count > 0)
+            LastDirectorMessage = currentPlayer.goddessVoiceMemory[currentPlayer.goddessVoiceMemory.Count - 1] ?? string.Empty;
         string priorVoice = string.IsNullOrWhiteSpace(LastDirectorMessage) ? "No prior spoken line." : "Previous spoken line—do not reuse its wording or sentence machinery: " + LastDirectorMessage;
-        string prompt = PromptContextBuilder.BuildContext(directive + "\n" + priorVoice + "\n" + task, schema, BuildRecentSummary(), BuildBehaviorLedger());
+        string journeyContext = BuildGoddessPersistentContext(currentPlayer);
+        string prompt = PromptContextBuilder.BuildContext(directive + "\n" + priorVoice + "\n" + journeyContext + "\n" + task, schema, BuildRecentSummary(), BuildBehaviorLedger());
         if (LLMClient.Instance == null)
         {
             _pendingTags.Remove(tag);
@@ -316,6 +321,14 @@ public sealed class YQInvestorDirector : MonoBehaviour
         }, result =>
         {
             // note: Failed or malformed responses leave the current accepted game state untouched.
+            if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
+                result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted))
+            {
+                // note: Lifecycle terminal results are observable through the scheduler but cannot mutate a replacement profile.
+                _pendingTags.Remove(tag);
+                return;
+            }
             string raw = result.success ? result.text : null;
             _pendingTags.Remove(tag);
             if (string.IsNullOrWhiteSpace(raw))
@@ -343,6 +356,17 @@ public sealed class YQInvestorDirector : MonoBehaviour
         if (string.IsNullOrWhiteSpace(line))
             return;
 
+        // note: Reject exact repeats against the persisted rolling memory as well as this session's set, so a reload cannot replay the same thought verbatim.
+        PlayerState persistedState = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        if (persistedState != null && persistedState.goddessVoiceMemory != null)
+        {
+            for (int memoryIndex = 0; memoryIndex < persistedState.goddessVoiceMemory.Count; memoryIndex++)
+            {
+                if (string.Equals(persistedState.goddessVoiceMemory[memoryIndex], line, StringComparison.OrdinalIgnoreCase))
+                    return;
+            }
+        }
+
         if (!_usedGoddessLines.Add(line))
         {
             // note: Repeated model prose is discarded so the visible Goddess never loops a canned response within a play session.
@@ -359,7 +383,168 @@ public sealed class YQInvestorDirector : MonoBehaviour
             return;
         }
 
+        if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(line, 12))
+        {
+            // note: Live curation can fail safely without exposing a narrator sentence or diagnostic fragment as Goddess speech.
+            Debug.LogWarning("[YQInvestorDirector] Rejected non-spoken Goddess line: " + line);
+            return;
+        }
+
         LastDirectorMessage = line;
+        PlayerStateManager psm = PlayerStateManager.Instance;
+        if (psm != null && psm.state != null)
+        {
+            // note: Keep a tiny rolling voice memory in the save so reloads preserve character continuity without making dialogue canonical world state.
+            psm.state.EnsureCollections();
+            if (psm.state.goddessVoiceMemory == null)
+                psm.state.goddessVoiceMemory = new List<string>();
+            psm.state.goddessVoiceMemory.Add(line);
+            while (psm.state.goddessVoiceMemory.Count > 8)
+                psm.state.goddessVoiceMemory.RemoveAt(0);
+            psm.Save();
+        }
+    }
+
+    // note: Build a compact journey memory from persisted player state so each live Goddess thought can reference the player's actual history without dumping a save file into the prompt.
+    private string BuildGoddessPersistentContext(PlayerState state)
+    {
+        if (state == null)
+            return "GODDESS_PERSISTENT_CONTEXT\n- No persistent player context is available yet.\n- goddessLine must stay grounded in the accepted event.\n";
+
+        StringBuilder sb = new StringBuilder(1800);
+        sb.AppendLine("GODDESS_PERSISTENT_CONTEXT");
+        sb.AppendLine("- This is remembered evidence from the player's journey, not new canon. Use at most one or two relevant details naturally.");
+        sb.AppendLine("- player=" + SafeContext(state.displayName, "the player"));
+        sb.AppendLine("- direction=" + SafeContext(state.characterLifeDirection, "unspecified"));
+        sb.AppendLine("- vow=" + SafeContext(state.characterVow, "unspecified"));
+        sb.AppendLine("- currentPlace=" + SafeContext(state.currentRegionName, "unknown") + " | scene=" + SafeContext(state.currentScene, "unknown"));
+        sb.AppendLine("- level=" + state.level + " | currency=" + state.currency);
+
+        if (state.generatedOrigin != null)
+        {
+            sb.AppendLine("- originClass=" + SafeContext(state.generatedOrigin.className, "unspecified") +
+                         " | title=" + SafeContext(state.generatedOrigin.titleName, "unspecified") +
+                         " | ability=" + SafeContext(state.generatedOrigin.abilityName, "unspecified"));
+        }
+
+        if (state.activeQuestId != null && state.quests != null)
+        {
+            for (int i = 0; i < state.quests.Count; i++)
+            {
+                QuestRecord quest = state.quests[i];
+                if (quest != null && string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.AppendLine("- activeQuest=" + SafeContext(quest.name, "unnamed") + " | status=" + SafeContext(quest.status, "active"));
+                    break;
+                }
+            }
+        }
+
+        if (state.quests != null)
+        {
+            int rememberedQuests = 0;
+            for (int i = state.quests.Count - 1; i >= 0 && rememberedQuests < 2; i--)
+            {
+                QuestRecord quest = state.quests[i];
+                if (quest == null || string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (string.Equals(quest.status, "complete", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(quest.status, "completed", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(quest.status, "failed", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.AppendLine("- resolvedQuest=" + SafeContext(quest.name, "unnamed") + " | outcome=" + SafeContext(quest.status, "resolved"));
+                    rememberedQuests++;
+                }
+            }
+        }
+
+        if (state.classes != null && state.classes.Count > 0)
+            sb.AppendLine("- unlockedClass=" + SafeContext(state.classes[state.classes.Count - 1]?.name, "unspecified"));
+        if (state.skills != null && state.skills.Count > 0)
+            sb.AppendLine("- unlockedSkill=" + SafeContext(state.skills[state.skills.Count - 1]?.name, "unspecified"));
+
+        if (state.reputation != null && state.reputation.Count > 0)
+        {
+            int writtenReputation = 0;
+            foreach (KeyValuePair<string, float> pair in state.reputation)
+            {
+                if (writtenReputation++ >= 3) break;
+                sb.AppendLine("- relationship=" + SafeContext(pair.Key, "faction") + ":" + pair.Value.ToString("0.00"));
+            }
+        }
+
+        if (state.equippedItemBySlot != null && state.equippedItemBySlot.Count > 0)
+        {
+            int written = 0;
+            foreach (KeyValuePair<string, string> pair in state.equippedItemBySlot)
+            {
+                if (written++ >= 3) break;
+                sb.AppendLine("- equipped=" + SafeContext(pair.Key, "slot") + ":" + SafeContext(pair.Value, "item"));
+            }
+        }
+
+        if (state.behaviorLedger != null && state.behaviorLedger.Count > 0)
+        {
+            int start = Mathf.Max(0, state.behaviorLedger.Count - 5);
+            for (int i = start; i < state.behaviorLedger.Count; i++)
+                sb.AppendLine("- recentMemory=" + SafeContext(state.behaviorLedger[i], "unrecorded action"));
+        }
+
+        if (state.goddessVoiceMemory != null && state.goddessVoiceMemory.Count > 0)
+        {
+            int start = Mathf.Max(0, state.goddessVoiceMemory.Count - 3);
+            for (int i = start; i < state.goddessVoiceMemory.Count; i++)
+                sb.AppendLine("- priorGoddessThought=" + SafeContext(state.goddessVoiceMemory[i], "unrecorded thought"));
+        }
+
+        sb.AppendLine("- stability=" + ResolveGoddessStability(state));
+        sb.AppendLine("- Match the player's history with the current accepted event; do not recite this block or invent relationships, discoveries, or consequences.");
+        return sb.ToString();
+    }
+
+    // note: Stability is derived from persisted repeated behavior, making frustration accumulate with evidence instead of random line selection.
+    private static string ResolveGoddessStability(PlayerState state)
+    {
+        int difficult = 0;
+        int steady = 0;
+        if (state != null && state.behaviorLedger != null)
+        {
+            for (int i = 0; i < state.behaviorLedger.Count; i++)
+            {
+                string entry = (state.behaviorLedger[i] ?? string.Empty).ToLowerInvariant();
+                if (ContainsAny(entry, "kill", "steal", "destroy", "break", "fail", "ignore", "refuse", "contradict", "clip", "fall")) difficult++;
+                if (ContainsAny(entry, "protect", "complete", "discover", "talk", "help", "craft", "repair")) steady++;
+            }
+        }
+        if (state != null && state.behaviorCounters != null)
+        {
+            foreach (KeyValuePair<string, float> pair in state.behaviorCounters)
+            {
+                string key = (pair.Key ?? string.Empty).ToLowerInvariant();
+                if (ContainsAny(key, "fail", "break", "steal", "kill", "ignore", "contradict"))
+                    difficult += Mathf.Clamp(Mathf.RoundToInt(pair.Value), 0, 4);
+            }
+        }
+        int strain = Mathf.Clamp(difficult - steady / 2, 0, 8);
+        if (strain >= 6) return "slipping: concise, defensive, sharper sarcasm, still protective";
+        if (strain >= 3) return "frayed: mild impatience and self-correction, still benevolent";
+        if (strain >= 1) return "watchful: precise and slightly tense, quietly caring";
+        return "composed: clever, benevolent, mildly smug";
+    }
+
+    private static bool ContainsAny(string value, params string[] tokens)
+    {
+        if (string.IsNullOrWhiteSpace(value) || tokens == null) return false;
+        for (int i = 0; i < tokens.Length; i++)
+            if (value.Contains(tokens[i])) return true;
+        return false;
+    }
+
+    private static string SafeContext(string value, string fallback)
+    {
+        string clean = (value ?? string.Empty).Replace('\r', ' ').Replace('\n', ' ').Trim();
+        if (clean.Length > 180) clean = clean.Substring(0, 177) + "...";
+        return string.IsNullOrWhiteSpace(clean) ? fallback : clean;
     }
 
     private string BuildRecentSummary()

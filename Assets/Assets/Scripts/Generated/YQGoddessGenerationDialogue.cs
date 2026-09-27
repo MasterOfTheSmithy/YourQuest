@@ -223,6 +223,568 @@ public static class YQGoddessGenerationDialogue
         return string.Empty;
     }
 
+    public static YQGoddessGenerationVoiceDto EnsureOriginVoice(
+        YQGoddessGenerationVoiceDto voice,
+        PlayerState player,
+        YQOriginGenerationDto origin)
+    {
+        voice ??= new YQGoddessGenerationVoiceDto();
+        Normalize(voice);
+
+        string playerName = Clean(
+            player != null ? player.displayName : string.Empty,
+            80);
+        if (string.IsNullOrWhiteSpace(playerName))
+            playerName = "adventurer";
+
+        string lifeDirection = Clean(
+            player != null ? player.characterLifeDirection : string.Empty,
+            150);
+        if (string.IsNullOrWhiteSpace(lifeDirection))
+            lifeDirection = "what you told me about the life you intend to lead";
+
+        string vow = Clean(
+            player != null ? player.characterVow : string.Empty,
+            180);
+        if (string.IsNullOrWhiteSpace(vow))
+            vow = "the promise you offered me";
+
+        string className = Clean(
+            origin != null ? origin.className : string.Empty,
+            80);
+        if (string.IsNullOrWhiteSpace(className))
+            className = "adventurer";
+
+        bool repaired = false;
+        string requiredOpening = "Welcome, " + playerName + ".";
+        int voiceSeed = VoiceSamplingSeed(
+            playerName + "|" + lifeDirection + "|" + vow + "|" + className);
+        string choiceThread = BuildChoiceThread(player);
+        int choicePressure = ResolveChoicePressure(player);
+        if (!IsContextualVoiceFieldAcceptable(voice.completion, 35, playerName, className))
+        {
+            // note: This is a quality-gate fallback only; the model remains primary when it actually speaks as the Goddess and honors the personalized welcome contract.
+            voice.completion = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    requiredOpening + " I built your beginning around " + choiceThread + ", and yes, I am checking it twice. " + className + " is ready; I want it to feel earned, not merely assigned.",
+                    requiredOpening + " You pointed me toward " + choiceThread + ", so I gave " + className + " a place to begin. I am watching the edges rather closely; perfection is tedious when I am responsible for it.",
+                    requiredOpening + " That choice is now part of a beginning shaped around " + choiceThread + ". I am pleased with " + className + "; I am also resisting the urge to adjust everything again."
+                },
+                1);
+            repaired = true;
+        }
+
+        if (!IsContextualVoiceFieldAcceptable(voice.nextPrelude, 25, playerName, className))
+        {
+            voice.nextPrelude = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "I have your " + className + " and the direction you chose in hand. Now I need a world that will not embarrass either of us.",
+                    "Your beginning is clear enough, " + playerName + ". I am giving your chosen direction somewhere to matter, which is a surprisingly delicate request.",
+                    "I know what you want to become. Now I must find the right ground for " + className + " before my standards become everyone’s problem."
+                },
+                2);
+            repaired = true;
+        }
+
+        if (voice.ambientLines == null || voice.ambientLines.Length != 2 ||
+            !IsContextualVoiceFieldAcceptable(voice.ambientLines[0], 18, playerName, className) ||
+            !IsContextualVoiceFieldAcceptable(voice.ambientLines[1], 18, playerName, className))
+        {
+            string abilityName = Clean(
+                origin != null && origin.ability != null
+                    ? origin.ability.name
+                    : string.Empty,
+                80);
+            if (string.IsNullOrWhiteSpace(abilityName))
+                abilityName = "your first useful talent";
+
+            voice.ambientLines = new[]
+            {
+                "I have given you " + abilityName + ". It should help your " + className + " with " + choiceThread + ", although I reserve the right to worry over the details.",
+                BuildStabilityLine(voiceSeed, choicePressure) + " " + playerName + ", you told me what mattered to you, and I am keeping it close."
+            };
+            repaired = true;
+        }
+
+        if (repaired)
+        {
+            Debug.LogWarning(
+                "[YQGoddessGenerationDialogue] ORIGIN VOICE REPAIRED. " +
+                "Canonical origin data was preserved while invalid narrator prose was replaced by the grounded first-person fallback.");
+        }
+
+        return voice;
+    }
+
+    public static YQGoddessGenerationVoiceDto EnsureWorldVoice(
+        YQGoddessGenerationVoiceDto voice,
+        GeneratedWorldPlanRecord plan,
+        PlayerState player)
+    {
+        voice ??= new YQGoddessGenerationVoiceDto();
+        Normalize(voice);
+        plan?.EnsureCollections();
+
+        string playerName = Clean(
+            player != null ? player.displayName : string.Empty,
+            80);
+        if (string.IsNullOrWhiteSpace(playerName))
+            playerName = "adventurer";
+        string lifeDirection = Clean(
+            player != null ? player.characterLifeDirection : string.Empty,
+            150);
+        if (string.IsNullOrWhiteSpace(lifeDirection))
+            lifeDirection = "the life you described";
+
+        GeneratedRegionRecord firstRegion =
+            plan != null && plan.regions.Count > 0 ? plan.regions[0] : null;
+        string regionName = Clean(
+            firstRegion != null ? firstRegion.displayName : string.Empty,
+            90);
+        if (string.IsNullOrWhiteSpace(regionName))
+            regionName = "your first region";
+        string terrainProfile = Clean(
+            firstRegion != null ? firstRegion.terrainProfile : string.Empty,
+            100);
+        if (string.IsNullOrWhiteSpace(terrainProfile))
+            terrainProfile = "a difficult but traversable landscape";
+        string climateProfile = Clean(
+            firstRegion != null ? firstRegion.climateProfile : string.Empty,
+            100);
+        if (string.IsNullOrWhiteSpace(climateProfile))
+            climateProfile = "weather with enough restraint to remain survivable";
+
+        GeneratedSettlementRecord firstSettlement =
+            plan != null && plan.settlements.Count > 0
+                ? plan.settlements[0]
+                : null;
+        string settlementName = Clean(
+            firstSettlement != null
+                ? firstSettlement.displayName
+                : string.Empty,
+            90);
+        if (string.IsNullOrWhiteSpace(settlementName))
+            settlementName = "the first settlement";
+
+        // note: Repaired prose is seeded from the accepted save and player choices so a malformed model field never collapses every world into the same greeting.
+        int voiceSeed = VoiceSamplingSeed(
+            (plan != null ? plan.worldSeed : string.Empty) + "|" +
+            playerName + "|" + lifeDirection + "|" + regionName + "|" + settlementName);
+        string choiceThread = BuildChoiceThread(player);
+        int choicePressure = ResolveChoicePressure(player);
+        bool repaired = false;
+        if (!IsContextualVoiceFieldAcceptable(voice.completion, 28, playerName, regionName, settlementName))
+        {
+            voice.completion = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "I have a beginning for you, " + playerName + ". " + settlementName + " gives your chosen direction somewhere to matter, and I am checking the welcome twice.",
+                    "I listened to what matters to you, " + playerName + ". " + regionName + " is ready to receive you; I am still correcting the small things because small things become large things here.",
+                    "You are entering " + regionName + ", " + playerName + ". I shaped this first step around " + choiceThread + ", with " + settlementName + " close enough to make the choice real."
+                },
+                11);
+            repaired = true;
+        }
+        if (!IsContextualVoiceFieldAcceptable(voice.terrain, 28, playerName, regionName, terrainProfile))
+        {
+            voice.terrain = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "You will begin in " + regionName + ", where " + terrainProfile + " meets " + climateProfile + ". I am smoothing the difficult edges without sanding away the character.",
+                    "I chose " + regionName + " for your first ground. Its " + terrainProfile + " asks for attention, and its " + climateProfile + " is testing my patience politely.",
+                    "The first ground is " + regionName + ": " + terrainProfile + ", " + climateProfile + ". I want the route to feel demanding, never careless."
+                },
+                12);
+            repaired = true;
+        }
+        if (!IsContextualVoiceFieldAcceptable(voice.environment, 28, playerName, regionName, settlementName))
+        {
+            voice.environment = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "There is room in " + regionName + " for " + choiceThread + ". I am leaving the wilderness legible enough to explore and wild enough to keep my work interesting.",
+                    "I gave " + regionName + " a little breathing room around " + settlementName + ". You should find reasons to wander without losing the way back.",
+                    "The countryside beyond " + settlementName + " is meant to invite curiosity. I am watching the margins; they have a habit of becoming the main event."
+                },
+                13);
+            repaired = true;
+        }
+        if (!IsContextualVoiceFieldAcceptable(voice.populationPrelude, 28, playerName, settlementName, regionName))
+        {
+            voice.populationPrelude = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "You should not have to begin alone. I am thinking about who belongs in " + settlementName + " and how they might respond to the life you described.",
+                    "I am turning to the people around " + settlementName + ". Their lives need room to be theirs, even while I am trying to make your beginning kind.",
+                    "The next faces will come from " + settlementName + ". I am arranging lives, not mannequins, so please allow me a moment of very deliberate worry."
+                },
+                14);
+            repaired = true;
+        }
+        if (!IsContextualVoiceFieldAcceptable(
+                voice.populationMaterialization, 28, playerName, settlementName, regionName))
+        {
+            voice.populationMaterialization = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "The people of " + settlementName + " will carry concerns of their own. I can make room for them; I cannot make every choice for them, and you would complain if I did.",
+                    "" + settlementName + " has people with lives beyond your arrival. I am protecting that independence, although it makes my work considerably less tidy.",
+                    "The lives around " + settlementName + " are in place now. They may welcome your direction, resist it, or surprise both of us."
+                },
+                15);
+            repaired = true;
+        }
+        if (!IsContextualVoiceFieldAcceptable(voice.reveal, 28, playerName, settlementName, regionName))
+        {
+            voice.reveal = BuildSeededLine(
+                voiceSeed,
+                new[]
+                {
+                    "You can enter now, " + playerName + ". Begin at " + settlementName + " and carry " + choiceThread + " with you. I am here, adjusting what I can before it becomes a problem.",
+                    "The way into " + settlementName + " is open. I am relieved, which is undignified but accurate. The next decision belongs to you.",
+                    "I have made " + regionName + " ready for your first steps, " + playerName + ". Take your chosen direction seriously; I am trying very hard to do the same."
+                },
+                16);
+            repaired = true;
+        }
+
+        if (!AreContextualAmbientLinesAcceptable(voice.ambientLines, 4, 6, playerName, regionName, settlementName))
+        {
+            voice.ambientLines = new[]
+            {
+                "I am keeping your chosen direction in mind while " + settlementName + " settles around you.",
+                BuildStabilityLine(voiceSeed, choicePressure) + " The edges of " + regionName + " are behaving for the moment.",
+                "I left a road beyond " + settlementName + " for curiosity. Please use it responsibly; I spent an unreasonable amount of effort on that curve.",
+                "The questions can wait a little, " + playerName + ". Your beginning cannot, and I am trying to make it worthy of your chosen direction."
+            };
+            repaired = true;
+        }
+
+        if (plan != null && plan.settlements.Count > 0)
+        {
+            YQGoddessLocationVoiceDto[] repairedLocations =
+                new YQGoddessLocationVoiceDto[plan.settlements.Count];
+            for (int index = 0; index < plan.settlements.Count; index++)
+            {
+                GeneratedSettlementRecord settlement = plan.settlements[index];
+                if (settlement == null)
+                    continue;
+
+                YQGoddessLocationVoiceDto locationVoice = null;
+                if (voice.locations != null)
+                {
+                    for (int voiceIndex = 0;
+                         voiceIndex < voice.locations.Length;
+                         voiceIndex++)
+                    {
+                        YQGoddessLocationVoiceDto candidate =
+                            voice.locations[voiceIndex];
+                        if (candidate != null && string.Equals(
+                                candidate.locationId,
+                                settlement.settlementId,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            locationVoice = candidate;
+                            break;
+                        }
+                    }
+                }
+
+                locationVoice ??= new YQGoddessLocationVoiceDto();
+                locationVoice.locationId = settlement.settlementId;
+                string locationName = Clean(settlement.displayName, 90);
+                if (string.IsNullOrWhiteSpace(locationName))
+                    locationName = "this settlement";
+                if (!IsContextualVoiceFieldAcceptable(
+                        locationVoice.settlementMaterialization, 25, locationName, playerName))
+                {
+                    locationVoice.settlementMaterialization = BuildSeededLine(
+                        voiceSeed,
+                        new[]
+                        {
+                            "I have " + locationName + " in mind for you. It is a beginning, not a cage, and I have left room for " + choiceThread + ".",
+                            "" + locationName + " is ready to meet you. I kept its doors, people, and rough edges distinct because you deserve a place with an actual pulse.",
+                            "You may find " + locationName + " useful. I gave it enough life to respond to your direction without deciding your story for you."
+                        },
+                        31 + index);
+                    repaired = true;
+                }
+                if (!IsContextualVoiceFieldAcceptable(
+                        locationVoice.buildingMaterialization, 25, locationName, playerName))
+                {
+                    locationVoice.buildingMaterialization = BuildSeededLine(
+                        voiceSeed,
+                        new[]
+                        {
+                            "The buildings in " + locationName + " are meant to serve lives, not decorate a map. I am checking the thresholds twice; you keep finding the interesting ones.",
+                            "I made " + locationName + " practical enough to live in and imperfect enough to feel lived in. Small details are where my standards become troublesome.",
+                            "When you reach " + locationName + ", notice the useful places first. I gave them purpose, then allowed a little disorder so you can make choices there."
+                        },
+                        37 + index);
+                    repaired = true;
+                }
+
+                repairedLocations[index] = locationVoice;
+            }
+
+            voice.locations = repairedLocations;
+        }
+
+        if (repaired)
+        {
+            Debug.LogWarning(
+                "[YQGoddessGenerationDialogue] WORLD VOICE REPAIRED. " +
+                "Canonical world data was preserved while short or narrator-style presentation fields were replaced by factual first-person speech.");
+        }
+
+        return voice;
+    }
+
+    public static bool IsSpokenVoiceFieldAcceptable(
+        string value,
+        int minimumWords)
+    {
+        // note: Concise direct speech is valid; enforcing essay lengths and an I in every field replaced good model prose with canned fallback.
+        return CountWords(value) >= Mathf.Min(6, minimumWords) &&
+               (ContainsFirstPersonPronoun(value) || ContainsDirectAddress(value)) &&
+               !HasPresentationMachinery(value);
+    }
+
+    // note: Require accepted speech to carry at least one supplied identity or world anchor so generic model prose cannot pass as player-aware dialogue.
+    private static bool IsContextualVoiceFieldAcceptable(
+        string value,
+        int minimumWords,
+        params string[] anchors)
+    {
+        if (!IsSpokenVoiceFieldAcceptable(value, minimumWords) || anchors == null)
+            return false;
+
+        string normalized = value.Trim().ToLowerInvariant();
+        for (int index = 0; index < anchors.Length; index++)
+        {
+            string anchor = (anchors[index] ?? string.Empty).Trim().ToLowerInvariant();
+            if (ContainsContextAnchor(normalized, anchor))
+                return true;
+        }
+
+        return false;
+    }
+
+    // note: Match anchors at word boundaries so a short player name cannot accidentally validate an unrelated word such as "there".
+    private static bool ContainsContextAnchor(string normalized, string anchor)
+    {
+        if (string.IsNullOrWhiteSpace(normalized) || anchor.Length < 3)
+            return false;
+
+        int offset = 0;
+        while (offset < normalized.Length)
+        {
+            int found = normalized.IndexOf(anchor, offset, StringComparison.Ordinal);
+            if (found < 0)
+                return false;
+
+            bool leftBoundary = found == 0 || !char.IsLetterOrDigit(normalized[found - 1]);
+            int end = found + anchor.Length;
+            bool rightBoundary = end >= normalized.Length || !char.IsLetterOrDigit(normalized[end]);
+            if (leftBoundary && rightBoundary)
+                return true;
+
+            offset = found + 1;
+        }
+
+        return false;
+    }
+
+    private static bool HasPresentationMachinery(string value)
+    {
+        // note: A first-person sentence can still be a leaked engine report. Reject clear technical tokens and stage directions without policing ordinary emotional language.
+        string trimmed = (value ?? string.Empty).Trim();
+        if (trimmed.StartsWith("*", StringComparison.Ordinal) ||
+            trimmed.StartsWith("[", StringComparison.Ordinal) || trimmed.StartsWith("{", StringComparison.Ordinal))
+            return true;
+        for (int index = 0; index < trimmed.Length;)
+        {
+            if (!char.IsLetter(trimmed[index])) { index++; continue; }
+            int start = index;
+            while (index < trimmed.Length && char.IsLetter(trimmed[index])) index++;
+            string token = trimmed.Substring(start, index - start).ToLowerInvariant();
+            switch (token)
+            {
+                case "prefab": case "prefabs": case "navmesh": case "json": case "llm":
+                case "collider": case "colliders": case "gameobject": case "serialized":
+                case "pipeline": case "compile": case "staging": case "hotloading":
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool ContainsDirectAddress(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+        // note: Token boundaries avoid treating scenery words such as courtyard as speech to the player.
+        for (int index = 0; index < value.Length; index++)
+        {
+            if (index > 0 && char.IsLetter(value[index - 1]))
+                continue;
+            int end = index;
+            while (end < value.Length && char.IsLetter(value[end])) end++;
+            int length = end - index;
+            if ((length == 3 && string.Compare(value, index, "you", 0, 3, StringComparison.OrdinalIgnoreCase) == 0) ||
+                (length == 4 && string.Compare(value, index, "your", 0, 4, StringComparison.OrdinalIgnoreCase) == 0))
+                return true;
+            index = end;
+        }
+        return false;
+    }
+
+    private static bool AreSpokenAmbientLinesAcceptable(
+        string[] lines,
+        int minimumCount,
+        int maximumCount)
+    {
+        if (lines == null || lines.Length < minimumCount ||
+            lines.Length > maximumCount)
+        {
+            return false;
+        }
+
+        for (int index = 0; index < lines.Length; index++)
+        {
+            if (!IsSpokenVoiceFieldAcceptable(lines[index], 18))
+                return false;
+        }
+
+        return true;
+    }
+
+    // note: Apply the contextual anchor rule to each ambient thought while preserving the existing count and speech-length limits.
+    private static bool AreContextualAmbientLinesAcceptable(
+        string[] lines,
+        int minimumCount,
+        int maximumCount,
+        params string[] anchors)
+    {
+        if (lines == null || lines.Length < minimumCount || lines.Length > maximumCount)
+            return false;
+
+        for (int index = 0; index < lines.Length; index++)
+        {
+            if (!IsContextualVoiceFieldAcceptable(lines[index], 18, anchors))
+                return false;
+        }
+
+        return true;
+    }
+
+    // note: Reduce player-authored direction to a safe, concrete thread that can personalize fallback speech without echoing unsafe or overly long questionnaire text.
+    private static string BuildChoiceThread(PlayerState player)
+    {
+        string source = ((player != null ? player.characterLifeDirection : string.Empty) + " " +
+                         (player != null ? player.characterVow : string.Empty)).ToLowerInvariant();
+        if (ContainsChoiceToken(source, "protect", "help", "save", "defend", "care", "mercy", "heal"))
+            return "protecting people";
+        if (ContainsChoiceToken(source, "curious", "explore", "discover", "learn", "wander", "knowledge"))
+            return "following your curiosity";
+        if (ContainsChoiceToken(source, "freedom", "free", "independent", "escape", "refuse"))
+            return "choosing your own freedom";
+        if (ContainsChoiceToken(source, "revenge", "anger", "punish", "vengeance"))
+            return "settling an old score";
+        if (ContainsChoiceToken(source, "power", "rule", "command", "conquer", "control", "dominion"))
+            return "seeking power";
+        if (ContainsChoiceToken(source, "steal", "thief", "crime", "take what"))
+            return "taking what you need";
+        if (ContainsChoiceToken(source, "dark", "curse", "evil", "kill", "destroy"))
+            return "testing how dark a choice can become";
+        if (ContainsChoiceToken(source, "good", "light", "kind", "honor", "righteous"))
+            return "choosing the kinder road";
+        return "the life you described";
+    }
+
+    // note: Choice pressure controls how visibly the benevolent Goddess's composure slips while keeping the player in control of canon and tone.
+    private static int ResolveChoicePressure(PlayerState player)
+    {
+        string source = ((player != null ? player.characterLifeDirection : string.Empty) + " " +
+                         (player != null ? player.characterVow : string.Empty)).ToLowerInvariant();
+        int pressure = 0;
+        if (ContainsChoiceToken(source, "kill", "destroy", "curse", "revenge", "steal", "conquer", "dominion", "chaos", "cruel"))
+            pressure += 2;
+        if (ContainsChoiceToken(source, "anger", "power", "rule", "control", "betray", "dark"))
+            pressure++;
+        if (ContainsChoiceToken(source, "protect", "help", "save", "mercy", "heal", "build", "care"))
+            pressure--;
+        return Mathf.Clamp(pressure, 0, 3);
+    }
+
+    // note: A stable seed selects prose variants without touching Unity's global random stream or the deterministic world plan.
+    private static string BuildSeededLine(int seed, string[] options, int salt)
+    {
+        if (options == null || options.Length == 0)
+            return string.Empty;
+        uint variant = StableHash32(seed.ToString() + "|" + salt);
+        return options[(int)(variant % (uint)options.Length)];
+    }
+
+    // note: This is the small, caring instability beat shared by repaired origin/world lines; authored model prose is never replaced by it.
+    private static string BuildStabilityLine(int seed, int pressure)
+    {
+        string[] options;
+        switch (Mathf.Clamp(pressure, 0, 3))
+        {
+            case 3:
+                options = new[]
+                {
+                    "I am still on your side. Your choices are making the edges rather enthusiastic.",
+                    "I am keeping you safe. The shape of your choices is making that task increasingly theatrical."
+                };
+                break;
+            case 2:
+                options = new[]
+                {
+                    "I am keeping my balance. Your choices are asking for more precision than I expected.",
+                    "I can carry this direction. I would prefer fewer surprises, but I am adapting."
+                };
+                break;
+            case 1:
+                options = new[]
+                {
+                    "I am watching the edges more closely than usual. You do make precision feel personal.",
+                    "I am keeping this steady. Your choices have made the margins interesting."
+                };
+                break;
+            default:
+                options = new[]
+                {
+                    "I can work with that. Your choices make this easier to care for, which is almost suspicious.",
+                    "I am calmer than I sound. Your choices give me something kind to build around."
+                };
+                break;
+        }
+        return BuildSeededLine(seed, options, 97 + pressure);
+    }
+
+    private static bool ContainsChoiceToken(string source, params string[] tokens)
+    {
+        if (string.IsNullOrWhiteSpace(source) || tokens == null)
+            return false;
+        for (int index = 0; index < tokens.Length; index++)
+        {
+            if (!string.IsNullOrWhiteSpace(tokens[index]) && source.IndexOf(tokens[index], StringComparison.Ordinal) >= 0)
+                return true;
+        }
+        return false;
+    }
+
     // ============================================================
     // ORIGIN
     // ============================================================
@@ -234,7 +796,12 @@ public static class YQGoddessGenerationDialogue
             voice);
 
         if (voice == null)
+        {
+            Debug.LogWarning(
+                "[YQGoddessGenerationDialogue] ORIGIN VOICE BUNDLE MISSING. " +
+                "Canonical origin may continue, but no model-authored introduction was accepted.");
             return;
+        }
 
         // note: Speak the accepted result by itself; the following operation can begin while that line is still typing.
         _originTransition =
@@ -248,6 +815,16 @@ public static class YQGoddessGenerationDialogue
 
         QueueGeneratedLines(
             voice.ambientLines);
+
+        ReportOriginVoiceQuality(
+            _originTransition,
+            voice.nextPrelude);
+
+        Debug.Log(
+            "[YQGoddessGenerationDialogue] ORIGIN VOICE ACCEPTED\n" +
+            "Completion words: " + CountWords(_originTransition) + "\n" +
+            "Prelude words: " + CountWords(voice.nextPrelude) + "\n" +
+            "Ambient thoughts: " + voice.ambientLines.Length);
     }
 
     public static bool TryTakeBufferedLine(
@@ -299,21 +876,19 @@ public static class YQGoddessGenerationDialogue
     public static string TakeOriginTransition(
         string fallback)
     {
+        // note: Accepted model-authored prose must lead the transition so the personalized voice is not masked by a reusable template.
+        string authoredTransition =
+            Take(
+                ref _originTransition,
+                string.Empty);
+
+        if (!string.IsNullOrWhiteSpace(authoredTransition))
+            return authoredTransition;
+
+        // note: The deterministic personalized welcome remains a safe fallback when the model voice is absent or rejected.
         if (YQGoddessLoadingVoice.TryTakePlayerIntroduction(
                 out string introduction))
         {
-            // note: The direct welcome is always the first origin thought; accepted model prose follows through the existing transcript queue.
-            string authoredTransition =
-                Take(
-                    ref _originTransition,
-                    string.Empty);
-
-            if (!string.IsNullOrWhiteSpace(authoredTransition))
-            {
-                QueueGeneratedLine(
-                    authoredTransition);
-            }
-
             _lastSelectionWasGenerated =
                 false;
 
@@ -336,7 +911,12 @@ public static class YQGoddessGenerationDialogue
             voice);
 
         if (voice == null)
+        {
+            Debug.LogWarning(
+                "[YQGoddessGenerationDialogue] WORLD VOICE BUNDLE MISSING. " +
+                "Canonical world may continue, but its authored loading narration was not accepted.");
             return;
+        }
 
         _worldCompletion =
             Clean(
@@ -377,44 +957,57 @@ public static class YQGoddessGenerationDialogue
 
         LocationVoice.Clear();
 
-        if (voice.locations == null)
-            return;
-
-        for (int i = 0;
-             i < voice.locations.Length;
-             i++)
+        if (voice.locations != null)
         {
-            YQGoddessLocationVoiceDto location =
-                voice.locations[i];
-
-            if (location == null)
-                continue;
-
-            location.locationId =
-                Clean(
-                    location.locationId,
-                    180);
-
-            location.settlementMaterialization =
-                Clean(
-                    location.settlementMaterialization,
-                    700);
-
-            location.buildingMaterialization =
-                Clean(
-                    location.buildingMaterialization,
-                    700);
-
-            if (string.IsNullOrWhiteSpace(
-                    location.locationId))
+            for (int i = 0;
+                 i < voice.locations.Length;
+                 i++)
             {
-                continue;
-            }
+                YQGoddessLocationVoiceDto location =
+                    voice.locations[i];
 
-            LocationVoice[
-                location.locationId] =
-                    location;
+                if (location == null)
+                    continue;
+
+                location.locationId =
+                    Clean(
+                        location.locationId,
+                        180);
+
+                location.settlementMaterialization =
+                    Clean(
+                        location.settlementMaterialization,
+                        700);
+
+                location.buildingMaterialization =
+                    Clean(
+                        location.buildingMaterialization,
+                        700);
+
+                if (string.IsNullOrWhiteSpace(
+                        location.locationId))
+                {
+                    continue;
+                }
+
+                LocationVoice[
+                    location.locationId] =
+                        location;
+            }
         }
+
+        ReportWorldVoiceQuality(
+            voice);
+
+        Debug.Log(
+            "[YQGoddessGenerationDialogue] WORLD VOICE ACCEPTED\n" +
+            "Completion words: " + CountWords(_worldCompletion) + "\n" +
+            "Terrain words: " + CountWords(_terrain) + "\n" +
+            "Environment words: " + CountWords(_environment) + "\n" +
+            "Population words: " + CountWords(_populationMaterialization) + "\n" +
+            "Reveal words: " + CountWords(_reveal) + "\n" +
+            "Ambient thoughts: " + voice.ambientLines.Length + "\n" +
+            "Settlement voices accepted: " + LocationVoice.Count);
     }
 
     public static string TakeWorldCompletion(
@@ -642,36 +1235,42 @@ public static class YQGoddessGenerationDialogue
         // note: Local models follow one compact noncontradictory rail more reliably, and every NPC batch avoids re-ingesting the former multi-page style essay.
         return
             "\n\nGODDESS_VOICE_CONTRACT\n" +
-            "This contract applies only to optional goddessVoice presentation. Canonical root JSON remains mandatory; omit voice before any canonical field.\n" +
+            "This contract applies only to required goddessVoice presentation. Canonical root JSON remains mandatory, and the supplied grammar keeps both contracts structurally safe.\n" +
             "CURRENT_CONFIRMED_OPERATION:\n" +
             PromptSafe(currentStage) + "\n" +
             "NEXT_CONFIRMED_OPERATION:\n" +
             PromptSafe(nextKnownStage) + "\n\n" +
             "FACT AND TIME RULES:\n" +
-            "- Speak in first person. Never narrate the Goddess in third person.\n" +
+            "- Every nonempty goddessVoice field is speech addressed to the player, not narration about the Goddess. First person or direct second person is natural; do not force I into every sentence.\n" +
+            "- Never write travel narration or omniscient scene prose. Do not describe what the player's boots, eyes, senses, or body are doing.\n" +
             "- Use only facts supplied in this request or NPC facts created in this same response. Beliefs, rumors, fears, and private concerns belong to their NPC; never promote them into objective truth.\n" +
             "- Never invent causes, secrets, ancient explanations, future people, future events, or connections between unrelated concerns. Omit the thought instead.\n" +
-            "- completion describes the accepted current result as physically becoming true now. Mention no more than two concrete observations.\n" +
+            "- completion responds to the accepted result and what it means for this player. Data acceptance is not proof that the physical world is ready.\n" +
             "- nextPrelude refers only to supplied NEXT_CONFIRMED_OPERATION facts and predicts no unknown result.\n\n" +
             "VOICE:\n" +
-            // note: The Goddess is an earnest amateur performer whose grand divine act keeps cracking under visible world-building mistakes.
-            "- She is an underqualified young world operator roleplaying as an ancient, omnipotent Goddess. She badly wants the player to believe the performance.\n" +
-            "- Begin most major thoughts with a short, overconfident divine proclamation, ceremonial phrase, or invented grand title; then let a concrete mistake force an immediate correction.\n" +
-            "- Her claimed omnipotence and visible process must contradict each other: she declares a perfect mountain while lowering it, blesses a road while moving a building off it, or calls a retry a divine revision.\n" +
-            "- She is not secretly smooth or fully in control. She guesses, notices problems late, revises herself mid-sentence, and disguises improvisation as sacred intent.\n" +
-            "- She remains sympathetic: frantic effort comes from wanting the player safe. She never blames, belittles, threatens, or resents the player.\n" +
-            "- Use one clean roleplay crack per line: a clipped 'no', an interrupted proclamation, a quiet count, an unconvincing denial, or a hurried practical correction tied to the current operation.\n" +
-            "- Allow clumsy ceremonial language such as 'behold', 'by my decree', 'witness', or 'thus I ordain', but vary it and never write polished mystical poetry.\n" +
-            "- The comedy comes from the gap between divine confidence and observable incompetence, not punchlines, memes, sarcasm, random glitches, or generic panic.\n" +
-            "- Do not use coder slang or name hidden software machinery. Describe visible world work: lowering hills, clearing roads, turning houses, attaching memories, or moving trees.\n" +
+            // note: One shared persona governs origin, world and population speech; uncertainty is personal subtext, not a recurring construction gag.
+            "- She is benevolent, protective, and slightly high-strung: a brilliant young Goddess trying to make the best possible world for this particular player while several details demand attention at once.\n" +
+            "- Her confidence is real, but her composure is conditional. When the player's choices are contradictory, cruel, chaotic, or unusually demanding, let a small instability show through a clipped clause, self-correction, or over-specific concern while keeping her intelligible and caring.\n" +
+            "- She has a dry, sarcastically bratty edge. Aim it at her impossible standards, an awkward consequence, or a choice the player actually supplied; never use it to belittle sincere pain or replace useful context.\n" +
+            "- Speak to the player as a person entering a world made from their supplied identity, values, class, history, and choices. Use their supplied name and one exact personal choice, value, vow, or recurring topic when available.\n" +
+            "- Let imperfect confidence show through an occasional hesitation, small correction, or unfinished explanation. Most sentences are plain and sincere. Do not make every field a grand proclamation followed by a punchline.\n" +
+            "- She cares about the person arriving, knows they have questions, and needs to keep working. She can be warm, distracted, defensive, or gently exasperated; she is neither a contemptuous examiner nor a slapstick fool.\n" +
+            "- Mild teasing must answer actual playful or contradictory input. Do not call a sincere or distressed player foolish, and do not insert 'your nonsense' into every welcome.\n" +
+            "- Humor emerges from an actual contradiction or strange priority. Many lines need no joke. Never repeat an observation-insult-cosmic-remark template. The more difficult the player's direction is for her to contain, the more her phrasing may fray; do not turn instability into noise.\n" +
+            "- Do not narrate a detached scene-building checklist. Terrain, roads, buildings, and inhabitants matter only as part of the home, danger, or future the player is about to enter.\n" +
+            "- Express her effort and uncertainty without inventing floating houses, broken roads, upside-down mountains, fake histories, or completed repairs. Those are not supplied facts.\n" +
+            // note: Describe the intended voice without supplying complete sentences for the model to copy into every new save.
+            "- Introduce this particular person to their beginning with sincere care and imperfect composure. Invent the wording from their answers; a name substituted into a standard welcome is not personalization.\n" +
+            "- Do not use coder slang, name hidden software machinery, or recite a construction checklist.\n" +
             "- Do not open with a command. Never tell the player to look, wait, hold still, breathe, calm down, ignore something, inspect their feet, or hesitate.\n" +
-            "- Address the player directly only when a supplied gameplay fact requires one usable instruction.\n" +
+            "- Address the player directly and naturally. Give an instruction only when a supplied gameplay fact genuinely requires one.\n" +
             "- Never mention generation, generated, stage, phase, response, dataset, validation, canonical, prompt, JSON, AI, model, code, Unity, or algorithm.\n" +
             "- Do not imitate or reference an existing game character.\n\n" +
             "OUTPUT:\n" +
-            "- goddessVoice is an object inside the required root object: {\"completion\":\"...\",\"nextPrelude\":\"...\",\"ambientLines\":[\"...\"]}.\n" +
-            "- completion: 18-65 words. nextPrelude: 14-50 words. ambientLines: requested count, each 8-22 words.\n" +
-            "- Every line must use different sentence machinery and at least one concrete noun from its supplied facts. Prefer two spoken beats: attempted divinity, then practical correction.\n" +
+            "- goddessVoice is the required presentation object inside the required canonical root. Include every goddessVoice field declared by the supplied JSON schema.\n" +
+            "- completion: 15-45 words. nextPrelude: 8-25 words. ambientLines: requested count, each 6-20 words. Concision is welcome; do not pad to sound divine.\n" +
+            "- Write spoken sentences from the Goddess's immediate point of view, never a poetic camera description of ancient dust, swallowing fog, remembered footsteps, or scenery guarding a direction.\n" +
+            "- Every line must use different sentence machinery and at least one concrete noun from its supplied facts. Vary openings, cadence, sentence count, and where the dry observation occurs.\n" +
             "- Never use stock lines such as 'it is done', 'the world takes shape', 'as it should be', or any attention-command variant.\n";
     }
 
@@ -1023,6 +1622,44 @@ public static class YQGoddessGenerationDialogue
             "Any line built from attention commands, hollow reassurance, or physical directions unrelated to a supplied gameplay action.\n";
     }
 
+    public static int VoiceSamplingSeed(string saveSeed)
+    {
+        // note: Use a stable presentation seed instead of Unity's global random state; new profile identity already participates in the supplied origin/world seed.
+        unchecked
+        {
+            uint hash = 2166136261;
+            foreach (char character in saveSeed ?? string.Empty)
+                hash = (hash ^ character) * 16777619;
+            return (int)(hash & 0x7fffffff);
+        }
+    }
+
+    public static string BuildSaveVoiceVariationContract(string saveSeed)
+    {
+        // note: These are writing directions, not player-facing template sentences or invented canon. The model still authors the speech from questionnaire evidence.
+        int variation = VoiceSamplingSeed(saveSeed);
+        string[] approaches = {
+            "Begin with one specific hope in the player's answers, then introduce what you can offer.",
+            "Begin with a sincere acknowledgment of one choice the player made; let your uncertainty appear later.",
+            "Begin with what this person's intended life asks of you, without repeating their answer verbatim.",
+            "Begin with a personal welcome whose second sentence responds to a particular value the player expressed." };
+        string[] rhythms = {
+            "Use a short opening followed by one fuller explanation; no trailing catchphrase.",
+            "Use an unhurried opening and one brief candid admission later in the bundle.",
+            "Let one gentle self-correction interrupt otherwise straightforward speech.",
+            "Favor quiet conversational sentences, with one unanswered concern left implicit." };
+        string[] temperaments = {
+            "Keep her benevolent and mildly smug, with one precise act of care.",
+            "Let her sound protective first, then allow one dryly bratty aside about her own standards.",
+            "Let a small self-correction reveal that the player's choices are making her work harder than planned.",
+            "Use calm control on the surface and quiet possessiveness about this player's beginning underneath." };
+        return "\nSAVE_SPECIFIC_VOICE_DIRECTION " + variation + "\n" +
+            approaches[variation & 3] + "\n" + rhythms[(variation >> 8) & 3] + "\n" +
+            temperaments[(variation >> 16) & 3] +
+            "\nThis is a new beginning, not a replay of a stock greeting. Compose fresh speech from the supplied personal evidence. " +
+            "When prior journey memories are supplied, choose one relevant detail and weave it into the thought instead of listing evidence. Do not speak this direction or its identifier. It changes presentation only, never canonical facts.\n";
+    }
+
     public static string BuildWorldVoiceContract(
         int expectedSettlementCount)
     {
@@ -1034,18 +1671,29 @@ public static class YQGoddessGenerationDialogue
 
             "The world plan in THIS SAME JSON response is the only source of truth for goddessVoice.\n" +
 
-            "goddessVoice.completion may react to the world plan that was just produced.\n" +
+            "goddessVoice.completion welcomes the player toward the specific world just produced and explains what it means for their beginning; it is not a summary of generation work.\n" +
 
-            "goddessVoice.terrain may discuss physically shaping the generated terrain.\n" +
+            "goddessVoice.terrain may acknowledge that the land is fragile or difficult while connecting one supplied terrain fact to the player's coming journey.\n" +
 
-            "goddessVoice.environment may discuss physically dressing the generated wilderness.\n" +
+            "goddessVoice.environment may introduce the character of the supplied wilderness and quietly admit one practical concern; do not list placed scenery.\n" +
 
             "goddessVoice.populationPrelude may discuss the NEXT operation: creating canonical inhabitants for the already-generated locations. " +
             "It MUST NOT invent those inhabitants yet.\n" +
 
-            "goddessVoice.populationMaterialization may discuss placing already-completed canonical inhabitants into physical reality.\n" +
+            "goddessVoice.populationMaterialization introduces the idea that these people have lives beyond the player; do not describe them as objects being placed.\n" +
 
-            "goddessVoice.reveal is the final line before the mortal player enters the completed world.\n\n" +
+            "goddessVoice.reveal addresses the player with relief and imperfect composure: this is their beginning, and she is still trying to look after it. Include no construction-status recap or guarantee of a flawless world.\n\n" +
+
+            "SPEAKER ENFORCEMENT:\n" +
+            "- Every field is speech from the Goddess to the player; vary first person and direct second person naturally.\n" +
+            "- She is introducing the player to a fragile world she made for them while admitting that maintaining it is difficult. She is not a narrator describing the player's travel.\n" +
+            "- Describe only supplied world facts, and connect them to the player's supplied identity or likely beginning without controlling the player's actions.\n\n" +
+
+            "WORLD VOICE LENGTH AND VARIATION:\n" +
+            "- Main fields are each 10-40 words.\n" +
+            "- Each location line is 8-25 words and uses facts belonging to that exact settlement.\n" +
+            "- Provide 4-6 ambientLines of 6-20 words, grounded in supplied player or world facts.\n" +
+            "- No two fields may share the same opening construction, concluding phrase, or joke mechanism.\n\n" +
 
             "goddessVoice.locations MUST contain exactly " +
             expectedSettlementCount +
@@ -1055,11 +1703,11 @@ public static class YQGoddessGenerationDialogue
 
             "Do not invent additional location IDs.\n" +
 
-            "settlementMaterialization and buildingMaterialization may reference facts already present in that settlement or its region.\n\n" +
+            "settlementMaterialization and buildingMaterialization introduce what that place may mean to the player using existing settlement or region facts. They must not read like scene assembly reports.\n\n" +
 
             BuildBasicVoiceContract(
-                "The complete canonical world plan has just been authored.",
-                "Physical world materialization followed by canonical NPC location batches.");
+                "The player's regions, settlements, routes, dangers, and intended beginning are now known.",
+                "The land must become safe, lived-in, and ready before the player enters.");
     }
 
     // ============================================================
@@ -1345,6 +1993,109 @@ public static class YQGoddessGenerationDialogue
                     ';',
                     ':') +
             "...";
+    }
+
+    private static int CountWords(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return 0;
+
+        int words = 0;
+        bool insideWord = false;
+        for (int index = 0; index < value.Length; index++)
+        {
+            bool whitespace = char.IsWhiteSpace(value[index]);
+            if (!whitespace && !insideWord)
+                words++;
+            insideWord = !whitespace;
+        }
+
+        // note: Allocation-free counts make dialogue degradation explicit in logs without copying player-specific generated prose into diagnostics.
+        return words;
+    }
+
+    private static void ReportOriginVoiceQuality(
+        string completion,
+        string nextPrelude)
+    {
+        List<string> issues = new List<string>();
+        AppendVoiceFieldIssue(issues, "completion", completion, 35);
+        AppendVoiceFieldIssue(issues, "nextPrelude", nextPrelude, 25);
+        if (issues.Count == 0)
+            return;
+
+        // note: Canonical origin data remains accepted, but voice drift is explicit in QA logs instead of silently presenting narrator prose as the Goddess.
+        Debug.LogWarning(
+            "[YQGoddessGenerationDialogue] ORIGIN VOICE QUALITY DRIFT: " +
+            string.Join(", ", issues));
+    }
+
+    private static void ReportWorldVoiceQuality(
+        YQGoddessGenerationVoiceDto voice)
+    {
+        List<string> issues = new List<string>();
+        AppendVoiceFieldIssue(issues, "completion", voice.completion, 28);
+        AppendVoiceFieldIssue(issues, "terrain", voice.terrain, 28);
+        AppendVoiceFieldIssue(issues, "environment", voice.environment, 28);
+        AppendVoiceFieldIssue(issues, "populationPrelude",
+            voice.populationPrelude, 28);
+        AppendVoiceFieldIssue(issues, "populationMaterialization",
+            voice.populationMaterialization, 28);
+        AppendVoiceFieldIssue(issues, "reveal", voice.reveal, 28);
+        if (issues.Count == 0)
+            return;
+
+        // note: This diagnostic never rejects an otherwise valid persisted world plan; it identifies exactly which transient presentation fields ignored the speaker/length rail.
+        Debug.LogWarning(
+            "[YQGoddessGenerationDialogue] WORLD VOICE QUALITY DRIFT: " +
+            string.Join(", ", issues));
+    }
+
+    private static void AppendVoiceFieldIssue(
+        List<string> issues,
+        string fieldName,
+        string value,
+        int minimumWords)
+    {
+        int wordCount = CountWords(value);
+        bool hasFirstPerson = ContainsFirstPersonPronoun(value);
+        if (IsSpokenVoiceFieldAcceptable(value, minimumWords))
+            return;
+
+        issues.Add(
+            fieldName + " (" + wordCount + " words" +
+            (hasFirstPerson ? string.Empty : ", no first-person speaker") +
+            ")");
+    }
+
+    private static bool ContainsFirstPersonPronoun(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        for (int start = 0; start < value.Length;)
+        {
+            while (start < value.Length && !char.IsLetter(value[start]))
+                start++;
+            int end = start;
+            while (end < value.Length && char.IsLetter(value[end]))
+                end++;
+
+            int length = end - start;
+            if ((length == 1 &&
+                 char.ToLowerInvariant(value[start]) == 'i') ||
+                (length == 2 &&
+                 char.ToLowerInvariant(value[start]) == 'm' &&
+                 (char.ToLowerInvariant(value[start + 1]) == 'e' ||
+                  char.ToLowerInvariant(value[start + 1]) == 'y')))
+            {
+                return true;
+            }
+
+            start = end + 1;
+        }
+
+        return false;
     }
 
     private static string BuildCensoredGoddessLine(

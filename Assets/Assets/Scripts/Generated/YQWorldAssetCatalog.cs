@@ -1,8 +1,38 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class YQWorldAssetCatalog
 {
+    private static YQWorldAssetIntakeCatalog _runtimeIntakeCatalog;
+    private static bool _runtimeIntakeCatalogLoaded;
+    private static IReadOnlyList<YQSpatialAssetRecord> _indexedSpatialAssets;
+    private static Dictionary<string, YQSpatialAssetRecord> _spatialAssetsByPath;
+    private static readonly HashSet<string> RuntimeQuarantinedPrefabPaths =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            // note: This imported candle reports a zero renderer bound at runtime; quarantine the exact prefab until its source mesh is repaired instead of allowing it into a procedural palette.
+            "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Candle_2.prefab",
+            // note: This torch has the same zero-bound imported hierarchy defect and is kept out of runtime selection until its mesh source is corrected.
+            "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Torch_A.prefab",
+            // note: The exhaustive sweep found these light/torch prefabs with zero renderer bounds; keep them quarantined as a family of broken imported hierarchies.
+            "Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_FirePlaceExt.prefab",
+            "Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_TorchWall.prefab",
+            "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Candle_1.prefab",
+            "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Candle_3.prefab",
+            "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Stone_Lampstand_B.prefab",
+            // note: This Western Desert backdrop has an entirely empty LOD renderer set and is not safe as a procedural rock candidate.
+            "Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Mountain04.prefab"
+        };
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetRuntimeIntakeCatalog()
+    {
+        _runtimeIntakeCatalog = null;
+        _runtimeIntakeCatalogLoaded = false;
+        _indexedSpatialAssets = null;
+        _spatialAssetsByPath = null;
+    }
     public const string SlotTerrain = "terrain_material";
     public const string SlotFloor = "floor";
     public const string SlotWall = "wall";
@@ -56,6 +86,7 @@ public static class YQWorldAssetCatalog
     private const string ForstUrpConifers = "Assets/Forst/Conifers [BOTD]/Render Pipeline Support/URP/Prefabs/";
     private const string Bushes = "Assets/YughuesFreeBushes2018/Prefabs/";
     private const string Ground = "Assets/ADG_Textures/ground_vol1/";
+    private const string PlaySafeMaterials = "Assets/Assets/Scripts/LLM/Materials/PlaySafe/";
     private const string Chests = "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/_Prefabs/Chests/";
 
     public static void EnsureAssetPalettes(GeneratedWorldPlanRecord plan)
@@ -91,6 +122,15 @@ public static class YQWorldAssetCatalog
                 region.assetStyleRationale = "Restored the last accepted curated palette after an incoherent runtime transition.";
             }
 
+            // note: Accepted asset bindings survive catalog updates; only an explicit style change or missing palette requests new selection.
+            if (previousPalette != null && !string.IsNullOrWhiteSpace(previousPalette.paletteId) &&
+                !string.IsNullOrWhiteSpace(previousPalette.styleKey) &&
+                string.Equals(previousPalette.styleKey, region.assetStyleKey, StringComparison.OrdinalIgnoreCase))
+            {
+                region.assetPaletteId = previousPalette.paletteId;
+                continue;
+            }
+
             GeneratedRegionAssetPaletteRecord palette = BuildPaletteForRegion(region, plan.worldSeed);
             UpsertPalette(plan.assetPalettes, palette);
             region.assetPaletteId = palette.paletteId;
@@ -101,58 +141,53 @@ public static class YQWorldAssetCatalog
 
     public static GeneratedAssetReferenceRecord PickAssetForSlot(GeneratedRegionAssetPaletteRecord palette, string slotTag, string seed)
     {
+        // note: Existing callers retain their selection contract until they provide placement context.
+        return PickAssetForSlot(palette, slotTag, seed, null);
+    }
+
+    public static GeneratedAssetReferenceRecord PickAssetForSlot(
+        GeneratedRegionAssetPaletteRecord palette, string slotTag, string seed,
+        YQAssetPlacementContextV2 context)
+    {
         List<GeneratedAssetReferenceRecord> list = GetSlotList(palette, slotTag);
         if (list == null || list.Count == 0)
             return null;
 
-        int totalWeight = 0;
+        // note: Copy and sort the eligible candidates by stable semantic identity so weighted picks do not depend on registry enumeration order.
+        List<GeneratedAssetReferenceRecord> candidates =
+            new List<GeneratedAssetReferenceRecord>(list.Count);
         for (int i = 0; i < list.Count; i++)
         {
             GeneratedAssetReferenceRecord record = list[i];
             if (record != null &&
-                IsAllowedWorldReferenceForSlot(
-                    record,
-                    slotTag))
+                IsAllowedWorldReferenceForSlot(record, slotTag) &&
+                IsAllowedInPlacementContext(record, context))
             {
-                totalWeight += Math.Max(1, record.weight);
+                candidates.Add(record);
             }
+        }
+
+        candidates.Sort(CompareStableReferences);
+
+        int totalWeight = 0;
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            totalWeight += Math.Max(1, candidates[i].weight);
         }
 
         if (totalWeight <= 0)
             return null;
 
         int roll = PositiveHash((seed ?? string.Empty) + ":" + (slotTag ?? string.Empty)) % totalWeight;
-        for (int i = 0; i < list.Count; i++)
+        for (int i = 0; i < candidates.Count; i++)
         {
-            GeneratedAssetReferenceRecord record = list[i];
-            if (record == null ||
-                !IsAllowedWorldReferenceForSlot(
-                    record,
-                    slotTag))
-            {
-                continue;
-            }
-
+            GeneratedAssetReferenceRecord record = candidates[i];
             roll -= Math.Max(1, record.weight);
             if (roll < 0)
                 return record;
         }
 
-        for (int i = 0; i < list.Count; i++)
-        {
-            GeneratedAssetReferenceRecord record =
-                list[i];
-
-            if (record != null &&
-                IsAllowedWorldReferenceForSlot(
-                    record,
-                    slotTag))
-            {
-                return record;
-            }
-        }
-
-        return null;
+        return candidates.Count > 0 ? candidates[0] : null;
     }
 
     public static List<GeneratedAssetReferenceRecord> GetSlotList(GeneratedRegionAssetPaletteRecord palette, string slotTag)
@@ -354,22 +389,104 @@ public static class YQWorldAssetCatalog
                 break;
         }
 
-        // note: Every outdoor region receives a curated base/detail/stone surface trio from the installed ADG terrain library instead of collapsing to one repeated material.
+        AddStyleSpecificConstructionSeed(palette, style);
+
+        // note: Every outdoor region receives a curated surface trio; region climate semantics can promote an installed cold surface without changing the settlement pack.
         EnsureTerrainSurfaceDiversity(
             palette,
-            style);
+            style + " " + BuildRegionText(region));
 
         AddCompatibleCompleteSettlementBuildings(
             palette,
             style);
 
         AddSharedUtilityAssets(palette);
+        // note: Seeded fallback lists are provisional; retain only owning-pack or explicitly shared assets before discovery fills compatible slots.
+        PruneUnreviewedCrossPackAssets(palette, style);
         // note: Imported discovery may contribute small, verified dressing, but never redefine a settlement's structural kit.
         AddDiscoveredAssets(palette);
+        RemoveRuntimeQuarantinedAssets(palette);
         AddPaletteRules(palette);
         palette.verboseInternals.Add("palette_seed=" + StableHex((worldSeed ?? string.Empty) + ":" + (region != null ? region.regionId : "region") + ":" + style));
         palette.verboseInternals.Add("slot_contract=floor/wall/path/large_structure build layout skeleton; floor_deco/wall_deco/exterior_deco add dressing only after collision-safe placement.");
         return palette;
+    }
+
+    private static void RemoveRuntimeQuarantinedAssets(GeneratedRegionAssetPaletteRecord palette)
+    {
+        if (palette == null)
+            return;
+
+        // note: Remove known technical defects from every slot after discovered assets are merged, including legacy authored references that bypass discovery filtering.
+        List<List<GeneratedAssetReferenceRecord>> slots = new List<List<GeneratedAssetReferenceRecord>>
+        {
+            palette.floor, palette.wall, palette.roof, palette.door, palette.path,
+            palette.settlementBuilding, palette.largeStructure, palette.floorDeco,
+            palette.wallDeco, palette.vegetation, palette.rock, palette.lighting,
+            palette.lootContainer, palette.enemySite, palette.interiorDeco,
+            palette.exteriorDeco
+        };
+        for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
+        {
+            List<GeneratedAssetReferenceRecord> list = slots[slotIndex];
+            if (list == null)
+                continue;
+            for (int itemIndex = list.Count - 1; itemIndex >= 0; itemIndex--)
+            {
+                GeneratedAssetReferenceRecord item = list[itemIndex];
+                if (item != null && RuntimeQuarantinedPrefabPaths.Contains((item.assetPath ?? string.Empty).Replace('\\', '/')))
+                    list.RemoveAt(itemIndex);
+            }
+        }
+    }
+
+    private static void AddStyleSpecificConstructionSeed(
+        GeneratedRegionAssetPaletteRecord palette,
+        string style)
+    {
+        if (palette == null || string.IsNullOrWhiteSpace(style))
+            return;
+
+        // note: These are owning-pack structural modules selected from the real imported prefab folders; they keep a kit world-instantiable when fallback assets are correctly pruned.
+        switch (style.ToLowerInvariant())
+        {
+            case "hivemind_medieval_kingdom":
+                Add(palette.wall, "Assets/HIVEMIND/MedievalKingdom/HDRP(Default)/Art/MergedMeshesAndPrefabs/SM_MERGED_CurtainWall_06.prefab", SlotWall, style, "structural_module");
+                break;
+            case "hivemind_gladiator_arena":
+                Add(palette.floor, "Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_ArenaGate_Floor.prefab", SlotFloor, style, "arena_floor");
+                break;
+            case "hivemind_mystic_dungeon":
+                Add(palette.floor, "Assets/HIVEMIND/MysticDungeon/HDRP(Default)/Art/Prefabs/SM_Floor_Random_Tiles_A.prefab", SlotFloor, style, "dungeon_floor");
+                break;
+            case "hivemind_mountain_temple":
+                Add(palette.path, "Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Stairs_01.prefab", SlotPath, style, "temple_approach");
+                break;
+            case "hivemind_witch_house":
+                Add(palette.wall, "Assets/HIVEMIND/WitchHouse/HDRP(Default)/Art/Prefabs/SM_ShopWalls_Cube_077.prefab", SlotWall, style, "cottage_wall");
+                break;
+            case "hivemind_cave_tomb":
+                Add(palette.floor, "Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_A.prefab", SlotFloor, style, "cave_floor");
+                break;
+            case "hivemind_house_on_hill":
+                Add(palette.settlementBuilding, "Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_House.prefab", SlotSettlementBuilding, style, "complete_building", "residence");
+                break;
+            case "hivemind_horror_hospital":
+                Add(palette.floor, "Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Floor_01a.prefab", SlotFloor, style, "clinic_floor");
+                break;
+            case "hivemind_olympus_temple":
+                Add(palette.wall, "Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_base_wall.prefab", SlotWall, style, "temple_wall");
+                break;
+            case "hivemind_sewers":
+                Add(palette.floor, "Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Floor_01a.prefab", SlotFloor, style, "sewer_floor");
+                break;
+            case "hivemind_hallowed_depths":
+                Add(palette.floor, "Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Floor_Chamber_Var_03.prefab", SlotFloor, style, "crypt_floor");
+                break;
+            case "hivemind_mountain_messenger":
+                Add(palette.enemySite, "Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_01.prefab", SlotEnemySite, style, "mountain_ruin");
+                break;
+        }
     }
 
     private static void EnsureTerrainSurfaceDiversity(
@@ -384,6 +501,20 @@ public static class YQWorldAssetCatalog
                 style);
 
         if (ContainsAny(
+                semantic,
+                "snow",
+                "snowline",
+                "tundra",
+                "alpine",
+                "frost",
+                "ice"))
+        {
+            AddTerrainIfMissing(palette, PlaySafeMaterials + "North_ColdStoneRegionGround.mat", "snow", "cold", "base");
+            AddTerrainIfMissing(palette, GroundMat("ground8"), "snow_shadow", "highland");
+            AddTerrainIfMissing(palette, GroundMat("ground7"), "ice_rock", "slope");
+            PromoteTerrainReference(palette, PlaySafeMaterials + "North_ColdStoneRegionGround.mat");
+        }
+        else if (ContainsAny(
                 semantic,
                 "desert",
                 "western",
@@ -426,6 +557,28 @@ public static class YQWorldAssetCatalog
             AddTerrainIfMissing(palette, GroundMat("ground5"), "forest_floor", "base");
             AddTerrainIfMissing(palette, GroundMat("ground6"), "earth", "detail");
             AddTerrainIfMissing(palette, GroundMat("ground7"), "stone", "slope");
+        }
+    }
+
+    private static void PromoteTerrainReference(
+        GeneratedRegionAssetPaletteRecord palette,
+        string path)
+    {
+        if (palette == null || palette.terrainMaterials == null || string.IsNullOrWhiteSpace(path))
+            return;
+
+        for (int i = 0; i < palette.terrainMaterials.Count; i++)
+        {
+            GeneratedAssetReferenceRecord reference = palette.terrainMaterials[i];
+            if (reference == null || !string.Equals(reference.assetPath, path, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (i > 0)
+            {
+                palette.terrainMaterials.RemoveAt(i);
+                palette.terrainMaterials.Insert(0, reference);
+            }
+            return;
         }
     }
 
@@ -560,6 +713,10 @@ public static class YQWorldAssetCatalog
         Add(p.door, P(Nordic, "SM_WallTallDoor"), SlotDoor, "nordic", "plaster", "complete_front_wall");
         Add(p.path, P(Nordic, "SM_MudMesh"), SlotPath, "nordic", "dirt_path");
         Add(p.path, P(Viking, "SM_GroundPatch_2"), SlotPath, "viking", "ground_patch");
+        // note: Nordic crossings have several approved plank treatments; the runtime bridge selector can keep a complete span common while reserving damaged planks for rare variants.
+        Add(p.path, P(Nordic, "SM_Plank01"), SlotPath, "nordic", "bridge", "wood");
+        Add(p.path, P(Nordic, "SM_Plank02"), SlotPath, "nordic", "bridge", "wood");
+        Add(p.path, P(Nordic, "SM_Plank03"), SlotPath, "nordic", "bridge", "repairable");
 
         // note: NordicVillage is a construction kit; leaving this list empty selects the modular house layout instead of treating a roof fragment as a house.
 
@@ -602,6 +759,9 @@ public static class YQWorldAssetCatalog
         Add(p.door, P(Viking, "SM_House2_Door"), SlotDoor, "viking", "wood");
         Add(p.path, P(Viking, "SM_WoodenUpPathway_PathwaySection"), SlotPath, "viking", "wood_path");
         Add(p.path, P(Viking, "SM_MiniBridge_Body"), SlotPath, "viking", "bridge");
+        // note: Viking crossings retain stone-capable and wooden replacement pieces so one broken source prefab cannot dominate every generated bridge.
+        Add(p.path, P(Viking, "SM_MediumWoodenBridge_Floor"), SlotPath, "viking", "bridge", "wood");
+        Add(p.path, P(Viking, "SM_WoodenBridgeBend"), SlotPath, "viking", "bridge", "bend");
 
         // note: Viking lots use the floor, wall, roof, and door kit through the modular settlement builder when no complete prefab is registered.
 
@@ -984,11 +1144,14 @@ public static class YQWorldAssetCatalog
 
         if (ResolveStyleDomain(p.styleKey) == "fantasy")
         {
-            // note: The Forst URP conifers expose real LODGroups and URP materials, making them the approved Terrain-tree family instead of incompatible marketplace foliage prefabs.
-            Add(p.vegetation, ForstUrpConifers + "PF Conifer Tall BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "tall");
-            Add(p.vegetation, ForstUrpConifers + "PF Conifer Medium BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "medium");
-            Add(p.vegetation, ForstUrpConifers + "PF Conifer Small BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "small");
-            Add(p.vegetation, ForstUrpConifers + "PF Conifer Bare BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "bare");
+            // note: Forst conifers are restricted to cold/woodland palettes; desert, maritime, and interior fantasy regions use their own compatible vegetation families.
+            if (ContainsAny(p.styleKey, "nordic", "viking", "mountain", "hallowed", "woodland"))
+            {
+                Add(p.vegetation, ForstUrpConifers + "PF Conifer Tall BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "tall");
+                Add(p.vegetation, ForstUrpConifers + "PF Conifer Medium BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "medium");
+                Add(p.vegetation, ForstUrpConifers + "PF Conifer Small BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "small");
+                Add(p.vegetation, ForstUrpConifers + "PF Conifer Bare BOTD URP.prefab", SlotVegetation, "tree", "conifer", "urp", "bare");
+            }
 
             // note: Tom's Terrain Tools is an approved neutral nature library; each fantasy palette receives a small biome-compatible subset, never the entire tree grab-bag.
             if (ContainsAny(p.styleKey, "nordic", "viking", "mountain", "hallowed"))
@@ -1007,6 +1170,9 @@ public static class YQWorldAssetCatalog
                 Add(p.vegetation, TomTrees + "Alder.prefab", SlotVegetation, "tree", "temperate");
                 Add(p.vegetation, TomTrees + "Sycamore.prefab", SlotVegetation, "tree", "temperate");
                 Add(p.vegetation, TomTrees + "ThinTree.prefab", SlotVegetation, "tree", "temperate");
+                // note: Mixed temperate woodland needs more than three canopy families; the approved Scots pine variants add deterministic ecological variety without importing a foreign architecture pack.
+                Add(p.vegetation, TomTrees + "ScotsPineTypeA.prefab", SlotVegetation, "tree", "temperate", "conifer");
+                Add(p.vegetation, TomTrees + "ScotsPineTypeB.prefab", SlotVegetation, "tree", "temperate", "conifer");
             }
 
             // note: The terrain-tool RockMesh supplements, rather than replaces, each architecture pack's native stone family.
@@ -1104,10 +1270,31 @@ public static class YQWorldAssetCatalog
 
             reference.EnsureCollections();
 
+            if (!reference.runtimeEligible)
+            {
+                // note: Intake keeps failed records for review, but procedural palette assembly must never select them.
+                continue;
+            }
+
             // note: Repair stale discovery catalogs before choosing a palette slot; complete authored prefabs must never remain scatterable decoration.
             string resolvedSlot =
                 ResolveRuntimeDiscoveredSlot(
                     reference);
+
+            // note: Legacy discovery labeled some conifer prefabs exterior dressing; trees always enter the vegetation placement pass.
+            if ((reference.assetPath ?? string.Empty).IndexOf(
+                    "Assets/Forst/Conifers [BOTD]/",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+                resolvedSlot = SlotVegetation;
+
+            // note: Reviewed slot metadata is placement authority; filename inference is only a legacy recovery path for an unclassified record.
+            if (string.Equals(reference.assetType, "prefab", StringComparison.OrdinalIgnoreCase) &&
+                !IsKnownSlotTag(resolvedSlot))
+            {
+                string inferredSlot = InferDiscoveredPrefabSlot(reference.assetPath);
+                if (!string.IsNullOrWhiteSpace(inferredSlot))
+                    resolvedSlot = inferredSlot;
+            }
 
             if (!IsAllowedWorldReferenceForSlot(
                     reference,
@@ -1148,6 +1335,10 @@ public static class YQWorldAssetCatalog
                 CloneDiscoveredReference(
                     reference);
 
+            ApplyDiscoveredSlotContract(
+                clone,
+                resolvedSlot);
+
             ApplySlotContract(
                 clone,
                 resolvedSlot);
@@ -1165,6 +1356,166 @@ public static class YQWorldAssetCatalog
                 p.verboseInternals,
                 "discovered_asset_catalog_entries_merged=" +
                 added);
+        }
+    }
+
+    private static void PruneUnreviewedCrossPackAssets(GeneratedRegionAssetPaletteRecord palette, string style)
+    {
+        if (palette == null || string.IsNullOrWhiteSpace(style))
+            return;
+
+        string owningPack = "Assets/" + ResolvePackName(style).Replace('\\', '/') + "/";
+        string[] localSlots =
+        {
+            SlotFloor, SlotWall, SlotRoof, SlotDoor, SlotPath, SlotSettlementBuilding,
+            SlotLargeStructure, SlotFloorDeco, SlotWallDeco, SlotVegetation, SlotRock,
+            SlotLighting, SlotLootContainer, SlotEnemySite, SlotInteriorDeco, SlotExteriorDeco
+        };
+
+        int removed = 0;
+        for (int slotIndex = 0; slotIndex < localSlots.Length; slotIndex++)
+        {
+            string slot = localSlots[slotIndex];
+            List<GeneratedAssetReferenceRecord> records = GetSlotList(palette, slot);
+            if (records == null)
+                continue;
+            for (int index = records.Count - 1; index >= 0; index--)
+            {
+                GeneratedAssetReferenceRecord record = records[index];
+                string path = record != null ? (record.assetPath ?? string.Empty).Replace('\\', '/') : string.Empty;
+                if (record != null &&
+                    !path.StartsWith(owningPack, StringComparison.OrdinalIgnoreCase) &&
+                    !IsReviewedSharedAssetPath(path, slot, style))
+                {
+                    records.RemoveAt(index);
+                    removed++;
+                }
+            }
+        }
+
+        if (removed > 0)
+            AddUnique(palette.verboseInternals, "unreviewed_cross_pack_references_pruned=" + removed);
+    }
+
+    private static bool IsReviewedSharedAssetPath(string path, string slot, string style)
+    {
+        // note: Shared dependencies have explicit slot and climate boundaries; a generic foreign-pack prefix is never sufficient approval.
+        if (slot == SlotVegetation)
+        {
+            if (path.StartsWith("Assets/Tom's Terrain Tools/", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("Assets/YughuesFreeBushes2018/", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            return path.StartsWith("Assets/Forst/Conifers [BOTD]/", StringComparison.OrdinalIgnoreCase) &&
+                   ContainsAny(style, "nordic", "viking", "mountain", "hallowed", "woodland");
+        }
+
+        if (slot == SlotRock && path.StartsWith("Assets/Tom's Terrain Tools/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (slot == SlotLootContainer &&
+            path.StartsWith("Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // note: TownSmith complete houses are an intentional, bounded rural-town kit collaboration.
+        return slot == SlotSettlementBuilding &&
+               string.Equals(style, "hivemind_rural_town", StringComparison.OrdinalIgnoreCase) &&
+               path.StartsWith(HivemindTownSmithComplete, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string InferDiscoveredPrefabSlot(string assetPath)
+    {
+        string normalizedPath = (assetPath ?? string.Empty).Replace('\\', '/');
+        int slash = normalizedPath.LastIndexOf('/');
+        string prefabName = slash >= 0 ? normalizedPath.Substring(slash + 1) : normalizedPath;
+        string search = NormalizePrefabSemantic(prefabName);
+
+        if (ContainsAny(search, "chest", "coffer", "loot")) return SlotLootContainer;
+        if (ContainsAny(search, "camp", "encampment", "outpost", "redoubt", "watchpost", "watchtower", "lair", "nest", "crypt", "cave", "mine", "ruin", "burrow", "shipwreck", "shrine")) return SlotEnemySite;
+        if (ContainsAny(search, "tree", "bush", "grass", "fern", "cactus", "flower", "foliage", "weed", "plant", "shroom", "mushroom")) return SlotVegetation;
+        if (ContainsAny(search, "boulder", "rock", "stone", "rubble", "debris", "mountain", "cliff") &&
+            !ContainsAny(search, "building", "house", "hut", "shack", "church", "saloon", "stable", "tower", "barn", "cabin", "hall")) return SlotRock;
+        if (ContainsAny(search, "lamp", "lantern", "torch", "fire", "candle", "light", "brazier", "sconce")) return SlotLighting;
+        if (ContainsAny(search, "door", "gate", "portcullis")) return SlotDoor;
+        if (ContainsAny(search, "roof", "awning", "canopy")) return SlotRoof;
+        if (ContainsAny(search, "wall", "fence", "corner", "pillar", "column")) return SlotWall;
+        if (ContainsAny(search, "road", "path", "bridge", "stair", "steps", "walkway", "plank")) return SlotPath;
+        if (ContainsAny(search, "ground", "floor", "tile", "platform", "carpet", "rug")) return SlotFloor;
+        if (ContainsAny(search, "house", "hut", "shack", "building", "church", "saloon", "stable", "tower", "barn", "cabin", "hall")) return SlotSettlementBuilding;
+        if (ContainsAny(search, "ruin", "statue", "obelisk", "monument", "arch", "ship", "container", "biomass")) return SlotLargeStructure;
+        if (ContainsAny(search, "painting", "curtain", "banner", "shield", "sign", "plaque")) return SlotWallDeco;
+        if (ContainsAny(search, "chair", "table", "shelf", "cabinet", "bed", "book", "desk", "stool")) return SlotInteriorDeco;
+        if (ContainsAny(search, "barrel", "crate", "box", "sack", "vase", "pot", "cart", "wagon", "well", "bucket", "bench")) return SlotFloorDeco;
+        // note: An unknown prefab is withheld from procedural palettes until its context is reviewed; silently scattering it outdoors creates style and placement leaks.
+        return string.Empty;
+    }
+
+    private static bool IsKnownSlotTag(string slot)
+    {
+        // note: Keep slot recognition centralized so explicit authored classifications are never replaced by a filename guess.
+        switch (NormalizeKey(slot))
+        {
+            case SlotTerrain:
+            case SlotFloor:
+            case SlotWall:
+            case SlotRoof:
+            case SlotDoor:
+            case SlotPath:
+            case SlotSettlementBuilding:
+            case SlotLargeStructure:
+            case SlotFloorDeco:
+            case SlotWallDeco:
+            case SlotVegetation:
+            case SlotRock:
+            case SlotLighting:
+            case SlotLootContainer:
+            case SlotEnemySite:
+            case SlotInteriorDeco:
+            case SlotExteriorDeco:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static void ApplyDiscoveredSlotContract(
+        GeneratedAssetReferenceRecord reference,
+        string slot)
+    {
+        if (reference == null || string.IsNullOrWhiteSpace(slot))
+            return;
+
+        reference.slotTag = slot;
+        // note: Preserve reviewed geometry and placement contracts; defaults only fill fields missing from legacy discovery records.
+        if (reference.weight <= 0)
+            reference.weight = ResolveWeight(slot, null);
+        if (reference.scaleMin <= 0f)
+            reference.scaleMin = ResolveScaleMin(slot);
+        if (reference.scaleMax <= 0f || reference.scaleMax < reference.scaleMin)
+            reference.scaleMax = UnityEngine.Mathf.Max(reference.scaleMin, ResolveScaleMax(slot));
+        if (reference.footprintX <= 0f)
+            reference.footprintX = ResolveFootprint(slot);
+        if (reference.footprintZ <= 0f)
+            reference.footprintZ = ResolveFootprint(slot);
+        if (string.IsNullOrWhiteSpace(reference.placementRule))
+            reference.placementRule = ResolvePlacementRule(slot);
+        if (string.IsNullOrWhiteSpace(reference.rotationRule))
+            reference.rotationRule = ResolveRotationRule(slot);
+        AddUnique(reference.subTags, NormalizeKey(slot));
+
+        string normalizedPath =
+            (reference.assetPath ?? string.Empty).Replace('\\', '/');
+        if (normalizedPath.IndexOf(
+                "Assets/Forst/Conifers [BOTD]/",
+                StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            // note: Reclassify legacy all-style BOTD records before palette matching so conifers stay in cold woodland themes.
+            reference.styleTags.Clear();
+            AddUnique(reference.styleTags, "nordic_forest");
+            AddUnique(reference.styleTags, "viking_rural");
+            AddUnique(reference.styleTags, "hivemind_modular_viking_village");
+            AddUnique(reference.styleTags, "hivemind_woodland_village");
+            AddUnique(reference.styleTags, "hivemind_mountain_messenger");
         }
     }
 
@@ -1204,11 +1555,20 @@ public static class YQWorldAssetCatalog
 
         reference.slotTag = slot;
 
+        bool reviewedSpatialContract =
+            reference.subTags != null &&
+            reference.subTags.Exists(
+                tag => string.Equals(
+                    NormalizeKey(tag),
+                    "reviewed_spatial_contract",
+                    StringComparison.OrdinalIgnoreCase));
+
         if (slotChanged ||
-            string.Equals(
+            (string.Equals(
                 slot,
                 SlotSettlementBuilding,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase) &&
+             !reviewedSpatialContract))
         {
             // note: A promoted building receives the complete-lot contract instead of retaining decoration scale, footprint, repetition, and placement rules.
             reference.weight = Math.Max(reference.weight, ResolveWeight(slot, reference.subTags != null ? reference.subTags.ToArray() : null));
@@ -1239,6 +1599,19 @@ public static class YQWorldAssetCatalog
                               path.IndexOf("Assets/YughuesFreeBushes2018/", StringComparison.OrdinalIgnoreCase) >= 0 ||
                               path.IndexOf("Assets/ADG_Textures/", StringComparison.OrdinalIgnoreCase) >= 0 ||
                               path.IndexOf("Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        bool coniferNature =
+            path.IndexOf("Assets/Forst/Conifers [BOTD]/", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        if (coniferNature)
+        {
+            // note: Forst conifers are limited to cold/woodland styles so a temperate tree kit cannot leak into desert, industrial, or interior palettes.
+            return style == "nordic_forest" ||
+                   style == "viking_rural" ||
+                   style == "hivemind_modular_viking_village" ||
+                   style == "hivemind_woodland_village" ||
+                   style == "hivemind_mountain_messenger";
+        }
 
         if (neutralDressing)
             return true;
@@ -1291,11 +1664,16 @@ public static class YQWorldAssetCatalog
         return false;
     }
 
-    private static bool IsAllowedWorldReferenceForSlot(
+    // note: Primary selection and runtime alternative selection share this one structural eligibility contract.
+    internal static bool IsAllowedWorldReferenceForSlot(
         GeneratedAssetReferenceRecord reference,
         string requestedSlot)
     {
         if (reference == null)
+            return false;
+
+        // note: Discovered prefabs are selectable only after their persisted spatial contract is authored and release-approved; legacy authored references without a record remain compatible.
+        if (!IsSpatiallyApprovedForRuntime(reference.assetPath))
             return false;
 
         string slot =
@@ -1319,7 +1697,7 @@ public static class YQWorldAssetCatalog
 
         // note: Structural identity comes from the prefab filename; pack folders such as HouseOnAHill must not turn every contained prop into a building.
         string prefabSemantic =
-            NormalizeSearchText(
+            NormalizePrefabSemantic(
                 lastSlash >= 0
                     ? normalizedPath.Substring(lastSlash + 1)
                     : normalizedPath);
@@ -1362,6 +1740,8 @@ public static class YQWorldAssetCatalog
                 "helmet",
                 "exported meshes",
                 "no assigned materials",
+                // note: Human character prefabs remain available to the dedicated creature shard, but never scatter as environmental dressing.
+                "characters human humans",
                 "characters demons",
                 "characters devils",
                 "characters dragons",
@@ -1416,6 +1796,8 @@ public static class YQWorldAssetCatalog
                        "gate",
                        "fence",
                        "module",
+                       "part",
+                       "p",
                        "structure",
                        "kit",
                        "prop");
@@ -1465,6 +1847,83 @@ public static class YQWorldAssetCatalog
             "entrance");
     }
 
+    public static bool IsSpatiallyApprovedForRuntime(string assetPath)
+    {
+        string normalizedPath = (assetPath ?? string.Empty).Replace('\\', '/');
+        if (string.IsNullOrWhiteSpace(normalizedPath))
+            return false;
+
+        if (IsRuntimeQuarantinedPath(normalizedPath))
+            return false;
+
+        if (!_runtimeIntakeCatalogLoaded)
+        {
+            // note: Load the canonical spatial intake snapshot once per runtime session so selection stays deterministic without per-pick asset loads.
+            _runtimeIntakeCatalog = Resources.Load<YQWorldAssetIntakeCatalog>("YQWorldAssetIntakeCatalog");
+            _runtimeIntakeCatalogLoaded = true;
+        }
+
+        YQWorldAssetIntakeCatalog catalog = _runtimeIntakeCatalog;
+        if (catalog == null || catalog.SpatialAssets == null)
+            return true;
+
+        if (!ReferenceEquals(_indexedSpatialAssets, catalog.SpatialAssets))
+        {
+            // note: Index each intake snapshot once; procedural candidate checks must not rescan thousands of paths per pick or spawn.
+            _indexedSpatialAssets = catalog.SpatialAssets;
+            _spatialAssetsByPath = new Dictionary<string, YQSpatialAssetRecord>(
+                _indexedSpatialAssets.Count, StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index < _indexedSpatialAssets.Count; index++)
+            {
+                YQSpatialAssetRecord record = _indexedSpatialAssets[index];
+                string recordPath = (record?.assetPath ?? string.Empty).Replace('\\', '/');
+                // note: Preserve the original first-record precedence when malformed intake contains duplicate paths.
+                if (!string.IsNullOrWhiteSpace(recordPath) && !_spatialAssetsByPath.ContainsKey(recordPath))
+                    _spatialAssetsByPath.Add(recordPath, record);
+            }
+        }
+
+        if (_spatialAssetsByPath.TryGetValue(normalizedPath, out YQSpatialAssetRecord spatial))
+        {
+            // note: Read approval from the record so an editor curation update cannot leave a cached approval decision stale.
+            spatial.EnsureCollections();
+            return spatial.releaseEligible &&
+                   spatial.disposition == YQAssetIntakeDisposition.Candidate &&
+                   spatial.spatialMetadataAuthored &&
+                   spatial.curationV2 != null &&
+                   spatial.curationV2.contractVersion == YQAssetCurationContractV2.SupportedContractVersion;
+        }
+
+        return true;
+    }
+
+    public static bool IsRuntimeQuarantinedPath(string assetPath)
+    {
+        return RuntimeQuarantinedPrefabPaths.Contains((assetPath ?? string.Empty).Replace('\\', '/'));
+    }
+
+    public static bool IsAllowedInPlacementContext(
+        GeneratedAssetReferenceRecord reference, YQAssetPlacementContextV2 context)
+    {
+        if (reference == null || !IsSpatiallyApprovedForRuntime(reference.assetPath))
+            return false;
+        if (context == null)
+            return true;
+
+        // note: Context-aware generation requires an intake record; an unclassified path cannot bypass V2 placement rules.
+        string path = (reference.assetPath ?? string.Empty).Replace('\\', '/');
+        if (_spatialAssetsByPath == null || !_spatialAssetsByPath.TryGetValue(path, out YQSpatialAssetRecord asset))
+            return _runtimeIntakeCatalog == null;
+        IReadOnlyList<YQAssetKitManifest> kits = _runtimeIntakeCatalog.Kits;
+        for (int index = 0; kits != null && index < kits.Count; index++)
+        {
+            YQAssetKitManifest kit = kits[index];
+            if (kit != null && string.Equals(kit.kitId, asset.kitId, StringComparison.OrdinalIgnoreCase))
+                return YQAssetConstraintEvaluatorV2.Evaluate(kit, asset, context).Accepted;
+        }
+        return false;
+    }
+
     private static GeneratedAssetReferenceRecord CloneDiscoveredReference(
         GeneratedAssetReferenceRecord source)
     {
@@ -1475,6 +1934,7 @@ public static class YQWorldAssetCatalog
                 assetPath = source != null ? source.assetPath : string.Empty,
                 assetType = source != null ? source.assetType : "prefab",
                 slotTag = source != null ? source.slotTag : string.Empty,
+                runtimeEligible = source == null || source.runtimeEligible,
                 weight = source != null ? source.weight : 1,
                 scaleMin = source != null ? source.scaleMin : 1f,
                 scaleMax = source != null ? source.scaleMax : 1f,
@@ -1624,6 +2084,15 @@ public static class YQWorldAssetCatalog
 
     private static string ResolveStyleKey(GeneratedRegionRecord region)
     {
+        // note: Authored region styles may carry pipe-delimited provenance; recover the semantic family before normalizing the full metadata string.
+        string rawAuthoredStyle = region != null ? region.assetStyleKey : string.Empty;
+        if (!string.IsNullOrWhiteSpace(rawAuthoredStyle))
+        {
+            string authoredToken = rawAuthoredStyle.Split('|')[0].Trim();
+            string authoredAlias = ResolveAuthoredStyleAlias(authoredToken);
+            if (IsSupportedStyleKey(authoredAlias))
+                return authoredAlias;
+        }
         string authoredStyle =
             region != null
                 ? NormalizeKey(
@@ -1707,6 +2176,26 @@ public static class YQWorldAssetCatalog
         return "nordic_forest";
     }
 
+    private static string ResolveAuthoredStyleAlias(string value)
+    {
+        string key = NormalizeKey(value);
+        if (key.StartsWith("hivemind_", StringComparison.OrdinalIgnoreCase))
+            return key;
+        switch (key)
+        {
+            case "haunted_village": case "medieval_kingdom": case "military_camp":
+            case "gothic_cathedral": case "cyberpunk_city": case "gladiator_arena":
+            case "rural_town": case "modular_viking_village": case "town_smith":
+            case "witch_house": case "mystic_dungeon": case "mountain_temple":
+            case "woodland_village": case "cave_tomb": case "house_on_hill":
+            case "horror_hospital": case "olympus_temple": case "pirate_island":
+            case "hallowed_depths": case "sewers": case "mountain_messenger":
+                return "hivemind_" + key;
+            default:
+                return key;
+        }
+    }
+
     private static string BuildRegionText(GeneratedRegionRecord region)
     {
         if (region == null)
@@ -1734,7 +2223,8 @@ public static class YQWorldAssetCatalog
             case "hivemind_military_camp": return "HIVEMIND/MilitaryCamp";
             case "hivemind_gothic_cathedral": return "HIVEMIND/GothicCathedral";
             case "hivemind_cyberpunk_city": return "HIVEMIND/CyberpunkCity";
-            case "hivemind_gladiator_arena": return "HIVEMIND/GladiatorArena";
+            // note: The imported kit directory is misspelled GladitorArena; preserve that authored path so palette gating can discover its assets.
+            case "hivemind_gladiator_arena": return "HIVEMIND/GladitorArena";
             case "hivemind_rural_town": return "HIVEMIND/RuralTown";
             case "hivemind_modular_viking_village": return "HIVEMIND/ModularVikingVillage";
             case "hivemind_town_smith": return "HIVEMIND/TownSmith";
@@ -1751,7 +2241,8 @@ public static class YQWorldAssetCatalog
             case "hivemind_pirate_island": return "HIVEMIND/PirateIsland";
             case "hivemind_hallowed_depths": return "HIVEMIND/HallowedDepths";
             case "hivemind_sewers": return "HIVEMIND/TheSewers";
-            case "hivemind_mountain_messenger": return "HIVEMIND/TheMessenger";
+            // note: The Messenger Mountain source pack is nested under the shared HDRP folder; keep its palette gate aligned with the imported path.
+            case "hivemind_mountain_messenger": return "HIVEMIND/HDRP/TheMessengerMountain";
             case "viking_rural": return "BefourStudios/MedievalVikingVillage";
             default: return "BefourStudios/NordicVillage";
         }
@@ -1976,6 +2467,7 @@ public static class YQWorldAssetCatalog
             assetPath = source != null ? source.assetPath : string.Empty,
             assetType = source != null ? source.assetType : "prefab",
             slotTag = slot,
+            runtimeEligible = source == null || source.runtimeEligible,
             weight = source != null ? source.weight : 1,
             scaleMin = source != null ? source.scaleMin : 1f,
             scaleMax = source != null ? source.scaleMax : 1f,
@@ -2174,6 +2666,15 @@ public static class YQWorldAssetCatalog
         return false;
     }
 
+    private static string NormalizePrefabSemantic(string value)
+    {
+        // note: Imported numbered/camel-case identities such as SM_Building1 and SM_HouseBuilding_003 must expose their structural words; P1 and SideWall must remain recognizable fragments.
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        string split = System.Text.RegularExpressions.Regex.Replace(value, @"([a-z])([A-Z])", "$1 $2");
+        split = System.Text.RegularExpressions.Regex.Replace(split, @"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ");
+        return NormalizeSearchText(split);
+    }
+
     private static string NormalizeSearchText(
         string value)
     {
@@ -2255,5 +2756,23 @@ public static class YQWorldAssetCatalog
                 hash = hash * 31 + value[i];
             return hash & 0x7fffffff;
         }
+    }
+
+    private static int CompareStableReferences(
+        GeneratedAssetReferenceRecord left,
+        GeneratedAssetReferenceRecord right)
+    {
+        // note: Stable asset keys are preferred; normalized paths complete the ordering for legacy references without keys.
+        int keyComparison = string.Compare(
+            left != null ? left.assetKey : string.Empty,
+            right != null ? right.assetKey : string.Empty,
+            StringComparison.OrdinalIgnoreCase);
+        if (keyComparison != 0)
+            return keyComparison;
+
+        return string.Compare(
+            left != null ? left.assetPath : string.Empty,
+            right != null ? right.assetPath : string.Empty,
+            StringComparison.OrdinalIgnoreCase);
     }
 }

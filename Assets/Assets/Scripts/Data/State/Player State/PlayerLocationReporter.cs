@@ -27,10 +27,38 @@ public class PlayerLocationReporter : MonoBehaviour
 
     private string GetBestRegionId(Vector3 pos)
     {
-        if (PlayerContext.Instance != null && !string.IsNullOrWhiteSpace(PlayerContext.Instance.SemanticRegionId))
-            return PlayerContext.Instance.SemanticRegionId;
+        string semanticRegionId = PlayerContext.Instance != null ? PlayerContext.Instance.SemanticRegionId : string.Empty;
+        if (IsKnownRegionId(semanticRegionId))
+            return semanticRegionId.Trim();
 
-        return ComputeRegionId(pos);
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        if (IsKnownRegionId(world != null ? world.currentRegionId : string.Empty))
+            return world.currentRegionId.Trim();
+
+        string computedRegionId = ComputeRegionId(pos);
+        // note: A transient grid coordinate is not an accepted identity, so unknown positions remain safely unassigned.
+        return IsKnownRegionId(computedRegionId) ? computedRegionId : "region_unknown";
+    }
+
+    private static bool IsKnownRegionId(string regionId)
+    {
+        if (string.IsNullOrWhiteSpace(regionId))
+            return false;
+        if (string.Equals(regionId.Trim(), "region_unknown", System.StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        if (world == null || world.identityRecords == null)
+            return false;
+
+        for (int index = 0; index < world.identityRecords.Count; index++)
+        {
+            YQEntityIdentityRecord record = world.identityRecords[index];
+            if (record != null && record.kind == YQStableEntityKind.Region &&
+                string.Equals(record.id, regionId.Trim(), System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
     }
 
     private string ComputeRegionId(Vector3 pos)

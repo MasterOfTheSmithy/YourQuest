@@ -17,6 +17,8 @@ public sealed class YQGeneratedWorldPerformanceDirector : MonoBehaviour
 
         startupBudgetConfigured = true;
         Application.targetFrameRate = 60;
+        // note: Keep procedural startup advancing when the editor loses focus; verification must not depend on a foreground native window.
+        Application.runInBackground = true;
         Application.backgroundLoadingPriority = ThreadPriority.Low;
 
         // note: Do not change Unity's async-upload buffer or render queue at runtime; D3D12 can lose an in-flight fence when these native graphics settings are changed during Play Mode startup.

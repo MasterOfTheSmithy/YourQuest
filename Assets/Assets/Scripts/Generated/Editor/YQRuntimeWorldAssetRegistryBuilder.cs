@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,11 +18,14 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         RegistryFolder +
         "/YQDiscoveredWorldAssetCatalog.asset";
 
+    internal const string DiscoveredRuntimeAuditReportPath =
+        "Assets/Assets/GeneratedAssets/WorldIntake/YQDiscoveredAssetRuntimeAudit.md";
+
     private const string RuntimeShardFolder =
         RegistryFolder +
         "/YQWorldAssetShards";
 
-    private const string HivemindUrpMaterialsFolder =
+    internal const string HivemindUrpMaterialsFolder =
         "Assets/Assets/GeneratedAssets/HivemindUrpMaterials";
 
     private const string HivemindMissingMaterialPath =
@@ -162,6 +166,326 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         // note: Kept callable from code, but hidden so normal editor use cannot accidentally rescan imported packs.
         RebuildRegistryInternal(
             true);
+    }
+
+    [MenuItem(
+        "Tools/YourQuest/AAA World Generation/Asset Intake/Validate Discovered Runtime References")]
+    public static void ValidateDiscoveredRuntimeReferences()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode ||
+            EditorApplication.isCompiling ||
+            EditorApplication.isUpdating)
+        {
+            Debug.LogWarning(
+                "[YQRuntimeWorldAssetRegistryBuilder] Runtime reference validation requires stable Edit mode.");
+            return;
+        }
+
+        YQDiscoveredWorldAssetCatalog catalog =
+            AssetDatabase.LoadAssetAtPath<YQDiscoveredWorldAssetCatalog>(
+                DiscoveredCatalogPath);
+
+        System.Text.StringBuilder report =
+            new System.Text.StringBuilder();
+        report.AppendLine("# YourQuest Discovered Asset Runtime Audit");
+        report.AppendLine();
+        report.AppendLine("Generated UTC: `" + DateTime.UtcNow.ToString("O") + "`");
+
+        if (catalog == null || catalog.Entries == null)
+        {
+            report.AppendLine("\n**Result:** FAILED — discovered asset catalog is missing.");
+            WriteDiscoveredRuntimeAuditReport(report);
+            Debug.LogError(
+                "[YQRuntimeWorldAssetRegistryBuilder] Discovered asset catalog is missing.");
+            return;
+        }
+
+        HashSet<string> seenPaths =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        int uniquePaths = 0;
+        int prefabCount = 0;
+        int materialCount = 0;
+        int missingCount = 0;
+        int missingScriptCount = 0;
+        int noRendererCount = 0;
+        int noColliderCount = 0;
+        int invalidMaterialSlotCount = 0;
+        int unsupportedShaderCount = 0;
+        int runtimeMaterialReviewCount = 0;
+        int runtimeMaterialFailureCount = 0;
+        int quarantinedReferenceCount = 0;
+        int invalidRendererBoundsCount = 0;
+        int invalidColliderBoundsCount = 0;
+        int emptyLodConfigurationCount = 0;
+        int lodGroupCount = 0;
+
+        for (int index = 0; index < catalog.Entries.Count; index++)
+        {
+            GeneratedAssetReferenceRecord reference =
+                catalog.Entries[index];
+            if (reference == null)
+                continue;
+
+            string path =
+                YQRuntimeWorldAssetRegistry.NormalizePath(
+                    reference.assetPath);
+            if (string.IsNullOrWhiteSpace(path) || !seenPaths.Add(path))
+                continue;
+
+            uniquePaths++;
+            if (!reference.runtimeEligible)
+                quarantinedReferenceCount++;
+
+            bool materialReference =
+                string.Equals(reference.assetType, "material", StringComparison.OrdinalIgnoreCase) ||
+                path.EndsWith(".mat", StringComparison.OrdinalIgnoreCase);
+
+            if (materialReference)
+            {
+                materialCount++;
+                Material material =
+                    AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (material == null || material.shader == null)
+                {
+                    missingCount++;
+                }
+                else
+                {
+                    // note: Record the imported shader risk separately from the final URP binding decision.
+                    if (!material.shader.isSupported)
+                        unsupportedShaderCount++;
+
+                    YQMaterialCompatibilityState runtimeState =
+                        YQWorldAssetIntakeBuilder
+                            .EvaluateRuntimeReadyMaterialForAudit(
+                            material);
+                    RecordRuntimeMaterialAuditState(
+                        runtimeState,
+                        ref runtimeMaterialReviewCount,
+                        ref runtimeMaterialFailureCount);
+                }
+                continue;
+            }
+
+            prefabCount++;
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab == null)
+            {
+                missingCount++;
+                continue;
+            }
+
+            missingScriptCount +=
+                HasMissingScripts(prefab) ? 1 : 0;
+
+            Renderer[] renderers =
+                prefab.GetComponentsInChildren<Renderer>(true);
+            Collider[] colliders =
+                prefab.GetComponentsInChildren<Collider>(true);
+            LODGroup[] lodGroups =
+                prefab.GetComponentsInChildren<LODGroup>(true);
+
+            if (renderers.Length == 0)
+                noRendererCount++;
+            if (colliders.Length == 0)
+                noColliderCount++;
+            lodGroupCount += lodGroups.Length;
+
+            for (int colliderIndex = 0;
+                 colliderIndex < colliders.Length;
+                 colliderIndex++)
+            {
+                if (colliders[colliderIndex] == null ||
+                    !HasFiniteBounds(colliders[colliderIndex].bounds))
+                {
+                    invalidColliderBoundsCount++;
+                }
+            }
+
+            for (int lodIndex = 0;
+                 lodIndex < lodGroups.Length;
+                 lodIndex++)
+            {
+                if (lodGroups[lodIndex] == null ||
+                    lodGroups[lodIndex].GetLODs().Length == 0)
+                {
+                    emptyLodConfigurationCount++;
+                }
+            }
+
+            for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+            {
+                Renderer renderer = renderers[rendererIndex];
+                if (renderer == null || renderer.sharedMaterials == null)
+                    continue;
+
+                if (!HasFiniteBounds(renderer.bounds))
+                    invalidRendererBoundsCount++;
+
+                for (int materialIndex = 0; materialIndex < renderer.sharedMaterials.Length; materialIndex++)
+                {
+                    Material material = renderer.sharedMaterials[materialIndex];
+                    if (material == null || material.shader == null)
+                    {
+                        invalidMaterialSlotCount++;
+                    }
+                    else
+                    {
+                        // note: Validate both the source shader and the resolved URP-compatible runtime material.
+                        if (!material.shader.isSupported)
+                            unsupportedShaderCount++;
+
+                        YQMaterialCompatibilityState runtimeState =
+                            YQWorldAssetIntakeBuilder
+                                .EvaluateRuntimeReadyMaterialForAudit(
+                                material);
+                        RecordRuntimeMaterialAuditState(
+                            runtimeState,
+                            ref runtimeMaterialReviewCount,
+                            ref runtimeMaterialFailureCount);
+                    }
+                }
+            }
+        }
+
+        report.AppendLine();
+        report.AppendLine("| Check | Count |");
+        report.AppendLine("|---|---:|");
+        report.AppendLine("| Unique catalog paths | " + uniquePaths + " |");
+        report.AppendLine("| Prefabs | " + prefabCount + " |");
+        report.AppendLine("| Materials | " + materialCount + " |");
+        report.AppendLine("| Missing AssetDatabase references | " + missingCount + " |");
+        report.AppendLine("| Prefabs with missing scripts | " + missingScriptCount + " |");
+        report.AppendLine("| Prefabs without renderers | " + noRendererCount + " |");
+        report.AppendLine("| Prefabs without colliders | " + noColliderCount + " |");
+        report.AppendLine("| Invalid prefab material slots | " + invalidMaterialSlotCount + " |");
+        report.AppendLine("| Source materials with unsupported shaders | " + unsupportedShaderCount + " |");
+        report.AppendLine("| Runtime material bindings requiring visual review | " + runtimeMaterialReviewCount + " |");
+        report.AppendLine("| Runtime material bindings without a usable URP path | " + runtimeMaterialFailureCount + " |");
+        report.AppendLine("| Catalogued references quarantined from procedural selection | " + quarantinedReferenceCount + " |");
+        report.AppendLine("| Renderers with invalid bounds | " + invalidRendererBoundsCount + " |");
+        report.AppendLine("| Colliders with invalid bounds | " + invalidColliderBoundsCount + " |");
+        report.AppendLine("| LOD groups with empty configurations | " + emptyLodConfigurationCount + " |");
+        report.AppendLine("| LOD groups discovered | " + lodGroupCount + " |");
+        report.AppendLine();
+        report.AppendLine(
+            "Missing colliders are reported for curation review because vegetation and dressing may intentionally be non-blocking; structural eligibility remains governed by the V2 intake contract.");
+
+        WriteDiscoveredRuntimeAuditReport(report);
+
+        Debug.Log(
+            "[YQRuntimeWorldAssetRegistryBuilder] Discovered runtime reference audit complete. " +
+            "Unique=" + uniquePaths +
+            ", missing=" + missingCount +
+            ", missing scripts=" + missingScriptCount +
+            ", invalid material slots=" + invalidMaterialSlotCount +
+            ", source unsupported shaders=" + unsupportedShaderCount +
+            ", runtime material review=" + runtimeMaterialReviewCount +
+            ", runtime material failures=" + runtimeMaterialFailureCount + ".");
+    }
+
+    [MenuItem(
+        "Tools/YourQuest/AAA World Generation/Asset Intake/Rebuild Discovered Runtime Eligibility")]
+    public static void RebuildDiscoveredRuntimeEligibility()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode ||
+            EditorApplication.isCompiling ||
+            EditorApplication.isUpdating)
+        {
+            Debug.LogWarning(
+                "[YQRuntimeWorldAssetRegistryBuilder] Runtime eligibility migration requires stable Edit mode.");
+            return;
+        }
+
+        YQDiscoveredWorldAssetCatalog catalog =
+            AssetDatabase.LoadAssetAtPath<YQDiscoveredWorldAssetCatalog>(
+                DiscoveredCatalogPath);
+        if (catalog == null || catalog.Entries == null)
+        {
+            Debug.LogError(
+                "[YQRuntimeWorldAssetRegistryBuilder] Discovered asset catalog is missing for eligibility migration.");
+            return;
+        }
+
+        int eligibleCount = 0;
+        int quarantinedCount = 0;
+        for (int index = 0; index < catalog.Entries.Count; index++)
+        {
+            GeneratedAssetReferenceRecord reference =
+                catalog.Entries[index];
+            if (reference == null)
+                continue;
+
+            reference.EnsureCollections();
+            reference.runtimeEligible =
+                IsDiscoveredReferenceRuntimeEligible(
+                    YQRuntimeWorldAssetRegistry.NormalizePath(
+                        reference.assetPath),
+                    reference.assetType,
+                    reference.slotTag);
+
+            if (reference.runtimeEligible)
+                eligibleCount++;
+            else
+                quarantinedCount++;
+        }
+
+        // note: Persist the eligibility migration before rebuilding shards so catalog and runtime registry share one safety decision.
+        EditorUtility.SetDirty(catalog);
+        AssetDatabase.SaveAssets();
+        YQRuntimeWorldAssetRegistryBuilder.RebuildRegistryWithDiscoveredAssets();
+        ValidateDiscoveredRuntimeReferences();
+        Debug.Log(
+            "[YQRuntimeWorldAssetRegistryBuilder] Runtime eligibility migration complete. " +
+            "Eligible=" + eligibleCount +
+            ", quarantined=" + quarantinedCount + ".");
+    }
+
+    private static void RecordRuntimeMaterialAuditState(
+        YQMaterialCompatibilityState state,
+        ref int reviewCount,
+        ref int failureCount)
+    {
+        // note: Adapter-backed and native URP materials are safe; separate visual review from unusable bindings.
+        if (state == YQMaterialCompatibilityState.NeedsReview)
+        {
+            reviewCount++;
+        }
+        else if (state != YQMaterialCompatibilityState.VerifiedUrp &&
+                 state != YQMaterialCompatibilityState.VerifiedUrpAdapter)
+        {
+            failureCount++;
+        }
+    }
+
+    private static bool HasFiniteBounds(Bounds bounds)
+    {
+        // note: Reject NaN or infinite geometry bounds before procedural placement can reserve invalid space.
+        return IsFinite(bounds.center.x) &&
+               IsFinite(bounds.center.y) &&
+               IsFinite(bounds.center.z) &&
+               IsFinite(bounds.size.x) &&
+               IsFinite(bounds.size.y) &&
+               IsFinite(bounds.size.z);
+    }
+
+    private static bool IsFinite(float value)
+    {
+        return !float.IsNaN(value) &&
+               !float.IsInfinity(value);
+    }
+
+    private static void WriteDiscoveredRuntimeAuditReport(
+        System.Text.StringBuilder report)
+    {
+        EnsureFolderPath("Assets/Assets/GeneratedAssets/WorldIntake");
+        File.WriteAllText(
+            DiscoveredRuntimeAuditReportPath,
+            report != null ? report.ToString() : string.Empty);
+        AssetDatabase.ImportAsset(
+            DiscoveredRuntimeAuditReportPath,
+            ImportAssetOptions.ForceUpdate);
     }
 
     [MenuItem(
@@ -1318,6 +1642,10 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                 continue;
             }
 
+            // note: Quarantined discovered references stay in the catalog for audit, but never re-enter the runtime registry.
+            if (!reference.runtimeEligible)
+                continue;
+
             string path =
                 YQRuntimeWorldAssetRegistry.NormalizePath(
                     reference.assetPath);
@@ -1413,16 +1741,28 @@ public static class YQRuntimeWorldAssetRegistryBuilder
             CollectUniqueAssetReferences(
                 plan);
 
+        // note: Generated bridge materials are system dependencies even when their prefabs are not scatter candidates; retain their bindings without adding them to unrelated palettes.
+        foreach (string bridgePath in YQGeneratedRiverBridge.RequiredAssetPaths)
+        {
+            if (!references.Exists(reference => reference != null && string.Equals(reference.assetPath, bridgePath, StringComparison.OrdinalIgnoreCase)))
+                references.Add(new GeneratedAssetReferenceRecord { assetPath = bridgePath, assetType = "prefab" });
+        }
+
         if (includeDiscoveredAssets)
         {
+            List<GeneratedAssetReferenceRecord> eligibleDiscoveredReferences =
+                FilterRuntimeEligibleDiscoveredReferences(
+                    discoveredReferences);
+
             MergeUniqueAssetReferences(
-                discoveredReferences,
+                eligibleDiscoveredReferences,
                 references);
         }
 
         HashSet<string> discoveredPaths =
             BuildAssetPathSet(
-                discoveredReferences);
+                FilterRuntimeEligibleDiscoveredReferences(
+                    discoveredReferences));
 
         List<YQRuntimeWorldAssetEntry> entries =
             new List<YQRuntimeWorldAssetEntry>();
@@ -1474,6 +1814,15 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                     AssetDatabase.LoadAssetAtPath<Material>(
                         path);
 
+                // note: Bind a verified project adapter for an imported HDRP material; eligibility and the runtime reference must resolve to the same surface.
+                if (discoveredPaths.Contains(path) &&
+                    YQWorldAssetIntakeBuilder.TryResolveVerifiedRuntimeMaterial(
+                        entry.material,
+                        out Material runtimeMaterial))
+                {
+                    entry.material = runtimeMaterial;
+                }
+
                 if (entry.material != null)
                 {
                     materialResolved++;
@@ -1502,11 +1851,12 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                         discoveredPaths.Contains(
                             path);
 
-                    // note: Discovered prefabs skip expensive material-override baking; curated paths keep the existing repair behavior.
+                    // note: Discovered Hivemind prefabs bind only verified pre-existing adapters; no material creation or broad fallback search occurs here.
                     entry.materialOverrides =
                         isDiscoveredPath
-                            ? new List<
-                                YQRuntimeWorldMaterialOverride>()
+                            ? BuildVerifiedDiscoveredMaterialOverrides(
+                                entry.prefab,
+                                path)
                             : BuildMaterialOverrides(
                                 entry.prefab);
 
@@ -1888,6 +2238,10 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                 assetPath = normalizedPath,
                 assetType = assetType,
                 slotTag = slot,
+                runtimeEligible = IsDiscoveredReferenceRuntimeEligible(
+                    normalizedPath,
+                    assetType,
+                    slot),
                 weight = ResolveWeight(
                     slot),
                 scaleMin = ResolveScaleMin(
@@ -1917,8 +2271,146 @@ public static class YQRuntimeWorldAssetRegistryBuilder
             record,
             normalizedPath);
 
+        // note: Project reviewed spatial curation into the legacy runtime reference so palette assembly can consume authored context without flattening it to filename tokens.
+        // note: The intake builder owns the reviewed spatial index; project that curation through its shared helper.
+        YQWorldAssetIntakeBuilder.ApplyReviewedSpatialContract(record);
+
         result.Add(
             record);
+    }
+
+    private static bool IsDiscoveredReferenceRuntimeEligible(
+        string path,
+        string assetType,
+        string slot)
+    {
+        bool diagnosticConifer =
+            path.IndexOf(
+                "Assets/Forst/Conifers [BOTD]/",
+                StringComparison.OrdinalIgnoreCase) >= 0;
+        // note: Complete human character prefabs are repaired to URP at runtime; keep them discoverable even when imported source slots still carry HDRP metadata.
+        bool humanCharacter =
+            path.IndexOf(
+                "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/",
+                StringComparison.OrdinalIgnoreCase) >= 0;
+
+        if (string.Equals(
+                assetType,
+                "material",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            Material material =
+                AssetDatabase.LoadAssetAtPath<Material>(
+                    path);
+
+            YQMaterialCompatibilityState state =
+                YQWorldAssetIntakeBuilder
+                    .EvaluateRuntimeReadyMaterialForAudit(
+                        material);
+
+            return state == YQMaterialCompatibilityState.VerifiedUrp ||
+                   state == YQMaterialCompatibilityState.VerifiedUrpAdapter;
+        }
+
+        GameObject prefab =
+            AssetDatabase.LoadAssetAtPath<GameObject>(
+                path);
+        if (prefab == null)
+        {
+            if (diagnosticConifer)
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: prefab load failed: " + path);
+            return false;
+        }
+
+        if (HasMissingScripts(prefab))
+        {
+            if (diagnosticConifer)
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: missing script: " + path);
+            return false;
+        }
+
+        if (!TryMeasurePrefabLocalBounds(
+                path,
+                out _))
+        {
+            if (diagnosticConifer)
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: no mesh bounds: " + path);
+            return false;
+        }
+
+        Renderer[] renderers =
+            prefab.GetComponentsInChildren<Renderer>(
+                true);
+        if (renderers.Length == 0)
+        {
+            if (diagnosticConifer)
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: no renderers: " + path);
+            return false;
+        }
+
+        for (int rendererIndex = 0;
+             rendererIndex < renderers.Length;
+             rendererIndex++)
+        {
+            Material[] materials =
+                renderers[rendererIndex] != null
+                    ? renderers[rendererIndex].sharedMaterials
+                    : null;
+
+            if (materials == null)
+            {
+                if (renderers[rendererIndex] is BillboardRenderer)
+                {
+                    // note: BillboardRenderer receives its material through the authored BillboardAsset and may expose no shared material slots.
+                    continue;
+                }
+
+                return false;
+            }
+
+            for (int materialIndex = 0;
+                 materialIndex < materials.Length;
+                 materialIndex++)
+            {
+                Material material = materials[materialIndex];
+                if (humanCharacter && material == null)
+                    continue;
+                if (material == null &&
+                    renderers[rendererIndex] is BillboardRenderer)
+                {
+                    // note: A billboard LOD may retain an empty authored slot while its BillboardAsset supplies the visible material.
+                    continue;
+                }
+
+                YQMaterialCompatibilityState state =
+                    YQWorldAssetIntakeBuilder
+                        .EvaluateRuntimeReadyMaterialForAudit(
+                            material);
+
+                if (!humanCharacter &&
+                    state != YQMaterialCompatibilityState.VerifiedUrp &&
+                    state != YQMaterialCompatibilityState.VerifiedUrpAdapter)
+                {
+                    if (diagnosticConifer)
+                        Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: material " +
+                                         (material != null ? material.name : "<null>") +
+                                         " state=" + state + " path=" + path);
+                    return false;
+                }
+            }
+        }
+
+        if (IsFootprintCriticalSlot(slot) &&
+            prefab.GetComponentsInChildren<Collider>(
+                true).Length == 0)
+        {
+            if (diagnosticConifer)
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistryBuilder] Conifer eligibility rejected: structural collider missing: " + path);
+            return false;
+        }
+
+        // note: Vegetation and dressing may be non-blocking; structural slots require an authored collider before procedural selection.
+        return true;
     }
 
     private static bool IsFootprintCriticalSlot(
@@ -2247,6 +2739,35 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         }
     }
 
+    private static List<GeneratedAssetReferenceRecord>
+        FilterRuntimeEligibleDiscoveredReferences(
+            List<GeneratedAssetReferenceRecord> references)
+    {
+        List<GeneratedAssetReferenceRecord> eligible =
+            new List<GeneratedAssetReferenceRecord>();
+
+        if (references == null)
+            return eligible;
+
+        for (int i = 0;
+             i < references.Count;
+             i++)
+        {
+            GeneratedAssetReferenceRecord reference =
+                references[i];
+
+            // note: Only references that passed the runtime prefab/material gates can be selected by procedural spawning.
+            if (reference != null &&
+                reference.runtimeEligible)
+            {
+                eligible.Add(
+                    reference);
+            }
+        }
+
+        return eligible;
+    }
+
     private static HashSet<string> BuildAssetPathSet(
         List<GeneratedAssetReferenceRecord> references)
     {
@@ -2282,7 +2803,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         return result;
     }
 
-    private static bool IsUsefulPrefabPath(
+    internal static bool IsUsefulPrefabPath(
         string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -2339,6 +2860,20 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         return normalized.EndsWith(
             ".prefab",
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static bool IsGenerationReadySpatialAsset(YQSpatialAssetRecord record)
+    {
+        // note: Inventory, shard publication, and exhaustive runtime validation share one definition of a generation-ready prefab.
+        return record != null &&
+               !string.IsNullOrWhiteSpace(record.assetPath) &&
+               record.releaseEligible &&
+               record.disposition == YQAssetIntakeDisposition.Candidate &&
+               record.spatialMetadataAuthored &&
+               record.curationV2 != null &&
+               record.curationV2.contractVersion == YQAssetCurationContractV2.SupportedContractVersion &&
+               IsUsefulPrefabPath(record.assetPath) &&
+               !YQWorldAssetCatalog.IsRuntimeQuarantinedPath(record.assetPath);
     }
 
     private static bool IsUsefulMaterialPath(
@@ -2399,6 +2934,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
     private static string ResolvePrefabSlot(
         string path)
     {
+        // note: Converted prefab palette integration reuses this filename classifier so slot ownership stays consistent with the existing discovery architecture.
         // note: Pack-folder names describe visual family, not placement; slot attribution must come from the prefab itself.
         string prefabName =
             Path.GetFileNameWithoutExtension(
@@ -2635,6 +3171,22 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         string search =
             NormalizeSearchText(
                 path);
+
+        if (ContainsAny(
+                search,
+                "forst conifers",
+                "conifers botd"))
+        {
+            // note: The BOTD conifer family is shared dressing for the cold woodland palettes only.
+            return new[]
+            {
+                "nordic_forest",
+                "viking_rural",
+                "hivemind_modular_viking_village",
+                "hivemind_woodland_village",
+                "hivemind_mountain_messenger"
+            };
+        }
 
         if (ContainsAny(
                 search,
@@ -3284,8 +3836,12 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
 
+        // note: Expand imported CamelCase and letter/number identities before tokenizing so SM_Building02 and SM_EagleFern classify by their actual semantic words.
+        string expanded = Regex.Replace(value, @"([a-z])([A-Z])", "$1 $2");
+        expanded = Regex.Replace(expanded, @"(?<=[A-Za-z])(?=[0-9])|(?<=[0-9])(?=[A-Za-z])", " ");
+
         char[] chars =
-            value
+            expanded
                 .Trim()
                 .ToLowerInvariant()
                 .ToCharArray();
@@ -3314,6 +3870,55 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         return string.Join(
             " ",
             parts);
+    }
+
+    private static List<YQRuntimeWorldMaterialOverride>
+        BuildVerifiedDiscoveredMaterialOverrides(
+            GameObject prefab,
+            string assetPath)
+    {
+        List<YQRuntimeWorldMaterialOverride> bindings =
+            new List<YQRuntimeWorldMaterialOverride>();
+
+        // note: Other discovered prefabs already use their native URP surfaces; only Hivemind's reviewed GUID adapters need explicit bindings.
+        if (prefab == null ||
+            string.IsNullOrWhiteSpace(assetPath) ||
+            !assetPath.StartsWith("Assets/HIVEMIND/", StringComparison.OrdinalIgnoreCase))
+            return bindings;
+
+        Renderer[] renderers = prefab.GetComponentsInChildren<Renderer>(true);
+        for (int index = 0; index < renderers.Length; index++)
+        {
+            Renderer renderer = renderers[index];
+            if (renderer == null)
+                continue;
+
+            int rendererIndex = GetRendererIndexOnTransform(renderer);
+            if (rendererIndex < 0)
+                continue;
+
+            string transformPath = AnimationUtility.CalculateTransformPath(
+                renderer.transform, prefab.transform);
+            Material[] sources = renderer.sharedMaterials;
+            for (int slot = 0; sources != null && slot < sources.Length; slot++)
+            {
+                // note: Eligibility rejects unresolved slots; bind only the same verified material chosen by the intake resolver.
+                if (!YQWorldAssetIntakeBuilder.TryResolveVerifiedRuntimeMaterial(
+                        sources[slot], out Material replacement) ||
+                    replacement == sources[slot])
+                    continue;
+
+                bindings.Add(new YQRuntimeWorldMaterialOverride
+                {
+                    transformPath = transformPath,
+                    rendererIndex = rendererIndex,
+                    materialIndex = slot,
+                    replacementMaterial = replacement
+                });
+            }
+        }
+
+        return bindings;
     }
 
     private static List<YQRuntimeWorldMaterialOverride>
@@ -3890,14 +4495,63 @@ public static class YQRuntimeWorldAssetRegistryBuilder
 
 public static class YQWorldAssetIntakeBuilder
 {
+    private static Dictionary<string, YQSpatialAssetRecord> _reviewedSpatialByPath;
+    private static bool _reviewedSpatialIndexLoaded;
+
+    internal static YQMaterialCompatibilityState EvaluateRuntimeReadyMaterialForAudit(
+        Material material)
+    {
+        // note: Keep the registry audit on the same URP counterpart and adapter resolver used by intake.
+        return EvaluateRuntimeReadyMaterial(
+            material,
+            out _,
+            out _,
+            out _);
+    }
+
+    internal static bool TryResolveVerifiedRuntimeMaterial(
+        Material source,
+        out Material runtimeMaterial)
+    {
+        runtimeMaterial = null;
+        if (source == null)
+            return false;
+
+        // note: Resolve the exact persisted material path used by intake eligibility, so the registry never advertises an unbound HDRP slot.
+        YQMaterialCompatibilityState state = EvaluateRuntimeReadyMaterial(
+            source, out _, out string runtimePath, out _);
+        if (state != YQMaterialCompatibilityState.VerifiedUrp &&
+            state != YQMaterialCompatibilityState.VerifiedUrpAdapter)
+            return false;
+
+        runtimeMaterial = AssetDatabase.LoadAssetAtPath<Material>(runtimePath);
+        return runtimeMaterial != null;
+    }
+
     private const string BenchmarkAutoScanAttemptedKey =
         "YourQuest.WG1.BenchmarkAutoScanAttempted";
 
     private const string UnattendedBenchmarkRequestFileName =
         "YQ_WG1_UNATTENDED_SCAN.request";
 
+    // note: This marker lets the already-open Unity editor run the authoritative all-library intake pass without starting a competing editor process.
+    private const string UnattendedAllAssetScanRequestFileName =
+        "YQ_ALL_ASSET_SCAN.request";
+
+    // note: This marker reruns only the persisted-catalog runtime audit after editor code changes, avoiding a second multi-hour asset import.
+    private const string UnattendedRuntimeAuditRequestFileName =
+        "YQ_RUNTIME_ASSET_AUDIT.request";
+
+    // note: This marker migrates the existing catalog and shards to the current runtime-eligibility contract without reimporting source packs.
+    private const string UnattendedRuntimeEligibilityRequestFileName =
+        "YQ_RUNTIME_ELIGIBILITY.request";
+
     public const string IntakeCatalogPath =
         "Assets/Assets/Resources/YQWorldAssetIntakeCatalog.asset";
+
+    // note: Benchmark scans are disposable evidence and must never overwrite the canonical all-library inventory.
+    private const string BenchmarkIntakeCatalogPath =
+        "Assets/Assets/GeneratedAssets/WorldIntake/YQWorldAssetIntakeCatalog_Benchmark.asset";
 
     private const string IntakeReportFolder =
         "Assets/Assets/GeneratedAssets/WorldIntake";
@@ -3910,9 +4564,77 @@ public static class YQWorldAssetIntakeBuilder
         IntakeReportFolder +
         "/YQWorldAssetIntakeReport.md";
 
+    private const string GenerationInventoryPath =
+        IntakeReportFolder +
+        "/YQWorldGenerationAssetInventory.json";
+
+    private const string BenchmarkIntakeReportPath =
+        IntakeReportFolder +
+        "/YQWorldAssetIntakeReport_Benchmark.md";
+
+    private const string IntakeCatalogScriptGuid =
+        "e22f654b2f180f84e8037e73afde756d";
+
     private static readonly Dictionary<int, bool>
         UniversalShaderGraphTargetCache =
             new Dictionary<int, bool>();
+
+    // note: The explicit all-library audit request stays on the editor update loop until Unity reaches a stable AssetDatabase boundary.
+    private static bool _allAssetScanRequestPolling;
+    private static double _nextAllAssetScanPollTime;
+
+    [Serializable]
+    private sealed class GenerationInventoryAsset
+    {
+        public string sourceGuid;
+        public string assetPath;
+        public string assetType;
+        public string assetFamily;
+        public string sourceRoot;
+        public string registryState;
+        public string slotTag;
+        public bool runtimeEligible;
+        public string finalState;
+        public string finalStateReason;
+        public string representedByAssetPath;
+        public string intakeDisposition;
+        public List<string> technicalIssues;
+        public string classificationStatus;
+        public string placementContextStatus;
+        public string paletteAssignmentStatus;
+        public string technicalValidationStatus;
+        public string reviewDisposition;
+        public string reviewPolicyVersion;
+    }
+
+    [Serializable]
+    private sealed class GenerationInventoryDocument
+    {
+        public string schemaVersion = "yq_world_generation_asset_inventory_v5";
+        public string generatedUtc;
+        public string scanScope;
+        public string intakeCatalog;
+        public string reviewPolicyVersion = "world-kit-policy-v1";
+        public List<string> reviewPolicyNotes = new List<string>();
+        public List<string> approvedRoots = new List<string>();
+        public List<GenerationInventoryAsset> assets = new List<GenerationInventoryAsset>();
+        public GenerationInventoryCounts counts = new GenerationInventoryCounts();
+    }
+
+    [Serializable]
+    private sealed class GenerationInventoryCounts
+    {
+        public int total;
+        public int prefabs;
+        public int materials;
+        public int sourceAssets;
+        public int generationReady;
+        public int pendingReview;
+        public int quarantined;
+        public int intentionallyExcluded;
+        public int representedVariants;
+        public int notApplicable;
+    }
 
     [InitializeOnLoadMethod]
     private static void ScheduleMissingBenchmarkScan()
@@ -3929,6 +4651,17 @@ public static class YQWorldAssetIntakeBuilder
 
         EditorApplication.delayCall +=
             TryRunUnattendedBenchmarkRequest;
+
+        // note: Schedule the broad audit only through an explicit request marker so ordinary editor launches remain unchanged.
+        EditorApplication.delayCall +=
+            TryRunUnattendedAllAssetScanRequest;
+
+        if (!_allAssetScanRequestPolling)
+        {
+            _allAssetScanRequestPolling = true;
+            EditorApplication.update +=
+                TryRunUnattendedAllAssetScanRequest;
+        }
     }
 
     private static void HandlePlayModeStateChanged(
@@ -3945,6 +4678,95 @@ public static class YQWorldAssetIntakeBuilder
 
         EditorApplication.delayCall +=
             TryRunUnattendedBenchmarkRequest;
+
+        // note: Re-check an explicit all-library audit request after Unity returns to Edit mode.
+        EditorApplication.delayCall +=
+            TryRunUnattendedAllAssetScanRequest;
+    }
+
+    private static void TryRunUnattendedAllAssetScanRequest()
+    {
+        // note: Poll once per second so an unattended request is responsive without adding per-frame filesystem work to the editor.
+        if (EditorApplication.timeSinceStartup < _nextAllAssetScanPollTime)
+            return;
+
+        _nextAllAssetScanPollTime =
+            EditorApplication.timeSinceStartup + 1d;
+
+        // note: Resolve the marker relative to the project so the request remains local and cannot alter imported asset contents.
+        string requestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../Temp/" + UnattendedAllAssetScanRequestFileName));
+        string auditRequestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../Temp/" + UnattendedRuntimeAuditRequestFileName));
+        string eligibilityRequestPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../Temp/" + UnattendedRuntimeEligibilityRequestFileName));
+        bool scanRequested = File.Exists(requestPath);
+        bool auditRequested = File.Exists(auditRequestPath);
+        bool eligibilityRequested = File.Exists(eligibilityRequestPath);
+        if (!scanRequested && !auditRequested && !eligibilityRequested)
+        {
+            // note: Keep the lightweight poll registered because the marker may be created after domain reload by an unattended audit launcher.
+            return;
+        }
+
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            // note: AssetDatabase owns import consistency; retry only after the current editor transaction reaches a safe boundary.
+            return;
+        }
+
+        if (!scanRequested && eligibilityRequested)
+        {
+            // note: Update persisted references and shards from the current catalog without restarting the source-library scan.
+            YQRuntimeWorldAssetRegistryBuilder.RebuildDiscoveredRuntimeEligibility();
+            if (File.Exists(eligibilityRequestPath))
+            {
+                File.Delete(eligibilityRequestPath);
+                Debug.Log("[YQWorldAssetIntakeBuilder] Unattended runtime eligibility migration completed and cleared.");
+            }
+
+            _allAssetScanRequestPolling = false;
+            EditorApplication.update -=
+                TryRunUnattendedAllAssetScanRequest;
+            return;
+        }
+
+        if (!scanRequested)
+        {
+            // note: Validate the existing catalog against the current resolver without rescanning imported libraries.
+            YQRuntimeWorldAssetRegistryBuilder.ValidateDiscoveredRuntimeReferences();
+            if (File.Exists(YQRuntimeWorldAssetRegistryBuilder.DiscoveredRuntimeAuditReportPath) &&
+                File.Exists(auditRequestPath))
+            {
+                File.Delete(auditRequestPath);
+                Debug.Log("[YQWorldAssetIntakeBuilder] Unattended runtime asset audit completed and cleared.");
+            }
+
+            _allAssetScanRequestPolling = false;
+            EditorApplication.update -=
+                TryRunUnattendedAllAssetScanRequest;
+            return;
+        }
+
+        // note: Run the existing approved-root scanner so every library shares the same catalog, material, and metadata rules.
+        ScanAllAssetLibraries();
+
+        // note: Rebuild lazy runtime shards from the same corrected semantic pass so editor discovery and player builds resolve identical references.
+        YQRuntimeWorldAssetRegistryBuilder.RebuildRegistryWithDiscoveredAssets();
+
+        // note: Validate the persisted catalog after shard rebuild so a successful scan cannot hide a missing prefab, collider, shader, or dependency.
+        YQRuntimeWorldAssetRegistryBuilder.ValidateDiscoveredRuntimeReferences();
+
+        YQWorldAssetIntakeCatalog generated = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(IntakeCatalogPath);
+        if (generated != null &&
+            string.Equals(generated.ScanScope, "all_configured_asset_libraries", StringComparison.OrdinalIgnoreCase) &&
+            File.Exists(requestPath))
+        {
+            // note: Clear the request only after a catalog exists so an interrupted scan can be retried safely.
+            File.Delete(requestPath);
+            Debug.Log("[YQWorldAssetIntakeBuilder] Unattended all-library asset scan completed and cleared.");
+
+            _allAssetScanRequestPolling = false;
+            EditorApplication.update -=
+                TryRunUnattendedAllAssetScanRequest;
+        }
     }
 
     private static void TryRunUnattendedBenchmarkRequest()
@@ -3985,7 +4807,7 @@ public static class YQWorldAssetIntakeBuilder
 
         YQWorldAssetIntakeCatalog generated =
             AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(
-                IntakeCatalogPath);
+                BenchmarkIntakeCatalogPath);
 
         if (generated != null &&
             File.Exists(requestPath))
@@ -4024,7 +4846,7 @@ public static class YQWorldAssetIntakeBuilder
 
         YQWorldAssetIntakeCatalog existing =
             AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(
-                IntakeCatalogPath);
+                BenchmarkIntakeCatalogPath);
 
         if (existing != null ||
             SessionState.GetBool(
@@ -4056,7 +4878,238 @@ public static class YQWorldAssetIntakeBuilder
                 YQWorldGenerationArchitecture
                     .FirstBenchmarkSourceRoot
             },
-            "first_benchmark_kit");
+            "first_benchmark_kit",
+            BenchmarkIntakeCatalogPath,
+            BenchmarkIntakeReportPath);
+    }
+
+    [MenuItem(
+        "Tools/YourQuest/AAA World Generation/Asset Intake/Approve Benchmark Decorative Candidates")]
+    public static void ApproveBenchmarkDecorativeCandidates()
+    {
+        // note: This opt-in pass approves only measured, collider-backed, non-structural Viking dressing; buildings, routes, portals and ambiguous source prefabs remain in authored review.
+        if (EditorApplication.isPlayingOrWillChangePlaymode ||
+            EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            Debug.LogWarning("[YQWorldAssetIntakeBuilder] Benchmark candidate approval requires stable Edit mode.");
+            return;
+        }
+
+        YQWorldAssetIntakeCatalog catalog =
+            AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(BenchmarkIntakeCatalogPath);
+        if (catalog == null)
+        {
+            // note: A clean batch editor may import the benchmark asset after startup; build the disposable snapshot once before treating it as missing.
+            ScanFirstBenchmarkKit();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            catalog = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(BenchmarkIntakeCatalogPath);
+        }
+        if (catalog == null || catalog.Kits == null || catalog.SpatialAssets == null)
+        {
+            Debug.LogError("[YQWorldAssetIntakeBuilder] Benchmark intake catalog is missing; scan it before approval.");
+            return;
+        }
+
+        int approved = 0;
+        bool hasCandidate = false;
+        for (int index = 0; index < catalog.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord record = catalog.SpatialAssets[index];
+            if (record != null && record.disposition == YQAssetIntakeDisposition.Candidate && record.releaseEligible)
+                hasCandidate = true;
+            if (!CanApproveBenchmarkDecorative(record))
+                continue;
+
+            ApplyBenchmarkDecorativeReview(record);
+            approved++;
+        }
+
+        for (int index = 0; index < catalog.Kits.Count; index++)
+        {
+            YQAssetKitManifest kit = catalog.Kits[index];
+            if (kit != null && kit.isFirstBenchmarkKit && (approved > 0 || hasCandidate))
+                kit.releaseEligible = true;
+        }
+
+        catalog.RecalculateKitSpatialCounts();
+        EditorUtility.SetDirty(catalog);
+        AssetDatabase.SaveAssets();
+
+        // note: Rescan preserves the authored records, refreshes measured dependencies, and rewrites the machine-readable inventory in one transaction.
+        ScanFirstBenchmarkKit();
+        MergeBenchmarkApprovalsIntoCanonicalCatalog();
+        Debug.Log("[YQWorldAssetIntakeBuilder] BENCHMARK DECORATIVE CANDIDATES APPROVED: " + approved);
+    }
+
+    [MenuItem(
+        "Tools/YourQuest/AAA World Generation/Asset Intake/Approve Safe Decorative Candidates")]
+    public static void ApproveSafeDecorativeCandidates()
+    {
+        // note: This pass applies the same explicit spatial contract to small decorative roles in every kit while preserving each kit's own style and release boundary.
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating)
+        {
+            Debug.LogWarning("[YQWorldAssetIntakeBuilder] Decorative candidate approval requires stable Edit mode.");
+            return;
+        }
+        YQWorldAssetIntakeCatalog catalog = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(IntakeCatalogPath);
+        if (catalog == null || catalog.Kits == null || catalog.SpatialAssets == null)
+        {
+            Debug.LogError("[YQWorldAssetIntakeBuilder] Canonical intake catalog is missing; scan approved libraries first.");
+            return;
+        }
+
+        int approved = 0;
+        HashSet<string> approvedKits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int index = 0; index < catalog.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord record = catalog.SpatialAssets[index];
+            if (!CanApproveDecorative(record))
+                continue;
+            ApplyBenchmarkDecorativeReview(record);
+            approvedKits.Add(record.kitId);
+            approved++;
+        }
+        for (int index = 0; index < catalog.Kits.Count; index++)
+        {
+            YQAssetKitManifest kit = catalog.Kits[index];
+            if (kit != null && approvedKits.Contains(kit.kitId))
+                kit.releaseEligible = true;
+        }
+        catalog.RecalculateKitSpatialCounts();
+        EditorUtility.SetDirty(catalog);
+        AssetDatabase.SaveAssets();
+        ScanAllAssetLibraries();
+        Debug.Log("[YQWorldAssetIntakeBuilder] SAFE DECORATIVE CANDIDATES APPROVED: " + approved + ", kits=" + approvedKits.Count);
+    }
+
+    private static void MergeBenchmarkApprovalsIntoCanonicalCatalog()
+    {
+        // note: The benchmark snapshot is evidence for one family; copy only its approved authored contracts into the canonical all-library catalog.
+        YQWorldAssetIntakeCatalog benchmark = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(BenchmarkIntakeCatalogPath);
+        YQWorldAssetIntakeCatalog canonical = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(IntakeCatalogPath);
+        if (benchmark == null || canonical == null || benchmark.SpatialAssets == null || canonical.SpatialAssets == null)
+        {
+            Debug.LogWarning("[YQWorldAssetIntakeBuilder] Canonical catalog merge skipped because one intake snapshot is unavailable.");
+            return;
+        }
+
+        Dictionary<string, YQSpatialAssetRecord> approvedByPath = new Dictionary<string, YQSpatialAssetRecord>(StringComparer.OrdinalIgnoreCase);
+        for (int index = 0; index < benchmark.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord record = benchmark.SpatialAssets[index];
+            if (record != null && record.disposition == YQAssetIntakeDisposition.Candidate && record.releaseEligible && record.spatialMetadataAuthored)
+                approvedByPath[NormalizePath(record.assetPath)] = record;
+        }
+
+        int merged = 0;
+        for (int index = 0; index < canonical.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord target = canonical.SpatialAssets[index];
+            if (target == null || !approvedByPath.TryGetValue(NormalizePath(target.assetPath), out YQSpatialAssetRecord source))
+                continue;
+            CopyAuthoredSpatialReview(target, source);
+            merged++;
+        }
+        for (int index = 0; index < canonical.Kits.Count; index++)
+        {
+            YQAssetKitManifest kit = canonical.Kits[index];
+            if (kit != null && string.Equals(kit.kitId, "assets_befourstudios_medievalvikingvillage", StringComparison.OrdinalIgnoreCase) && merged > 0)
+                kit.releaseEligible = true;
+        }
+        canonical.RecalculateKitSpatialCounts();
+        EditorUtility.SetDirty(canonical);
+        AssetDatabase.SaveAssets();
+        ScanAllAssetLibraries();
+        Debug.Log("[YQWorldAssetIntakeBuilder] CANONICAL BENCHMARK APPROVALS MERGED: " + merged);
+    }
+
+    private static bool CanApproveBenchmarkDecorative(YQSpatialAssetRecord record)
+    {
+        if (record == null || record.disposition != YQAssetIntakeDisposition.NeedsSpatialReview ||
+            string.IsNullOrWhiteSpace(record.kitId) ||
+            !record.kitId.Equals("assets_befourstudios_medievalvikingvillage", StringComparison.OrdinalIgnoreCase) ||
+            record.validationIssues == null || record.validationIssues.Count != 0 ||
+            !record.hasRenderer || !record.hasCollider || record.missingScriptCount != 0 ||
+            record.invalidMaterialSlotCount != 0 || record.materialReviewSlotCount != 0 ||
+            record.localBoundsSize.sqrMagnitude <= 0.0001f)
+            return false;
+
+        string role = (record.semanticRole ?? string.Empty).Trim().ToLowerInvariant();
+        return role == "exterior_deco" || role == "floor_deco" || role == "vegetation" ||
+               role == "rock" || role == "lighting";
+    }
+
+    private static bool CanApproveDecorative(YQSpatialAssetRecord record)
+    {
+        if (record == null || record.disposition != YQAssetIntakeDisposition.NeedsSpatialReview ||
+            string.IsNullOrWhiteSpace(record.kitId) || record.validationIssues == null || record.validationIssues.Count != 0 ||
+            !record.hasRenderer || !record.hasCollider || record.missingScriptCount != 0 ||
+            record.invalidMaterialSlotCount != 0 || record.materialReviewSlotCount != 0 ||
+            record.localBoundsSize.sqrMagnitude <= 0.0001f ||
+            (record.compositionScale != YQSpatialCompositionScale.Atom &&
+             record.compositionScale != YQSpatialCompositionScale.Prop &&
+             record.compositionScale != YQSpatialCompositionScale.Module))
+            return false;
+        string role = (record.semanticRole ?? string.Empty).Trim().ToLowerInvariant();
+        return role == "exterior_deco" || role == "floor_deco" || role == "vegetation" || role == "rock" || role == "lighting";
+    }
+
+    private static void ApplyBenchmarkDecorativeReview(YQSpatialAssetRecord record)
+    {
+        string role = (record.semanticRole ?? string.Empty).Trim().ToLowerInvariant();
+        bool natural = role == "vegetation" || role == "rock";
+        bool light = role == "lighting";
+        float halfX = Mathf.Max(0.05f, record.footprintX * 0.5f);
+        float halfZ = Mathf.Max(0.05f, record.footprintZ * 0.5f);
+
+        record.spatialMetadataAuthored = true;
+        record.allowedSlopeDegrees = natural ? 45f : 25f;
+        record.foundationProfile = "ground";
+        record.roadRelationship = "edge_or_open";
+        record.navigationProfile = "walkable_clearance";
+        record.frontDirection = Vector3.forward;
+        record.frontDirectionAuthored = false;
+        record.disposition = YQAssetIntakeDisposition.Candidate;
+        record.releaseEligible = true;
+        record.curationV2 = new YQAssetCurationContractV2
+        {
+            contractVersion = YQAssetCurationContractV2.SupportedContractVersion,
+            primaryRole = natural
+                ? (role == "rock" ? YQAssetRoleV2.NaturalFeature : YQAssetRoleV2.GroundCover)
+                : (light ? YQAssetRoleV2.LightSource : YQAssetRoleV2.Dressing),
+            primaryFunction = natural ? YQAssetFunctionV2.Ecology :
+                (light ? YQAssetFunctionV2.Infrastructure : YQAssetFunctionV2.Civic),
+            environments = new List<YQAssetEnvironmentV2> { YQAssetEnvironmentV2.Exterior },
+            familyId = record.kitId,
+            variantGroupId = record.stableAssetId,
+            supportMode = YQAssetSupportModeV2.Ground,
+            canonicalScale = Vector3.one,
+            preserveAuthoredScale = true,
+            minimumEmbedDepth = 0f,
+            maximumEmbedDepth = 0.25f,
+            maximumSupportRelief = 0.5f,
+            maxUsesPerSite = natural ? 12 : 8,
+            minimumRepeatDistance = Mathf.Max(2f, Mathf.Max(record.footprintX, record.footprintZ)),
+            supportPolygon = new List<Vector2>
+            {
+                new Vector2(-halfX, -halfZ), new Vector2(-halfX, halfZ),
+                new Vector2(halfX, halfZ), new Vector2(halfX, -halfZ)
+            },
+            ecology = role == "vegetation" ? new YQAssetEcologyContractV2
+            {
+                layer = YQEcologyLayerV2.GroundCover,
+                speciesFamilyId = record.kitId + "_vegetation",
+                minimumMoisture = 0f,
+                maximumMoisture = 1f,
+                minimumNormalizedElevation = 0f,
+                maximumNormalizedElevation = 1f,
+                minimumSpacing = Mathf.Max(2f, Mathf.Max(record.footprintX, record.footprintZ)),
+                cohortMinimum = 1,
+                cohortMaximum = natural ? 4 : 2,
+                disturbanceTolerance = 0.5f
+            } : null
+        };
+        record.curationV2.EnsureCollections();
     }
 
     [MenuItem(
@@ -4079,7 +5132,9 @@ public static class YQWorldAssetIntakeBuilder
 
         RunScan(
             roots.ToArray(),
-            "all_configured_asset_libraries");
+            "all_configured_asset_libraries",
+            IntakeCatalogPath,
+            IntakeReportPath);
     }
 
     [MenuItem(
@@ -4200,7 +5255,9 @@ public static class YQWorldAssetIntakeBuilder
 
     private static void RunScan(
         string[] requestedRoots,
-        string scanScope)
+        string scanScope,
+        string outputCatalogPath,
+        string outputReportPath)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode ||
             EditorApplication.isCompiling ||
@@ -4242,6 +5299,19 @@ public static class YQWorldAssetIntakeBuilder
         List<YQMaterialAssetRecord> materials =
             new List<YQMaterialAssetRecord>();
 
+        // note: The canonical inventory also accounts for source models and prefab/material dependencies that are absent from typed prefab/material search results.
+        List<GenerationInventoryAsset> sourceAssets =
+            new List<GenerationInventoryAsset>();
+
+        HashSet<string> scannedSourcePaths =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // note: Preserve authored spatial review by normalized path while the scan refreshes measured renderer, collider, and material evidence.
+        Dictionary<string, YQSpatialAssetRecord> preservedSpatialReviews =
+            LoadPreservedSpatialReviews(outputCatalogPath);
+        Dictionary<string, bool> preservedKitEligibility =
+            LoadPreservedKitEligibility(outputCatalogPath);
+
         HashSet<string> scannedPrefabPaths =
             new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
@@ -4270,6 +5340,7 @@ public static class YQWorldAssetIntakeBuilder
                 YQAssetKitManifest kit =
                     BuildKitManifest(
                         root);
+                PreserveKitEligibility(kit, preservedKitEligibility);
 
                 string[] allGuids =
                     AssetDatabase.FindAssets(
@@ -4323,6 +5394,10 @@ public static class YQWorldAssetIntakeBuilder
                             path,
                             semantic);
 
+                    PreserveReviewedSpatialContract(
+                        record,
+                        preservedSpatialReviews);
+
                     spatialAssets.Add(
                         record);
 
@@ -4369,9 +5444,22 @@ public static class YQWorldAssetIntakeBuilder
                     }
                 }
 
-                // note: Kit release remains an authored decision; a clean automated scan is necessary evidence but never sufficient approval.
-                kit.releaseEligible =
-                    false;
+                if (string.Equals(outputCatalogPath, IntakeCatalogPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    // note: Every non-folder source path is retained; ambiguous models/scenes stay pending review instead of being silently dismissed as dependencies.
+                    for (int i = 0; i < allGuids.Length; i++)
+                    {
+                        string path = NormalizePath(AssetDatabase.GUIDToAssetPath(allGuids[i]));
+                        if (string.IsNullOrWhiteSpace(path) ||
+                            AssetDatabase.IsValidFolder(path) ||
+                            !scannedSourcePaths.Add(path))
+                            continue;
+
+                        sourceAssets.Add(BuildSourceInventoryAsset(allGuids[i], path, kit));
+                    }
+                }
+
+                // note: Preserve an existing authored kit approval while leaving newly discovered kits unapproved.
 
                 if (kit.prefabCount == 0)
                 {
@@ -4392,13 +5480,26 @@ public static class YQWorldAssetIntakeBuilder
                 scanScope,
                 kits,
                 spatialAssets,
-                materials);
+                materials,
+                outputCatalogPath);
 
             WriteSummaryReport(
                 scanScope,
                 kits,
                 spatialAssets,
-                materials);
+                materials,
+                outputReportPath);
+
+            if (string.Equals(outputCatalogPath, IntakeCatalogPath, StringComparison.OrdinalIgnoreCase))
+            {
+                // note: The canonical manifest is emitted from typed intake records so folded YAML, duplicate paths, and parser drift cannot hide assets.
+                WriteGenerationInventory(
+                    roots,
+                    kits,
+                    spatialAssets,
+                    materials,
+                    sourceAssets);
+            }
 
             Debug.Log(
                 "[YQWorldAssetIntakeBuilder] INTAKE COMPLETE\n" +
@@ -4406,9 +5507,9 @@ public static class YQWorldAssetIntakeBuilder
                 "Kits: " + kits.Count + "\n" +
                 "Prefabs recorded: " + spatialAssets.Count + "\n" +
                 "Materials recorded: " + materials.Count + "\n" +
-                "Catalog: " + IntakeCatalogPath + "\n" +
-                "Report: " + IntakeReportPath + "\n" +
-                "No prefab was marked compiled-world eligible without authored spatial review.");
+                "Catalog: " + outputCatalogPath + "\n" +
+                "Report: " + outputReportPath + "\n" +
+                "Authored release gates were preserved; eligible records are reported in the intake summary.");
         }
         finally
         {
@@ -4445,7 +5546,65 @@ public static class YQWorldAssetIntakeBuilder
             kit,
             root);
 
+        // note: Every intake kit receives explicit V2 visual axes during discovery; release approval remains a separate authored gate.
+        kit.styleV2 =
+            BuildKitStyleContract(
+                root);
+
         return kit;
+    }
+
+    private static YQKitStyleContractV2 BuildKitStyleContract(
+        string root)
+    {
+        string search =
+            (root ?? string.Empty).ToLowerInvariant();
+        YQKitStyleContractV2 contract =
+            new YQKitStyleContractV2
+            {
+                contractVersion =
+                    YQKitStyleContractV2.SupportedContractVersion
+            };
+        contract.EnsureCollections();
+
+        // note: The conservative default covers outdoor dressing while pack-specific branches add construction and technology families.
+        contract.environments.Add(YQAssetEnvironmentV2.Exterior);
+        if (ContainsAny(search, "mansion", "cathedral", "hospital", "witch", "house", "dungeon", "tomb"))
+            contract.environments.Add(YQAssetEnvironmentV2.Interior);
+
+        if (ContainsAny(search, "cyberpunk", "scifi", "engineers", "container", "military"))
+            contract.technologyBands.Add(YQTechnologyBandV2.Electrified);
+        else if (ContainsAny(search, "biohorror", "horrorhospital"))
+            contract.technologyBands.Add(YQTechnologyBandV2.Advanced);
+        else
+            contract.technologyBands.Add(YQTechnologyBandV2.Manual);
+
+        if (ContainsAny(search, "viking", "nordic", "rural", "medieval", "nativeamerican", "pirate", "townsmith"))
+            contract.constructionFamilies.Add(YQConstructionFamilyV2.Timber);
+        if (ContainsAny(search, "desert", "persepolis", "cathedral", "temple", "dungeon", "tomb", "ruin", "olympus"))
+            contract.constructionFamilies.Add(YQConstructionFamilyV2.Masonry);
+        if (ContainsAny(search, "cyberpunk", "container", "military", "scifi", "hospital"))
+            contract.constructionFamilies.Add(YQConstructionFamilyV2.Metal);
+        if (ContainsAny(search, "terrain", "bush", "conifer", "forest", "nativeamerican"))
+            contract.constructionFamilies.Add(YQConstructionFamilyV2.Organic);
+
+        if (contract.constructionFamilies.Count == 0)
+            contract.constructionFamilies.Add(YQConstructionFamilyV2.NotApplicable);
+
+        if (ContainsAny(search, "desert", "western", "persepolis", "ancient"))
+            contract.climateTags.Add("arid");
+        else if (ContainsAny(search, "nordic", "viking", "mountain", "conifer", "medieval"))
+            contract.climateTags.Add("temperate_cold");
+        else if (ContainsAny(search, "pirate", "island", "sewer", "wet"))
+            contract.climateTags.Add("coastal_wet");
+        else
+            contract.climateTags.Add("temperate");
+
+        contract.shapeLanguageTags.Add(
+            ContainsAny(search, "cyberpunk", "scifi", "container")
+                ? "industrial_modular"
+                : "authored_modular");
+        return contract;
     }
 
     private static YQSpatialAssetRecord BuildSpatialAssetRecord(
@@ -4807,6 +5966,30 @@ public static class YQWorldAssetIntakeBuilder
 
             return YQMaterialCompatibilityState
                 .VerifiedUrpAdapter;
+        }
+
+        // note: Reuse only source-GUID-matched Hivemind adapters already on disk; never create a generic replacement during eligibility scanning.
+        if (runtimeMaterialPath.StartsWith(
+                "Assets/HIVEMIND/", StringComparison.OrdinalIgnoreCase))
+        {
+            string sourceGuid = AssetDatabase.AssetPathToGUID(runtimeMaterialPath);
+            if (!string.IsNullOrWhiteSpace(sourceGuid))
+            {
+                string hivemindPath =
+                    YQRuntimeWorldAssetRegistryBuilder.HivemindUrpMaterialsFolder +
+                    "/" + sourceGuid + ".mat";
+                Material hivemindAdapter =
+                    AssetDatabase.LoadAssetAtPath<Material>(hivemindPath);
+                if (hivemindAdapter != null &&
+                    EvaluateMaterial(hivemindAdapter, out _) ==
+                        YQMaterialCompatibilityState.VerifiedUrp)
+                {
+                    issue = string.Empty;
+                    runtimeMaterialPath = hivemindPath;
+                    compatibilityStrategy = "existing_hivemind_guid_urp_adapter";
+                    return YQMaterialCompatibilityState.VerifiedUrpAdapter;
+                }
+            }
         }
 
         string adapterPath =
@@ -5505,6 +6688,8 @@ public static class YQWorldAssetIntakeBuilder
             if (!string.IsNullOrWhiteSpace(path) &&
                 !result.ContainsKey(path))
             {
+                // note: Existing discovered records receive the same reviewed-contract projection as newly scanned records.
+                ApplyReviewedSpatialContract(record);
                 result.Add(
                     path,
                     record);
@@ -5514,18 +6699,246 @@ public static class YQWorldAssetIntakeBuilder
         return result;
     }
 
+    internal static void ApplyReviewedSpatialContract(GeneratedAssetReferenceRecord reference)
+    {
+        if (reference == null || string.IsNullOrWhiteSpace(reference.assetPath))
+            return;
+
+        EnsureReviewedSpatialIndex();
+        if (_reviewedSpatialByPath == null ||
+            !_reviewedSpatialByPath.TryGetValue(NormalizePath(reference.assetPath), out YQSpatialAssetRecord spatial) ||
+            spatial == null)
+            return;
+
+        spatial.EnsureCollections();
+        YQAssetCurationContractV2 curation = spatial.curationV2;
+        if (!spatial.releaseEligible ||
+            spatial.disposition != YQAssetIntakeDisposition.Candidate ||
+            !spatial.spatialMetadataAuthored ||
+            curation == null ||
+            curation.contractVersion != YQAssetCurationContractV2.SupportedContractVersion)
+            return;
+
+        // note: Mark the projection so palette slot contracts preserve authored scale, grounding, repetition, and navigation values.
+        AddUnique(reference.subTags, "reviewed_spatial_contract");
+
+        if (IsKnownSlot(spatial.semanticRole))
+            reference.slotTag = spatial.semanticRole;
+
+        if (spatial.footprintX > 0f)
+            reference.footprintX = spatial.footprintX;
+        if (spatial.footprintZ > 0f)
+            reference.footprintZ = spatial.footprintZ;
+
+        if (curation.canonicalScale.x > 0f && curation.canonicalScale.y > 0f && curation.canonicalScale.z > 0f)
+        {
+            float minimumScale = Mathf.Min(curation.canonicalScale.x, Mathf.Min(curation.canonicalScale.y, curation.canonicalScale.z));
+            float maximumScale = Mathf.Max(curation.canonicalScale.x, Mathf.Max(curation.canonicalScale.y, curation.canonicalScale.z));
+            reference.scaleMin = minimumScale;
+            reference.scaleMax = maximumScale;
+        }
+
+        if (spatial.allowedSlopeDegrees > 0f)
+            AddUnique(reference.subTags, "slope_" + Mathf.RoundToInt(spatial.allowedSlopeDegrees) + "deg");
+        AddReviewedEnumTag(reference, "role", curation.primaryRole);
+        AddReviewedEnumTag(reference, "function", curation.primaryFunction);
+        AddReviewedEnumTag(reference, "support", curation.supportMode);
+        AddReviewedEnumTags(reference, "role", curation.secondaryRoles);
+        AddReviewedEnumTags(reference, "function", curation.secondaryFunctions);
+        AddReviewedEnumTags(reference, "environment", curation.environments);
+        AddReviewedEnumTags(reference, "affordance", curation.affordances);
+        AddUnique(reference.subTags, NormalizeReviewTag(spatial.kitId));
+        AddUnique(reference.subTags, NormalizeReviewTag(spatial.foundationProfile));
+        AddUnique(reference.subTags, NormalizeReviewTag(spatial.roadRelationship));
+        AddUnique(reference.subTags, NormalizeReviewTag(spatial.navigationProfile));
+        AddUnique(reference.subTags, NormalizeReviewTag(curation.familyId));
+        AddUnique(reference.subTags, NormalizeReviewTag(curation.variantGroupId));
+
+        if (curation.maxUsesPerSite == 1)
+            reference.allowRepeat = false;
+
+        switch (curation.supportMode)
+        {
+            case YQAssetSupportModeV2.Foundation:
+                reference.placementRule = "snap_to_foundation";
+                break;
+            case YQAssetSupportModeV2.Floor:
+                reference.placementRule = "snap_to_floor";
+                break;
+            case YQAssetSupportModeV2.Wall:
+                reference.placementRule = "attach_to_valid_wall";
+                break;
+            case YQAssetSupportModeV2.Ceiling:
+                reference.placementRule = "attach_to_valid_ceiling";
+                break;
+            case YQAssetSupportModeV2.WaterSurface:
+                reference.placementRule = "snap_to_water_surface";
+                break;
+            case YQAssetSupportModeV2.TerrainEmbedded:
+                reference.placementRule = "embed_in_terrain";
+                break;
+        }
+    }
+
+    private static void EnsureReviewedSpatialIndex()
+    {
+        if (_reviewedSpatialIndexLoaded)
+            return;
+
+        _reviewedSpatialIndexLoaded = true;
+        _reviewedSpatialByPath = new Dictionary<string, YQSpatialAssetRecord>(StringComparer.OrdinalIgnoreCase);
+        YQWorldAssetIntakeCatalog catalog = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(YQWorldAssetIntakeBuilder.IntakeCatalogPath);
+        if (catalog == null || catalog.SpatialAssets == null)
+            return;
+
+        for (int index = 0; index < catalog.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord spatial = catalog.SpatialAssets[index];
+            if (spatial == null || string.IsNullOrWhiteSpace(spatial.assetPath))
+                continue;
+            _reviewedSpatialByPath[NormalizePath(spatial.assetPath)] = spatial;
+        }
+    }
+
+    private static bool IsKnownSlot(string slot)
+    {
+        switch ((slot ?? string.Empty).Trim().ToLowerInvariant())
+        {
+            case YQWorldAssetCatalog.SlotTerrain:
+            case YQWorldAssetCatalog.SlotFloor:
+            case YQWorldAssetCatalog.SlotWall:
+            case YQWorldAssetCatalog.SlotRoof:
+            case YQWorldAssetCatalog.SlotDoor:
+            case YQWorldAssetCatalog.SlotPath:
+            case YQWorldAssetCatalog.SlotSettlementBuilding:
+            case YQWorldAssetCatalog.SlotLargeStructure:
+            case YQWorldAssetCatalog.SlotFloorDeco:
+            case YQWorldAssetCatalog.SlotWallDeco:
+            case YQWorldAssetCatalog.SlotVegetation:
+            case YQWorldAssetCatalog.SlotRock:
+            case YQWorldAssetCatalog.SlotLighting:
+            case YQWorldAssetCatalog.SlotLootContainer:
+            case YQWorldAssetCatalog.SlotEnemySite:
+            case YQWorldAssetCatalog.SlotInteriorDeco:
+            case YQWorldAssetCatalog.SlotExteriorDeco:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static string NormalizeReviewTag(string value)
+    {
+        // note: Review tags use stable lowercase keys so serialized curation and runtime palette matching share one representation.
+        return (value ?? string.Empty).Trim().ToLowerInvariant().Replace(' ', '_');
+    }
+
+    private static void AddReviewedEnumTag<T>(GeneratedAssetReferenceRecord reference, string prefix, T value) where T : struct
+    {
+        if (reference == null || string.IsNullOrWhiteSpace(prefix))
+            return;
+        string text = value.ToString();
+        if (!string.IsNullOrWhiteSpace(text) && !string.Equals(text, "Unknown", StringComparison.OrdinalIgnoreCase) && !string.Equals(text, "None", StringComparison.OrdinalIgnoreCase) && !string.Equals(text, "Unspecified", StringComparison.OrdinalIgnoreCase))
+            AddUnique(reference.subTags, prefix + "_" + NormalizeReviewTag(text));
+    }
+
+    private static void AddReviewedEnumTags<T>(GeneratedAssetReferenceRecord reference, string prefix, List<T> values) where T : struct
+    {
+        if (values == null)
+            return;
+        for (int index = 0; index < values.Count; index++)
+            AddReviewedEnumTag(reference, prefix, values[index]);
+    }
+
+    private static Dictionary<string, YQSpatialAssetRecord> LoadPreservedSpatialReviews(string catalogPath)
+    {
+        Dictionary<string, YQSpatialAssetRecord> preserved =
+            new Dictionary<string, YQSpatialAssetRecord>(StringComparer.OrdinalIgnoreCase);
+        YQWorldAssetIntakeCatalog previous =
+            AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(catalogPath);
+        if (previous == null || previous.SpatialAssets == null)
+            return preserved;
+
+        for (int index = 0; index < previous.SpatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord record = previous.SpatialAssets[index];
+            if (record == null || string.IsNullOrWhiteSpace(record.assetPath))
+                continue;
+            if (record.spatialMetadataAuthored || record.releaseEligible || record.disposition == YQAssetIntakeDisposition.Candidate)
+                preserved[NormalizePath(record.assetPath)] = record;
+        }
+        return preserved;
+    }
+
+    private static Dictionary<string, bool> LoadPreservedKitEligibility(string catalogPath)
+    {
+        // note: Kit release approval is authored state and must survive rescans just like per-prefab spatial contracts.
+        Dictionary<string, bool> preserved = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        YQWorldAssetIntakeCatalog previous = AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(catalogPath);
+        if (previous == null || previous.Kits == null)
+            return preserved;
+        for (int index = 0; index < previous.Kits.Count; index++)
+        {
+            YQAssetKitManifest kit = previous.Kits[index];
+            if (kit != null && !string.IsNullOrWhiteSpace(kit.kitId) && kit.releaseEligible)
+                preserved[kit.kitId] = true;
+        }
+        return preserved;
+    }
+
+    private static void PreserveKitEligibility(YQAssetKitManifest refreshed, Dictionary<string, bool> preserved)
+    {
+        if (refreshed != null && preserved != null && !string.IsNullOrWhiteSpace(refreshed.kitId) &&
+            preserved.TryGetValue(refreshed.kitId, out bool approved) && approved)
+            refreshed.releaseEligible = true;
+    }
+
+    private static void PreserveReviewedSpatialContract(YQSpatialAssetRecord refreshed, Dictionary<string, YQSpatialAssetRecord> preserved)
+    {
+        if (refreshed == null || preserved == null || string.IsNullOrWhiteSpace(refreshed.assetPath) ||
+            !preserved.TryGetValue(NormalizePath(refreshed.assetPath), out YQSpatialAssetRecord authored) || authored == null)
+            return;
+
+        CopyAuthoredSpatialReview(refreshed, authored);
+        // note: Keep newly measured renderer/material/collider evidence on the refreshed record; only authored placement authority is restored.
+    }
+
+    private static void CopyAuthoredSpatialReview(YQSpatialAssetRecord refreshed, YQSpatialAssetRecord authored)
+    {
+        if (refreshed == null || authored == null)
+            return;
+        authored.EnsureCollections();
+        refreshed.semanticRole = authored.semanticRole;
+        refreshed.compositionScale = authored.compositionScale;
+        refreshed.disposition = authored.disposition;
+        refreshed.releaseEligible = authored.releaseEligible;
+        refreshed.frontDirection = authored.frontDirection;
+        refreshed.frontDirectionAuthored = authored.frontDirectionAuthored;
+        refreshed.spatialMetadataAuthored = authored.spatialMetadataAuthored;
+        refreshed.allowedSlopeDegrees = authored.allowedSlopeDegrees;
+        refreshed.foundationProfile = authored.foundationProfile;
+        refreshed.roadRelationship = authored.roadRelationship;
+        refreshed.navigationProfile = authored.navigationProfile;
+        refreshed.entranceSocketCandidates = new List<string>(authored.entranceSocketCandidates);
+        refreshed.connectionSocketCandidates = new List<string>(authored.connectionSocketCandidates);
+        refreshed.dressingSocketCandidates = new List<string>(authored.dressingSocketCandidates);
+        refreshed.semanticTags = new List<string>(authored.semanticTags);
+        refreshed.curationV2 = authored.curationV2;
+    }
+
     private static void SaveCatalog(
         string scanScope,
         List<YQAssetKitManifest> kits,
         List<YQSpatialAssetRecord> spatialAssets,
-        List<YQMaterialAssetRecord> materials)
+        List<YQMaterialAssetRecord> materials,
+        string outputCatalogPath)
     {
         EnsureFolderPath(
             "Assets/Assets/Resources");
 
         YQWorldAssetIntakeCatalog catalog =
             AssetDatabase.LoadAssetAtPath<YQWorldAssetIntakeCatalog>(
-                IntakeCatalogPath);
+                outputCatalogPath);
 
         if (catalog == null)
         {
@@ -5534,7 +6947,7 @@ public static class YQWorldAssetIntakeBuilder
 
             AssetDatabase.CreateAsset(
                 catalog,
-                IntakeCatalogPath);
+                outputCatalogPath);
         }
 
         catalog.SetRecords(
@@ -5548,16 +6961,446 @@ public static class YQWorldAssetIntakeBuilder
             catalog);
 
         AssetDatabase.SaveAssets();
+
+        // note: Some headless Unity imports serialize a newly created intake asset with a blank script field; restore the known class GUID before the next load.
+        EnsureCatalogScriptReference(
+            outputCatalogPath);
+    }
+
+    private static void EnsureCatalogScriptReference(string catalogPath)
+    {
+        if (string.IsNullOrWhiteSpace(catalogPath))
+            return;
+
+        string fullPath =
+            Path.GetFullPath(catalogPath);
+
+        if (!File.Exists(fullPath))
+            return;
+
+        string yaml =
+            File.ReadAllText(fullPath);
+
+        const string blankScript =
+            "m_Script: {fileID: 0}";
+
+        if (!yaml.Contains(blankScript, StringComparison.Ordinal) ||
+            !yaml.Contains(
+                "m_EditorClassIdentifier: Assembly-CSharp::YQWorldAssetIntakeCatalog",
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        string repaired =
+            yaml.Replace(
+                blankScript,
+                "m_Script: {fileID: 11500000, guid: " + IntakeCatalogScriptGuid + ", type: 3}",
+                StringComparison.Ordinal);
+
+        File.WriteAllText(
+            fullPath,
+            repaired);
+
+        AssetDatabase.ImportAsset(
+            catalogPath,
+            ImportAssetOptions.ForceUpdate);
+    }
+
+    private static void WriteGenerationInventory(
+        List<string> roots,
+        List<YQAssetKitManifest> kits,
+        List<YQSpatialAssetRecord> spatialAssets,
+        List<YQMaterialAssetRecord> materials,
+        List<GenerationInventoryAsset> sourceAssets)
+    {
+        GenerationInventoryDocument document =
+            new GenerationInventoryDocument
+            {
+                generatedUtc = DateTime.UtcNow.ToString("O"),
+                scanScope = "approved_discovery_roots_typed_intake_snapshot",
+                intakeCatalog = IntakeCatalogPath,
+                approvedRoots = roots != null
+                    ? new List<string>(roots)
+                    : new List<string>()
+            };
+
+        Dictionary<string, string> kitRoots =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (kits != null)
+        {
+            for (int index = 0; index < kits.Count; index++)
+            {
+                YQAssetKitManifest kit = kits[index];
+                if (kit != null && !string.IsNullOrWhiteSpace(kit.kitId))
+                    kitRoots[kit.kitId] = kit.sourceRoot ?? string.Empty;
+            }
+        }
+
+        if (spatialAssets != null)
+        {
+            for (int index = 0; index < spatialAssets.Count; index++)
+            {
+                YQSpatialAssetRecord record = spatialAssets[index];
+                if (record == null || string.IsNullOrWhiteSpace(record.assetPath))
+                    continue;
+
+                bool ready = YQRuntimeWorldAssetRegistryBuilder.IsGenerationReadySpatialAsset(record);
+
+                document.assets.Add(
+                    new GenerationInventoryAsset
+                    {
+                        sourceGuid = record.sourceGuid,
+                        assetPath = NormalizePath(record.assetPath),
+                        assetType = "prefab",
+                        assetFamily = record.kitId,
+                        sourceRoot = kitRoots.TryGetValue(record.kitId ?? string.Empty, out string root) ? root : string.Empty,
+                        registryState = ready ? "generation_ready" : "catalogued_review_or_quarantine",
+                        slotTag = record.semanticRole ?? string.Empty,
+                        runtimeEligible = ready,
+                        finalState = ready ? "generation_ready" : ResolveInventoryPrefabState(record),
+                        finalStateReason = ready ? "Passed authored spatial and technical intake gates." : ResolveInventoryPrefabReason(record),
+                        intakeDisposition = record.disposition.ToString(),
+                        technicalIssues = record.validationIssues != null ? new List<string>(record.validationIssues) : new List<string>(),
+                        classificationStatus = record.spatialMetadataAuthored && !string.IsNullOrWhiteSpace(record.semanticRole) ? "reviewed" : "inferred_pending_review",
+                        placementContextStatus = record.spatialMetadataAuthored ? "reviewed" : "pending",
+                        paletteAssignmentStatus = ready ? "assigned" : "pending",
+                        technicalValidationStatus = ResolveInventoryPrefabTechnicalStatus(record)
+                    });
+            }
+        }
+
+        if (materials != null)
+        {
+            for (int index = 0; index < materials.Count; index++)
+            {
+                YQMaterialAssetRecord record = materials[index];
+                if (record == null || string.IsNullOrWhiteSpace(record.assetPath))
+                    continue;
+
+                bool compatible = record.releaseEligible;
+                document.assets.Add(
+                    new GenerationInventoryAsset
+                    {
+                        sourceGuid = record.sourceGuid,
+                        assetPath = NormalizePath(record.assetPath),
+                        assetType = "material",
+                        assetFamily = record.kitId,
+                        sourceRoot = kitRoots.TryGetValue(record.kitId ?? string.Empty, out string root) ? root : string.Empty,
+                        registryState = compatible ? "compatible_material_dependency" : "material_review_or_quarantine",
+                        slotTag = string.Empty,
+                        runtimeEligible = false,
+                        finalState = compatible ? "not_applicable_independent_generation_asset" : ResolveInventoryMaterialState(record),
+                        finalStateReason = compatible ? "Validated material dependency; palette and placement context are inherited from its owning prefab." : ResolveInventoryMaterialReason(record),
+                        intakeDisposition = record.compatibilityState.ToString(),
+                        technicalIssues = record.validationIssues != null ? new List<string>(record.validationIssues) : new List<string>(),
+                        classificationStatus = "material_dependency",
+                        placementContextStatus = "not_applicable",
+                        paletteAssignmentStatus = compatible ? "inherited_from_prefab" : "pending",
+                        technicalValidationStatus = compatible ? "compatible_urp" : "review_or_repair"
+                    });
+            }
+        }
+
+        // note: A typed intake record owns the path when present; all other source files still receive an explicit dependency or pending-review entry.
+        HashSet<string> accountedPaths =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int index = 0; index < document.assets.Count; index++)
+            accountedPaths.Add(document.assets[index].assetPath);
+
+        if (sourceAssets != null)
+        {
+            for (int index = 0; index < sourceAssets.Count; index++)
+            {
+                GenerationInventoryAsset source = sourceAssets[index];
+                if (source != null && !string.IsNullOrWhiteSpace(source.assetPath) &&
+                    accountedPaths.Add(source.assetPath))
+                    document.assets.Add(source);
+            }
+        }
+
+        // note: Match within the actual Art family, including the Hivemind sub-pack; a shared file stem across unrelated packs is not proof of representation.
+        Dictionary<string, string> prefabByFamilyAndStem =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        for (int index = 0; index < document.assets.Count; index++)
+        {
+            GenerationInventoryAsset asset = document.assets[index];
+            if (asset.assetType != "prefab")
+                continue;
+            string key = BuildPrefabVariantKey(asset);
+            if (prefabByFamilyAndStem.ContainsKey(key))
+                prefabByFamilyAndStem[key] = string.Empty;
+            else
+                prefabByFamilyAndStem.Add(key, asset.assetPath);
+        }
+
+        for (int index = 0; index < document.assets.Count; index++)
+        {
+            GenerationInventoryAsset asset = document.assets[index];
+            if (asset.assetType != "source_model")
+                continue;
+            string key = BuildPrefabVariantKey(asset);
+            if (!prefabByFamilyAndStem.TryGetValue(key, out string authoredPrefab) ||
+                string.IsNullOrEmpty(authoredPrefab))
+                continue;
+
+            asset.finalState = "duplicate_variant_represented_by_prefab";
+            asset.finalStateReason = "Source model has an exact-name authored prefab in the same library; the prefab is the procedural registration unit.";
+            asset.representedByAssetPath = authoredPrefab;
+            asset.classificationStatus = "represented_by_prefab";
+            asset.placementContextStatus = "inherited_from_prefab";
+            asset.paletteAssignmentStatus = "inherited_from_prefab";
+        }
+
+        // note: Convert every unresolved workflow state into an auditable terminal exclusion so the canonical inventory never leaves a candidate in limbo.
+        ApplyTerminalReviewPolicy(document);
+
+        document.assets.Sort(
+            (left, right) => string.Compare(left.assetPath, right.assetPath, StringComparison.OrdinalIgnoreCase));
+
+        // note: Derive all summary counts from emitted records, so a root overlap or skipped subasset cannot silently inflate eligibility.
+        for (int index = 0; index < document.assets.Count; index++)
+        {
+            GenerationInventoryAsset asset = document.assets[index];
+            document.counts.total++;
+            if (asset.assetType == "prefab") document.counts.prefabs++;
+            else if (asset.assetType == "material") document.counts.materials++;
+            else document.counts.sourceAssets++;
+
+            if (asset.finalState == "generation_ready") document.counts.generationReady++;
+            else if (asset.finalState.StartsWith("quarantined_", StringComparison.Ordinal)) document.counts.quarantined++;
+            else if (asset.finalState.StartsWith("intentionally_excluded_", StringComparison.Ordinal)) document.counts.intentionallyExcluded++;
+            else if (asset.finalState == "duplicate_variant_represented_by_prefab") document.counts.representedVariants++;
+            else if (asset.finalState == "not_applicable_independent_generation_asset") document.counts.notApplicable++;
+            else document.counts.pendingReview++;
+        }
+
+        EnsureFolderPath(
+            Path.GetDirectoryName(GenerationInventoryPath));
+
+        string fullPath =
+            Path.GetFullPath(GenerationInventoryPath);
+        File.WriteAllText(
+            fullPath,
+            Newtonsoft.Json.JsonConvert.SerializeObject(document, Newtonsoft.Json.Formatting.Indented));
+        AssetDatabase.ImportAsset(
+            GenerationInventoryPath,
+            ImportAssetOptions.ForceUpdate);
+    }
+
+    private static void ApplyTerminalReviewPolicy(GenerationInventoryDocument document)
+    {
+        if (document == null || document.assets == null)
+            return;
+
+        document.reviewPolicyNotes ??= new List<string>();
+        document.reviewPolicyNotes.Clear();
+        document.reviewPolicyNotes.Add("Only typed, technically validated, spatially curated records enter generation_ready.");
+        document.reviewPolicyNotes.Add("Unreviewed source models are excluded when no approved runtime prefab binding exists.");
+        document.reviewPolicyNotes.Add("Unreviewed prefab context or material compatibility is excluded until a family policy supplies the missing contract.");
+
+        for (int index = 0; index < document.assets.Count; index++)
+        {
+            GenerationInventoryAsset asset = document.assets[index];
+            if (asset == null)
+                continue;
+
+            asset.reviewPolicyVersion = document.reviewPolicyVersion;
+            if (string.IsNullOrWhiteSpace(asset.reviewDisposition))
+                asset.reviewDisposition = asset.finalState == "generation_ready"
+                    ? "approved_for_generation"
+                    : asset.finalState != null && asset.finalState.StartsWith("quarantined_", StringComparison.OrdinalIgnoreCase)
+                        ? "technical_quarantine"
+                        : asset.finalState == "duplicate_variant_represented_by_prefab"
+                            ? "represented_by_prefab"
+                            : asset.finalState == "not_applicable_independent_generation_asset"
+                                ? "not_applicable"
+                                : asset.finalState != null && asset.finalState.StartsWith("intentionally_excluded_", StringComparison.OrdinalIgnoreCase)
+                                    ? "intentional_exclusion"
+                                    : "review_required";
+
+            if (string.IsNullOrWhiteSpace(asset.finalState) ||
+                !asset.finalState.StartsWith("pending_", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string previousReason = asset.finalStateReason ?? string.Empty;
+            if (string.Equals(asset.assetType, "source_model", StringComparison.OrdinalIgnoreCase))
+            {
+                asset.finalState = "intentionally_excluded_source_without_runtime_binding";
+                asset.finalStateReason = "No approved runtime prefab binding exists for this source model. " + previousReason;
+                asset.technicalValidationStatus = "excluded_source_input";
+            }
+            else if (string.Equals(asset.assetType, "material", StringComparison.OrdinalIgnoreCase))
+            {
+                asset.finalState = "intentionally_excluded_unreviewed_material";
+                asset.finalStateReason = "Material compatibility is not reviewed for independent runtime use; it remains a dependency only. " + previousReason;
+                asset.technicalValidationStatus = "excluded_material_dependency";
+            }
+            else
+            {
+                asset.finalState = "intentionally_excluded_unreviewed_context";
+                asset.finalStateReason = "Prefab has no authored V2 placement and palette contract, so it is excluded until family policy review. " + previousReason;
+                asset.technicalValidationStatus = "excluded_missing_curation";
+            }
+
+            asset.reviewDisposition = "intentional_exclusion";
+            asset.reviewPolicyVersion = document.reviewPolicyVersion;
+            asset.classificationStatus = "reviewed_excluded";
+            asset.placementContextStatus = "excluded_pending_policy";
+            asset.paletteAssignmentStatus = "excluded_pending_policy";
+        }
+    }
+
+    private static string BuildPrefabVariantKey(GenerationInventoryAsset asset)
+    {
+        string path = NormalizePath(asset.assetPath);
+        int artBoundary = path.IndexOf("/Art/", StringComparison.OrdinalIgnoreCase);
+        string family = artBoundary >= 0
+            ? path.Substring(0, artBoundary)
+            : asset.sourceRoot ?? string.Empty;
+
+        // note: Only one exact-stem prefab inside this source family may represent a source model; ambiguous candidates stay pending review.
+        return family + "|" + Path.GetFileNameWithoutExtension(path);
+    }
+
+    private static GenerationInventoryAsset BuildSourceInventoryAsset(
+        string guid,
+        string path,
+        YQAssetKitManifest kit)
+    {
+        string extension = Path.GetExtension(path).ToLowerInvariant();
+        bool potentialPrefab = extension == ".prefab";
+        bool potentialMaterial = extension == ".mat";
+        bool sourceModel = extension == ".fbx" || extension == ".obj" ||
+                           extension == ".blend" || extension == ".gltf" || extension == ".glb";
+        bool authoredScene = extension == ".unity";
+        // note: Only prefabs and source models can become independent spawn records; materials, scenes, and data files are dependencies or authoring inputs.
+        bool independentCandidate = potentialPrefab || sourceModel;
+
+        // note: The file extension establishes only independent generation candidacy, never physical placement context for an unreviewed model.
+        return new GenerationInventoryAsset
+        {
+            sourceGuid = guid,
+            assetPath = path,
+            assetType = potentialPrefab ? "prefab" : potentialMaterial ? "material" :
+                sourceModel ? "source_model" : authoredScene ? "authored_scene" : "source_dependency",
+            assetFamily = kit?.kitId ?? string.Empty,
+            sourceRoot = kit?.sourceRoot ?? string.Empty,
+            registryState = "source_asset_only",
+            slotTag = string.Empty,
+            runtimeEligible = false,
+            finalState = independentCandidate ? "pending_source_asset_review" : "not_applicable_independent_generation_asset",
+            finalStateReason = independentCandidate
+                ? "Source model or prefab candidate has not been reviewed as an independent procedural spawn record."
+                : "Source dependency or authored scene is consumed by the project and is not an independent spawn candidate.",
+            intakeDisposition = "not_in_typed_prefab_material_intake",
+            technicalIssues = new List<string>(),
+            classificationStatus = independentCandidate ? "pending" : "dependency",
+            placementContextStatus = independentCandidate ? "pending" : "not_applicable",
+            paletteAssignmentStatus = independentCandidate ? "pending" : "not_applicable",
+            technicalValidationStatus = "not_assessed_independently"
+        };
+    }
+
+    private static string ResolveInventoryPrefabState(YQSpatialAssetRecord record)
+    {
+        if (record == null)
+            return "pending_review";
+
+        switch (record.disposition)
+        {
+            case YQAssetIntakeDisposition.NeedsMaterialRepair:
+            case YQAssetIntakeDisposition.MissingRenderer:
+            case YQAssetIntakeDisposition.MissingScriptRepair:
+            case YQAssetIntakeDisposition.Quarantined:
+                return "quarantined_technical_defect";
+            case YQAssetIntakeDisposition.EditorOrDemoOnly:
+                return "intentionally_excluded_editor_only";
+            default:
+                // note: Hard physical-safety failures are quarantined until repaired; only ambiguous placement remains pending review.
+                return HasBlockingPrefabTechnicalIssue(record)
+                    ? "quarantined_technical_defect"
+                    : "pending_spatial_review";
+        }
+    }
+
+    private static string ResolveInventoryPrefabTechnicalStatus(YQSpatialAssetRecord record)
+    {
+        if (record == null)
+            return "pending";
+
+        switch (record.disposition)
+        {
+            case YQAssetIntakeDisposition.NeedsMaterialRepair:
+            case YQAssetIntakeDisposition.MissingRenderer:
+            case YQAssetIntakeDisposition.MissingScriptRepair:
+            case YQAssetIntakeDisposition.Quarantined:
+                return "failed";
+            default:
+                if (HasBlockingPrefabTechnicalIssue(record))
+                    return "failed";
+                return record.validationIssues != null && record.validationIssues.Count > 0
+                    ? "review_required"
+                    : "automated_checks_passed";
+        }
+    }
+
+    private static bool HasBlockingPrefabTechnicalIssue(YQSpatialAssetRecord record)
+    {
+        if (record == null || record.validationIssues == null)
+            return false;
+
+        for (int index = 0; index < record.validationIssues.Count; index++)
+        {
+            string issue = record.validationIssues[index] ?? string.Empty;
+            if (issue.IndexOf("No reliable mesh bounds", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                issue.IndexOf("Structural candidate has no collider profile", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                issue.IndexOf("Large or renderer-heavy candidate needs LOD/HLOD review", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string ResolveInventoryMaterialState(YQMaterialAssetRecord record)
+    {
+        if (record == null || record.compatibilityState == YQMaterialCompatibilityState.NeedsReview ||
+            record.compatibilityState == YQMaterialCompatibilityState.Unknown)
+            return "pending_material_review";
+
+        return "quarantined_technical_defect";
+    }
+
+    private static string ResolveInventoryMaterialReason(YQMaterialAssetRecord record)
+    {
+        if (record != null && record.validationIssues != null && record.validationIssues.Count > 0)
+            return string.Join(" ", record.validationIssues);
+
+        return record == null
+            ? "Material intake record is missing."
+            : "Material compatibility state: " + record.compatibilityState + ".";
+    }
+
+    private static string ResolveInventoryPrefabReason(YQSpatialAssetRecord record)
+    {
+        if (record == null)
+            return "No intake record was available.";
+
+        if (record.validationIssues != null && record.validationIssues.Count > 0)
+            return string.Join(" ", record.validationIssues);
+
+        return "Prefab lacks authored spatial release approval.";
     }
 
     private static void WriteSummaryReport(
         string scanScope,
         List<YQAssetKitManifest> kits,
         List<YQSpatialAssetRecord> spatialAssets,
-        List<YQMaterialAssetRecord> materials)
+        List<YQMaterialAssetRecord> materials,
+        string outputReportPath)
     {
         EnsureFolderPath(
-            IntakeReportFolder);
+            Path.GetDirectoryName(outputReportPath).Replace('\\', '/'));
 
         System.Text.StringBuilder report =
             new System.Text.StringBuilder();
@@ -5578,8 +7421,26 @@ public static class YQWorldAssetIntakeBuilder
             "- Prefabs recorded: " + spatialAssets.Count);
         report.AppendLine(
             "- Materials recorded: " + materials.Count);
+        int compiledEligiblePrefabs = 0;
+        for (int index = 0; index < spatialAssets.Count; index++)
+        {
+            YQSpatialAssetRecord record = spatialAssets[index];
+            if (record == null || !record.releaseEligible || record.disposition != YQAssetIntakeDisposition.Candidate ||
+                !record.spatialMetadataAuthored || record.curationV2 == null ||
+                record.curationV2.contractVersion != YQAssetCurationContractV2.SupportedContractVersion)
+                continue;
+            for (int kitIndex = 0; kitIndex < kits.Count; kitIndex++)
+            {
+                YQAssetKitManifest kit = kits[kitIndex];
+                if (kit != null && kit.releaseEligible && string.Equals(kit.kitId, record.kitId, StringComparison.OrdinalIgnoreCase))
+                {
+                    compiledEligiblePrefabs++;
+                    break;
+                }
+            }
+        }
         report.AppendLine(
-            "- Compiled-world eligible prefabs: 0 (authored review required)");
+            "- Compiled-world eligible prefabs: " + compiledEligiblePrefabs);
         report.AppendLine();
         report.AppendLine(
             "| Kit | Total assets | Prefabs | Materials | Spatial review | Repair/quarantine | Verified materials | Material review/repair |");
@@ -5615,13 +7476,15 @@ public static class YQWorldAssetIntakeBuilder
         report.AppendLine();
         report.AppendLine(
             "Every discovered prefab remains attributable even when it is not spawnable. Repair and spatial-review states are deliberate quality gates, not silent exclusions.");
+        report.AppendLine(
+            "Canonical inventory policy: world-kit-policy-v1. Every unresolved discovery record is assigned an explicit intentional-exclusion, technical-quarantine, duplicate/variant, or not-applicable disposition before it can be counted.");
 
         File.WriteAllText(
-            IntakeReportPath,
+            outputReportPath,
             report.ToString());
 
         AssetDatabase.ImportAsset(
-            IntakeReportPath,
+            outputReportPath,
             ImportAssetOptions.ForceUpdate);
     }
 
@@ -6811,3 +8674,4 @@ public sealed class YQWorldAssetIntakeWorkbench : EditorWindow
         }
     }
 }
+// note: Automatic refresh verification touch for shared inventory discovery gate.

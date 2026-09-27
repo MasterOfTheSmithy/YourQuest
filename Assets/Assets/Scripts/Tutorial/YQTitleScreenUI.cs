@@ -111,6 +111,29 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         SetOpen(true);
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public bool ContinueSelectedForDevelopmentVerification()
+    {
+        // note: Exercise the visible Continue action with its current selection and normal transition; no fixture, profile rewrite, or readiness bypass is involved.
+        if (!_open || !CanInteract || string.IsNullOrWhiteSpace(_selectedProfileId))
+            return false;
+        ContinueSelected();
+        return _closing;
+    }
+
+    // note: This development-only handoff drives the same profile load and closing transition as the visible Continue button.
+    public bool CompleteCanonicalDevelopmentStartup()
+    {
+        YQProfileSaveSystem profile = YQProfileSaveSystem.Instance;
+        if (profile == null || !profile.EnsureCanonicalDevelopmentProfile(false))
+            return false;
+
+        _selectedProfileId = YQBetaDevelopmentFixture.CanonicalProfileId;
+        CompleteStartupFlow("Canonical beta fixture loaded.");
+        return true;
+    }
+#endif
+
     private void SetOpen(bool value)
     {
         if (_open == value)
@@ -191,8 +214,9 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         _hoverSeen = false;
 
         // note: A neutral cinematic grade replaces the former bright data-grid wash and lets the baked shrine remain the title's visual subject.
-        DrawRect(new Rect(0f, 0f, width, height), new Color(0.001f, 0.006f, 0.016f, 0.30f));
-        DrawRect(new Rect(0f, height * 0.72f, width, height * 0.28f), new Color(0.004f, 0.018f, 0.035f, 0.24f));
+        // note: Keep the wide title environment visible around the menu so the 3D shrine and graded galaxy establish depth instead of disappearing under a full-frame wash.
+        DrawRect(new Rect(0f, 0f, width, height), new Color(0.001f, 0.006f, 0.016f, 0.14f));
+        DrawRect(new Rect(0f, height * 0.72f, width, height * 0.28f), new Color(0.004f, 0.018f, 0.035f, 0.16f));
         DrawDataStreamBackdrop(width, height);
 
         float margin = 56f;
@@ -469,6 +493,8 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         }
 
         CompleteStartupFlow("Loaded save.");
+        // note: Retain which ordinary startup route ran so verification cannot mistake a fixed-profile fixture for manual Continue coverage.
+        Debug.Log("[YQStartupPresentation] Continue selected profile=" + _selectedProfileId);
     }
 
     private void CreateCharacter()
@@ -496,6 +522,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
 
         _selectedProfileId = profileId;
         CompleteStartupFlow("Created " + name + ".");
+        Debug.Log("[YQStartupPresentation] New Journey created profile=" + profileId);
     }
 
     private void DeleteSelected()

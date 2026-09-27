@@ -49,6 +49,18 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     [SerializeField]
     private bool useLazyResourceShards;
+    // note: Approved alpha-cutout grass is shared by native terrain detail batches without duplicating imported textures.
+    [SerializeField] private Texture2D terrainGrassTexture;
+    public Texture2D TerrainGrassTexture
+    {
+        get
+        {
+            // note: Recover the approved grass texture from the curated grass prefab when older registry shards have no serialized texture reference.
+            if (terrainGrassTexture == null)
+                terrainGrassTexture = ResolveTerrainGrassTextureFallback();
+            return terrainGrassTexture;
+        }
+    }
 
     private Dictionary<string, GameObject> _prefabsByPath;
     private Dictionary<string, Material> _materialsByPath;
@@ -61,6 +73,10 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     private static bool _loggedRuntimeSummary;
 
     private static bool _loggedRegistryLoadFailure;
+
+    // note: Inspect each source prefab once per runtime session, including editor-only recovery paths.
+    private static readonly Dictionary<GameObject, bool> PrefabScriptValidity =
+        new Dictionary<GameObject, bool>();
 
     public IReadOnlyList<YQRuntimeWorldAssetEntry> Entries
     {
@@ -82,6 +98,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         _instance = null;
         _loggedRuntimeSummary = false;
         _loggedRegistryLoadFailure = false;
+        PrefabScriptValidity.Clear();
     }
 
     public static YQRuntimeWorldAssetRegistry Instance
@@ -142,6 +159,38 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         return entries;
     }
 
+    private Texture2D ResolveTerrainGrassTextureFallback()
+    {
+        // note: Use an existing imported grass mesh as the runtime source so builds do not synthesize or hardcode a replacement visual asset.
+        const string approvedGrassPrefab =
+            "Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_GrassMesh.prefab";
+        GameObject grassPrefab = ResolvePrefab(approvedGrassPrefab);
+        if (grassPrefab == null)
+            return null;
+
+        Renderer[] renderers = grassPrefab.GetComponentsInChildren<Renderer>(true);
+        for (int index = 0; index < renderers.Length; index++)
+        {
+            Renderer renderer = renderers[index];
+            if (renderer == null)
+                continue;
+
+            Material material = renderer.sharedMaterial;
+            Texture2D texture = null;
+            if (material != null)
+            {
+                // note: URP/HDRP imported vegetation commonly stores its albedo in _BaseTexture rather than Unity's legacy mainTexture slot.
+                texture = material.GetTexture("_BaseTexture") as Texture2D;
+                if (texture == null)
+                    texture = material.mainTexture as Texture2D;
+            }
+            if (texture != null)
+                return texture;
+        }
+
+        return null;
+    }
+
     public GameObject ResolvePrefab(
         string assetPath)
     {
@@ -169,7 +218,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             if (_prefabsByPath.TryGetValue(
                     preferredKey,
                     out GameObject preferredPrefab) &&
-                preferredPrefab != null)
+                preferredPrefab != null &&
+                HasValidPrefabScripts(preferredPrefab, preferredKey))
             {
                 // note: Prefer imported URP variants over HDRP(Default) paths to preserve material/shader compatibility in Play Mode.
                 return preferredPrefab;
@@ -179,7 +229,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
                 AssetDatabase.LoadAssetAtPath<GameObject>(
                     preferredKey);
 
-            if (preferredPrefab != null)
+            if (preferredPrefab != null && HasValidPrefabScripts(preferredPrefab, preferredKey))
                 return preferredPrefab;
         }
 #endif
@@ -187,7 +237,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         if (_prefabsByPath.TryGetValue(
                 key,
                 out GameObject prefab) &&
-            prefab != null)
+            prefab != null && HasValidPrefabScripts(prefab, key))
         {
             return prefab;
         }
@@ -211,11 +261,33 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             AssetDatabase.LoadAssetAtPath<GameObject>(
                 key);
 
-        if (prefab != null)
+        if (prefab != null && HasValidPrefabScripts(prefab, key))
             return prefab;
 #endif
 
         return null;
+    }
+
+    private static bool HasValidPrefabScripts(GameObject prefab, string assetPath)
+    {
+        if (prefab == null)
+            return false;
+        if (PrefabScriptValidity.TryGetValue(prefab, out bool valid))
+            return valid;
+
+        // note: All resolve paths share this gate so direct asynchronous spawns cannot bypass registry script safety.
+        MonoBehaviour[] behaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] != null)
+                continue;
+            PrefabScriptValidity[prefab] = false;
+            Debug.LogWarning("[YQRuntimeWorldAssetRegistry] Rejected prefab with missing script reference: " + assetPath, prefab);
+            return false;
+        }
+
+        PrefabScriptValidity[prefab] = true;
+        return true;
     }
 
 #if UNITY_EDITOR
@@ -326,9 +398,51 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         return null;
     }
 
+    // note: Let simple generated geometry reuse the registry's baked first material slot without instantiating and repairing a full imported prefab.
+    internal bool TryResolveFirstRuntimeMaterial(
+        string assetPath,
+        out Material material)
+    {
+        material = null;
+        if (string.IsNullOrWhiteSpace(assetPath))
+            return false;
+
+        EnsureLookup();
+        string key = NormalizePath(assetPath);
+        if (string.IsNullOrWhiteSpace(key))
+            return false;
+
+        if (TryGetLazyShard(key, out YQRuntimeWorldAssetRegistry shard) && shard != null)
+            return shard.TryResolveFirstRuntimeMaterial(key, out material);
+
+        if (_entriesByPath == null ||
+            !_entriesByPath.TryGetValue(key, out YQRuntimeWorldAssetEntry entry) ||
+            entry == null)
+            return false;
+
+        if (entry.material != null)
+        {
+            material = entry.material;
+            return true;
+        }
+
+        if (entry.materialOverrides == null)
+            return false;
+        for (int index = 0; index < entry.materialOverrides.Count; index++)
+        {
+            YQRuntimeWorldMaterialOverride binding = entry.materialOverrides[index];
+            if (binding == null || binding.replacementMaterial == null)
+                continue;
+            material = binding.replacementMaterial;
+            return true;
+        }
+        return false;
+    }
+
     public int ApplyMaterialOverrides(
         string assetPath,
-        GameObject instance)
+        GameObject instance,
+        bool repairHierarchy = true)
     {
         if (instance == null ||
             string.IsNullOrWhiteSpace(assetPath))
@@ -349,10 +463,9 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
                 out YQRuntimeWorldAssetRegistry shard))
         {
             // note: Persisted renderer-slot repairs are keyed by the authored palette path; rewriting an HDRP key to an empty URP sibling previously bypassed both the shard binding and emergency hierarchy conversion.
-            return
-                shard.ApplyMaterialOverrides(
-                    key,
-                    instance);
+            int shardApplied = shard.ApplyMaterialOverrides(key, instance, repairHierarchy);
+            SanitizeRuntimeLodGroups(instance);
+            return shardApplied;
         }
 
         if (_entriesByPath == null ||
@@ -364,7 +477,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             entry.materialOverrides.Count == 0)
         {
             // note: Assets without persisted slot adapters receive only the safe unsupported-shader pass; forcing every material through a generic clone can destroy curated source assignments.
-            YQRuntimeUrpMaterialRepair.RepairMaterialHierarchy(instance);
+            if (repairHierarchy)
+                YQRuntimeUrpMaterialRepair.RepairMaterialHierarchy(instance);
 
             return 0;
         }
@@ -441,10 +555,83 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             applied++;
         }
 
-        // note: Persisted adapters are authoritative. A final scoped pass repairs only missing or unsupported residual slots instead of cloning the complete reviewed hierarchy.
-        YQRuntimeUrpMaterialRepair.RepairMaterialHierarchy(instance);
+        // note: Persisted adapters are authoritative; streamed callers can defer the residual hierarchy pass to the cooperative repair coroutine.
+        if (repairHierarchy)
+            YQRuntimeUrpMaterialRepair.RepairMaterialHierarchy(instance);
+        SanitizeRuntimeLodGroups(instance);
 
         return applied;
+    }
+
+    private static void SanitizeRuntimeLodGroups(GameObject instance)
+    {
+        if (instance == null)
+            return;
+        LODGroup[] groups = instance.GetComponentsInChildren<LODGroup>(true);
+        for (int groupIndex = 0; groupIndex < groups.Length; groupIndex++)
+        {
+            LODGroup group = groups[groupIndex];
+            if (group == null)
+                continue;
+            LOD[] source = group.GetLODs();
+            if (source == null || source.Length == 0)
+                continue;
+            List<LOD> repaired = new List<LOD>(source.Length);
+            bool changed = false;
+            for (int lodIndex = 0; lodIndex < source.Length; lodIndex++)
+            {
+                Renderer[] renderers = source[lodIndex].renderers ?? Array.Empty<Renderer>();
+                List<Renderer> valid = new List<Renderer>(renderers.Length);
+                for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+                    if (renderers[rendererIndex] != null)
+                        valid.Add(renderers[rendererIndex]);
+                if (valid.Count == 0)
+                {
+                    changed = true;
+                    continue;
+                }
+                if (valid.Count != renderers.Length)
+                    changed = true;
+                LOD lod = source[lodIndex];
+                lod.renderers = valid.ToArray();
+                repaired.Add(lod);
+            }
+            SanitizeLodTransitionHeights(repaired, ref changed);
+            if (changed && repaired.Count > 0)
+            {
+                // note: Imported LOD assets can contain null renderers or unordered transition heights; repair the runtime instance while preserving its authored renderer order.
+                group.SetLODs(repaired.ToArray());
+            }
+        }
+    }
+
+    private static void SanitizeLodTransitionHeights(List<LOD> lods, ref bool changed)
+    {
+        if (lods == null || lods.Count == 0)
+            return;
+
+        const float minimumTransitionGap = 0.001f;
+        float previousTransitionHeight = 1f;
+        for (int index = 0; index < lods.Count; index++)
+        {
+            LOD lod = lods[index];
+            float original = lod.screenRelativeTransitionHeight;
+            float transition = original;
+            int remainingLods = lods.Count - index - 1;
+            float minimumAllowed = minimumTransitionGap * remainingLods;
+            float maximumAllowed = index == 0 ? 1f : previousTransitionHeight - minimumTransitionGap;
+
+            if (float.IsNaN(transition) || float.IsInfinity(transition))
+                transition = maximumAllowed;
+            transition = Mathf.Clamp(transition, minimumAllowed, Mathf.Max(minimumAllowed, maximumAllowed));
+            if (Mathf.Abs(transition - original) > 0.000001f)
+                changed = true;
+
+            // note: Unity requires each lower-detail transition to be strictly below its higher-detail predecessor.
+            lod.screenRelativeTransitionHeight = transition;
+            lods[index] = lod;
+            previousTransitionHeight = transition;
+        }
     }
 
     public bool ContainsPath(

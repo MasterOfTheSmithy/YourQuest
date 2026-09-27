@@ -897,6 +897,17 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         if (HasTerminalPopulationFailure)
             return;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (IsCanonicalDevelopmentFixtureActive() &&
+            !YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked)
+        {
+            // note: The canonical beta fixture uses the existing validated fallback records so baseline timing never depends on an optional local model service.
+            while (_activeBatchIndex < _batchTargets.Count && !_requestInFlight)
+                AcceptDeterministicFallbackForCurrentBatch("Canonical beta fixture deterministic population.");
+            return;
+        }
+#endif
+
         if (_activeBatchIndex >=
             _batchTargets.Count)
         {
@@ -952,6 +963,18 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             planKey,
             batch);
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private bool IsCanonicalDevelopmentFixtureActive()
+    {
+        // note: Restrict deterministic population to the explicitly named dev profile; production player profiles retain their normal LLM scheduling contract.
+        return YQProfileSaveSystem.Instance != null &&
+            string.Equals(
+                YQProfileSaveSystem.Instance.ActiveProfileId,
+                YQBetaDevelopmentFixture.CanonicalProfileId,
+                StringComparison.OrdinalIgnoreCase);
+    }
+#endif
 
     [ContextMenu("Generate Missing Canonical NPCs")]
     public void GenerateMissingCanonicalNpcs()
@@ -1351,6 +1374,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
         string prompt =
             BuildPopulationPrompt(
+                player,
                 plan,
                 target,
                 _activeBatchIndex + 1 < _batchTargets.Count
@@ -2867,6 +2891,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             "NPC_BATCH_VOICE_RULES:\n" +
             "- Provide completion, nextPrelude, and 3-5 ambientLines after every required NPC object is complete.\n" +
             "- completion and ambientLines describe the accepted inhabitants as becoming present now; nextPrelude may use only NEXT_CONFIRMED_OPERATION.\n" +
+            "- When PLAYER_ORIGIN or GODDESS_QUESTIONNAIRE_PRESENTATION_CONTEXT is supplied, weave one relevant player choice or remembered behavior into the Goddess's thought instead of using a generic welcome.\n" +
             "- Prefer one useful social or practical observation supported by roles, routines, services, authority, trade, or a named NPC.\n" +
             "- NPC beliefs and private concerns remain attributed beliefs; never convert them into objective lore or combine them into a hidden theory.\n" +
             "- Do not write a census, checklist, prophecy, command, coder joke, generic verdict, or catchphrase.\n";
@@ -3244,6 +3269,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
     // ============================================================
 
     private static string BuildPopulationPrompt(
+        PlayerState player,
         GeneratedWorldPlanRecord plan,
         PopulationBatchTarget target,
         PopulationBatchTarget nextTarget,
@@ -3278,6 +3304,10 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         context.AppendLine(
             "WORLD_SEED: " +
             plan.worldSeed);
+
+        // note: Population voice can remember the player's committed direction and recent journey without making those memories canonical NPC facts.
+        context.AppendLine(
+            YQGoddessLoadingVoice.BuildQuestionnaireContextForPrompt(player));
 
         context.AppendLine(
             "BATCH: " +
@@ -5265,6 +5295,11 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 BuildRuntimeDescription(
                     generated);
 
+            string canonicalFactionId =
+                ResolveCanonicalFactionId(
+                    plan,
+                    generated);
+
             if (existing != null)
             {
                 existing.name =
@@ -5274,7 +5309,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                     description;
 
                 existing.factionId =
-                    generated.factionId;
+                    canonicalFactionId;
 
                 if (string.IsNullOrWhiteSpace(
                         existing.locationId))
@@ -5311,7 +5346,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                         description,
 
                     factionId =
-                        generated.factionId,
+                        canonicalFactionId,
 
                     locationId =
                         locationId,
@@ -5333,6 +5368,52 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                         now
                 });
         }
+    }
+
+    private static string ResolveCanonicalFactionId(
+        GeneratedWorldPlanRecord plan,
+        GeneratedNpcPlanRecord generated)
+    {
+        if (plan == null || generated == null || plan.factions == null)
+            return string.Empty;
+
+        for (int index = 0; index < plan.factions.Count; index++)
+        {
+            GeneratedFactionPlanRecord faction = plan.factions[index];
+            if (faction != null && !string.IsNullOrWhiteSpace(faction.factionId) &&
+                string.Equals(faction.factionId, generated.factionId, StringComparison.OrdinalIgnoreCase))
+                return faction.factionId;
+        }
+
+        string regionId = generated.regionId ?? string.Empty;
+        string fallback = string.Empty;
+        bool generatedHostile = generated.hostile ||
+            (generated.archetype ?? string.Empty).IndexOf("hostile", StringComparison.OrdinalIgnoreCase) >= 0;
+        for (int index = 0; index < plan.factions.Count; index++)
+        {
+            GeneratedFactionPlanRecord faction = plan.factions[index];
+            if (faction == null || string.IsNullOrWhiteSpace(faction.factionId) ||
+                !string.Equals(faction.homeRegionId, regionId, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(fallback))
+                fallback = faction.factionId;
+
+            bool factionHostile = IsHostileFactionKind(faction.factionKind);
+            if (factionHostile == generatedHostile)
+                return faction.factionId;
+        }
+
+        // note: Never persist a guessed faction identity; an unresolved optional link is safer than an illegal reference.
+        return fallback;
+    }
+
+    private static bool IsHostileFactionKind(string factionKind)
+    {
+        string normalized = factionKind ?? string.Empty;
+        return normalized.IndexOf("monster", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("raider", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("hostile", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static string BuildRuntimeDescription(

@@ -50,6 +50,7 @@ public sealed class LLMGenerationProfile
 public sealed class LLMRuntimeConfig : ScriptableObject
 {
     [Header("Backend")]
+    // note: The no-config runtime owns and routes through the local llama.cpp server; an explicit asset can opt into another backend.
     public YQLlmBackend backend = YQLlmBackend.LlamaCpp;
     public bool enableRuntimeLlm = true;
 
@@ -65,6 +66,9 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     public bool enableFlashAttention = true;
     public bool keepKvCacheInSystemRam = false;
     public bool closeOwnedServerOnQuit = true;
+    // note: Release VRAM after a quiet period while leaving externally managed servers untouched.
+    public bool closeOwnedServerWhenIdle = true;
+    [Range(5, 300)] public int ownedServerIdleTimeoutSeconds = 45;
     [Range(1, 60)] public int startupTimeoutSeconds = 30;
     [Range(1, 5)] public int startupRecoveryAttempts = 1;
     [Range(1, 5)] public int helpProbeTimeoutSeconds = 2;
@@ -78,6 +82,8 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Range(16, 512)] public int promptMicroBatchSize = 32;
     [Range(0, 100)] public int serverPollingPercent = 0;
     public bool staggerResponseHandoffAcrossFrames = true;
+    // note: A bounded high-priority burst gives player-facing work preference without starving queued background curation.
+    [Range(1, 8)] public int maxConsecutiveHighPriorityRequests = 3;
 
     [Header("Legacy Ollama")]
     public string ollamaModel = "llama3.1";
@@ -96,6 +102,10 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Range(0.1f, 10f)] public float retryBaseDelaySeconds = 0.75f;
     [Range(0.1f, 30f)] public float retryMaxDelaySeconds = 4f;
     [Range(256, 12000)] public int maxStoredDiagnosticCharacters = 2400;
+    // note: Responses are rejected whole when they exceed this ceiling, preventing partial JSON or oversized prose from reaching domain code.
+    [Range(1024, 100000)] public int maxResponseCharacters = 60000;
+    // note: A stalled exclusive owner must not hold the queue forever if its scene/service disappears before releasing explicitly.
+    [Range(15, 600)] public int exclusiveSequenceTimeoutSeconds = 120;
 
     [Header("Profiles")]
     public LLMGenerationProfile[] generationProfiles = CreateDefaultProfiles();

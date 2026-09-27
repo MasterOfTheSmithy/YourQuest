@@ -7,20 +7,12 @@ public static class NpcDialogueMemoryStore
 {
     private const string FolderName = "NpcDialogue";
 
-    private static string RootDir
-    {
-        get
-        {
-            string dir = Path.Combine(Application.persistentDataPath, FolderName);
-            Directory.CreateDirectory(dir);
-            return dir;
-        }
-    }
 
     private static string MemPath(string npcEntityId)
     {
-        npcEntityId = string.IsNullOrWhiteSpace(npcEntityId) ? "entity_unknown" : npcEntityId.Trim();
-        return Path.Combine(RootDir, $"{npcEntityId}_mem.json");
+        // note: Long-term memory and transcripts share the same profile ownership and safe ID rules.
+        return NpcDialogueSessionStore.BuildScopedStoragePath(Application.persistentDataPath,
+            PlayerStateManager.Instance?.state?.playerId, FolderName, npcEntityId, "_mem.json");
     }
 
     public static bool TryLoad(string npcEntityId, out NpcDialogueMemory mem)
@@ -43,6 +35,7 @@ public static class NpcDialogueMemoryStore
         try
         {
             if (mem == null) return false;
+            Directory.CreateDirectory(Path.GetDirectoryName(MemPath(npcEntityId)));
             return JsonFileStore.TrySave(MemPath(npcEntityId), mem);
         }
         catch (Exception ex)

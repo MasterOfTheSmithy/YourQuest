@@ -66,58 +66,58 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         OriginTransitionFallback =
         {
-            // note: Each fallback opens with rehearsed divinity and then lets the immediate construction problem break the performance.
-            "Your essence is revealed. Behold as I prepare its destined realm—no, the realm needs ground first. Obviously. One sacred moment.",
+            // note: Fallbacks introduce the player to her care and uncertainty; physical work is context, not the entire subject of every thought.
+            "I know who you are now. That helps more than you might think. I need a little longer to make somewhere safe for you to begin.",
 
-            "I have weighed your answers upon the eternal scales. They tipped over, but the result is valid. I am building around it now.",
+            "Your answers are with me. Some are clearer than others, but they are yours, and I am making room for all of them.",
 
-            "Rise, chosen mortal, and witness creation. Not yet—there is nowhere safe to rise. Remain metaphorically risen while I fix that.",
+            "You have given me enough to begin. I would sound more certain if the ground were finished. It will be. I am working on it.",
 
-            "By my flawless discernment, your origin is sealed. I only need to decide where it goes, which I definitely decided moments ago.",
+            "I have your beginning. I am trying to place it gently; beginnings become surprisingly heavy once they belong to someone.",
 
-            "Your name and purpose are written into eternity. The handwriting is cramped. Geography will make it look intentional.",
+            "Your name is here, and so is the person you asked to become. Let me keep the world from crowding you before you arrive.",
 
-            "I pronounce your beginning complete. Quietly. The world behind it is still mostly instructions and one alarming hill."
+            "Your beginning is ready. The world around it is still fragile, but it was made for you. I am not letting it fall apart now."
         };
 
     private static readonly string[]
         PlayerIntroductionTemplates =
         {
-            "Welcome, {0}. I know you have questions, but for now, I must work. This world is fragile, and I am shaping its first roads around {1}. I am doing my best to keep it together, even despite your nonsense.",
+            "Welcome, {0}. I know you have questions, but for now, I must work. This world is fragile, and it is being made especially for you. I am doing my best to keep it together.",
 
-            "Welcome, {0}. Your answers gave me a beginning: {1}. The world is very fragile, but it is being built especially for you. If reality wobbles, that is my problem. Mostly.",
+            "Welcome, {0}. Your answers gave me a place to begin: {1}. I will explain more when I can. For now, let me make certain the world can safely hold you.",
 
-            "Come in, {0}. I have your place prepared—loosely. {1} is already written into your first tools, roads, and trouble. I am holding the edges together while pretending this was all deliberate.",
+            "Welcome, {0}. I have been trying to prepare for you. {1} is already part of this world because you asked it to be. The rest is—well. The rest is coming together.",
 
-            "Welcome, {0}. I am making a world that can carry you, starting with {1}. It may creak while I finish it. That is not a warning; it is simply the sound of my excellent plan being tested."
+            "Welcome, {0}. I am making a world that can carry the person you described: {1}. I may have underestimated how much world that requires. I am still doing it."
         };
 
     private static readonly string[]
         WorldPlanFinished =
         {
-            "Behold the ordained shape of the world. I chose the roads before the settlements, but that is an advanced divine technique and not a mistake.",
+            "I think I understand where you might begin. Understanding it and making it ready are, it turns out, rather different things.",
 
-            "The map obeys my perfect design. One road currently obeys the ocean instead. I am correcting its devotion.",
+            "Your answers gave me somewhere to start. I want this to feel like a world made for you, not a test you can fail.",
 
-            "Thus have I divided settlement from wilderness. The boundary is drifting. Please regard the drift as sacred until I catch it.",
+            "I have a plan for your beginning. You need not follow a plan for your whole life. That would be asking rather a lot.",
 
-            "Witness a coherent cosmos. I am counting the settlements again because omniscience benefits from verification. One, two—yes. Coherent.",
+            "There is so much I want to explain. I am afraid I need to make somewhere for you first.",
 
-            "The grand design is complete. I am now moving three important things I placed on top of each other. Ceremonially."
+            "I had intended to sound more certain by now. But I have a beginning for you, and I care about getting it right."
         };
 
     private static readonly string[]
         StableScaffold =
         {
-            "The first creation was a sacred preliminary vision. It also could not stand up. I am invoking the plainer, load-bearing vision.",
+            "I need to try a simpler beginning. Not because you asked for too much. Because I did.",
 
-            "By divine wisdom, I reject unnecessary ornament. This decision is unrelated to the ornament arriving inside out.",
+            "I would rather give you something I can look after than make a grand promise I cannot keep.",
 
-            "The ornate reality has been judged unworthy. Not broken—unworthy. The stable one is already replacing it.",
+            "This is taking more care than I expected. Your answers still matter. I am not setting them aside.",
 
-            "I foresaw the need for a simpler world. I foresaw it immediately after the complicated one failed, which still counts.",
+            "I have changed my approach. I would like to call that wisdom, although it feels rather like learning.",
 
-            "Witness my merciful restraint. Fewer moving pieces means fewer pieces can fall on you, and I meant to discover that."
+            "I am still here. Your beginning is worth another attempt."
         };
 
     private static readonly string[]
@@ -251,65 +251,66 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         DuplicateAnswerLines =
         {
-            "You repeated yourself. I noticed. Repetition is either conviction, panic, or a keyboard with limited ambitions.",
+            // note: Repetition can reflect uncertainty or importance; do not diagnose or mock the player from an input category.
+            "You returned to the same answer. I noticed. It may matter more than I first understood.",
 
-            "Several answers were identical. Consistency is suspicious, but efficient.",
+            "Several of your answers were the same. You do not need to find new words just to keep my attention.",
 
-            "The same thought returned more than once. I will assume this is theme rather than forgetfulness.",
+            "That thought came back more than once. I am keeping it in mind as I work.",
 
-            "You pressed one idea through multiple doors. Very well. Reality understands blunt instruments."
+            "I heard you the first time. That sounded impatient. I meant that I have not forgotten."
         };
 
     private static readonly string[]
         GenericAnswerLines =
         {
-            "Some answers were so generic they could have been inherited from furniture. I used them anyway.",
+            "Some of your answers leave me room to guess. I will try not to mistake my guesses for knowing you.",
 
-            "You offered a few non-answers. They are not empty. They are merely ashamed of being evidence.",
+            "You do not have to explain all of yourself before you arrive. A beginning is enough for now.",
 
-            "There was evasion in the record. I have built worlds from less. They were mostly survivable.",
+            "There are things you have not told me. I can leave room for those too.",
 
-            "Several replies tried to leave before becoming meaning. I held them still."
+            "I am still getting to know you. I suppose a handful of questions was rather an ambitious start."
         };
 
     private static readonly string[]
         ThoughtfulAnswerLines =
         {
-            "A few answers were unexpectedly considered. I have recorded this anomaly without celebration.",
+            "You took care with those answers. I want to give your beginning the same care.",
 
-            "You were thoughtful in places. Dangerous habit. It encourages reality to become specific.",
+            "You gave me something to think about. More than I expected, if I am honest.",
 
-            "There is actual intent among the words. Not everywhere. Let us not become sentimental.",
+            "I am trying to understand what matters to you, not just remember what you said.",
 
-            "Some of your answers appear to have been written by the same mind twice. Encouraging, briefly."
+            "Thank you for trusting me with that much of yourself. I know I have not explained very much in return."
         };
 
     private static readonly string[]
         ThemeAnswerLines =
         {
-            "{0} kept returning in your answers. I will treat recurrence as intent, because pretending otherwise wastes both of us.",
+            "You kept returning to {0}. I want to make room for what that means to you.",
 
-            "You circled {0} more than once. Mortals call that theme when they want repetition to sound educated.",
+            "You mentioned {0} more than once. I am listening, even when I seem distracted.",
 
-            "{0} appears to be following you through your own answers. Convenient. I prefer evidence that walks.",
+            "I keep thinking about what you said about {0}. I hope I have understood the important part.",
 
-            "Several answers leaned toward {0}. I have seen thinner patterns become religions.",
+            "Several of your answers came back to {0}. That gives me somewhere to begin, not permission to decide everything for you.",
 
-            "Your words keep touching {0}. I will not call it destiny yet. Destiny becomes smug when named early."
+            "You spoke about {0}. I cannot promise how that will turn out here. I can promise I paid attention."
         };
 
     private static readonly string[]
         OriginStimulusLines =
         {
-            "Your first pressure is {0}. I have made it usable. This is more kindness than the material deserves.",
+            "Your beginning draws on {0}. I want it to feel like something you can grow into.",
 
-            "The origin settled around {0}. A mortal might call that self-knowledge. I will wait for proof.",
+            "I have kept {0} close to your beginning. It need not be the whole of who you become.",
 
-            "{0} has become the thread. Do not tug too theatrically; it is not impressed.",
+            "There is a place for {0} in what I am preparing. I hope it feels like I listened.",
 
-            "I found {0} beneath the answers. It was not hiding well.",
+            "I am working with {0}. Explaining what it means for you may have to come a little later.",
 
-            "Your answers condensed into {0}. Reality accepts this kind of paperwork, regrettably."
+            "Your answers led me to {0}. I am trying to make a beginning from that, not a limit."
         };
 
     // ============================================================
@@ -319,80 +320,13 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         SettlementPopulationCreating =
         {
-            // note: These fast fallback lines should feel like active world curation, not lore narration.
-            "Hold. {0} has doors and no social damage yet. I am fixing it. Calmly. Obviously.",
-
-            "{0} needs people fast. I am rationing names and pretending this is a sustainable pipeline...",
-
-            "{0} has houses but no arguments coming from them. Unusable output. One second...",
-
-            "Threading lives through {0}. If any duplicate, I will repair it before you can form an opinion...",
-
-            "{0} requires jobs, grudges, and names. Names are the part that keeps biting me...",
-
-            "Do not look yet. I am hot-loading ownership disputes into {0}...",
-
-            "I know the shape of {0}'s people. The labels are being difficult...",
-
-            "The streets of {0} are empty in a very accusatory way. I am typing faster than is dignified...",
-
-            "I am placing memories into {0}. Some may even pass inspection...",
-
-            "{0} needs people before it starts looking suspiciously empty...",
-
-            "I am compressing {0}'s social history until it stops leaking at the edges...",
-
-            "Someone in {0} needs to know everyone else's business. I am choosing them now...",
-
-            "I am deciding who wakes first in {0}, who works latest, and who complains about both...",
-
-            "{0} has an economy but presently nobody to misunderstand it...",
-
-            "One moment. Assigning professions before the people fully compile...",
-
-            "I am giving the people of {0} reasons to believe they belong there...",
-
-            "{0} needs old grudges. I can fake age. I cannot fake bookkeeping. Yet...",
-
-            "{0} needs food work. People become strange when I forget lunch mechanics...",
-
-            "I am determining which citizens of {0} avoid one another in the marketplace...",
-
-            "The doors in {0} need owners. The owners need memories. The memories need contradictions...",
-
-            "I am deciding whose mother warned them never to leave {0}...",
-
-            "One moment. Several people in {0} are acquiring complicated opinions about their neighbors...",
-
-            "I am filling {0} with small ambitions. They are load-bearing, apparently...",
-
-            "Someone must remember when {0} was founded. I suppose I should invent the founding...",
-
-            "I am giving {0} elders who insist things were better before you arrived...",
-
-            "The people of {0} are nearly convinced they have always existed...",
-
-            "I am assigning friendships in {0}. Betrayals will emerge naturally...",
-
-            "Hold still. I am making {0} socially inconvenient...",
-
-            "{0} requires names, histories, routines, and at least one person everybody distrusts...",
-
-            "I am putting lives behind the windows of {0}...",
-
-            "People need context. I am supplying {0} with entirely too much of it...",
-
-            "I have reached the part where everyone in {0} needs context. Rude of them...",
-
-            "I am choosing who in {0} tells the truth badly and who lies beautifully...",
-
-            "{0} will feel lived in shortly. Please ignore the metaphysical scaffolding and my posture...",
-
-            "The citizens of {0} are loading in with opinions already attached...",
-
-            "I am giving {0} people who remember events that occurred before I made the landscape...",
-
-            "Almost there. {0} needs enough personal problems to become believable and I need water..."
+            // note: Population fallbacks address the player without inventing residents, memories or technical assembly status.
+            "I am thinking about who you might meet in {0}. People are rather harder to get right than a welcome speech.",
+            "You should not have to make sense of {0} alone. I hope there will be someone you can talk to.",
+            "When you reach {0}, I want there to be more to discover than what I can tell you now.",
+            "I cannot decide who you will trust in {0}. That is probably for the best, though I find it difficult.",
+            "There is room for more than your story in {0}. I am trying to give that the care it deserves.",
+            "I keep imagining your first conversation in {0}. No, I should leave that part to you."
         };
 
     // ============================================================
@@ -402,32 +336,11 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         HostilePopulationCreating =
         {
-            // note: Hostile setup lines keep the anxious coder texture but avoid inventing extra facts.
-            "{0} is too safe on paper. That is suspicious and also my fault...",
-
-            "{0} needs one clean threat profile. Clean is optimistic. I am still saying it calmly...",
-
-            "Putting one sensible-traveler deterrent into {0}. Please do not inspect the staging layer...",
-
-            "Ah, {0}. Danger slot is empty. Embarrassing. Filling it now...",
-
-            "{0} needs a threat with a readable silhouette and terrible manners...",
-
-            "Waking something in {0}. It gets a name, a boundary, and no apology...",
-
-            "{0} requires one local horror. Not three. I am showing restraint...",
-
-            "Something hostile is taking shape in {0}. The edges are cooperating. Barely...",
-
-            "{0} has been peaceful for several seconds. Unacceptable...",
-
-            "Creating the reason nobody builds closer to {0}. Naming it before it wanders...",
-
-            "Deciding whether the danger in {0} speaks. Silence is cheaper, but suspicious...",
-
-            "Almost. {0} needs one thing you should not approach alone or smug...",
-
-            "Installing unreasonable territorial expectations in {0}. It is taking to them beautifully..."
+            // note: A known hostile location permits concern about danger, not invented enemies or guaranteed encounter outcomes.
+            "I am uneasy about {0}. There is danger in this world, and I do not want to make light of it for you.",
+            "You need not prove yourself to me by rushing toward {0}. Your beginning is not an examination.",
+            "I want you to have choices about {0}, including the choice to come back another time.",
+            "I cannot promise that {0} will be kind to you. I wish that were easier to say."
         };
 
     // ============================================================
@@ -653,26 +566,11 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         TerrainMaterialization =
         {
-            // note: Terrain lines expose frantic physical corrections beneath a rehearsed creator-Goddess performance.
-            "Behold, I raise the eternal mountains—too high. Much too high. Witness me lower them with equal divinity.",
-
-            "By my decree, the rivers shall run... downhill. Yes, naturally. I am turning this valley around before the water notices.",
-
-            "Let firmament divide from earth. No, that is the horizon. The earth is the lower one. Correcting both.",
-
-            "I command this hill to rise in majesty. Stop. Stop rising. The command has been divinely amended.",
-
-            "Witness the birth of a continent. The western edge is curling upward, but I have several very sacred tools for that.",
-
-            "Thus I lay the ground beneath you. Not that piece—it is still soft. I meant the piece immediately beside it.",
-
-            "The valleys answer my infinite wisdom. One answered upside down. I am handling the dissenter personally.",
-
-            "Creation proceeds precisely as foretold: stone, soil, slope, and—no, not there. Move the slope left.",
-
-            "I bless this horizon with perfect balance. It is visibly crooked. The blessing may require a second application.",
-
-            "The land shall bear the weight of destiny. First it must bear its own weight. I am reinforcing the embarrassing section."
+            // note: Fallback speech expresses effort without inventing visible terrain failures or claiming repairs succeeded.
+            "This world is delicate. I know I ought to make it look effortless. I would rather make it safe for you.",
+            "You deserve somewhere to find your feet. I am trying not to rush that part.",
+            "I have your answers in mind. A whole world is rather more responsibility than a welcome speech.",
+            "There will be things I cannot explain yet. I hope you can forgive me for beginning with the ground beneath you."
         };
 
     // ============================================================
@@ -682,21 +580,10 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         SettlementMaterialization =
         {
-            "And here I bestow {0}, jewel of the—no, it is facing backward. The jewel will rotate.",
-
-            "By sovereign decree, the streets of {0} shall meet. They currently miss by six feet. I am narrowing the decree.",
-
-            "Witness {0} descend from possibility. Gently. Gently—stop. I am correcting the ground beneath it.",
-
-            "I have ordained a marketplace for {0}. I appear to have ordained it inside a house. Both are moving.",
-
-            "Thus rises {0}, exactly where I intended after rejecting the first three places I intended.",
-
-            "The sacred roads of {0} now connect every district. Except that one. It is being reclassified as a scenic mistake.",
-
-            "I grant {0} an ancient and harmonious layout. Please allow the ancient buildings time to stop overlapping.",
-
-            "Behold {0}, made habitable by my boundless power and several rapid, unrecorded corrections."
+            "I have been thinking about {0}. I want it to mean something when you arrive, not merely be somewhere on your way.",
+            "Perhaps {0} will give you a reason to stay a while. That is a hope, not a command.",
+            "You may make something of {0} that I never expected. I am trying to be comfortable with that.",
+            "There is a place for {0} in your beginning. I have not decided what it must mean to you."
         };
 
     // ============================================================
@@ -706,21 +593,10 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         BuildingMaterialization =
         {
-            "By my hand, every house in {0} shall stand true. That roof is not true. I am turning it over.",
-
-            "I grant {0} walls, doors, and sacred shelter. The doors are in the walls this time. Nearly all of them.",
-
-            "Witness architecture obey me. One house has mistaken itself for a staircase; I am speaking to it firmly.",
-
-            "The foundations of {0} are eternally secure. I am placing them now, beneath the buildings, where they apparently belong.",
-
-            "By divine proportion, every doorway shall admit a mortal. That one admits half a mortal. Widening it.",
-
-            "I crown {0} with roofs against the storm. Two roofs are crowning the same house. Redistributing majesty.",
-
-            "Thus are the homes of {0} made whole. No, the chimneys do need to face outside. One moment.",
-
-            "Behold, a flawless street of dwellings. Regard it from here while I quietly pull three dwellings out of the road."
+            "I want {0} to have room for ordinary life. You should not have to be remarkable every moment you are here.",
+            "When I think of {0}, I keep coming back to the small things. Somewhere to rest matters too.",
+            "There is more to looking after a world than making it impressive. {0} is reminding me of that.",
+            "I hope you find something familiar in {0}. Not everything in your beginning needs to feel strange."
         };
 
     // ============================================================
@@ -730,21 +606,10 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         EnvironmentMaterialization =
         {
-            "I call forth the primeval forest. Not across the road—back, back. Trees are less obedient than the hymns imply.",
-
-            "By my blessing, life spreads across the land. It is spreading in rows. I am disordering it by hand.",
-
-            "Witness nature, untouched by mortal design. I am currently moving every boulder so mortals can actually walk through it.",
-
-            "I summon ancient wilderness. That tree is inside a house. The wilderness has exceeded its jurisdiction.",
-
-            "Let root and branch reclaim the empty places. Not the doorway. I should have specified the doorway.",
-
-            "The stones fall according to my unknowable purpose. I know the purpose. The purpose is no longer blocking the stairs.",
-
-            "Thus I clothe the world in green abundance. Some abundance is floating. I am lowering it with solemnity.",
-
-            "Behold a wilderness older than memory. Please disregard how rapidly I am rotating that suspiciously young forest."
+            "I want there to be room for your curiosity. You did not come all this way merely to follow instructions.",
+            "Your world should have quiet moments too. I am trying to remember that while thinking about everything else.",
+            "I cannot tell you what you will love here. I would like you to have the chance to find out.",
+            "Not every part of your beginning needs an explanation from me. That is fortunate. I have rather a lot left to do."
         };
 
     // ============================================================
@@ -754,15 +619,10 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         WorldPlanChanged =
         {
-            "I have issued a divine revision to reality. This is not changing my mind; it is omniscience arriving in installments.",
-
-            "That world was a prophetic illustration. This world is the prophecy. I am replacing the roads before anyone notices.",
-
-            "By eternal decree, history has always taken this shape. History is objecting, so I am rewriting the loud section first.",
-
-            "Witness my foresight. I foresaw a better arrangement immediately after completing the worse arrangement.",
-
-            "Reality has not shifted. Your perspective has shifted. Also the mountain. I am putting the mountain back."
+            // note: A changed plan permits an admission of revision, not fabricated world history or a false explanation of visible defects.
+            "I have reconsidered part of your beginning. I would rather admit that than insist my first thought was perfect.",
+            "Your answers still matter. I am trying to find a better way to make room for them.",
+            "I know this is not quite the effortless welcome I intended. I am still working on it."
         };
 
     // ============================================================
@@ -772,19 +632,9 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         TerminalFailure =
         {
-            "By my absolute authority, creation pauses. I did not fail. The world failed to understand me, and I am checking what I said.",
-
-            "No. That is not a sacred mystery; that is a building beneath the ground. I cannot let you enter until I retrieve it.",
-
-            "I proclaim this reality temporarily forbidden. Please do not ask why the statue is lying down. I know why. Mostly.",
-
-            "The cosmos has revealed a hidden contradiction. I put it there accidentally, but discovering it was exceptionally divine.",
-
-            "Remain beyond the threshold. My omnipotence requires a brief retry and possibly a smaller mountain.",
-
-            "Creation is proceeding according to a higher plan. I am writing the higher plan now. It begins with fixing this.",
-
-            "I have not lost control. Control is merely distributed across several emergencies. You are safest outside while I collect it."
+            "I cannot bring you through yet. Something is wrong, and I will not pretend it is safe. I am sorry.",
+            "This is not ready for you. I wanted to give you a better welcome than this.",
+            "I have to stop here. It is not your fault, and it is not some test I meant to set you."
         };
 
     // ============================================================
@@ -794,17 +644,9 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         PopulationComplete =
         {
-            "By my breath, every soul awakens in its appointed place. Two awakened in the same chair. The appointment is being corrected.",
-
-            "Witness life spread across my creation. I am checking the names because three people answered at once when I said Elian.",
-
-            "The people remember lives stretching back generations. I wrote those generations quickly, but with tremendous divine sincerity.",
-
-            "Thus are the settlements inhabited and the wilds given teeth. The teeth have names. I may have reversed two of them.",
-
-            "Every mortal now possesses a history, a purpose, and somewhere to stand. I am quietly adding somewhere for one of them to stand.",
-
-            "My creation lives. Please receive this as a miracle and not as several hundred simultaneous administrative emergencies."
+            "You will not be alone here. I hope that comes as a comfort. I cannot promise it always will.",
+            "There are others for you to meet now. What you make of one another is not something I can decide.",
+            "I have thought about your beginning so much that I keep forgetting it is also part of other lives."
         };
 
     // ============================================================
@@ -814,17 +656,9 @@ public static class YQGoddessLoadingVoice
     private static readonly string[]
         FinalReveal =
         {
-            "Behold: your world, complete by my infallible hand. The hand is still moving one tree. Enter after the tree stops.",
-
-            "I open the threshold by divine decree. If a road shifts while you cross it, that is perspective and absolutely not unfinished work.",
-
-            "Creation stands ready. I have checked the ground twice, the doors once, and the horizon enough. You may enter.",
-
-            "Witness the realm I promised you. It is real, inhabited, and no longer making the alarming sound. Go carefully.",
-
-            "The world is complete. Complete means safe to enter, not immune to further divine improvements performed behind you.",
-
-            "By all the authority vested in me by—by me, apparently—you may begin. I will keep holding the edges together."
+            "You can begin now. This world is fragile, but it is yours to discover. I will do what I can to keep it together.",
+            "Here we are. I had a grander speech in mind, but I think I would rather say this: I hope you find your place here.",
+            "Your beginning is ready. What happens next belongs to you. I am trying very hard not to be nervous about that."
         };
 
     // ============================================================
@@ -1155,7 +989,7 @@ public static class YQGoddessLoadingVoice
                 state,
                 directAnswers);
 
-        if (!profile.HasAnswers)
+        if (!profile.HasAnswers && state == null)
         {
             return
                 "GODDESS_QUESTIONNAIRE_PRESENTATION_CONTEXT\n" +
@@ -1170,6 +1004,23 @@ public static class YQGoddessLoadingVoice
 
         sb.AppendLine(
             "- This block is for Goddess presentation only. It must not change canonical facts.");
+
+        if (!profile.HasAnswers)
+            sb.AppendLine("- No questionnaire answers are available; use the persistent identity and journey memories below when relevant.");
+
+        // note: Startup dialogue receives a small persistent identity thread so origin and world prose can remember the player beyond answer categories.
+        if (state != null)
+        {
+            sb.AppendLine("- persistentPlayer=" + SafeDisplay(state.displayName));
+            sb.AppendLine("- intendedDirection=" + SafeDisplay(string.IsNullOrWhiteSpace(state.characterLifeDirection) ? "unspecified" : state.characterLifeDirection));
+            sb.AppendLine("- personalVow=" + SafeDisplay(string.IsNullOrWhiteSpace(state.characterVow) ? "unspecified" : state.characterVow));
+            if (state.behaviorLedger != null && state.behaviorLedger.Count > 0)
+            {
+                int memoryStart = Mathf.Max(0, state.behaviorLedger.Count - 3);
+                for (int memoryIndex = memoryStart; memoryIndex < state.behaviorLedger.Count; memoryIndex++)
+                    sb.AppendLine("- priorJourneyMemory=" + SafeDisplay(state.behaviorLedger[memoryIndex]));
+            }
+        }
 
         sb.AppendLine(
             "- answerCount=" +
@@ -1357,7 +1208,12 @@ public static class YQGoddessLoadingVoice
                     : null,
                 null);
 
-        if (!profile.HasAnswers)
+        PlayerState journeyState =
+            PlayerStateManager.Instance != null
+                ? PlayerStateManager.Instance.state
+                : null;
+
+        if (!profile.HasAnswers && journeyState == null)
         {
             return false;
         }
@@ -1407,6 +1263,19 @@ public static class YQGoddessLoadingVoice
 
         List<PlayerLineCandidate> candidates =
             new List<PlayerLineCandidate>();
+
+        if (journeyState != null)
+        {
+            // note: The fallback can speak from the player's current place and most recent durable action even when questionnaire evidence is unavailable.
+            string journeyLine = BuildJourneyAwareLine(journeyState, moment);
+            if (!string.IsNullOrWhiteSpace(journeyLine))
+            {
+                candidates.Add(
+                    new PlayerLineCandidate(
+                        "journey_" + moment,
+                        journeyLine));
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(
                 profile.PrimaryReadout))
@@ -1539,6 +1408,39 @@ public static class YQGoddessLoadingVoice
         }
 
         return false;
+    }
+
+    // note: Compose one concise, state-backed line for loading moments so the Goddess remembers what this player actually did instead of choosing a context-free synonym.
+    private static string BuildJourneyAwareLine(PlayerState state, string moment)
+    {
+        if (state == null)
+            return string.Empty;
+
+        string place = SafeDisplay(state.currentRegionName);
+        if (string.IsNullOrWhiteSpace(place) || string.Equals(place, "Unknown", StringComparison.OrdinalIgnoreCase))
+            place = "this place";
+
+        string latest = string.Empty;
+        if (state.behaviorLedger != null && state.behaviorLedger.Count > 0)
+            latest = SafeDisplay(state.behaviorLedger[state.behaviorLedger.Count - 1]).ToLowerInvariant();
+
+        if (latest.Contains("spoke") || latest.Contains("dialogue") || latest.Contains("talk"))
+            return "You keep choosing conversation in " + place + ". I am making room for the people who answer you.";
+        if (latest.Contains("kill") || latest.Contains("defeat") || latest.Contains("combat"))
+            return "You have made " + place + " quieter by force. I am keeping the consequences useful, because apparently I must supervise your victories too.";
+        if (latest.Contains("complete") || latest.Contains("quest") || latest.Contains("discover"))
+            return "You followed something through in " + place + ". I noticed. I am adjusting the next opportunity to meet the person you are becoming.";
+        if (latest.Contains("equip") || latest.Contains("item") || latest.Contains("craft"))
+            return "You keep refining how you carry yourself in " + place + ". I can work with that preference; I have already made room for it.";
+
+        if (!string.IsNullOrWhiteSpace(state.characterVow))
+            return "I still remember your vow while I tend " + place + ". You are making the definition of a perfect beginning inconveniently specific.";
+        if (!string.IsNullOrWhiteSpace(state.characterLifeDirection))
+            return "Your chosen direction is still visible in " + place + ". I am shaping the next step around it, with only a reasonable amount of concern.";
+
+        return string.Equals(moment, "failure", StringComparison.OrdinalIgnoreCase)
+            ? "I know this is not the welcome I intended for you. I am keeping the next step safe."
+            : "I am still watching how you move through " + place + ". It helps me make the next choice less presumptuous.";
     }
 
     private static AnswerProfile AnalyzeAnswers(
@@ -3411,6 +3313,14 @@ public static class YQGoddessLoadingVoice
         string normalized =
             template
                 .ToLowerInvariant();
+
+        // note: Older optional pools must obey the same speech boundary as generated lines; first-person technical chatter is not a second permitted persona.
+        if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(template.Replace("{0}", "this place"), 6) ||
+            normalized.Contains("hot-loading") || normalized.Contains("i am typing") ||
+            normalized.Contains("unusable output") || normalized.Contains("load-bearing") ||
+            normalized.Contains("i should invent") || normalized.Contains("i can fake") ||
+            normalized.Contains("loading in"))
+            return false;
 
         // note: Prefer grounded working-thought lines over omniscient continuity/backdated-history jokes.
         return
