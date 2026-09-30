@@ -23,3 +23,17 @@ UserSettings/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local task artifacts and exported snapshots; curated evidence belongs under Docs.
+/outputs/
+/ChatGPT_ProjectDump.zip
+/YourQuest_Closed_Beta_Rebuilt_20_Goals.zip
+/Codex_TerrainTilePlan_Compile.log
+/G01_PureRegression.log
+/ProjectDump_LastRun.log
+/ProfilerCaptures/
+
+# Credentials and local configuration must not enter review commits.
+.env
+.env.*
+!.env.example

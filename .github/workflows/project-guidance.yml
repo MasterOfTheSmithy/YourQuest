@@ -1,0 +1,40 @@
+name: Project guidance
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'Docs/ClosedBetaRoadmap_2026-09-16/**'
+      - 'Tools/verify-project-guidance.mjs'
+      - 'Tools/project-goal.mjs'
+      - 'Tools/project-guidance.test.mjs'
+      - '.github/workflows/project-guidance.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.md'
+      - 'Docs/ClosedBetaRoadmap_2026-09-16/**'
+      - 'Tools/verify-project-guidance.mjs'
+      - 'Tools/project-goal.mjs'
+      - 'Tools/project-guidance.test.mjs'
+      - '.github/workflows/project-guidance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guidance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # note: Guidance CI needs no Unity license, imported content, saved profiles, or write token.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Validate guidance and goal graph
+        run: node Tools/verify-project-guidance.mjs --guidance-only
+      - name: Verify the complete active handoff can be assembled
+        run: node Tools/project-goal.mjs > "$RUNNER_TEMP/YourQuest-active-handoff.md"
+      - name: Reject invalid goal handoffs
+        run: node Tools/project-guidance.test.mjs
