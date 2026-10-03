@@ -1,0 +1,5 @@
+# Streaming context
+
+`YQPlayerFollowingSemanticChunkStreamer` is the sole continuous terrain/semantic streamer. It owns current-cell priority, required-ring demand, predictive/diagonal repair admission, lifecycle states, terrain readiness, required content/ecology, appearance, overlay replay, activation, unload, revisit, and persisted semantic-cell rebind. `YQContinuousWorldCellAuthority` supplies deterministic off-origin terrain/hydrology/biome continuation; `YQContinuousWorldFeatureAuthority` supplies feature identity/placement.
+
+Physical traversal is certified only when terrain collision, required structure, overlays, appearance, required ecology, and activation are complete. Decoration may continue after required publication. The September 15 baseline recorded failed timing/rate/lead gates; these are historical measurements. The maintained G08 workflow has a distinct 260 m/s acceptance witness and later receipts linked from `Docs/ClosedBetaRoadmap_2026-09-16/GOAL_STATUS.json`. Use the governing source for each numerical gate. Optimization may not lower canonical content density or restrict player movement to hide missing readiness.

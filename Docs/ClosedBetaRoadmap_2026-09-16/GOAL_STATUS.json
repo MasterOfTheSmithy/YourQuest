@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-09-30",
+  "authority": "Engineering workflow bookkeeping only. Full goal files define acceptance; accepted game state remains owned by the production saves.",
+  "activeGoalId": "G08",
+  "activeWorkflow": {
+    "goalId": "G08",
+    "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 4.md",
+    "sha256": "3536d02671ab8a70d94475011868cff259fba06a98b6fd57943e4b20cb8ca9d0",
+    "order": [
+      "R1 publication and recovery",
+      "R2 streaming and performance",
+      "R3 physical world itinerary"
+    ]
+  },
+  "nextGoalAfterAcceptance": "G09",
+  "workflowSemantics": {
+    "historical": "Earlier work and receipts exist; preserve them and revalidate only affected contracts. No blanket restart or fresh PASS is asserted.",
+    "active": "Selected workflow; run only work authorized by the current user request.",
+    "queued": "Future specification; not started or accepted by this setup audit.",
+    "complete": "Full acceptance supported by named evidence and a rationale; merge or task completion alone is insufficient."
+  },
+  "currentBlockers": [
+    "R2 260 m/s coast visible coverage fails in the linked receipt.",
+    "R2 coast maximum frame is 1.298 seconds against the existing 0.050 second budget.",
+    "Complete R1/R3 acceptance is not established by this focused R2 receipt."
+  ],
+  "sourceContracts": {
+    "observedOn": "2026-09-30",
+    "evidenceLevel": "SOURCE_INSPECTED",
+    "unityVersion": "6000.3.2f1",
+    "saveSchema": 7,
+    "cellSchema": "continuous_world_cell_v5",
+    "edgeSchema": "continuous_edge_v3"
+  },
+  "originalArchive": {
+    "path": "YourQuest_Closed_Beta_Rebuilt_20_Goals.zip",
+    "sha256": "c410d8803173840789bb0ed25dfdd5ab5ae875d1c30af50a7b5d02b2642e44b3",
+    "disposition": "Historical 2026-09-16 package. Preserve the amended canonical local goals; do not overwrite them from this ZIP."
+  },
+  "historicalWorkflows": [
+    {
+      "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 1.md",
+      "sha256": "7c913ab0e203c6e2d8d314bf338a6b5d5478765f5918978373cebd7abdcbbcae"
+    },
+    {
+      "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 2.md",
+      "sha256": "d638636ad2bf042911ccefbdf09d6414a0151519d7141c6d1ea07902b3f32555"
+    },
+    {
+      "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 3.md",
+      "sha256": "4e2fd64db315f3e7a65057f21f23d5c2a4c0232a3d969da422357b97e4d28e76"
+    }
+  ],
+  "goals": [
+    {
+      "id": "G01",
+      "title": "Discover, document, and instrument production reality",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-01.md",
+      "specificationSha256": "d0d59ad45289a2cc3474ce941091f8c1989129a189c8d6bc6d3c712e1a96ec7f",
+      "dependencies": [],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G02",
+      "title": "Stabilize canonical state, identity, profile commits, and service ownership",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-02.md",
+      "specificationSha256": "1f35f0f2d6198da9df302aa2b6a38726c7ec2efc8322bd1826c23b66757f24cb",
+      "dependencies": [
+        "G01"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G03",
+      "title": "Harden the existing LLM scheduler and proposal boundary",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-03.md",
+      "specificationSha256": "b135fd7d0e27cdb6177f5de31e94a4f8b348fe0eb51d5406e2ac7b941b09a3a9",
+      "dependencies": [
+        "G02"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G04",
+      "title": "Certify the approved beta asset and binding pipeline",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-04.md",
+      "specificationSha256": "0a7906fe546185409f1c3cc7bd90aa7ae62a9c64bc382948f4819e5b86bff507",
+      "dependencies": [
+        "G02"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G05",
+      "title": "Establish the deterministic semantic world and feature graph",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-05.md",
+      "specificationSha256": "d22e0d9f927ddaf51f82c871d367a318e3d25a8b25373ab00b3f30f189f15db7",
+      "dependencies": [
+        "G02"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G06",
+      "title": "Realize continuous terrain, hydrology, and connected routes",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-06.md",
+      "specificationSha256": "1d08b1c5e5a9df6166b14c0a86470e0d3f1a7ca17f30d04b1a56f2846a5ee41f",
+      "dependencies": [
+        "G02",
+        "G04",
+        "G05"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G07",
+      "title": "Stabilize streaming, reconstruction, and persistent mutation overlays",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-07.md",
+      "specificationSha256": "212a79bc30ad31bddf0d67d428ebbdb15a31b5ea8f5febcbfb6ed8cc0ade0645",
+      "dependencies": [
+        "G02",
+        "G05",
+        "G06"
+      ],
+      "workflowState": "historical",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G08",
+      "title": "Build traversable sites, settlements, and semantic environmental density",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-08.md",
+      "specificationSha256": "d188554e5f73c92c3378b7720b23dd8edd9cfe5fcd9133b0e319932cf96b101d",
+      "dependencies": [
+        "G04",
+        "G05",
+        "G06",
+        "G07"
+      ],
+      "workflowState": "active",
+      "acceptanceStatus": "FAIL",
+      "acceptanceRationale": "The linked R2 receipt reports FAIL. This setup audit does not certify the complete G08 contract or rerun gameplay.",
+      "coordinator": null,
+      "evidence": [
+        {
+          "path": "Docs/G08_R2_Speed260_2026-09-30_095333_P01_REGRESSION_FAIL.md",
+          "sha256": "975129dbbbbcbc481d909ed256f2468847ce4b2bd234534449e86c9661e580c6",
+          "observedUtc": "2026-09-30T09:53:33.2614492Z",
+          "evidenceLevel": "HISTORICAL_RUNTIME_RECEIPT",
+          "reportedResult": "FAIL",
+          "coverage": "Focused R2 witness; remaining R1 and G08 rows were not run in this receipt."
+        }
+      ]
+    },
+    {
+      "id": "G09",
+      "title": "Stabilize the authoritative player and core RPG execution",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-09.md",
+      "specificationSha256": "bd708c74849f06daa697d29e99f8bae494f6a3673478810f053f69aa65d1bde1",
+      "dependencies": [
+        "G02",
+        "G04",
+        "G07"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G10",
+      "title": "Complete persistent character creation and both origin routes",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-10.md",
+      "specificationSha256": "1650611dbc563e1e2b8456c67813ccfa94d007b845437491957680451598b5a0",
+      "dependencies": [
+        "G02",
+        "G03",
+        "G04",
+        "G08",
+        "G09"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G11",
+      "title": "Establish persistent residents, roles, and NPC knowledge",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-11.md",
+      "specificationSha256": "6823466aadd2fcb5bb129bf9dad3d8325bc09ed09c6f228f397b7b8753e76cee",
+      "dependencies": [
+        "G05",
+        "G07",
+        "G08",
+        "G09"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G12",
+      "title": "Stabilize structured quests, dialogue memory, and consequence commits",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-12.md",
+      "specificationSha256": "e2b3fe28981c033b4766a8a56a49ef9dc092721c037695a4e51525305f8e0ee6",
+      "dependencies": [
+        "G02",
+        "G03",
+        "G05",
+        "G09",
+        "G11"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G13",
+      "title": "Make trade, rewards, and settlement services transactional",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-13.md",
+      "specificationSha256": "c539d9b1291175f31bbc006a12138cee9b70a91f8aca8500b4b78c869397bac3",
+      "dependencies": [
+        "G09",
+        "G11",
+        "G12"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G14",
+      "title": "Establish bounded social knowledge, relationships, law, and alignment",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-14.md",
+      "specificationSha256": "54859bd31c6185d1b0e5d7de579874dda571a88514e528d36a9d045adb3c01eb",
+      "dependencies": [
+        "G09",
+        "G11",
+        "G12",
+        "G13"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G15",
+      "title": "Build trustworthy behavioral evidence and adaptive candidates",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-15.md",
+      "specificationSha256": "afdd3d24a5b88a47434d5030e5bde51de1237cb218743a94b2214ad290af153b",
+      "dependencies": [
+        "G02",
+        "G03",
+        "G09",
+        "G11"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G16",
+      "title": "Deliver meaningful adaptive unlocks and persistent player-responsive content",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-16.md",
+      "specificationSha256": "b8aa96fb6c79a0aaf3b73223c0649b6410cac06df9be83410624c1f80efa788e",
+      "dependencies": [
+        "G03",
+        "G09",
+        "G12",
+        "G13",
+        "G14",
+        "G15"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G17",
+      "title": "Finish discovery, onboarding, player UI, and settings",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-17.md",
+      "specificationSha256": "3545870a05debf003e880380c3ecfe488fb291700d3ea91346347303a5e87293",
+      "dependencies": [
+        "G10",
+        "G16"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G18",
+      "title": "Curate audiovisual feedback, content density, balance, and opening pacing",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-18.md",
+      "specificationSha256": "cda4408a1728880c0dabc016579aa984e05429c82a010cda9a9852862008115d",
+      "dependencies": [
+        "G16",
+        "G17"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G19",
+      "title": "Harden persistence, performance, failure recovery, and long sessions",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-19.md",
+      "specificationSha256": "db6a75e9860f2e600f7b3a0dd342fcc3d186298686e10c3d8bf6c3c89ed89074",
+      "dependencies": [
+        "G18"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    },
+    {
+      "id": "G20",
+      "title": "Certify, package, and hand off the closed beta",
+      "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/Goal-20.md",
+      "specificationSha256": "726b42b442473e95b8e09610df93cd542402a28585e67edea8d102094910ebd5",
+      "dependencies": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08",
+        "G09",
+        "G10",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15",
+        "G16",
+        "G17",
+        "G18",
+        "G19"
+      ],
+      "workflowState": "queued",
+      "acceptanceStatus": "NOT_VERIFIED",
+      "acceptanceRationale": null,
+      "coordinator": null,
+      "evidence": []
+    }
+  ]
+}
