@@ -2,11 +2,12 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerStateManager : MonoBehaviour
+public partial class PlayerStateManager : MonoBehaviour
 {
     public static PlayerStateManager Instance { get; private set; }
 
@@ -28,6 +29,8 @@ public class PlayerStateManager : MonoBehaviour
     private string BackupSavePath => SavePath + ".bak";
 
     private float nextAutosaveTime;
+    // note: One immutable automatic snapshot may write at a time; explicit persistence/ownership boundaries drain it first.
+    private Task pendingAutosave;
     public string LastLoadStatus { get; private set; } = "not_loaded";
 
     private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
@@ -56,6 +59,9 @@ public class PlayerStateManager : MonoBehaviour
 
     private void Update()
     {
+        // note: Observe worker failures on the Unity thread without waiting during ordinary movement frames.
+        if (pendingAutosave != null && pendingAutosave.IsCompleted && !TryFlushPendingAutosave(out string autosaveFailure))
+            Debug.LogWarning("[PlayerStateManager] Autosave failed: " + autosaveFailure);
         if (state == null)
             return;
 
@@ -70,6 +76,15 @@ public class PlayerStateManager : MonoBehaviour
 
     public void LoadOrCreate()
     {
+        // note: A test rollback must retain its original player owner and cannot silently reload a normal save.
+        if (YQDeveloperConsoleGate.BlocksPersistence) return;
+        // note: A previous snapshot must finish before a reload reads or replaces the shared player document.
+        if (!TryFlushPendingAutosave(out string autosaveFailure))
+        {
+            LastLoadStatus = "autosave_flush_failed";
+            Debug.LogWarning("[PlayerStateManager] Reload rejected: " + autosaveFailure);
+            return;
+        }
         bool hadPersistentState = File.Exists(SavePath) || File.Exists(BackupSavePath);
         string backupFailure = string.Empty;
         bool loaded = TryLoadState(SavePath, out PlayerState loadedState, out string primaryFailure);
@@ -108,6 +123,8 @@ public class PlayerStateManager : MonoBehaviour
 
     public bool TrySave(out string failure)
     {
+        // note: Explicit Save callers as well as autosave must respect temporary development state isolation.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { failure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         failure = string.Empty;
         try
         {
@@ -130,6 +147,9 @@ public class PlayerStateManager : MonoBehaviour
         failure = string.Empty;
         try
         {
+            // note: Paired profile commits use this snapshot boundary, so an older automatic writer cannot race their projections.
+            if (!TryFlushPendingAutosave(out failure))
+                return false;
             NormalizeState();
             json = JsonConvert.SerializeObject(state, JsonSettings);
             return true;
@@ -173,23 +193,29 @@ public class PlayerStateManager : MonoBehaviour
 
     private void WriteAtomically(string json)
     {
-        string directory = Path.GetDirectoryName(SavePath);
+        WriteAtomically(json, SavePath, BackupSavePath);
+    }
+
+    private static void WriteAtomically(string json, string path, string backupPath)
+    {
+        // note: Captured paths and JSON are the worker's complete inputs; no Unity object or mutable state is read off-thread.
+        string directory = Path.GetDirectoryName(path);
         if (!string.IsNullOrWhiteSpace(directory))
             Directory.CreateDirectory(directory);
 
-        string temporaryPath = SavePath + ".tmp";
+        string temporaryPath = path + ".tmp";
         File.WriteAllText(temporaryPath, json);
 
         try
         {
-            if (File.Exists(SavePath))
+            if (File.Exists(path))
             {
                 // note: File.Replace commits the new document while retaining the previous valid version as recovery data.
-                File.Replace(temporaryPath, SavePath, BackupSavePath, true);
+                File.Replace(temporaryPath, path, backupPath, true);
             }
             else
             {
-                File.Move(temporaryPath, SavePath);
+                File.Move(temporaryPath, path);
             }
         }
         catch (PlatformNotSupportedException)
@@ -318,13 +344,49 @@ public class PlayerStateManager : MonoBehaviour
 
     private void TryAutosave()
     {
+        // note: Do not enqueue an asynchronous projection containing temporary test mutations.
+        if (YQDeveloperConsoleGate.BlocksPersistence) return;
         if (!autosave)
             return;
         if (Time.time < nextAutosaveTime)
             return;
+        // note: Keep automatic writes serialized; the next ordinary due update captures the latest state after this writer completes.
+        if (pendingAutosave != null && !pendingAutosave.IsCompleted)
+            return;
 
         nextAutosaveTime = Time.time + Mathf.Max(0.05f, autosaveMinIntervalSeconds);
-        Save();
+        if (!TryPrepareSnapshot(out string json, out string failure))
+        {
+            Debug.LogWarning("[PlayerStateManager] Autosave snapshot failed: " + failure);
+            return;
+        }
+        string path = SavePath;
+        string backupPath = BackupSavePath;
+        pendingAutosave = Task.Run(() => WriteAtomically(json, path, backupPath));
+    }
+
+    public bool TryFlushPendingAutosave(out string failure)
+    {
+        // note: Explicit save, profile replacement, reload and teardown remain synchronous barriers with observable failures.
+        failure = string.Empty;
+        Task pending = pendingAutosave;
+        if (pending == null)
+            return true;
+        try
+        {
+            pending.GetAwaiter().GetResult();
+            return true;
+        }
+        catch (Exception exception)
+        {
+            failure = exception.Message;
+            return false;
+        }
+        finally
+        {
+            if (pendingAutosave == pending)
+                pendingAutosave = null;
+        }
     }
 
     public void SetLocation(string sceneName, string regionId, Vector3 position)
@@ -369,6 +431,9 @@ public class PlayerStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        // note: Scene teardown cannot leave an old document writer alive across the next player/profile owner.
+        if (!TryFlushPendingAutosave(out string autosaveFailure))
+            Debug.LogWarning("[PlayerStateManager] Teardown autosave failed: " + autosaveFailure);
         // note: Clear the singleton so scene reloads cannot route mutations to a destroyed player state owner.
         if (Instance == this)
             Instance = null;

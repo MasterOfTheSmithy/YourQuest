@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public sealed class YourQuestTutorialMenuUI : MonoBehaviour
+public sealed partial class YourQuestTutorialMenuUI : MonoBehaviour
 {
     public static bool IsOpenNow { get; private set; }
 
@@ -19,7 +19,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         Skills = 1,
         Classes = 2,
         Quests = 3,
-        Stats = 4
+        Stats = 4,
+        Equipment = 5
     }
 
     private readonly struct SlotDef
@@ -46,23 +47,27 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         "Skills",
         "Classes",
         "Quests",
-        "Stats"
+        "Stats",
+        "Equipment"
     };
 
+    // note: Matching equipment columns group related controls around the same authoritative character preview.
     private static readonly SlotDef[] EquipmentSlots =
     {
-        new SlotDef("head", "Headpiece", 0f, -18f, 160f, 46f),
-        new SlotDef("necklace", "Necklace", 0f, -72f, 170f, 38f),
-        new SlotDef("chest", "Chest Piece", 0f, -122f, 190f, 60f),
-        new SlotDef("offhand", "Left Hand", -176f, -136f, 130f, 62f),
-        new SlotDef("weapon", "Right Hand", 176f, -136f, 130f, 62f),
-        new SlotDef("gloves", "Gauntlets", 0f, -202f, 170f, 46f),
-        new SlotDef("ring_left", "Ring L", -176f, -258f, 120f, 38f),
-        new SlotDef("ring_right", "Ring R", 176f, -258f, 120f, 38f),
-        new SlotDef("belt", "Belt", 0f, -258f, 170f, 38f),
-        new SlotDef("legs", "Pants", 0f, -314f, 170f, 54f),
-        new SlotDef("boots", "Boots", 0f, -384f, 170f, 46f),
-        new SlotDef("trinket", "Charm", 0f, -444f, 170f, 40f)
+        new SlotDef("head", "Headpiece", -360f, -226f, 240f, 68f),
+        new SlotDef("necklace", "Necklace", 360f, -58f, 240f, 68f),
+        new SlotDef("chest", "Chest armor", -360f, -310f, 240f, 68f),
+        new SlotDef("offhand", "Off hand", -360f, -142f, 240f, 68f),
+        new SlotDef("weapon", "Main hand", -360f, -58f, 240f, 68f),
+        new SlotDef("gloves", "Gauntlets", -360f, -394f, 240f, 68f),
+        new SlotDef("ring_left", "Ring L", 360f, -142f, 240f, 68f),
+        new SlotDef("ring_right", "Ring R", 360f, -226f, 240f, 68f),
+        new SlotDef("belt", "Belt", 360f, -310f, 240f, 68f),
+        new SlotDef("legs", "Legs", -360f, -478f, 240f, 68f),
+        new SlotDef("boots", "Boots", 360f, -394f, 240f, 68f),
+        new SlotDef("trinket", "Charm", 360f, -478f, 240f, 68f),
+        // note: Cloaks occupy their own accepted slot; exposing it also restores inspection, clearing and loadout counts.
+        new SlotDef("cloak", "Cloak", 360f, -562f, 240f, 68f)
     };
 
     private Canvas _canvas;
@@ -100,34 +105,53 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
     private void Awake()
     {
         BuildUi();
+        BuildBlueglassPresentation();
         SetOpen(false);
     }
 
 
     public void ForceCloseFromBootstrap()
     {
+        // note: Startup owns cursor/modal transitions; cancel both presentations without resetting another owner's state.
+        CloseQuick(false);
         _open = false;
         IsOpenNow = false;
         _dirty = true;
         if (_canvas != null)
             _canvas.enabled = false;
+        if (_fullRoot != null) _fullRoot.gameObject.SetActive(false);
         RuntimeModalUiBlocker.Release(ModalToken);
         RuntimeModalUiBlocker.SetMenuOpen(false);
     }
 
     private void OnDestroy()
     {
+        CloseQuick(true);
         if (_open)
         {
             RuntimeModalUiBlocker.Release(ModalToken);
             RuntimeModalUiBlocker.SetMenuOpen(false);
         }
+        IsOpenNow = false;
     }
 
     private void Update()
     {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+        // note: Console history/completion/typing must never reach quick-menu or pause input even when a menu was already open.
+        if (YQDeveloperConsole.CapturesInput) return;
+#endif
         Keyboard kb = Keyboard.current;
         if (kb == null)
+        {
+            CloseQuick(true);
+            return;
+        }
+
+        if (UpdateQuickInput(kb))
+            return;
+
+        if (ChangedThisFrame)
             return;
 
         if (!_open)
@@ -154,7 +178,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             }
         }
 
-        if (_dirty)
+        // note: Live refresh must not destroy a row between a physical press and release.
+        if (_dirty && !(Mouse.current?.leftButton.isPressed ?? false))
             Render();
     }
 
@@ -164,12 +189,15 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             return;
 
         _open = value;
+        _presentationChangeFrame = Time.frameCount;
         IsOpenNow = value;
         if (_canvas != null)
             _canvas.enabled = value;
 
         if (value)
         {
+            CloseQuick(false);
+            _fullRoot.gameObject.SetActive(true);
             RuntimeModalUiBlocker.Acquire(ModalToken);
             RuntimeModalUiBlocker.SetMenuOpen(true);
             Cursor.lockState = CursorLockMode.None;
@@ -182,8 +210,12 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         {
             RuntimeModalUiBlocker.Release(ModalToken);
             RuntimeModalUiBlocker.SetMenuOpen(false);
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            if (!RuntimeModalUiBlocker.IsBlocked)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            if (_fullRoot != null) _fullRoot.gameObject.SetActive(false);
         }
     }
 
@@ -191,7 +223,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
     {
         _dirty = true;
         _lastStateHash = int.MinValue;
-        if (immediate && _open)
+        if (immediate && (_open || _quick))
             Render();
     }
 
@@ -212,6 +244,11 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             hash = hash * 31 + state.xp;
             hash = hash * 31 + state.currency;
             hash = hash * 31 + state.inventoryItems.Count;
+            // note: Live quantities and every canonical equipment slot invalidate presentation without replacing stable quick controls.
+            foreach (InventoryItemRecord item in state.inventoryItems)
+                if (item!=null) { hash=hash*31+(item.itemId ?? string.Empty).GetHashCode(); hash=hash*31+item.quantity; }
+            foreach (var equipped in state.equippedItemBySlot)
+                hash=hash*31+(equipped.Key+":"+equipped.Value).GetHashCode();
             hash = hash * 31 + state.skills.Count;
             hash = hash * 31 + state.classes.Count;
             hash = hash * 31 + state.titles.Count;
@@ -242,6 +279,10 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             return;
 
         _activeTab = tab;
+        HideRecordPreview();
+        _listScroll.StopMovement();
+        _listScroll.verticalNormalizedPosition=1;
+        YQBlueglassFeedback.Request(YQBlueglassCue.Screen, YQBlueglassFeedback.ControllerActive);
         _selectedKey = string.Empty;
         _statusMessage = string.Empty;
         MarkDirty(true);
@@ -262,21 +303,25 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
 
         _titleText.text = TabLabels[(int)_activeTab];
         _subtitleText.text = BuildSubtitle(state, world);
-        _offerPanel.gameObject.SetActive(_activeTab == MenuTab.Inventory && state.GetActiveOffer() != null);
+        _offerPanel.gameObject.SetActive(IsInventoryTab && state.GetActiveOffer() != null);
 
-        RebuildEquipmentSection(state);
+        if(IsInventoryTab) RebuildEquipmentSection(state);
+        ConfigureCarriedLayout();
         RebuildList(state, world, content);
         RebuildDetails(state, world, content);
         RebuildOfferPanel(state);
         UpdateActionButtons(state);
         UpdateTabVisuals();
         _footerText.text = string.IsNullOrWhiteSpace(_statusMessage) ? BuildFooter(state, world) : _statusMessage;
+        RefreshQuickPresentation(state);
+        // note: Record the state actually rendered; an immediate selection must not trigger another full rebuild at the next poll.
+        _lastStateHash = ComputeStateHash();
     }
 
     private void RebuildEquipmentSection(PlayerState state)
     {
         ClearChildren(_equipmentContent);
-        CreateEquipmentGuide(_equipmentContent);
+        // note: The linked character portrait replaces the old block-shaped body guide.
 
         for (int i = 0; i < EquipmentSlots.Length; i++)
         {
@@ -285,9 +330,10 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             string key = "slot:" + slot.SlotId;
             Button button = CreateEquipmentSlotButton(_equipmentContent, slot, equipped, equipped != null ? Trim(equipped.displayName, 20) : "Empty");
             SetButtonVisual(button, string.Equals(_selectedKey, key, StringComparison.OrdinalIgnoreCase));
+            BindRecordHover(button,key);
             button.onClick.AddListener(() =>
             {
-                if (_activeTab != MenuTab.Inventory)
+                if (!IsInventoryTab)
                     _activeTab = MenuTab.Inventory;
                 _selectedKey = key;
                 MarkDirty(true);
@@ -301,6 +347,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         switch (_activeTab)
         {
             case MenuTab.Inventory:
+            case MenuTab.Equipment:
                 BuildInventoryList(state);
                 break;
             case MenuTab.Skills:
@@ -320,7 +367,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
 
     private void BuildInventoryList(PlayerState state)
     {
-        AddSectionHeader(_listContent, "Carried Items");
+        // note: Item portraits form a carried-item grid; detailed facts stay in the shared inspector.
         InventoryItemRecord first = null;
         for (int i = 0; i < state.inventoryItems.Count; i++)
         {
@@ -332,8 +379,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
 
             string key = "item:" + item.itemId;
             string subtitle = item.IsConsumable
-                ? ToTitle(item.itemType) + "  •  Qty " + Mathf.Max(1, item.quantity)
-                : FormatSlotName(item.equipSlot) + "  •  " + ToTitle(item.rarity) + "  •  PWR " + item.powerScore;
+                ? ToTitle(item.itemType) + "  \u00B7  Qty " + Mathf.Max(1, item.quantity)
+                : FormatSlotName(item.equipSlot) + "  \u00B7  " + ToTitle(item.rarity) + "  \u00B7  PWR " + item.powerScore;
 
             AddInventoryListButton(item, subtitle, key, () =>
             {
@@ -351,29 +398,54 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
 
     private void BuildSkillsList(PlayerState state)
     {
-        AddSectionHeader(_listContent, "Skills & Spells");
+        AddSectionHeader(_listContent, "Skills");
         SkillRecord first = null;
         for (int i = 0; i < state.skills.Count; i++)
         {
             SkillRecord skill = state.skills[i];
-            if (skill == null)
+            if (skill == null || YQSpellCircleRules.IsSpell(skill))
                 continue;
             if (first == null)
                 first = skill;
 
-            string key = "skill:" + skill.skillId;
-            string subtitle = (skill.isSpell ? "Spell" : "Skill") + "  •  Tier " + Mathf.Max(1, skill.tier) + "  •  Rank " + Mathf.Max(1, skill.rank);
-            AddListButton(skill.name, subtitle, key, () =>
+            AddSkillListButton(skill);
+        }
+        // note: Group only occupied spell circles, in ascending order, without reordering or rewriting accepted state.
+        for (int circle = YQSpellCircleRules.FirstCircle; circle <= YQSpellCircleRules.LastCircle; circle++)
+        {
+            bool headingAdded = false;
+            for (int i = 0; i < state.skills.Count; i++)
             {
-                _selectedKey = key;
-                MarkDirty(true);
-            });
+                SkillRecord spell = state.skills[i];
+                if (!YQSpellCircleRules.IsSpell(spell) || YQSpellCircleRules.GetCircle(spell) != circle) continue;
+                if (!headingAdded)
+                {
+                    AddSectionHeader(_listContent, "Spells \u2022 Circle " + circle);
+                    headingAdded = true;
+                }
+                if (first == null) first = spell;
+                AddSkillListButton(spell);
+            }
         }
 
         if (state.skills.Count == 0)
             AddEmptyState("No skills learned yet.");
         if (string.IsNullOrWhiteSpace(_selectedKey) && first != null)
             _selectedKey = "skill:" + first.skillId;
+    }
+
+    private void AddSkillListButton(SkillRecord skill)
+    {
+        // note: One classification rule drives list grouping, labels, details and casting, including legacy spell records.
+        bool isSpell = YQSpellCircleRules.IsSpell(skill);
+        string key = "skill:" + skill.skillId;
+        string subtitle = (isSpell ? "Spell  \u2022  Circle " + YQSpellCircleRules.GetCircle(skill) :
+            "Skill  \u2022  Tier " + Mathf.Max(1, skill.tier)) + "  \u2022  Rank " + Mathf.Max(1, skill.rank);
+        AddListButton(skill.name, subtitle, key, () =>
+        {
+            _selectedKey = key;
+            MarkDirty(true);
+        });
     }
 
     private void BuildClassesList(PlayerState state)
@@ -434,7 +506,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                 first = quest;
             string key = "quest:" + quest.questId;
             bool active = string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase);
-            string subtitle = (active ? "Active  •  " : string.Empty) + ToTitle(quest.status);
+            string subtitle = (active ? "Active  \u00B7  " : string.Empty) + ToTitle(quest.status);
             AddListButton(quest.name, subtitle, key, () =>
             {
                 _selectedKey = key;
@@ -451,10 +523,10 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
     private void BuildStatsList(PlayerState state, WorldState world, GeneratedRpgContentService content)
     {
         AddSectionHeader(_listContent, "Overview");
-        AddListButton("Core Stats", "Base and derived combat values", "stats:core", () => { _selectedKey = "stats:core"; MarkDirty(true); });
+        AddListButton("Combat", "Attributes with equipment applied", "stats:core", () => { _selectedKey = "stats:core"; MarkDirty(true); });
         AddListButton("Loadout", "Equipped items and skills", "stats:loadout", () => { _selectedKey = "stats:loadout"; MarkDirty(true); });
-        AddListButton("World State", "Region, tension, canon, factions", "stats:world", () => { _selectedKey = "stats:world"; MarkDirty(true); });
-        AddListButton("Activity", "Behavior ledger and counters", "stats:activity", () => { _selectedKey = "stats:activity"; MarkDirty(true); });
+        AddListButton("Journey", "Your current region and tracked quest", "stats:world", () => { _selectedKey = "stats:world"; MarkDirty(true); });
+        AddListButton("Progress", "Skills, titles, and quest progress", "stats:activity", () => { _selectedKey = "stats:activity"; MarkDirty(true); });
         if (string.IsNullOrWhiteSpace(_selectedKey))
             _selectedKey = "stats:core";
     }
@@ -467,6 +539,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         switch (_activeTab)
         {
             case MenuTab.Inventory:
+            case MenuTab.Equipment:
                 BuildInventoryDetail(state);
                 break;
             case MenuTab.Skills:
@@ -483,9 +556,16 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                 break;
         }
 
-        if (_detailScroll != null)
+        // note: Polling accepted state must not pull a reader back to the top of a long description.
+        if (_detailScroll != null && _lastDetailKey != _activeTab + ":" + _selectedKey)
+        {
+            _lastDetailKey = _activeTab + ":" + _selectedKey;
+            _detailScroll.StopMovement();
             _detailScroll.verticalNormalizedPosition = 1f;
+        }
     }
+
+    private string _lastDetailKey;
 
     private void BuildInventoryDetail(PlayerState state)
     {
@@ -504,9 +584,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             else
             {
                 SetDetailIcon(equipped);
-                sb.AppendLine("Equipped  " + equipped.displayName);
-                sb.AppendLine("Type  " + ToTitle(equipped.itemType));
-                sb.AppendLine("Rarity  " + ToTitle(equipped.rarity));
+                _detailTitleText.text=YQBlueglassText.Escape(equipped.displayName);
+                AppendItemOverview(sb,equipped);
                 AppendItemDetail(sb, equipped);
             }
             _detailBodyText.text = sb.ToString();
@@ -523,15 +602,9 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         }
 
         SetDetailIcon(item);
-        _detailTitleText.text = item.displayName;
+        _detailTitleText.text = YQBlueglassText.Escape(item.displayName);
         StringBuilder body = new StringBuilder(640);
-        body.AppendLine("Type  " + ToTitle(item.itemType));
-        if (!string.IsNullOrWhiteSpace(item.equipSlot))
-            body.AppendLine("Slot  " + FormatSlotName(item.equipSlot));
-        if (!string.IsNullOrWhiteSpace(item.rarity))
-            body.AppendLine("Rarity  " + ToTitle(item.rarity));
-        body.AppendLine("Quantity  " + Mathf.Max(1, item.quantity));
-        body.AppendLine("Power  " + item.powerScore);
+        AppendItemOverview(body,item);
         AppendItemDetail(body, item);
         _detailBodyText.text = body.ToString();
     }
@@ -546,18 +619,32 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             return;
         }
 
-        _detailTitleText.text = selected.name;
+        _detailTitleText.text = YQBlueglassText.Escape(selected.name);
         StringBuilder sb = new StringBuilder(512);
-        sb.AppendLine("Category  " + (selected.isSpell ? "Spell" : "Skill"));
-        sb.AppendLine("Type  " + ToTitle(selected.type));
-        sb.AppendLine("Tier  " + Mathf.Max(1, selected.tier));
-        sb.AppendLine("Rank  " + Mathf.Max(1, selected.rank));
-        if (!string.IsNullOrWhiteSpace(selected.context)) sb.AppendLine("Context  " + ToTitle(selected.context));
-        if (!string.IsNullOrWhiteSpace(selected.environment)) sb.AppendLine("Environment  " + ToTitle(selected.environment));
-        sb.AppendLine();
-        sb.AppendLine(Safe(selected.description, "No description."));
-        sb.AppendLine();
-        sb.Append("Equipped Active  " + ResolveEquippedSkillName(state, "active") + "   •   Equipped Spell  " + ResolveEquippedSkillName(state, "spell"));
+        bool isSpell = YQSpellCircleRules.IsSpell(selected);
+        if (isSpell)
+        {
+            // note: Keep the casting values visible together in the compact inspector instead of repeating the spell classification.
+            sb.AppendLine("Spell  \u2022  Circle " + YQSpellCircleRules.GetCircle(selected) + "  \u2022  Rank " + Mathf.Max(1, selected.rank));
+        }
+        else
+        {
+            sb.AppendLine(YQBlueglassText.Tint("Skill  \u2022  " + YQBlueglassText.Escape(ToTitle(selected.type)), YQBlueglassText.Quiet));
+            YQBlueglassText.Value(sb, "Tier / Rank", Mathf.Max(1, selected.tier) + " / " + Mathf.Max(1, selected.rank));
+        }
+        if (isSpell)
+        {
+            // note: The inspector displays the same mechanical cost, strength and duration used by live combat.
+            int equipmentBonus = GeneratedRpgContentService.Instance != null ? GeneratedRpgContentService.Instance.GetManaBonus(state) : 0;
+            YQBlueglassText.Value(sb, "Cost", YQSpellCircleRules.GetResourceCost(selected).ToString("0") + " " + ToTitle(YQSpellCircleRules.GetResourceType(selected)), YQBlueglassText.ResourceColor(YQSpellCircleRules.GetResourceType(selected)));
+            YQBlueglassText.Value(sb, "Strength", YQSpellCircleRules.GetPower(selected, equipmentBonus).ToString());
+            YQBlueglassText.Value(sb, "Cast time", YQSpellCircleRules.GetCastSeconds(selected, equipmentBonus).ToString("0.##") + " s");
+        }
+        // note: Inspection exposes supported mechanical fields directly, without inferring executable effects from prose.
+        if(!isSpell && selected.resourceCost>0) YQBlueglassText.Value(sb,"Cost",selected.resourceCost + " " + ToTitle(selected.resourceType));
+        if(selected.cooldownSeconds>0) YQBlueglassText.Value(sb,"Cooldown",selected.cooldownSeconds.ToString("0.#") + " s");
+        if(!string.IsNullOrWhiteSpace(selected.targetingMode)) YQBlueglassText.Value(sb,"Target",ToTitle(selected.targetingMode));
+        YQBlueglassText.Flavour(sb, selected.description);
         _detailBodyText.text = sb.ToString();
     }
 
@@ -571,8 +658,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                 ClassRecord record = state.classes[i];
                 if (record != null && string.Equals(record.classId, id, StringComparison.OrdinalIgnoreCase))
                 {
-                    _detailTitleText.text = record.name;
-                    _detailBodyText.text = "Identity  Class\n\n" + Safe(record.description, "No description.");
+                    _detailTitleText.text = YQBlueglassText.Escape(record.name);
+                    _detailBodyText.text = YQBlueglassText.Tint("CLASS",YQBlueglassText.Quiet)+"\n\n"+YQBlueglassText.Description(record.description);
                     return;
                 }
             }
@@ -586,8 +673,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                 TitleRecord record = state.titles[i];
                 if (record != null && string.Equals(record.titleId, id, StringComparison.OrdinalIgnoreCase))
                 {
-                    _detailTitleText.text = record.name;
-                    _detailBodyText.text = "Identity  Title\n\n" + Safe(record.description, "No description.");
+                    _detailTitleText.text = YQBlueglassText.Escape(record.name);
+                    _detailBodyText.text = YQBlueglassText.Tint("TITLE",YQBlueglassText.Quiet)+"\n\n"+YQBlueglassText.Description(record.description);
                     return;
                 }
             }
@@ -607,14 +694,31 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             return;
         }
 
-        _detailTitleText.text = quest.name;
+        _detailTitleText.text = YQBlueglassText.Escape(quest.name);
         StringBuilder sb = new StringBuilder(512);
-        sb.AppendLine("Tracking  " + (string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase) ? "Active" : "Not active"));
-        sb.AppendLine("Status  " + ToTitle(quest.status));
-        if (quest.tags != null && quest.tags.Length > 0)
-            sb.AppendLine("Tags  " + string.Join(", ", quest.tags));
-        sb.AppendLine();
-        sb.AppendLine(Safe(quest.description, "No description."));
+        YQBlueglassText.Value(sb,"Status",ToTitle(quest.status));
+        if (string.Equals(quest.questId,state.activeQuestId,StringComparison.OrdinalIgnoreCase))
+            sb.AppendLine(YQBlueglassText.Tint("Tracked quest",YQBlueglassText.Mana));
+        // note: Objective completion is read from the accepted record; descriptive text never determines progress.
+        if (quest.objectives != null && quest.objectives.Count > 0)
+        {
+            YQBlueglassText.Section(sb,"Objectives");
+            foreach (QuestObjectiveRecord objective in quest.objectives)
+            {
+                if (objective == null) continue;
+                string label=YQBlueglassText.Description(objective.description);
+                if (string.IsNullOrWhiteSpace(label)) label=YQBlueglassText.Escape(Safe(objective.targetName,"Objective"));
+                sb.AppendLine(YQBlueglassText.Tint((objective.completed ? "Complete  " : "\u2022  ")+label,
+                    objective.completed ? YQBlueglassText.Positive : YQBlueglassText.Ink));
+            }
+        }
+        if (quest.rewardXp > 0 || quest.rewardGold > 0)
+        {
+            YQBlueglassText.Section(sb,"Rewards");
+            if(quest.rewardXp>0) YQBlueglassText.Value(sb,"Experience",quest.rewardXp.ToString("N0"));
+            if(quest.rewardGold>0) YQBlueglassText.Value(sb,"Gold",quest.rewardGold.ToString("N0"),YQBlueglassText.Stamina);
+        }
+        YQBlueglassText.Flavour(sb,quest.description);
         _detailBodyText.text = sb.ToString();
     }
 
@@ -642,50 +746,43 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                 break;
 
             case "stats:world":
-                _detailTitleText.text = "World State";
-                sb.AppendLine("Region  " + Safe(state.currentRegionName, "Unknown") + " (" + Safe(state.currentRegionId, "region_unknown") + ")");
-                if (world != null)
-                {
-                    sb.AppendLine("Tension  " + world.tension.ToString("0.00"));
-                    sb.AppendLine("Factions  " + world.factions.Count);
-                    sb.AppendLine("Locations  " + world.locations.Count);
-                    sb.AppendLine("NPC Records  " + world.npcs.Count);
-                    sb.AppendLine();
-                    sb.AppendLine("Canon");
-                    List<string> canon = world.GetCanonLines();
-                    for (int i = Mathf.Max(0, canon.Count - 6); i < canon.Count; i++)
-                        sb.AppendLine("• " + canon[i]);
-                }
+                // note: World internals are diagnostic data, not player discoveries or an omniscient journal.
+                _detailTitleText.text = "Journey";
+                YQBlueglassText.Value(sb,"Region",Safe(state.currentRegionName,"Uncharted"));
+                YQBlueglassText.Section(sb,"Tracked quest");
+                sb.AppendLine(YQBlueglassText.Escape(Safe(state.GetActiveQuest()?.name,"No quest tracked")));
+                YQBlueglassText.Flavour(sb,state.GetActiveQuest()?.description);
                 break;
 
             case "stats:activity":
-                _detailTitleText.text = "Activity";
-                sb.AppendLine("Ledger");
-                for (int i = Mathf.Max(0, state.behaviorLedger.Count - 12); i < state.behaviorLedger.Count; i++)
-                    sb.AppendLine("• " + state.behaviorLedger[i]);
-                sb.AppendLine();
-                sb.AppendLine("Counters");
-                foreach (KeyValuePair<string, float> kvp in state.behaviorCounters)
-                    sb.AppendLine(kvp.Key + "  " + kvp.Value.ToString("0.##"));
+                _detailTitleText.text = "Progress";
+                YQBlueglassText.Value(sb,"Level",state.level.ToString());
+                YQBlueglassText.Value(sb,"Next level",state.xpToNext.ToString("N0") + " XP remaining");
+                YQBlueglassText.Section(sb,"Your path");
+                YQBlueglassText.Value(sb,"Skills",state.skills.Count.ToString());
+                YQBlueglassText.Value(sb,"Classes",state.classes.Count.ToString());
+                YQBlueglassText.Value(sb,"Titles",state.titles.Count.ToString());
+                YQBlueglassText.Value(sb,"Quests in journal",state.quests.Count.ToString());
                 break;
 
             default:
-                _detailTitleText.text = "Core Stats";
+                _detailTitleText.text = "Combat";
                 int maxHealth = content != null ? content.GetDerivedMaxHealth(state) : state.stats.maxHealth;
                 int maxStamina = content != null ? content.GetDerivedMaxStamina(state) : state.stats.maxStamina;
                 int maxMana = content != null ? content.GetDerivedMaxMana(state) : state.stats.maxMana;
-                sb.AppendLine("Level  " + state.level);
-                sb.AppendLine("XP  " + state.xp + " / " + Mathf.Max(1, state.xp + state.xpToNext));
-                sb.AppendLine("Attack  " + state.stats.attack + "   •   Derived  " + (state.stats.attack + (content != null ? content.GetAttackBonus(state) : 0)));
-                sb.AppendLine("Defense  " + state.stats.defense + "   •   Derived  " + (state.stats.defense + (content != null ? content.GetDefenseBonus(state) : 0)));
-                sb.AppendLine("Max Health  " + maxHealth);
-                sb.AppendLine("Max Stamina  " + maxStamina);
-                sb.AppendLine("Max Mana  " + maxMana);
-                sb.AppendLine("Move Speed  " + (content != null ? content.GetMoveSpeedBonus(state) + state.stats.moveSpeed : state.stats.moveSpeed).ToString("0.00"));
-                sb.AppendLine("Crit  " + state.stats.critChance.ToString("0.00"));
-                sb.AppendLine();
-                sb.AppendLine("Inventory  " + state.inventoryItems.Count + " items");
-                sb.AppendLine("Skills  " + state.skills.Count + "   •   Classes  " + state.classes.Count + "   •   Titles  " + state.titles.Count + "   •   Quests  " + state.quests.Count);
+                YQBlueglassText.Value(sb,"Level",state.level.ToString());
+                YQBlueglassText.Value(sb,"Experience",state.xp.ToString("N0") + " / " + Mathf.Max(1,state.xp+state.xpToNext).ToString("N0"));
+                YQBlueglassText.Section(sb,"Combat attributes");
+                YQBlueglassText.Value(sb,"Attack",(state.stats.attack+(content!=null ? content.GetAttackBonus(state) : 0)).ToString());
+                YQBlueglassText.Value(sb,"Defense",(state.stats.defense+(content!=null ? content.GetDefenseBonus(state) : 0)).ToString());
+                YQBlueglassText.Value(sb,"Critical chance",(state.stats.critChance*100f).ToString("0.#")+"%");
+                // note: The legacy movement rating is not motor speed; show only the equipment modifier owned by this sheet.
+                YQBlueglassText.Value(sb,"Equipment movement bonus",(content!=null ? content.GetMoveSpeedBonus(state) : 0).ToString("+0.##;-0.##;0")+" m/s");
+                YQBlueglassText.Section(sb,"Resources");
+                YQBlueglassText.Value(sb,"Maximum health",maxHealth.ToString(),YQBlueglassText.Health);
+                YQBlueglassText.Value(sb,"Maximum stamina",maxStamina.ToString(),YQBlueglassText.Stamina);
+                YQBlueglassText.Value(sb,"Maximum mana",maxMana.ToString(),YQBlueglassText.Mana);
+                sb.AppendLine().Append(YQBlueglassText.Tint("Equipment bonuses included.",YQBlueglassText.Quiet));
                 break;
         }
         _detailBodyText.text = sb.ToString();
@@ -694,18 +791,18 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
     private void RebuildOfferPanel(PlayerState state)
     {
         PendingProgressionOfferRecord offer = state.GetActiveOffer();
-        bool visible = _activeTab == MenuTab.Inventory && offer != null;
+        bool visible = IsInventoryTab && offer != null;
         _offerPanel.gameObject.SetActive(visible);
         if (!visible)
             return;
 
-        _offerTitleText.text = (offer.isUpgrade ? "Upgrade" : "Offer") + " • " + ToTitle(offer.offerKind) + " • " + offer.name;
+        _offerTitleText.text = (offer.isUpgrade ? "Upgrade" : "Offer") + " \u00B7 " + ToTitle(offer.offerKind) + " \u00B7 " + offer.name;
         StringBuilder sb = new StringBuilder(256);
-        sb.AppendLine(Safe(offer.description, "No description."));
+        sb.AppendLine(YQBlueglassText.Description(offer.description));
         sb.AppendLine();
-        sb.Append("Confidence " + offer.confidence.ToString("0.00"));
         if (offer.proposedTier > 0)
-            sb.Append("   •   Tier T" + offer.proposedTier);
+            sb.Append(YQSpellCircleRules.IsSpell(offer) ? "Circle " + YQSpellCircleRules.ClampCircle(offer.proposedTier) :
+                "Tier " + offer.proposedTier);
         _offerBodyText.text = sb.ToString();
     }
 
@@ -716,7 +813,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         string primary = string.Empty;
         string secondary = string.Empty;
 
-        if (_activeTab == MenuTab.Inventory)
+        if (IsInventoryTab)
         {
             if (TrySelectedSlot(out _))
             {
@@ -733,7 +830,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                     if (item.IsEquippable)
                     {
                         showPrimary = true;
-                        primary = "Equip";
+                        primary = IsItemEquipped(state, item.itemId) ? "Equipped" : "Equip";
                     }
                     else if (item.IsConsumable)
                     {
@@ -749,7 +846,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             if (skill != null)
             {
                 showPrimary = true;
-                primary = skill.isSpell ? "Equip Spell" : "Equip Active";
+                primary = YQSpellCircleRules.IsSpell(skill) ? "Equip Spell" : "Equip Active";
             }
         }
         else if (_activeTab == MenuTab.Quests)
@@ -766,6 +863,8 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         _secondaryButton.gameObject.SetActive(showSecondary);
         _primaryButtonText.text = primary;
         _secondaryButtonText.text = secondary;
+        _primaryButton.interactable = primary != "Equipped";
+        SyncQuickActions(showPrimary, showSecondary, primary, secondary);
     }
 
     private void OnPrimaryActionClicked()
@@ -777,8 +876,9 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         PlayerState state = psm.state;
         GeneratedRpgContentService content = GeneratedRpgContentService.Instance;
         _statusMessage = string.Empty;
+        bool accepted = false;
 
-        if (_activeTab == MenuTab.Inventory)
+        if (IsInventoryTab)
         {
             if (TrySelectedSlot(out string slotId))
             {
@@ -788,6 +888,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                     content?.SetInventoryMessage(message);
                     Persist();
                     _statusMessage = message;
+                    accepted = true;
                 }
                 else
                 {
@@ -806,15 +907,19 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
                             content?.SetInventoryMessage(message);
                             Persist();
                             _statusMessage = message;
+                            accepted = true;
                         }
+                        else _statusMessage = message;
                     }
                     else if (item.IsConsumable)
                     {
                         if (content != null)
                         {
+                            int quantityBeforeUse = item.quantity;
                             content.UseSpecificConsumable(item.itemId);
                             Persist();
                             _statusMessage = Safe(content.LastInventoryMessage, "Used item.");
+                            accepted = !state.inventoryItems.Contains(item) || item.quantity < quantityBeforeUse;
                         }
                     }
                 }
@@ -825,9 +930,10 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             SkillRecord skill = GetSelectedSkill(state);
             if (skill != null)
             {
-                state.equippedSkillBySlot[skill.isSpell ? "spell" : "active"] = skill.skillId;
+                state.equippedSkillBySlot[YQSpellCircleRules.IsSpell(skill) ? "spell" : "active"] = skill.skillId;
                 Persist();
                 _statusMessage = "Equipped " + skill.name + ".";
+                accepted = true;
             }
         }
         else if (_activeTab == MenuTab.Quests)
@@ -837,9 +943,11 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             {
                 Persist();
                 _statusMessage = "Tracking " + quest.name + ".";
+                accepted = true;
             }
         }
 
+        PulseAction(accepted);
         MarkDirty(true);
     }
 
@@ -849,7 +957,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         if (psm == null || psm.state == null)
             return;
 
-        if (_activeTab == MenuTab.Inventory && TrySelectedSlot(out string slotId))
+        if (IsInventoryTab && TrySelectedSlot(out string slotId))
         {
             string removedItemId = psm.state.equippedItemBySlot.TryGetValue(slotId, out string equippedId) ? equippedId : string.Empty;
             psm.state.equippedItemBySlot.Remove(slotId);
@@ -865,6 +973,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             }
             Persist();
             _statusMessage = "Cleared " + FormatSlotName(slotId) + ".";
+            PulseAction(true);
             MarkDirty(true);
         }
     }
@@ -885,6 +994,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             GeneratedRpgContentService.Instance?.SetInventoryMessage(message);
             Persist();
             _statusMessage = message;
+            PulseAction(true);
             MarkDirty(true);
         }
     }
@@ -905,6 +1015,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             GeneratedRpgContentService.Instance?.SetInventoryMessage(message);
             Persist();
             _statusMessage = message;
+            PulseAction(true);
             MarkDirty(true);
         }
     }
@@ -986,34 +1097,45 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         return skill != null ? skill.name : skillId;
     }
 
+    private static void AppendItemOverview(StringBuilder body,InventoryItemRecord item)
+    {
+        // note: Structured item identity stays quiet; useful power/recovery receives the inspector's primary visual emphasis.
+        body.Append(YQBlueglassText.Tint(YQBlueglassText.Escape(ToTitle(Safe(item.rarity,"common"))),YQBlueglassText.RarityColor(item.rarity)));
+        string type=string.IsNullOrWhiteSpace(item.equipSlot) ? ToTitle(item.itemType) : FormatSlotName(item.equipSlot);
+        body.Append("  \u2022  ").AppendLine(YQBlueglassText.Escape(type));
+        if(item.quantity>1) YQBlueglassText.Value(body,"Quantity",item.quantity.ToString("N0"));
+        if(item.powerScore>0) body.Append("<size=140%><b>").Append(item.powerScore).AppendLine("</b></size>  <size=85%>POWER</size>");
+    }
+
     private void AppendItemDetail(StringBuilder sb, InventoryItemRecord item)
     {
         if (item == null)
             return;
-        if (item.attackBonus != 0) sb.AppendLine("Attack  " + item.attackBonus);
-        if (item.defenseBonus != 0) sb.AppendLine("Defense  " + item.defenseBonus);
-        if (item.healthBonus != 0) sb.AppendLine("Health  " + item.healthBonus);
-        if (item.staminaBonus != 0) sb.AppendLine("Stamina  " + item.staminaBonus);
-        if (item.manaBonus != 0) sb.AppendLine("Mana  " + item.manaBonus);
-        if (Mathf.Abs(item.moveSpeedBonus) > 0.001f) sb.AppendLine("Move  " + item.moveSpeedBonus.ToString("+0.##;-0.##;0"));
-        if (item.healAmount > 0) sb.AppendLine("Heal  " + item.healAmount);
-        if (item.restoreStaminaAmount > 0) sb.AppendLine("Restore Stamina  " + item.restoreStaminaAmount);
-        if (item.restoreManaAmount > 0) sb.AppendLine("Restore Mana  " + item.restoreManaAmount);
-        sb.AppendLine();
-        sb.Append(Safe(item.description, "No description."));
+        // note: Signed, labelled values separate equipment modifiers from on-use recovery and flavour.
+        if(item.attackBonus!=0 || item.defenseBonus!=0 || item.healthBonus!=0 || item.staminaBonus!=0 || item.manaBonus!=0 || Mathf.Abs(item.moveSpeedBonus)>.001f)
+            YQBlueglassText.Section(sb,"While equipped");
+        YQBlueglassText.Bonus(sb,"Attack",item.attackBonus);
+        YQBlueglassText.Bonus(sb,"Defense",item.defenseBonus);
+        YQBlueglassText.Bonus(sb,"Maximum health",item.healthBonus);
+        YQBlueglassText.Bonus(sb,"Maximum stamina",item.staminaBonus);
+        YQBlueglassText.Bonus(sb,"Maximum mana",item.manaBonus);
+        YQBlueglassText.Bonus(sb,"Movement speed",item.moveSpeedBonus);
+        if(item.healAmount>0 || item.restoreStaminaAmount>0 || item.restoreManaAmount>0)
+            YQBlueglassText.Section(sb,"On use");
+        if(item.healAmount>0) YQBlueglassText.Value(sb,"Restore health",item.healAmount.ToString(),YQBlueglassText.Health);
+        if(item.restoreStaminaAmount>0) YQBlueglassText.Value(sb,"Restore stamina",item.restoreStaminaAmount.ToString(),YQBlueglassText.Stamina);
+        if(item.restoreManaAmount>0) YQBlueglassText.Value(sb,"Restore mana",item.restoreManaAmount.ToString(),YQBlueglassText.Mana);
+        YQBlueglassText.Flavour(sb,item.description);
     }
 
     private string BuildSubtitle(PlayerState state, WorldState world)
     {
-        return "Lvl " + state.level + "   •   Gold " + state.currency + "   •   Region " + Safe(state.currentRegionName, "Unknown") +
-               (world != null ? "   •   Tension " + world.tension.ToString("0.00") : string.Empty);
+        return "Level " + state.level + "   \u00B7   " + state.currency.ToString("N0") + " Gold   \u00B7   " + YQBlueglassText.Escape(Safe(state.currentRegionName,"Uncharted"));
     }
 
     private string BuildFooter(PlayerState state, WorldState world)
     {
-        return "Tab open  •  Esc close  •  Pending Offers " + state.GetPendingOfferCount() +
-               "  •  Equipped " + CountEquipped(state) + "/" + EquipmentSlots.Length +
-               "  •  Active Quest " + Safe(state.GetActiveQuest()?.name, "<none>");
+        return "Hover to inspect   \u00B7   Select for actions   \u00B7   Scroll to browse   \u00B7   Esc close";
     }
 
     private static int CountEquipped(PlayerState state)
@@ -1187,6 +1309,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         rt.anchoredPosition = anchoredPosition;
         rt.sizeDelta = dimensions;
         TMP_Text text = go.GetComponent<TextMeshProUGUI>();
+        text.raycastTarget = false;
         text.fontSize = size;
         text.fontStyle = style;
         text.alignment = TextAlignmentOptions.TopLeft;
@@ -1199,6 +1322,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         GameObject go = new GameObject("TextBlock", typeof(RectTransform), typeof(TextMeshProUGUI), typeof(LayoutElement));
         go.transform.SetParent(parent, false);
         TMP_Text text = go.GetComponent<TextMeshProUGUI>();
+        text.raycastTarget = false;
         text.fontSize = size;
         text.fontStyle = style;
         text.alignment = TextAlignmentOptions.TopLeft;
@@ -1218,10 +1342,15 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
         TMP_Text text = go.GetComponent<TextMeshProUGUI>();
+        text.raycastTarget = false;
         text.fontSize = size;
         text.fontStyle = style;
         text.alignment = alignment;
         YQUITheme.ApplyText(text);
+        // note: Scroll-owned descriptions grow vertically; ellipsis must never conceal the last effect or objective.
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.lineSpacing = 5f;
+        text.paragraphSpacing = 8f;
         ContentSizeFitter fitter = go.GetComponent<ContentSizeFitter>();
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         return text;
@@ -1232,6 +1361,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         Button button = CreateButton(parent, label, new Vector2(0f, 1f), Vector2.zero, new Vector2(0f, 54f), label);
         LayoutElement layout = button.gameObject.AddComponent<LayoutElement>();
         layout.preferredHeight = 54f;
+        button.GetComponentInChildren<TMP_Text>().fontSize=22;
         return button;
     }
 
@@ -1240,6 +1370,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         Button button = CreateListButton(_listContent, title, subtitle);
         SetButtonVisual(button, string.Equals(_selectedKey, key, StringComparison.OrdinalIgnoreCase));
         button.onClick.AddListener(() => onClick?.Invoke());
+        BindRecordHover(button,key);
     }
 
     private void AddInventoryListButton(InventoryItemRecord item, string subtitle, string key, Action onClick)
@@ -1247,6 +1378,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         Button button = CreateInventoryListButton(_listContent, item, subtitle);
         SetButtonVisual(button, string.Equals(_selectedKey, key, StringComparison.OrdinalIgnoreCase));
         button.onClick.AddListener(() => onClick?.Invoke());
+        BindRecordHover(button,key);
     }
 
     private Button CreateListButton(Transform parent, string title, string subtitle)
@@ -1255,14 +1387,20 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         RectTransform rt = root.GetComponent<RectTransform>();
         rt.SetParent(parent, false);
         LayoutElement layout = root.GetComponent<LayoutElement>();
-        layout.preferredHeight = 62f;
+        // note: Generated record names and descriptions remain readable at the game's reference scale.
+        layout.preferredHeight = 78f;
         Button button = root.GetComponent<Button>();
         YQUITheme.ApplyButton(button);
 
-        CreateAbsoluteText(root.transform, "Title", 16f, FontStyles.Bold, new Vector2(12f, -10f), new Vector2(450f, 20f)).text = title;
-        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 13f, FontStyles.Normal, new Vector2(12f, -34f), new Vector2(450f, 18f));
+        TMP_Text heading = CreateAbsoluteText(root.transform, "Title", 22f, FontStyles.Bold, new Vector2(12f, -10f), new Vector2(450f, 28f));
+        heading.text = YQBlueglassText.Escape(title);
+        heading.rectTransform.anchorMax = new Vector2(1,1);
+        heading.rectTransform.sizeDelta = new Vector2(-24,28);
+        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 18f, FontStyles.Normal, new Vector2(12f, -42f), new Vector2(450f, 25f));
         sub.text = subtitle;
         sub.color = YQUITheme.Muted;
+        sub.rectTransform.anchorMax = new Vector2(1,1);
+        sub.rectTransform.sizeDelta = new Vector2(-24,25);
         return button;
     }
 
@@ -1272,18 +1410,29 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         RectTransform rt = root.GetComponent<RectTransform>();
         rt.SetParent(parent, false);
         LayoutElement layout = root.GetComponent<LayoutElement>();
-        layout.preferredHeight = 68f;
+        layout.preferredHeight = 126f;
         Button button = root.GetComponent<Button>();
         YQUITheme.ApplyButton(button);
 
-        Image frame = CreateIconFrame(root.transform, "IconFrame", new Vector2(10f, -10f), new Vector2(48f, 48f));
-        RawImage icon = CreateRawIcon(frame.transform, "Icon", new Vector2(5f, -5f), new Vector2(38f, 38f));
+        Image frame = CreateIconFrame(root.transform, "IconFrame", new Vector2(12f, -12f), new Vector2(60f, 60f));
+        RawImage icon = CreateRawIcon(frame.transform, "Icon", new Vector2(3f, -3f), new Vector2(54f, 54f));
         ApplyItemIcon(icon, frame, item);
 
-        CreateAbsoluteText(root.transform, "Title", 16f, FontStyles.Bold, new Vector2(68f, -10f), new Vector2(382f, 20f)).text = item != null ? item.displayName : "Unknown Item";
-        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 13f, FontStyles.Normal, new Vector2(68f, -36f), new Vector2(382f, 18f));
+        // note: Keep item names and mechanical subtitles legible without adding more decoration to the carried-item grid.
+        TMP_Text title = CreateAbsoluteText(root.transform, "Title", 18f, FontStyles.Bold, new Vector2(72f, -12f), new Vector2(96f, 58f));
+        title.text = item != null ? YQBlueglassText.Escape(item.displayName) : "Unknown item";
+        title.rectTransform.anchorMax=new Vector2(1,1);
+        title.rectTransform.sizeDelta=new Vector2(-88,58);
+        title.textWrappingMode = TextWrappingModes.Normal;
+        // note: Shrink only long generated names within the two-line tile heading rather than splitting ordinary names mid-word.
+        title.enableAutoSizing=true;
+        title.fontSizeMin=18f;
+        title.fontSizeMax=20f;
+        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 18f, FontStyles.Normal, new Vector2(12f, -82f), new Vector2(156f, 32f));
         sub.text = subtitle;
-        sub.color = YQUITheme.Muted;
+        if(item!=null && ColorUtility.TryParseHtmlString("#"+YQBlueglassText.RarityColor(item.rarity),out Color rarity)) sub.color=rarity;
+        sub.rectTransform.anchorMax=new Vector2(1,1);
+        sub.rectTransform.sizeDelta=new Vector2(-24,32);
         return button;
     }
 
@@ -1315,24 +1464,30 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         Button button = root.GetComponent<Button>();
         YQUITheme.ApplyButton(button);
 
-        float iconSize = Mathf.Clamp(slot.Size.y - 14f, 22f, 34f);
-        float textX = item != null ? iconSize + 14f : 8f;
+        // note: Keep the hit rectangle stable while a separate circular socket carries the slot artwork.
+        root.GetComponent<Image>().sprite = null;
+        root.GetComponent<Image>().color = Color.clear;
+        Image socket = CreateUiImage(root.transform,"Socket",new Vector2(3,-6),new Vector2(54,54));
+        button.targetGraphic = socket;
+        YQUITheme.ApplyButton(button);
+        float iconSize = 44f;
+        float textX = 66f;
         if (item != null)
         {
-            Image frame = CreateIconFrame(root.transform, "IconFrame", new Vector2(7f, -7f), new Vector2(iconSize, iconSize));
+            Image frame = CreateIconFrame(socket.transform, "IconFrame", new Vector2(5f, -5f), new Vector2(iconSize, iconSize));
             RawImage icon = CreateRawIcon(frame.transform, "Icon", new Vector2(3f, -3f), new Vector2(iconSize - 6f, iconSize - 6f));
             ApplyItemIcon(icon, frame, item);
         }
 
-        TMP_Text title = CreateAbsoluteText(root.transform, "Title", 13f, FontStyles.Bold, new Vector2(textX, -7f), new Vector2(slot.Size.x - textX - 8f, 17f));
+        TMP_Text title = CreateAbsoluteText(root.transform, "Title", 18f, FontStyles.Bold, new Vector2(textX, -4f), new Vector2(slot.Size.x - textX - 8f, 25f));
         title.text = slot.Label;
-        title.alignment = item != null ? TextAlignmentOptions.Left : TextAlignmentOptions.Center;
+        title.alignment = TextAlignmentOptions.Left;
 
-        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 11f, FontStyles.Normal, new Vector2(textX, -28f), new Vector2(slot.Size.x - textX - 8f, slot.Size.y - 30f));
+        TMP_Text sub = CreateAbsoluteText(root.transform, "Subtitle", 16f, FontStyles.Normal, new Vector2(textX, -30f), new Vector2(slot.Size.x - textX - 8f, slot.Size.y - 30f));
         sub.text = subtitle;
         sub.textWrappingMode = TextWrappingModes.Normal;
         sub.overflowMode = TextOverflowModes.Ellipsis;
-        sub.alignment = item != null ? TextAlignmentOptions.Left : TextAlignmentOptions.Center;
+        sub.alignment = TextAlignmentOptions.Left;
         sub.color = YQUITheme.Muted;
         return button;
     }
@@ -1390,6 +1545,15 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
             return;
 
         Texture2D texture = ResolveItemIconTexture(item);
+        Sprite fallback = texture == null ? YQBlueglassStyle.ItemPortrait(item) : null;
+        if (fallback != null)
+        {
+            // note: Registry artwork wins; an explicit structured-family fallback reserves a visible item portrait.
+            texture = fallback.texture;
+            Rect rect = fallback.rect;
+            icon.uvRect = new Rect(rect.x/texture.width,rect.y/texture.height,rect.width/texture.width,rect.height/texture.height);
+        }
+        else icon.uvRect = new Rect(0,0,1,1);
         bool hasTexture = texture != null;
         // note: Hide only the picture when no registry texture exists; the frame still reserves stable UI space.
         icon.texture = texture;
@@ -1496,6 +1660,7 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
         scroll.horizontal = false;
         scroll.movementType = ScrollRect.MovementType.Clamped;
         scroll.scrollSensitivity = 24f;
+        YQBlueglassScrollAffordance.Attach(scroll);
         return scroll;
     }
 
@@ -1520,7 +1685,13 @@ public sealed class YourQuestTutorialMenuUI : MonoBehaviour
     private void ClearChildren(RectTransform parent)
     {
         for (int i = parent.childCount - 1; i >= 0; i--)
-            Destroy(parent.GetChild(i).gameObject);
+        {
+            // note: Detach pending destruction immediately: the quick view mirrors this child list in the same refresh.
+            Transform stale=parent.GetChild(i);
+            stale.gameObject.SetActive(false);
+            stale.SetParent(null,false);
+            Destroy(stale.gameObject);
+        }
     }
 
     private void AddSectionHeader(Transform parent, string text)

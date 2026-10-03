@@ -2612,8 +2612,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             bool allowAlternativeBinding = false;
             GeneratedSettlementRecord settlementOwner = null;
             GeneratedEncampmentRecord encampmentOwner = null;
-            GeneratedRegionRecord siteRegion = null;
-            GeneratedRegionAssetPaletteRecord sitePalette = null;
+            GeneratedRegionRecord siteRegion = FindRegion(plan, anchor.parentRegionId);
+            GeneratedRegionAssetPaletteRecord sitePalette = FindPalette(plan, siteRegion);
             if (anchor.kind == YQSiteKindV2.Settlement)
             {
                 foreach (GeneratedSettlementRecord settlement in plan.settlements)
@@ -2674,7 +2674,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         YQAssetFunctionV2.Service,
                         YQAssetFunctionV2.Commerce
                     },
-                    anchor.siteId);
+                    anchor.siteId, sitePalette?.styleKey, siteRegion?.assetStyleRationale);
                 if (settlementOwner == null)
                 {
                     tags = new[] { "poi", "civic", "residential", "service", "circulation" };
@@ -2695,7 +2695,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         YQAssetFunctionV2.Reward,
                         YQAssetFunctionV2.Security
                     },
-                    anchor.siteId);
+                    anchor.siteId, sitePalette?.styleKey, siteRegion?.assetStyleRationale);
                 if (encampmentOwner == null)
                 {
                     tags = new[] { "poi", "perimeter", "circulation", "encounter", "reward" };

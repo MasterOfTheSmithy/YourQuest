@@ -35,6 +35,12 @@ public class ActionEvent
     // note: Prevent the delayed behavior rollup from counting an event already reflected in live progression evidence.
     public bool BehaviorCountersApplied;
 
+    public ActionEvent CopyForRequest()
+    {
+        // note: Event fields are values/strings; copying freezes request evidence without invoking the event constructor again.
+        return (ActionEvent)MemberwiseClone();
+    }
+
     public ActionEvent(
         string verb,
         float significance,

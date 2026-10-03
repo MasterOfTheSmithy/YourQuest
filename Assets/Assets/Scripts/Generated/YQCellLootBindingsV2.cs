@@ -12,6 +12,8 @@ public sealed class YQCellLootBindingV2
     public string sourcePrefabGuid = string.Empty;
     public YQSemanticSiteReviewState reviewState = YQSemanticSiteReviewState.Pending;
     public YQCellLootPurposeV2 purpose;
+    // note: Existing reviewed bindings default to chests; newly reviewed household storage can specify a physical source type.
+    public YQContainerType containerType = YQContainerType.Chest;
     public Vector3 sourceLocalPosition;
     public Quaternion sourceLocalRotation = Quaternion.identity;
     public Vector3 sourceLocalScale = Vector3.one;
@@ -66,6 +68,13 @@ public static class YQCellLootBindingsV2
         loot.ConfigureReviewedGeneratedLoot(id, regionId, generatedLabel, gold,
             encounter && (hash & 1) != 0, encounter ? Mathf.Clamp01(0.18f + tier * 0.05f) : 0f,
             encounter ? tier : 1);
+        loot.containerType = binding.containerType == YQContainerType.Chest
+            ? YQWorldContainer.InferStorageType(target.name) : binding.containerType;
+        YQWorldContainer storage = YQWorldContainer.BindStorage(loot);
+        storage.siteId = locationId;
+        storage.sitePurpose = encounter ? "encounter" : "household";
+        storage.contextHints = new YQContainerContext { encounterDifficulty = encounter ? tier : 1 };
+        if (encounter) storage.contextHints.tags.Add("encounter");
         return true;
     }
 
@@ -111,6 +120,7 @@ public static class YQCellLootBindingsV2
             string.IsNullOrWhiteSpace(binding.targetPath) ||
             string.IsNullOrWhiteSpace(signature) || !string.Equals(binding.sourceSignature, signature, StringComparison.Ordinal) ||
             !Enum.IsDefined(typeof(YQCellLootPurposeV2), binding.purpose) ||
+            !Enum.IsDefined(typeof(YQContainerType), binding.containerType) || binding.containerType == YQContainerType.Hostile ||
             !Finite(binding.sourceLocalPosition) || !Positive(binding.sourceLocalScale) ||
             !Rotation(binding.sourceLocalRotation) || !Finite(binding.colliderCenter) || !Positive(binding.colliderSize))
             return false;

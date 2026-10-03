@@ -25,6 +25,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         string.Empty;
 
     private float _progress;
+    private bool _showDiagnostics;
+    private Vector2 _diagnosticsScroll;
 
     private string _generationPhase =
         "Preparing world generation";
@@ -370,7 +372,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     {
         if (s_instance == null ||
             !s_instance._generationMode ||
-            s_instance._finishingGenerationPresentation)
+            s_instance._finishingGenerationPresentation ||
+            (YourQuestTutorialAutoBootstrap.GameplayRuntimeReady &&
+             !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased))
         {
             return;
         }
@@ -569,16 +573,16 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         if (!CanContinueGenerationHandoff(canRevealGameplay))
             yield break;
         SetGenerationWorkStage("Entering the world", 9, 9,
-            "Keeping the live gameplay camera active while generation UI closes", 0.99f);
+            "Preparing the surrounding world before player release", 0.99f);
         YQTitleEnvironmentLoader.ReleaseWorldGeneration();
         if (!CanContinueGenerationHandoff(canRevealGameplay))
             yield break;
 
-        // note: Reveal is immediate because generation never owns or hides the gameplay camera; additive title cleanup can finish independently.
+        // note: Release the generation lock so bootstrap can finish streaming/camera checks, while retaining this presentation until actual player release.
         revealGameplay?.Invoke();
 
         // note: The title-stage handoff may destroy this presentation owner while its delayed coroutine is unwinding; do not dereference a destroyed Unity object.
-        if (this == null)
+        if (this == null || !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
             yield break;
         Destroy(
             gameObject);
@@ -1269,7 +1273,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         if (_generationMode &&
             !YQGeneratedWorldRuntimeBuilder
                 .IsInitialGenerationGameplayLocked &&
-            !_finishingGenerationPresentation)
+            !_finishingGenerationPresentation &&
+            !(YourQuestTutorialAutoBootstrap.GameplayRuntimeReady &&
+              !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased))
         {
             // note: This catches a stale modal restored across script reloads even when no later system reports another generation stage.
             DismissOrphanedGenerationPresentation();
@@ -1286,398 +1292,37 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             return;
         }
 
-        Rect screen =
-            new Rect(
-                0f,
-                0f,
-                Screen.width,
-                Screen.height);
-
-        DrawRect(
-            screen,
-            new Color(
-                0.010f,
-                0.030f,
-                0.070f,
-                0.98f));
-
-        /*
-         * Wider than the old 620px panel because Goddess dialogue now
-         * intentionally contains longer, conversational sentences.
-         */
-        float availableWidth =
-            Mathf.Max(
-                320f,
-                Screen.width -
-                64f);
-
-        float panelWidth =
-            Mathf.Min(
-                760f,
-                availableWidth);
-
-        float contentWidth =
-            Mathf.Max(
-                240f,
-                panelWidth -
-                60f);
-
-        /*
-         * Calculate actual text heights instead of assuming every
-         * Goddess message fits inside a 30px rectangle.
-         */
-        float titleHeight =
-            Mathf.Max(
-                52f,
-                _titleStyle.CalcHeight(
-                    new GUIContent(
-                        _title),
-                    contentWidth));
-
-        string statusDisplay =
-            _generationMode
-                ? string.IsNullOrWhiteSpace(
-                    _visibleGenerationTranscript)
-                    ? _status
-                    : _visibleGenerationTranscript
-                : _status;
-
-        if (_generationMode &&
-            statusDisplay.StartsWith(
-                "Securing connection",
-                StringComparison.Ordinal))
+        // note: Match the title design scale while displaying authoritative boot progress, never a simulated timer.
+        Matrix4x4 previous = GUI.matrix;
+        float scale = Mathf.Max(.1f, Mathf.Min(Screen.width / 1280f, Screen.height / 720f));
+        GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
+        float width = Screen.width / scale;
+        float height = Screen.height / scale;
+        DrawRect(new Rect(0,0,width,height),new Color(.008f,.020f,.038f,.99f));
+        float x = (width-720f)*.5f;
+        float y = height*.36f;
+        GUI.Label(new Rect(x,y-54,720,28), "YOUR JOURNEY  /  WORLD CONNECTION", _smallStyle);
+        GUI.Label(new Rect(x,y-20,620,58), _title, _titleStyle);
+        GUI.Label(new Rect(x,y+50,650,70), _status, _statusStyle);
+        Rect track = new Rect(x,y+142,720,5);
+        DrawRect(track,new Color(.16f,.29f,.39f,.6f));
+        float progress = Mathf.Clamp01(_progress);
+        DrawRect(new Rect(track.x,track.y,track.width*progress,track.height),new Color(.64f,.90f,1f));
+        if (progress>0)
+            DrawRect(new Rect(track.x+track.width*progress-2,track.y-3,2,11),Color.white);
+        GUI.Label(new Rect(x+642,y+92,78,40),Mathf.RoundToInt(progress*100)+"%",_percentStyle);
+        GUI.Label(new Rect(x,y+166,720,38), "Your journey opens when your surroundings are ready.",_smallStyle);
+        // note: Retained errors stay discoverable without a permanent console overlay obscuring the world presentation.
+        string detailsLabel = _errors>0 ? "Startup issue - details" : "Connection details";
+        if (YQBlueglassStyle.GuiButton(new Rect(x,y+222,220,36),_showDiagnostics ? "Close details" : detailsLabel))
+            _showDiagnostics=!_showDiagnostics;
+        if (_showDiagnostics)
         {
-            // note: This spinner is neutral connection UI and never enters the Goddess transcript history.
-            string[] frames = { "|", "/", "-", "\\" };
-            int frame = Mathf.FloorToInt(Time.unscaledTime * 6f) % frames.Length;
-            statusDisplay = "Securing connection... " + frames[frame];
+            Rect details = new Rect(x,y+270,720,Mathf.Max(72,height-y-290));
+            DrawDiagnostics(details);
         }
-
-        float statusHeight =
-            _generationMode
-                ? GenerationTranscriptBoxHeight
-                : Mathf.Max(
-                    58f,
-                    _statusStyle.CalcHeight(
-                        new GUIContent(
-                            statusDisplay),
-                        contentWidth));
-
-        float noteHeight =
-            0f;
-
-        if (_generationMode)
-        {
-            noteHeight =
-                Mathf.Max(
-                    28f,
-                    _generationNoteStyle
-                        .CalcHeight(
-                            new GUIContent(
-                                GenerationWaitNote),
-                            contentWidth));
-        }
-
-        string diagnostics =
-            BuildDiagnosticsText();
-
-        float diagnosticsHeight =
-            _generationMode
-                ? GenerationDiagnosticsBoxHeight
-                : Mathf.Max(
-                    22f,
-                    _smallStyle.CalcHeight(
-                        new GUIContent(
-                            diagnostics),
-                        contentWidth));
-
-        /*
-         * Vertical layout.
-         *
-         * Nothing uses a hardcoded 30px dialogue slot anymore.
-         */
-        const float topPadding =
-            24f;
-
-        const float bottomPadding =
-            22f;
-
-        const float titleToStatusGap =
-            8f;
-
-        const float statusToBarGap =
-            17f;
-
-        const float barHeight =
-            14f;
-
-        const float barToNoteGap =
-            14f;
-
-        const float noteToChecksGap =
-            12f;
-
-        float panelHeight =
-            topPadding +
-            titleHeight +
-            titleToStatusGap +
-            statusHeight +
-            statusToBarGap +
-            barHeight;
-
-        if (_generationMode)
-        {
-            panelHeight +=
-                barToNoteGap +
-                noteHeight +
-                noteToChecksGap;
-        }
-        else
-        {
-            panelHeight +=
-                15f;
-        }
-
-        panelHeight +=
-            diagnosticsHeight;
-
-        panelHeight +=
-            bottomPadding;
-
-        /*
-         * Keep the panel inside the screen on unusual resolutions.
-         */
-        float maximumPanelHeight =
-            Mathf.Max(
-                240f,
-                Screen.height -
-                40f);
-
-        panelHeight =
-            Mathf.Min(
-                panelHeight,
-                maximumPanelHeight);
-
-        Rect panel =
-            new Rect(
-                (Screen.width -
-                 panelWidth) *
-                0.5f,
-
-                (Screen.height -
-                 panelHeight) *
-                0.5f,
-
-                panelWidth,
-                panelHeight);
-
-        DrawRect(
-            panel,
-            new Color(
-                0.030f,
-                0.095f,
-                0.155f,
-                0.92f));
-
-        if (_generationMode)
-        {
-            DrawImportedGenerationArt(
-                panel);
-        }
-
-        /*
-         * Neon sky creation-line accent.
-         */
-        DrawRect(
-            new Rect(
-                panel.x,
-                panel.y,
-                panel.width,
-                2f),
-            new Color(
-                0.40f,
-                0.90f,
-                1f,
-                1f));
-
-        float x =
-            panel.x +
-            30f;
-
-        float y =
-            panel.y +
-            topPadding;
-
-        GUI.Label(
-            new Rect(
-                x,
-                y,
-                contentWidth,
-                titleHeight),
-            _title,
-            _titleStyle);
-
-        y +=
-            titleHeight +
-            titleToStatusGap;
-
-        /*
-         * Main Goddess transcript.
-         *
-         * Fixed height prevents the loading UI from resizing while the
-         * typewriter text is still arriving.
-         */
-        Rect transcriptRect =
-            new Rect(
-                x,
-                y,
-                contentWidth,
-                statusHeight);
-
-        if (_generationMode)
-        {
-            DrawRect(
-                transcriptRect,
-                new Color(
-                    0.015f,
-                    0.065f,
-                    0.115f,
-                    0.84f));
-
-            DrawOutline(
-                transcriptRect,
-                new Color(
-                    0.38f,
-                    0.86f,
-                    1f,
-                    0.58f));
-        }
-
-        if (_generationMode)
-        {
-            DrawGenerationTranscript(
-                transcriptRect,
-                statusDisplay);
-        }
-        else
-        {
-            GUI.Label(
-                transcriptRect,
-                statusDisplay,
-                _statusStyle);
-        }
-
-        y +=
-            statusHeight +
-            statusToBarGap;
-
-        Rect barBack =
-            new Rect(
-                x,
-                y,
-                contentWidth,
-                barHeight);
-
-        DrawRect(
-            barBack,
-            new Color(
-                0.030f,
-                0.075f,
-                0.115f,
-                1f));
-
-        DrawRect(
-            new Rect(
-                barBack.x,
-                barBack.y,
-                barBack.width *
-                _progress,
-                barBack.height),
-            new Color(
-                0.44f,
-                0.88f,
-                1f,
-                1f));
-
-        string percentText =
-            Mathf.RoundToInt(
-                Mathf.Clamp01(
-                    _progress) *
-                100f)
-            .ToString() +
-            "%";
-
-        // note: The percent label makes long generation visibly alive instead of feeling frozen.
-        GUI.Label(
-            barBack,
-            percentText,
-            _percentStyle);
-
-        y +=
-            barHeight;
-
-        /*
-         * Generation-only explanatory note.
-         *
-         * It is deliberately separate from the Goddess dialogue so
-         * SetGenerationStage() cannot overwrite it.
-         */
-        if (_generationMode)
-        {
-            y +=
-                barToNoteGap;
-
-            GUI.Label(
-                new Rect(
-                    x,
-                    y,
-                    contentWidth,
-                    noteHeight),
-                GenerationWaitNote,
-                _generationNoteStyle);
-
-            y +=
-                noteHeight +
-                noteToChecksGap;
-        }
-        else
-        {
-            y +=
-                15f;
-        }
-
-        Rect diagnosticsRect =
-            new Rect(
-                x,
-                y,
-                contentWidth,
-                diagnosticsHeight);
-
-        if (_generationMode)
-        {
-            DrawRect(
-                diagnosticsRect,
-                new Color(
-                    0.010f,
-                    0.045f,
-                    0.085f,
-                    0.76f));
-
-            DrawOutline(
-                diagnosticsRect,
-                new Color(
-                    0.24f,
-                    0.72f,
-                    1f,
-                    0.55f));
-        }
-
-        GUI.Label(
-            diagnosticsRect,
-            diagnostics,
-            _smallStyle);
+        GUI.matrix = previous;
     }
-
     private void DrawGenerationHud()
     {
         float margin = Mathf.Clamp(Screen.width * 0.026f, 22f, 46f);
@@ -1759,34 +1404,30 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 1f),
             new Color(0.46f, 0.84f, 1f, 0.38f));
 
-        string diagnostics = BuildDiagnosticsText();
-        float diagnosticWidth = Mathf.Clamp(
-            Screen.width * 0.235f,
-            250f,
-            350f);
-        const float diagnosticHeight = 76f;
-        Rect diagnosticsRect = new Rect(
-            Screen.width - margin - diagnosticWidth,
-            Screen.height - margin - diagnosticHeight,
-            diagnosticWidth,
-            diagnosticHeight);
-        DrawRect(
-            diagnosticsRect,
-            new Color(0.005f, 0.025f, 0.045f, 0.58f));
-        DrawOutline(
-            diagnosticsRect,
-            new Color(0.42f, 0.86f, 1f, 0.30f));
-        GUI.Label(
-            new Rect(
-                diagnosticsRect.x + 9f,
-                diagnosticsRect.y + 6f,
-                diagnosticsRect.width - 18f,
-                diagnosticsRect.height - 12f),
-            diagnostics,
-            _compactDiagnosticsStyle);
-
+        // note: Preserve generation dialogue and recovery while making technical details an explicit disclosure.
+        float diagnosticWidth = Mathf.Clamp(Screen.width*.26f,250f,430f);
+        Rect detailsButton = new Rect(Screen.width-margin-diagnosticWidth,Screen.height-margin-34,diagnosticWidth,34);
+        if (YQBlueglassStyle.GuiButton(detailsButton,_showDiagnostics ? "Close details" : _errors>0 ? "Startup issue - details" : "Connection details"))
+            _showDiagnostics=!_showDiagnostics;
+        if (_showDiagnostics)
+        {
+            Rect diagnosticsRect = new Rect(detailsButton.x,detailsButton.y-120,diagnosticWidth,112);
+            DrawRect(diagnosticsRect,new Color(.005f,.025f,.045f,.94f));
+            DrawDiagnostics(new Rect(diagnosticsRect.x+10,diagnosticsRect.y+8,diagnosticsRect.width-20,diagnosticsRect.height-16));
+        }
         if (_generationFailure)
             DrawGenerationFailureActions(margin);
+    }
+
+    private void DrawDiagnostics(Rect viewport)
+    {
+        // note: Keep every retained diagnostic accessible without expanding technical text over the loading composition.
+        string details=BuildDiagnosticsText();
+        float width=Mathf.Max(100,viewport.width-20);
+        float height=Mathf.Max(viewport.height,_smallStyle.CalcHeight(new GUIContent(details),width));
+        _diagnosticsScroll=GUI.BeginScrollView(viewport,_diagnosticsScroll,new Rect(0,0,width,height));
+        GUI.Label(new Rect(0,0,width,height),details,_smallStyle);
+        GUI.EndScrollView();
     }
 
     private void DrawHandoffBlackout()
@@ -1810,7 +1451,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         float y = Screen.height - margin - buttonHeight;
 
         // note: Recovery controls prove the presentation is responsive and let the player choose a clean retry or a safe return instead of waiting forever.
-        if (GUI.Button(
+        if (YQBlueglassStyle.GuiButton(
                 new Rect(x, y, buttonWidth, buttonHeight),
                 _retryGenerationLabel))
         {
@@ -1820,7 +1461,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             return;
         }
 
-        if (GUI.Button(
+        if (YQBlueglassStyle.GuiButton(
                 new Rect(
                     x + buttonWidth + buttonGap,
                     y,

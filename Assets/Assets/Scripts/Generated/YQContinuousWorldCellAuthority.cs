@@ -18,6 +18,9 @@ public sealed class YQContinuousWorldCellAuthority
         internal int SpatialSampleCacheHits => spatialSession != null
             ? spatialSession.SpatialSampleCacheHits
             : 0;
+        internal int CachedSpatialSampleCount => spatialSession != null
+            ? spatialSession.CachedSpatialSampleCount
+            : 0;
 
         internal HeightmapSamplingSession(YQContinuousWorldCellAuthority authority)
         {
@@ -176,7 +179,9 @@ public sealed class YQContinuousWorldCellAuthority
             }
         }
         hasAcceptedWaterBounds = !float.IsInfinity(waterMinX);
-        float waterMargin = Mathf.Max(1f, maximumWaterInfluence);
+        // note: Include the shared heightmap-diagonal bank support used by the channel carve.
+        float waterMargin = Mathf.Max(1f, maximumWaterInfluence) +
+            YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
         acceptedWaterMinX = waterMinX - waterMargin;
         acceptedWaterMaxX = waterMaxX + waterMargin;
         acceptedWaterMinZ = waterMinZ - waterMargin;

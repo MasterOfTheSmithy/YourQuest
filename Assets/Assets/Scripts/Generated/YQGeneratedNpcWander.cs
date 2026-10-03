@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Profiling;
 
 /// <summary>
 /// Small deterministic pacing controller for generated residents.
@@ -7,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public sealed class YQGeneratedNpcWander : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQGeneratedNpcWander.Update()");
     private const float DecisionInterval = 0.45f;
     private const float ArrivalDistance = 0.35f;
     private const float CollisionProbeHeight = 0.85f;
@@ -21,13 +23,19 @@ public sealed class YQGeneratedNpcWander : MonoBehaviour
     private float _nextDecision;
     private uint _state;
     private bool _hasTarget;
+    private YQDotCreatureVisual _dotVisual;
+    private YQDotGaitSampler _authoredGait;
 
     // note: Population configures the controller once so every resident gets a stable local route without runtime allocation or a global NPC manager.
     public void Configure(string seed, float localRadius = 6f, float movementSpeed = 0.8f)
     {
         _origin = transform.position;
         _radius = Mathf.Clamp(localRadius, 2f, 10f);
-        _speed = Mathf.Clamp(movementSpeed, 0.35f, 1.35f);
+        // note: Supplied DOT wildlife gaits include speeds below the legacy resident minimum; retain their declared cadence without changing other residents.
+        _speed = Mathf.Clamp(movementSpeed, GetComponent<YQDotCreatureVisual>() != null ? 0.1f : 0.35f, 1.35f);
+        _dotVisual = GetComponent<YQDotCreatureVisual>();
+        // note: Only an explicitly supplied, validated travel profile opts into sampled gait pacing; existing NPC and wildlife routes retain their current controller.
+        _authoredGait = _dotVisual != null && _dotVisual.MotionProfile != null && _dotVisual.MotionProfile.IsValid ? new YQDotGaitSampler(_dotVisual.MotionProfile) : null;
         _state = StableHash((seed ?? string.Empty) + "|npc_wander|" + GetInstanceID());
         if (_state == 0u)
             _state = 0x9E3779B9u;
@@ -41,10 +49,18 @@ public sealed class YQGeneratedNpcWander : MonoBehaviour
             _state = (uint)Mathf.Abs(GetInstanceID()) + 1u;
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (!isActiveAndEnabled)
             return;
+        if (_authoredGait != null) { UpdateAuthoredGait(); return; }
 
         // note: Decisions are throttled so dozens of residents do not create per-frame raycast or allocation pressure.
         if (!_hasTarget || Time.unscaledTime >= _nextDecision)
@@ -86,6 +102,42 @@ public sealed class YQGeneratedNpcWander : MonoBehaviour
         if (direction.sqrMagnitude > 0.001f)
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction, Vector3.up), Mathf.Clamp01(Time.deltaTime * 8f));
         transform.position = next;
+    }
+
+    private void UpdateAuthoredGait()
+    {
+        // note: Navigation, ground and collision remain owned here. Sampled start/loop/stop travel replaces only the repaired stag's constant-speed step.
+        if (!_hasTarget && !_authoredGait.IsActive && Time.unscaledTime >= _nextDecision)
+        {
+            _nextDecision = Time.unscaledTime + DecisionInterval;
+            TryChooseTarget();
+        }
+        Vector3 current = transform.position, delta = _target - current; delta.y = 0f;
+        float distance = delta.magnitude;
+        bool wantsMove = _hasTarget && distance > _authoredGait.ContinuationDistance + .02f;
+        if (!wantsMove) _hasTarget = false;
+        bool wasActive = _authoredGait.IsActive;
+        float step = Mathf.Min(distance, _authoredGait.Advance(wantsMove, Time.deltaTime));
+        Vector3 direction = distance > .0001f ? delta / distance : Vector3.zero;
+        Vector3 next = current + direction * step;
+        if (step > 0f)
+        {
+            if (HitsExternalObstacle(current + Vector3.up * CollisionProbeHeight, direction, CollisionProbeHeight + .15f) || !TryGetGround(next, out Vector3 ground))
+            {
+                // note: Physical safety still overrides authored travel when the ground or route is blocked.
+                _hasTarget = false; _authoredGait.Reset(); _nextDecision = Time.unscaledTime + DecisionInterval;
+            }
+            else
+            {
+                next.y = ground.y;
+                // note: Rotate the measured imported body axis toward the route, keeping positive profile travel horizontal and root motion disabled.
+                Vector3 forward = _dotVisual.MotionProfile.localForward;
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction, Vector3.up) * Quaternion.Inverse(Quaternion.LookRotation(forward, Vector3.up)), Mathf.Clamp01(Time.deltaTime * 8f));
+                transform.position = next;
+            }
+        }
+        _dotVisual.SetAuthoredGait(_authoredGait);
+        if (wasActive && !_authoredGait.IsActive && !_hasTarget) _nextDecision = Mathf.Max(_nextDecision, Time.unscaledTime + DecisionInterval);
     }
 
     private bool TryChooseTarget()

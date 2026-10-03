@@ -16,6 +16,7 @@ public sealed class OllamaRequest
     public bool stream;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public string keep_alive;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public object format;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public bool? think;
     public Dictionary<string, object> options;
 }
 
@@ -23,6 +24,8 @@ public sealed class OllamaRequest
 public sealed class LLMClient : MonoBehaviour
 {
     public static LLMClient Instance { get; private set; }
+    private float nextRepairDeadlineSweep;
+    private readonly List<long> expiredRepairRequestIds = new List<long>();
     private const string LocalRequestTimeoutSecondsOption = "request_timeout_seconds";
 
     [Header("Runtime Config")]
@@ -93,6 +96,13 @@ public sealed class LLMClient : MonoBehaviour
         public bool deferJsonValidationToCaller;
         public int maxRetries;
         public int attempt;
+        public YQRepairEpisode repairEpisode;
+        public bool repairVerification;
+        public bool protectPrompt;
+        public string parentRequestKey;
+        public string requiredOllamaModelDigest;
+        public string repairRequestKey;
+        public Func<bool> ownerStillCurrent;
 
         // note: Queue age lets background requests expire instead of piling onto the model after generation.
         public float queuedAt;
@@ -176,6 +186,12 @@ public sealed class LLMClient : MonoBehaviour
         if (_quitting)
             return;
 
+        // note: Episode time includes queue and health setup; retire expired children through the existing scheduler.
+        if (Time.unscaledTime >= nextRepairDeadlineSweep)
+        {
+            nextRepairDeadlineSweep = Time.unscaledTime + 0.25f;
+            ExpireRepairRequests();
+        }
         LLMRuntimeConfig config = ActiveConfig();
         if (IsExclusiveSequenceActive &&
             Time.realtimeSinceStartup - _exclusiveSequenceStartedAt >
@@ -298,11 +314,69 @@ public sealed class LLMClient : MonoBehaviour
         Enqueue(prompt, onResponse, string.IsNullOrWhiteSpace(debugTag) ? "SendOnce" : debugTag);
     }
 
+    public bool BoundedRepairEnabled => ActiveConfig().enableBoundedRepair;
+    public bool DialogueSemanticRepairEnabled => BoundedRepairEnabled && ActiveConfig().dialogueVerifierQualified;
+    // note: Goddess qualification is independent of NPC dialogue and bound to the reviewed prompt/schema contract.
+    public bool GoddessSemanticRepairEnabled => ActiveConfig().HasQualifiedGoddessVerifier;
+    public string QualifiedGoddessVerifierDigest => GoddessSemanticRepairEnabled ? ActiveConfig().goddessVerifierModelDigest : string.Empty;
+    public bool GoddessSpeechPlanEnabled => ActiveConfig().HasQualifiedGoddessSpeechPlan;
+    public string QualifiedGoddessSpeechPlanDigest => GoddessSpeechPlanEnabled ? ActiveConfig().goddessSpeechPlanModelDigest : string.Empty;
+    public bool GoddessSpeechPlanCpuOnly => ActiveConfig().goddessSpeechPlanCpuOnly;
+    private void ExpireRepairRequests()
+    {
+        expiredRepairRequestIds.Clear();
+        foreach (QueuedRequest request in _exclusiveQueue) CaptureExpiredRepair(request);
+        foreach (QueuedRequest request in _highPriorityQueue) CaptureExpiredRepair(request);
+        foreach (QueuedRequest request in _normalQueue) CaptureExpiredRepair(request);
+        foreach (QueuedRequest request in _retryingRequests.Values) CaptureExpiredRepair(request);
+        if (_activeRequestValid) CaptureExpiredRepair(_activeRequest);
+        // note: Callbacks may change queues, so collect IDs before terminalizing any child.
+        for (int i = 0; i < expiredRepairRequestIds.Count; i++)
+            TerminalizeRequestById(expiredRepairRequestIds[i], YQLlmTerminalOutcome.Failed,
+                "Repair episode deadline exhausted.", false);
+    }
+
+    private void CaptureExpiredRepair(QueuedRequest request)
+    {
+        if (request.repairEpisode != null && request.repairEpisode.RemainingSeconds < 1d)
+            expiredRepairRequestIds.Add(request.id);
+    }
+
+    public void CancelRepairEpisode(YQRepairEpisode episode)
+    {
+        // note: Cancel exact admitted children, preserving unrelated work that happens to share an owner label.
+        if (episode == null) return;
+        foreach (long requestId in episode.RequestIds) CancelRequest(requestId, "Repair owner retired.");
+    }
+    public string QualifiedDialogueVerifierDigest => ActiveConfig().dialogueVerifierQualified
+        ? ActiveConfig().dialogueVerifierModelDigest : string.Empty;
+
+    public YQRepairEpisode CreateRepairEpisode(YQLlmRequest request, string taskFingerprint, double seconds)
+    {
+        if (!BoundedRepairEnabled) return null;
+        CaptureRequestBinding(request, request.debugTag, out string profile, out string world, out int epoch,
+            out string owner, out long playerRev, out long worldRev);
+        if (request.priority == YQLlmRequestPriority.StartupExclusive)
+        {
+            owner = request.exclusiveOwner;
+            if (IsExclusiveSequenceActive)
+                seconds = Math.Min(seconds, Math.Max(0d, ActiveConfig().exclusiveSequenceTimeoutSeconds -
+                    (Time.realtimeSinceStartup - _exclusiveSequenceStartedAt) - 5d));
+        }
+        return new YQRepairEpisode(profile, world, epoch, owner, playerRev, worldRev, taskFingerprint, seconds);
+    }
+
     public long Submit(YQLlmRequest request, Action<YQLlmRequestResult> onComplete)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.prompt))
         {
             CompleteDirectFailure(onComplete, request, "LLM request prompt was empty.");
+            return 0;
+        }
+        // note: Admission failures cannot restart the same repair episode indefinitely.
+        if (request.repairEpisode != null && !request.repairEpisode.TryAdmit(request.repairVerification))
+        {
+            CompleteDirectFailure(onComplete, request, "Repair episode budget or deadline exhausted.");
             return 0;
         }
 
@@ -338,6 +412,7 @@ public sealed class LLMClient : MonoBehaviour
         if (exclusive)
             ownerId = owner;
         long requestId = _nextRequestId++;
+        request.repairEpisode?.RegisterRequest(requestId);
         QueuedRequest queued = new QueuedRequest
         {
             id = requestId,
@@ -350,6 +425,12 @@ public sealed class LLMClient : MonoBehaviour
             jsonSchema = request.jsonSchema,
             deferJsonValidationToCaller = request.deferJsonValidationToCaller,
             maxRetries = request.maxRetries,
+            repairEpisode = request.repairEpisode,
+            repairVerification = request.repairVerification,
+            protectPrompt = request.protectPrompt,
+            parentRequestKey = request.parentRequestKey,
+            requiredOllamaModelDigest = request.requiredOllamaModelDigest,
+            ownerStillCurrent = request.ownerStillCurrent,
             attempt = 0,
             queuedAt = now,
             firstQueuedAt = now,
@@ -562,7 +643,10 @@ public sealed class LLMClient : MonoBehaviour
             0,
             0f,
             0f,
-            default);
+            default,
+            request?.profileId, request?.worldId, request != null ? request.generationEpoch : -1,
+            request?.ownerId, request != null ? request.playerStateRevision : -1,
+            request != null ? request.worldStateRevision : -1, request?.repairEpisode?.key, null);
         PublishCompletion(result, callback);
     }
 
@@ -597,7 +681,9 @@ public sealed class LLMClient : MonoBehaviour
             request.generationEpoch,
             request.ownerId,
             request.playerStateRevision,
-            request.worldStateRevision);
+            request.worldStateRevision,
+            request.repairEpisode?.key,
+            request.repairRequestKey);
 
         LastQueuedLatencySeconds = queueWaitSeconds;
         LastActiveLatencySeconds = generationSeconds;
@@ -662,6 +748,8 @@ public sealed class LLMClient : MonoBehaviour
 
     private bool TryScheduleTransientRetry(QueuedRequest request, string error)
     {
+        if (request.repairEpisode != null && !request.repairEpisode.CanDispatch(request.repairVerification))
+            return false;
         LLMRuntimeConfig config = ActiveConfig();
         int maxRetries = request.maxRetries >= 0
             ? Mathf.Clamp(request.maxRetries, 0, 3)
@@ -845,13 +933,15 @@ public sealed class LLMClient : MonoBehaviour
         // note: Local transport controls must not leak into Ollama/llama.cpp sampling payloads.
         options.Remove(LocalRequestTimeoutSecondsOption);
 
-        if (!LLMContextCompiler.TryCompile(
-                request.prompt,
-                config,
-                profile,
-                reservedOutputTokens,
-                out LLMCompiledPrompt compiled,
-                out string compileError))
+        // note: The protected path rejects overflow instead of removing required repair facts from the payload.
+        LLMCompiledPrompt compiled;
+        string compileError;
+        int contextLimitTokens = config.backend == YQLlmBackend.Ollama
+            ? ReadIntOption(options, "num_ctx", config.contextSizeTokens) : config.contextSizeTokens;
+        bool compiledOk = request.protectPrompt
+            ? LLMContextCompiler.TryCompileProtected(request.prompt, config, profile, reservedOutputTokens, out compiled, out compileError, contextLimitTokens)
+            : LLMContextCompiler.TryCompile(request.prompt, config, profile, reservedOutputTokens, out compiled, out compileError, contextLimitTokens);
+        if (!compiledOk)
         {
             RecordFailure(compileError, request.debugTag);
             CompleteRequest(request, false, null, compileError, 0f, 0f, default);
@@ -915,6 +1005,39 @@ public sealed class LLMClient : MonoBehaviour
             profile,
             request.requireJson,
             request.jsonSchema);
+        if (!string.IsNullOrWhiteSpace(request.requiredOllamaModelDigest))
+        {
+            // note: Qualification belongs to a specific model; a retagged model must not inherit its verifier receipt.
+            bool matches = false;
+            if (config.backend == YQLlmBackend.Ollama)
+            {
+                string tagsUrl = config.ollamaApiUrl.TrimEnd('/') + "/api/tags";
+                string selectedModel = JObject.Parse(json).Value<string>("model");
+                yield return ProbeLocalHealth(tagsUrl, 2, (ok, body) =>
+                    matches = ok && MatchesOllamaModelDigest(body, selectedModel, request.requiredOllamaModelDigest), true);
+            }
+            if (!matches)
+            {
+                CompleteRequest(request, false, null, "Qualified dialogue verifier model is unavailable or its digest changed.", 0f, 0f, compiled);
+                yield break;
+            }
+        }
+        if (!IsRequestCurrent(request))
+        {
+            CompleteRequest(request, false, null, "Repair owner retired before inference dispatch.", 0f, 0f, compiled, YQLlmTerminalOutcome.Superseded);
+            yield break;
+        }
+        if (request.repairEpisode != null)
+        {
+            if (!request.repairEpisode.TryBeginCall(request.repairVerification, json, request.parentRequestKey, out request.repairRequestKey))
+            {
+                CompleteRequest(request, false, null, "Repair episode budget or deadline exhausted.", 0f, 0f, compiled);
+                yield break;
+            }
+            if (_activeRequestValid && _activeRequest.id == request.id) _activeRequest = request;
+            requestTimeout = Math.Max(1, Math.Min(requestTimeout > 0 ? requestTimeout : int.MaxValue,
+                (int)Math.Floor(request.repairEpisode.RemainingSeconds)));
+        }
         float queueWait = Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt);
         float startedAt = Time.unscaledTime;
 
@@ -963,6 +1086,12 @@ public sealed class LLMClient : MonoBehaviour
 
             if (_quitting || _terminalRequestIds.Contains(request.id))
                 yield break;
+            if (request.repairEpisode != null && request.repairEpisode.RemainingSeconds < 1d)
+            {
+                CompleteRequest(request, false, null, "Repair episode deadline exhausted.", queueWait,
+                    Mathf.Max(0f, Time.unscaledTime - startedAt), compiled);
+                yield break;
+            }
 
             if (!IsRequestCurrent(request))
             {
@@ -1107,11 +1236,28 @@ public sealed class LLMClient : MonoBehaviour
         if (_llamaServer == null)
             _llamaServer = new LlamaCppServerProcess();
 
-        yield return _llamaServer.EnsureReady(config, onComplete);
+        // note: Automatic on-demand model loading must not evict rendering resources during released gameplay; explicit configurations and startup generation retain their selected offload policy.
+        bool protectLivePresentation = _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
+            YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
+        yield return _llamaServer.EnsureReady(config, onComplete, protectLivePresentation);
     }
 
     private IEnumerator EnsureRuntimeDefaultBackend(LLMRuntimeConfig config, Action<bool, string> onComplete)
     {
+        // note: Screened Ollama role selections must reach Ollama rather than silently running every role on the llama.cpp model.
+        if (config.backend == YQLlmBackend.Ollama)
+        {
+            string baseUrl = string.IsNullOrWhiteSpace(config.ollamaApiUrl) ? apiUrl : config.ollamaApiUrl;
+            string healthUrl = (baseUrl ?? string.Empty).Trim().TrimEnd('/') + "/api/tags";
+            bool ready = false;
+            yield return ProbeLocalHealth(healthUrl, 2, (ok, _) => ready = ok);
+            _runtimeBackendResolved = ready;
+            onComplete?.Invoke(ready, ready
+                ? "Connected to Ollama with category-specific local models."
+                : "The configured Ollama backend is not reachable: " + healthUrl);
+            yield break;
+        }
+
         // note: Prefer the project's owned llama.cpp runtime so the no-config path remains deterministic even when Ollama is installed but unhealthy.
         bool llamaReady = false;
         yield return ProbeLocalHealth(config.BuildBaseUrl() + "/health", 2, (ok, _) => llamaReady = ok);
@@ -1160,7 +1306,20 @@ public sealed class LLMClient : MonoBehaviour
             "; Ollama endpoint: " + ollamaProbe);
     }
 
-    private static IEnumerator ProbeLocalHealth(string url, int timeoutSeconds, Action<bool, string> onComplete)
+    private static bool MatchesOllamaModelDigest(string body, string modelName, string digest)
+    {
+        try
+        {
+            if (!(JObject.Parse(body ?? string.Empty)["models"] is JArray models)) return false;
+            foreach (JObject entry in models)
+                if (string.Equals(entry.Value<string>("name"), modelName, StringComparison.Ordinal) &&
+                    string.Equals(entry.Value<string>("digest"), digest, StringComparison.Ordinal)) return true;
+        }
+        catch (Exception) { return false; }
+        return false;
+    }
+
+    private static IEnumerator ProbeLocalHealth(string url, int timeoutSeconds, Action<bool, string> onComplete, bool includeResponseBody = false)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri parsed) ||
             (!string.Equals(parsed.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
@@ -1175,7 +1334,7 @@ public sealed class LLMClient : MonoBehaviour
             request.timeout = Mathf.Max(1, timeoutSeconds);
             yield return request.SendWebRequest();
             bool ok = request.result == UnityWebRequest.Result.Success && request.responseCode >= 200 && request.responseCode < 500;
-            onComplete?.Invoke(ok, ok ? string.Empty : request.error);
+            onComplete?.Invoke(ok, ok ? (includeResponseBody ? request.downloadHandler.text : string.Empty) : request.error);
         }
     }
 
@@ -1197,9 +1356,7 @@ public sealed class LLMClient : MonoBehaviour
 
         if (_usingRuntimeDefaultConfig)
         {
-            // note: Runtime-created clients still honor scene/bootstrap legacy fields while defaulting to the owned llama.cpp backend.
-            if (!_runtimeBackendResolved)
-                _activeConfig.backend = YQLlmBackend.LlamaCpp;
+            // note: Scene/bootstrap legacy fields remain the fallback for roles without an override; the runtime factory owns the selected backend.
             if (!string.IsNullOrWhiteSpace(apiUrl))
                 _activeConfig.ollamaApiUrl = apiUrl;
             if (!string.IsNullOrWhiteSpace(model))
@@ -1320,11 +1477,13 @@ public sealed class LLMClient : MonoBehaviour
             return JsonConvert.SerializeObject(payload);
         }
 
-        Dictionary<string, object> ollamaOptions = new Dictionary<string, object>(options)
-        {
-            // note: Ollama uses num_ctx; llama.cpp receives context size at server startup.
-            { "num_ctx", Mathf.Clamp(config.contextSizeTokens, 2048, 32768) }
-        };
+        Dictionary<string, object> ollamaOptions = new Dictionary<string, object>(options);
+        // note: Keep the automatic live-gameplay residency protection when the default backend is Ollama; explicit request/config choices retain authority.
+        ApplyOllamaLivePresentationPolicy(config, ollamaOptions, _usingRuntimeDefaultConfig,
+            IsExclusiveSequenceActive, YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
+        // note: Match the compiled context ceiling and permit a smaller bounded request without duplicate sampling keys.
+        ollamaOptions["num_ctx"] = Mathf.Min(Mathf.Clamp(config.contextSizeTokens, 2048, 32768),
+            Mathf.Clamp(ReadIntOption(options, "num_ctx", config.contextSizeTokens), 2048, 32768));
 
         if (config.preserveGameResponsiveness)
         {
@@ -1343,20 +1502,40 @@ public sealed class LLMClient : MonoBehaviour
                     4);
         }
 
+        // note: Bounded dialogue and Goddess speech/review use closed grammars; other generation retains its existing format.
+        bool constrainDialogue = profile != null && profile.category == LLMGenerationCategory.Dialogue &&
+            (debugTag ?? string.Empty).StartsWith("DialogueRepair:", StringComparison.Ordinal);
+        bool constrainGoddess = profile != null && (profile.category == LLMGenerationCategory.GoddessCommentary ||
+            profile.category == LLMGenerationCategory.GoddessVerification);
         OllamaRequest payloadOllama = new OllamaRequest
         {
-            model = string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel,
+            model = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel)
+                ? profile.ollamaModel.Trim()
+                : (string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel),
             prompt = prompt,
             stream = false,
             // note: Ollama unloads its model after the same bounded idle window used by the owned llama.cpp server.
             keep_alive = config.closeOwnedServerWhenIdle
                 ? Mathf.Max(5, config.ownedServerIdleTimeoutSeconds).ToString() + "s"
                 : null,
-            format = jsonOutput ? "json" : null,
+            // note: Backend shape constraints never replace the domain parser or semantic acceptance checks.
+            format = jsonOutput ? (profile != null && (profile.category == LLMGenerationCategory.DialogueVerification || constrainDialogue || constrainGoddess) &&
+                jsonSchema != null && jsonSchema.Count > 0 ? (object)jsonSchema : "json") : null,
+            // note: Both bounded Goddess roles stay direct; a model alias must not spend the reply budget in hidden reasoning.
+            think = constrainGoddess ? (bool?)false : null,
             options = ollamaOptions
         };
 
         return JsonConvert.SerializeObject(payloadOllama);
+    }
+
+    private static void ApplyOllamaLivePresentationPolicy(LLMRuntimeConfig config,
+        Dictionary<string, object> options, bool runtimeDefault, bool exclusiveSequence, bool presentationReleased)
+    {
+        // note: num_gpu=0 is a per-request CPU placement choice, not a server-wide setting; never overwrite an explicit placement, including automatic (-1).
+        if (runtimeDefault && !exclusiveSequence && presentationReleased && config.preserveGameResponsiveness &&
+            !options.ContainsKey("num_gpu"))
+            options["num_gpu"] = 0;
     }
 
     private bool TryBuildGenerateUrl(LLMRuntimeConfig config, out string url, out string error)
@@ -1581,6 +1760,12 @@ public sealed class LLMClient : MonoBehaviour
 
     private bool IsRequestCurrent(QueuedRequest request)
     {
+        // note: NPC/thinker lifetime is narrower than profile lifetime; stale child work cannot dispatch another repair.
+        if (request.ownerStillCurrent != null)
+        {
+            try { if (!request.ownerStillCurrent()) return false; }
+            catch (Exception) { return false; }
+        }
         if (request.generationEpoch >= 0 && !YQServiceLifecycle.IsCurrent(request.generationEpoch))
             return false;
 
@@ -1713,6 +1898,9 @@ public sealed class LLMClient : MonoBehaviour
             return LLMGenerationCategory.WorldGeneration;
         if (tag.StartsWith("GeneratedNpcPopulation", StringComparison.OrdinalIgnoreCase))
             return LLMGenerationCategory.NpcPopulation;
+        // note: Legacy progression submissions use the same domain route as typed progression requests.
+        if (tag.StartsWith("ProgressionDecision", StringComparison.OrdinalIgnoreCase))
+            return LLMGenerationCategory.Progression;
         if (tag.IndexOf("Goddess", StringComparison.OrdinalIgnoreCase) >= 0)
             return LLMGenerationCategory.GoddessCommentary;
         if (tag.IndexOf("Summary", StringComparison.OrdinalIgnoreCase) >= 0)

@@ -34,6 +34,9 @@ public class WorldStateManager : MonoBehaviour
     // note: Preserve the previous complete world document before replacing generated canon.
     private string BackupSavePath => SavePath + ".bak";
     public string LastLoadStatus { get; private set; } = "not_loaded";
+    public float MaximumSaveNormalizeSeconds { get; private set; }
+    public float MaximumSaveSerializeSeconds { get; private set; }
+    public float MaximumSaveWriteSeconds { get; private set; }
 
     private void Awake()
     {
@@ -49,6 +52,8 @@ public class WorldStateManager : MonoBehaviour
 
     public void LoadOrCreate()
     {
+        // note: Preserve the world document identity while development commands hold a rollback buffer.
+        if (YQDeveloperConsoleGate.BlocksPersistence) return;
         bool hadPersistentState = File.Exists(SavePath) || File.Exists(BackupSavePath);
         string backupFailure = string.Empty;
         bool loaded = TryLoadState(SavePath, out WorldState loadedState, out string primaryFailure);
@@ -88,14 +93,25 @@ public class WorldStateManager : MonoBehaviour
 
     public bool TrySave(out string failure)
     {
+        // note: NPC test edits must not escape through an unrelated world save caller.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { failure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         failure = string.Empty;
         try
         {
+            long saveStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             NormalizeState();
             State.TouchNow();
+            long normalizedAt = System.Diagnostics.Stopwatch.GetTimestamp();
             // note: Compact JSON preserves the same persisted schema while reducing serialization and atomic-write time for large procedural world saves.
             string json = JsonConvert.SerializeObject(State, JsonSettings);
+            long serializedAt = System.Diagnostics.Stopwatch.GetTimestamp();
             WriteAtomically(json);
+            long writtenAt = System.Diagnostics.Stopwatch.GetTimestamp();
+            // note: Retain stage high-water marks so a measured hitch can be assigned to normalization, serialization, or atomic I/O.
+            float secondsPerTick = 1f / System.Diagnostics.Stopwatch.Frequency;
+            MaximumSaveNormalizeSeconds = Mathf.Max(MaximumSaveNormalizeSeconds, (normalizedAt - saveStarted) * secondsPerTick);
+            MaximumSaveSerializeSeconds = Mathf.Max(MaximumSaveSerializeSeconds, (serializedAt - normalizedAt) * secondsPerTick);
+            MaximumSaveWriteSeconds = Mathf.Max(MaximumSaveWriteSeconds, (writtenAt - serializedAt) * secondsPerTick);
             return true;
         }
         catch (Exception e)
@@ -223,6 +239,21 @@ public class WorldStateManager : MonoBehaviour
         State = newState ?? WorldState.CreateDefault();
         NormalizeState();
     }
+
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    public bool DevelopmentSetNpcAffinity(string npcId, float affinity, out string result)
+    {
+        // note: Persisted NPC affinity is owned by this document; NPCs have no independent player-style stat/inventory state.
+        WorldState.NpcRecord npc = State?.npcs?.Find(n => n != null && string.Equals(n.npcId, npcId, StringComparison.OrdinalIgnoreCase));
+        if (npc == null || float.IsNaN(affinity) || float.IsInfinity(affinity) || affinity < -1 || affinity > 1)
+        { result = "Known NPC ID and affinity -1..1 required."; return false; }
+        float before = npc.affinityToPlayer;
+        npc.affinityToPlayer = affinity;
+        npc.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); State.TouchNow();
+        result = "SESSION NPC " + npc.npcId + " affinityToPlayer " + before + " -> " + affinity + " normalized affinity.";
+        return true;
+    }
+#endif
 
     public void SetTension(float t)
     {

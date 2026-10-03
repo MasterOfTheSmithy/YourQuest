@@ -433,10 +433,17 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 }
 
                 validatedRenderers++;
+                // note: Native tree billboards draw from their BillboardAsset material; an empty inherited renderer slot is not a missing surface.
+                if (renderer is BillboardRenderer billboard)
+                {
+                    if (billboard.billboard == null || !IsRuntimeMaterialUsable(billboard.billboard.material)) unresolvedSlots++;
+                    continue;
+                }
                 Material[] materials = renderer.sharedMaterials;
                 int requiredSlots = ResolveRequiredMaterialSlotCount(renderer);
                 for (int slot = 0; slot < requiredSlots; slot++)
                 {
+                    if (!IsMaterialSlotRequired(renderer, slot)) continue;
                     Material material = materials != null && slot < materials.Length
                         ? materials[slot]
                         : null;
@@ -494,6 +501,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         // note: Built-in lit shaders have no pipeline tag but still require conversion in URP; GPU support alone cannot approve their forward/deferred passes.
         if (string.Equals(shaderName, "Standard", System.StringComparison.OrdinalIgnoreCase) ||
             string.Equals(shaderName, "Standard (Specular setup)", System.StringComparison.OrdinalIgnoreCase) ||
+            (string.IsNullOrEmpty(pipelineTag) && (shaderName ?? string.Empty).StartsWith("Nature/", System.StringComparison.OrdinalIgnoreCase)) ||
             (shaderName ?? string.Empty).StartsWith("Legacy Shaders/", System.StringComparison.OrdinalIgnoreCase))
             return false;
         if (!string.IsNullOrEmpty(pipelineTag) &&
@@ -630,6 +638,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         for (int slot = 0; slot < materials.Length; slot++)
         {
             bool missingSlot = materials[slot] == null;
+            if (!IsMaterialSlotRequired(renderer, slot)) continue;
             Material source = materials[slot];
             if (missingSlot)
             {
@@ -642,7 +651,9 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 source,
                 renderer,
                 particleMaterial,
-                forceUrpMaterialRepair || missingSlot || generatedStructuralRenderer);
+                // note: A second hierarchy pass must reuse an already-valid structural repair instead of cloning a new material from its previous repair.
+                forceUrpMaterialRepair || missingSlot ||
+                (generatedStructuralRenderer && !LooksLikeStableRuntimeRepairMaterial(source, renderer)));
             if (repaired != null && repaired != materials[slot])
             {
                 materials[slot] = repaired;
@@ -808,10 +819,22 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         return normalized.Trim();
     }
 
-    internal static int ResolveRequiredMaterialSlotCount(Renderer renderer)
+    // note: ParticleRenderer keeps a nullable second slot for disabled trails. Only actual rendering channels require material bindings.
+    public static bool IsMaterialSlotRequired(Renderer renderer, int slot)
+    {
+        if (renderer is BillboardRenderer) return false;
+        if (!(renderer is ParticleSystemRenderer particles)) return true;
+        if (slot == 0) return particles.renderMode != ParticleSystemRenderMode.None;
+        if (slot != 1) return true;
+        ParticleSystem system = particles.GetComponent<ParticleSystem>();
+        return system == null || system.trails.enabled;
+    }
+
+    public static int ResolveRequiredMaterialSlotCount(Renderer renderer)
     {
         if (renderer == null || IsVfxGraphRenderer(renderer))
             return 0;
+        if (renderer is BillboardRenderer) return 0;
 
         int required = renderer.sharedMaterials != null
             ? renderer.sharedMaterials.Length
@@ -2418,7 +2441,8 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             (renderer != null ? renderer.name : string.Empty) + " " +
             (renderer != null && renderer.gameObject != null ? renderer.gameObject.name : string.Empty));
 
-        return ContainsAny(text, new[] { "leaf", "leaves", "branch", "branches", "grass", "bush", "flower", "plant", "billboard", "treebillboard", "foliage" });
+        // note: The approved Scots pine assets call their cutout cards "pine needles"; preserve their alpha rather than rendering opaque atlas rectangles.
+        return ContainsAny(text, new[] { "leaf", "leaves", "needle", "frond", "branch", "branches", "grass", "bush", "flower", "plant", "billboard", "treebillboard", "foliage" });
     }
 
     private static Color SanitizeCopiedMaterialColor(Material source, Renderer renderer, Texture texture, Color color)

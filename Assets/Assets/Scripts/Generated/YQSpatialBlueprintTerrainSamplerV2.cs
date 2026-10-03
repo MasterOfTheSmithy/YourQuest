@@ -200,8 +200,8 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 kind = source.kind,
                 level = Mathf.Clamp01(source.waterLevelNormalized),
                 // note: A generated primary river has a real channel scale instead of collapsing to a creek-width strip; authored wider rivers remain authoritative.
-                width = Mathf.Max(source.kind == YQHydrologyKindV2.River ? 14f : source.kind == YQHydrologyKindV2.Waterfall ? 10f : 1f, source.nominalWidth),
-                depth = Mathf.Max(source.kind == YQHydrologyKindV2.River ? 4.5f : source.kind == YQHydrologyKindV2.Waterfall ? 3.5f : 0f, source.nominalDepth),
+                width = YQSpatialMaterializationCompilerV2.ResolveWaterWidth(source.kind, source.nominalWidth),
+                depth = YQSpatialMaterializationCompilerV2.ResolveWaterDepth(source.kind, source.nominalDepth),
                 pointStart = pointStart,
                 pointCount = waterPointCursor - pointStart
             };
@@ -366,6 +366,10 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             float crossSection = Mathf.Clamp01(distance / Mathf.Max(.5f, radius - bankPadding));
             // note: A concave cross-section rises from a submerged centre to a bank just above the water plane.
             float bed = featureSurface + (-depth + (depth + .2f) * crossSection * crossSection) / ApproximateTerrainHeightMetres;
+            // note: River water occupies the full accepted ribbon; an above-water rim inside that ribbon shortened its visible width and interrupted flow over hills.
+            if (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall)
+                bed = YQContinuousWorldFeatureAuthority.SampleAcceptedWaterBed(
+                    ApproximateTerrainHeightMetres, featureSurface, depth, radius, distance);
             if (ownsWater)
             {
                 waterMask = footprintMask;
@@ -379,12 +383,12 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             // note: The dry bank widens only as much as the local water-to-terrain rise requires, capping the generated shoreline grade without expanding the gameplay water mask.
             float riseMetres = Mathf.Max(0f, height - bed) * ApproximateTerrainHeightMetres;
             float slopeLimitedTransition = riseMetres / Mathf.Max(.1f, Mathf.Tan(18f * Mathf.Deg2Rad));
-            float shorelineTransition = Mathf.Max(10f, radius * .8f, slopeLimitedTransition);
+            float shorelineTransition = MaximumOfThree(10f, radius * .8f, slopeLimitedTransition);
             if (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall)
             {
                 // note: A river crossing a ridge receives a broad, deterministic ravine cut so the water has a continuous way through the terrain instead of a floating ribbon or sheer wall.
                 float ridgeCutTransition = riseMetres / Mathf.Max(.1f, Mathf.Tan(12f * Mathf.Deg2Rad));
-                shorelineTransition = Mathf.Max(
+                shorelineTransition = MaximumOfThree(
                     shorelineTransition,
                     radius * 3.5f + 8f,
                     ridgeCutTransition);
@@ -488,6 +492,14 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             siteReserveMask = Mathf.Clamp01(reserveMask),
             caveMassMask = Mathf.Clamp01(caveMask)
         };
+    }
+
+    // note: Match Mathf.Max(params float[]) in its original comparison order, including NaN and signed zero, without a temporary array per shoreline sample.
+    private static float MaximumOfThree(float first, float second, float third)
+    {
+        if (second > first) first = second;
+        if (third > first) first = third;
+        return first;
     }
 
     private float EvaluateRawSurface(

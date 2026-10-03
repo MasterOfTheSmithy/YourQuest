@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,134 @@ using UnityEngine;
 
 public static class YQGeneratedWorldEnvironment
 {
+#if UNITY_EDITOR
+    // note: Attribute the existing ecology worker to its owner during opt-in binary captures.
+    private static readonly Unity.Profiling.ProfilerMarker BackgroundDetailPayloadMarker =
+        new Unity.Profiling.ProfilerMarker("YQ.R2.Worker.DetailPayload");
+#endif
+    private struct RequiredEcologyFrameAttribution
+    {
+        public bool valid;
+        public int frame;
+        public int stepCount;
+        public float longestStepSeconds;
+        public int stepCellX;
+        public int stepCellZ;
+        public int stepDepth;
+        public string stepLayer;
+        public string stepIterator;
+        public int waitCount;
+        public float longestWaitSeconds;
+        public int waitCellX;
+        public int waitCellZ;
+        public string waitLayer;
+        public string waitReason;
+    }
+
+    // note: Keep only recent frame-local ecology evidence so a missed cell can be tied to the exact nested step or async wait without logging in the hot path.
+    private const int RequiredEcologyAttributionFrameCapacity = 1024;
+    private static readonly RequiredEcologyFrameAttribution[] _requiredEcologyFrameAttribution =
+        new RequiredEcologyFrameAttribution[RequiredEcologyAttributionFrameCapacity];
+
+    internal static string DescribeRequiredEcologyFrameAttribution(int frame)
+    {
+        // note: Format the current and immediately preceding Unity frame only when a visible readiness check fails.
+        StringBuilder description = new StringBuilder(320);
+        AppendRequiredEcologyFrameAttribution(description, frame);
+        if (frame > 0)
+        {
+            description.Append(";previous{");
+            AppendRequiredEcologyFrameAttribution(description, frame - 1);
+            description.Append('}');
+        }
+        return description.ToString();
+    }
+
+    private static void AppendRequiredEcologyFrameAttribution(StringBuilder description, int frame)
+    {
+        RequiredEcologyFrameAttribution sample =
+            _requiredEcologyFrameAttribution[frame % RequiredEcologyAttributionFrameCapacity];
+        description.Append("frame=").Append(frame);
+        if (!sample.valid || sample.frame != frame)
+        {
+            description.Append(",steps=0,waits=0");
+            return;
+        }
+
+        description.Append(",steps=").Append(sample.stepCount);
+        if (sample.stepCount > 0)
+        {
+            description.Append(",maxMoveNextMs=")
+                .Append((sample.longestStepSeconds * 1000f).ToString("0.000", CultureInfo.InvariantCulture))
+                .Append(",cell=").Append(sample.stepCellX).Append(',').Append(sample.stepCellZ)
+                .Append(",layer=").Append(sample.stepLayer)
+                .Append(",iterator=").Append(sample.stepIterator)
+                .Append(",depth=").Append(sample.stepDepth);
+        }
+        description.Append(",waits=").Append(sample.waitCount);
+        if (sample.waitCount > 0)
+        {
+            description.Append(",maxWaitAgeMs=")
+                .Append((sample.longestWaitSeconds * 1000f).ToString("0.000", CultureInfo.InvariantCulture))
+                .Append(",waitCell=").Append(sample.waitCellX).Append(',').Append(sample.waitCellZ)
+                .Append(",waitLayer=").Append(sample.waitLayer)
+                .Append(",waitReason=").Append(sample.waitReason);
+        }
+    }
+
+    private static RequiredEcologyFrameAttribution GetRequiredEcologyFrameAttribution(int frame)
+    {
+        int index = frame % RequiredEcologyAttributionFrameCapacity;
+        RequiredEcologyFrameAttribution sample = _requiredEcologyFrameAttribution[index];
+        if (!sample.valid || sample.frame != frame)
+        {
+            sample = new RequiredEcologyFrameAttribution
+            {
+                valid = true,
+                frame = frame
+            };
+        }
+        return sample;
+    }
+
+    private static void RecordRequiredEcologyStep(
+        int frame, int cellX, int cellZ, string layer, string iterator, int depth, float seconds)
+    {
+        // note: Store only a per-frame maximum; recording remains allocation-free while child MoveNext work runs.
+        int index = frame % RequiredEcologyAttributionFrameCapacity;
+        RequiredEcologyFrameAttribution sample = GetRequiredEcologyFrameAttribution(frame);
+        sample.stepCount++;
+        if (sample.stepLayer == null || seconds > sample.longestStepSeconds)
+        {
+            sample.longestStepSeconds = seconds;
+            sample.stepCellX = cellX;
+            sample.stepCellZ = cellZ;
+            sample.stepLayer = layer;
+            sample.stepIterator = iterator;
+            sample.stepDepth = depth;
+        }
+        _requiredEcologyFrameAttribution[index] = sample;
+    }
+
+    private static void RecordRequiredEcologyWait(
+        int frame, int cellX, int cellZ, string layer, string reason, double ageSeconds)
+    {
+        // note: Sample outstanding async and layer-capacity waits so an empty child-step frame still identifies its owner and cause.
+        int index = frame % RequiredEcologyAttributionFrameCapacity;
+        RequiredEcologyFrameAttribution sample = GetRequiredEcologyFrameAttribution(frame);
+        sample.waitCount++;
+        float boundedAge = (float)Math.Max(0d, ageSeconds);
+        if (sample.waitReason == null || boundedAge > sample.longestWaitSeconds)
+        {
+            sample.longestWaitSeconds = boundedAge;
+            sample.waitCellX = cellX;
+            sample.waitCellZ = cellZ;
+            sample.waitLayer = layer;
+            sample.waitReason = reason;
+        }
+        _requiredEcologyFrameAttribution[index] = sample;
+    }
+
     // note: Surface the active synchronous stage when a streamed ecology coroutine exceeds its shared publication slice.
     internal static string LastSemanticChunkScatterStep { get; private set; } = string.Empty;
     // note: Break one expensive path projection into authority validation and geometry stages so runtime evidence identifies the true source of a hitch.
@@ -34,6 +163,7 @@ public static class YQGeneratedWorldEnvironment
     internal static string LastStreamedDetailStep { get; private set; } = string.Empty;
     internal static float MaximumStreamedBiomeComputeSeconds { get; private set; }
     internal static float MaximumStreamedBiomeUploadSeconds { get; private set; }
+    internal static float MaximumStreamedDetailResolutionSeconds { get; private set; }
     internal static float MaximumStreamedDetailNormalSeconds { get; private set; }
     internal static float MaximumStreamedDetailComputeSeconds { get; private set; }
     internal static float MaximumStreamedDetailUploadSeconds { get; private set; }
@@ -54,6 +184,11 @@ public static class YQGeneratedWorldEnvironment
         MaximumStreamedDetailNormalSeconds = Mathf.Max(MaximumStreamedDetailNormalSeconds, seconds);
     }
 
+    internal static void RecordStreamedDetailResolutionSeconds(float seconds)
+    {
+        MaximumStreamedDetailResolutionSeconds = Mathf.Max(MaximumStreamedDetailResolutionSeconds, seconds);
+    }
+
     internal static void RecordStreamedDetailComputeSeconds(float seconds)
     {
         MaximumStreamedDetailComputeSeconds = Mathf.Max(MaximumStreamedDetailComputeSeconds, seconds);
@@ -65,19 +200,27 @@ public static class YQGeneratedWorldEnvironment
     }
 
     // note: Keep required ecology instance work overlapped but bounded across independent canopy, understory, and shrub layers.
-    private const int MaximumConcurrentRequiredEcologyInstantiations = 2;
+    // note: Start canopy, understory, and shrub minimums together so required view readiness does not serialize its three accepted habitat layers.
+    private const int MaximumConcurrentRequiredEcologyInstantiations = 3;
     private const float RequiredEcologyLayerSliceSeconds = 0.004f;
 
     private sealed class RequiredEcologyLayerWork
     {
+        public readonly int cellX;
+        public readonly int cellZ;
         public readonly string label;
         public readonly Stack<IEnumerator> iterators = new Stack<IEnumerator>();
         public AsyncInstantiateOperation<GameObject> pendingInstantiation;
         public CustomYieldInstruction pendingCustomYield;
         public int lastAdvancedFrame = -1;
+        public double pendingInstantiationStartedAt = -1d;
+        public double pendingCustomYieldStartedAt = -1d;
+        public double instantiationCapacityWaitStartedAt = -1d;
 
-        public RequiredEcologyLayerWork(string label, IEnumerator iterator)
+        public RequiredEcologyLayerWork(int cellX, int cellZ, string label, IEnumerator iterator)
         {
+            this.cellX = cellX;
+            this.cellZ = cellZ;
             this.label = label ?? string.Empty;
             if (iterator != null)
                 iterators.Push(iterator);
@@ -705,6 +848,8 @@ public static class YQGeneratedWorldEnvironment
             yield break;
         }
 
+        // note: Restore snapshots remain intact on disk; repair the runtime channel before painting/roads, using the same accepted dimensions as streamed cells.
+        yield return ReconcileRuntimeRiverBedsRoutine(terrain, plan);
         List<RegionSurface> surfaces = null;
         YQStartupLoadingScreen.SetGenerationWorkStage(
             "Painting the terrain",
@@ -764,6 +909,76 @@ public static class YQGeneratedWorldEnvironment
             "\nRejected road segments: " + (roadReport != null ? roadReport.rejectedSegments : 0) +
             "\nPublished road terrain surfaces: " + (roadReport != null ? roadReport.roadObjects : 0));
         completed?.Invoke(mandatoryRoadsReady);
+    }
+
+    private static IEnumerator ReconcileRuntimeRiverBedsRoutine(Terrain terrain, GeneratedWorldPlanRecord plan)
+    {
+        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan)) yield break;
+        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out string failure))
+            throw new InvalidOperationException("River-bed preparation failed: " + failure);
+        TerrainData data = terrain.terrainData;
+        Vector3 origin = terrain.transform.position, size = data.size;
+        int resolution = data.heightmapResolution;
+        var riverIndices = new List<int>();
+        var riverBounds = new List<Bounds>();
+        for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
+        {
+            var water = prepared.GetWater(waterIndex);
+            if (water.kind != YQHydrologyKindV2.River && water.kind != YQHydrologyKindV2.Waterfall) continue;
+            int count = prepared.GetWaterPointCount(waterIndex);
+            if (count < 2) continue;
+            var first = prepared.GetWaterPoint(waterIndex, 0);
+            Bounds bounds = new Bounds(new Vector3(first.x, 0f, first.z), Vector3.zero);
+            float maximumWidth = water.nominalWidth;
+            for (int index = 1; index < count; index++)
+            {
+                var point = prepared.GetWaterPoint(waterIndex, index);
+                bounds.Encapsulate(new Vector3(point.x, 0f, point.z));
+                maximumWidth = Mathf.Max(maximumWidth, point.width);
+            }
+            bounds.Expand(new Vector3(maximumWidth * 2f + 8f, 2f, maximumWidth * 2f + 8f));
+            riverIndices.Add(waterIndex);
+            riverBounds.Add(bounds);
+        }
+        int changedSamples = 0;
+        const int rows = 8;
+        float sliceStarted = Time.realtimeSinceStartup;
+        for (int start = 0; start < resolution; start += rows)
+        {
+            int count = Mathf.Min(rows, resolution - start);
+            float[,] strip = data.GetHeights(0, start, resolution, count);
+            bool changed = false;
+            for (int z = 0; z < count; z++)
+            {
+                float worldZ = origin.z + (start + z) * size.z / (resolution - 1f);
+                for (int x = 0; x < resolution; x++)
+                {
+                    float worldX = origin.x + x * size.x / (resolution - 1f);
+                    float original = strip[z, x], carved = original;
+                    for (int river = 0; river < riverIndices.Count; river++)
+                    {
+                        Bounds bounds = riverBounds[river];
+                        if (worldX < bounds.min.x || worldX > bounds.max.x || worldZ < bounds.min.z || worldZ > bounds.max.z) continue;
+                        YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterModifierForFeature(prepared, riverIndices[river],
+                            worldX, worldZ, original, size.y, out float candidate);
+                        carved = Mathf.Min(carved, candidate);
+                    }
+                    if (original - carved <= 0.00001f) continue;
+                    strip[z, x] = carved;
+                    changed = true;
+                    changedSamples++;
+                }
+                if (Time.realtimeSinceStartup - sliceStarted >= 0.003f)
+                {
+                    YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                    yield return null;
+                    sliceStarted = Time.realtimeSinceStartup;
+                }
+            }
+            if (changed) data.SetHeightsDelayLOD(0, start, strip);
+        }
+        if (changedSamples > 0) data.SyncHeightmap();
+        Debug.Log("[YQGeneratedWorldEnvironment] RUNTIME RIVER BED RECONCILED samples=" + changedSamples + " seed=" + plan.worldSeed);
     }
 
     public static IEnumerator RepairLivedPathTerrainRoutine(
@@ -2695,7 +2910,7 @@ public static class YQGeneratedWorldEnvironment
                TrySampleLivedPathSurface(terrain, rightPoint, out right, out rightNormal);
     }
 
-    private static bool TrySampleLivedPathSurface(
+    internal static bool TrySampleLivedPathSurface(
         Terrain terrain,
         Vector2 worldPoint,
         out Vector3 worldPosition,
@@ -5781,9 +5996,6 @@ public static class YQGeneratedWorldEnvironment
                 basin,
                 waterIndex,
                 water.kind);
-            if (configured)
-                // note: Lakes and wetlands receive a handful of deterministic low-cost fish paths after their surface is published.
-                YQGeneratedFish.SpawnForLake(instance.transform, basin, water.kind, water.hydrologyId);
             return configured;
         }
 
@@ -5960,9 +6172,6 @@ public static class YQGeneratedWorldEnvironment
             foamRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
             foamRenderer.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         }
-        if (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Wetland)
-            // note: Fish are children of the accepted water instance, so rebuilds destroy them with the owning hydrology surface.
-            YQGeneratedFish.SpawnForRiver(instance.transform, sampledPoints, sampledWidths, water.kind, water.hydrologyId);
         // note: Imported water prefabs may carry an inactive presentation root; the accepted generated surface must be explicitly active after its mesh and material are published.
         instance.SetActive(true);
         // note: The carved Terrain is the visible and collidable bed/bank; duplicate ribbons hid depth and produced long soil smears.
@@ -8118,6 +8327,29 @@ public static class YQGeneratedWorldEnvironment
         public float computationSeconds;
     }
 
+    internal static bool EnsureStreamedDetailResolution(TerrainData data)
+    {
+        // note: A preempted painter resumes on the same TerrainData; preserve an already matching grid instead of clearing its payload and rebuilding native detail resources.
+        if (data.detailResolution == 64 && data.detailResolutionPerPatch == 16)
+            return false;
+        data.SetDetailResolution(64, 16);
+        return true;
+    }
+
+    internal static bool EnsureStreamedDetailPrototype(TerrainData data, Texture2D texture)
+    {
+        // note: Rebinding an equivalent approved prototype dirties its atlas on painter restart. Unity's equality omits alignment/jitter and uses approximate colors, so check those exactly too.
+        DetailPrototype expected = CreateTerrainDetailPrototype(texture);
+        DetailPrototype[] current = data.detailPrototypes;
+        if (current != null && current.Length == 1 && current[0] != null &&
+            current[0].Equals(expected) && current[0].alignToGround == expected.alignToGround &&
+            current[0].positionJitter == expected.positionJitter &&
+            current[0].healthyColor.Equals(expected.healthyColor) && current[0].dryColor.Equals(expected.dryColor))
+            return false;
+        data.detailPrototypes = new[] { expected };
+        return true;
+    }
+
     private static StreamedDetailBuildResult BuildStreamedDetailPayload(
         YQPreparedSpatialMaterializationV2 prepared,
         Vector2Int coordinate,
@@ -8239,10 +8471,19 @@ public static class YQGeneratedWorldEnvironment
         }
         const int resolution = 64;
         LastStreamedDetailStep = "detailResolution";
-        data.SetDetailResolution(resolution, 16);
+        long detailResolutionStartedAt = System.Diagnostics.Stopwatch.GetTimestamp();
+        bool detailResolutionChanged = EnsureStreamedDetailResolution(data);
+        if (!detailResolutionChanged)
+            LastStreamedDetailStep = "detailResolutionReused";
+        // note: Separate Unity's indivisible native detail-grid setup from the later ecology worker and layer upload costs.
+        YQGeneratedWorldEnvironment.RecordStreamedDetailResolutionSeconds(
+            (float)((System.Diagnostics.Stopwatch.GetTimestamp() - detailResolutionStartedAt) /
+                (double)System.Diagnostics.Stopwatch.Frequency));
         yield return null;
         LastStreamedDetailStep = "detailPrototypeBinding";
-        data.detailPrototypes = new[] { CreateTerrainDetailPrototype(grassTexture) };
+        bool detailPrototypeChanged = EnsureStreamedDetailPrototype(data, grassTexture);
+        if (!detailPrototypeChanged)
+            LastStreamedDetailStep = "detailPrototypeBindingReused";
         yield return null;
         YQPreparedSpatialMaterializationV2 prepared = null;
         if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
@@ -8304,9 +8545,31 @@ public static class YQGeneratedWorldEnvironment
         {
             // note: Keep the exact deterministic ecology and density formulas while moving their CPU work off the Unity main thread.
             CancellationToken cancellationToken = cancellation.Token;
+#if UNITY_EDITOR
+            // note: Capture profiler state before dispatch so the worker never reads Unity profiler settings.
+            bool traceDetailWorker = UnityEngine.Profiling.Profiler.enabled;
+#endif
             task = Task.Run(
-                () => BuildStreamedDetailPayload(
-                    prepared, coordinate, origin, size, seed, slopeDegrees, cancellationToken),
+                () =>
+                {
+#if UNITY_EDITOR
+                    if (traceDetailWorker)
+                        BackgroundDetailPayloadMarker.Begin();
+#endif
+                    try
+                    {
+                        return BuildStreamedDetailPayload(
+                            prepared, coordinate, origin, size, seed, slopeDegrees, cancellationToken);
+                    }
+                    finally
+                    {
+#if UNITY_EDITOR
+                        // note: Balance the scope on success, cancellation, and faults without changing the task result.
+                        if (traceDetailWorker)
+                            BackgroundDetailPayloadMarker.End();
+#endif
+                    }
+                },
                 cancellationToken);
             while (!task.IsCompleted)
             {
@@ -8428,7 +8691,9 @@ public static class YQGeneratedWorldEnvironment
             if (renderer is BillboardRenderer billboardRenderer &&
                 billboardRenderer.billboard != null)
             {
-                // note: Approved tree billboards carry their material through the BillboardAsset; a null shared slot is valid and must not reject the whole native Terrain prototype.
+                // note: Native Terrain bypasses hierarchy repair, including the BillboardAsset-owned material at distant LODs.
+                if (!YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(billboardRenderer.billboard.material))
+                    return false;
                 foundRenderable = true;
                 continue;
             }
@@ -8448,18 +8713,8 @@ public static class YQGeneratedWorldEnvironment
                 Material material =
                     materials[materialIndex];
 
-                bool approvedUrpShaderGraph =
-                    material != null &&
-                    material.shader != null &&
-                    (assetPath ?? string.Empty).IndexOf(
-                        "/Render Pipeline Support/URP/",
-                        StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    material.shader.name.StartsWith(
-                        "Shader Graphs/",
-                        StringComparison.OrdinalIgnoreCase);
-                // note: Approved URP tree prefabs ship Shader Graph materials without a serialized pipeline tag; accept only that explicit URP family while preserving the general material safety gate for every other asset.
-                if (!approvedUrpShaderGraph &&
-                    !YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(material))
+                // note: Folder names cannot certify a usable shader; incompatible native prototypes use the existing visible-tree material-repair path.
+                if (!YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(material))
                 {
                     return false;
                 }
@@ -8821,13 +9076,37 @@ public static class YQGeneratedWorldEnvironment
                     hasWork = true;
                     if (layer.pendingInstantiation != null)
                     {
+                        double now = Time.realtimeSinceStartupAsDouble;
                         if (layer.pendingInstantiation.isDone)
+                        {
+                            RecordRequiredEcologyWait(Time.frameCount, layer.cellX, layer.cellZ,
+                                layer.label, "asyncInstantiation", now - layer.pendingInstantiationStartedAt);
                             layer.pendingInstantiation = null;
+                            layer.pendingInstantiationStartedAt = -1d;
+                        }
                         else
+                        {
                             activeInstantiations++;
+                            RecordRequiredEcologyWait(Time.frameCount, layer.cellX, layer.cellZ,
+                                layer.label, "asyncInstantiation", now - layer.pendingInstantiationStartedAt);
+                        }
                     }
-                    if (layer.pendingCustomYield != null && !layer.pendingCustomYield.keepWaiting)
-                        layer.pendingCustomYield = null;
+                    if (layer.pendingCustomYield != null)
+                    {
+                        double now = Time.realtimeSinceStartupAsDouble;
+                        if (!layer.pendingCustomYield.keepWaiting)
+                        {
+                            RecordRequiredEcologyWait(Time.frameCount, layer.cellX, layer.cellZ,
+                                layer.label, "customYield", now - layer.pendingCustomYieldStartedAt);
+                            layer.pendingCustomYield = null;
+                            layer.pendingCustomYieldStartedAt = -1d;
+                        }
+                        else
+                        {
+                            RecordRequiredEcologyWait(Time.frameCount, layer.cellX, layer.cellZ,
+                                layer.label, "customYield", now - layer.pendingCustomYieldStartedAt);
+                        }
+                    }
                 }
 
                 if (!hasWork)
@@ -8843,9 +9122,18 @@ public static class YQGeneratedWorldEnvironment
                     RequiredEcologyLayerWork layer = layers[index];
                     if (layer == null || layer.iterators.Count == 0 ||
                         layer.lastAdvancedFrame == Time.frameCount ||
-                        layer.pendingInstantiation != null || layer.pendingCustomYield != null ||
-                        activeInstantiations >= MaximumConcurrentRequiredEcologyInstantiations)
+                        layer.pendingInstantiation != null || layer.pendingCustomYield != null)
                         continue;
+                    if (activeInstantiations >= MaximumConcurrentRequiredEcologyInstantiations)
+                    {
+                        if (layer.instantiationCapacityWaitStartedAt < 0d)
+                            layer.instantiationCapacityWaitStartedAt = Time.realtimeSinceStartupAsDouble;
+                        RecordRequiredEcologyWait(Time.frameCount, layer.cellX, layer.cellZ,
+                            layer.label, "asyncInstantiationCapacity",
+                            Time.realtimeSinceStartupAsDouble - layer.instantiationCapacityWaitStartedAt);
+                        continue;
+                    }
+                    layer.instantiationCapacityWaitStartedAt = -1d;
 
                     // note: Advance each independent layer in a rotating order while retaining one canonical attempt sequence inside each layer.
                     LastSemanticChunkScatterStep = layer.label;
@@ -8855,7 +9143,20 @@ public static class YQGeneratedWorldEnvironment
                             break;
 
                         IEnumerator current = layer.iterators.Peek();
-                        if (!current.MoveNext())
+                        double childStepStartedAt = Time.realtimeSinceStartupAsDouble;
+                        bool advanced;
+                        try
+                        {
+                            advanced = current.MoveNext();
+                        }
+                        finally
+                        {
+                            RecordRequiredEcologyStep(
+                                Time.frameCount, layer.cellX, layer.cellZ, layer.label,
+                                current.GetType().Name, layer.iterators.Count,
+                                (float)Math.Max(0d, Time.realtimeSinceStartupAsDouble - childStepStartedAt));
+                        }
+                        if (!advanced)
                         {
                             layer.iterators.Pop();
                             (current as IDisposable)?.Dispose();
@@ -8872,12 +9173,14 @@ public static class YQGeneratedWorldEnvironment
                         if (yielded is AsyncInstantiateOperation<GameObject> instantiation)
                         {
                             layer.pendingInstantiation = instantiation;
+                            layer.pendingInstantiationStartedAt = Time.realtimeSinceStartupAsDouble;
                             activeInstantiations++;
                             break;
                         }
                         if (yielded is CustomYieldInstruction customYield)
                         {
                             layer.pendingCustomYield = customYield;
+                            layer.pendingCustomYieldStartedAt = Time.realtimeSinceStartupAsDouble;
                             break;
                         }
                         if (yielded == null)
@@ -9071,6 +9374,7 @@ public static class YQGeneratedWorldEnvironment
 
         // note: The canopy pass is tree-only and uses a distinct seed so replay and sector order cannot swap tree families.
         RequiredEcologyLayerWork canopyWork = new RequiredEcologyLayerWork(
+            chunk.chunkX, chunk.chunkZ,
             "canopy",
             SpawnSmallScatterAreaRoutine(
                 parent, terrain, plan, region, palette, registry,
@@ -9101,6 +9405,7 @@ public static class YQGeneratedWorldEnvironment
 
         // note: Understory follows moisture and forest affinity while reusing the curated low-vegetation reference filter.
         RequiredEcologyLayerWork understoryWork = new RequiredEcologyLayerWork(
+            chunk.chunkX, chunk.chunkZ,
             "understory",
             SpawnSmallScatterAreaRoutine(
                 parent, terrain, plan, region, palette, registry,
@@ -9131,6 +9436,7 @@ public static class YQGeneratedWorldEnvironment
 
         // note: Shrubs are a separate deterministic layer so low vegetation remains visible even when the canopy family is sparse or rejected by a Terrain prototype.
         RequiredEcologyLayerWork shrubWork = new RequiredEcologyLayerWork(
+            chunk.chunkX, chunk.chunkZ,
             "shrubs",
             SpawnSmallScatterAreaRoutine(
                 parent, terrain, plan, region, palette, registry,
@@ -9979,6 +10285,7 @@ public static class YQGeneratedWorldEnvironment
         // note: Palette contents are fixed during one chunk's dressing pass; cache each deterministic candidate list instead of rebuilding garbage for every roadside point.
         var candidatesByPalette = new Dictionary<GeneratedRegionAssetPaletteRecord, List<GeneratedAssetReferenceRecord>>();
         float frameStartedAt = Time.realtimeSinceStartup;
+        string lastSlowContextPoint = string.Empty;
 
         for (int pathIndex = 0; pathIndex < paths.Count && spawned < candidateBudget; pathIndex++)
         {
@@ -9993,7 +10300,10 @@ public static class YQGeneratedWorldEnvironment
                 // note: Failed candidates consume time too; bound work even when every roadside location is reserved.
                 if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
                 {
-                    LastRoadsideDressingStep = "candidateBudgetYieldAfter:" + LastRoadsideDressingStep;
+                    // note: Carry only a slow candidate's breakdown into the publication receipt so the existing 1.5 ms yield remains unchanged.
+                    LastRoadsideDressingStep = "candidateBudgetYieldAfter:" + LastRoadsideDressingStep +
+                        (string.IsNullOrEmpty(lastSlowContextPoint) ? string.Empty : ";" + lastSlowContextPoint);
+                    lastSlowContextPoint = string.Empty;
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
                 }
@@ -10028,7 +10338,11 @@ public static class YQGeneratedWorldEnvironment
                 if (reference == null)
                     continue;
                 LastRoadsideDressingStep = "contextPointRules";
-                if (!IsContextDressingPointAllowed(terrain, plan, paths, macroWater, worldPosition))
+                bool contextPointAllowed = IsContextDressingPointAllowed(
+                    terrain, plan, paths, macroWater, worldPosition, out string contextPointTiming);
+                if (!string.IsNullOrEmpty(contextPointTiming))
+                    lastSlowContextPoint = "candidate=" + pathIndex + "/" + side + " " + contextPointTiming;
+                if (!contextPointAllowed)
                     continue;
 
                 LastRoadsideDressingStep = "prefabResolve";
@@ -10053,7 +10367,8 @@ public static class YQGeneratedWorldEnvironment
                 instance.transform.localScale *= scale;
                 FitInstantiatedScatterToBudget(instance, reference.slotTag, reference);
                 LastRoadsideDressingStep = "materialOverrides";
-                registry.ApplyMaterialOverrides(reference.assetPath, instance);
+                // note: Preserve slot bindings and LOD cleanup here; the cooperative routine below owns the single hierarchy repair pass.
+                registry.ApplyMaterialOverrides(reference.assetPath, instance, false);
                 PrepareWildernessInstance(instance);
                 LastRoadsideDressingStep = "materialRepair";
                 yield return YQRuntimeUrpMaterialRepair.RepairMaterialHierarchyRoutine(instance, null);
@@ -10095,20 +10410,81 @@ public static class YQGeneratedWorldEnvironment
 
     private static bool IsContextDressingPointAllowed(
         Terrain terrain, GeneratedWorldPlanRecord plan, List<LivedPathSegment> paths,
-        MacroWaterSet water, Vector3 position)
+        MacroWaterSet water, Vector3 position, out string timingEvidence)
     {
+        double totalStartedAt = Time.realtimeSinceStartupAsDouble;
+        double stageStartedAt = totalStartedAt;
+        float wildernessMs = 0f;
+        float routeMs = 0f;
+        float preparedMaskMs = 0f;
+        float steepnessMs = 0f;
+        timingEvidence = string.Empty;
         // note: Contextual props obey the same accepted reservations as ecological scatter, including roads, sites and cave mouths.
-        if (!IsWildernessPositionAllowed(terrain, plan, position, SettlementClearRadius,
-                OriginClearRadius, EncampmentEncounterClearRadius, water,
-                out YQSpatialTerrainSampleV2 preparedSample) ||
-            IsNearLivedPath(paths, position, 2f))
+        bool wildernessAllowed = IsWildernessPositionAllowed(
+            terrain, plan, position, SettlementClearRadius,
+            OriginClearRadius, EncampmentEncounterClearRadius, water,
+            out YQSpatialTerrainSampleV2 preparedSample);
+        double stageFinishedAt = Time.realtimeSinceStartupAsDouble;
+        wildernessMs = (float)((stageFinishedAt - stageStartedAt) * 1000d);
+        if (!wildernessAllowed)
+        {
+            timingEvidence = BuildRoadsideContextTimingEvidence(
+                totalStartedAt, wildernessMs, routeMs, preparedMaskMs, steepnessMs,
+                paths != null ? paths.Count : 0, false);
             return false;
+        }
+
+        stageStartedAt = stageFinishedAt;
+        bool nearLivedPath = IsNearLivedPath(paths, position, 2f);
+        stageFinishedAt = Time.realtimeSinceStartupAsDouble;
+        routeMs = (float)((stageFinishedAt - stageStartedAt) * 1000d);
+        if (nearLivedPath)
+        {
+            timingEvidence = BuildRoadsideContextTimingEvidence(
+                totalStartedAt, wildernessMs, routeMs, preparedMaskMs, steepnessMs,
+                paths != null ? paths.Count : 0, false);
+            return false;
+        }
+
         // note: The accepted V2 water check already sampled this exact point; reuse its complete mask result instead of evaluating every route and water spline twice.
-        if (water.preparedV2 != null && !IsPreparedVegetationPositionAllowed(preparedSample, false))
+        stageStartedAt = stageFinishedAt;
+        bool preparedMaskAllowed = water.preparedV2 == null ||
+            IsPreparedVegetationPositionAllowed(preparedSample, false);
+        stageFinishedAt = Time.realtimeSinceStartupAsDouble;
+        preparedMaskMs = (float)((stageFinishedAt - stageStartedAt) * 1000d);
+        if (!preparedMaskAllowed)
+        {
+            timingEvidence = BuildRoadsideContextTimingEvidence(
+                totalStartedAt, wildernessMs, routeMs, preparedMaskMs, steepnessMs,
+                paths != null ? paths.Count : 0, false);
             return false;
+        }
+
         Vector3 local = position - terrain.transform.position;
         Vector3 size = terrain.terrainData.size;
-        return terrain.terrainData.GetSteepness(local.x / size.x, local.z / size.z) <= 32f;
+        stageStartedAt = Time.realtimeSinceStartupAsDouble;
+        bool allowed = terrain.terrainData.GetSteepness(local.x / size.x, local.z / size.z) <= 32f;
+        stageFinishedAt = Time.realtimeSinceStartupAsDouble;
+        steepnessMs = (float)((stageFinishedAt - stageStartedAt) * 1000d);
+        timingEvidence = BuildRoadsideContextTimingEvidence(
+            totalStartedAt, wildernessMs, routeMs, preparedMaskMs, steepnessMs,
+            paths != null ? paths.Count : 0, allowed);
+        return allowed;
+    }
+
+    private static string BuildRoadsideContextTimingEvidence(
+        double totalStartedAt, float wildernessMs, float routeMs, float preparedMaskMs,
+        float steepnessMs, int pathCount, bool allowed)
+    {
+        // note: Allocate a timing label only when one accepted-context candidate exceeds the normal per-frame slice budget.
+        double totalMs = Math.Max(0d, (Time.realtimeSinceStartupAsDouble - totalStartedAt) * 1000d);
+        if (totalMs < 0.75d)
+            return string.Empty;
+
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "roadsideContext total={0:0.00}ms wilderness={1:0.00}ms route={2:0.00}ms masks={3:0.00}ms steepness={4:0.00}ms pathSegments={5} allowed={6}",
+            totalMs, wildernessMs, routeMs, preparedMaskMs, steepnessMs, pathCount, allowed);
     }
 
     private static bool IsContextDressingFootprintAllowed(
@@ -10138,7 +10514,7 @@ public static class YQGeneratedWorldEnvironment
             for (int x = -1; x <= 1; x++)
             {
                 Vector3 contact = bounds.center + new Vector3(bounds.extents.x * x, 0f, bounds.extents.z * z);
-                if (!IsContextDressingPointAllowed(terrain, plan, paths, water, contact))
+                if (!IsContextDressingPointAllowed(terrain, plan, paths, water, contact, out _))
                     return false;
                 float height = YQGeneratedWorldTerrain.SampleWorldHeight(terrain, contact);
                 lowest = Mathf.Min(lowest, height);
@@ -10774,6 +11150,11 @@ public static class YQGeneratedWorldEnvironment
         HashSet<string> spawnedTreeFamilies =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // note: Async clones and cooperative material repair span frames. Keep each unfinished plant hidden until grounding and every LOD material are ready.
+        GameObject preparationRoot = new GameObject("Ecology_Preparing");
+        preparationRoot.transform.SetParent(root.transform, false);
+        preparationRoot.SetActive(false);
+
         bool vegetationSlot =
             string.Equals(
                 slot,
@@ -11025,7 +11406,7 @@ public static class YQGeneratedWorldEnvironment
             if (synchronousInstantiation)
             {
                 // note: Explicit synchronous callers retain their existing clone contract; streamed chunks select the async branch below to keep imported hierarchy work off the frame boundary.
-                instance = UnityEngine.Object.Instantiate(prefab, root.transform);
+                instance = UnityEngine.Object.Instantiate(prefab, preparationRoot.transform);
                 yield return null;
             }
             else
@@ -11033,7 +11414,7 @@ public static class YQGeneratedWorldEnvironment
                 AsyncInstantiateOperation<GameObject> operation =
                     UnityEngine.Object.InstantiateAsync(
                         prefab,
-                        root.transform);
+                        preparationRoot.transform);
                 // note: Nearby streamed ecology must compete at normal async priority so camera-visible cells do not wait behind unrelated background work.
                 operation.priority = 0;
                 // note: Origin dressing retains cooperative async loading for its larger authored set while this branch keeps the player-facing chunk responsive.
@@ -11168,6 +11549,8 @@ public static class YQGeneratedWorldEnvironment
                 continue;
             }
 
+            // note: Reparenting is the single publication edge; preserves prefab active state, world placement, and authored renderer settings.
+            instance.transform.SetParent(root.transform, true);
             spawned++;
             if (spawned == 1)
             {
@@ -12525,11 +12908,11 @@ public static class YQGeneratedWorldEnvironment
                         instance,
                         null);
 
-                float targetHeight =
-                    ResolveMonsterTargetHeight(
-                        resolvedSource.family);
+                // note: Supplied wildlife retains its authored species size; hostile visual envelopes still follow the existing combat rules.
+                bool passiveWildlife = resolvedCategory == "wildlife";
+                float targetHeight = passiveWildlife ? 0f : ResolveMonsterTargetHeight(resolvedSource.family);
 
-                if (!TryNormalizeMonsterVisualEnvelope(
+                if (!passiveWildlife && !TryNormalizeMonsterVisualEnvelope(
                         instance,
                         targetHeight,
                         resolvedCategory))
@@ -12548,6 +12931,24 @@ public static class YQGeneratedWorldEnvironment
                     instance,
                     terrain,
                     position);
+
+                YQDotCreatureVisual dotVisual = YQDotCreatureVisual.Bind(instance, entry.assetPath);
+                if (passiveWildlife)
+                {
+                    // note: Passive species reuse canonical entity identity and bounded wandering; no hostile combat owner is attached.
+                    var body = instance.GetComponent<Rigidbody>();
+                    if (body != null) { body.isKinematic = true; body.useGravity = false; }
+                    var info = instance.GetComponent<EntityInfo>() ?? instance.AddComponent<EntityInfo>();
+                    info.entityId = "ambient_" + StableHash32(seed + "|" + region.regionId).ToString("x8");
+                    info.displayName = resolvedSource.family;
+                    info.factionId = resolvedSource.factionId;
+                    info.hostility = Hostility.Neutral;
+                    info.tags = new[] { "generated", "wildlife", NormalizeTag(resolvedSource.family), NormalizeTag(region.regionId) };
+                    var wander = instance.GetComponent<YQGeneratedNpcWander>() ?? instance.AddComponent<YQGeneratedNpcWander>();
+                    wander.Configure(seed, 6f, dotVisual != null ? dotVisual.AuthoredWalkSpeed : .8f);
+                    total++;
+                    continue;
+                }
 
                 ConfigureAmbientEnemy(
                     instance,
@@ -12683,6 +13084,9 @@ public static class YQGeneratedWorldEnvironment
         out YQRuntimeWorldAssetEntry result,
         out string resolvedCategory)
     {
+        // note: Explicit accepted wildlife species resolve before hostile family classification can reinterpret them as generic monsters.
+        if (YQDotCreatureCatalog.TryResolve(registry, family, "wildlife", seed, out result, out resolvedCategory))
+            return true;
         result =
             null;
 
@@ -14464,11 +14868,13 @@ public static class YQGeneratedWorldEnvironment
         RemoveWildernessCollision(
             instance);
 
-        GroundWildernessInstance(
+        // note: Do not publish a candidate whose terrain contact could not be established.
+        if (!GroundWildernessInstance(
             instance,
             terrain,
             slot,
-            reference);
+            reference))
+            return false;
 
         if (!TryGetWildernessBounds(
                 instance,
@@ -14591,28 +14997,25 @@ public static class YQGeneratedWorldEnvironment
         }
     }
 
-    private static void GroundWildernessInstance(
+    private static bool GroundWildernessInstance(
         GameObject instance,
         Terrain terrain,
         string slot,
         GeneratedAssetReferenceRecord reference)
     {
-        if (instance == null ||
-            terrain == null ||
-            YQTerrainSupportComposer.IsExplicitlySuspended(
-                instance))
-        {
-            return;
-        }
+        if (instance == null || terrain == null || terrain.terrainData == null)
+            return false;
+        // note: Authored suspended scenery retains its explicit exemption from ground contact.
+        if (YQTerrainSupportComposer.IsExplicitlySuspended(instance))
+            return true;
 
-        if (string.Equals(
+        bool tree = string.Equals(
                 slot,
                 YQWorldAssetCatalog
                     .SlotVegetation,
                 StringComparison.OrdinalIgnoreCase) &&
-            LooksLikeTree(
-                instance,
-                reference) &&
+            LooksLikeTree(instance, reference);
+        if (tree &&
             TryGetTreeTrunkBounds(
                 instance,
                 out Bounds trunkBounds))
@@ -14635,7 +15038,7 @@ public static class YQGeneratedWorldEnvironment
                     treePosition;
 
                 // note: Tree trunks remain upright and use their root geometry as the explicit contact authority.
-                return;
+                return true;
             }
         }
 
@@ -14645,6 +15048,7 @@ public static class YQGeneratedWorldEnvironment
                 YQWorldAssetCatalog.SlotRock,
                 StringComparison.OrdinalIgnoreCase)
                 ? YQGeneratedWorldPlacementCategory.Rock
+                : tree ? YQGeneratedWorldPlacementCategory.Tree
                 : string.Equals(
                     slot,
                     YQWorldAssetCatalog.SlotVegetation,
@@ -14652,8 +15056,8 @@ public static class YQGeneratedWorldEnvironment
                     ? YQGeneratedWorldPlacementCategory.Vegetation
                     : YQGeneratedWorldPlacementCategory.Prop;
 
-        // note: Ordinary wilderness props enter the same category-aware placement gate, giving rocks and low vegetation bounded natural tilt plus visible-bottom contact.
-        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
+        // note: Combined tree meshes retain tree semantics when no renderer is named trunk/bark; only shrubs and rocks receive surface tilt.
+        return YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
             category,

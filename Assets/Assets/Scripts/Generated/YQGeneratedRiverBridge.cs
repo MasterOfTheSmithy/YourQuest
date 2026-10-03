@@ -7,6 +7,13 @@ using UnityEngine;
 public sealed class YQGeneratedRiverBridge : MonoBehaviour
 {
     internal const float CooperativeSliceSeconds = 0.005f;
+    private const float BridgeVisualDeckCenterOffset = 0.08f;
+    private const float BridgeVisualDeckThickness = 0.28f;
+    private const float WalkSurfaceTopOffset = BridgeVisualDeckCenterOffset + BridgeVisualDeckThickness * 0.5f;
+    private const float WalkSurfaceThickness = 0.047f;
+    private const float WalkSurfaceBottomOffset = WalkSurfaceTopOffset - WalkSurfaceThickness;
+    private const float WalkSurfaceSupportTopInset = 0.01f;
+    private const float WalkSurfaceSupportThickness = 0.5f;
     private readonly List<Mesh> meshes = new List<Mesh>();
     private readonly List<Material> materials = new List<Material>();
     private static readonly int BaseColorShaderId = Shader.PropertyToID("_BaseColor");
@@ -97,13 +104,20 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
                 float length = flat.magnitude;
                 if (length >= 0.05f)
                 {
+                    float segmentLength = delta.magnitude;
+                    Vector3 segmentForward = delta / segmentLength;
+                    Vector3 segmentSide = new Vector3(-flat.z, 0f, flat.x) / length;
+                    // note: Match each hidden support's top plane to the accepted sloped deck so its retained depth cannot form a raised entry lip.
+                    Vector3 deckNormal = Vector3.Cross(segmentSide, segmentForward).normalized;
                     GameObject support = new GameObject("StoneBridgeWalkSurface");
                     support.transform.SetParent(root.transform, false);
-                    support.transform.position = Vector3.Lerp(a, b, 0.5f) + Vector3.up * 0.02f;
-                    support.transform.rotation = Quaternion.LookRotation(flat / length, Vector3.up);
+                    // note: Keep the support just beneath the mesh top so the mesh remains the authoritative walk plane at seams.
+                    support.transform.position = Vector3.Lerp(a, b, 0.5f) + Vector3.up * (WalkSurfaceTopOffset - WalkSurfaceSupportTopInset) - deckNormal * (WalkSurfaceSupportThickness * 0.5f);
+                    support.transform.rotation = Quaternion.LookRotation(segmentForward, deckNormal);
                     BoxCollider box = support.AddComponent<BoxCollider>();
                     // note: Give the hidden support a narrow safety shoulder so the certified capsule remains supported at bank-turn corners without widening the visible deck.
-                    box.size = new Vector3(width + 2f, 0.5f, length + 0.18f);
+                    float supportLength = (length + 0.18f) * (segmentLength / length);
+                    box.size = new Vector3(width + 2f, WalkSurfaceSupportThickness, supportLength);
                 }
                 RecordBuildSubstage(substageTelemetry, "bridgeSupportCollider", stageStarted);
                 if (Time.realtimeSinceStartup - supportSliceStartedAt >= CooperativeSliceSeconds)
@@ -141,9 +155,9 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
                 GameObject deck = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 deck.name = variant == 1 ? "WoodBridgeDeck" : variant == 2 ? "DisheveledBridgeDeck" : variant == 3 ? "RepairedBridgeDeck" : "StoneBridgeDeck";
                 deck.transform.SetParent(parent, false);
-                deck.transform.position = Vector3.Lerp(a, b, .5f) + Vector3.up * .08f;
+                deck.transform.position = Vector3.Lerp(a, b, .5f) + Vector3.up * BridgeVisualDeckCenterOffset;
                 deck.transform.rotation = Quaternion.LookRotation(flat / length, Vector3.up);
-                deck.transform.localScale = new Vector3(Mathf.Max(2f, width), .28f, length + .16f);
+                deck.transform.localScale = new Vector3(Mathf.Max(2f, width), BridgeVisualDeckThickness, length + .16f);
                 Collider collider = deck.GetComponent<Collider>();
                 if (collider != null) UnityEngine.Object.Destroy(collider);
                 Renderer renderer = deck.GetComponent<Renderer>();
@@ -392,8 +406,8 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
             tangent.Normalize();
             Vector3 side = new Vector3(-tangent.z, 0f, tangent.x);
             Vector3 center = road[source];
-            Vector3 top = center + Vector3.up * .055f;
-            Vector3 bottom = center + Vector3.up * .008f;
+            Vector3 top = center + Vector3.up * WalkSurfaceTopOffset;
+            Vector3 bottom = center + Vector3.up * WalkSurfaceBottomOffset;
             int v = i * 4;
             vertices[v] = top - side * halfWidth;
             vertices[v + 1] = top + side * halfWidth;

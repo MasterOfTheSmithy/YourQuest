@@ -620,6 +620,13 @@ public sealed class YQPreparedSpatialMaterializationV2
 
 public static class YQSpatialMaterializationCompilerV2
 {
+    // note: One presentation-scale contract feeds both the terrain sampler and the streamed mesh projection, without rewriting accepted blueprint values.
+    internal static float ResolveWaterWidth(YQHydrologyKindV2 kind, float width) =>
+        Mathf.Max(kind == YQHydrologyKindV2.River ? 14f : kind == YQHydrologyKindV2.Waterfall ? 10f : 1f, width);
+
+    internal static float ResolveWaterDepth(YQHydrologyKindV2 kind, float depth) =>
+        Mathf.Max(kind == YQHydrologyKindV2.River ? 4.5f : kind == YQHydrologyKindV2.Waterfall ? 3.5f : 0f, depth);
+
     public static bool TryPrepareCandidate(
         GeneratedWorldPlanRecord source,
         GeneratedSpatialWorldPlanV2Record candidate,
@@ -732,7 +739,7 @@ public static class YQSpatialMaterializationCompilerV2
                         z = point.z,
                         waterSurfaceNormalized =
                             Mathf.Clamp01(point.normalizedElevation),
-                        width = Mathf.Max(source.nominalWidth, point.width)
+                        width = Mathf.Max(ResolveWaterWidth(source.kind, source.nominalWidth), point.width)
                     };
             }
 
@@ -744,8 +751,9 @@ public static class YQSpatialMaterializationCompilerV2
                 sourceTerrainFieldId = source.sourceTerrainFieldId,
                 sinkHydrologyId = source.sinkHydrologyId,
                 waterLevelNormalized = source.waterLevelNormalized,
-                nominalWidth = source.nominalWidth,
-                nominalDepth = source.nominalDepth,
+                // note: Meshes, boundary continuation and terrain use the same effective channel dimensions; accepted records remain unchanged.
+                nominalWidth = ResolveWaterWidth(source.kind, source.nominalWidth),
+                nominalDepth = ResolveWaterDepth(source.kind, source.nominalDepth),
                 pointStart = pointStart,
                 pointCount = waterPointCursor - pointStart,
                 hasSpatialBounds = waterPointCursor > pointStart,

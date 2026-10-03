@@ -926,21 +926,7 @@ public static class YQSpatialBlueprintHasherV2
             Append(builder, value.requiresTerrainConformance ? 1 : 0);
             Append(builder, value.hiddenFromPrimaryRoute ? 1 : 0);
 
-            List<int> functions = new List<int>();
-            for (int functionIndex = 0;
-                 functionIndex < (value.requiredFunctions != null ? value.requiredFunctions.Count : 0);
-                 functionIndex++)
-            {
-                functions.Add((int)value.requiredFunctions[functionIndex]);
-            }
-
-            functions.Sort();
-            for (int functionIndex = 0;
-                 functionIndex < functions.Count;
-                 functionIndex++)
-            {
-                Append(builder, functions[functionIndex]);
-            }
+            AppendFunctions(builder, value.requiredFunctions);
 
             AppendStrings(builder, value.tags);
         }
@@ -1031,16 +1017,34 @@ public static class YQSpatialBlueprintHasherV2
         StableHashWriter builder,
         IReadOnlyList<string> values)
     {
-        List<string> sorted = new List<string>();
-        if (values != null)
+        // note: Empty/singleton tags need no sorting storage. Larger sequences rent only scratch space, never cache accepted content or mutate its order.
+        int count = values != null ? values.Count : 0;
+        if (count == 0) return;
+        if (count == 1) { Append(builder, values[0]); return; }
+        string[] sorted = System.Buffers.ArrayPool<string>.Shared.Rent(count);
+        try
         {
-            for (int index = 0; index < values.Count; index++)
-                sorted.Add(values[index] ?? string.Empty);
+            for (int index = 0; index < count; index++) sorted[index] = values[index] ?? string.Empty;
+            Array.Sort(sorted, 0, count, StringComparer.Ordinal);
+            for (int index = 0; index < count; index++) Append(builder, sorted[index]);
         }
+        finally { System.Buffers.ArrayPool<string>.Shared.Return(sorted, clearArray: true); }
+    }
 
-        sorted.Sort(StringComparer.Ordinal);
-        for (int index = 0; index < sorted.Count; index++)
-            Append(builder, sorted[index]);
+    private static void AppendFunctions(StableHashWriter builder, IReadOnlyList<YQAssetFunctionV2> values)
+    {
+        // note: Preserve signed numeric ordering and duplicates while avoiding one List and backing array per site on every integrity check.
+        int count = values != null ? values.Count : 0;
+        if (count == 0) return;
+        if (count == 1) { Append(builder, (int)values[0]); return; }
+        int[] sorted = System.Buffers.ArrayPool<int>.Shared.Rent(count);
+        try
+        {
+            for (int index = 0; index < count; index++) sorted[index] = (int)values[index];
+            Array.Sort(sorted, 0, count);
+            for (int index = 0; index < count; index++) Append(builder, sorted[index]);
+        }
+        finally { System.Buffers.ArrayPool<int>.Shared.Return(sorted); }
     }
 
     private static List<T> SortById<T>(
@@ -1068,45 +1072,61 @@ public static class YQSpatialBlueprintHasherV2
     private static void Append(StableHashWriter builder, string value)
     {
         string safe = value ?? string.Empty;
-        builder.Append(safe.Length);
-        builder.Append(':');
-        builder.Append(safe);
-        builder.Append('|');
+        Append(builder, safe.AsSpan());
+    }
+
+    private static void Append(StableHashWriter builder, ReadOnlySpan<char> value)
+    {
+        // note: Preserve the length-delimited canonical token while consuming formatted stack storage directly.
+        builder.AppendToken(value);
     }
 
     private static void Append(StableHashWriter builder, float value)
     {
-        Append(builder, value.ToString("R", CultureInfo.InvariantCulture));
+        // note: The same round-trip invariant formatter avoids a temporary string on each runtime integrity check.
+        Span<char> text = stackalloc char[64];
+        if (value.TryFormat(text, out int written, "R", CultureInfo.InvariantCulture))
+            Append(builder, text.Slice(0, written));
+        else
+            Append(builder, value.ToString("R", CultureInfo.InvariantCulture));
     }
 
     private static void Append(StableHashWriter builder, int value)
     {
-        Append(builder, value.ToString(CultureInfo.InvariantCulture));
+        // note: Eleven characters cover every invariant Int32 token, including its sign.
+        Span<char> text = stackalloc char[11];
+        if (value.TryFormat(text, out int written, default, CultureInfo.InvariantCulture))
+            Append(builder, text.Slice(0, written));
+        else
+            Append(builder, value.ToString(CultureInfo.InvariantCulture));
     }
 
     private sealed class StableHashWriter
     {
         private ulong _hash = 14695981039346656037UL;
 
-        public StableHashWriter Append(int value)
+        public void AppendToken(ReadOnlySpan<char> value)
         {
-            // note: StringBuilder.Append(int) used the current culture for this nonnegative length prefix; retain its exact character sequence.
-            Append(value.ToString(CultureInfo.CurrentCulture));
-            return this;
-        }
-
-        public StableHashWriter Append(char value)
-        {
-            AppendCharacter(value);
-            return this;
-        }
-
-        public StableHashWriter Append(string value)
-        {
-            string text = value ?? string.Empty;
-            for (int index = 0; index < text.Length; index++)
-                AppendCharacter(text[index]);
-            return this;
+            // note: Nonnegative default Int32 formatting emits these decimal digits without separators in every supported culture; ten slots cover any string length.
+            Span<char> lengthDigits = stackalloc char[10];
+            int remaining = value.Length;
+            int firstDigit = lengthDigits.Length;
+            do
+            {
+                lengthDigits[--firstDigit] = (char)('0' + remaining % 10);
+                remaining /= 10;
+            } while (remaining != 0);
+            // note: Consume the identical length:value| UTF-16 stream with local FNV state, avoiding formatter dispatch and a field write for every character.
+            unchecked
+            {
+                ulong hash = _hash;
+                for (int index = firstDigit; index < lengthDigits.Length; index++)
+                    hash = (hash ^ lengthDigits[index]) * 1099511628211UL;
+                hash = (hash ^ ':') * 1099511628211UL;
+                for (int index = 0; index < value.Length; index++)
+                    hash = (hash ^ value[index]) * 1099511628211UL;
+                _hash = (hash ^ '|') * 1099511628211UL;
+            }
         }
 
         public string ToHashString()
@@ -1114,14 +1134,5 @@ public static class YQSpatialBlueprintHasherV2
             return _hash.ToString("x16", CultureInfo.InvariantCulture);
         }
 
-        private void AppendCharacter(char value)
-        {
-            // note: Preserve the existing stable FNV-1a character stream and output format exactly.
-            unchecked
-            {
-                _hash ^= value;
-                _hash *= 1099511628211UL;
-            }
-        }
     }
 }

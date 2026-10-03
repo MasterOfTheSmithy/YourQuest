@@ -63,7 +63,7 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
         240f;
 
     private const float UiMapSize =
-        248f;
+        300f;
 
     private Camera _mapCamera;
 
@@ -194,7 +194,7 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
     {
         bool gameplayMapVisible =
             YourQuestTutorialAutoBootstrap
-                .GameplayPresentationReleased;
+                .GameplayPresentationReleased && !RuntimeModalUiBlocker.IsBlocked;
 
         if (_canvas != null &&
             _canvas.enabled != gameplayMapVisible)
@@ -236,11 +236,13 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
             Time.unscaledTime >=
             _nextSaveTime)
         {
-            SaveDiscovery();
-
             _nextSaveTime =
                 Time.unscaledTime +
                 SaveInterval;
+
+            // note: Active profiles already own the changed WorldState and publish it as a paired revision on Save or Quit; a recurring standalone mirror write stalls streaming frames.
+            if (YQProfileSaveSystem.Instance == null)
+                SaveDiscovery();
         }
     }
 
@@ -265,7 +267,7 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
         _mapCamera.transform.position =
             new Vector3(
                 playerPosition.x,
-                MapCameraHeight,
+                playerPosition.y + MapCameraHeight,
                 playerPosition.z);
 
         _mapCamera.transform.rotation =
@@ -286,7 +288,8 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        if (_discoveryDirty)
+        // note: The profile owner commits this same in-memory discovery state with the player document during shutdown.
+        if (_discoveryDirty && YQProfileSaveSystem.Instance == null)
             SaveDiscovery();
     }
 
@@ -424,423 +427,72 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
 
     private void BuildUi()
     {
-        GameObject canvasObject =
-            new GameObject(
-                "YQ_MinimapCanvas",
-                typeof(RectTransform),
-                typeof(Canvas),
-                typeof(CanvasScaler),
-                typeof(GraphicRaycaster));
-
-        canvasObject.transform.SetParent(
-            transform,
-            false);
-
-        Canvas canvas =
-            canvasObject.GetComponent<
-                Canvas>();
-
-        _canvas =
-            canvas;
-
-        canvas.renderMode =
-            RenderMode.ScreenSpaceOverlay;
-
-        /*
-         * Normal HUD layer.
-         * Modal/title/menu interfaces remain above this.
-         */
-        canvas.sortingOrder =
-            3100;
-
-        CanvasScaler scaler =
-            canvasObject.GetComponent<
-                CanvasScaler>();
-
-        scaler.uiScaleMode =
-            CanvasScaler.ScaleMode
-                .ScaleWithScreenSize;
-
-        scaler.referenceResolution =
-            new Vector2(
-                1920f,
-                1080f);
-
-        scaler.matchWidthOrHeight =
-            0.5f;
-
-        RectTransform frame =
-            CreateUiObject(
-                canvasObject.transform,
-                "MinimapFrame");
-
-        frame.anchorMin =
-    new Vector2(
-        0f,
-        1f);
-
-        frame.anchorMax =
-            new Vector2(
-                0f,
-                1f);
-
-        frame.pivot =
-            new Vector2(
-                0f,
-                1f);
-
-        frame.anchoredPosition =
-            new Vector2(
-                26f,
-                -24f);
-
-        frame.sizeDelta =
-            new Vector2(
-                UiMapSize + 34f,
-                UiMapSize + 70f);
-
-        Image frameBackground =
-            frame.gameObject.AddComponent<
-                Image>();
-
-        frameBackground.color =
-            new Color(
-                0.035f,
-                0.026f,
-                0.018f,
-                0.95f);
-
-        frameBackground.raycastTarget =
-            false;
-
-        Outline frameOutline =
-            frame.gameObject.AddComponent<
-                Outline>();
-
-        frameOutline.effectColor =
-            new Color(
-                0.66f,
-                0.49f,
-                0.25f,
-                0.95f);
-
-        frameOutline.effectDistance =
-            new Vector2(
-                2f,
-                -2f);
-
-        TextMeshProUGUI titleLabel =
-            CreateMapLabel(
-                frame,
-                "MapTitle",
-                "LOCAL MAP",
-                new Vector2(
-                    0f,
-                    UiMapSize * 0.5f + 22f),
-                new Vector2(
-                    UiMapSize,
-                    24f),
-                14f,
-                new Color(
-                    0.86f,
-                    0.75f,
-                    0.53f,
-                    1f),
-                FontStyles.Bold);
-
-        titleLabel.characterSpacing =
-            7f;
-
-        RectTransform mapBorder =
-            CreateUiObject(
-                frame,
-                "MapBorder");
-
-        mapBorder.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        mapBorder.anchorMax =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        mapBorder.pivot =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        mapBorder.anchoredPosition =
-            new Vector2(
-                0f,
-                -2f);
-
-        mapBorder.sizeDelta =
-            new Vector2(
-                UiMapSize + 8f,
-                UiMapSize + 8f);
-
-        Image mapBorderImage =
-            mapBorder.gameObject.AddComponent<Image>();
-
-        mapBorderImage.color =
-            new Color(
-                0.12f,
-                0.085f,
-                0.045f,
-                1f);
-
-        mapBorderImage.raycastTarget =
-            false;
-
-        Outline mapBorderOutline =
-            mapBorder.gameObject.AddComponent<Outline>();
-
-        mapBorderOutline.effectColor =
-            new Color(
-                0.76f,
-                0.58f,
-                0.3f,
-                0.72f);
-
-        mapBorderOutline.effectDistance =
-            new Vector2(
-                1f,
-                -1f);
-
-        RectTransform mapRect =
-            CreateUiObject(
-                mapBorder,
-                "Map");
-
-        StretchToParent(
-            mapRect);
-
-        mapRect.offsetMin =
-            new Vector2(
-                4f,
-                4f);
-
-        mapRect.offsetMax =
-            new Vector2(
-                -4f,
-                -4f);
-
-        // note: The map clips player and quest markers at its inner leather frame instead of allowing them to float over the surrounding HUD.
-        mapRect.gameObject.AddComponent<RectMask2D>();
-
-        _mapImage =
-            mapRect.gameObject.AddComponent<
-                RawImage>();
-
-        _mapImage.texture =
-            _mapRenderTexture;
-
-        _mapImage.color =
-            Color.white;
-
-        _mapImage.raycastTarget =
-            false;
-
-        RectTransform fogRect =
-            CreateUiObject(
-                mapRect,
-                "FogOfWar");
-
-        StretchToParent(
-            fogRect);
-
-        _fogImage =
-            fogRect.gameObject.AddComponent<
-                RawImage>();
-
-        _fogImage.texture =
-            _fogTexture;
-
-        _fogImage.color =
-            Color.white;
-
-        _fogImage.raycastTarget =
-            false;
-
-        CreateCardinalLabel(
-            frame,
-            "N",
-            new Vector2(
-                0f,
-                UiMapSize *
-                    0.5f -
-                12f -
-                2f));
-
-        CreateCardinalLabel(
-            frame,
-            "S",
-            new Vector2(
-                0f,
-                -UiMapSize *
-                    0.5f +
-                12f -
-                2f));
-
-        CreateCardinalLabel(
-            frame,
-            "W",
-            new Vector2(
-                -UiMapSize *
-                    0.5f +
-                10f,
-                -2f));
-
-        CreateCardinalLabel(
-            frame,
-            "E",
-            new Vector2(
-                UiMapSize *
-                    0.5f -
-                10f,
-                -2f));
-
-        RectTransform marker =
-            CreateUiObject(
-                mapRect,
-                "PlayerMarker");
-
-        marker.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        marker.anchorMax =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        marker.pivot =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        marker.anchoredPosition =
-            Vector2.zero;
-
-        marker.sizeDelta =
-            new Vector2(
-                28f,
-                28f);
-
-        TextMeshProUGUI markerText =
-            marker.gameObject.AddComponent<
-                TextMeshProUGUI>();
-
-        markerText.text =
-            "▲";
-
-        markerText.fontSize =
-            23f;
-
-        markerText.alignment =
-            TextAlignmentOptions.Center;
-
-        markerText.color =
-            new Color(
-                1f,
-                0.88f,
-                0.35f,
-                1f);
-
-        markerText.raycastTarget =
-            false;
-
-        _playerMarker =
-            marker;
-
-        RectTransform questMarker =
-            CreateUiObject(
-                mapRect,
-                "ActiveQuestMarker");
-
-        questMarker.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f);
-
-        questMarker.anchorMax =
-            questMarker.anchorMin;
-
-        questMarker.pivot =
-            questMarker.anchorMin;
-
-        questMarker.sizeDelta =
-            new Vector2(
-                30f,
-                30f);
-
-        TextMeshProUGUI questMarkerText =
-            questMarker.gameObject.AddComponent<TextMeshProUGUI>();
-
-        questMarkerText.text =
-            "◆";
-
-        questMarkerText.fontSize =
-            22f;
-
-        questMarkerText.fontStyle =
-            FontStyles.Bold;
-
-        questMarkerText.alignment =
-            TextAlignmentOptions.Center;
-
-        questMarkerText.color =
-            new Color(
-                1f,
-                0.76f,
-                0.2f,
-                1f);
-
-        questMarkerText.raycastTarget =
-            false;
-
-        Outline questMarkerOutline =
-            questMarker.gameObject.AddComponent<Outline>();
-
-        questMarkerOutline.effectColor =
-            new Color(
-                0.08f,
-                0.04f,
-                0.01f,
-                0.95f);
-
-        questMarkerOutline.effectDistance =
-            new Vector2(
-                1.5f,
-                -1.5f);
-
-        _questMarker =
-            questMarker;
-
-        _questMarker.gameObject.SetActive(
-            false);
-
-        _questDistanceText =
-            CreateMapLabel(
-                frame,
-                "QuestDistance",
-                string.Empty,
-                new Vector2(
-                    0f,
-                    -UiMapSize * 0.5f - 24f),
-                new Vector2(
-                    UiMapSize,
-                    22f),
-                12f,
-                new Color(
-                    0.91f,
-                    0.81f,
-                    0.6f,
-                    1f),
-                FontStyles.Bold);
+        // note: The live north-up map keeps existing discovery/quest authorities and shares the resource HUD's blue/white frame.
+        var go=new GameObject("YQ_MinimapCanvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler));
+        go.transform.SetParent(transform,false);
+        _canvas=go.GetComponent<Canvas>();
+        _canvas.renderMode=RenderMode.ScreenSpaceOverlay;
+        _canvas.sortingOrder=3100;
+        YQUITheme.ApplyCanvasScaler(go.GetComponent<CanvasScaler>());
+        RectTransform frame=CreateUiObject(go.transform,"MinimapFrame");
+        // note: Navigation occupies the lower-left corner so the floating identity/resource rails retain the reference's upper-left placement.
+        frame.anchorMin=frame.anchorMax=frame.pivot=new Vector2(0,0);
+        frame.anchoredPosition=new Vector2(30,28);
+        frame.sizeDelta=new Vector2(UiMapSize+34,UiMapSize+80);
+        var background=frame.gameObject.AddComponent<Image>();
+        background.raycastTarget=false;
+        YQBlueglassStyle.Panel(background);
+        var title=CreateMapLabel(frame,"MapTitle","LOCAL MAP  /  NORTH",new Vector2(0,UiMapSize*.5f+28),new Vector2(UiMapSize,28),20,YQUITheme.Pearl,FontStyles.Bold);
+        title.characterSpacing=2;
+        RectTransform border=CreateUiObject(frame,"MapBorder");
+        border.anchorMin=border.anchorMax=border.pivot=new Vector2(.5f,.5f);
+        border.anchoredPosition=new Vector2(0,-2);
+        border.sizeDelta=new Vector2(UiMapSize+4,UiMapSize+4);
+        var borderImage=border.gameObject.AddComponent<Image>();
+        borderImage.raycastTarget=false;
+        borderImage.color=YQUITheme.GoldDim;
+        RectTransform map=CreateUiObject(border,"Map");
+        StretchToParent(map);
+        map.offsetMin=new Vector2(2,2);
+        map.offsetMax=new Vector2(-2,-2);
+        map.gameObject.AddComponent<RectMask2D>();
+        _mapImage=map.gameObject.AddComponent<RawImage>();
+        _mapImage.texture=_mapRenderTexture;
+        _mapImage.raycastTarget=false;
+        RectTransform fog=CreateUiObject(map,"FogOfWar");
+        fog.anchorMin=fog.anchorMax=fog.pivot=new Vector2(.5f,.5f);
+        _fogImage=fog.gameObject.AddComponent<RawImage>();
+        _fogImage.texture=_fogTexture;
+        _fogImage.raycastTarget=false;
+        CreateCardinalLabel(frame,"N",new Vector2(0,UiMapSize*.5f-18));
+        CreateCardinalLabel(frame,"S",new Vector2(0,-UiMapSize*.5f+14));
+        CreateCardinalLabel(frame,"W",new Vector2(-UiMapSize*.5f+15,-2));
+        CreateCardinalLabel(frame,"E",new Vector2(UiMapSize*.5f-15,-2));
+        _playerMarker=CreateUiObject(map,"PlayerMarker");
+        _playerMarker.anchorMin=_playerMarker.anchorMax=_playerMarker.pivot=new Vector2(.5f,.5f);
+        _playerMarker.sizeDelta=new Vector2(30,30);
+        var playerText=_playerMarker.gameObject.AddComponent<TextMeshProUGUI>();
+        playerText.text="▲";
+        playerText.fontSize=26;
+        playerText.alignment=TextAlignmentOptions.Center;
+        playerText.color=YQUITheme.Pearl;
+        playerText.raycastTarget=false;
+        _questMarker=CreateUiObject(map,"ActiveQuestMarker");
+        _questMarker.anchorMin=_questMarker.anchorMax=_questMarker.pivot=new Vector2(.5f,.5f);
+        // note: Native geometry keeps the quest diamond visible when the approved UI font has no diamond glyph.
+        _questMarker.sizeDelta=new Vector2(16,16);
+        _questMarker.localRotation=Quaternion.Euler(0,0,45f);
+        var questOutline=_questMarker.gameObject.AddComponent<Image>();
+        questOutline.color=YQUITheme.Pearl;
+        questOutline.raycastTarget=false;
+        var questCenter=CreateUiObject(_questMarker,"QuestDiamondCenter");
+        questCenter.anchorMin=questCenter.anchorMax=questCenter.pivot=new Vector2(.5f,.5f);
+        questCenter.sizeDelta=new Vector2(10,10);
+        var questFill=questCenter.gameObject.AddComponent<Image>();
+        questFill.color=YQUITheme.StreamBlue;
+        questFill.raycastTarget=false;
+        _questMarker.gameObject.SetActive(false);
+        _questDistanceText=CreateMapLabel(frame,"QuestDistance",string.Empty,new Vector2(0,-UiMapSize*.5f-27),new Vector2(UiMapSize,28),19,YQUITheme.Muted,FontStyles.Normal);
     }
 
     private static RectTransform CreateUiObject(
@@ -919,7 +571,7 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
             text;
 
         label.fontSize =
-            14f;
+            20f;
 
         label.alignment =
             TextAlignmentOptions.Center;
@@ -927,12 +579,7 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
         label.fontStyle =
             FontStyles.Bold;
 
-        label.color =
-            new Color(
-                0.95f,
-                0.89f,
-                0.75f,
-                1f);
+        label.color = YQUITheme.Pearl;
 
         label.raycastTarget =
             false;
@@ -1194,50 +841,14 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
                 DiscoveryResolution - 1);
     }
 
-    private void UpdateFogUv(
-        Vector3 playerPosition)
+    private void UpdateFogUv(Vector3 playerPosition)
     {
-        if (_fogImage == null)
-            return;
-
-        float worldSize =
-            YQGeneratedWorldTerrain.WorldSize;
-
-        float halfWorld =
-            worldSize *
-            0.5f;
-
-        float viewDiameter =
-            MapWorldRadius *
-            2f;
-
-        float uvSize =
-            viewDiameter /
-            worldSize;
-
-        float normalizedCenterX =
-            (playerPosition.x +
-                halfWorld) /
-            worldSize;
-
-        float normalizedCenterY =
-            (playerPosition.z +
-                halfWorld) /
-            worldSize;
-
-        Rect uv =
-            new Rect(
-                normalizedCenterX -
-                    uvSize *
-                    0.5f,
-                normalizedCenterY -
-                    uvSize *
-                    0.5f,
-                uvSize,
-                uvSize);
-
-        _fogImage.uvRect =
-            uv;
+        if (_fogImage==null) return;
+        // note: Position the original finite discovery atlas in map space. Clamping UVs beyond the origin used to smear one edge across the entire live map.
+        float pixelsPerMetre=UiMapSize/(MapWorldRadius*2f);
+        _fogImage.uvRect=new Rect(0,0,1,1);
+        _fogImage.rectTransform.sizeDelta=Vector2.one*(YQGeneratedWorldTerrain.WorldSize*pixelsPerMetre);
+        _fogImage.rectTransform.anchoredPosition=new Vector2(-playerPosition.x,-playerPosition.z)*pixelsPerMetre;
     }
 
     private void UpdatePlayerMarker()
@@ -1319,11 +930,8 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
         float distance =
             worldOffset.magnitude;
 
-        float pixelsPerMetre =
-            (UiMapSize *
-                0.5f -
-                18f) /
-            MapWorldRadius;
+        // note: Use the same exact world-to-pixel scale as the camera; inset only the final off-map marker.
+        float pixelsPerMetre=UiMapSize/(MapWorldRadius*2f);
 
         Vector2 markerPosition =
             worldOffset *
@@ -1359,11 +967,11 @@ public sealed class YQGeneratedWorldMinimap : MonoBehaviour
             _questMarker.gameObject.SetActive(true);
 
         string distanceText =
-            "QUEST  •  " +
+            "Target  " +
             Mathf.RoundToInt(distance) +
-            "m" +
+            " m" +
             (beyondMap
-                ? "  •  BEYOND MAP"
+                ? "  ·  OFF MAP"
                 : string.Empty);
 
         if (_questDistanceText.text != distanceText)

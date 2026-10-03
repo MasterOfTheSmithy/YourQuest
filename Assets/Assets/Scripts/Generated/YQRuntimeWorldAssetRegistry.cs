@@ -139,6 +139,12 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     public bool UsesLazyResourceShards =>
         useLazyResourceShards;
 
+#if UNITY_EDITOR
+    // note: An opt-in resource census reads the existing session cache without calling Instance, loading shards, or changing their lifetime.
+    internal static YQRuntimeWorldAssetRegistry CachedInstanceForDiagnostics => _instance;
+    internal IReadOnlyDictionary<string, YQRuntimeWorldAssetRegistry> CachedShardsForDiagnostics => _loadedShards;
+#endif
+
     public IReadOnlyList<YQRuntimeWorldAssetEntry> GetEntriesForAssetPath(
         string assetPath)
     {
@@ -544,6 +550,12 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             {
                 continue;
             }
+
+            // note: A verified serialized source binding needs no runtime substitution. Persisted adapters remain recovery authority for unresolved source slots.
+            if (!YQRuntimeUrpMaterialRepair.IsMaterialSlotRequired(renderer, binding.materialIndex) ||
+                YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(materials[binding.materialIndex]) ||
+                !YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(binding.replacementMaterial))
+                continue;
 
             materials[
                 binding.materialIndex] =

@@ -121,6 +121,17 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         return _closing;
     }
 
+    public bool ContinueExistingForDevelopmentVerification(string existingProfileId)
+    {
+        // note: Background verification selects only an existing save through the title; missing IDs never fall back to the user's current save.
+        YQProfileSaveSystem profiles = YQProfileSaveSystem.Instance;
+        if (!_open || !CanInteract || string.IsNullOrWhiteSpace(existingProfileId) ||
+            profiles == null || profiles.FindProfile(existingProfileId) == null)
+            return false;
+        SelectSaveRow(existingProfileId);
+        return ContinueSelectedForDevelopmentVerification();
+    }
+
     // note: This development-only handoff drives the same profile load and closing transition as the visible Continue button.
     public bool CompleteCanonicalDevelopmentStartup()
     {
@@ -289,7 +300,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
     private void DrawSaveSelect(Rect rect)
     {
         DrawPanel(rect, new Color(0.002f, 0.010f, 0.024f, 0.66f));
-        GUI.Label(new Rect(rect.x + 26f, rect.y + 22f, rect.width - 52f, 32f), "Choose Save", _sectionStyle);
+        GUI.Label(new Rect(rect.x + 26f, rect.y + 22f, rect.width - 52f, 32f), "Your journeys", _sectionStyle);
 
         YQProfileSaveSystem system = YQProfileSaveSystem.Instance;
         if (system == null)
@@ -342,7 +353,9 @@ public sealed class YQTitleScreenUI : MonoBehaviour
     {
         bool selected = string.Equals(entry.profileId, _selectedProfileId, StringComparison.OrdinalIgnoreCase);
         bool active = string.Equals(entry.profileId, activeProfileId, StringComparison.OrdinalIgnoreCase);
-        DrawRect(rect, selected ? new Color(0.08f, 0.34f, 0.50f, 0.82f) : new Color(0.025f, 0.15f, 0.25f, 0.66f));
+        // note: Save selection uses the same persistent rail and restrained hover contrast as the in-world menu.
+        bool hovered = CanInteract && rect.Contains(Event.current.mousePosition);
+        YQBlueglassStyle.DrawGuiFrame(rect, selected ? "Navigation_Selected" : hovered ? "Navigation_Hover" : "Navigation_Idle");
         DrawRect(new Rect(rect.x, rect.y, 3f, rect.height), active ? new Color(0.68f, 0.94f, 1f, 1f) : new Color(0.22f, 0.48f, 0.62f, 0.72f));
 
         string name = string.IsNullOrWhiteSpace(entry.displayName) ? "Unnamed Save" : entry.displayName;
@@ -351,12 +364,17 @@ public sealed class YQTitleScreenUI : MonoBehaviour
 
         RegisterHover("save:" + entry.profileId, rect, true);
         if (CanInteract && GUI.Button(rect, GUIContent.none, _invisibleButtonStyle))
-        {
-            YQTitleEnvironmentLoader.PlayUiConfirm();
-            _selectedProfileId = entry.profileId;
-            _confirmDeleteProfileId = string.Empty;
-            _status = string.Empty;
-        }
+            SelectSaveRow(entry.profileId);
+    }
+
+    private void SelectSaveRow(string profileId)
+    {
+        // note: Share the ordinary save-selection action with the development marker without loading, creating or rewriting a profile here.
+        YQTitleEnvironmentLoader.PlayUiConfirm();
+        YQBlueglassFeedback.Request(YQBlueglassCue.Select, YQBlueglassFeedback.ControllerActive);
+        _selectedProfileId = profileId;
+        _confirmDeleteProfileId = string.Empty;
+        _status = string.Empty;
     }
 
     private void DrawCharacterCreation(Rect rect)
@@ -670,11 +688,16 @@ public sealed class YQTitleScreenUI : MonoBehaviour
             : new Color(0.003f, 0.012f, 0.024f, 0.54f);
         DrawRect(rect, color);
         DrawRect(new Rect(rect.x, rect.yMax - (hovered ? 2f : 1f), rect.width, hovered ? 2f : 1f), interactive ? new Color(0.72f, 0.92f, 0.98f, 0.78f) : new Color(0.20f, 0.34f, 0.42f, 0.42f));
+        // note: Preserve the authored title flow and native hit logic while matching the imported navigation glass.
+        YQBlueglassStyle.DrawGuiFrame(rect,interactive ? hovered ? "Navigation_Hover" : "Navigation_Idle" : "Tile_Disabled");
         GUI.Label(rect, label, _buttonLabelStyle);
         bool clicked = interactive &&
             GUI.Button(rect, GUIContent.none, _invisibleButtonStyle);
         if (clicked)
+        {
             YQTitleEnvironmentLoader.PlayUiConfirm();
+            YQBlueglassFeedback.Request(YQBlueglassCue.Select,YQBlueglassFeedback.ControllerActive);
+        }
         return clicked;
     }
 
@@ -693,6 +716,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
 
         _hoveredControl = controlId;
         YQTitleEnvironmentLoader.PlayUiHover();
+        YQBlueglassFeedback.Request(YQBlueglassCue.Hover, YQBlueglassFeedback.ControllerActive);
     }
 
     private void DrawPanel(Rect rect, Color color)

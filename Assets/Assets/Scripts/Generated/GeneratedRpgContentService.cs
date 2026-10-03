@@ -776,58 +776,62 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
 
     public void GrantEnemyLoot(YQInvestorEnemy enemy)
     {
-        PlayerStateManager manager = PlayerStateManager.Instance;
-        if (manager == null || manager.state == null)
-            return;
-
-        PlayerState state = manager.state;
-        state.EnsureCollections();
-
-        int gold = UnityEngine.Random.Range(baseGoldOnKillMin, baseGoldOnKillMax + 1) + Mathf.Max(0, state.level - 1);
-        state.currency += gold;
-
-        InventoryItemRecord mainDrop = null;
-        InventoryItemRecord bonusDrop = null;
-        string context = enemy != null
-            ? enemy.semanticRegionId + ":" + enemy.displayName + ":loot:" + state.behaviorCounters.Count + ":" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            : "enemy_loot:" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-        if (UnityEngine.Random.value <= enemyLootChance)
-        {
-            mainDrop = GenerateItem(context, Mathf.Max(1, state.level), PickLootKind(enemy), false);
-            state.AddOrUpdateItem(mainDrop, true);
-        }
-
-        if (UnityEngine.Random.value <= bonusConsumableChance)
-        {
-            bonusDrop = GenerateItem(context + ":bonus", Mathf.Max(1, state.level), "consumable", true);
-            state.AddOrUpdateItem(bonusDrop, true);
-        }
-
-        state.AddLedgerLine("The player recovered spoils from a fallen foe.");
-        state.IncCounter("loot:enemy", 1f);
-
-        if (manager.autosave)
-            manager.Save();
-
-        if (mainDrop != null && bonusDrop != null)
-            LastInventoryMessage = "Looted " + mainDrop.displayName + ", " + bonusDrop.displayName + ", and " + gold + " gold.";
-        else if (mainDrop != null)
-            LastInventoryMessage = "Looted " + mainDrop.displayName + " and " + gold + " gold.";
-        else if (bonusDrop != null)
-            LastInventoryMessage = "Looted " + bonusDrop.displayName + " and " + gold + " gold.";
-        else
-            LastInventoryMessage = "Recovered " + gold + " gold.";
+        // note: Compatibility callers retain this API; death prepares one persisted corpse inventory and never adds a second automatic reward.
+        if (enemy != null && enemy.IsDead) enemy.TryPrepareDeathInventory(out _);
     }
 
     public InventoryItemRecord GenerateItem(string contextKey, int level, string preferredKind = null, bool forceConsumable = false)
     {
+        return GenerateItemCore(contextKey, level, preferredKind, forceConsumable, null, null);
+    }
+
+    // note: Containers use the existing mechanical/asset generator with source semantics instead of the current player's build or a random GUID.
+    public InventoryItemRecord GenerateContainerItem(string seed, YQContainerContext context, YQLootEntry entry, YQLootRarity rarity)
+    {
+        string kind = entry.itemKind;
+        string theme = string.IsNullOrWhiteSpace(context.element) ? "Local" : context.element;
+        InventoryItemRecord item = GenerateItemCore(seed, context.sourceLevel, kind, kind == "consumable", rarity.ToString(), theme);
+        item.itemId = "container_item:" + YQContainerInventory.StableKey(seed);
+        item.generatedAtUnixString = "0";
+        item.quantity = 1;
+        item.familyKey = "container:" + context.regionId + ":" + kind;
+        if (kind == "supply")
+        {
+            item.itemType = "supply"; item.equipSlot = ""; item.stackable = true;
+            item.healAmount = item.restoreManaAmount = item.restoreStaminaAmount = 0;
+            item.powerScore = 0;
+        }
+        if (!string.IsNullOrWhiteSpace(entry.semanticName)) item.displayName = theme + " " + entry.semanticName;
+        item.description = "Recovered from " + context.sourceType + " in " + context.regionId +
+            "; source level " + context.sourceLevel + ", faction " + context.factionId + ".";
+        // note: Closed semantic bindings prevent food-as-gems and armor-as-clothing; incompatible equipment falls back to a valid non-equippable supply.
+        string semanticPrefab = YQContainerLoot.SemanticPrefab(entry.assetSemantic);
+        if (semanticPrefab != null) item.prefabKey = semanticPrefab;
+        if (entry.assetSemantic == "logical_supply") item.prefabKey = string.Empty;
+        // note: Container effect binding uses structured element intent, overriding the legacy generator's prose-based presentation hint.
+        item.effectKey = ResolveEffectKeyForItem(item, seed);
+        string effectElement = context.element == "fire" || context.element == "ember" ? "fire" :
+            context.element == "storm" ? "electric" : context.element == "water" || context.element == "ice" ? "water" : null;
+        if (effectElement != null && library != null && item.IsEquippable)
+        {
+            string[] approvedEffects = effectElement == "electric" ? library.projectileEffectKeys : library.aoeEffectKeys;
+            item.effectKey = PickUsableAsset(approvedEffects, item.effectKey, seed, 311,
+                path => path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && path.IndexOf(effectElement, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+        if (entry.assetSemantic == "food") item.restoreManaAmount = 0;
+        if (!YQContainerLoot.CompatibleAsset(this, item, entry.assetSemantic))
+            return GenerateContainerItem(seed + "|fallback", context, YQContainerLoot.FallbackEntry, YQLootRarity.Common);
+        return item;
+    }
+
+    private InventoryItemRecord GenerateItemCore(string contextKey, int level, string preferredKind, bool forceConsumable, string sourceRarity, string sourceTheme)
+    {
         int effectiveLevel = Mathf.Max(1, level);
         string kind = forceConsumable ? "consumable" : ResolveItemKind(contextKey, preferredKind);
-        string rarity = Pick(library != null ? library.itemRarities : null, "Common", contextKey, 2 + effectiveLevel);
+        string rarity = sourceRarity ?? Pick(library != null ? library.itemRarities : null, "Common", contextKey, 2 + effectiveLevel);
         string material = Pick(library != null ? library.itemMaterials : null, "Traveler", contextKey, 0);
         PlayerState ownerState = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
-        string theme = PlayerFlavor(ownerState, contextKey, kind);
+        string theme = sourceTheme ?? PlayerFlavor(ownerState, contextKey, kind);
 
         InventoryItemRecord record = new InventoryItemRecord();
         record.itemId = Guid.NewGuid().ToString("N");
@@ -978,9 +982,16 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         if (type == "trinket" || IsAccessorySlot(slot))
             return PickAssetForAccessorySlot(slot, contextKey);
         if (item.IsConsumable)
-            return PickModelPrefab(library.trinketPrefabKeys, PickModelPrefab(library.prefabKeys, "prefab_placeholder_consumable", contextKey, 17), contextKey, 133);
+            return PickConsumablePrefab(contextKey);
 
         return PickModelPrefab(library.trinketPrefabKeys, PickModelPrefab(library.prefabKeys, "prefab_placeholder_item", contextKey, 17), contextKey, 199);
+    }
+
+    private string PickConsumablePrefab(string contextKey)
+    {
+        // note: Use approved consumable models for new content while retaining legacy fallback and accepted item references.
+        return PickModelPrefab(library.consumablePrefabKeys,
+            PickModelPrefab(library.trinketPrefabKeys, PickModelPrefab(library.prefabKeys, "prefab_placeholder_consumable", contextKey, 17), contextKey, 133), contextKey, 133);
     }
 
     private string ResolveEffectKeyForItem(InventoryItemRecord item, string contextKey)
@@ -1037,7 +1048,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
 
             default:
                 record.iconKey = PickCuratedItemIconKey(record, "consumable", contextKey, "item_consumable_potion");
-                record.prefabKey = PickModelPrefab(library.trinketPrefabKeys, PickModelPrefab(library.prefabKeys, "prefab_placeholder_consumable", contextKey, 17), contextKey, 133);
+                record.prefabKey = PickConsumablePrefab(contextKey);
                 record.effectKey = PickRuntimeEffectKey(library.magicAudioKeys, PickRuntimeEffectKey(library.effectKeys, "fx_placeholder_restore", contextKey, 23), contextKey, 137);
                 break;
         }
@@ -1177,6 +1188,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
             vitals.RestoreStamina(consumed.restoreStaminaAmount);
             vitals.RestoreMana(consumed.restoreManaAmount);
             YQGeneratedRuntimeVfx.SpawnConsumableUse(vitals.transform, consumed);
+            // note: The accepted consumable transaction owns effects; the same player only presents the authored use motion.
+            vitals.GetComponent<YQPlayerEquipmentVisual>()?.PlayConsumeFeedback();
         }
 
         manager.state.AddLedgerLine("The player used " + consumed.displayName + ".");

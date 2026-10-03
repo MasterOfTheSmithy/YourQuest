@@ -61,7 +61,23 @@ public static class LLMContextCompiler
         LLMGenerationProfile profile,
         int reservedOutputTokens,
         out LLMCompiledPrompt compiled,
-        out string error)
+        out string error,
+        int contextLimitTokens = 0)
+    {
+        return TryCompileCore(rawPrompt, config, profile, reservedOutputTokens, false, out compiled, out error, contextLimitTokens);
+    }
+
+    public static bool TryCompileProtected(string rawPrompt, LLMRuntimeConfig config,
+        LLMGenerationProfile profile, int reservedOutputTokens, out LLMCompiledPrompt compiled, out string error,
+        int contextLimitTokens = 0)
+    {
+        // note: Compact repair envelopes are all mandatory; overflow must not silently delete evidence or unknowns.
+        return TryCompileCore(rawPrompt, config, profile, reservedOutputTokens, true, out compiled, out error, contextLimitTokens);
+    }
+
+    private static bool TryCompileCore(string rawPrompt, LLMRuntimeConfig config,
+        LLMGenerationProfile profile, int reservedOutputTokens, bool protectPrompt,
+        out LLMCompiledPrompt compiled, out string error, int contextLimitTokens)
     {
         error = string.Empty;
 
@@ -74,6 +90,8 @@ public static class LLMContextCompiler
 
         LLMRuntimeConfig activeConfig = config != null ? config : LLMRuntimeConfig.CreateRuntimeDefault();
         int contextLimit = Mathf.Clamp(activeConfig.contextSizeTokens, 2048, 32768);
+        // note: A smaller transport context must also limit compilation, so required evidence cannot be truncated by the backend.
+        if (contextLimitTokens > 0) contextLimit = Mathf.Min(contextLimit, Mathf.Clamp(contextLimitTokens, 2048, 32768));
         int reserve = Mathf.Clamp(reservedOutputTokens, 64, Mathf.Max(64, contextLimit / 2));
         int safety = Mathf.Clamp(activeConfig.contextSafetyTokens, 64, 2048);
         int inputBudget = Mathf.Max(256, contextLimit - reserve - safety);
@@ -83,6 +101,18 @@ public static class LLMContextCompiler
 
         prompt = ApplyDirectModePrefix(prompt, activeConfig, profile, ref reduced);
         int hardCharacterLimit = Mathf.Clamp(activeConfig.hardPromptCharacterLimit, 5000, 50000);
+        if (protectPrompt)
+        {
+            int protectedEstimate = EstimateTokens(prompt);
+            if (prompt.Length > hardCharacterLimit || protectedEstimate + reserve + safety > contextLimit)
+            {
+                compiled = default;
+                error = "ContextOverflow: required repair prompt exceeds the configured context budget.";
+                return false;
+            }
+            compiled = new LLMCompiledPrompt(prompt, protectedEstimate, reserve, contextLimit, reduced, "protected repair envelope");
+            return true;
+        }
         if (prompt.Length > hardCharacterLimit)
         {
             // note: Enforce the explicit payload ceiling before token reduction so local HTTP requests stay bounded and debuggable.
