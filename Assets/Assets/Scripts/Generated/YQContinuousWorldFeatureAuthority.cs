@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Profiling;
 using UnityEngine;
 
 // note: This authority defines the shared world-space structural features used by every streamed cell.
@@ -768,7 +769,7 @@ public static class YQContinuousWorldFeatureAuthority
                         direction = direction,
                         elevation = endpoint.waterSurfaceNormalized,
                         elevationSlope = signedSlope,
-                        width = Mathf.Max(1f, water.nominalWidth > 0f ? water.nominalWidth : endpoint.width),
+                        width = Mathf.Max(1f, Mathf.Max(water.nominalWidth, endpoint.width)),
                         depth = Mathf.Max(0.1f, water.nominalDepth),
                         featureId = string.IsNullOrWhiteSpace(featureId) ? RiverFeatureId : featureId,
                         downstreamId = water.sinkHydrologyId
@@ -869,7 +870,7 @@ public static class YQContinuousWorldFeatureAuthority
                     direction = direction,
                     elevation = endpoint.waterSurfaceNormalized,
                     elevationSlope = (endpoint.waterSurfaceNormalized - adjacent.waterSurfaceNormalized) / segmentLength,
-                    width = Mathf.Max(1f, water.nominalWidth > 0f ? water.nominalWidth : endpoint.width),
+                    width = Mathf.Max(1f, Mathf.Max(water.nominalWidth, endpoint.width)),
                     depth = Mathf.Max(0.1f, water.nominalDepth),
                     featureId = featureId,
                     terminalId = featureId + "|terminal:" + endpointIndex,
@@ -1179,7 +1180,7 @@ public static class YQContinuousWorldFeatureAuthority
                 YQSpatialMaterializationWaterPointV2 second = prepared.GetWaterPoint(waterIndex, pointIndex + 1);
                 // note: Reject samples outside a conservative segment AABB before running closest-point math across thousands of accepted river segments.
                 float maximumSegmentWidth = Mathf.Max(water.nominalWidth, Mathf.Max(first.width, second.width));
-                float influenceRadius = Mathf.Max(1f, maximumSegmentWidth * 0.5f) * 2f;
+                float influenceRadius = Mathf.Max(1f, maximumSegmentWidth * 0.5f) * 2f + AcceptedWaterBankPadding;
                 if (worldX < Mathf.Min(first.x, second.x) - influenceRadius ||
                     worldX > Mathf.Max(first.x, second.x) + influenceRadius ||
                     worldZ < Mathf.Min(first.z, second.z) - influenceRadius ||
@@ -1191,14 +1192,14 @@ public static class YQContinuousWorldFeatureAuthority
                 Vector2 nearest = start + segment * t;
                 float distance = Vector2.Distance(new Vector2(worldX, worldZ), nearest);
                 float halfWidth = Mathf.Max(1f, Mathf.Max(water.nominalWidth, Mathf.Lerp(first.width, second.width, t)) * 0.5f);
-                if (distance >= halfWidth * 2f)
+                if (distance >= halfWidth * 2f + AcceptedWaterBankPadding)
                     continue;
                 influenced = true;
-                float falloff = 1f - Mathf.Clamp01(distance / (halfWidth * 2f));
-                float targetBed = Mathf.Lerp(first.waterSurfaceNormalized, second.waterSurfaceNormalized, t) * terrainHeight - Mathf.Max(0.1f, water.nominalDepth);
                 // note: Keep accepted finite-water carving in normalized space so the contract cannot over-carve from mixed units.
                 // note: Evaluate every candidate from the same original base height, then take the minimum so overlap order cannot compound or change the carve.
-                float blendedNormalized = Mathf.Lerp(normalizedHeight, targetBed / Mathf.Max(1f, terrainHeight), falloff);
+                float blendedNormalized = SampleAcceptedWaterCarve(normalizedHeight, terrainHeight,
+                    Mathf.Lerp(first.waterSurfaceNormalized, second.waterSurfaceNormalized, t),
+                    water.nominalDepth, halfWidth, distance);
                 result = Mathf.Min(result, blendedNormalized);
             }
         }
@@ -1243,20 +1244,44 @@ public static class YQContinuousWorldFeatureAuthority
                 if (along < -0.01f || along >= AcceptedContinuationMaxDistance)
                     continue;
                 float distance = Mathf.Abs(direction.x * offset.y - direction.y * offset.x);
-                float halfWidth = Mathf.Max(1f, (water.nominalWidth > 0f ? water.nominalWidth : endpoint.width) * 0.5f);
-                if (distance >= halfWidth * 2f)
+                float halfWidth = Mathf.Max(1f, Mathf.Max(water.nominalWidth, endpoint.width) * 0.5f);
+                if (distance >= halfWidth * 2f + AcceptedWaterBankPadding)
                     continue;
-                float falloff = 1f - Mathf.Clamp01(distance / (halfWidth * 2f));
                 float segmentLength = Mathf.Max(0.001f, Vector2.Distance(new Vector2(endpoint.x, endpoint.z), new Vector2(adjacent.x, adjacent.z)));
                 float slope = (endpoint.waterSurfaceNormalized - adjacent.waterSurfaceNormalized) / segmentLength;
-                float targetBed = Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along) * terrainHeight - Mathf.Max(0.1f, water.nominalDepth);
                 // note: Keep terminal candidates order-independent by comparing each one against the original unmodified sample.
-                result = Mathf.Min(result, Mathf.Lerp(normalizedHeight, targetBed / Mathf.Max(1f, terrainHeight), falloff));
+                result = Mathf.Min(result, SampleAcceptedWaterCarve(normalizedHeight, terrainHeight,
+                    Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along),
+                    water.nominalDepth, halfWidth, distance));
                 influenced = true;
             }
         }
         modifiedHeight = Mathf.Clamp01(result);
         return influenced;
+    }
+
+    // note: Support the complete rendered width plus a heightmap-cell diagonal so interpolation cannot leave terrain crests inside the water ribbon.
+    private const float AcceptedWaterBankPadding = YQGeneratedWorldTerrain.WorldSize /
+        (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+
+    internal static float SampleAcceptedWaterCarve(float originalHeight, float terrainHeight,
+        float surfaceNormalized, float depth, float halfWidth, float distance)
+    {
+        float wetRadius = halfWidth + AcceptedWaterBankPadding;
+        // note: The bed stays submerged across the entire wet footprint; only the dry shoulder blends with the original mountain/hill height.
+        float bed = SampleAcceptedWaterBed(terrainHeight, surfaceNormalized, depth, halfWidth, distance);
+        float blend = 1f - Mathf.SmoothStep(0f, 1f,
+            Mathf.InverseLerp(wetRadius, halfWidth * 2f + AcceptedWaterBankPadding, distance));
+        return Mathf.Clamp01(Mathf.Min(originalHeight, Mathf.Lerp(originalHeight, bed, blend)));
+    }
+
+    internal static float SampleAcceptedWaterBed(float terrainHeight, float surfaceNormalized,
+        float depth, float halfWidth, float distance)
+    {
+        // note: Origin and continuation terrain share the submerged cross-section; terrain resolution padding protects the actual rendered banks.
+        float crossSection = Mathf.Clamp01(distance / Mathf.Max(0.1f, halfWidth + AcceptedWaterBankPadding));
+        return surfaceNormalized - Mathf.Max(0.1f, depth) *
+            (1f - 0.8f * crossSection * crossSection) / Mathf.Max(1f, terrainHeight);
     }
 
     public static bool TryGetRiverPoints(
@@ -1597,6 +1622,10 @@ public static class YQContinuousWorldFeatureAuthority
 // note: This materializer turns the shared feature authority into bounded Unity meshes owned by the streamed cell.
 public static class YQContinuousWorldFeatureMaterializer
 {
+    // note: Attribute each accepted road or river mesh separately so a slow per-cell ribbon build can be sized without changing its geometry.
+    private static readonly ProfilerMarker RibbonMeshBuildMarker =
+        new ProfilerMarker("YQContinuousWorldFeatureMaterializer.BuildRibbon");
+
     internal readonly struct BiomeAlphamapBuildResult
     {
         public readonly float[,,] maps;
@@ -1703,8 +1732,26 @@ public static class YQContinuousWorldFeatureMaterializer
         if (data == null || authority == null || data.terrainLayers == null || data.terrainLayers.Length == 0)
             return null;
 
-        int resolution = Mathf.Max(1, data.alphamapResolution);
-        TerrainLayer[] layers = data.terrainLayers;
+        return BeginBiomeAlphamapPreparation(
+            data.terrainLayers,
+            data.alphamapResolution,
+            authority,
+            coordinate,
+            cellSize);
+    }
+
+    // note: Let small provisional tiles reuse deterministic biome sampling without allocating TerrainData before their height sample finishes.
+    internal static PreparedBiomeAlphamap BeginBiomeAlphamapPreparation(
+        TerrainLayer[] layers,
+        int alphamapResolution,
+        YQContinuousWorldCellAuthority authority,
+        Vector2Int coordinate,
+        float cellSize)
+    {
+        if (layers == null || layers.Length == 0 || authority == null)
+            return null;
+
+        int resolution = Mathf.Max(1, alphamapResolution);
         int[] bindings = new int[layers.Length];
         for (int layer = 0; layer < layers.Length; layer++)
         {
@@ -2020,7 +2067,7 @@ public static class YQContinuousWorldFeatureMaterializer
             Material roadMaterial = FindPaletteMaterial(palette, registry, YQWorldAssetCatalog.SlotPath, plan.worldSeed + "|continuous-road|" + chunk.chunkX + "|" + chunk.chunkZ);
             roadMaterial = roadMaterial ?? BuildFallbackRoadMaterial();
             RegisterCellResource(parent, roadMaterial);
-            roadObjects = BuildRibbonSpans(parent, "ContinuousRoad_" + chunk.chunkX + "_" + chunk.chunkZ, road, roadBreaks, roadWidth, roadMaterial, false, cellSize, roadPointWidths);
+            roadObjects = BuildRibbonSpans(parent, "ContinuousRoad_" + chunk.chunkX + "_" + chunk.chunkZ, road, roadBreaks, roadWidth, roadMaterial, false, cellSize, roadPointWidths, terrain);
             RecordSubstage(substageTelemetry, "roadRibbonBuild", substageStarted);
             if (roadObjects > 0)
             {
@@ -2699,7 +2746,7 @@ public static class YQContinuousWorldFeatureMaterializer
                     YQAssetFunctionV2.Encounter,
                     YQAssetFunctionV2.Reward
                 },
-                site.siteId);
+                site.siteId, palette?.styleKey, region?.assetStyleRationale);
         }
 
         if (reviewedSite == null && site.kind == YQSiteKindV2.Settlement)
@@ -2714,7 +2761,7 @@ public static class YQContinuousWorldFeatureMaterializer
                     YQAssetFunctionV2.Service,
                     YQAssetFunctionV2.Commerce
                 },
-                site.siteId);
+                site.siteId, palette?.styleKey, region?.assetStyleRationale);
             semanticTags = new[] { "poi", "civic", "residential", "service", "circulation" };
         }
         else if (reviewedSite == null && site.kind == YQSiteKindV2.HostileSite)
@@ -2728,7 +2775,7 @@ public static class YQContinuousWorldFeatureMaterializer
                     YQAssetFunctionV2.Reward,
                     YQAssetFunctionV2.Security
                 },
-                site.siteId);
+                site.siteId, palette?.styleKey, region?.assetStyleRationale);
             semanticTags = new[] { "poi", "perimeter", "circulation", "encounter", "reward" };
         }
         else if (reviewedSite == null && site.kind == YQSiteKindV2.PointOfInterest)
@@ -2742,7 +2789,7 @@ public static class YQContinuousWorldFeatureMaterializer
                     YQAssetFunctionV2.Transition,
                     YQAssetFunctionV2.Reward
                 },
-                site.siteId);
+                site.siteId, palette?.styleKey, region?.assetStyleRationale);
             semanticTags = new[] { "poi", "circulation", "reward" };
 
             if (reviewedSite == null)
@@ -2756,7 +2803,7 @@ public static class YQContinuousWorldFeatureMaterializer
                         YQAssetFunctionV2.Circulation,
                         YQAssetFunctionV2.Service
                     },
-                    site.siteId + "|poi_fallback");
+                    site.siteId + "|poi_fallback", palette?.styleKey, region?.assetStyleRationale);
                 semanticTags = new[] { "poi", "circulation", "service", "reward" };
             }
         }
@@ -3254,7 +3301,9 @@ public static class YQContinuousWorldFeatureMaterializer
     internal static YQRuntimeWorldSiteRecord FindReviewedSiteForFunctions(
         YQAuthoredSiteKind preferredKind,
         YQAssetFunctionV2[] requiredFunctions,
-        string seed)
+        string seed,
+        string preferredStyleKey = null,
+        string styleTransitionReason = null)
     {
         YQRuntimeWorldSiteCatalog catalog = Resources.Load<YQRuntimeWorldSiteCatalog>("YQRuntimeWorldSiteCatalog");
         if (catalog == null || catalog.Sites == null)
@@ -3266,6 +3315,11 @@ public static class YQContinuousWorldFeatureMaterializer
             YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
             if (candidate == null || !candidate.spatiallyValidated || string.IsNullOrWhiteSpace(candidate.runtimeManifestResourceKey) ||
                 (candidate.siteKind != preferredKind && !(preferredKind == YQAuthoredSiteKind.Dungeon && candidate.siteKind == YQAuthoredSiteKind.Interior)))
+                continue;
+            // note: A visible streamed settlement/camp/landmark must have exterior placement evidence and obey the same palette transition contract as narrative sites.
+            bool exterior = preferredKind == YQAuthoredSiteKind.Settlement || preferredKind == YQAuthoredSiteKind.Camp || preferredKind == YQAuthoredSiteKind.Landmark;
+            if ((exterior && (!candidate.seamlessPlacementEligible || candidate.presentationMode != YQWorldSitePresentationMode.SeamlessExterior)) ||
+                (!string.IsNullOrWhiteSpace(preferredStyleKey) && !YQWorldAssetCatalog.IsCoherentStyleTransition(preferredStyleKey, candidate.semanticStyleKey, styleTransitionReason)))
                 continue;
             bool supports = true;
             for (int functionIndex = 0; functionIndex < requiredFunctions.Length; functionIndex++)
@@ -3581,12 +3635,13 @@ public static class YQContinuousWorldFeatureMaterializer
             if (DistanceToWaterFeatureSquared(prepared, candidateIndex, crossingPoint) <= proximity * proximity)
                 approachWaterWidth = Mathf.Max(approachWaterWidth, candidateWidth);
         }
-        // note: A river crossing at a lake or waterfall mouth must extend to the first dry bank across the connected water envelope, not stop at four river widths.
-        float approachLimit = Mathf.Min(512f, Mathf.Max(32f, approachWaterWidth * 4f));
+        // note: Nominal width can understate a connected wet corridor; expand only a failed directional search to the hard limit while retaining the full-width dry-bank predicate.
+        const float maximumApproachLimit = 512f;
+        float approachLimit = Mathf.Min(maximumApproachLimit, Mathf.Max(32f, approachWaterWidth * 4f));
         bool startBankFound = TryFindCrossingBank(prepared, routePoints, distances, wetDistance, -1f,
-            route.width, crossing.requiredSpan, approachLimit, out float start);
+            route.width, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float start);
         bool endBankFound = TryFindCrossingBank(prepared, routePoints, distances, wetDistance, 1f,
-            route.width, crossing.requiredSpan, approachLimit, out float end);
+            route.width, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float end);
         if (!startBankFound || !endBankFound)
         {
             // note: Preserve enough local geometry in rejection diagnostics to distinguish a genuinely unbanked crossing from an undersized endpoint search.
@@ -3689,17 +3744,30 @@ public static class YQContinuousWorldFeatureMaterializer
 
     private static bool TryFindCrossingBank(YQPreparedSpatialMaterializationV2 prepared,
         Vector3[] points, float[] distances, float wetDistance, float direction, float width, float requiredSpan,
-        float approachLimit, out float bank)
+        float approachLimit, float maximumApproachLimit, out float bank)
     {
         bank = wetDistance;
         float dryRun = 0f;
         bool previousDry = false;
         float total = distances[distances.Length - 1];
-        // note: Test the bound in the requested direction so a wet endpoint can search both inward and outward; the opposite endpoint must not suppress the inward bank search.
-        float minimum = -approachLimit;
-        float maximum = total + approachLimit;
-        while (direction < 0f ? bank > minimum : bank < maximum)
+        float searchLimit = Mathf.Max(0f, approachLimit);
+        float hardLimit = Mathf.Max(searchLimit, maximumApproachLimit);
+        // note: Search the requested direction first, then extend that same dry-run state once so connected banks outside nominal width remain discoverable.
+        float minimum = -searchLimit;
+        float maximum = total + searchLimit;
+        while (true)
         {
+            bool withinBound = direction < 0f ? bank > minimum : bank < maximum;
+            if (!withinBound)
+            {
+                if (searchLimit >= hardLimit)
+                    return false;
+                searchLimit = hardLimit;
+                minimum = -searchLimit;
+                maximum = total + searchLimit;
+                continue;
+            }
+
             float next = Mathf.Clamp(bank + direction, minimum, maximum);
             Vector3 point = SampleCrossingRoute(points, distances, next);
             Vector3 tangent = SampleCrossingRoute(points, distances, next + 0.1f) -
@@ -3719,7 +3787,6 @@ public static class YQContinuousWorldFeatureMaterializer
             if (dryRun >= 2f && Mathf.Abs(bank - wetDistance) >= Mathf.Max(0f, requiredSpan * 0.5f))
                 return true;
         }
-        return false;
     }
 
     private static void PrepareWildernessLandmark(GameObject landmark)
@@ -3915,6 +3982,23 @@ public static class YQContinuousWorldFeatureMaterializer
                     baseY, height, 0f, spanBreaks, ref hasPreviousSpan, ref previousSpanEnd);
             }
             CompleteAcceptedRibbonFeature(points, pointWidths, spanBreaks, before, water.nominalWidth);
+            // note: Preserve accepted control-point width variation, not just one nominal width for the entire river identity.
+            for (int emitted = before; emitted < points.Count; emitted++)
+            {
+                float closest = float.PositiveInfinity;
+                Vector2 sample = new Vector2(points[emitted].x, points[emitted].z);
+                for (int segmentIndex = firstSegment; segmentIndex <= lastSegment; segmentIndex++)
+                {
+                    var first = prepared.GetWaterPoint(waterIndex, segmentIndex);
+                    var second = prepared.GetWaterPoint(waterIndex, segmentIndex + 1);
+                    Vector2 start = new Vector2(first.x, first.z), delta = new Vector2(second.x - first.x, second.z - first.z);
+                    float t = Mathf.Clamp01(Vector2.Dot(sample - start, delta) / Mathf.Max(0.0001f, delta.sqrMagnitude));
+                    float distance = (sample - start - delta * t).sqrMagnitude;
+                    if (distance >= closest) continue;
+                    closest = distance;
+                    pointWidths[emitted] = Mathf.Max(water.nominalWidth, Mathf.Lerp(first.width, second.width, t));
+                }
+            }
         }
         List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation> waterContinuations = new List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation>();
         YQContinuousWorldFeatureAuthority.GetAcceptedWaterContinuations(prepared, coordinate, cellSize, waterContinuations);
@@ -4170,7 +4254,8 @@ public static class YQContinuousWorldFeatureMaterializer
         {
             // note: Parameters may intentionally lie just outside 0..1 when an authored endpoint stops short of a streamed cell; preserve that extrapolation so the shared feature reaches the neighbor.
             float t = parameters[index];
-            if (!float.IsNaN(previousT) && Mathf.Abs(t - previousT) < 0.0001f)
+            // note: A short cell overlap on a long source segment still needs both endpoints; world-space spacing below removes only physically duplicate vertices.
+            if (!float.IsNaN(previousT) && t == previousT)
                 continue;
             previousT = t;
             float x = Mathf.LerpUnclamped(firstX, secondX, t);
@@ -4275,7 +4360,8 @@ public static class YQContinuousWorldFeatureMaterializer
         Material material,
         bool water,
         float cellSize,
-        IReadOnlyList<float> pointWidths = null)
+        IReadOnlyList<float> pointWidths = null,
+        Terrain contactTerrain = null)
     {
         if (points == null || points.Count < 2)
             return 0;
@@ -4285,6 +4371,7 @@ public static class YQContinuousWorldFeatureMaterializer
         int built = 0;
         float spanWidth = width;
         List<Vector3> span = new List<Vector3>();
+        List<float> spanWidths = new List<float>();
         int spanIndex = 0;
         int nextBreak = 0;
         for (int index = 0; index < points.Count; index++)
@@ -4297,19 +4384,23 @@ public static class YQContinuousWorldFeatureMaterializer
             bool inferredBreak = span.Count > 0 && Vector3.Distance(span[span.Count - 1], point) > discontinuity;
             if (explicitBreak || inferredBreak)
             {
-                if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water) != null)
+                if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths) != null)
                     built++;
                 spanIndex++;
                 span.Clear();
+                spanWidths.Clear();
                 while (nextBreak < (spanBreaks != null ? spanBreaks.Count : 0) && index >= spanBreaks[nextBreak])
                     nextBreak++;
             }
             if (span.Count == 0)
                 spanWidth = pointWidths != null ? pointWidths[index] : width;
             if (span.Count == 0 || (span[span.Count - 1] - point).sqrMagnitude > 0.0004f)
+            {
                 span.Add(point);
+                spanWidths.Add(pointWidths != null ? pointWidths[index] : width);
+            }
         }
-        if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water) != null)
+        if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths) != null)
             built++;
         return built;
     }
@@ -4348,13 +4439,40 @@ public static class YQContinuousWorldFeatureMaterializer
             width,
             material,
             false,
-            128f);
+            128f, null, terrain);
     }
 
-    private static GameObject BuildRibbon(Transform parent, string name, List<Vector3> points, float width, Material material, bool water)
+    private static GameObject BuildRibbon(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain = null, IReadOnlyList<float> widths = null)
+    {
+        using (RibbonMeshBuildMarker.Auto())
+            return BuildRibbonCore(parent, name, points, width, material, water, contactTerrain, widths);
+    }
+
+    private static GameObject BuildRibbonCore(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths)
     {
         if (points == null || points.Count < 2 || parent == null || material == null)
             return null;
+        if (!water && contactTerrain != null)
+        {
+            // note: Match the heightfield's two-metre detail rather than bridging terrain undulations with eight-metre route triangles.
+            var sampled = new List<Vector3>();
+            var sampledWidths = new List<float>();
+            for (int segment = 0; segment + 1 < points.Count; segment++)
+            {
+                Vector3 first = points[segment], second = points[segment + 1];
+                int steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(new Vector2(first.x, first.z), new Vector2(second.x, second.z)) / 2f));
+                for (int step = 0; step < steps; step++)
+                {
+                    float t = step / (float)steps;
+                    sampled.Add(Vector3.Lerp(first, second, t));
+                    sampledWidths.Add(widths == null ? width : Mathf.Lerp(widths[segment], widths[segment + 1], t));
+                }
+            }
+            sampled.Add(points[points.Count - 1]);
+            sampledWidths.Add(widths == null ? width : widths[widths.Count - 1]);
+            points = sampled;
+            widths = sampledWidths;
+        }
         int count = points.Count;
         Vector3[] vertices = new Vector3[count * 2];
         Vector2[] uvs = new Vector2[count * 2];
@@ -4374,21 +4492,28 @@ public static class YQContinuousWorldFeatureMaterializer
             Vector3 direction = index == 0 ? nextDirection : index == count - 1 ? previousDirection : (previousDirection + nextDirection).normalized;
             if (direction.sqrMagnitude < 0.0001f)
                 direction = nextDirection.sqrMagnitude >= 0.0001f ? nextDirection : previousDirection;
-            Vector3 side = Vector3.Cross(Vector3.up, direction).normalized * width * 0.5f;
+            float localWidth = widths != null ? widths[index] : width;
+            Vector3 side = Vector3.Cross(Vector3.up, direction).normalized * localWidth * 0.5f;
             if (index > 0 && index + 1 < count && previousDirection.sqrMagnitude >= 0.0001f && nextDirection.sqrMagnitude >= 0.0001f)
             {
                 // note: Use a capped miter at bends so a near-reversal cannot turn a normal path width into a long triangular spike.
                 Vector3 miter = Vector3.Cross(Vector3.up, direction).normalized;
                 float miterDenominator = Vector3.Dot(miter, Vector3.Cross(Vector3.up, nextDirection).normalized);
                 if (Mathf.Abs(miterDenominator) > 0.2f)
-                    side = miter * Mathf.Clamp((width * 0.5f) / miterDenominator, -width, width);
+                    side = miter * Mathf.Clamp((localWidth * 0.5f) / miterDenominator, -localWidth * 0.56f, localWidth * 0.56f);
             }
             // note: Source splines are authoritative world coordinates; convert them into the owning root's local space so a translated/scaled world root cannot displace the published ribbon.
-            vertices[index * 2] = parent.InverseTransformPoint(points[index] - side);
-            vertices[index * 2 + 1] = parent.InverseTransformPoint(points[index] + side);
             // note: World-space repeats keep approved road textures at a stable scale across chunks instead of stretching one sample along an entire ribbon.
             Vector3 left = points[index] - side;
             Vector3 right = points[index] + side;
+            if (!water && contactTerrain != null)
+            {
+                // note: Share the origin path's actual terrain contact calculation. Each edge follows cross-slopes independently; crossing decks remain separately owned.
+                if (YQGeneratedWorldEnvironment.TrySampleLivedPathSurface(contactTerrain, new Vector2(left.x, left.z), out Vector3 groundedLeft, out _)) left = groundedLeft;
+                if (YQGeneratedWorldEnvironment.TrySampleLivedPathSurface(contactTerrain, new Vector2(right.x, right.z), out Vector3 groundedRight, out _)) right = groundedRight;
+            }
+            vertices[index * 2] = parent.InverseTransformPoint(left);
+            vertices[index * 2 + 1] = parent.InverseTransformPoint(right);
             uvs[index * 2] = new Vector2(left.x, left.z) * 0.25f;
             uvs[index * 2 + 1] = new Vector2(right.x, right.z) * 0.25f;
             if (water)
@@ -4572,4 +4697,3 @@ public static class YQContinuousWorldFeatureMaterializer
         return null;
     }
 }
-

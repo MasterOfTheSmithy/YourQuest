@@ -34,11 +34,125 @@ public static class YQSemanticWorldAuthorityTests
             EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating)
             return;
 
+        // note: The explicit cost probe shares this existing one-shot request path; ordinary semantic contract requests retain their original runner.
+        bool queryCostOnly = string.Equals(File.ReadAllText(Path.GetFullPath(PendingRequestPath)).Trim(),
+            "r2-query-cost", StringComparison.Ordinal);
         // note: Consume the marker only after imports settle so the result describes one stable source/build identity.
         AssetDatabase.DeleteAsset(PendingRequestPath);
         polling = false;
         EditorApplication.update -= RunRequestedTests;
+        if (queryCostOnly)
+        {
+            RunR2QueryCostProbe();
+            return;
+        }
         RunFromMenu();
+    }
+
+    private static void RunR2QueryCostProbe()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || UnityEngine.Profiling.Profiler.enabled)
+            throw new InvalidOperationException("Query cost probe requires idle, unprofiled Edit Mode");
+        const string fixturePath = "outputs/G08_R2_AcceptedTerrainAllocationFixture_20261001.json";
+        var settings = new Newtonsoft.Json.JsonSerializerSettings {
+            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+            Converters = { new Vector3JsonConverter(), new Vector2JsonConverter(), new QuaternionJsonConverter() }
+        };
+        WorldState detached = Newtonsoft.Json.JsonConvert.DeserializeObject<WorldState>(File.ReadAllText(fixturePath), settings);
+        GeneratedWorldPlanRecord plan = detached?.generatedWorldPlan;
+        if (plan?.worldSeed != "4bb221dc" || plan.spatialPlanV2?.contentHash != "c1d6ce9d3e06f760")
+            throw new InvalidOperationException("Query cost probe requires the accepted detached fixture");
+        string artifactBefore = Newtonsoft.Json.JsonConvert.SerializeObject(plan.spatialPlanV2, settings);
+        var playerBefore = PlayerStateManager.Instance;
+        var worldBefore = WorldStateManager.Instance;
+        var flags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var architectureType = typeof(YQWorldGenerationArchitecture);
+        string[] authorityFields = { "_runtimeAuthorityPlan", "_runtimeAuthority", "_runtimeAuthorityArtifact", "_runtimeAuthorityHash" };
+        object[] savedAuthority = new object[authorityFields.Length];
+        for (int i = 0; i < authorityFields.Length; i++)
+            savedAuthority[i] = architectureType.GetField(authorityFields[i], flags).GetValue(null);
+        var projectionType = typeof(YQSpatialMaterializationResolverV2);
+        string[] projectionFields = { "cachedPlan", "cachedArtifact", "cachedHash", "cachedPrepared" };
+        object[] savedProjection = new object[projectionFields.Length];
+        for (int i = 0; i < projectionFields.Length; i++)
+            savedProjection[i] = projectionType.GetField(projectionFields[i], flags).GetValue(null);
+        var semanticType = typeof(YQSemanticWorldAuthority);
+        var cacheOwnerField = semanticType.GetField("s_runtimeCellCoreCacheAuthority", flags);
+        object savedCacheOwner = cacheOwnerField.GetValue(null);
+        var cache = (Dictionary<long, GeneratedSemanticCellPlanRecord>)semanticType.GetField("s_runtimeCellCoreCache", flags).GetValue(null);
+        var order = (Queue<KeyValuePair<long, GeneratedSemanticCellPlanRecord>>)semanticType.GetField("s_runtimeCellCoreCacheOrder", flags).GetValue(null);
+        var savedCache = new Dictionary<long, GeneratedSemanticCellPlanRecord>(cache);
+        var savedOrder = order.ToArray();
+        // note: Some Unity Mono builds expose this API but return zero; a known live allocation must calibrate it before reporting byte measurements.
+        long calibrationBefore = GC.GetAllocatedBytesForCurrentThread();
+        byte[] calibration = new byte[4096];
+        GC.KeepAlive(calibration);
+        bool allocationCounterAvailable = GC.GetAllocatedBytesForCurrentThread() - calibrationBefore >= 4096;
+        var report = new List<string> {
+            "# Detached Edit query cost; utc=" + DateTime.UtcNow.ToString("O") +
+                "; runtimeMvid=" + typeof(YQSemanticWorldAuthority).Assembly.ManifestModule.ModuleVersionId +
+                "; editorMvid=" + typeof(YQSemanticWorldAuthorityTests).Assembly.ManifestModule.ModuleVersionId +
+                "; fixture=" + fixturePath + "; seed=4bb221dc; V2=c1d6ce9d3e06f760; notRuntimeCertification=true; allocationCounterAvailable=" + allocationCounterAvailable,
+            "scope\titerations\ttotalMs\tmeanMs\tallocatedBytes\tmeanAllocatedBytes"
+        };
+        void Measure(string name, int iterations, Action<int> action)
+        {
+            // note: Delegate/report allocations are outside the counter interval; no forced collection or live cache clearing occurs.
+            long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            for (int i = 0; i < iterations; i++) action(i);
+            double milliseconds = 1000d * (System.Diagnostics.Stopwatch.GetTimestamp() - started) / System.Diagnostics.Stopwatch.Frequency;
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+            report.Add(name + "\t" + iterations + "\t" + milliseconds.ToString("F6", System.Globalization.CultureInfo.InvariantCulture) +
+                "\t" + (milliseconds / iterations).ToString("F6", System.Globalization.CultureInfo.InvariantCulture) +
+                "\t" + (allocationCounterAvailable ? allocated.ToString() : "unavailable") +
+                "\t" + (allocationCounterAvailable ? (allocated / (double)iterations).ToString("F3", System.Globalization.CultureInfo.InvariantCulture) : "unavailable"));
+        }
+        try
+        {
+            // note: Match the already-frozen gameplay authority branch only on this detached document, then restore all prior authority/cache objects in finally.
+            YQWorldGenerationArchitecture.LockRuntimeAuthority(plan, YQSpatialPlanAuthority.AcceptedV2);
+            YQSemanticWorldAuthority.Ensure(plan);
+            YQGeneratedWorldQuery.GetSemanticCellPlan(plan, new Vector2Int(1000, 1000));
+            YQGeneratedWorldQuery.GetSemanticSites(plan, new Vector2Int(1000, 1000));
+            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out _, out string preparationFailure))
+                throw new InvalidOperationException("Accepted query fixture could not prepare: " + preparationFailure);
+            Measure("sourceFingerprint", 200, _ => YQSemanticWorldAuthority.BuildSourceFingerprint(plan));
+            Measure("ensureAuthority", 200, _ => YQSemanticWorldAuthority.Ensure(plan));
+            Measure("cellAndSitesFirstQuery", 32, i => {
+                Vector2Int coordinate = new Vector2Int(11 + i, 5);
+                YQGeneratedWorldQuery.GetSemanticCellPlan(plan, coordinate);
+                YQGeneratedWorldQuery.GetSemanticSites(plan, coordinate);
+            });
+            Measure("cellAndSitesCachedCore", 128, i => {
+                Vector2Int coordinate = new Vector2Int(11 + i % 32, 5);
+                YQGeneratedWorldQuery.GetSemanticCellPlan(plan, coordinate);
+                YQGeneratedWorldQuery.GetSemanticSites(plan, coordinate);
+            });
+            Measure("currentContentHashReadOnly", 64, _ => YQSpatialBlueprintHasherV2.ComputeContentHashReadOnly(plan.spatialPlanV2));
+            Measure("currentPreparedProjectionValidation", 64, iteration => {
+                if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out _, out string failure))
+                    throw new InvalidOperationException(failure);
+            });
+            if (artifactBefore != Newtonsoft.Json.JsonConvert.SerializeObject(plan.spatialPlanV2, settings) ||
+                !ReferenceEquals(playerBefore, PlayerStateManager.Instance) || !ReferenceEquals(worldBefore, WorldStateManager.Instance))
+                throw new InvalidOperationException("Detached probe changed accepted artifact or active state owners");
+            report.Add("# PASS acceptedArtifactUnchanged=true activeOwnersUnchanged=true");
+        }
+        finally
+        {
+            for (int i = 0; i < authorityFields.Length; i++)
+                architectureType.GetField(authorityFields[i], flags).SetValue(null, savedAuthority[i]);
+            for (int i = 0; i < projectionFields.Length; i++)
+                projectionType.GetField(projectionFields[i], flags).SetValue(null, savedProjection[i]);
+            cache.Clear();
+            foreach (var pair in savedCache) cache.Add(pair.Key, pair.Value);
+            order.Clear();
+            foreach (var pair in savedOrder) order.Enqueue(pair);
+            cacheOwnerField.SetValue(null, savedCacheOwner);
+        }
+        report.Add("# authorityAndDerivedCacheRestored=true");
+        File.WriteAllLines("Logs/G08_R2_D48_QueryCost_20261002.tsv", report);
     }
 
     [MenuItem("YourQuest/World Generation/Run Semantic World Authority Tests")]

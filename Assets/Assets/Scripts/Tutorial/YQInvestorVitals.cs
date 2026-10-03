@@ -37,6 +37,10 @@ public sealed class YQInvestorVitals : MonoBehaviour
     {
         if (_pendingRespawn)
         {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+            // note: Typing R or Enter into the console cannot respawn the authoritative player.
+            if (YQDeveloperConsole.CapturesInput) return;
+#endif
             if (Keyboard.current != null && (Keyboard.current.rKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame))
                 RespawnNow();
             return;
@@ -59,6 +63,17 @@ public sealed class YQInvestorVitals : MonoBehaviour
     {
         _isSprinting = value;
     }
+
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    public void DevelopmentRestoreVitals(float health, float stamina, float mana)
+    {
+        // note: Snapshot restoration uses the existing vitals owner, respecting death and derived maximum-resource invariants.
+        if (_pendingRespawn) return;
+        CurrentHealth = Mathf.Clamp(health, 0, GetMaxHealth());
+        CurrentStamina = Mathf.Clamp(stamina, 0, GetMaxStamina());
+        CurrentMana = Mathf.Clamp(mana, 0, GetMaxMana());
+    }
+#endif
 
     public bool SpendStamina(float amount)
     {
@@ -106,6 +121,8 @@ public sealed class YQInvestorVitals : MonoBehaviour
             return;
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
+        // note: Accepted damage drives presentation only; health, death loot, and persistence remain owned here.
+        GetComponent<YQPlayerEquipmentVisual>()?.PlayDamageFeedback(IsDead);
         if (IsDead)
             EnterDeathState();
     }
@@ -142,6 +159,8 @@ public sealed class YQInvestorVitals : MonoBehaviour
         CurrentStamina = GetMaxStamina();
         CurrentMana = GetMaxMana();
         transform.position = new Vector3(0f, 1.25f, -8f);
+        // note: Reviving releases the terminal animation without regenerating the avatar or accepted equipment.
+        GetComponent<YQPlayerEquipmentVisual>()?.PlayReviveFeedback();
 
         CharacterController cc = GetComponent<CharacterController>();
         if (cc != null)

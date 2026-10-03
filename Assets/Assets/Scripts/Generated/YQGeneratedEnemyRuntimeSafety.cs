@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
+using Unity.Profiling;
 
 public sealed class YQGeneratedEnemyRuntimeSafety :
     MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQGeneratedEnemyRuntimeSafety.Update()");
     private const float GroundCheckInterval =
         0.25f;
 
@@ -146,7 +148,14 @@ public sealed class YQGeneratedEnemyRuntimeSafety :
         SanitizeEnemyAudio();
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (_isManager)
         {

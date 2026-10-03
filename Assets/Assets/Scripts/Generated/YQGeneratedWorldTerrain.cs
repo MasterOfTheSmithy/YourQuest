@@ -78,24 +78,34 @@ public static class YQGeneratedWorldTerrain
         private readonly YQSpatialBlueprintTerrainSamplerV2 spatialSampler;
         private readonly Vector2 detailOffset;
 
+        // note: Reuse empty storage up to the existing eight-worker high-speed width; accepted samples never survive a lease.
+        private const int MaximumRetainedSpatialSampleBuffers = 8;
+        private readonly object spatialSampleBufferLock = new object();
+        private readonly Dictionary<Vector2, YQSpatialTerrainSampleV2>[] spatialSampleBuffers =
+            new Dictionary<Vector2, YQSpatialTerrainSampleV2>[MaximumRetainedSpatialSampleBuffers];
+        private int retainedSpatialSampleBufferCount;
+
         // note: Keep repeated support-point results local to one heightmap job so workers never share mutable cache state.
         internal sealed class SpatialSamplingSession : IDisposable
         {
             private const int MaximumCachedSpatialSamples = 8192;
+            private readonly V2HeightSampler owner;
             private readonly YQSpatialBlueprintTerrainSamplerV2 spatialSampler;
             private readonly Vector2 detailOffset;
-            private readonly Dictionary<Vector2, YQSpatialTerrainSampleV2> samples =
-                new Dictionary<Vector2, YQSpatialTerrainSampleV2>(4096);
+            private Dictionary<Vector2, YQSpatialTerrainSampleV2> samples;
 
             internal int SpatialSampleEvaluations { get; private set; }
             internal int SpatialSampleCacheHits { get; private set; }
+            internal int CachedSpatialSampleCount => samples != null ? samples.Count : 0;
+            internal object SampleBufferIdentity => samples;
 
             internal SpatialSamplingSession(
-                YQSpatialBlueprintTerrainSamplerV2 spatialSampler,
-                Vector2 detailOffset)
+                V2HeightSampler owner)
             {
-                this.spatialSampler = spatialSampler;
-                this.detailOffset = detailOffset;
+                this.owner = owner;
+                spatialSampler = owner.spatialSampler;
+                detailOffset = owner.detailOffset;
+                samples = owner.RentSpatialSampleBuffer();
             }
 
             internal float SampleNormalized(float worldX, float worldZ)
@@ -112,6 +122,8 @@ public static class YQGeneratedWorldTerrain
             {
                 if (!ReferenceEquals(sampler, spatialSampler))
                     throw new InvalidOperationException("spatial sample session belongs to a different accepted sampler");
+                if (samples == null)
+                    throw new ObjectDisposedException(nameof(SpatialSamplingSession));
 
                 Vector2 key = new Vector2(worldX, worldZ);
                 bool cacheable = !float.IsNaN(worldX) && !float.IsInfinity(worldX) &&
@@ -131,9 +143,44 @@ public static class YQGeneratedWorldTerrain
 
             public void Dispose()
             {
-                // note: Release the bounded per-task cache immediately after its heightmap completes or is canceled.
-                samples.Clear();
+                // note: Return a cleared buffer once, including cancellation/fault cleanup; concurrent jobs cannot acquire this lease twice.
+                Dictionary<Vector2, YQSpatialTerrainSampleV2> released =
+                    System.Threading.Interlocked.Exchange(ref samples, null);
+                if (released != null)
+                    owner.ReturnSpatialSampleBuffer(released);
             }
+        }
+
+        private Dictionary<Vector2, YQSpatialTerrainSampleV2> RentSpatialSampleBuffer()
+        {
+            lock (spatialSampleBufferLock)
+            {
+                if (retainedSpatialSampleBufferCount > 0)
+                {
+                    int index = --retainedSpatialSampleBufferCount;
+                    Dictionary<Vector2, YQSpatialTerrainSampleV2> buffer = spatialSampleBuffers[index];
+                    spatialSampleBuffers[index] = null;
+                    return buffer;
+                }
+            }
+            // note: Preserve the original initial capacity and per-lease entry limit when concurrency needs another buffer.
+            return new Dictionary<Vector2, YQSpatialTerrainSampleV2>(4096);
+        }
+
+        private void ReturnSpatialSampleBuffer(Dictionary<Vector2, YQSpatialTerrainSampleV2> buffer)
+        {
+            // note: Clear before publication to the pool so no accepted coordinate/value or prior-job cache hit can leak across leases.
+            buffer.Clear();
+            lock (spatialSampleBufferLock)
+            {
+                if (retainedSpatialSampleBufferCount < MaximumRetainedSpatialSampleBuffers)
+                    spatialSampleBuffers[retainedSpatialSampleBufferCount++] = buffer;
+            }
+        }
+
+        internal int RetainedSpatialSampleBufferCount
+        {
+            get { lock (spatialSampleBufferLock) return retainedSpatialSampleBufferCount; }
         }
 
         internal V2HeightSampler(
@@ -154,7 +201,7 @@ public static class YQGeneratedWorldTerrain
         internal SpatialSamplingSession BeginSpatialSamplingSession()
         {
             return spatialSampler != null
-                ? new SpatialSamplingSession(spatialSampler, detailOffset)
+                ? new SpatialSamplingSession(this)
                 : null;
         }
     }
@@ -1428,9 +1475,13 @@ public static class YQGeneratedWorldTerrain
             return false;
         }
 
+        // note: A combined tree renderer's canopy is not a support footprint. Its planted root anchor chooses the ground height while visible geometry still supplies the vertical pivot correction.
+        Bounds contactBounds = resolvedCategory == YQGeneratedWorldPlacementCategory.Tree
+            ? new Bounds(root.transform.position, Vector3.zero)
+            : bounds;
         if (!TrySampleFootprintHeight(
                 terrain,
-                bounds,
+                contactBounds,
                 out float terrainContact,
                 out float minimumTerrain,
                 out float maximumTerrain))

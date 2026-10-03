@@ -75,7 +75,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         process.Kill();
     }
 
-    public IEnumerator EnsureReady(LLMRuntimeConfig config, Action<bool, string> onComplete)
+    public IEnumerator EnsureReady(LLMRuntimeConfig config, Action<bool, string> onComplete, bool protectLivePresentation = false)
     {
         if (_disposed)
         {
@@ -129,7 +129,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         string helpText = string.Empty;
         yield return ReadHelpText(executablePath, Mathf.Max(1, config.helpProbeTimeoutSeconds), text => helpText = text);
 
-        if (!TryBuildArguments(config, helpText, out string arguments, out string argumentError))
+        if (!TryBuildArguments(config, helpText, out string arguments, out string argumentError, protectLivePresentation))
         {
             onComplete?.Invoke(false, argumentError);
             yield break;
@@ -274,7 +274,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         onComplete?.Invoke(output.ToString());
     }
 
-    private static bool TryBuildArguments(LLMRuntimeConfig config, string helpText, out string arguments, out string error)
+    private static bool TryBuildArguments(LLMRuntimeConfig config, string helpText, out string arguments, out string error, bool protectLivePresentation = false)
     {
         arguments = string.Empty;
         error = string.Empty;
@@ -282,6 +282,16 @@ public sealed class LlamaCppServerProcess : IDisposable
         bool helpAvailable = !string.IsNullOrWhiteSpace(helpText) && !helpText.StartsWith("HELP_PROBE_FAILED:", StringComparison.Ordinal);
         bool Supports(string flag) => helpAvailable && helpText.IndexOf(flag, StringComparison.OrdinalIgnoreCase) >= 0;
         bool RequiredFlag(string preferred, string fallback) => !helpAvailable || Supports(preferred) || Supports(fallback);
+
+        // note: D19 tied a gameplay hitch to model-start residency paging. Keep the same model, context, sampling, and CPU limits while excluding GPU allocations for an automatic live-gameplay launch.
+        bool useCpuForLivePresentation = protectLivePresentation && config.preserveGameResponsiveness &&
+            config.gpuLayerCount < 0 && string.IsNullOrWhiteSpace(config.extraLlamaServerArguments);
+        if (useCpuForLivePresentation && (!Supports("--device") || !Supports("--no-kv-offload") ||
+            !Supports("--no-op-offload") || !Supports("--fit")))
+        {
+            error = "Installed llama-server cannot enforce the automatic gameplay CPU residency policy.";
+            return false;
+        }
 
         if (!RequiredFlag("--model", "-m"))
         {
@@ -341,26 +351,33 @@ public sealed class LlamaCppServerProcess : IDisposable
             AppendArgument(args, Supports("--log-verbosity") ? "--log-verbosity" : Supports("-lv") ? "-lv" : null, "1");
         }
 
-        if (config.gpuLayerCount >= 0)
+        if (useCpuForLivePresentation)
+        {
+            // note: Zero GPU layers alone can still offload cache or host operations; disable all three paths and automatic GPU fitting together.
+            AppendArgument(args, "--device", "none");
+            args.Append(" --no-op-offload");
+        }
+
+        if (config.gpuLayerCount >= 0 || useCpuForLivePresentation)
         {
             string layerFlag = Supports("--n-gpu-layers")
                 ? "--n-gpu-layers"
                 : Supports("-ngl")
                     ? "-ngl"
                     : null;
-            AppendArgument(args, layerFlag, config.gpuLayerCount.ToString());
+            AppendArgument(args, layerFlag, useCpuForLivePresentation ? "0" : config.gpuLayerCount.ToString());
         }
 
         if (config.enableFlashAttention && Supports("--flash-attn"))
             args.Append(" --flash-attn on");
 
-        if (config.keepKvCacheInSystemRam && Supports("--no-kv-offload"))
+        if ((config.keepKvCacheInSystemRam || useCpuForLivePresentation) && Supports("--no-kv-offload"))
             args.Append(" --no-kv-offload");
 
         if (Supports("--fit"))
-            args.Append(" --fit on");
+            args.Append(useCpuForLivePresentation ? " --fit off" : " --fit on");
 
-        if (Supports("--fit-target"))
+        if (!useCpuForLivePresentation && Supports("--fit-target"))
             AppendArgument(args, "--fit-target", Mathf.Max(512, config.targetGpuHeadroomMb).ToString());
 
         if (Supports("--no-webui"))
@@ -434,7 +451,7 @@ public sealed class LlamaCppServerProcess : IDisposable
             }
 
             _ownsProcess = true;
-            UnityEngine.Debug.Log("[LlamaCppServerProcess] Started owned llama-server process.");
+            UnityEngine.Debug.Log("[LlamaCppServerProcess] Started owned llama-server process; gpuDeviceNone=" + arguments.Contains("--device \"none\"") + ".");
             return true;
         }
         catch (Exception ex)

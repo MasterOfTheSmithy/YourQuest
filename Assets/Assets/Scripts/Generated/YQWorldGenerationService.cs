@@ -3352,6 +3352,8 @@ targetWorld);
                     state));
         // note: The model sees only the current reviewed semantic allow-list; deferred packs and Unity paths can never enter generated canon.
         recent.AppendLine(BuildRuntimeSiteCapabilitiesForPrompt());
+        // note: Newly installed creature presentation is an optional semantic capability for future proposals; accepted world records are never regenerated.
+        recent.AppendLine(YQDotCreatureCatalog.BuildBindingPrompt());
         // note: The same exact role vocabulary is enforced during normalization and consumed by the runtime selector.
         recent.AppendLine("CELL_ROLE_INTENTS: For each settlement and hostile site, provide 2-6 distinct cellRoleIntents in priority order from: " +
             YQCompiledWorldSiteBindingService.CellRoleVocabulary +

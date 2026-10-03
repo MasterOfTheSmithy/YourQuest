@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(-120)]
 public sealed class YQEchoFlameWispVisual : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQEchoFlameWispVisual.Update()");
     public Color emberColor = new Color(1f, 0.42f, 0.12f, 1f);
     public Color echoColor = new Color(0.52f, 0.78f, 1f, 1f);
     public float hoverHeight = 1.05f;
@@ -46,7 +48,14 @@ public sealed class YQEchoFlameWispVisual : MonoBehaviour
         BuildVisual();
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (_visualRoot == null)
             return;

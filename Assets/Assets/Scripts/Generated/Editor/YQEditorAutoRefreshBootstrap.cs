@@ -2,21 +2,34 @@
 using System;
 using System.IO;
 using UnityEditor;
+using Unity.Profiling;
 using UnityEngine;
 
 // note: Keep the editor's global auto-refresh preference enabled so external script edits reach Unity without a manual Ctrl+R.
 [InitializeOnLoad]
 internal static class YQEditorAutoRefreshBootstrap
 {
+    // note: Measure editor callback and status publication work separately so frame-budget receipts can exclude neither from the observed editor session.
+    private static readonly ProfilerMarker EditorRefreshUpdateMarker =
+        new ProfilerMarker("YQEditorAutoRefreshBootstrap.ProcessQueuedRefresh");
+    private static readonly ProfilerMarker PlayModeStatusWriteMarker =
+        new ProfilerMarker("YQEditorAutoRefreshBootstrap.WritePlayModeStatus");
     private static FileSystemWatcher _scriptWatcher;
     private static volatile bool _refreshQueued;
     private const string PlayRefreshSuspendedKey = "YourQuest.EditorAutoRefresh.PlaySuspended";
+    private const string ScriptWatchSuspendedKey = "YourQuest.EditorAutoRefresh.ScriptWatchSuspended";
     private const string PaletteProbeMarker = "Temp/YQ_PALETTE_RUNTIME_PROBE.request";
     private const string GenerationReadySweepMarker = "Temp/YQ_GENERATION_READY_SWEEP.request";
     private const string GenerationReadyPrefabAuditMarker = "Temp/YQ_GENERATION_READY_PREFAB_AUDIT.request";
     // note: A distinct start request is the only path allowed to enter Play Mode for unattended verification.
     private const string StreamerRuntimeStartMarker = "Temp/YQ_STREAMER_RUNTIME_START.request";
     private const string StreamerRuntimeTestMarker = "Temp/YQ_STREAMER_RUNTIME_TEST.request";
+    // note: Dispatch the existing short speed witness without desktop input or the unrelated full acceptance suite.
+    private const string FocusedSpeed260Marker = "Temp/YQ_SPEED260_FOCUSED.request";
+    // note: Dispatch the existing isolated R1 recovery matrix through the same one-shot background marker path.
+    private const string FocusedR1PublicationMarker = "Temp/YQ_R1_PUBLICATION_FOCUSED.request";
+    // note: Dispatch the existing R1-plus-unload witness without requiring the visible Unity menu.
+    private const string FocusedR1UnloadRevisitMarker = "Temp/YQ_R1_UNLOAD_REVISIT_FOCUSED.request";
     private const string OrdinaryContinueMarker = "Temp/YQ_STARTUP_CONTINUE.request";
     // note: This marker selects the fixed beta profile through the real title flow for unattended baseline verification.
     private const string BetaFixtureStartMarker = "Temp/YQ_BETA_FIXTURE_START.request";
@@ -36,6 +49,15 @@ internal static class YQEditorAutoRefreshBootstrap
     private const string LlmProposalPureRegressionMarker = "Temp/YQ_LLM_PROPOSAL_PURE_REGRESSION.request";
     // note: This marker runs the deterministic world-generation contract suite only after PlaySafe has returned to Edit Mode.
     private const string WorldGenerationV2ContractMarker = "Temp/YQ_WORLD_GENERATION_V2_CONTRACT.request";
+    private const string TreeGroundingVerificationMarker = "Temp/YQ_TREE_GROUNDING_VERIFY.request";
+    private const string WorldReadinessVerificationMarker = "Temp/YQ_WORLD_READINESS_VERIFY.request";
+    private const string WorldReadinessAuditMarker = "Temp/YQ_WORLD_READINESS_AUDIT.request";
+    private const string MaterialContractRepairMarker = "Temp/YQ_MATERIAL_CONTRACT_REPAIR.request";
+    private const string AssetContractLibraryReviewMarker = "Temp/YQ_ASSET_CONTRACT_LIBRARY_REVIEW.request";
+    private const string FocusedLibraryCurationMarker = "Temp/YQ_FOCUSED_LIBRARY_CURATION.request";
+    private const string StreamedSiteOwnerAuditMarker = "Temp/YQ_STREAMED_SITE_OWNER_AUDIT.request";
+    private const string LandscapeReviewMarker = "Temp/YQ_LANDSCAPE_REVIEW.request";
+    private const string TerrainCohesionPreviewMarker = "Temp/YQ_TERRAIN_COHESION_PREVIEW.request";
     private const string BlueprintHashVerificationMarker = "Temp/YQ_BLUEPRINT_HASH_VERIFY.request";
     private const string RibbonWidthVerificationMarker = "Temp/YQ_RIBBON_WIDTH_VERIFY.request";
     private const string StreamingCpuCaptureMarker = "Temp/YQ_STREAMING_CPU_CAPTURE.request";
@@ -68,7 +90,7 @@ internal static class YQEditorAutoRefreshBootstrap
             Debug.Log("[YQEditorAutoRefresh] Automatic asset and script refresh enabled.");
         }
 
-        // note: File watching queues external C# edits even during Play; the editor imports them only after Play has stopped.
+        // note: Mono's managed watcher scans the entire asset tree; create it inactive so Play's domain reload never starts that background work.
         string assetsPath = Path.GetFullPath("Assets");
         if (Directory.Exists(assetsPath))
         {
@@ -76,7 +98,7 @@ internal static class YQEditorAutoRefreshBootstrap
             {
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                EnableRaisingEvents = true
+                EnableRaisingEvents = false
             };
             _scriptWatcher.Changed += QueueRefresh;
             _scriptWatcher.Created += QueueRefresh;
@@ -85,12 +107,18 @@ internal static class YQEditorAutoRefreshBootstrap
         }
 
         // note: The editor update performs Unity API calls on the main thread after the watcher signals an external source change.
-        EditorApplication.update -= ProcessQueuedRefresh;
-        EditorApplication.update += ProcessQueuedRefresh;
+        EditorApplication.update -= ProcessQueuedRefreshMeasured;
+        EditorApplication.update += ProcessQueuedRefreshMeasured;
         // note: A manual Play Mode exit cancels a still-pending verifier request so the editor never starts Play Mode again by itself.
         EditorApplication.playModeStateChanged -= HandlePlayModeStateChanged;
         EditorApplication.playModeStateChanged += HandlePlayModeStateChanged;
         SetPlayRefreshSuspended(EditorApplication.isPlayingOrWillChangePlaymode);
+        SetScriptWatchSuspended(EditorApplication.isPlayingOrWillChangePlaymode);
+        // note: Release the old domain's watcher explicitly rather than relying on finalization after reload or Editor exit.
+        AssemblyReloadEvents.beforeAssemblyReload -= DisposeScriptWatcher;
+        AssemblyReloadEvents.beforeAssemblyReload += DisposeScriptWatcher;
+        EditorApplication.quitting -= DisposeScriptWatcher;
+        EditorApplication.quitting += DisposeScriptWatcher;
         WritePlayModeStatus("Initialized");
     }
 
@@ -120,6 +148,32 @@ internal static class YQEditorAutoRefreshBootstrap
             Debug.Log("[YQEditorAutoRefresh] A terrain verifier is already running or the focused speed witness could not start.");
     }
 
+    [MenuItem("YourQuest/Verification/Run Focused G08 R1 Publication Recovery in Current Play Session")]
+    private static void RunFocusedR1PublicationWitnessInCurrentPlaySession()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            Debug.LogWarning("[YQEditorAutoRefresh] Enter Play Mode and complete normal startup before running the focused R1 publication witness.");
+            return;
+        }
+        // note: Keep publication recovery independently runnable without spending time on unrelated speed and unload/revisit probes.
+        if (!YQSemanticChunkRuntimeVerification.TryBeginFocusedR1PublicationWitnessFromCurrentPlaySession())
+            Debug.Log("[YQEditorAutoRefresh] A terrain verifier is already running or the focused R1 witness could not start.");
+    }
+
+    [MenuItem("YourQuest/Verification/Run Focused G08 R1 Recovery and Unload Revisit in Current Play Session")]
+    private static void RunFocusedR1UnloadRevisitWitnessInCurrentPlaySession()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            Debug.LogWarning("[YQEditorAutoRefresh] Enter Play Mode and complete normal startup before running the focused R1 and unload/revisit witness.");
+            return;
+        }
+        // note: Run current-source publication recovery before the independent physical unload/revisit lifecycle check.
+        if (!YQSemanticChunkRuntimeVerification.TryBeginFocusedR1UnloadRevisitWitnessFromCurrentPlaySession())
+            Debug.Log("[YQEditorAutoRefresh] A terrain verifier is already running or the focused R1 unload/revisit witness could not start.");
+    }
+
     [MenuItem("YourQuest/Verification/Continue Selected Journey in Current Play Session")]
     private static void ContinueSelectedJourneyInCurrentPlaySession()
     {
@@ -132,9 +186,15 @@ internal static class YQEditorAutoRefreshBootstrap
     {
         // note: Balance the native auto-refresh hold across Play's domain reload; external imports resume only after returning to Edit Mode.
         if (state == PlayModeStateChange.ExitingEditMode)
+        {
+            SetScriptWatchSuspended(true);
             SetPlayRefreshSuspended(true);
+        }
         else if (state == PlayModeStateChange.EnteredEditMode)
+        {
             SetPlayRefreshSuspended(false);
+            SetScriptWatchSuspended(false);
+        }
         // note: Record every Unity transition before handling request cleanup so automation can observe the real editor instance.
         WritePlayModeStatus(state.ToString());
         if (state != PlayModeStateChange.ExitingPlayMode)
@@ -142,6 +202,9 @@ internal static class YQEditorAutoRefreshBootstrap
         // note: A manual stop cancels both phases so no stale request can replay after the user leaves Play Mode.
         DeleteMarker(StreamerRuntimeStartMarker);
         DeleteMarker(StreamerRuntimeTestMarker);
+        DeleteMarker(FocusedSpeed260Marker);
+        DeleteMarker(FocusedR1PublicationMarker);
+        DeleteMarker(FocusedR1UnloadRevisitMarker);
         DeleteMarker(OrdinaryContinueMarker);
     }
 
@@ -155,6 +218,29 @@ internal static class YQEditorAutoRefreshBootstrap
         else
             AssetDatabase.AllowAutoRefresh();
         SessionState.SetBool(PlayRefreshSuspendedKey, suspended);
+    }
+
+    private static void SetScriptWatchSuspended(bool suspended)
+    {
+        // note: Imports are already forbidden during Play; a single catch-up refresh on return detects edits made while watching was paused.
+        bool wasSuspended = SessionState.GetBool(ScriptWatchSuspendedKey, false);
+        if (_scriptWatcher != null && _scriptWatcher.EnableRaisingEvents == suspended)
+            _scriptWatcher.EnableRaisingEvents = !suspended;
+        SessionState.SetBool(ScriptWatchSuspendedKey, suspended);
+        if (wasSuspended && !suspended) _refreshQueued = true;
+    }
+
+    private static void DisposeScriptWatcher()
+    {
+        // note: Drop only the editor's source watcher; queued imports, profile services, and runtime ownership are unchanged.
+        FileSystemWatcher watcher = _scriptWatcher;
+        _scriptWatcher = null;
+        if (watcher == null) return;
+        watcher.Changed -= QueueRefresh;
+        watcher.Created -= QueueRefresh;
+        watcher.Renamed -= QueueRefresh;
+        watcher.Deleted -= QueueRefresh;
+        watcher.Dispose();
     }
 
     private static void DeleteMarker(string marker)
@@ -174,6 +260,8 @@ internal static class YQEditorAutoRefreshBootstrap
 
     private static void WritePlayModeStatus(string transition)
     {
+        using (PlayModeStatusWriteMarker.Auto())
+        {
         try
         {
             // note: Keep the status payload small, timestamped, and atomically replaceable by the editor main thread.
@@ -224,11 +312,16 @@ internal static class YQEditorAutoRefreshBootstrap
             string payload = "transition=" + transition + "\n" +
                 "playing=" + EditorApplication.isPlaying + "\n" +
                 "playingOrWillChange=" + EditorApplication.isPlayingOrWillChangePlaymode + "\n" +
+                // note: Read the actual Game focus before arming measurement; an occlusion-safe Editor screenshot alone does not establish application focus.
+                "applicationFocused=" + Application.isFocused + "\n" +
+                "focusedEditorWindow=" + (EditorWindow.focusedWindow != null ? EditorWindow.focusedWindow.GetType().FullName : "<none>") + "\n" +
                 "paused=" + EditorApplication.isPaused + "\n" +
                 "compiling=" + EditorApplication.isCompiling + "\n" +
                 "updating=" + EditorApplication.isUpdating + "\n" +
                 "refreshQueued=" + _refreshQueued + "\n" +
                 "playRefreshSuspended=" + SessionState.GetBool(PlayRefreshSuspendedKey, false) + "\n" +
+                "scriptWatchSuspended=" + SessionState.GetBool(ScriptWatchSuspendedKey, false) + "\n" +
+                "scriptWatcherEnabled=" + (_scriptWatcher != null && _scriptWatcher.EnableRaisingEvents) + "\n" +
                 "titleGateActive=" + YQTitleScreenUI.StartupGateActive + "\n" +
                 "titleFlowComplete=" + YQTitleScreenUI.StartupFlowComplete + "\n" +
                 "gameplayRuntimeReady=" + YourQuestTutorialAutoBootstrap.GameplayRuntimeReady + "\n" +
@@ -259,6 +352,8 @@ internal static class YQEditorAutoRefreshBootstrap
                 "activeMotorAuthoritative=" + (YQInvestorPlayerMotor.ActiveMotor != null && YQInvestorPlayerMotor.ActiveMotor.IsAuthoritative) + "\n" +
                 "startupLoadingVisible=" + YQStartupLoadingScreen.IsVisible + "\n" +
                 "startupGenerationVisible=" + YQStartupLoadingScreen.IsGenerationVisible + "\n" +
+                "loadingVisible=" + YQStartupLoadingScreen.IsVisible + "\n" +
+                "goddessLoadingVisible=" + YQStartupLoadingScreen.IsGenerationVisible + "\n" +
                 "generationPhase=" + YQStartupLoadingScreen.CurrentGenerationPhase + "\n" +
                 "generationSubstep=" + YQStartupLoadingScreen.CurrentGenerationSubstep + "\n" +
                 "generationProgress=" + YQStartupLoadingScreen.CurrentGenerationProgress.ToString("0.000") + "\n" +
@@ -282,6 +377,7 @@ internal static class YQEditorAutoRefreshBootstrap
         catch (IOException)
         {
             // note: A transient file lock must not interfere with Play Mode or script compilation.
+        }
         }
     }
 
@@ -311,6 +407,13 @@ internal static class YQEditorAutoRefreshBootstrap
             return;
         }
 
+        // note: File.Exists allocates for every absent path on this Editor runtime. One nonrecursive directory check avoids polling all handlers on empty ticks without throttling requests.
+        if (!HasPendingVerificationRequest("Temp", ContinuousTerrainDeterminismMarker))
+            return;
+
+        // note: Import pending source edits before analyzing; read frame-identified evidence only after the witness has left Play Mode.
+        YQSemanticChunkRuntimeVerification.AnalyzeRequestedR2FrameTrace();
+
         // note: A marker lets unattended verification exercise editor-only runtime probes without a second Unity process or a manual menu click.
         if (File.Exists(PaletteProbeMarker))
         {
@@ -323,6 +426,64 @@ internal static class YQEditorAutoRefreshBootstrap
             // note: Consume one explicit request and preserve the existing regression owner so skipped runtime checks remain visible as NOT_YET_TESTABLE.
             DeleteMarker(LlmProposalPureRegressionMarker);
             YQProductionBaselineRegression.RunProductionRegression();
+        }
+
+        // note: Render only currently loaded production geometry without moving the player or changing streaming demand.
+        if (File.Exists(LandscapeReviewMarker) && EditorApplication.isPlaying && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            DeleteMarker(LandscapeReviewMarker);
+            YQWorldPresentationReview.CaptureLandscapeRepairReview();
+        }
+
+        // note: This explicit read-only snapshot does not drive the player, regenerate content, or change readiness.
+        if (File.Exists(WorldReadinessAuditMarker) && EditorApplication.isPlaying)
+        {
+            DeleteMarker(WorldReadinessAuditMarker);
+            YQWorldReadinessVerification.AuditRuntime();
+        }
+
+        // note: Keep water/material fixtures in the existing explicit Edit-only dispatcher.
+        if (File.Exists(FocusedLibraryCurationMarker) && !EditorApplication.isPlayingOrWillChangePlaymode && !YQUrpAssetConversionBatch.IsRunning)
+        {
+            // note: The explicit construction review changes only selected source intake contracts after material source repair finishes.
+            DeleteMarker(FocusedLibraryCurationMarker);
+            YQFocusedConstructionLibraryCuration.Run();
+        }
+        if (File.Exists(AssetContractLibraryReviewMarker) && !EditorApplication.isPlayingOrWillChangePlaymode && !YQUrpAssetConversionBatch.IsRunning)
+        {
+            DeleteMarker(AssetContractLibraryReviewMarker);
+            YQAssetContractLibraryReview.Run();
+        }
+        if (File.Exists(StreamedSiteOwnerAuditMarker) && EditorApplication.isPlaying && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            DeleteMarker(StreamedSiteOwnerAuditMarker);
+            YQAssetContractLibraryReview.AuditPlay();
+        }
+        if (File.Exists(MaterialContractRepairMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: Source binding repair is explicit and paced; it never runs from an import or a Play startup.
+            DeleteMarker(MaterialContractRepairMarker);
+            YQUrpAssetConversionBatch.StartContractRepair();
+        }
+
+        if (File.Exists(WorldReadinessVerificationMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            DeleteMarker(WorldReadinessVerificationMarker);
+            YQWorldReadinessVerification.Run();
+        }
+
+        // note: Reuse the existing Edit-only request dispatcher instead of adding a persistent per-frame verification callback.
+        if (File.Exists(TreeGroundingVerificationMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            DeleteMarker(TreeGroundingVerificationMarker);
+            YQTreeGroundingVerification.Run();
+        }
+
+        // note: An explicit Edit-only request creates a separate design study without loading or changing an accepted world.
+        if (File.Exists(TerrainCohesionPreviewMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            DeleteMarker(TerrainCohesionPreviewMarker);
+            YQTerrainCohesionPreview.Build();
         }
 
         if (File.Exists(WorldGenerationV2ContractMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
@@ -438,9 +599,90 @@ internal static class YQEditorAutoRefreshBootstrap
             YQTitleScreenUI.Instance != null)
         {
             // note: The explicit request waits only for the title's normal interaction delay, then drives the same selected-save action as the named menu.
-            if (YQTitleScreenUI.StartupFlowComplete ||
-                YQTitleScreenUI.Instance.ContinueSelectedForDevelopmentVerification())
+            // note: Empty legacy markers retain the current selection; a supplied profile GUID selects only that existing save through the ordinary title action.
+            string requestedProfile = File.ReadAllText(OrdinaryContinueMarker).Trim();
+            if (!string.IsNullOrEmpty(requestedProfile) && !Guid.TryParseExact(requestedProfile, "N", out _))
+            {
                 DeleteMarker(OrdinaryContinueMarker);
+                Debug.LogError("[YQEditorAutoRefresh] Continue request rejected: expected an existing profile GUID or an empty marker.");
+                return;
+            }
+            if (YQTitleScreenUI.StartupFlowComplete ||
+                (string.IsNullOrEmpty(requestedProfile)
+                    ? YQTitleScreenUI.Instance.ContinueSelectedForDevelopmentVerification()
+                    : YQTitleScreenUI.Instance.ContinueExistingForDevelopmentVerification(requestedProfile)))
+                DeleteMarker(OrdinaryContinueMarker);
+        }
+
+        // note: Existing full-suite and fixture requests retain priority; never start a probe before a pending profile mutation.
+        if (File.Exists(FocusedSpeed260Marker) &&
+            (File.Exists(StreamerRuntimeTestMarker) || File.Exists(BetaFixtureResetMarker) || File.Exists(BetaFixtureStartMarker)))
+        {
+            DeleteMarker(FocusedSpeed260Marker);
+            Debug.LogWarning("[YQEditorAutoRefresh] Focused speed request rejected because a full verifier or fixture request is pending.");
+        }
+
+        // note: Keep focused recovery probes separate from a pending full suite or profile mutation.
+        if (File.Exists(FocusedR1PublicationMarker) &&
+            (File.Exists(StreamerRuntimeTestMarker) || File.Exists(BetaFixtureResetMarker) || File.Exists(BetaFixtureStartMarker)))
+        {
+            DeleteMarker(FocusedR1PublicationMarker);
+            Debug.LogWarning("[YQEditorAutoRefresh] Focused R1 request rejected because a full verifier or fixture request is pending.");
+        }
+
+        if (File.Exists(FocusedR1UnloadRevisitMarker) &&
+            (File.Exists(StreamerRuntimeTestMarker) || File.Exists(BetaFixtureResetMarker) || File.Exists(BetaFixtureStartMarker)))
+        {
+            DeleteMarker(FocusedR1UnloadRevisitMarker);
+            Debug.LogWarning("[YQEditorAutoRefresh] Focused R1 unload/revisit request rejected because a full verifier or fixture request is pending.");
+        }
+
+        if (File.Exists(FocusedR1PublicationMarker) && EditorApplication.isPlaying &&
+            YQTitleScreenUI.StartupFlowComplete && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            // note: Reuse the focused R1 menu entry point only after ordinary startup has released gameplay.
+            if (YQSemanticChunkRuntimeVerification.IsRunning)
+            {
+                DeleteMarker(FocusedR1PublicationMarker);
+                Debug.LogWarning("[YQEditorAutoRefresh] Focused R1 request ignored because a verifier is already running.");
+            }
+            else if (YQSemanticChunkRuntimeVerification.TryBeginFocusedR1PublicationWitnessFromCurrentPlaySession())
+            {
+                DeleteMarker(FocusedR1PublicationMarker);
+                Debug.Log("[YQEditorAutoRefresh] Focused R1 publication recovery marker dispatched.");
+            }
+        }
+
+        if (File.Exists(FocusedR1UnloadRevisitMarker) && EditorApplication.isPlaying &&
+            YQTitleScreenUI.StartupFlowComplete && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            // note: Reuse the accepted-save PlaySafe session for the current-source recovery and physical unload/revisit receipt.
+            if (YQSemanticChunkRuntimeVerification.IsRunning)
+            {
+                DeleteMarker(FocusedR1UnloadRevisitMarker);
+                Debug.LogWarning("[YQEditorAutoRefresh] Focused R1 unload/revisit request ignored because a verifier is already running.");
+            }
+            else if (YQSemanticChunkRuntimeVerification.TryBeginFocusedR1UnloadRevisitWitnessFromCurrentPlaySession())
+            {
+                DeleteMarker(FocusedR1UnloadRevisitMarker);
+                Debug.Log("[YQEditorAutoRefresh] Focused R1 unload/revisit marker dispatched.");
+            }
+        }
+
+        if (File.Exists(FocusedSpeed260Marker) && EditorApplication.isPlaying &&
+            YQTitleScreenUI.StartupFlowComplete && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            // note: Consume one explicit request only after normal startup; reuse the menu's verifier entry point and ownership.
+            if (YQSemanticChunkRuntimeVerification.IsRunning)
+            {
+                DeleteMarker(FocusedSpeed260Marker);
+                Debug.LogWarning("[YQEditorAutoRefresh] Focused speed request ignored because a verifier is already running.");
+            }
+            else if (YQSemanticChunkRuntimeVerification.TryBeginFocusedSpeed260WitnessFromCurrentPlaySession())
+            {
+                DeleteMarker(FocusedSpeed260Marker);
+                Debug.Log("[YQEditorAutoRefresh] Focused 260 speed witness marker dispatched.");
+            }
         }
 
         if (File.Exists(StreamerRuntimeTestMarker) && EditorApplication.isPlaying &&
@@ -597,6 +839,27 @@ internal static class YQEditorAutoRefreshBootstrap
             YQProductionBaselineRegression.VerifyProfileBReload();
         }
 
+    }
+
+    private static bool HasPendingVerificationRequest(string requestDirectory, string externalRequest)
+    {
+        // note: The terrain contract marker lives outside Temp. Preserve it and check current disk state each tick, with no watcher, cached result or verification-only fast path.
+        if (File.Exists(externalRequest)) return true;
+        if (!Directory.Exists(requestDirectory)) return false;
+        try
+        {
+            using (var requests = Directory.EnumerateFiles(requestDirectory, "YQ_*.request", SearchOption.TopDirectoryOnly).GetEnumerator())
+                return requests.MoveNext();
+        }
+        catch (IOException) { return true; }
+        catch (UnauthorizedAccessException) { return true; }
+        // note: A failed census falls through to the original handlers rather than suppressing a request.
+    }
+
+    private static void ProcessQueuedRefreshMeasured()
+    {
+        using (EditorRefreshUpdateMarker.Auto())
+            ProcessQueuedRefresh();
     }
 }
 #endif

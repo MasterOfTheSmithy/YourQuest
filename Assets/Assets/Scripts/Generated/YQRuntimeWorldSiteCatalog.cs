@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Profiling;
 
 [Serializable]
 public sealed class YQRuntimeWorldSiteRecord
@@ -387,7 +388,7 @@ public static class YQCompiledWorldSiteBindingService
         {
             selected = catalog.FindByKitId(settlement.runtimeSiteKitId);
 
-            if (IsSettlementCandidate(selected) &&
+            if (IsSettlementCandidate(selected) && IsSitePaletteCompatible(selected, palette, region) &&
                 (excludedKitIds == null || !excludedKitIds.Contains(selected.kitId)))
                 return true;
         }
@@ -409,13 +410,13 @@ public static class YQCompiledWorldSiteBindingService
         int bestScore = int.MinValue;
         uint bestTie = uint.MaxValue;
         bool unusedSettlementCandidateAvailable =
-            HasUnusedSettlementCandidate(plan, settlement.settlementId, excludedKitIds);
+            HasUnusedSettlementCandidate(plan, settlement.settlementId, excludedKitIds, palette, region);
 
         for (int index = 0; index < catalog.Sites.Count; index++)
         {
             YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
 
-            if (!IsSettlementCandidate(candidate) ||
+            if (!IsSettlementCandidate(candidate) || !IsSitePaletteCompatible(candidate, palette, region) ||
                 (excludedKitIds != null && excludedKitIds.Contains(candidate.kitId)))
                 continue;
 
@@ -495,7 +496,7 @@ public static class YQCompiledWorldSiteBindingService
                     encampment.layoutIntent,
                     encampment.surfacePresentation,
                     encampment.monsterFamily
-                }) && (excludedKitIds == null || !excludedKitIds.Contains(selected.kitId)))
+                }) && IsSitePaletteCompatible(selected, palette, region) && (excludedKitIds == null || !excludedKitIds.Contains(selected.kitId)))
                 return true;
         }
 
@@ -521,7 +522,7 @@ public static class YQCompiledWorldSiteBindingService
             YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
 
             // note: Transition-only interiors remain portal destinations and ordinary towns cannot silently become small hostile camps.
-            if (!IsEncampmentCandidate(candidate, intents) ||
+            if (!IsEncampmentCandidate(candidate, intents) || !IsSitePaletteCompatible(candidate, palette, region) ||
                 (excludedKitIds != null && excludedKitIds.Contains(candidate.kitId)))
                 continue;
 
@@ -669,7 +670,9 @@ public static class YQCompiledWorldSiteBindingService
     private static bool HasUnusedSettlementCandidate(
         GeneratedWorldPlanRecord plan,
         string currentLocationId,
-        ISet<string> excludedKitIds = null)
+        ISet<string> excludedKitIds = null,
+        GeneratedRegionAssetPaletteRecord palette = null,
+        GeneratedRegionRecord region = null)
     {
         if (catalog == null || catalog.Sites == null)
             return false;
@@ -677,7 +680,7 @@ public static class YQCompiledWorldSiteBindingService
         for (int index = 0; index < catalog.Sites.Count; index++)
         {
             YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
-            if (IsSettlementCandidate(candidate) &&
+            if (IsSettlementCandidate(candidate) && IsSitePaletteCompatible(candidate, palette, region) &&
                 (excludedKitIds == null || !excludedKitIds.Contains(candidate.kitId)) &&
                 !IsKitAlreadyBound(plan, candidate.kitId,
                     currentLocationId))
@@ -687,6 +690,15 @@ public static class YQCompiledWorldSiteBindingService
         }
 
         return false;
+    }
+
+    internal static bool IsSitePaletteCompatible(YQRuntimeWorldSiteRecord site, GeneratedRegionAssetPaletteRecord palette, GeneratedRegionRecord region)
+    {
+        // note: Functional site availability cannot override the accepted region's genre boundary; only the existing authored transition rule can authorize a change.
+        if (site == null) return false;
+        string style = palette != null ? palette.styleKey : region != null ? region.assetStyleKey : string.Empty;
+        string reason = region != null ? region.assetStyleRationale : palette != null ? palette.rationale : string.Empty;
+        return string.IsNullOrWhiteSpace(style) || YQWorldAssetCatalog.IsCoherentStyleTransition(style, site.semanticStyleKey, reason);
     }
 
     private static int ScoreCandidate(
@@ -826,6 +838,7 @@ public static class YQCompiledWorldSiteBindingService
 [DisallowMultipleComponent]
 public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQCompiledWorldSiteInstance.Update()");
     private static readonly Dictionary<string, YQCompiledWorldSiteInstance>
         Instances = new Dictionary<string, YQCompiledWorldSiteInstance>(
             StringComparer.OrdinalIgnoreCase);
@@ -1859,7 +1872,14 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         return selected;
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (!Application.isPlaying || Time.unscaledTime < nextDistanceCheckTime)
             return;

@@ -69,6 +69,8 @@ public class PlayerState
     public List<QuestRecord> quests = new List<QuestRecord>();
     public string activeQuestId = string.Empty;
     public List<InventoryItemRecord> inventoryItems = new List<InventoryItemRecord>();
+    // note: Zero preserves unlimited legacy backpacks; authored positive values limit shared transfers by stack slots.
+    public int inventoryCapacity;
     public List<PendingProgressionOfferRecord> pendingOffers = new List<PendingProgressionOfferRecord>();
 
     public Dictionary<string, string> equippedSkillBySlot = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1176,7 +1178,9 @@ public class PlayerState
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         string type = string.IsNullOrWhiteSpace(offer.skillType) ? (offer.isSpell ? "spell" : "combat") : offer.skillType.Trim();
-        string slot = offer.isSpell ? "spell" : "active";
+        // note: Spell circles share only the legacy save field with skills; classification and the 1-7 boundary are spell-specific.
+        bool isSpell = YQSpellCircleRules.IsSpell(offer);
+        string slot = isSpell ? "spell" : "active";
 
         SkillRecord upgradeTarget = !string.IsNullOrWhiteSpace(offer.upgradeTargetId) ? FindSkillById(offer.upgradeTargetId) : null;
         SkillRecord existingExact = FindSkillByName(offer.name);
@@ -1213,12 +1217,14 @@ public class PlayerState
         record.context = offer.context;
         record.environment = offer.environment;
         record.learnedUnix = now;
-        record.isSpell = offer.isSpell || string.Equals(type, "spell", StringComparison.OrdinalIgnoreCase);
+        record.isSpell = isSpell;
         record.rank = Mathf.Max(1, record.rank);
         if (record.acquiredUnix <= 0)
             record.acquiredUnix = now;
         if (record.tier <= 0)
             record.tier = Mathf.Max(1, offer.proposedTier);
+        if (isSpell)
+            record.tier = YQSpellCircleRules.ClampCircle(record.tier);
 
         UpsertSkill(record);
 
@@ -1227,13 +1233,15 @@ public class PlayerState
             string currentlyEquipped = equippedSkillBySlot.TryGetValue(slot, out string equippedSkillId) ? equippedSkillId : string.Empty;
             if (string.IsNullOrWhiteSpace(currentlyEquipped) || string.Equals(currentlyEquipped, upgradeTarget.skillId, StringComparison.OrdinalIgnoreCase))
                 equippedSkillBySlot[slot] = record.skillId;
-            message = "Accepted skill upgrade: " + record.name + " (T" + record.tier + ")";
+            message = (isSpell ? "Accepted spell upgrade: " : "Accepted skill upgrade: ") + record.name +
+                (isSpell ? " (Circle " + record.tier + ")" : " (T" + record.tier + ")");
         }
         else
         {
             if (!equippedSkillBySlot.ContainsKey(slot) || string.IsNullOrWhiteSpace(equippedSkillBySlot[slot]))
                 equippedSkillBySlot[slot] = record.skillId;
-            message = (record.isSpell ? "Accepted spell: " : "Accepted skill: ") + record.name;
+            message = (record.isSpell ? "Accepted spell: " : "Accepted skill: ") + record.name +
+                (isSpell ? " (Circle " + record.tier + ")" : string.Empty);
         }
 
         return true;

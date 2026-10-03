@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 
 [DefaultExecutionOrder(-900)]
 public sealed class YQGeneratedRuntimeVfx : MonoBehaviour
@@ -81,6 +82,19 @@ public sealed class YQGeneratedRuntimeVfx : MonoBehaviour
         light.range = hit ? 4.3f : 2.7f;
         light.shadows = LightShadows.None;
         UnityEngine.Object.Destroy(root, 0.85f);
+    }
+
+    public static YQSpellCircleVfx SpawnSpellCircles(Transform caster, string descriptor, int circle)
+    {
+        if (caster == null) return null;
+        // note: Reuse the existing family color/material binder; circles add no imported assets or gameplay authority.
+        Color color = ResolveColor(descriptor, new Color(0.42f, 0.72f, 1f, 1f));
+        GameObject root = new GameObject("YQ_SpellCastingCircles");
+        root.transform.SetParent(caster, false);
+        root.transform.localPosition = new Vector3(0f, 1.3f, 1.35f);
+        YQSpellCircleVfx circles = root.AddComponent<YQSpellCircleVfx>();
+        circles.Initialize(circle, color, CreateGlowMaterial(new Color(color.r, color.g, color.b, 0.85f)));
+        return circles;
     }
 
     public static bool TrySpawnSpellProjectile(Transform caster, string descriptor, int damage, GameObject source)
@@ -922,6 +936,7 @@ public sealed class YQGeneratedProjectileVfx : MonoBehaviour
 
 public sealed class YQLineRendererLifetime : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQLineRendererLifetime.Update()");
     public LineRenderer line;
     public float lifeSeconds = 0.5f;
 
@@ -942,7 +957,14 @@ public sealed class YQLineRendererLifetime : MonoBehaviour
         Destroy(gameObject, Mathf.Max(0.05f, lifeSeconds + 0.05f));
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (line == null)
             return;

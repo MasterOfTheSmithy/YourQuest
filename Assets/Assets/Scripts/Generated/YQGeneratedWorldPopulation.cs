@@ -840,7 +840,9 @@ public static class YQGeneratedWorldPopulation
             npc.GetComponent<YQGeneratedNpcWander>();
         if (wander == null)
             wander = npc.AddComponent<YQGeneratedNpcWander>();
-        wander.Configure(seed + "|" + npcRecord.npcId, 6f, 0.8f);
+        // note: New species use their supplied slow gait cadence through the existing wander owner.
+        var dotVisual = npc.GetComponent<YQDotCreatureVisual>();
+        wander.Configure(seed + "|" + npcRecord.npcId, 6f, dotVisual != null ? dotVisual.AuthoredWalkSpeed : 0.8f);
         // note: Only a configured visual, identity and dialogue binding constitute a created resident.
         return true;
     }
@@ -889,6 +891,9 @@ public static class YQGeneratedWorldPopulation
 
                 PrepareResidentPhysics(
                     instance);
+
+                // note: Imported behaviour stripping is complete; bind only the approved DOT animation observer.
+                YQDotCreatureVisual.Bind(instance, entry.assetPath);
 
                 if (usesReviewedSurface)
                 {
@@ -1002,6 +1007,10 @@ public static class YQGeneratedWorldPopulation
         string description =
             BuildNpcVisualDescription(
                 record);
+
+        // note: Accepted NPC appearance/tags may request a shipped race; this changes only its asset binding, never its canonical identity.
+        if (YQDotCreatureCatalog.TryResolve(registry, description, "race", seed, out result, out _))
+            return true;
 
         string normalized =
             NormalizeSemanticText(
@@ -2385,6 +2394,9 @@ public static class YQGeneratedWorldPopulation
                 PrepareHostilePhysics(
                     instance,
                     leader);
+
+                // note: Existing hostile physics, combat and identity remain authoritative for the new visual shell.
+                YQDotCreatureVisual.Bind(instance, entry.assetPath);
 
                 GroundCharacterToTerrain(
                     instance,

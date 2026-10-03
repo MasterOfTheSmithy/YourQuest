@@ -29,14 +29,23 @@ public sealed class YourQuestPauseMenuUI : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+        // note: Console Escape is owned by its input capture, including the release frame.
+        if (YQDeveloperConsole.CapturesInput) return;
+#endif
         Keyboard kb = Keyboard.current;
         if (kb == null)
             return;
 
         if (!_open)
         {
-            if (!RuntimeModalUiBlocker.IsAnyModalOpen && kb.escapeKey.wasPressedThisFrame)
-                SetOpen(true);
+            // note: Escape opens character/equipment pause; existing System controls remain reachable from that menu.
+            if (!RuntimeModalUiBlocker.IsAnyModalOpen && kb.escapeKey.wasPressedThisFrame && !YourQuestTutorialMenuUI.ChangedThisFrame)
+            {
+                YourQuestTutorialMenuUI menu = FindFirstObjectByType<YourQuestTutorialMenuUI>();
+                if (menu != null) menu.OpenFullMenu();
+                else SetOpen(true);
+            }
             return;
         }
 
@@ -81,6 +90,7 @@ public sealed class YourQuestPauseMenuUI : MonoBehaviour
     }
 
     private void Resume() => SetOpen(false);
+    public void OpenSettings() => SetOpen(true);
 
     private void SaveNow()
     {
@@ -142,7 +152,9 @@ public sealed class YourQuestPauseMenuUI : MonoBehaviour
             "Camera Mode  " + cameraMode + "\n" +
             "Look Sensitivity  " + sensitivity.ToString("0.00") + "\n" +
             "Active Profile  " + activeProfile + "\n\n" +
-            "Save writes player and world state into the active profile.";
+            "Save writes player and world state into the active profile.\n\n" +
+            "Haptics  " + (YQBlueglassFeedback.HapticsEnabled ? "On (supported devices)" : "Off") + "\n" +
+            "Reduced Motion  " + (YQBlueglassFeedback.ReducedMotion ? "On" : "Off");
     }
 
     private void BuildUi()
@@ -158,14 +170,14 @@ public sealed class YourQuestPauseMenuUI : MonoBehaviour
         YQUITheme.ApplyCanvasScaler(scaler);
 
         RectTransform dim = CreatePanel(canvasGo.transform, "Dim", new Vector2(0.5f, 0.5f), new Vector2(1920f, 1080f), Vector2.zero, YQUITheme.Dim);
-        RectTransform panel = CreatePanel(dim, "Panel", new Vector2(0.5f, 0.5f), new Vector2(720f, 540f), Vector2.zero, YQUITheme.PanelSolid);
+        RectTransform panel = CreatePanel(dim, "Panel", new Vector2(0.5f, 0.5f), new Vector2(720f, 600f), Vector2.zero, YQUITheme.PanelSolid);
         Outline outline = panel.gameObject.AddComponent<Outline>();
         outline.effectColor = new Color(0.68f, 0.61f, 0.42f, 0.4f);
         outline.effectDistance = new Vector2(2f, -2f);
 
         TMP_Text title = CreateText(panel, "Title", 30f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(24f, -20f), new Vector2(400f, 36f));
         title.color = YQUITheme.Gold;
-        title.text = "Paused";
+        title.text = "System";
 
         _settingsText = CreateText(panel, "SettingsText", 18f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(24f, -74f), new Vector2(380f, 260f));
         _settingsText.textWrappingMode = TextWrappingModes.Normal;
@@ -177,6 +189,9 @@ public sealed class YourQuestPauseMenuUI : MonoBehaviour
         CreateButton(panel, "SensDown", new Vector2(1f, 1f), new Vector2(-24f, -288f), new Vector2(104f, 52f), "Sens -").onClick.AddListener(() => AdjustSensitivity(-0.01f));
         CreateButton(panel, "SensUp", new Vector2(1f, 1f), new Vector2(-140f, -288f), new Vector2(104f, 52f), "Sens +").onClick.AddListener(() => AdjustSensitivity(0.01f));
         CreateButton(panel, "Quit", new Vector2(1f, 1f), new Vector2(-24f, -354f), new Vector2(220f, 52f), "Quit").onClick.AddListener(Quit);
+        // note: These preferences affect UI presentation only, outside accepted player/world documents.
+        CreateButton(panel,"Haptics",new Vector2(1,1),new Vector2(-24,-420),new Vector2(220,52),"Toggle Haptics").onClick.AddListener(()=> { YQBlueglassFeedback.HapticsEnabled=!YQBlueglassFeedback.HapticsEnabled; RenderSettings(); });
+        CreateButton(panel,"ReducedMotion",new Vector2(1,1),new Vector2(-24,-486),new Vector2(220,52),"Reduced Motion").onClick.AddListener(()=> { YQBlueglassFeedback.ReducedMotion=!YQBlueglassFeedback.ReducedMotion; RenderSettings(); });
     }
 
     private static RectTransform CreatePanel(Transform parent, string name, Vector2 anchor, Vector2 size, Vector2 anchoredPosition, Color color)

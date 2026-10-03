@@ -207,6 +207,9 @@ public static class YQRuntimeCreatureAssetIndex
         out YQRuntimeWorldAssetEntry result,
         out string resolvedCategory)
     {
+        // note: Explicit shipped DOT species bind through the existing registry; generic legacy family pools retain their previous selection order.
+        if (YQDotCreatureCatalog.TryResolve(registry, generatedFamily, "monster", variantSeed, out result, out resolvedCategory))
+            return true;
         result =
             null;
 

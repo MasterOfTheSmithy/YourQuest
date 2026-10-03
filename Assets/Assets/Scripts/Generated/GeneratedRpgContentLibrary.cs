@@ -148,6 +148,9 @@ public sealed class GeneratedRpgContentLibrary : ScriptableObject
         "Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor/Accessories/_Prefabs/Amulets/Amulet_3 A.prefab"
     };
 
+    // note: Consumable designs use their own approved visual pool; old libraries retain the legacy fallback.
+    public string[] consumablePrefabKeys = System.Array.Empty<string>();
+
     public string[] trinketPrefabKeys =
     {
         "Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor/Accessories/_Prefabs/Gems/Gem_1 1 New.prefab",

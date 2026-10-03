@@ -24,36 +24,40 @@ public sealed class GeneratedSpatialWorldPlanV2Record
     public const string SupportedSchemaVersion =
         "spatial_world_plan_v2";
 
-    // note: Topology 8 removes regression-only beta sites and radial continuation fans from ordinary player worlds, so topology 7 artifacts must be rebuilt before they can remain runtime authority.
+    // note: Topology 9 routes sustained river-following roads onto a deterministic bank and records each separate water entry so accepted trails remain materializable.
     public const string SupportedGenerationVersion =
-        "spatial_world_plan_v2_topology_8";
+        "spatial_world_plan_v2_topology_9";
 
-    // note: Topology 7 is readable only as a migration predecessor because it injected the dense stress itinerary into every generated world.
+    // note: Topology 8 is the immediately previous accepted contract; its riverside routes are rebuilt transactionally from the same canonical semantic plan.
     public const string ImmediatePreviousAcceptedGenerationVersion =
-        "spatial_world_plan_v2_topology_7";
+        "spatial_world_plan_v2_topology_8";
 
     // note: Topology 1 was produced only while V1 remained runtime authority; its older water/site rules may be replaced transactionally before a playable V2 build.
     public const string LegacyGenerationVersion =
         "spatial_world_plan_v2_topology_1";
 
-    // note: Topology 6 is the immediately previous accepted contract; migration rebuilds it with the expanded deterministic corridor fan.
+    // note: Topology 7 remains an explicit migration predecessor after this routing correction.
     public const string PreviousAcceptedGenerationVersion =
+        "spatial_world_plan_v2_topology_7";
+
+    // note: Retain topology 6 as an explicit migration predecessor so protected saves remain readable without reopening legacy fallback.
+    public const string OlderAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_6";
 
-    // note: Retain topology 5 as an explicit migration predecessor so protected saves remain readable without reopening legacy fallback.
-    public const string OlderAcceptedGenerationVersion =
+    // note: Keep topology 5 explicitly migratable because protected saves can still carry the older accepted envelope.
+    public const string LegacyAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_5";
 
-    // note: Keep topology 4 explicitly migratable because protected saves can still carry the older accepted envelope.
-    public const string LegacyAcceptedGenerationVersion =
+    // note: Keep topology 4 explicitly migratable because protected saves can still carry the earlier accepted envelope.
+    public const string EarliestAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_4";
 
-    // note: Keep topology 3 explicitly migratable because protected saves can still carry the earlier accepted envelope.
-    public const string EarliestAcceptedGenerationVersion =
+    // note: Keep topology 3 explicitly migratable because protected saves can still carry the earliest accepted envelope.
+    public const string OldestAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_3";
 
-    // note: Keep topology 2 explicitly migratable because protected saves can still carry the earliest accepted envelope.
-    public const string OldestAcceptedGenerationVersion =
+    // note: Keep topology 2 explicitly migratable as accepted saves can still carry the pre-continuation-envelope contract.
+    public const string AncientAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_2";
 
     public const string SupportedValidationVersion =
@@ -147,6 +151,10 @@ public static class YQSpatialPlanVersionRouter
                 string.Equals(
                     candidate.generationVersion,
                     GeneratedSpatialWorldPlanV2Record.OldestAcceptedGenerationVersion,
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    candidate.generationVersion,
+                    GeneratedSpatialWorldPlanV2Record.AncientAcceptedGenerationVersion,
                     StringComparison.Ordinal)) &&
                (string.Equals(
                     candidate.validationVersion,

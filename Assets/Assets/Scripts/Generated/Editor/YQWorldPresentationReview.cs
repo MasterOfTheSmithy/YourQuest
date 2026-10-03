@@ -22,8 +22,9 @@ public static class YQWorldPresentationReview
         // note: A bounded explicit capture uses Unity's real CPU samples, with no input, scheduler, save, or player-state changes.
         if (!Application.isPlaying || !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || Time.timeScale <= 0f || _cpuCaptureActive)
             return;
+        YQSemanticChunkRuntimeVerification.PrimeProfilerMarkerForCpuCapture();
         // note: Direct recorders do not require an attached Profiler window or a selected recording target; discover the actual available metrics before subscribing.
-        var wanted = new HashSet<string>(new[] { "Main Thread", "Render Thread", "PlayerLoop", "EditorLoop", "GC.Alloc", "GC.Collect", "BehaviourUpdate", "CoroutinesDelayedCalls", "Camera.Render", "RenderLoop.Draw", "Gfx.WaitForPresentOnGfxThread", "WaitForTargetFPS", "Update.ScriptRunBehaviourUpdate", "Update.ScriptRunDelayedTasks", "PreLateUpdate.ScriptRunBehaviourLateUpdate", "PostLateUpdate.FinishFrameRendering" }, StringComparer.Ordinal);
+        var wanted = new HashSet<string>(new[] { "Main Thread", "Render Thread", "PlayerLoop", "EditorLoop", "GC.Alloc", "GC.Collect", "BehaviourUpdate", "CoroutinesDelayedCalls", "Camera.Render", "RenderLoop.Draw", "Gfx.WaitForPresentOnGfxThread", "WaitForTargetFPS", "Update.ScriptRunBehaviourUpdate", "Update.ScriptRunDelayedTasks", "PreLateUpdate.ScriptRunBehaviourLateUpdate", "PostLateUpdate.FinishFrameRendering", "YQPlayerFollowingSemanticChunkStreamer.Update", "YQPlayerFollowingSemanticChunkStreamer.LateUpdate", "YQPlayerFollowingSemanticChunkStreamer.TerrainAppearanceSlice", "YQInvestorPlayerMotor.Update", "YQSemanticChunkRuntimeVerification.LateUpdate" }, StringComparer.Ordinal);
         var handles = new List<Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle>();
         Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle.GetAvailable(handles);
         CpuRecorders.Clear();
@@ -110,6 +111,76 @@ public static class YQWorldPresentationReview
         Directory.CreateDirectory("Docs");
         File.WriteAllText(capturePath, report.ToString());
         Debug.Log("[YQStreamingCpu] Capture receipt: " + capturePath);
+    }
+
+    [UnityEditor.MenuItem("YourQuest/Verification/Capture Live Landscape Repair Review")]
+    public static void CaptureLandscapeRepairReview()
+    {
+        Camera source = Camera.main;
+        if (!Application.isPlaying || !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || source == null) return;
+        string prefix = "Landscape_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff");
+        Directory.CreateDirectory("Logs/PresentationReview");
+        var report = new StringBuilder("# Live landscape repair review\n\nUTC: " + DateTime.UtcNow.ToString("O") + "\n");
+        report.AppendLine("runtimeMvid=" + typeof(YQContinuousWorldFeatureAuthority).Assembly.ManifestModule.ModuleVersionId);
+        report.AppendLine("Evidence: auxiliary views of the current live world; player and accepted records untouched. This is not a throughput test.");
+        var filters = UnityEngine.Object.FindObjectsByType<MeshFilter>(FindObjectsSortMode.None);
+        var selected = new Dictionary<string, MeshFilter>();
+        foreach (MeshFilter filter in filters)
+        {
+            bool river = filter.name.StartsWith("ContinuousRiver_", StringComparison.Ordinal);
+            bool road = filter.name.StartsWith("ContinuousRoad_", StringComparison.Ordinal);
+            if ((!river && !road) || filter.sharedMesh == null || !filter.TryGetComponent<Renderer>(out var renderer) || !renderer.enabled) continue;
+            Vector3 center = renderer.bounds.center;
+            bool outside = Mathf.Abs(center.x) > 520f || Mathf.Abs(center.z) > 520f;
+            string key = (outside ? "continuation_" : "origin_") + (river ? "river" : "path");
+            if (!selected.TryGetValue(key, out var previous) ||
+                (center - source.transform.position).sqrMagnitude < (previous.GetComponent<Renderer>().bounds.center - source.transform.position).sqrMagnitude)
+                selected[key] = filter;
+        }
+        GameObject host = new GameObject("LandscapeReviewCamera") { hideFlags = HideFlags.HideAndDontSave };
+        Camera camera = host.AddComponent<Camera>();
+        camera.CopyFrom(source);
+        camera.enabled = false;
+        camera.cullingMask &= ~(1 << 5);
+        camera.GetUniversalAdditionalCameraData().requiresDepthTexture = true;
+        var streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        try
+        {
+            Render(camera, source.transform.position, source.transform.position + source.transform.forward * 20f, prefix + "_player");
+            foreach (var selection in selected)
+            {
+                MeshFilter filter = selection.Value;
+                Vector3 target = filter.GetComponent<Renderer>().bounds.center;
+                Vector3 eye = target + new Vector3(18f, 18f, -24f);
+                Terrain eyeTerrain = ResolveReviewTerrain(eye, streamer);
+                if (eyeTerrain != null) eye.y = Mathf.Max(eye.y, YQGeneratedWorldTerrain.SampleWorldHeight(eyeTerrain, eye) + 8f);
+                Render(camera, eye, target, prefix + "_" + selection.Key);
+                int samples = 0, missing = 0, buried = 0, floating = 0;
+                float minimum = float.PositiveInfinity, maximum = float.NegativeInfinity;
+                foreach (Vector3 vertex in filter.sharedMesh.vertices)
+                {
+                    Vector3 point = filter.transform.TransformPoint(vertex);
+                    Terrain terrain = ResolveReviewTerrain(point, streamer);
+                    if (terrain == null) { missing++; continue; }
+                    float separation = point.y - YQGeneratedWorldTerrain.SampleWorldHeight(terrain, point);
+                    samples++;
+                    minimum = Mathf.Min(minimum, separation);
+                    maximum = Mathf.Max(maximum, separation);
+                    if (separation < -0.02f) buried++;
+                    if (selection.Key.EndsWith("path", StringComparison.Ordinal) && separation > 0.2f) floating++;
+                }
+                report.AppendLine(selection.Key + " object=" + filter.name + " target=" + target + " samples=" + samples +
+                    " missingTerrain=" + missing + " buried=" + buried + " floating=" + floating +
+                    " minSeparation=" + minimum + " maxSeparation=" + maximum);
+                AppendMaterialEvidence(filter.GetComponent<Renderer>(), report);
+            }
+            foreach (string key in new[] { "origin_river", "origin_path", "continuation_river", "continuation_path" })
+                if (!selected.ContainsKey(key)) report.AppendLine(key + " NOT VERIFIED: no currently loaded surface");
+            Render(camera, source.transform.position + new Vector3(-65f, 85f, -65f), source.transform.position + source.transform.forward * 70f, prefix + "_landscape");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+        File.WriteAllText("outputs/World_Readiness_20261002/" + prefix + ".md", report.ToString());
+        Debug.Log("[YQWorldPresentationReview] Landscape capture " + prefix);
     }
 
     [UnityEditor.MenuItem("YourQuest/Verification/Capture Live Streamed Water Appearance")]
@@ -578,8 +649,6 @@ public static class YQWorldPresentationReview
         report.AppendLine("Trees=" + terrain.terrainData.treeInstanceCount + ", detailLayers=" + terrain.terrainData.detailPrototypes.Length);
         foreach (var detail in terrain.terrainData.detailPrototypes)
             report.AppendLine("Detail=" + (detail.prototypeTexture != null ? detail.prototypeTexture.name : "mesh"));
-        // note: Count generated fish in the live scene so a presentation review can verify the water dressing pass without relying on a close camera angle.
-        report.AppendLine("GeneratedFish=" + UnityEngine.Object.FindObjectsByType<YQGeneratedFish>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length);
         AppendWorldDressingMetrics(root, terrain, source, report);
         var host = new GameObject("YQ_EditorReviewCamera") { hideFlags = HideFlags.HideAndDontSave };
         var camera = host.AddComponent<Camera>();

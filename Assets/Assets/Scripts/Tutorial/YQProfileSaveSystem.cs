@@ -20,6 +20,26 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
         public string activeCommitId = string.Empty;
         public int activeRevision;
         public List<YQProfileCommitRecord> commits = new List<YQProfileCommitRecord>();
+
+        public ProfileManifest PrepareCommit(YQProfileTransactionReceipt receipt)
+        {
+            // note: Stage a detached pointer candidate; a failed publication must leave the accepted in-memory revision authoritative.
+            ProfileManifest next = JsonConvert.DeserializeObject<ProfileManifest>(JsonConvert.SerializeObject(this));
+            ProfileEntry owner = next.profiles.Find(profile => profile != null &&
+                string.Equals(profile.profileId, receipt.profileId, StringComparison.OrdinalIgnoreCase));
+            if (owner == null) throw new InvalidOperationException("Commit has no owning profile.");
+            next.commits.RemoveAll(commit => commit != null && string.Equals(commit.commitId, receipt.commitId, StringComparison.OrdinalIgnoreCase));
+            next.commits.Add(new YQProfileCommitRecord
+            {
+                profileId = receipt.profileId, commitId = receipt.commitId, revision = receipt.revision,
+                previousCommitId = receipt.previousCommitId, playerChecksum = receipt.playerChecksum,
+                worldChecksum = receipt.worldChecksum, status = "complete", committedUnix = receipt.committedUnix,
+                auxiliaryDocuments = new List<YQProfileAuxiliaryDocumentRecord>(receipt.auxiliaryDocuments)
+            });
+            owner.updatedUnix = receipt.committedUnix;
+            next.activeProfileId = receipt.profileId; next.activeCommitId = receipt.commitId; next.activeRevision = receipt.revision;
+            return next;
+        }
     }
 
     [Serializable]
@@ -106,6 +126,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
     public string CreateNewProfile(string displayName, string pronouns, string bodyFrame, string lifeDirection, string vow, string appearanceSummary)
     {
+        // note: Profile creation writes standalone documents before its ordinary load/commit path.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { LastFailure = YQDeveloperConsoleGate.SaveBlocked; return null; }
         if (_manifestUnsupported)
         {
             LastFailure = "Unsupported future profile manifest; creation is disabled until a compatible build can migrate it.";
@@ -271,6 +293,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
     public bool SaveProfile(string profileId)
     {
+        // note: Automatic, menu and quit commits cannot publish the developer's temporary test state.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { LastFailure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         if (_manifestUnsupported)
             return FailTransaction(profileId, "Unsupported future profile manifest; save refused.");
         ProfileEntry entry = FindProfile(profileId);
@@ -319,25 +343,10 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
         LastTransactionReceipt = receipt;
         receipt.previousCommitId = previous != null ? previous.commitId : string.Empty;
-        _manifest.commits.RemoveAll(commit => commit != null && string.Equals(commit.commitId, receipt.commitId, StringComparison.OrdinalIgnoreCase));
-        _manifest.commits.Add(new YQProfileCommitRecord
-        {
-            profileId = profileId,
-            commitId = receipt.commitId,
-            revision = receipt.revision,
-            previousCommitId = receipt.previousCommitId,
-            playerChecksum = receipt.playerChecksum,
-            worldChecksum = receipt.worldChecksum,
-            status = "complete",
-            committedUnix = receipt.committedUnix,
-            auxiliaryDocuments = new List<YQProfileAuxiliaryDocumentRecord>(receipt.auxiliaryDocuments)
-        });
-        entry.updatedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        _manifest.activeProfileId = profileId;
-        _manifest.activeCommitId = receipt.commitId;
-        _manifest.activeRevision = receipt.revision;
-        if (!SaveManifest())
+        ProfileManifest candidate = _manifest.PrepareCommit(receipt);
+        if (!SaveManifest(candidate))
             return FailTransaction(profileId, "Commit pointer publication failed: " + LastFailure);
+        _manifest = candidate;
         LastFailure = string.Empty;
         receipt.published = true;
         SuccessfulSaveCount++;
@@ -349,6 +358,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
     // note: This dev-only fixture creates one fixed accepted-origin profile so beta reset and reload procedures are reproducible.
     public bool EnsureCanonicalDevelopmentProfile(bool resetExisting)
     {
+        // note: Fixture reset also writes profile projections and must respect an active rollback session.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { LastFailure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         ProfileEntry existing = FindProfile(YQBetaDevelopmentFixture.CanonicalProfileId);
         if (resetExisting && existing != null)
         {
@@ -442,6 +453,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
     public bool LoadProfile(string profileId)
     {
+        // note: Refuse owner replacement until the test session has been deliberately resolved.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { LastFailure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         ProfileEntry entry = FindProfile(profileId);
         if (entry == null)
             return false;
@@ -463,6 +476,12 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             return false;
         }
 
+        // note: Drain the old player's automatic projection writer before replacing either profile document.
+        if (!TryPreparePlayerForProfileTransition(PlayerStateManager.Instance, out failure))
+        {
+            Debug.LogError("[YQProfileSaveSystem] PROFILE LOAD REJECTED: pending player autosave: " + failure);
+            return false;
+        }
         File.Copy(playerSrc, ActivePlayerPath, true);
         File.Copy(worldSrc, ActiveWorldPath, true);
         // note: Recovery files are profile-owned state. Leaving the previous profile's shared backup in place could silently load the wrong character/world when this profile's primary file is damaged.
@@ -646,6 +665,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
     public bool DeleteProfile(string profileId)
     {
+        // note: Never invalidate the profile backing a live development snapshot.
+        if (YQDeveloperConsoleGate.BlocksPersistence) { LastFailure = YQDeveloperConsoleGate.SaveBlocked; return false; }
         ProfileEntry entry = FindProfile(profileId);
         if (entry == null)
             return false;
@@ -735,13 +756,13 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             _manifest.profiles = new List<ProfileEntry>();
     }
 
-    private bool SaveManifest()
+    private bool SaveManifest(ProfileManifest candidate = null)
     {
         try
         {
             Directory.CreateDirectory(RootDir);
             string temporaryPath = ManifestPath + ".tmp";
-            File.WriteAllText(temporaryPath, JsonUtility.ToJson(_manifest, true));
+            File.WriteAllText(temporaryPath, JsonUtility.ToJson(candidate ?? _manifest, true));
             if (File.Exists(ManifestPath))
                 File.Replace(temporaryPath, ManifestPath, ManifestPath + BackupSuffix, true);
             else
@@ -828,6 +849,13 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
     private string GetProfileFolder(string profileId)
     {
         return Path.Combine(RootDir, profileId);
+    }
+
+    internal static bool TryPreparePlayerForProfileTransition(PlayerStateManager player, out string failure)
+    {
+        // note: Share the exact replacement barrier with detached regression fixtures without changing singleton/profile ownership.
+        failure = string.Empty;
+        return player == null || player.TryFlushPendingAutosave(out failure);
     }
 
     private static void CopyOrRemoveProfileBackup(

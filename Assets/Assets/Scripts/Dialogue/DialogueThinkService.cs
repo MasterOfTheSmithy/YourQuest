@@ -96,6 +96,12 @@ public sealed class DialogueThinkService : MonoBehaviour
         }
 
         string trimmedMessage = playerMessage.Trim();
+        // note: Keep the existing dialogue path until its semantic reviewer qualifies; an unavailable qualified reviewer fails closed below.
+        if (LLMClient.Instance.DialogueSemanticRepairEnabled)
+        {
+            RequestBoundedReply(agent, trimmedMessage, onNpcText, stillCurrent);
+            return;
+        }
         string prompt = BuildPrompt(agent, trimmedMessage);
         if (logPrompt)
             Debug.Log("[DialogueThinkService] PROMPT\n" + prompt);
@@ -171,6 +177,119 @@ public sealed class DialogueThinkService : MonoBehaviour
         }
 
         onNpcText?.Invoke(null);
+    }
+
+    private void RequestBoundedReply(NpcDialogueAgent agent, string message, Action<string> onNpcText, Func<bool> stillCurrent)
+    {
+        // note: Both generation and repair use this same frozen NPC/turn evidence; rationale prose is not promoted to fact.
+        string snapshot = situationSnapshotBuilder != null ? situationSnapshotBuilder.BuildSnapshot() : "{}";
+        YQInvestorDirector director = FindFirstObjectByType<YQInvestorDirector>();
+        string evidence = YQDialogueGrounding.Capture(agent.BuildPersonaBlock(), snapshot,
+            director != null ? director.CurrentObjective : string.Empty, agent.RenderRecentDialogue(12).Trim());
+        string prompt = YQDialogueGrounding.BuildGeneratePrompt(evidence, message);
+        YQLlmRequest binding = new YQLlmRequest { debugTag = "Dialogue:" + agent.NpcId, ownerId = "Dialogue:" + agent.NpcId };
+        YQRepairEpisode episode = LLMClient.Instance.CreateRepairEpisode(binding,
+            "dialogue:" + agent.NpcId + ":" + YQRepairEpisode.Hash(evidence + message), 30d);
+        SubmitBoundedReply(agent, message, evidence, prompt, prompt, episode, onNpcText, stillCurrent, null, 0);
+    }
+
+    private void SubmitBoundedReply(NpcDialogueAgent agent, string message, string evidence, string originalPrompt,
+        string prompt, YQRepairEpisode episode, Action<string> onNpcText, Func<bool> stillCurrent, string parentKey, int repairs)
+    {
+        // note: The bounded voice request keeps repeated JSON syntax unpenalized and follows its closed envelope.
+        Dictionary<string, object> boundedOptions = BuildOptions(repairs > 0);
+        boundedOptions["presence_penalty"] = 0f;
+        YQLlmRequest request = new YQLlmRequest {
+            prompt = prompt, debugTag = "DialogueRepair:" + agent.NpcId, category = LLMGenerationCategory.Dialogue,
+            priority = YQLlmRequestPriority.PlayerFacing, requireJson = true, deferJsonValidationToCaller = true,
+            jsonSchema = YQDialogueGrounding.ReplySchema(maxReplyCharacters),
+            maxRetries = 0, parentRequestKey = parentKey, optionsOverride = boundedOptions
+        };
+        request.ownerStillCurrent = () => this != null && isActiveAndEnabled && agent != null && agent.isActiveAndEnabled &&
+            (stillCurrent == null || stillCurrent());
+        episode.Bind(request);
+        LLMClient.Instance.Submit(request, result =>
+        {
+            if (this == null || agent == null || !agent.isActiveAndEnabled || episode.IsTerminal ||
+                (stillCurrent != null && !stillCurrent())) { episode.Finish("Superseded"); return; }
+            if (result.outcome == YQLlmTerminalOutcome.Cancelled || result.outcome == YQLlmTerminalOutcome.Superseded || result.outcome == YQLlmTerminalOutcome.Evicted)
+            {
+                // note: Preserve the existing current-turn cancellation callback, while stale owners receive no text.
+                if (episode.Finish("Superseded")) onNpcText?.Invoke(null);
+                return;
+            }
+            string raw = result.success ? result.text : null;
+            string diagnostic = result.error;
+            if (!YQDialogueGrounding.TryValidateEnvelope(raw, out string envelopeError) ||
+                !TryFinalizeReply(agent, message, raw, out string final))
+            {
+                diagnostic = result.success ? (string.IsNullOrEmpty(envelopeError) ? "Reply failed existing voice/repetition guards." : envelopeError) : diagnostic;
+                RepairOrFinishDialogue(agent, message, evidence, originalPrompt, raw, diagnostic, episode,
+                    onNpcText, stillCurrent, result.repairRequestKey, repairs);
+                return;
+            }
+            string digest = LLMClient.Instance.QualifiedDialogueVerifierDigest;
+            if (string.IsNullOrWhiteSpace(digest) || string.IsNullOrWhiteSpace(result.repairRequestKey))
+            {
+                FinishGroundedFallback(episode, onNpcText, "VerifierUnavailable");
+                return;
+            }
+            YQLlmRequest review = new YQLlmRequest {
+                prompt = YQDialogueGrounding.BuildReviewPrompt(evidence, message, final),
+                debugTag = "DialogueVerification:" + agent.NpcId, category = LLMGenerationCategory.DialogueVerification,
+                priority = YQLlmRequestPriority.PlayerFacing, requireJson = true, maxRetries = 0,
+                jsonSchema = YQDialogueGrounding.ReviewSchema(),
+                parentRequestKey = result.repairRequestKey, requiredOllamaModelDigest = digest,
+                ownerStillCurrent = request.ownerStillCurrent,
+                optionsOverride = new Dictionary<string, object> { { "num_predict", 240 }, { "request_timeout_seconds", 12 }, { "presence_penalty", 0f } }
+            };
+            episode.Bind(review, true);
+            LLMClient.Instance.Submit(review, reviewed =>
+            {
+                if (this == null || agent == null || !agent.isActiveAndEnabled || episode.IsTerminal ||
+                    (stillCurrent != null && !stillCurrent())) { episode.Finish("Superseded"); return; }
+                if (reviewed.outcome == YQLlmTerminalOutcome.Cancelled || reviewed.outcome == YQLlmTerminalOutcome.Superseded || reviewed.outcome == YQLlmTerminalOutcome.Evicted)
+                {
+                    if (episode.Finish("Superseded")) onNpcText?.Invoke(null);
+                    return;
+                }
+                if (!reviewed.success || !YQDialogueGrounding.TryReadReview(reviewed.text, out bool accepted, out string rejection))
+                {
+                    FinishGroundedFallback(episode, onNpcText, "VerifierUnavailable");
+                    return;
+                }
+                if (accepted)
+                {
+                    // note: The NPC owner receives only this final current reply, never rejected candidates or critique.
+                    if (episode.Finish(repairs == 0 ? "OriginalAccepted" : "RepairedAccepted")) onNpcText?.Invoke(final);
+                    return;
+                }
+                RepairOrFinishDialogue(agent, message, evidence, originalPrompt, raw, rejection, episode,
+                    onNpcText, stillCurrent, reviewed.repairRequestKey, repairs);
+            });
+        });
+    }
+
+    private void RepairOrFinishDialogue(NpcDialogueAgent agent, string message, string evidence, string originalPrompt,
+        string raw, string diagnostic, YQRepairEpisode episode, Action<string> onNpcText, Func<bool> stillCurrent,
+        string parentKey, int repairs)
+    {
+        if (episode.CanSubmit(false) && repairs < Mathf.Min(2, Mathf.Clamp(malformedReplyRepairAttempts, 0, 3)) &&
+            !(diagnostic ?? string.Empty).StartsWith("ContextOverflow", StringComparison.Ordinal))
+        {
+            SubmitBoundedReply(agent, message, evidence, originalPrompt,
+                YQRepairEpisode.RepairPrompt(originalPrompt, diagnostic, raw), episode, onNpcText, stillCurrent, parentKey, repairs + 1);
+            return;
+        }
+        FinishGroundedFallback(episode, onNpcText, "FallbackUsed");
+    }
+
+    private static void FinishGroundedFallback(YQRepairEpisode episode, Action<string> onNpcText, string disposition)
+    {
+        // note: Unverified facts never become NPC memory; this identifiable uncertainty fallback asserts no unseen result.
+        if (!episode.Finish(disposition)) return;
+        Debug.Log("[DialogueThinkService] " + disposition + " episode=" + episode.key);
+        onNpcText?.Invoke(YQDialogueGrounding.UnknownReply);
     }
 
     private Dictionary<string, object> BuildOptions(bool repair)

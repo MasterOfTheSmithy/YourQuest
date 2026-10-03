@@ -1497,6 +1497,220 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     end,
                     0.39f,
                     route.width));
+
+            // note: A site-to-site route that follows a river must leave its channel before crossing generation; retain its endpoints and use a deterministic dry-bank corridor.
+            RouteAlongBankWhenFollowingWater(route);
+        }
+
+        private void RouteAlongBankWhenFollowingWater(YQRouteCorridorV2 route)
+        {
+            if (route == null || route.controlPoints == null ||
+                route.controlPoints.Count < 2 || context?.blueprint?.hydrology == null)
+                return;
+
+            YQHydrologyFeatureV2 selectedWater = null;
+            float selectedScore = float.NegativeInfinity;
+            for (int waterIndex = 0; waterIndex < context.blueprint.hydrology.Count; waterIndex++)
+            {
+                YQHydrologyFeatureV2 water = context.blueprint.hydrology[waterIndex];
+                if (water == null || water.kind != YQHydrologyKindV2.River ||
+                    water.controlPoints == null || water.controlPoints.Count < 2)
+                    continue;
+
+                MeasureRouteWaterOverlap(route, water, out float routeLength,
+                    out float overlapLength, out float longestOverlap);
+                bool startAligned = EndpointFollowsWater(route, water, true);
+                bool endAligned = EndpointFollowsWater(route, water, false);
+                bool sustainedOverlap = longestOverlap >= 64f && routeLength > 0.01f &&
+                    overlapLength >= Mathf.Max(96f, routeLength * 0.25f);
+                if (!sustainedOverlap && !startAligned && !endAligned)
+                    continue;
+
+                float score = (routeLength > 0.01f ? overlapLength / routeLength : 0f) +
+                    (startAligned ? 0.5f : 0f) + (endAligned ? 0.5f : 0f);
+                if (score > selectedScore ||
+                    (Mathf.Approximately(score, selectedScore) && selectedWater != null &&
+                     string.CompareOrdinal(water.hydrologyId, selectedWater.hydrologyId) < 0))
+                {
+                    selectedWater = water;
+                    selectedScore = score;
+                }
+            }
+
+            if (selectedWater != null)
+                BuildDeterministicBankRoute(route, selectedWater);
+        }
+
+        private static void MeasureRouteWaterOverlap(
+            YQRouteCorridorV2 route,
+            YQHydrologyFeatureV2 water,
+            out float routeLength,
+            out float overlapLength,
+            out float longestOverlap)
+        {
+            routeLength = 0f;
+            overlapLength = 0f;
+            longestOverlap = 0f;
+            float currentOverlap = 0f;
+            const float sampleSpacing = 8f;
+            for (int segment = 1; segment < route.controlPoints.Count; segment++)
+            {
+                YQBlueprintPointV2 first = route.controlPoints[segment - 1];
+                YQBlueprintPointV2 last = route.controlPoints[segment];
+                Vector2 a = new Vector2(first.x, first.z);
+                Vector2 b = new Vector2(last.x, last.z);
+                float length = Vector2.Distance(a, b);
+                if (length < 0.001f)
+                    continue;
+
+                routeLength += length;
+                int steps = Mathf.Max(1, Mathf.CeilToInt(length / sampleSpacing));
+                float sampledLength = length / steps;
+                for (int step = 0; step < steps; step++)
+                {
+                    Vector2 point = Vector2.Lerp(a, b, (step + 0.5f) / steps);
+                    if (TryGetNearestWaterFrame(point, water.controlPoints,
+                            out _, out _, out float localWidth, out float distance))
+                    {
+                        float corridor = Mathf.Max(water.nominalWidth, localWidth) * 0.5f +
+                            route.width * 0.5f + route.shoulderWidth + 8f;
+                        if (distance <= corridor)
+                        {
+                            overlapLength += sampledLength;
+                            currentOverlap += sampledLength;
+                            longestOverlap = Mathf.Max(longestOverlap, currentOverlap);
+                            continue;
+                        }
+                    }
+
+                    currentOverlap = 0f;
+                }
+            }
+
+            longestOverlap = Mathf.Max(longestOverlap, currentOverlap);
+        }
+
+        private static bool EndpointFollowsWater(
+            YQRouteCorridorV2 route,
+            YQHydrologyFeatureV2 water,
+            bool atStart)
+        {
+            int lastIndex = route.controlPoints.Count - 1;
+            int endpointIndex = atStart ? 0 : lastIndex;
+            int neighborIndex = atStart ? 1 : lastIndex - 1;
+            YQBlueprintPointV2 endpointRecord = route.controlPoints[endpointIndex];
+            YQBlueprintPointV2 neighborRecord = route.controlPoints[neighborIndex];
+            Vector2 endpoint = new Vector2(endpointRecord.x, endpointRecord.z);
+            Vector2 routeTangent = new Vector2(
+                neighborRecord.x - endpointRecord.x,
+                neighborRecord.z - endpointRecord.z);
+            if (routeTangent.sqrMagnitude < 0.0001f ||
+                !TryGetNearestWaterFrame(endpoint, water.controlPoints,
+                    out _, out Vector2 waterTangent, out float localWidth, out float distance))
+                return false;
+
+            float endpointRange = Mathf.Max(24f,
+                Mathf.Max(water.nominalWidth, localWidth) + route.width +
+                route.shoulderWidth + 8f);
+            return distance <= endpointRange &&
+                   Mathf.Abs(Vector2.Dot(routeTangent.normalized, waterTangent)) >= 0.82f;
+        }
+
+        private void BuildDeterministicBankRoute(
+            YQRouteCorridorV2 route,
+            YQHydrologyFeatureV2 water)
+        {
+            List<YQBlueprintPointV2> source = new List<YQBlueprintPointV2>(route.controlPoints);
+            YQBlueprintPointV2 first = source[0];
+            YQBlueprintPointV2 last = source[source.Count - 1];
+            Vector2 routeDirection = new Vector2(last.x - first.x, last.z - first.z).normalized;
+            if (routeDirection.sqrMagnitude < 0.0001f)
+                return;
+
+            float widestBank = Mathf.Max(0f, water.nominalWidth);
+            for (int index = 0; index < water.controlPoints.Count; index++)
+                widestBank = Mathf.Max(widestBank, water.controlPoints[index].width);
+            float bankOffset = Mathf.Max(32f,
+                widestBank * 0.5f + route.width * 0.5f + route.shoulderWidth + 14f);
+            float side = YQSpatialBlueprintDeterminismV2.Hash01(
+                context.seed + "|route_water_bank|" + route.routeId + "|" + water.hydrologyId) < 0.5f
+                ? -1f
+                : 1f;
+            float turnLead = Mathf.Min(48f, bankOffset * 0.65f);
+            List<YQBlueprintPointV2> bankRoute = new List<YQBlueprintPointV2>(source.Count + 2);
+            bankRoute.Add(first);
+            AddBankApproachPoint(bankRoute, first, water, side, bankOffset,
+                routeDirection * turnLead, route.width);
+
+            for (int index = 1; index < source.Count - 1; index++)
+            {
+                YQBlueprintPointV2 original = source[index];
+                Vector2 point = new Vector2(original.x, original.z);
+                if (TryGetNearestWaterFrame(point, water.controlPoints,
+                        out Vector2 nearest, out Vector2 tangent, out _, out float distance) &&
+                    distance <= bankOffset * 2f)
+                {
+                    Vector2 normal = new Vector2(-tangent.y, tangent.x);
+                    Vector2 bank = nearest + normal * (side * bankOffset);
+                    AddBankRoutePoint(bankRoute, bank, original.normalizedElevation, route.width);
+                }
+                else
+                {
+                    AddBankRoutePoint(bankRoute, point, original.normalizedElevation, route.width);
+                }
+            }
+
+            AddBankApproachPoint(bankRoute, last, water, side, bankOffset,
+                -routeDirection * turnLead, route.width);
+            bankRoute.Add(last);
+            if (bankRoute.Count >= 4)
+            {
+                // note: Keep the accepted site endpoints exact while committing only the derived bank corridor between them.
+                route.controlPoints.Clear();
+                route.controlPoints.AddRange(bankRoute);
+            }
+        }
+
+        private void AddBankApproachPoint(
+            List<YQBlueprintPointV2> points,
+            YQBlueprintPointV2 anchor,
+            YQHydrologyFeatureV2 water,
+            float side,
+            float bankOffset,
+            Vector2 alongRoute,
+            float width)
+        {
+            Vector2 anchorPosition = new Vector2(anchor.x, anchor.z);
+            if (!TryGetNearestWaterFrame(anchorPosition, water.controlPoints,
+                    out Vector2 nearest, out Vector2 tangent, out _, out float distance) ||
+                distance > Mathf.Max(96f, bankOffset * 2f))
+                return;
+
+            Vector2 normal = new Vector2(-tangent.y, tangent.x);
+            Vector2 position = nearest + normal * (side * bankOffset) + alongRoute;
+            AddBankRoutePoint(points, context.Clamp(position), anchor.normalizedElevation, width);
+        }
+
+        private void AddBankRoutePoint(
+            List<YQBlueprintPointV2> points,
+            Vector2 position,
+            float elevation,
+            float width)
+        {
+            Vector2 clamped = context.Clamp(position);
+            if (points.Count > 0)
+            {
+                YQBlueprintPointV2 previous = points[points.Count - 1];
+                Vector2 previousPosition = new Vector2(previous.x, previous.z);
+                if ((clamped - previousPosition).sqrMagnitude < 25f)
+                    return;
+            }
+            points.Add(YQSpatialBlueprintDeterminismV2.Point(clamped, elevation, width));
+        }
+
+        private struct WaterCrossingCandidate
+        {
+            public Vector2 position;
         }
 
         private void AddWaterCrossings(YQRouteCorridorV2 route)
@@ -1510,40 +1724,164 @@ internal static class YQSpatialSiteNetworkCompilerV2
                 if (water.kind != YQHydrologyKindV2.River)
                     continue;
 
-                if (!TryFindIntersection(
-                        route.controlPoints,
-                        water.controlPoints,
-                        out float x,
-                        out float z))
+                List<WaterCrossingCandidate> candidates =
+                    FindWaterCrossingCandidates(route, water);
+                if (candidates.Count == 0)
                 {
                     continue;
                 }
 
-                YQRouteCrossingV2 crossing = new YQRouteCrossingV2
+                string baseCrossingId = "crossing:" + route.routeId + ":" + water.hydrologyId;
+                for (int crossingIndex = 0; crossingIndex < candidates.Count; crossingIndex++)
                 {
-                    crossingId = "crossing:" + route.routeId + ":" +
-                                 water.hydrologyId,
-                    hydrologyId = water.hydrologyId,
-                    kind = route.routeClass == YQRouteClassV2.PrimaryRoad ||
-                           water.nominalWidth > 7f
-                        ? YQRouteCrossingKindV2.Bridge
-                        : YQRouteCrossingKindV2.Ford,
-                    x = x,
-                    z = z,
-                    requiredSpan = water.nominalWidth +
-                                   route.shoulderWidth * 2f
-                };
-                route.crossings.Add(crossing);
-                context.AddRelationship(
-                    "relationship:crossing:" + route.routeId + ":" +
-                    water.hydrologyId,
-                    route.routeId,
-                    water.hydrologyId,
-                    YQSpatialRelationshipKindV2.Crosses,
-                    0f,
-                    crossing.requiredSpan,
-                    crossing.kind.ToString().ToLowerInvariant());
+                    WaterCrossingCandidate candidate = candidates[crossingIndex];
+                    string suffix = candidates.Count == 1
+                        ? string.Empty
+                        : ":span:" + crossingIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    YQRouteCrossingV2 crossing = new YQRouteCrossingV2
+                    {
+                        crossingId = baseCrossingId + suffix,
+                        hydrologyId = water.hydrologyId,
+                        kind = route.routeClass == YQRouteClassV2.PrimaryRoad ||
+                               water.nominalWidth > 7f
+                            ? YQRouteCrossingKindV2.Bridge
+                            : YQRouteCrossingKindV2.Ford,
+                        x = candidate.position.x,
+                        z = candidate.position.y,
+                        requiredSpan = water.nominalWidth + route.shoulderWidth * 2f
+                    };
+                    route.crossings.Add(crossing);
+                    context.AddRelationship(
+                        "relationship:crossing:" + route.routeId + ":" + water.hydrologyId + suffix,
+                        route.routeId,
+                        water.hydrologyId,
+                        YQSpatialRelationshipKindV2.Crosses,
+                        0f,
+                        crossing.requiredSpan,
+                        crossing.kind.ToString().ToLowerInvariant());
+                }
             }
+        }
+
+        private static List<WaterCrossingCandidate> FindWaterCrossingCandidates(
+            YQRouteCorridorV2 route,
+            YQHydrologyFeatureV2 water)
+        {
+            List<WaterCrossingCandidate> candidates = new List<WaterCrossingCandidate>();
+            if (route?.controlPoints == null || route.controlPoints.Count < 2 ||
+                water?.controlPoints == null || water.controlPoints.Count < 2)
+                return candidates;
+
+            // note: Sample the actual accepted corridor so endpoint water access and repeated entry/exit spans receive stable, separately owned crossings.
+            const float sampleSpacing = 4f;
+            const float maximumDryGap = 6f;
+            bool inRun = false;
+            float lastWetDistance = 0f;
+            float bestDistanceToWater = float.PositiveInfinity;
+            WaterCrossingCandidate bestCandidate = default;
+            float routeDistance = 0f;
+
+            for (int segment = 1; segment < route.controlPoints.Count; segment++)
+            {
+                YQBlueprintPointV2 first = route.controlPoints[segment - 1];
+                YQBlueprintPointV2 last = route.controlPoints[segment];
+                Vector2 a = new Vector2(first.x, first.z);
+                Vector2 b = new Vector2(last.x, last.z);
+                float length = Vector2.Distance(a, b);
+                if (length < 0.001f)
+                    continue;
+
+                int steps = Mathf.Max(1, Mathf.CeilToInt(length / sampleSpacing));
+                float sampledLength = length / steps;
+                for (int step = 0; step <= steps; step++)
+                {
+                    if (segment > 1 && step == 0)
+                        continue;
+                    float t = step / (float)steps;
+                    float along = routeDistance + length * t;
+                    Vector2 point = Vector2.Lerp(a, b, t);
+                    bool nearWater = TryGetNearestWaterFrame(point, water.controlPoints,
+                        out _, out _, out float localWidth, out float distance);
+                    float corridor = nearWater
+                        ? Mathf.Max(water.nominalWidth, localWidth) * 0.5f +
+                          route.width * 0.5f + route.shoulderWidth + 7f
+                        : 0f;
+                    if (nearWater && distance <= corridor)
+                    {
+                        if (!inRun)
+                        {
+                            inRun = true;
+                            bestDistanceToWater = distance;
+                            bestCandidate = new WaterCrossingCandidate
+                            {
+                                position = point
+                            };
+                        }
+                        else if (distance < bestDistanceToWater)
+                        {
+                            bestDistanceToWater = distance;
+                            bestCandidate = new WaterCrossingCandidate
+                            {
+                                position = point
+                            };
+                        }
+                        lastWetDistance = along;
+                    }
+                    else if (inRun && along - lastWetDistance > maximumDryGap)
+                    {
+                        candidates.Add(bestCandidate);
+                        inRun = false;
+                        bestDistanceToWater = float.PositiveInfinity;
+                    }
+                }
+
+                routeDistance += length;
+            }
+
+            if (inRun)
+                candidates.Add(bestCandidate);
+            return candidates;
+        }
+
+        private static bool TryGetNearestWaterFrame(
+            Vector2 point,
+            IReadOnlyList<YQBlueprintPointV2> waterPoints,
+            out Vector2 nearest,
+            out Vector2 tangent,
+            out float width,
+            out float distance)
+        {
+            nearest = Vector2.zero;
+            tangent = Vector2.zero;
+            width = 0f;
+            distance = float.PositiveInfinity;
+            if (waterPoints == null || waterPoints.Count < 2)
+                return false;
+
+            float bestSquared = float.PositiveInfinity;
+            for (int index = 1; index < waterPoints.Count; index++)
+            {
+                YQBlueprintPointV2 first = waterPoints[index - 1];
+                YQBlueprintPointV2 last = waterPoints[index];
+                Vector2 a = new Vector2(first.x, first.z);
+                Vector2 b = new Vector2(last.x, last.z);
+                Vector2 segment = b - a;
+                float t = segment.sqrMagnitude > 0.0001f
+                    ? Mathf.Clamp01(Vector2.Dot(point - a, segment) / segment.sqrMagnitude)
+                    : 0f;
+                Vector2 candidate = a + segment * t;
+                float squared = (point - candidate).sqrMagnitude;
+                if (squared >= bestSquared)
+                    continue;
+
+                bestSquared = squared;
+                nearest = candidate;
+                tangent = segment.sqrMagnitude > 0.0001f ? segment.normalized : Vector2.up;
+                width = Mathf.Lerp(first.width, last.width, t);
+            }
+
+            distance = Mathf.Sqrt(bestSquared);
+            return !float.IsInfinity(distance);
         }
 
         private void OrientSitesToRoutes()
@@ -2012,36 +2350,6 @@ internal static class YQSpatialSiteNetworkCompilerV2
             }
 
             return null;
-        }
-
-        private bool TryFindIntersection(
-            IReadOnlyList<YQBlueprintPointV2> route,
-            IReadOnlyList<YQBlueprintPointV2> water,
-            out float x,
-            out float z)
-        {
-            x = 0f;
-            z = 0f;
-            for (int routeIndex = 1; routeIndex < route.Count; routeIndex++)
-            {
-                for (int waterIndex = 1;
-                     waterIndex < water.Count;
-                     waterIndex++)
-                {
-                    if (YQSpatialBlueprintValidatorV2.TrySegmentIntersection(
-                            route[routeIndex - 1],
-                            route[routeIndex],
-                            water[waterIndex - 1],
-                            water[waterIndex],
-                            out x,
-                            out z))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         private bool IsHiddenPoi(

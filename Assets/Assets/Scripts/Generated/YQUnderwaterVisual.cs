@@ -2,11 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Rendering.Universal;
+using Unity.Profiling;
 
 // note: Provide a lightweight camera overlay when the authoritative player is below a generated water surface.
 [DisallowMultipleComponent]
 public sealed class YQUnderwaterVisual : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQUnderwaterVisual.Update()");
     private Camera targetCamera;
     private MeshRenderer[] waterRenderers;
     private Image overlay;
@@ -71,7 +73,14 @@ public sealed class YQUnderwaterVisual : MonoBehaviour
     }
 
     // note: Probe at a low cadence and use renderer bounds in XZ to avoid per-frame mesh scans or physics queries on water without colliders.
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
+    {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
     {
         if (Time.unscaledTime < nextProbe)
             return;

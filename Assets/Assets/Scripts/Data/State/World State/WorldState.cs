@@ -29,6 +29,8 @@ public class WorldState
     public List<FactionRecord> factions = new List<FactionRecord>();
     public List<LocationRecord> locations = new List<LocationRecord>();
     public List<NpcRecord> npcs = new List<NpcRecord>();
+    // note: Streamed views bind these profile-owned records; there is no second runtime inventory cache.
+    public Dictionary<string, YQContainerRecord> containers = new Dictionary<string, YQContainerRecord>(StringComparer.Ordinal);
     public GeneratedWorldPlanRecord generatedWorldPlan = new GeneratedWorldPlanRecord();
     public long lastUpdatedUnix;
 
@@ -81,6 +83,7 @@ public class WorldState
         factions ??= new List<FactionRecord>();
         locations ??= new List<LocationRecord>();
         npcs ??= new List<NpcRecord>();
+        containers ??= new Dictionary<string, YQContainerRecord>(StringComparer.Ordinal);
         generatedWorldPlan ??= new GeneratedWorldPlanRecord();
         generatedWorldPlan.EnsureCollections();
         canonLedger ??= string.Empty;

@@ -1,9 +1,11 @@
 // Assets/Assets/Scripts/Tutorial/YQInvestorEnemy.cs
 using UnityEngine;
+using Unity.Profiling;
 
 [DisallowMultipleComponent]
 public sealed class YQInvestorEnemy : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQInvestorEnemy.Update()");
     public string semanticRegionId = "region_unknown";
     public string factionId = "wild_hollows";
     public string displayName = "Echo";
@@ -43,11 +45,31 @@ public sealed class YQInvestorEnemy : MonoBehaviour
     private bool _usesBurrowMovement;
     private bool _burrowPresentationActive;
     private bool _lastMoving;
+    public bool IsDead => _health <= 0f;
+
+    public bool TryPrepareDeathInventory(out string failure)
+    {
+        if (!IsDead) { failure = "Living hostile inventory cannot become corpse loot."; return false; }
+        // note: Death exposes one linked store. The director's compatibility callback cannot award a separate random loot copy.
+        YQWorldContainer storage = YQWorldContainer.BindHostile(this);
+        return storage.TryEnsureGenerated(true, out failure);
+    }
 
     public void Initialize(YQInvestorEnemySpawner spawner)
     {
         _spawner = spawner;
         _health = maxHealth;
+        // note: Streaming a defeated stable entity restores its corpse projection without recreating combat, XP or loot.
+        string entityId = YQWorldContainer.ResolveEntityId(transform);
+        YQContainerRecord persisted = YQContainerInventory.Find(WorldStateManager.Instance?.State, entityId);
+        if (persisted?.dead == true)
+        {
+            _health = 0;
+            Vector3 origin = PlayerStateManager.Instance?.state?.renderOrigin ?? Vector3.zero;
+            YQInvestorLootableCorpse.EnsurePersistedView(persisted, persisted.hasCorpsePosition ? persisted.corpseLogicalPosition - origin : transform.position, transform.parent);
+            Destroy(gameObject);
+            return;
+        }
         allowFlight = allowFlight || YQInvestorEnemySpawner.IsFlyingEnemy(spawner != null ? spawner.enemyPrefabPath : string.Empty, displayName);
         ConfigureBodyPhysics();
         EnforceGrounding(true);
@@ -81,8 +103,16 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         _nextEvade = Time.time + Random.Range(0.45f, 1.25f);
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
     {
+        using (G08UpdateMarker.Auto())
+            UpdateCore();
+    }
+
+    private void UpdateCore()
+    {
+        if (IsDead) return;
         EnforceGrounding(false);
 
         if (_player == null)
@@ -158,6 +188,13 @@ public sealed class YQInvestorEnemy : MonoBehaviour
             return;
         }
 
+        if (!TryPrepareDeathInventory(out string inventoryFailure))
+        {
+            // note: A failed paired publication retains the source for retry instead of destroying uncommitted loot.
+            _health = 1f;
+            GeneratedRpgContentService.Instance?.SetInventoryMessage(inventoryFailure);
+            return;
+        }
         TriggerAnimatorDeath();
         YQRuntimeAudioFeedback.PlayEnemyDeath(transform.position + Vector3.up * 1f);
 
@@ -177,11 +214,7 @@ public sealed class YQInvestorEnemy : MonoBehaviour
             wsm.Save();
         }
 
-        InventoryItemRecord loot = GeneratedRpgContentService.Instance != null
-            ? GeneratedRpgContentService.Instance.GenerateItem(semanticRegionId + ":" + displayName, psm != null && psm.state != null ? psm.state.level : 1, null, false)
-            : null;
-
-        SpawnCorpse(loot, Mathf.Max(1, goldDrop));
+        SpawnCorpse(YQWorldContainer.ResolveEntityId(transform));
 
         YQInvestorDirector director = FindFirstObjectByType<YQInvestorDirector>();
         if (director != null)
@@ -215,11 +248,13 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         }
     }
 
-    private void SpawnCorpse(InventoryItemRecord item, int gold)
+    private void SpawnCorpse(string inventoryEntityId)
     {
         GameObject corpse = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         corpse.name = displayName + " Echo Residue";
         corpse.transform.position = transform.position;
+        // note: Corpse views unload with their source; persisted records survive and restore through the same enemy identity.
+        corpse.transform.SetParent(transform.parent, true);
         corpse.transform.rotation = transform.rotation;
         corpse.transform.localScale = new Vector3(0.75f, 0.22f, 0.75f);
         Renderer renderer = corpse.GetComponent<Renderer>();
@@ -247,14 +282,14 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         Rigidbody rb = corpse.AddComponent<Rigidbody>();
         rb.isKinematic = true;
         EntityInfo info = corpse.AddComponent<EntityInfo>();
-        info.entityId = "loot_" + semanticRegionId + "_" + GetInstanceID();
+        info.entityId = inventoryEntityId;
         info.displayName = displayName + " Residue";
         info.factionId = "loot";
         info.hostility = Hostility.Neutral;
         info.isNotable = true;
         info.tags = new[] { "loot", "corpse", "residue", "echo", semanticRegionId };
         YQInvestorLootableCorpse lootable = corpse.AddComponent<YQInvestorLootableCorpse>();
-        lootable.Initialize(displayName, item, gold);
+        lootable.Initialize(displayName, inventoryEntityId);
     }
 
     private void ResolvePlayer()

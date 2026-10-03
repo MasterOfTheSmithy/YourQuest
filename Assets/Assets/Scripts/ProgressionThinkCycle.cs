@@ -2,12 +2,78 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class ProgressionThinkCycle : MonoBehaviour
 {
     [Header("Config")]
     public ProgressionBalanceConfig balance;
+
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    // note: A transient test override may lower the real candidate floor; it is neither serialized nor enabled in public builds.
+    [NonSerialized] public float? developmentSkillCandidateScore;
+    [NonSerialized] public float? developmentMinimumScore;
+    [NonSerialized] public float? developmentSkillCooldownSeconds;
+#endif
+
+    public float EffectiveSkillCandidateScore
+    {
+        get
+        {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+            if (developmentSkillCandidateScore.HasValue) return developmentSkillCandidateScore.Value;
+#endif
+            return Mathf.Max(balance != null ? balance.scoreForSkillCandidate : 24f, 24f);
+        }
+    }
+
+    public float EffectiveMinimumScore
+    {
+        get
+        {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+            if (developmentMinimumScore.HasValue) return developmentMinimumScore.Value;
+#endif
+            return Mathf.Max(balance != null ? balance.minScoreToConsider : 12f, 12f);
+        }
+    }
+
+    public float EffectiveSkillCooldownSeconds
+    {
+        get
+        {
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+            if (developmentSkillCooldownSeconds.HasValue) return developmentSkillCooldownSeconds.Value;
+#endif
+            return Mathf.Max(balance != null ? balance.skillCooldown : 420f, 420f);
+        }
+    }
+
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    public bool CheckDevelopmentSkillAcquisition(out string reason)
+    {
+        // note: Explicit normal grants still use current recorded actions and the thinker's actual score/cooldown/pending-offer gates.
+        PlayerState state = PlayerStateManager.Instance?.state;
+        if (state == null || balance == null || EventAccumulator.Instance == null)
+        { reason = "Progression/evidence owners unavailable."; return false; }
+        var window = EventAccumulator.Instance.CaptureWindow(Mathf.Clamp(balance.maxRecentEvents, 1, 5000));
+        float score = ProgressionMath.Compute(window.events, balance).score;
+        if (score < EffectiveMinimumScore || score < EffectiveSkillCandidateScore)
+        { reason = "Evidence score " + score + " points; requires " + Mathf.Max(EffectiveMinimumScore, EffectiveSkillCandidateScore) + " points."; return false; }
+        if (Time.time < nextSkillTime) { reason = "Skill cooldown: " + (nextSkillTime - Time.time) + " seconds remaining."; return false; }
+        if (state.GetPendingOfferCount() >= maxPendingOffers) { reason = "Pending offer cap reached."; return false; }
+        reason = string.Empty; return true;
+    }
+
+    public void RecordDevelopmentSkillAcquisition()
+    {
+        // note: Normal console acquisition consumes the same cooldown as an earned thinker proposal; restoration retains its previous deadline.
+        float priorDeadline = nextSkillTime;
+        YQDeveloperTestSession.OnRestore(() => { if (this != null) nextSkillTime = priorDeadline; });
+        ApplyCooldown("skill");
+    }
+#endif
 
     [Header("Refs")]
     public ProgressionDecisionApplier applier;
@@ -34,6 +100,19 @@ public class ProgressionThinkCycle : MonoBehaviour
     private float nextItemTime;
 
     private int failStreak = 0;
+    private YQRepairEpisode activeRepair;
+    private string terminalEventWindow;
+    private PlayerState terminalWindowOwner;
+    private int terminalWindowEpoch = -1;
+
+    private void OnDisable()
+    {
+        // note: A retired thinker cannot leave its repair callback alive against another player session.
+        if (activeRepair == null) return;
+        activeRepair.Finish("Superseded");
+        LLMClient.Instance?.CancelRepairEpisode(activeRepair);
+        activeRepair = null;
+    }
 
     private void Awake()
     {
@@ -79,6 +158,7 @@ public class ProgressionThinkCycle : MonoBehaviour
 
     private void TryThink()
     {
+        if (activeRepair != null) return;
         ResolveReferences();
         if (RuntimeModalUiBlocker.IsDialogueOpen)
         {
@@ -105,9 +185,14 @@ public class ProgressionThinkCycle : MonoBehaviour
             return;
 
         int take = Mathf.Clamp(balance.maxRecentEvents, 1, 5000);
-        List<ActionEvent> recent = TakeLast(events, take);
+        EventAccumulator.EventWindow window = acc.CaptureWindow(take);
+        bool bounded = LLMClient.Instance != null && LLMClient.Instance.BoundedRepairEnabled;
+        if (bounded && ReferenceEquals(terminalWindowOwner, psm.state) &&
+            terminalWindowEpoch == YQServiceLifecycle.RequestEpoch && terminalEventWindow == window.fingerprint)
+            return;
+        List<ActionEvent> recent = new List<ActionEvent>(window.events);
         ProgressionMath.Result math = ProgressionMath.Compute(recent, balance, fallbackRegionId: "region_unknown");
-        if (math.score < Mathf.Max(balance.minScoreToConsider, 12f))
+        if (math.score < EffectiveMinimumScore)
             return;
 
         string preferred = DeterminePreferredCategory(psm.state, math);
@@ -126,11 +211,19 @@ public class ProgressionThinkCycle : MonoBehaviour
                 return;
             }
 
-            if (applier.TryApply(deterministicJson, out string appliedCategory, out string reason))
+            // note: The synchronous candidate shares the same preview boundary, so fallback cannot count its rejected attempt as another action.
+            YQProgressionEvaluation deterministicEvaluation = bounded ? applier.EvaluateProposal(deterministicJson, psm.state, situation) : null;
+            bool canApply = !bounded || deterministicEvaluation.disposition == YQProgressionDisposition.OfferReady ||
+                deterministicEvaluation.disposition == YQProgressionDisposition.EvidenceRecordReady;
+            string appliedCategory = "none", reason = deterministicEvaluation?.reason;
+            string beforeCounters = bounded ? JsonConvert.SerializeObject(psm.state.behaviorCounters) : null;
+            bool applied = canApply && applier.TryApply(deterministicJson, out appliedCategory, out reason);
+            bool recorded = bounded && beforeCounters != JsonConvert.SerializeObject(psm.state.behaviorCounters);
+            if (applied || recorded)
             {
-                ApplyCooldown(appliedCategory);
-                acc.ClearEvents();
-                Debug.Log("[ProgressionThinkCycle] Applied deterministic " + appliedCategory + ": " + reason);
+                if (applied) ApplyCooldown(appliedCategory);
+                acc.AcknowledgeWindow(window);
+                Debug.Log("[ProgressionThinkCycle] " + (applied ? "Applied deterministic " + appliedCategory : "Recorded deterministic evidence") + ": " + reason);
                 return;
             }
 
@@ -148,12 +241,22 @@ public class ProgressionThinkCycle : MonoBehaviour
         if (logPrompt)
             Debug.Log("[ProgressionThinkCycle PROMPT]\n" + prompt);
 
+        if (bounded)
+        {
+            // note: The existing math/cooldown admission above remains authoritative for whether to ask for an offer.
+            PlayerState frozen = JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(psm.state));
+            YQLlmRequest binding = new YQLlmRequest { debugTag = "ProgressionDecision", category = LLMGenerationCategory.Progression };
+            activeRepair = LLMClient.Instance.CreateRepairEpisode(binding, "progression:" + window.fingerprint, 40d);
+            SubmitProgressionRepair(psm.state, frozen, acc, window, situation, prompt, prompt, activeRepair, null);
+            return;
+        }
+
         // note: Progression decisions are persisted gameplay contracts, never free-form model suggestions.
         LLMClient.Instance.Submit(new YQLlmRequest
         {
             prompt = prompt,
             debugTag = "ProgressionDecision",
-            category = LLMGenerationCategory.StructuredState,
+            category = LLMGenerationCategory.Progression,
             priority = YQLlmRequestPriority.Background,
             requireJson = true,
             // note: One compact decision is sufficient; progression backs off deterministically instead of retrying a slow local request.
@@ -204,9 +307,98 @@ public class ProgressionThinkCycle : MonoBehaviour
         });
     }
 
+    private void SubmitProgressionRepair(PlayerState owner, PlayerState frozen, EventAccumulator accumulator,
+        EventAccumulator.EventWindow window, string situation, string originalPrompt, string prompt,
+        YQRepairEpisode episode, string parentKey)
+    {
+        YQLlmRequest request = new YQLlmRequest {
+            prompt = prompt, debugTag = "ProgressionDecisionRepair", category = LLMGenerationCategory.Progression,
+            priority = YQLlmRequestPriority.Background, requireJson = true, maxRetries = 0,
+            parentRequestKey = parentKey,
+            ownerStillCurrent = () => this != null && isActiveAndEnabled && ReferenceEquals(owner, PlayerStateManager.Instance?.state),
+            optionsOverride = new Dictionary<string, object> { { "num_predict", 420 }, { "request_timeout_seconds", 40 } }
+        };
+        episode.Bind(request);
+        LLMClient.Instance.Submit(request, result =>
+        {
+            try
+            {
+            // note: A callback can only evaluate and publish for the captured player and lifecycle.
+            if (this == null || episode.IsTerminal) return;
+            if (!ReferenceEquals(owner, PlayerStateManager.Instance?.state) || !YQServiceLifecycle.IsCurrent(episode.generationEpoch) ||
+                owner.stateRevision != episode.playerRevision ||
+                result.outcome == YQLlmTerminalOutcome.Cancelled || result.outcome == YQLlmTerminalOutcome.Superseded ||
+                result.outcome == YQLlmTerminalOutcome.Evicted)
+            {
+                EndProgressionRepair(episode, "Superseded", null, null);
+                return;
+            }
+            if (applier == null)
+            {
+                EndProgressionRepair(episode, "Unresolved", owner, window);
+                return;
+            }
+            string raw = result.success ? result.text : null;
+            YQProgressionEvaluation evaluation = applier.EvaluateProposal(raw, frozen, situation);
+            if (evaluation.disposition == YQProgressionDisposition.OfferReady ||
+                evaluation.disposition == YQProgressionDisposition.EvidenceRecordReady)
+            {
+                // note: Only this final path invokes the mutating applier; preview rejects cannot advance incubation/evolution.
+                string beforeCounters = JsonConvert.SerializeObject(owner.behaviorCounters);
+                bool queued = applier.TryApply(raw, out string category, out string reason);
+                bool recorded = beforeCounters != JsonConvert.SerializeObject(owner.behaviorCounters);
+                if (queued || recorded) accumulator.AcknowledgeWindow(window);
+                if (queued) ApplyCooldown(category);
+                EndProgressionRepair(episode, queued ? (episode.GeneratorCalls > 1 ? "RepairedAccepted" : "OriginalAccepted") :
+                    recorded ? "EvidenceRecordedWithoutOffer" : "Unresolved", owner, window);
+                Debug.Log("[ProgressionThinkCycle] " + episode.Disposition + ": " + reason);
+                return;
+            }
+            if (evaluation.disposition == YQProgressionDisposition.ValidAbstention || evaluation.disposition == YQProgressionDisposition.Deferred)
+            {
+                EndProgressionRepair(episode, evaluation.disposition.ToString(), owner, window);
+                return;
+            }
+            if (episode.CanSubmit(false) && !(result.error ?? string.Empty).StartsWith("ContextOverflow", StringComparison.Ordinal))
+            {
+                string diagnostic = result.success ? evaluation.evidenceDiagnostic : result.error;
+                SubmitProgressionRepair(owner, frozen, accumulator, window, situation, originalPrompt,
+                    YQRepairEpisode.RepairPrompt(originalPrompt, diagnostic, raw), episode, result.repairRequestKey);
+                return;
+            }
+            EndProgressionRepair(episode, "Unresolved", owner, window);
+            }
+            catch (Exception error)
+            {
+                // note: A failed application must retire its episode instead of leaving the thinker permanently in flight.
+                EndProgressionRepair(episode, "Unresolved", owner, window);
+                Debug.LogError("[ProgressionThinkCycle] Repair application failed: " + error);
+            }
+        });
+    }
+
+    private void EndProgressionRepair(YQRepairEpisode episode, string disposition, PlayerState owner, EventAccumulator.EventWindow window)
+    {
+        if (!episode.Finish(disposition)) return;
+        if (ReferenceEquals(activeRepair, episode)) activeRepair = null;
+        if (owner != null && window != null)
+        {
+            terminalWindowOwner = owner;
+            terminalWindowEpoch = episode.generationEpoch;
+            terminalEventWindow = window.fingerprint;
+        }
+        // note: Exhausted work backs off and cannot start a fresh attempt on the same unchanged event window.
+        if (disposition == "Unresolved")
+        {
+            failStreak = Mathf.Clamp(failStreak + 1, 0, 8);
+            nextThinkTime = Time.time + Mathf.Min(120f, balance.thinkEverySeconds * Mathf.Pow(2f, failStreak));
+        }
+        else failStreak = 0;
+    }
+
     private string DeterminePreferredCategory(PlayerState state, ProgressionMath.Result math)
     {
-        float skillThreshold = Mathf.Max(balance.scoreForSkillCandidate, 24f);
+        float skillThreshold = EffectiveSkillCandidateScore;
         float titleThreshold = Mathf.Max(balance.scoreForTitleCandidate, 34f);
         float questThreshold = Mathf.Max(balance.scoreForQuestCandidate, 38f);
         float classThreshold = Mathf.Max(balance.scoreForTitleCandidate, 42f);
@@ -251,7 +443,7 @@ public class ProgressionThinkCycle : MonoBehaviour
         {
             case "skill":
             case "spell":
-                nextSkillTime = Time.time + Mathf.Max(balance.skillCooldown, 420f);
+                nextSkillTime = Time.time + EffectiveSkillCooldownSeconds;
                 break;
             case "title":
                 nextTitleTime = Time.time + Mathf.Max(balance.titleCooldown, 900f);
@@ -686,6 +878,8 @@ public class ProgressionThinkCycle : MonoBehaviour
         sb.AppendLine("  \"reason\": \"short explanation grounded in evidence\",");
         sb.AppendLine("  \"payload\": {");
         sb.AppendLine("     // if skill or spell:");
+        // note: Generated identity remains free-form; deterministic acceptance owns circle progression and casting mechanics.
+        sb.AppendLine("     // Spells use circles 1-7, not skill tiers. New spells begin at Circle 1; accepted evolutions advance circles up to 7.");
         sb.AppendLine("     // { \"skillSeedName\": \"string\", \"skillType\": \"combat|movement|utility|craft|social|spell\", \"stimulus\": \"what the player did\", \"hook\": \"one sentence\", \"loreAnchor\": \"optional\" }");
         sb.AppendLine("     // if title:");
         sb.AppendLine("     // { \"titleName\": \"string\", \"stimulus\": \"what the player did\", \"description\": \"string\" }");

@@ -708,9 +708,9 @@ public static class YQWorldAssetCatalog
         Add(p.roof, P(Nordic, "SM_ThatchRoof01"), SlotRoof, "nordic", "thatch");
         Add(p.roof, P(Nordic, "SM_LogRoofGable01"), SlotRoof, "nordic", "gable");
         Add(p.roof, P(Nordic, "SM_RoofGableTall01"), SlotRoof, "nordic", "tall_gable");
-        Add(p.door, P(Nordic, "SM_LogWallDoor"), SlotDoor, "nordic", "log", "complete_front_wall");
-        Add(p.door, P(Nordic, "SM_WallDoor"), SlotDoor, "nordic", "plaster", "complete_front_wall");
-        Add(p.door, P(Nordic, "SM_WallTallDoor"), SlotDoor, "nordic", "plaster", "complete_front_wall");
+        // note: Door leaf slots use actual leaves; the surrounding doorway walls remain in the wall library.
+        Add(p.door, P(Nordic, "SM_Door01"), SlotDoor, "nordic", "wood", "door_leaf");
+        Add(p.door, P(Nordic, "SM_Door02"), SlotDoor, "nordic", "wood", "door_leaf");
         Add(p.path, P(Nordic, "SM_MudMesh"), SlotPath, "nordic", "dirt_path");
         Add(p.path, P(Viking, "SM_GroundPatch_2"), SlotPath, "viking", "ground_patch");
         // note: Nordic crossings have several approved plank treatments; the runtime bridge selector can keep a complete span common while reserving damaged planks for rare variants.
@@ -1140,6 +1140,7 @@ public static class YQWorldAssetCatalog
     private static void AddSharedUtilityAssets(GeneratedRegionAssetPaletteRecord p)
     {
         Add(p.lootContainer, Chests + "ChestSimpleSmall.prefab", SlotLootContainer, "loot", "simple");
+        Add(p.lootContainer, Chests + "ChestSimpleMedium.prefab", SlotLootContainer, "loot", "simple");
         Add(p.lootContainer, Chests + "ChestOrnateMedium.prefab", SlotLootContainer, "loot", "ornate");
 
         if (ResolveStyleDomain(p.styleKey) == "fantasy")
