@@ -170,7 +170,8 @@ public static class YQSpatialBlueprintV2Tests
             // note: Separate accepted identities deliberately share their endpoint; the second feature must not lose its first mesh vertex.
             object[] arguments = { points, 0f, feature * 8f, 0f, (feature + 1) * 8f,
                 0f, 0f, -64f, 64f, -64f, 64f, 0f, -64f, 64f, -64f, 64f,
-                0f, 100f, 0f, breaks, false, Vector2.zero };
+                // note: Reflection does not supply optional arguments; exercise the production default endpoint-extension setting explicitly.
+                0f, 100f, 0f, breaks, false, Vector2.zero, true };
             append.Invoke(null, arguments);
             complete.Invoke(null, new object[] { points, widths, breaks, firstPoint, feature == 0 ? 4f : 12f });
         }
@@ -189,7 +190,7 @@ public static class YQSpatialBlueprintV2Tests
             foreach (bool water in new[] { false, true })
             {
                 string prefix = water ? "Water" : "Road";
-                int count = (int)build.Invoke(null, new object[] { root.transform, prefix, points, breaks, 12f, material, water, 128f, widths });
+                int count = (int)build.Invoke(null, new object[] { root.transform, prefix, points, breaks, 12f, material, water, 128f, widths, null });
                 if (count != 2)
                     return prefix + " lost a span or emitted a bridge between separate features.";
                 Mesh narrow = root.transform.Find(prefix + "_Span0").GetComponent<MeshFilter>().sharedMesh;
@@ -220,7 +221,7 @@ public static class YQSpatialBlueprintV2Tests
                 }
                 var isolatedPoints = points.GetRange(0, split);
                 var isolatedWidths = widths.GetRange(0, split);
-                int isolated = (int)build.Invoke(null, new object[] { root.transform, prefix + "Alone", isolatedPoints, null, 4f, material, water, 128f, isolatedWidths });
+                int isolated = (int)build.Invoke(null, new object[] { root.transform, prefix + "Alone", isolatedPoints, null, 4f, material, water, 128f, isolatedWidths, null });
                 if (isolated != 1)
                     return "An isolated feature failed mesh construction.";
                 Vector3[] alone = root.transform.Find(prefix + "Alone_Span0").GetComponent<MeshFilter>().sharedMesh.vertices;
@@ -231,7 +232,7 @@ public static class YQSpatialBlueprintV2Tests
                     if (alone[index] != combined[index])
                         return "A neighboring feature changed the narrow span's geometry.";
             }
-            int malformed = (int)build.Invoke(null, new object[] { root.transform, "Malformed", points, breaks, 12f, material, false, 128f, new List<float>() });
+            int malformed = (int)build.Invoke(null, new object[] { root.transform, "Malformed", points, breaks, 12f, material, false, 128f, new List<float>(), null });
             if (malformed != 0)
                 return "A misaligned width stream was accepted.";
         }
@@ -318,11 +319,11 @@ public static class YQSpatialBlueprintV2Tests
             report.AppendLine("PASS: The saved lake builds a surface with full interior shader coverage; river banks interpolate from 0 to 1 with full coverage.");
             float surfaceY = lake.waterSurfaceNormalized * 128f + 0.045f;
             var roadPoints = new List<Vector3> { new Vector3(lake.x + 75f, surfaceY + 4f, lake.z - 24f), new Vector3(lake.x + 75f, surfaceY + 4f, lake.z), new Vector3(lake.x + 75f, surfaceY + 4f, lake.z + 24f) };
-            buildRibbon.Invoke(null, new object[] { root.transform, "PathSurface", roadPoints, null, 5f, road, false, 128f, null });
+            buildRibbon.Invoke(null, new object[] { root.transform, "PathSurface", roadPoints, null, 5f, road, false, 128f, null, null });
             var riverPoints = new List<Vector3>();
             for (int sample = 0; sample <= 10; sample++)
                 riverPoints.Add(new Vector3(lake.x - 75f, surfaceY + 4f, lake.z - 40f + sample * 8f));
-            int riverCount = (int)buildRibbon.Invoke(null, new object[] { root.transform, "RiverSurface", riverPoints, null, 8f, water, true, 128f, null });
+            int riverCount = (int)buildRibbon.Invoke(null, new object[] { root.transform, "RiverSurface", riverPoints, null, 8f, water, true, 128f, null, null });
             if (riverCount != 1)
                 return "The preview's ordinary sampled river failed to materialize.";
             foreach (MeshFilter filter in root.GetComponentsInChildren<MeshFilter>())
@@ -1791,6 +1792,9 @@ public static class YQSpatialBlueprintV2Tests
     private static string TestStreamedBetaFixtureContract()
     {
         GeneratedWorldPlanRecord plan = BuildSemanticPlan(false);
+        // note: Synthetic travel sites belong only to the explicit beta seed; this detached beta fixture must opt into that existing production boundary.
+        plan.worldSeed = YQBetaDevelopmentFixture.CanonicalWorldSeed;
+        plan.spatialPlan.worldSeed = plan.worldSeed;
         if (!YQSpatialBlueprintCompilerV2.TryCompile(
                 plan,
                 out GeneratedSpatialWorldPlanV2Record compiled,
@@ -1799,6 +1803,8 @@ public static class YQSpatialBlueprintV2Tests
             return "Compilation failed: " + failure;
         }
 
+        // note: The semantic query reads accepted plan authority; attach this detached, validated fixture result before querying its cells.
+        plan.spatialPlanV2 = compiled;
         // note: Validate the authored beta itinerary at the contract boundary so a renderer cannot silently reduce it to tree-and-rock scatter.
         string[] requiredTags =
         {

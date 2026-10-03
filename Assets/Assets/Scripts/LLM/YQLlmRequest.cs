@@ -45,6 +45,13 @@ public sealed class YQLlmRequest
     public bool bindWorldStateRevision = true;
     public int maxRetries = -1;
     public Dictionary<string, object> optionsOverride;
+    // note: Optional episode metadata bounds nested transport/domain repair without changing ordinary requests.
+    public YQRepairEpisode repairEpisode;
+    public bool repairVerification;
+    public bool protectPrompt;
+    public string parentRequestKey;
+    public string requiredOllamaModelDigest;
+    public Func<bool> ownerStillCurrent;
 }
 
 // note: Central schema factories keep transport constraints aligned with the compact canonical prompts without making llama.cpp aware of Unity domain types.
@@ -372,6 +379,8 @@ public readonly struct YQLlmRequestResult
     public readonly string text;
     public readonly string error;
     public readonly int attemptCount;
+    public readonly string repairEpisodeKey;
+    public readonly string repairRequestKey;
     public readonly float queueWaitSeconds;
     public readonly float generationSeconds;
     public readonly LLMCompiledPrompt compiledPrompt;
@@ -400,7 +409,9 @@ public readonly struct YQLlmRequestResult
         int generationEpoch = -1,
         string ownerId = null,
         long playerStateRevision = -1,
-        long worldStateRevision = -1)
+        long worldStateRevision = -1,
+        string repairEpisodeKey = null,
+        string repairRequestKey = null)
     {
         this.requestId = requestId;
         this.debugTag = debugTag ?? string.Empty;
@@ -410,6 +421,8 @@ public readonly struct YQLlmRequestResult
         this.text = text;
         this.error = error ?? string.Empty;
         this.attemptCount = attemptCount;
+        this.repairEpisodeKey = repairEpisodeKey ?? string.Empty;
+        this.repairRequestKey = repairRequestKey ?? string.Empty;
         this.queueWaitSeconds = queueWaitSeconds;
         this.generationSeconds = generationSeconds;
         this.compiledPrompt = compiledPrompt;

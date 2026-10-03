@@ -85,7 +85,8 @@ public sealed class YQProfileMenuUI : MonoBehaviour
 
         string name = _nameInput != null ? _nameInput.text : string.Empty;
         string id = YQProfileSaveSystem.Instance.CreateNewProfile(name);
-        _statusText.text = "Created profile " + id;
+        // note: Profile identifiers remain persistence details; confirmation speaks to the player's action.
+        _statusText.text = "New journey created.";
         if (_nameInput != null)
             _nameInput.text = string.Empty;
         RenderProfiles();

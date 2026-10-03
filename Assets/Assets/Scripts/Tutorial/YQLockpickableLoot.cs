@@ -46,15 +46,17 @@ public sealed class YQLockpickableLoot : MonoBehaviour
 
     [Tooltip(
         "Stable generated-world identity for this loot object. " +
-        "Leave empty for legacy/authored non-persistent chests.")]
+        "Empty authored sources use their stable scene/hierarchy identity.")]
     public string persistentLootId =
         string.Empty;
 
     [Tooltip(
         "Optional generated reward level. " +
-        "0 uses the player's current level.")]
+        "0 resolves the source's region tier, with a minimum of 1.")]
     [Min(0)]
     public int rewardLevelOverride;
+    // note: All physical storage shares contents, while this component retains its authored lock/mimic/lid behavior.
+    public YQContainerType containerType = YQContainerType.Chest;
 
     // note: Reviewed cell storage keeps its authored interaction collision instead of the legacy generic chest envelope.
     [SerializeField] private bool preserveReviewedCollider;
@@ -207,6 +209,7 @@ public sealed class YQLockpickableLoot : MonoBehaviour
             SafeText(
                 generatedDisplayName,
                 displayName);
+        if (containerType == YQContainerType.Chest) containerType = YQWorldContainer.InferStorageType(displayName);
 
         gold =
             Mathf.Max(
@@ -235,6 +238,7 @@ public sealed class YQLockpickableLoot : MonoBehaviour
          */
         _persistentStateApplied =
             false;
+        _mimicEntityId = null;
 
         SynchronizePersistentState();
 
@@ -271,6 +275,14 @@ public sealed class YQLockpickableLoot : MonoBehaviour
          */
         if (mimic)
         {
+            // note: Rebuilding a defeated mimic projects its saved corpse store without waking another hostile or rerolling rewards.
+            YQContainerRecord remains = YQContainerInventory.Find(WorldStateManager.Instance?.State, BuildMimicEntityId());
+            if (remains?.dead == true)
+            {
+                Vector3 origin = PlayerStateManager.Instance?.state?.renderOrigin ?? Vector3.zero;
+                YQInvestorLootableCorpse.EnsurePersistedView(remains,
+                    remains.hasCorpsePosition ? remains.corpseLogicalPosition - origin : transform.position, transform.parent);
+            }
             HideChestShellRenderers();
 
             DisableInteractionColliders();
@@ -303,7 +315,7 @@ public sealed class YQLockpickableLoot : MonoBehaviour
     {
         SynchronizePersistentState();
 
-        if (_opened)
+        if (_opened && mimic)
             return false;
 
         PlayerStateManager psm =
@@ -341,11 +353,10 @@ public sealed class YQLockpickableLoot : MonoBehaviour
                     player);
         }
 
-        OpenChest(
+        return OpenChest(
             state,
-            psm);
-
-        return true;
+            psm,
+            player);
     }
 
     public bool CompleteLockpickFromUi(
@@ -354,7 +365,7 @@ public sealed class YQLockpickableLoot : MonoBehaviour
     {
         SynchronizePersistentState();
 
-        if (_opened)
+        if (_opened && mimic)
             return false;
 
         if (mimic)
@@ -400,11 +411,10 @@ public sealed class YQLockpickableLoot : MonoBehaviour
             "lockpick:success",
             1f);
 
-        OpenChest(
+        return OpenChest(
             state,
-            psm);
-
-        return true;
+            psm,
+            player);
     }
 
     // ============================================================
@@ -474,114 +484,30 @@ public sealed class YQLockpickableLoot : MonoBehaviour
             "lockpick:success",
             1f);
 
-        OpenChest(
+        return OpenChest(
             state,
-            psm);
-
-        return true;
+            psm,
+            player);
     }
     
     // ============================================================
     // OPEN CHEST
     // ============================================================
 
-    private void OpenChest(
-        PlayerState state,
-        PlayerStateManager psm)
+    private bool OpenChest(PlayerState state, PlayerStateManager psm, GameObject player)
     {
-        if (_opened)
-            return;
-
-        /*
-         * Mark first so even another interaction in this frame cannot
-         * duplicate rewards.
-         */
-        _opened =
-            true;
-
-        MarkPersistentOpened(
-            state);
-
-        TriggerFirstAnimator(
-            "openLid",
-            "open");
-
-        YQRuntimeAudioFeedback
-            .PlayChestOpen(
-                transform.position);
-
-        int rewardLevel =
-            ResolveRewardLevel(
-                state);
-
-        string rewardSeed =
-            BuildRewardSeed();
-
-        InventoryItemRecord item =
-            GeneratedRpgContentService.Instance !=
-            null
-                ? GeneratedRpgContentService
-                    .Instance
-                    .GenerateItem(
-                        rewardSeed,
-                        rewardLevel,
-                        null,
-                        false)
-                : null;
-
-        if (state != null)
+        // note: Opening exposes saved contents instead of directly awarding another generated item and currency.
+        YQWorldContainer storage = YQWorldContainer.BindStorage(this);
+        if (!storage.TryOpen(player)) return false;
+        if (!_opened)
         {
-            if (item != null)
-            {
-                state.AddOrUpdateItem(
-                    item);
-            }
-
-            state.currency +=
-                Mathf.Max(
-                    0,
-                    gold);
-
-            state.IncCounter(
-                "loot:chest",
-                1f);
-
-            state.AddLedgerLine(
-                "The player opened " +
-                displayName +
-                ".");
-
-            psm?.Save();
+            _opened = true;
+            TriggerFirstAnimator("openLid", "open");
+            YQRuntimeAudioFeedback.PlayChestOpen(transform.position);
+            ApplyOpenedChestTint();
         }
-
-        GeneratedRpgContentService.Instance
-            ?.SetInventoryMessage(
-                item != null
-                    ? "Opened " +
-                      displayName +
-                      ": " +
-                      item.displayName +
-                      " and " +
-                      gold +
-                      " gold."
-                    : gold > 0
-                        ? "Opened " +
-                          displayName +
-                          ": " +
-                          gold +
-                          " gold."
-                        : "Opened " +
-                          displayName +
-                          ".");
-
-        ApplyOpenedChestTint();
-
-        YQGeneratedRuntimeVfx
-            .SpawnConsumableUse(
-                transform,
-                item);
+        return true;
     }
-
     private int ResolveRewardLevel(
         PlayerState state)
     {
@@ -592,40 +518,8 @@ public sealed class YQLockpickableLoot : MonoBehaviour
                 rewardLevelOverride;
         }
 
-        return
-            state != null
-                ? Mathf.Max(
-                    1,
-                    state.level)
-                : 1;
-    }
-
-    private string BuildRewardSeed()
-    {
-        if (!string.IsNullOrWhiteSpace(
-                persistentLootId))
-        {
-            /*
-             * Stable generated reward seed.
-             *
-             * Opening the same generated chest can never silently switch
-             * to another item-generation identity between sessions.
-             */
-            return
-                "generated_loot:" +
-                persistentLootId.Trim() +
-                ":reward";
-        }
-
-        /*
-         * Preserve legacy authored chest behavior when no stable generated
-         * identity has been assigned.
-         */
-        return
-            regionId +
-            ":" +
-            displayName +
-            ":chest";
+        // note: Missing source metadata has a fixed baseline, independent of the player's level at interaction.
+        return 1;
     }
 
     // ============================================================
@@ -853,26 +747,22 @@ public sealed class YQLockpickableLoot : MonoBehaviour
             null);
 
     }
+    private string _mimicEntityId;
     private string BuildMimicEntityId()
     {
+        // note: Cache the source identity before revealing the mimic changes its EntityInfo into the hostile identity.
+        if (_mimicEntityId != null) return _mimicEntityId;
         if (!string.IsNullOrWhiteSpace(
                 persistentLootId))
         {
-            return
+            return _mimicEntityId =
                 "generated_mimic_" +
                 StableHash32(
                     persistentLootId)
                     .ToString("x8");
         }
 
-        /*
-         * Legacy authored chests did not possess a stable world identity.
-         * Preserve their old runtime-only behavior.
-         */
-        return
-            regionId +
-            "_mimic_" +
-            GetInstanceID();
+        return _mimicEntityId = "generated_mimic_" + YQStateContract.Sha256Hex(YQWorldContainer.ResolveEntityId(transform));
     }
 
     // ============================================================
@@ -881,6 +771,22 @@ public sealed class YQLockpickableLoot : MonoBehaviour
 
     private void SynchronizePersistentState()
     {
+        // note: New storage records retain their unlocked state across streaming; old consumed receipts remain supported below.
+        string storageId = string.IsNullOrWhiteSpace(persistentLootId) ? YQWorldContainer.ResolveEntityId(transform) : persistentLootId;
+        YQContainerRecord stored = YQContainerInventory.Find(WorldStateManager.Instance?.State, storageId);
+        if (!mimic && stored?.generated == true)
+        {
+            locked = stored.locked;
+            _opened = true;
+            _persistentStateApplied = true;
+            return;
+        }
+        if (mimic && YQContainerInventory.Find(WorldStateManager.Instance?.State, BuildMimicEntityId())?.dead == true)
+        {
+            // note: The canonical death record also covers authored mimics which lacked the older opened-counter identity.
+            _opened = true; _persistentStateApplied = true;
+            return;
+        }
         if (_persistentStateApplied &&
             _opened)
         {

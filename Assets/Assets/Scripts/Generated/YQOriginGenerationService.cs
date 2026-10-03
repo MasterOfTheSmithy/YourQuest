@@ -87,8 +87,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         YQGeneratedWorldRuntimeBuilder
     .BeginInitialGenerationGameplayLock();
         // note: Origin data is canonical startup state, so submit it through the typed JSON contract.
-        LLMClient.Instance.Submit(
-    new YQLlmRequest
+        YQLlmRequest originRequest = new YQLlmRequest
     {
         prompt = prompt,
         debugTag = "OriginGeneration",
@@ -103,8 +102,13 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         maxRetries = 0,
         exclusiveOwner = InitialGenerationOwner,
         optionsOverride = options
-    },
-    result =>
+    };
+        originRequest.ownerStillCurrent = () => this != null && isActiveAndEnabled && requestSequence == _originRequestSequence &&
+            CanApplyOriginResult(state, PlayerStateManager.Instance?.state, requestedPlayerId);
+        YQRepairEpisode episode = LLMClient.Instance.CreateRepairEpisode(originRequest, "origin:" + seed, 75d);
+        if (episode != null) episode.Bind(originRequest);
+        Action<YQLlmRequestResult, string, string> accept = null;
+        accept = (result, rawOverride, actualPrompt) =>
     {
         // note: Validate ownership before changing the shared loading screen, voice queue, or accepted player state.
         if (this == null || !isActiveAndEnabled || requestSequence != _originRequestSequence ||
@@ -120,7 +124,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         // note: Completing the bounded origin request advances the startup transaction even when strict parsing selects the deterministic origin fallback.
         YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
         // note: Structured callers receive normalized JSON only after transport and format validation succeeds.
-        string raw = result.success ? result.text : null;
+        string raw = result.success ? (rawOverride ?? result.text) : null;
         if (!TryParseOrigin(
                 raw,
                 seed,
@@ -128,6 +132,15 @@ public sealed class YQOriginGenerationService : MonoBehaviour
                 out YQOriginGenerationDto dto,
                 out string error))
         {
+            // note: Only the observed canonical loadout failure is merged; valid identity/ability/quest fields stay frozen.
+            if (episode != null && episode.CanSubmit(false) && error == "loadout needs at least three named, described items" &&
+                TryParseRootIgnoringBrokenGoddessVoice(ExtractFirstJsonObject(raw), out JObject unaccepted, out _))
+            {
+                PromoteNestedQuestProperty(unaccepted, "loadout");
+                SubmitOriginLoadoutRepair(unaccepted, originRequest, episode, state, requestSequence, requestedPlayerId,
+                    seed, mode, prompt, onReady, accept, result.repairRequestKey, error, null);
+                return;
+            }
             LastOriginGenerationMessage =
                 "Origin LLM result rejected: " +
                 error;
@@ -145,8 +158,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
              * and world generation must continue without allowing
              * dialogue/background LLM work to interrupt the chain.
              */
-            onReady?.Invoke(
-                null);
+            episode?.Finish("FallbackUsed");
+            onReady?.Invoke(null);
 
             return;
         }
@@ -155,7 +168,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         if (!YQContentProposalBoundary.TryPrepare(
             raw,
             "llm_origin_v1",
-            prompt,
+            actualPrompt,
             "origin_v1",
             root => YQContentProposalBoundary.ValidateRequiredProperties(root, "source", "directionKey", "stimulus", "className", "titleName", "ability", "quest", "loadout"),
             null,
@@ -165,6 +178,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         {
             LastOriginGenerationMessage = "Origin proposal rejected at the generic commit boundary: " + proposalError;
             Debug.LogWarning("[YQOriginGenerationService] " + LastOriginGenerationMessage);
+            episode?.Finish("FallbackUsed");
             onReady?.Invoke(null);
             return;
         }
@@ -180,6 +194,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         {
             LastOriginGenerationMessage = "Origin proposal could not be committed: " + proposalReceipt.message;
             Debug.LogWarning("[YQOriginGenerationService] " + LastOriginGenerationMessage);
+            episode?.Finish("Superseded");
             onReady?.Invoke(null);
             return;
         }
@@ -208,11 +223,58 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             .SetOriginReadout(
                 dto);
 
-        onReady?.Invoke(
-            dto);
-    });
+        episode?.Finish(rawOverride == null ? "OriginalAccepted" : "RepairedAccepted");
+        onReady?.Invoke(dto);
+    };
+        LLMClient.Instance.Submit(originRequest, result => accept(result, null, prompt));
 
         return true;
+    }
+
+    private void SubmitOriginLoadoutRepair(JObject unaccepted, YQLlmRequest originalRequest, YQRepairEpisode episode,
+        PlayerState state, int sequence, string playerId, string seed, string mode, string originalPrompt,
+        Action<YQOriginGenerationDto> onReady, Action<YQLlmRequestResult, string, string> accept, string parentKey,
+        string diagnostic, string previousOutput)
+    {
+        string repairPrompt = YQRepairEpisode.RepairPrompt(YQOriginLoadoutRepair.BuildPrompt(originalPrompt, unaccepted), diagnostic, previousOutput);
+        YQLlmRequest request = new YQLlmRequest {
+            prompt = repairPrompt, debugTag = "OriginGenerationLoadoutRepair", category = LLMGenerationCategory.OriginGeneration,
+            priority = YQLlmRequestPriority.StartupExclusive, exclusiveOwner = originalRequest.exclusiveOwner,
+            requireJson = true, maxRetries = 0, parentRequestKey = parentKey,
+            ownerStillCurrent = originalRequest.ownerStillCurrent,
+            optionsOverride = new Dictionary<string, object> { { "num_predict", 480 }, { "temperature", 0.48f },
+                { "top_p", 0.86f }, { "request_timeout_seconds", 75 },
+                { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(seed) } }
+        };
+        episode.Bind(request);
+        LLMClient.Instance.Submit(request, result =>
+        {
+            // note: Never turn a cancelled/streamed-out completion into origin content for a new player.
+            if (this == null || !isActiveAndEnabled || sequence != _originRequestSequence || episode.IsTerminal ||
+                !CanApplyOriginResult(state, PlayerStateManager.Instance?.state, playerId)) return;
+            if (result.outcome == YQLlmTerminalOutcome.Cancelled || result.outcome == YQLlmTerminalOutcome.Superseded || result.outcome == YQLlmTerminalOutcome.Evicted)
+            {
+                episode.Finish("Superseded");
+                return;
+            }
+            string merged = null;
+            string error = result.error;
+            if (result.success && YQOriginLoadoutRepair.TryMerge(unaccepted, result.text, out merged, out error) &&
+                TryParseOrigin(merged, seed, mode, out _, out error))
+            {
+                accept(result, merged, repairPrompt);
+                return;
+            }
+            if (episode.CanSubmit(false) && !(error ?? string.Empty).StartsWith("ContextOverflow", StringComparison.Ordinal))
+            {
+                SubmitOriginLoadoutRepair(unaccepted, originalRequest, episode, state, sequence, playerId,
+                    seed, mode, originalPrompt, onReady, accept, result.repairRequestKey, error, result.text);
+                return;
+            }
+            LastOriginGenerationMessage = "Origin loadout repair exhausted: " + error;
+            episode.Finish("FallbackUsed");
+            onReady?.Invoke(null);
+        });
     }
 
     private static string BuildPrompt(PlayerState state, string mode, IReadOnlyList<string> answers, string seed)

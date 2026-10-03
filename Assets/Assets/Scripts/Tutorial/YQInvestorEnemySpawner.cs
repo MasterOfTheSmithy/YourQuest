@@ -43,6 +43,8 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
     private float _nextGatedSpawnCheckTime;
     private float _nextPlayerResolveTime;
     private Transform _player;
+    private bool _corpseViewsRestored;
+    private bool _allSlotsDefeated;
 
 #if UNITY_EDITOR
     private static readonly Dictionary<string, GameObject> s_editorPrefabCache = new Dictionary<string, GameObject>(System.StringComparer.OrdinalIgnoreCase);
@@ -62,6 +64,8 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
 
     private void Update()
     {
+        // note: A persisted exhausted spawn needs no repeated hashing, inventory lookup or scene work while it remains loaded.
+        if (_allSlotsDefeated) return;
         PruneMissingEnemies();
         if (_alive.Count > 0)
         {
@@ -81,11 +85,35 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
     {
         if (_alive.Count > 0)
             return;
+        // note: A completed encounter blocks new combat, but must still restore its saved corpse inventory after streaming.
+        if (!_corpseViewsRestored && WorldStateManager.Instance?.State != null && PlayerStateManager.Instance?.state != null &&
+            (!requirePlayerNear || IsPlayerNearSpawn()))
+        {
+            for (int i = 0; i < enemyCount; i++)
+            {
+                YQContainerRecord record = YQContainerInventory.Find(WorldStateManager.Instance.State, ResolveSlotId(i));
+                if (record?.dead == true)
+                    YQInvestorLootableCorpse.EnsurePersistedView(record,
+                        record.hasCorpsePosition ? record.corpseLogicalPosition - PlayerStateManager.Instance.state.renderOrigin : transform.position + ResolveSpawnOffset(i), transform);
+            }
+            _corpseViewsRestored = true;
+        }
         if (!CanSpawnNow())
             return;
 
+        int defeatedSlots = 0;
         for (int i = 0; i < enemyCount; i++)
         {
+            // note: Scope legacy slot identities to their spawner, preventing two sites in one region from sharing an enemy inventory.
+            string slotId = ResolveSlotId(i);
+            YQContainerRecord defeated = YQContainerInventory.Find(WorldStateManager.Instance?.State, slotId);
+            if (defeated?.dead == true)
+            {
+                defeatedSlots++;
+                Vector3 origin = PlayerStateManager.Instance?.state?.renderOrigin ?? Vector3.zero;
+                YQInvestorLootableCorpse.EnsurePersistedView(defeated, defeated.hasCorpsePosition ? defeated.corpseLogicalPosition - origin : transform.position + ResolveSpawnOffset(i), transform);
+                continue;
+            }
             // note: Use a stable polar sample for accepted streamed fixtures; legacy unseeded spawners retain their existing random distribution.
             Vector3 offset = ResolveSpawnOffset(i);
             Vector3 pos = transform.position + offset;
@@ -115,7 +143,7 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
             collider.center = new Vector3(0f, collider.height * 0.5f, 0f);
 
             EntityInfo info = go.AddComponent<EntityInfo>();
-            info.entityId = semanticRegionId + "_enemy_" + i;
+            info.entityId = slotId;
             info.displayName = enemyDisplayName;
             info.level = 2;
             info.factionId = factionId;
@@ -140,6 +168,7 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
             YQGeneratedEnemyRuntimeSafety.EnsureAttached(enemy);
             _alive.Add(enemy);
         }
+        _allSlotsDefeated = enemyCount > 0 && defeatedSlots == enemyCount;
     }
 
     public void NotifyEnemyDied(YQInvestorEnemy enemy)
@@ -147,6 +176,12 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
         _alive.Remove(enemy);
         if (_alive.Count == 0)
             _nextGatedSpawnCheckTime = Time.time + Mathf.Max(0.65f, gatedSpawnRetryInterval);
+    }
+
+    private string ResolveSlotId(int slot)
+    {
+        return "enemy:slot:" + YQStateContract.Sha256Hex(
+            (string.IsNullOrWhiteSpace(deterministicSeed) ? YQWorldContainer.ResolveEntityId(transform) : deterministicSeed) + "|" + slot);
     }
 
     private bool CanSpawnNow()

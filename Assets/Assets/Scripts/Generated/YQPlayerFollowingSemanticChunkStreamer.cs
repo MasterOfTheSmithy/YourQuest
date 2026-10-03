@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Profiling;
 using UnityEngine;
 
 public enum YQSemanticChunkLifecycle
@@ -126,6 +128,85 @@ public sealed class YQStreamedFeatureOverlayTarget : MonoBehaviour
 [DisallowMultipleComponent]
 public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 {
+#if UNITY_EDITOR
+    // note: Name existing pure height workers in opt-in traces without registering or changing pooled threads.
+    private static readonly ProfilerMarker BackgroundHeightSamplingMarker =
+        new ProfilerMarker("YQ.R2.Worker.HeightSampling");
+#endif
+    // note: Attribute repeated queue and owner-census CPU separately while preserving the existing dispatch order and resource rules.
+    private static readonly ProfilerMarker ContentStartSearchProfilerMarker =
+        new ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration");
+    private static readonly ProfilerMarker PhysicalOwnerReservationProfilerMarker =
+        new ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryReservePhysicalOwner");
+    private static readonly ProfilerMarker ContentQueueSortProfilerMarker =
+        new ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.SortContentQueue");
+    private static readonly ProfilerMarker ReadyHardViewScanProfilerMarker =
+        new ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryGetReadyHardViewContentCandidate");
+    private static readonly ProfilerMarker ReadyHardPreparationScanProfilerMarker =
+        new ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryGetReadyHardPreparationContentCandidate");
+
+    // note: Separate streamer owner CPU from aggregate Unity update markers while preserving the same scheduling path.
+    private static readonly Unity.Profiling.ProfilerMarker StreamingUpdateMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.Update");
+    private static readonly Unity.Profiling.ProfilerMarker StreamingLateUpdateMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LateUpdate");
+    private static readonly Unity.Profiling.ProfilerMarker TerrainAppearanceSliceMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TerrainAppearanceSlice");
+    // note: Attribute the complete provisional-ground scheduler pass so a frame hitch can be matched to its exact queue owner.
+    private static readonly Unity.Profiling.ProfilerMarker ProvisionalGroundQueueMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.ProcessProvisionalGroundQueue");
+    // note: Attribute lifecycle census, owner transitions, and imported activation callbacks separately when a bounded pass still hitches.
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleDemandScanMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.ApplyLifecycleDemandScan");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleOwnerPassMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.ApplyLifecycleOwnerPass");
+    // note: Bounded binary diagnostics distinguish cumulative lifecycle subcalls without changing readiness, budgets, or operation order.
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleReadinessMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleReadiness");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleActivationSliceMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleActivationSlice");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleVisualReconciliationMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleVisualReconciliation");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleHierarchyVisualGateMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleHierarchyVisualGate");
+    // note: Saved binary samples separate enumeration and native state access from the hierarchy's inclusive cost before another repair is considered.
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleRendererEnumerationMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleRendererEnumeration");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleRendererStateReadMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleRendererStateRead");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleRendererStateWriteMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleRendererStateWrite");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleTerrainLookupMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleTerrainLookup");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleTerrainStateReadMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleTerrainStateRead");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleTerrainStateWriteMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleTerrainStateWrite");
+#if UNITY_EDITOR
+    // note: A binary-only observer counts real hierarchy assignments already at the requested state; clean witnesses never enable the added property reads.
+    internal static bool R2ObserveVisualGateWrites;
+    internal static readonly long[] R2VisualGateWriteCounts = new long[6];
+    internal static long R2VisualRendererWritesPerformed;
+    internal static long R2VisualTerrainWritesPerformed;
+    // note: The Edit-only reconciliation fixture counts actual managed Terrain writes separately from the hierarchy gate.
+    internal static long R2ManagedTerrainWritesPerformed;
+    // note: Only the detached Edit regression enables scan counting; clean gameplay keeps this observer disabled.
+    internal static bool R2ObserveContentCandidateScans;
+    internal static long R2ContentCandidateScans;
+#endif
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleCancellationMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleCancellation");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleTeardownMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.LifecycleTeardown");
+    private static readonly Unity.Profiling.ProfilerMarker LifecycleObjectActivationMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.ApplyLifecycleObjectActivation");
+    // note: Match camera-demand and motor-sweep fallback cost to the same Unity frame as the R2 wall-time witness.
+    private static readonly Unity.Profiling.ProfilerMarker CameraGroundCoverageMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryEnsureCurrentCameraGround");
+    private static readonly Unity.Profiling.ProfilerMarker MotorTraversalConstraintMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.TryConstrainMovement");
+    private static readonly Unity.Profiling.ProfilerMarker ImmediateGroundFallbackMarker =
+        new Unity.Profiling.ProfilerMarker("YQPlayerFollowingSemanticChunkStreamer.EnsureGroundRepresentationImmediately");
     [Flags]
     private enum PhysicalDemandReason
     {
@@ -135,6 +216,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         Travel = 8,
         ImmediateNeighbor = 16,
         SharedSite = 32
+    }
+
+    // note: Distinguish camera safety publication from capsule probes so stress receipts identify which deadline exhausted prepared terrain.
+    private enum GroundFallbackSource
+    {
+        CameraView,
+        CapsuleStart,
+        StationaryProbe,
+        SweptFootprint
     }
 
     // note: Expose the configured world streamer so the authoritative motor can enforce the same traversal contract before moving.
@@ -165,9 +255,23 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         public float startedAt;
         public string phase;
         public Coroutine coroutine;
+        // note: Terrain appearance may finish during collider cooking but is not exposed until collision publication commits.
+        public bool appearancePrepared;
         public bool published;
         public bool cancelled;
         public bool resourcesDestroyed;
+    }
+
+    private sealed class PendingRequiredEcologyPublication
+    {
+        // note: Share one attempt's prepared receipt with its structural owner; a delayed coroutine must observe publication before cancellation cleanup.
+        public StreamingWorkToken token;
+        public long workId;
+        public GameObject root;
+        public int result = int.MinValue;
+        public string providerFailure;
+        public string failure;
+        public bool published;
     }
 
     // note: Align streamed tile coordinates with the authored terrain's centered 1024 metre footprint.
@@ -251,15 +355,19 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private const int MaximumPendingTerrainColliderPublications = 2;
     // note: Use Unity's minimum valid terrain heightmap for temporary ground; canonical terrain replaces this same-authority 4 m preview with full detail.
     private const int ProvisionalGroundHeightmapResolution = 33;
+    private const int ProvisionalGroundAlphamapResolution = 32;
     // note: Sample a smaller same-authority emergency grid, then interpolate it to Unity's minimum valid TerrainData resolution before publication.
     private const int EmergencyGroundHeightmapResolution = 13;
     private const int MinimumProvisionalGroundHeightmapResolution = 33;
     // note: Prebuild a temporary same-authority ground tile for incomplete view/preparation demand so sudden speed increases inherit ready terrain.
     private const int MaximumConcurrentProvisionalGroundSamplers = 4;
     private const int MaximumHighSpeedProvisionalGroundSamplers = 8;
-    // note: Completed heightmaps release worker slots but stay bounded until main-thread Terrain publication catches up.
-    private const int MaximumRetainedProvisionalGroundHeightmaps = 32;
+    // note: Keep bounded completed results available while one collision-safe Terrain publication is admitted per frame, so a newly visible deadline can still enter the sampler pool.
+    private const int MaximumRetainedProvisionalGroundHeightmaps = 64;
     private const int MaximumProvisionalGroundPublicationsPerFrame = 1;
+    // note: A second publication may serve an already-visible cell only when the complete shared frame allowance still has room.
+    // note: Completed live-view samples may use additional bounded publication slices before motor camera admission would otherwise synchronously publish them.
+    private const int MaximumUrgentVisibleProvisionalGroundPublicationsPerFrame = 3;
     // note: Reuse retired safety Terrains at the moving frontier so a visibility-deadline miss does not allocate and destroy native TerrainData during fast travel.
     private const int MaximumPooledProvisionalGroundTiles = 32;
     // note: Keep more than the 2.5-second stress traversal of exact-authority ground ahead of the live camera.
@@ -272,6 +380,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private const float HardViewAdmissionDirectionDotThreshold = 0.8f;
     // note: All streamer-owned main-thread lanes draw from this one per-frame allowance; an individual opaque Unity/API call may overrun, but no second lane starts after the shared deadline.
     private const float AggregateMainThreadBudgetSeconds = 0.010f;
+    // note: Keep one existing provider-layer slice available to required camera-view ecology inside the shared frame budget.
+    private const float RequiredHardViewEcologyBudgetReserveSeconds = 0.004f;
     private const float ContentSliceTargetSeconds = AggregateMainThreadBudgetSeconds;
     // note: Bound required-content concurrency explicitly; terrain sampling, painting, and ecology retain bounded independent workers but share the main-thread allowance.
     // note: Keep one bounded content lane available for the live camera envelope; site-content workers may legitimately wait on terrain and must not starve visible publication.
@@ -302,6 +412,94 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     // note: Detailed streaming snapshots remain available at a lower cadence; two-second console writes were outside the measured work slice and caused avoidable editor frame spikes.
     private const float DiagnosticsIntervalSeconds = 10f;
 
+    // note: Per-owner progress is transient observation only; it never advances or reschedules work.
+    private sealed class OwnerIteratorProgress
+    {
+        public Type iteratorType, yieldType;
+        public string providerSubstage;
+        public bool yieldPending;
+        public double iteratorStartedAt = -1d, yieldStartedAt = -1d, deniedStartedAt = -1d;
+        public long steps;
+        public double stepSeconds, maximumStepSeconds, deniedSeconds;
+        public int lastStepFrame = -1, lastDeniedFrame = -1, deniedFrames;
+
+        public void Reset()
+        {
+            iteratorType = yieldType = null;
+            providerSubstage = null;
+            yieldPending = false;
+            iteratorStartedAt = yieldStartedAt = deniedStartedAt = -1d;
+            steps = 0;
+            stepSeconds = maximumStepSeconds = deniedSeconds = 0d;
+            lastStepFrame = lastDeniedFrame = -1;
+            deniedFrames = 0;
+        }
+
+        public void ObserveIterator(IEnumerator current)
+        {
+            Type nextType = current.GetType();
+            if (iteratorType != nextType)
+            {
+                iteratorType = nextType;
+                iteratorStartedAt = Time.realtimeSinceStartupAsDouble;
+            }
+        }
+
+        public void Resume()
+        {
+            yieldPending = false;
+            yieldStartedAt = -1d;
+        }
+
+        public void Denied()
+        {
+            if (lastDeniedFrame != Time.frameCount)
+            {
+                deniedFrames++;
+                lastDeniedFrame = Time.frameCount;
+            }
+            if (deniedStartedAt < 0d)
+                deniedStartedAt = Time.realtimeSinceStartupAsDouble;
+        }
+
+        public void Admitted()
+        {
+            if (deniedStartedAt >= 0d)
+                deniedSeconds += Time.realtimeSinceStartupAsDouble - deniedStartedAt;
+            deniedStartedAt = -1d;
+        }
+
+        public void Stepped(double start)
+        {
+            double elapsed = Math.Max(0d, Time.realtimeSinceStartupAsDouble - start);
+            steps++;
+            stepSeconds += elapsed;
+            maximumStepSeconds = Math.Max(maximumStepSeconds, elapsed);
+            lastStepFrame = Time.frameCount;
+        }
+
+        public void Yielded(object value)
+        {
+            yieldType = value == null ? null : value.GetType();
+            yieldPending = true;
+            yieldStartedAt = Time.realtimeSinceStartupAsDouble;
+        }
+
+        public string Describe(double now)
+        {
+            double denied = deniedSeconds + (deniedStartedAt < 0d ? 0d : now - deniedStartedAt);
+            return "iterator=" + (iteratorType == null ? "none" : iteratorType.Name) +
+                ",iteratorTypeAge=" + (iteratorStartedAt < 0d ? "n/a" : (now - iteratorStartedAt).ToString("0.000")) +
+                ",steps=" + steps + ",stepMs=" + (stepSeconds * 1000d).ToString("0.000") +
+                ",maxStepMs=" + (maximumStepSeconds * 1000d).ToString("0.000") +
+                ",lastStepFrame=" + lastStepFrame + ",yield=" +
+                (yieldPending ? (yieldType == null ? "frame" : yieldType.Name) : "none") +
+                ",yieldAge=" + (yieldPending ? (now - yieldStartedAt).ToString("0.000") : "n/a") +
+                ",budgetDeniedFrames=" + deniedFrames + ",budgetDeniedSeconds=" + denied.ToString("0.000") +
+                (providerSubstage == null ? string.Empty : ",providerSubstage=" + providerSubstage);
+        }
+    }
+
     private sealed class RuntimeChunk
     {
         public GeneratedSemanticChunkRecord record;
@@ -319,6 +517,34 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         public int terrainOwnerEpoch = 1;
         public int contentOwnerEpoch = 1;
         public long decorativeWorkId;
+        // note: Transient timestamps identify whether a visible ecology miss began in demand admission, structure, or scatter work.
+        public float hardViewAdmittedAt = -1f;
+        public float collisionReadyAt = -1f;
+        // note: Preserve queue age separately from hard-view age to distinguish late admission from worker dispatch delay.
+        public float contentQueuedAt = -1f;
+        public float contentStartedAt = -1f;
+        public float contentReadyAt = -1f;
+        public float ecologyStartedAt = -1f;
+        public double appearanceWorkStartedAt = -1d;
+        // note: Reset progress per content epoch; retain only the latest preemption and bounded attempt counts.
+        public readonly OwnerIteratorProgress structuralProgress = new OwnerIteratorProgress();
+        public readonly OwnerIteratorProgress ecologyProgress = new OwnerIteratorProgress();
+        // note: Keep paint-lane progress separate so a visible appearance miss identifies biome, detail, or budget-wait work.
+        public readonly OwnerIteratorProgress biomeAppearanceProgress = new OwnerIteratorProgress();
+        public readonly OwnerIteratorProgress detailAppearanceProgress = new OwnerIteratorProgress();
+        public string appearanceDetailSubstage = string.Empty;
+        public int progressEpoch, contentAttemptCount, diagnosticPreemptionCount, lastPreemptedEpoch;
+        // note: Attribute shared hard-view content headroom to the owner so a starved visible iterator reveals who claimed its reserved progress.
+        public int hardViewProgressReserveSlices, hardViewProgressReserveDeniedFrames, hardViewProgressYieldedToLiveFrames;
+        public int lastHardViewProgressDiagnosticFrame = -1;
+        // note: Keep bounded failure-only terrain dispatch counters so an incomplete live cell identifies queue, active-slot, and owner-capacity waits.
+        public int terrainDispatchWaitFrames, terrainDispatchActiveFrames, terrainDispatchPublicationFrames;
+        public int terrainDispatchPainterFrames, terrainDispatchAdmissionFrames, terrainDispatchCapacityFrames;
+        public int terrainDispatchOtherCandidateFrames, terrainDispatchStartedFrames, lastTerrainDispatchDiagnosticFrame = -1;
+        public int lastTerrainDispatchQueueIndex = -1;
+        public double progressStartedAt = -1d, epochHardDemandAt = -1d, epochCollisionAt = -1d, lastPreemptedAt = -1d;
+        public bool hardDemandReadyAtStart, collisionReadyAtStart;
+        public Vector2Int lastPreemptingCoordinate;
         // note: Slot ownership survives coroutine cancellation and is released by the same work identity exactly once.
         public long decorativeSlotWorkId;
         public string decorativeWorkPhase = string.Empty;
@@ -339,6 +565,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         public YQSemanticChunkLifecycle state;
         // note: Ecology may prepare beside required structure, but its readiness receipt waits for structural and overlay publication.
         public Coroutine decorativeGeneration;
+        public PendingRequiredEcologyPublication pendingRequiredEcology;
         // note: Core canopy/understory/shrubs plus the streamed Terrain detail grass are the minimum ecology needed before a continuation cell may enter the camera; prefab groundcover, rocks, and edge dressing may finish afterward.
         public bool requiredEcologyReady;
         public bool decorativeComplete;
@@ -372,6 +599,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         public RuntimeChunk owner;
         public Task<float[,]> task;
         public CancellationTokenSource cancellation;
+        public YQContinuousWorldFeatureMaterializer.PreparedBiomeAlphamap preparedBiomeAlphamap;
         public bool abandoned;
     }
 
@@ -385,6 +613,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private readonly List<Vector2Int> _queue = new List<Vector2Int>();
     // note: Reuse a sorted snapshot while projecting the live view into future camera cells at high traversal speeds.
     private readonly List<Vector2Int> _semanticViewPredictionScratch = new List<Vector2Int>(64);
+    // note: Adjacent future frusta overlap heavily; process each projected coordinate once at its earliest arrival during a lane refresh.
+    private readonly HashSet<Vector2Int> _semanticViewPredictionVisited = new HashSet<Vector2Int>(4096);
     // note: Keep the earliest future-frustum deadline so broad turn-buffer demand cannot outrank cells about to enter view.
     private readonly Dictionary<Vector2Int, float> _semanticViewPredictionArrivalSeconds =
         new Dictionary<Vector2Int, float>(128);
@@ -392,6 +622,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private Vector2Int _lastSemanticViewPredictionCameraChunk = new Vector2Int(int.MinValue, int.MinValue);
     private float _nextSemanticViewPredictionRefreshAt;
     private bool _hasSemanticViewPrediction;
+    private int _lastSemanticViewPredictionAdmissionBudget;
+    private int _lastSemanticViewPredictionAdmitted;
+    private int _lastSemanticViewPredictionProjectedHard;
+    private int _lastSemanticViewPredictionOwnerBudgetSkipped;
+    private float _lastSemanticViewPredictionRefreshAt;
     // note: Content demand is narrower than terrain coverage so decoration cannot backlog behind the player while colliders are still prewarmed.
     private readonly HashSet<Vector2Int> _contentDemand = new HashSet<Vector2Int>();
     // note: This set is the hard camera contract plus its bounded one-cell preparation envelope; the exact live frustum is tracked separately for strict publication deadlines.
@@ -460,6 +695,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private float _lastStreamingWorkSeconds;
     private int _lastStreamingWorkFrameCount = -1;
     private float _maximumStreamingWorkSeconds;
+    // note: Measure periodic diagnostic formatting separately because it runs after the bounded gameplay work slice.
+    private float _maximumStreamerDiagnosticLogSeconds;
     // note: Keep one deduplicated, capacity-limited physical admission set for the live, visible, predictive, and shared-site envelope.
     private readonly Dictionary<Vector2Int, PhysicalDemandReason> _physicalDemand =
         new Dictionary<Vector2Int, PhysicalDemandReason>();
@@ -467,12 +704,541 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private bool _physicalDemandVisibleOverflow;
     private bool _physicalDemandOverflowReported;
     private int _aggregateBudgetFrame = -1;
+    private int _requiredHardViewEcologyBudgetFrame = -1;
     private float _aggregateFrameWorkSeconds;
+    private int _maximumAggregateFrameWorkFrame = -1;
     private int _reservedTerrainUploadFrame = -1;
+    // note: Reserve one collider synchronization for demanded terrain per frame so two waiting collider tickets cannot block all further terrain dispatch.
+    private int _reservedTerrainColliderSyncFrame = -1;
     // note: Preserve one bounded frame slice for already-visible terrain appearance when normal streaming work reaches its shared deadline.
-    private int _reservedLiveAppearanceFrame = -1;
+    private int _reservedHardViewAppearanceFrame = -1;
+    // note: The explicit R2 probe owns this fixed ring; ordinary gameplay allocates and records nothing.
+    private struct AppearanceBudgetObservation
+    {
+        public int frame, lane, outcome, winnerLane;
+        public Vector2Int coordinate, winner;
+        public bool visible, winnerVisible;
+        public float arrival, winnerArrival, spent;
+    }
+    private AppearanceBudgetObservation[] _appearanceBudgetObservations;
+    private int _appearanceBudgetObservationCount;
+    private bool _appearanceBudgetObservationActive;
+    private int _appearanceBudgetWinnerFrame = -1, _appearanceBudgetWinnerLane;
+    private Vector2Int _appearanceBudgetWinner, _appearanceBudgetFailureTarget;
+    // note: Keep a bounded per-frame terrain handoff trace so an R2 miss can distinguish a one-frame cancel from repeated loss of an urgent request.
+    private struct TerrainDispatchObservation
+    {
+        public int frame, queueCount, targetQueueIndex, physicalOwners, pendingPublications;
+        public Vector2Int head, second, third, active, target;
+        public int headPriority, secondPriority, thirdPriority, activePriority, targetPriority;
+        public bool activeExists, activePreempted, targetKnown, targetQueued, targetActive;
+        public float activeAge, targetRequestAge;
+        public long activeWorkId;
+        public string activePhase;
+    }
+    private TerrainDispatchObservation[] _terrainDispatchObservations;
+    private int _terrainDispatchObservationCount;
+    private int _terrainDispatchFailureFrame = -1;
+    private Vector2Int _terrainDispatchFailureTarget;
+
+    // note: An explicit focused witness owns this append-only buffer. Keep the first admission even if a later cell fails or the buffer fills.
+    private static readonly Vector2Int FixedTerrainTraceTarget = new Vector2Int(11, 5);
+    // note: Diagnostic replay retains transitions for every demanded cell, so the first miss need not be guessed in advance.
+    private struct CompleteCellObservation
+    {
+        public int frame, classes, terrainRank, contentRank, priority, configurationEpoch, contentEpoch;
+        public int preemptions, structureDenied, ecologyDenied, appearanceDenied, owners, demandCount, painters, colliders;
+        public long structureSteps, ecologySteps, appearanceSteps;
+        public double time, structureMs, ecologyMs;
+        public float arrival, budgetMs;
+        public string phase, reason, structureStage, ecologyStage, appearanceStage;
+        public Vector2Int coordinate, terrainOwner, contentHead;
+        public YQSemanticChunkPublicationSnapshot snapshot;
+        public bool complete, stageReady, rootPresent, rootActive, rootInHierarchy;
+        public int ownedCount, activationCursor, activationTarget, activeState;
+        public bool queueCurrentUnready, queueRequiredCollision, queueImmediateCollision;
+        public Vector2Int queueCurrentCoordinate;
+        public Vector2 queueVelocity;
+    }
+    private CompleteCellObservation[] _completeCellHistory;
+    private readonly Dictionary<Vector2Int, CompleteCellObservation> _completeCellLast = new Dictionary<Vector2Int, CompleteCellObservation>();
+    private readonly List<Vector2Int> _completeCellRemoved = new List<Vector2Int>();
+    private readonly Dictionary<Vector2Int, int> _completeCellSweepFrames = new Dictionary<Vector2Int, int>();
+    private int _completeCellHistoryCount, _completeCellDropped, _completeCellFailureCount = -1;
+    private int _completeCellIgnoredNoOwner;
+    private Vector2Int _completeCellFailureCoordinate;
+    private string _completeCellPhase = "approach";
+
+    public void BeginCompleteCellObservation()
+    {
+        // note: This larger history is opt-in, allocated before measurement, and never admits or prepares gameplay work.
+        _completeCellHistory = new CompleteCellObservation[65536];
+        _completeCellLast.Clear();
+        _completeCellSweepFrames.Clear();
+        _completeCellHistoryCount = _completeCellDropped = 0;
+        _completeCellIgnoredNoOwner = 0;
+        _completeCellFailureCount = -1;
+        _completeCellPhase = "approach";
+        SampleCompleteCellObservation("begin", true);
+    }
+
+    public void SetCompleteCellObservationPhase(string phase)
+    {
+        if (_completeCellHistory == null)
+            return;
+        SampleCompleteCellObservation("phaseEnd", true);
+        _completeCellPhase = phase;
+        SampleCompleteCellObservation("phaseStart", true);
+    }
+
+    internal static bool IsCompleteCellObservationCoordinate(Vector2Int coordinate)
+    {
+        // note: This exact pair denotes an idle/no-owner scheduler slot, not a physical or canonical cell; leave every other signed coordinate eligible for observation.
+        return coordinate.x != int.MinValue || coordinate.y != int.MinValue;
+    }
+
+    private void ObserveCompleteCell(Vector2Int coordinate, string reason, bool force = false)
+    {
+        if (_completeCellHistory == null)
+            return;
+        // note: Idle dispatch events still remain in the fixed-target trace, but must not enter cell snapshot distance arithmetic or abort the production Update.
+        if (!IsCompleteCellObservationCoordinate(coordinate))
+        {
+            _completeCellIgnoredNoOwner++;
+            return;
+        }
+        bool known = _completeCellLast.TryGetValue(coordinate, out CompleteCellObservation previous);
+        if (!known && _completeCellLast.Count >= 2048)
+        {
+            _completeCellDropped++;
+            return;
+        }
+        TryGetPublicationSnapshot(coordinate, out YQSemanticChunkPublicationSnapshot snapshot);
+        RuntimeChunk chunk = GetRuntimeChunk(coordinate);
+        int classes = (_guaranteedViewDemand.Contains(coordinate) ? 1 : 0) |
+            (_provisionalGroundTurnBufferDemand.Contains(coordinate) ? 2 : 0) |
+            (_completeCellSweepFrames.TryGetValue(coordinate, out int sweptFrame) && sweptFrame == Time.frameCount ? 4 : 0) |
+            (_semanticViewPredictionArrivalSeconds.ContainsKey(coordinate) ? 8 : 0) |
+            (_physicalDemand.ContainsKey(coordinate) ? 16 : 0) |
+            (_hardViewDemand.Contains(coordinate) ? 32 : 0) |
+            (snapshot.siteTerrainDependency ? 64 : 0);
+        // note: Record the comparator's safety predicates at observation time; a later frame-end rank cannot reconstruct the exact dispatch choice.
+        Vector2 queueVelocity = ResolveTraversalVelocity();
+        bool terrainUnpublished = !IsChunkInsideAuthoredTerrain(coordinate) && !HasPublishedTerrain(coordinate);
+        var item = new CompleteCellObservation
+        {
+            frame = Time.frameCount, time = Time.realtimeSinceStartupAsDouble, coordinate = coordinate,
+            phase = _completeCellPhase, reason = reason, classes = classes, snapshot = snapshot,
+            terrainRank = _terrainQueue.IndexOf(coordinate), contentRank = _queue.IndexOf(coordinate),
+            priority = TerrainPreparationPriority(coordinate, queueVelocity),
+            queueCurrentCoordinate = _currentChunk, queueVelocity = queueVelocity,
+            queueCurrentUnready = coordinate == _currentChunk && terrainUnpublished,
+            queueRequiredCollision = IsRequiredCoverageCoordinate(coordinate) && terrainUnpublished,
+            queueImmediateCollision = queueVelocity.sqrMagnitude > 0.01f && IsImmediateTraversalTerrainCoordinate(coordinate, queueVelocity),
+            arrival = _semanticViewPredictionArrivalSeconds.TryGetValue(coordinate, out float arrival) ? arrival : -1f,
+            configurationEpoch = _configurationEpoch, contentEpoch = chunk != null ? chunk.contentOwnerEpoch : 0,
+            preemptions = chunk != null ? chunk.diagnosticPreemptionCount : 0,
+            structureSteps = chunk != null ? chunk.structuralProgress.steps : 0,
+            ecologySteps = chunk != null ? chunk.ecologyProgress.steps : 0,
+            appearanceSteps = chunk != null ? chunk.biomeAppearanceProgress.steps + chunk.detailAppearanceProgress.steps : 0,
+            appearanceStage = chunk != null ? chunk.appearanceDetailSubstage : null,
+            structureDenied = chunk != null ? chunk.structuralProgress.deniedFrames : 0,
+            ecologyDenied = chunk != null ? chunk.ecologyProgress.deniedFrames : 0,
+            appearanceDenied = chunk != null ? chunk.biomeAppearanceProgress.deniedFrames + chunk.detailAppearanceProgress.deniedFrames : 0,
+            structureMs = chunk != null ? chunk.structuralProgress.stepSeconds * 1000d : 0d,
+            ecologyMs = chunk != null ? chunk.ecologyProgress.stepSeconds * 1000d : 0d,
+            structureStage = chunk != null ? chunk.structuralProgress.iteratorType?.Name : null,
+            ecologyStage = chunk != null ? chunk.ecologyProgress.iteratorType?.Name : null,
+            terrainOwner = _terrainPreparingCoordinate,
+            contentHead = _queue.Count > 0 ? _queue[0] : new Vector2Int(int.MinValue, int.MinValue),
+            owners = _physicalCount, demandCount = _physicalDemand.Count, painters = _terrainPainting.Count,
+            colliders = _pendingTerrainPublications.Count,
+            budgetMs = _aggregateBudgetFrame == Time.frameCount ? _aggregateFrameWorkSeconds * 1000f : 0f,
+            // note: Distinguish prepared stage flags from actual published hierarchy; hidden roots cannot count as complete cells.
+            complete = IsFullyLoadedForView(coordinate, chunk),
+            rootPresent = chunk != null && chunk.generationRoot != null,
+            rootActive = chunk != null && chunk.generationRoot != null && chunk.generationRoot.activeSelf,
+            rootInHierarchy = chunk != null && chunk.generationRoot != null && chunk.generationRoot.activeInHierarchy,
+            ownedCount = chunk != null ? chunk.ownedObjects.Count : 0,
+            activationCursor = chunk != null ? chunk.activationCursor : 0,
+            activationTarget = chunk != null ? chunk.activationTarget : -1,
+            activeState = chunk != null ? chunk.activeState : -1,
+            stageReady = snapshot.terrainReadiness >= YQTerrainReadinessState.CollisionReady && snapshot.requiredContentReady &&
+                snapshot.appearanceReady && snapshot.requiredEcologyReady && snapshot.overlayReady && snapshot.activationComplete &&
+                (chunk == null || chunk.visualReady)
+        };
+        // note: Time and continuously decreasing arrival are not transition keys; unchanged cells do not consume the bounded history.
+        bool changed = !known || previous.phase != item.phase || previous.classes != item.classes ||
+            previous.queueCurrentUnready != item.queueCurrentUnready || previous.queueRequiredCollision != item.queueRequiredCollision ||
+            previous.queueImmediateCollision != item.queueImmediateCollision || previous.queueCurrentCoordinate != item.queueCurrentCoordinate ||
+            previous.terrainRank != item.terrainRank || previous.contentRank != item.contentRank || previous.priority != item.priority ||
+            previous.configurationEpoch != item.configurationEpoch || previous.contentEpoch != item.contentEpoch ||
+            previous.preemptions != item.preemptions || previous.structureSteps != item.structureSteps || previous.ecologySteps != item.ecologySteps ||
+            previous.structureDenied != item.structureDenied || previous.ecologyDenied != item.ecologyDenied || previous.appearanceDenied != item.appearanceDenied ||
+            previous.appearanceSteps != item.appearanceSteps || previous.appearanceStage != item.appearanceStage ||
+            previous.complete != item.complete || previous.stageReady != item.stageReady ||
+            previous.rootPresent != item.rootPresent || previous.rootActive != item.rootActive || previous.rootInHierarchy != item.rootInHierarchy ||
+            previous.ownedCount != item.ownedCount || previous.activationCursor != item.activationCursor ||
+            previous.activationTarget != item.activationTarget || previous.activeState != item.activeState || previous.snapshot.ownerEpoch != snapshot.ownerEpoch ||
+            previous.snapshot.publicationVersion != snapshot.publicationVersion || previous.snapshot.terrainReadiness != snapshot.terrainReadiness ||
+            previous.snapshot.terrainWorkId != snapshot.terrainWorkId || previous.snapshot.terrainWorkPhase != snapshot.terrainWorkPhase ||
+            previous.snapshot.contentWorkId != snapshot.contentWorkId || previous.snapshot.appearanceWorkVersion != snapshot.appearanceWorkVersion ||
+            previous.snapshot.ecologyWorkId != snapshot.ecologyWorkId || previous.snapshot.ecologyWorkPhase != snapshot.ecologyWorkPhase ||
+            previous.snapshot.requiredContentReady != snapshot.requiredContentReady || previous.snapshot.appearanceReady != snapshot.appearanceReady ||
+            previous.snapshot.requiredEcologyReady != snapshot.requiredEcologyReady || previous.snapshot.overlayReady != snapshot.overlayReady ||
+            previous.snapshot.activationComplete != snapshot.activationComplete;
+        if (!force && !changed)
+            return;
+        _completeCellLast[coordinate] = item;
+        if (_completeCellHistoryCount < _completeCellHistory.Length)
+            _completeCellHistory[_completeCellHistoryCount++] = item;
+        else
+            _completeCellDropped++;
+    }
+
+    private void SampleCompleteCellObservation(string reason, bool force = false)
+    {
+        if (_completeCellHistory == null)
+            return;
+        foreach (Vector2Int coordinate in _physicalDemand.Keys)
+            ObserveCompleteCell(coordinate, reason, force);
+        // note: Record departures once so phase throughput can distinguish completion from discarded demand.
+        _completeCellRemoved.Clear();
+        foreach (KeyValuePair<Vector2Int, CompleteCellObservation> pair in _completeCellLast)
+            if ((pair.Value.classes & 16) != 0 && !_physicalDemand.ContainsKey(pair.Key))
+                _completeCellRemoved.Add(pair.Key);
+        foreach (Vector2Int coordinate in _completeCellRemoved)
+            ObserveCompleteCell(coordinate, "demandRemoved", true);
+    }
+
+    public string FinishCompleteCellObservation()
+    {
+        if (_completeCellHistory == null)
+            return "not-recorded";
+        SampleCompleteCellObservation("windowEnd", true);
+        var report = new StringBuilder();
+        report.Append("# records=").Append(_completeCellHistoryCount).Append(" dropped=").Append(_completeCellDropped)
+            .Append(" ignoredNoOwner=").Append(_completeCellIgnoredNoOwner)
+            .Append(" firstFailure=").Append(_completeCellFailureCoordinate).Append(" frozenPrefixRecords=").Append(_completeCellFailureCount)
+            .AppendLine(" classes=1:visible,2:turn,4:exactSweep,8:predictive,16:physical,32:hard,64:site; classes overlap; arrival is existing prediction, first visible membership is observed exposure; frame-end transitions bound publication times; no scheduler mutation");
+        report.AppendLine("frame\ttime\tphase\tevent\tcell\tclasses\tcomplete\tterrain\tcontent\tappearance\tecology\toverlay\tactivation\tterrainRank\tcontentRank\tpriority\tarrival\tconfigurationEpoch\tterrainEpoch\tcontentEpoch\tpublicationVersion\tterrainWork\tterrainPhase\tcolliderPending\tcontentWork\tappearanceWork\tecologyWork\tecologyPhase\tstructureSteps\tstructureMs\tstructureStage\tstructureDenied\tecologySteps\tecologyMs\tecologyStage\tecologyDenied\tappearanceDenied\tpreemptions\tterrainOwner\tcontentHead\towners\tdemandCount\tpainters\tcolliders\tbudgetMs\tappearanceSteps\tappearanceStage\tstageReady\trootPresent\trootActive\trootInHierarchy\townedCount\tactivationCursor\tactivationTarget\tactiveState\tqueueCurrentUnready\tqueueRequiredCollision\tqueueImmediateCollision\tqueueCurrentCoordinate\tqueueVelocityX\tqueueVelocityZ");
+        for (int index = 0; index < _completeCellHistoryCount; index++)
+        {
+            CompleteCellObservation item = _completeCellHistory[index];
+            var s = item.snapshot;
+            report.AppendLine(string.Join("\t", new object[] { item.frame, item.time.ToString("F6", CultureInfo.InvariantCulture), item.phase, item.reason,
+                item.coordinate, item.classes, item.complete, s.terrainReadiness, s.requiredContentReady, s.appearanceReady, s.requiredEcologyReady,
+                s.overlayReady, s.activationComplete, item.terrainRank, item.contentRank, item.priority, item.arrival.ToString("F4", CultureInfo.InvariantCulture),
+                item.configurationEpoch, s.ownerEpoch, item.contentEpoch, s.publicationVersion, s.terrainWorkId, s.terrainWorkPhase, s.terrainColliderPublicationPending,
+                s.contentWorkId, s.appearanceWorkVersion, s.ecologyWorkId, s.ecologyWorkPhase, item.structureSteps, item.structureMs.ToString("F3", CultureInfo.InvariantCulture),
+                item.structureStage, item.structureDenied, item.ecologySteps, item.ecologyMs.ToString("F3", CultureInfo.InvariantCulture), item.ecologyStage,
+                item.ecologyDenied, item.appearanceDenied, item.preemptions, item.terrainOwner, item.contentHead, item.owners, item.demandCount,
+                item.painters, item.colliders, item.budgetMs.ToString("F3", CultureInfo.InvariantCulture), item.appearanceSteps, item.appearanceStage,
+                item.stageReady, item.rootPresent, item.rootActive, item.rootInHierarchy, item.ownedCount, item.activationCursor, item.activationTarget, item.activeState,
+                item.queueCurrentUnready, item.queueRequiredCollision, item.queueImmediateCollision, item.queueCurrentCoordinate,
+                item.queueVelocity.x.ToString("R", CultureInfo.InvariantCulture), item.queueVelocity.y.ToString("R", CultureInfo.InvariantCulture) }));
+        }
+        _completeCellHistory = null;
+        _completeCellLast.Clear();
+        _completeCellSweepFrames.Clear();
+        return report.ToString();
+    }
+    private struct FixedTerrainObservation
+    {
+        public int frame, request, rank, priority, demandRevision, demandFrame, sweptFrame;
+        public int owners, painters, colliders, activePriority, configurationEpoch, activeOwnerEpoch;
+        public long ticks, activeWorkId, eventWorkId;
+        public double time, admissionAge;
+        public float requestAge, activeAge, spent, slice;
+        public Vector2Int actor, active, head;
+        public string reason, phase;
+        public bool cancel, physicalDemand, pendingViewRefresh, viewValid;
+        public YQSemanticChunkPublicationSnapshot target;
+    }
+    private FixedTerrainObservation[] _fixedTerrainObservations;
+    private int _fixedTerrainCount, _fixedTerrainDropped, _fixedTerrainRequest;
+    private int _fixedTerrainDemandRevision, _fixedTerrainDemandFrame = -1, _fixedTerrainSweptFrame = -1;
+    private double _fixedTerrainFirstAdmission = -1d;
+
+    private void BeginFixedTerrainObservation()
+    {
+        _fixedTerrainObservations = new FixedTerrainObservation[8192];
+        _fixedTerrainCount = _fixedTerrainDropped = _fixedTerrainRequest = _fixedTerrainDemandRevision = 0;
+        _fixedTerrainDemandFrame = _fixedTerrainSweptFrame = -1;
+        _fixedTerrainFirstAdmission = -1d;
+        RecordFixedTerrainObservation("begin; earlier admission not observed", FixedTerrainTraceTarget);
+    }
+
+    private void RecordFixedTerrainObservation(string reason, Vector2Int actor, long eventWorkId = 0)
+    {
+        ObserveCompleteCell(actor, reason);
+        if (_fixedTerrainObservations == null)
+            return;
+        if (_fixedTerrainCount == _fixedTerrainObservations.Length)
+        {
+            _fixedTerrainDropped++;
+            return;
+        }
+        // note: Snapshot only existing state; never sort, refresh demand, reserve capacity, or allocate gameplay work while tracing.
+        TryGetPublicationSnapshot(FixedTerrainTraceTarget, out YQSemanticChunkPublicationSnapshot target);
+        Vector2 velocity = ResolveTraversalVelocity();
+        RuntimeChunk activeOwner = GetRuntimeChunk(_terrainPreparingCoordinate);
+        _fixedTerrainObservations[_fixedTerrainCount++] = new FixedTerrainObservation
+        {
+            frame = Time.frameCount, ticks = System.Diagnostics.Stopwatch.GetTimestamp(),
+            time = Time.realtimeSinceStartupAsDouble, reason = reason, actor = actor, eventWorkId = eventWorkId,
+            request = _fixedTerrainRequest,
+            admissionAge = _fixedTerrainFirstAdmission < 0d ? -1d : Time.realtimeSinceStartupAsDouble - _fixedTerrainFirstAdmission,
+            requestAge = _terrainRequestedAt.TryGetValue(FixedTerrainTraceTarget, out float requestedAt)
+                ? Time.unscaledTime - requestedAt : -1f,
+            rank = _terrainQueue.IndexOf(FixedTerrainTraceTarget), priority = TerrainPreparationPriority(FixedTerrainTraceTarget, velocity),
+            demandRevision = _fixedTerrainDemandRevision, demandFrame = _fixedTerrainDemandFrame, sweptFrame = _fixedTerrainSweptFrame,
+            physicalDemand = _physicalDemand.ContainsKey(FixedTerrainTraceTarget), pendingViewRefresh = _cameraViewAdmissionPending,
+            viewValid = _queuePriorityViewValid, configurationEpoch = _configurationEpoch,
+            active = _terrainPreparingCoordinate, activeWorkId = _terrainPreparationWorkId,
+            activeOwnerEpoch = activeOwner != null ? activeOwner.terrainOwnerEpoch : 0,
+            activePriority = _terrainPreparationWorkId != 0 ? TerrainPreparationPriority(_terrainPreparingCoordinate, velocity) : -1,
+            activeAge = _terrainPreparationWorkId != 0 ? Time.realtimeSinceStartup - _terrainPreparationStartedAt : -1f,
+            phase = _terrainPreparationPhase, cancel = _terrainPreparationPreempted,
+            head = _terrainQueue.Count > 0 ? _terrainQueue[0] : new Vector2Int(int.MinValue, int.MinValue),
+            owners = _physicalCount, painters = _terrainPainting.Count, colliders = _pendingTerrainPublications.Count,
+            spent = _aggregateBudgetFrame == Time.frameCount ? _aggregateFrameWorkSeconds : 0f,
+            slice = _lastTerrainSliceSeconds, target = target
+        };
+    }
+
+    public string FinishFixedTerrainObservation()
+    {
+        if (_fixedTerrainObservations == null)
+            return "not-recorded";
+        // note: Flush only after measured movement. Demand revision/frame describes the dispatch map; -1 means no rebuild observed yet.
+        var report = new System.Text.StringBuilder();
+        report.Append("# target=(11,5) records=").Append(_fixedTerrainCount).Append(" dropped=").Append(_fixedTerrainDropped)
+            .Append(" truncated=").Append(_fixedTerrainDropped > 0).Append(" stopwatchFrequency=")
+            .Append(System.Diagnostics.Stopwatch.Frequency).Append(" aggregateBudgetMs=10 colliderLimit=")
+            .Append(MaximumPendingTerrainColliderPublications).Append(" capacity=").Append(PhysicalOwnerCapacity)
+            .Append("; snapshot stages are sampled at events/frame end; sweptFrame is exact motor sweep membership\n");
+        report.AppendLine("frame\tticks\ttime\tevent\tactor\teventWorkId\trequest\tfirstAdmissionAge\trequestAge\trank\tpriority\tdemandRevision\tdemandFrame\tphysicalDemand\tvisible\thard\tpredicted\tsweptFrame\tpendingViewRefresh\tviewValid\tconfigurationEpoch\townerEpoch\tactive\tactiveWorkId\tactiveOwnerEpoch\tactivePriority\tphase\tactiveAge\tcancel\thead\towners\tpainters\tcolliders\tbudgetMs\tlastTerrainSliceMs\tterrain\tterrainWorkId\tterrainPhase\tcolliderPending\tcontent\tappearance\tecology\toverlay\tactivation\tpublicationVersion\tretries\tretryScheduled\tfailure");
+        var culture = System.Globalization.CultureInfo.InvariantCulture;
+        for (int index = 0; index < _fixedTerrainCount; index++)
+        {
+            FixedTerrainObservation item = _fixedTerrainObservations[index];
+            YQSemanticChunkPublicationSnapshot target = item.target;
+            report.Append(item.frame).Append('\t').Append(item.ticks).Append('\t').Append(item.time.ToString("F6", culture))
+                .Append('\t').Append(item.reason).Append('\t').Append(item.actor).Append('\t').Append(item.eventWorkId)
+                .Append('\t').Append(item.request).Append('\t').Append(item.admissionAge.ToString("F6", culture))
+                .Append('\t').Append(item.requestAge.ToString("F6", culture)).Append('\t').Append(item.rank).Append('\t').Append(item.priority)
+                .Append('\t').Append(item.demandRevision).Append('\t').Append(item.demandFrame).Append('\t').Append(item.physicalDemand)
+                .Append('\t').Append(target.guaranteedViewDemanded).Append('\t').Append(target.hardViewDemanded)
+                .Append('\t').Append(target.predictedViewDemanded).Append('\t').Append(item.sweptFrame)
+                .Append('\t').Append(item.pendingViewRefresh).Append('\t').Append(item.viewValid)
+                .Append('\t').Append(item.configurationEpoch).Append('\t').Append(target.ownerEpoch)
+                .Append('\t').Append(item.active).Append('\t').Append(item.activeWorkId).Append('\t').Append(item.activeOwnerEpoch)
+                .Append('\t').Append(item.activePriority).Append('\t').Append(item.phase).Append('\t').Append(item.activeAge.ToString("F6", culture))
+                .Append('\t').Append(item.cancel).Append('\t').Append(item.head).Append('\t').Append(item.owners)
+                .Append('\t').Append(item.painters).Append('\t').Append(item.colliders).Append('\t').Append((item.spent * 1000f).ToString("F3", culture))
+                .Append('\t').Append((item.slice * 1000f).ToString("F3", culture)).Append('\t').Append(target.terrainReadiness)
+                .Append('\t').Append(target.terrainWorkId).Append('\t').Append(target.terrainWorkPhase).Append('\t').Append(target.terrainColliderPublicationPending)
+                .Append('\t').Append(target.requiredContentReady).Append('\t').Append(target.appearanceReady)
+                .Append('\t').Append(target.requiredEcologyReady).Append('\t').Append(target.overlayReady).Append('\t').Append(target.activationComplete)
+                .Append('\t').Append(target.publicationVersion).Append('\t').Append(target.terrainRetryCount)
+                .Append('\t').Append(target.terrainRetryScheduled).Append('\t').Append((target.failureReason ?? string.Empty).Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ')).AppendLine();
+        }
+        _fixedTerrainObservations = null;
+        return report.ToString();
+    }
+
+    public void BeginAppearanceBudgetObservation()
+    {
+        // note: Allocate once before the focused motor window, and retain only a bounded recent scheduling history.
+        _appearanceBudgetObservations = new AppearanceBudgetObservation[4096];
+        _terrainDispatchObservations = new TerrainDispatchObservation[2048];
+        _appearanceBudgetObservationCount = 0;
+        _terrainDispatchObservationCount = 0;
+        _appearanceBudgetObservationActive = true;
+        _appearanceBudgetWinnerFrame = -1;
+        BeginFixedTerrainObservation();
+    }
+
+    public void FreezeAppearanceBudgetObservation()
+    {
+        // note: Preserve the first actual visibility failure across input and coast; a later call cannot relabel an already-frozen observation ring.
+        if (!_appearanceBudgetObservationActive || !_hasLastVisualCoverageFailureCoordinate)
+            return;
+        if (_completeCellHistory != null && _completeCellFailureCount < 0)
+        {
+            // note: The first failed cell and its immutable prefix survive later failures and recovery.
+            ObserveCompleteCell(_lastVisualCoverageFailureCoordinate, "firstFailure", true);
+            _completeCellFailureCoordinate = _lastVisualCoverageFailureCoordinate;
+            _completeCellFailureCount = _completeCellHistoryCount;
+        }
+        _appearanceBudgetObservationActive = false;
+        _appearanceBudgetFailureTarget = _lastVisualCoverageFailureCoordinate;
+        _terrainDispatchFailureFrame = Time.frameCount;
+        _terrainDispatchFailureTarget = _lastVisualCoverageFailureCoordinate;
+    }
+
+    public string DescribeAppearanceBudgetObservation()
+    {
+        // note: Format only after measured movement; failure-time capture merely freezes the preallocated ring.
+        if (_appearanceBudgetObservations == null || _appearanceBudgetObservationCount == 0)
+            return "not-recorded";
+        var report = new System.Text.StringBuilder();
+        int count = Mathf.Min(_appearanceBudgetObservationCount, _appearanceBudgetObservations.Length);
+        int start = _appearanceBudgetObservationCount - count;
+        int lastFrame = _appearanceBudgetObservations[(_appearanceBudgetObservationCount - 1) % _appearanceBudgetObservations.Length].frame;
+        report.Append("target=").Append(_appearanceBudgetFailureTarget).Append(" lastFrame=").Append(lastFrame)
+            .Append(" outcomes=0:ordinary,1:reserve,2:reserveAlreadyClaimed,3:higherPriorityPainter,4:sharedBudget; lanes=1:biome,2:detail");
+        for (int index = start; index < _appearanceBudgetObservationCount; index++)
+        {
+            AppearanceBudgetObservation item = _appearanceBudgetObservations[index % _appearanceBudgetObservations.Length];
+            if (item.frame < lastFrame - 24)
+                continue;
+            report.Append("\n  frame=").Append(item.frame).Append(" owner=").Append(item.coordinate)
+                .Append(" lane=").Append(item.lane).Append(" visible=").Append(item.visible)
+                .Append(" arrival=").Append(item.arrival.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture))
+                .Append(" outcome=").Append(item.outcome).Append(" spentMs=")
+                .Append((item.spent * 1000f).ToString("0.000", System.Globalization.CultureInfo.InvariantCulture))
+                .Append(" winner=").Append(item.winner).Append(" winnerLane=").Append(item.winnerLane)
+                .Append(" winnerVisible=").Append(item.winnerVisible).Append(" winnerArrival=")
+                .Append(item.winnerArrival.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture));
+        }
+        return report.ToString();
+    }
+
+    public void EndAppearanceBudgetObservation()
+    {
+        _appearanceBudgetObservationActive = false;
+        _appearanceBudgetObservations = null;
+        _terrainDispatchObservations = null;
+    }
+
+    public string DescribeTerrainDispatchObservation()
+    {
+        // note: Format the bounded queue/worker timeline after movement so diagnostic strings never run in the streaming hot path.
+        if (_terrainDispatchObservations == null || _terrainDispatchObservationCount == 0)
+            return "not-recorded";
+        int count = Mathf.Min(_terrainDispatchObservationCount, _terrainDispatchObservations.Length);
+        int start = _terrainDispatchObservationCount - count;
+        int latestFrame = _terrainDispatchFailureFrame >= 0
+            ? _terrainDispatchFailureFrame
+            : _terrainDispatchObservations[(_terrainDispatchObservationCount - 1) % _terrainDispatchObservations.Length].frame;
+        var report = new System.Text.StringBuilder(4096);
+        report.Append("failureTarget=").Append(_terrainDispatchFailureTarget)
+            .Append(" failureFrame=").Append(_terrainDispatchFailureFrame)
+            .Append(" records=").Append(count).Append(" entries=frame targetQueued/index/priority/age targetActive head/priority second/priority third/priority active/priority/phase/age/preempted/workId queueCount physical pending");
+        for (int index = start; index < _terrainDispatchObservationCount; index++)
+        {
+            TerrainDispatchObservation item = _terrainDispatchObservations[index % _terrainDispatchObservations.Length];
+            if (item.frame > latestFrame || item.frame < latestFrame - 90)
+                continue;
+            report.Append("\n  ").Append(item.frame).Append(' ')
+                .Append(item.targetKnown ? item.target : new Vector2Int(int.MinValue, int.MinValue)).Append(' ')
+                .Append(item.targetQueued).Append('/').Append(item.targetQueueIndex).Append('/').Append(item.targetPriority).Append('/')
+                .Append(item.targetRequestAge.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)).Append(' ')
+                .Append(item.targetActive).Append(' ')
+                .Append(item.head).Append('/').Append(item.headPriority).Append(' ')
+                .Append(item.second).Append('/').Append(item.secondPriority).Append(' ')
+                .Append(item.third).Append('/').Append(item.thirdPriority).Append(' ')
+                .Append(item.activeExists ? item.active.ToString() : "<none>").Append('/').Append(item.activePriority).Append('/')
+                .Append(item.activePhase ?? string.Empty).Append('/')
+                .Append(item.activeAge.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture)).Append('/')
+                .Append(item.activePreempted).Append('/').Append(item.activeWorkId).Append(' ')
+                .Append(item.queueCount).Append(' ').Append(item.physicalOwners).Append(' ').Append(item.pendingPublications);
+        }
+        return report.ToString();
+    }
+
+    private void RecordTerrainDispatchObservation()
+    {
+        RecordFixedTerrainObservation("dispatchPass", _terrainPreparingCoordinate);
+        if (!_appearanceBudgetObservationActive || _terrainDispatchObservations == null)
+            return;
+        Vector2 velocity = ResolveTraversalVelocity();
+        TerrainDispatchObservation item = new TerrainDispatchObservation
+        {
+            frame = Time.frameCount,
+            queueCount = _terrainQueue.Count,
+            activeExists = _terrainPreparation != null,
+            active = _terrainPreparingCoordinate,
+            activePriority = _terrainPreparation != null ? TerrainPreparationPriority(_terrainPreparingCoordinate, velocity) : -1,
+            activePhase = _terrainPreparationPhase,
+            activeAge = _terrainPreparation != null ? Mathf.Max(0f, Time.realtimeSinceStartup - _terrainPreparationStartedAt) : 0f,
+            activePreempted = _terrainPreparationPreempted,
+            activeWorkId = _terrainPreparationWorkId,
+            physicalOwners = _physicalCount,
+            pendingPublications = _pendingTerrainPublications.Count,
+            head = _terrainQueue.Count > 0 ? _terrainQueue[0] : new Vector2Int(int.MinValue, int.MinValue),
+            second = _terrainQueue.Count > 1 ? _terrainQueue[1] : new Vector2Int(int.MinValue, int.MinValue),
+            third = _terrainQueue.Count > 2 ? _terrainQueue[2] : new Vector2Int(int.MinValue, int.MinValue),
+            headPriority = _terrainQueue.Count > 0 ? TerrainPreparationPriority(_terrainQueue[0], velocity) : -1,
+            secondPriority = _terrainQueue.Count > 1 ? TerrainPreparationPriority(_terrainQueue[1], velocity) : -1,
+            thirdPriority = _terrainQueue.Count > 2 ? TerrainPreparationPriority(_terrainQueue[2], velocity) : -1,
+            targetKnown = _hasLastVisualCoverageFailureCoordinate,
+            target = _lastVisualCoverageFailureCoordinate,
+            targetQueued = _hasLastVisualCoverageFailureCoordinate && _terrainQueued.Contains(_lastVisualCoverageFailureCoordinate),
+            targetActive = _hasLastVisualCoverageFailureCoordinate && _terrainPreparation != null &&
+                _terrainPreparingCoordinate == _lastVisualCoverageFailureCoordinate,
+            targetQueueIndex = _hasLastVisualCoverageFailureCoordinate ? _terrainQueue.IndexOf(_lastVisualCoverageFailureCoordinate) : -1,
+            targetPriority = _hasLastVisualCoverageFailureCoordinate
+                ? TerrainPreparationPriority(_lastVisualCoverageFailureCoordinate, velocity)
+                : -1,
+            targetRequestAge = _hasLastVisualCoverageFailureCoordinate &&
+                _terrainRequestedAt.TryGetValue(_lastVisualCoverageFailureCoordinate, out float requestedAt)
+                    ? Mathf.Max(0f, Time.unscaledTime - requestedAt)
+                    : 0f
+        };
+        _terrainDispatchObservations[_terrainDispatchObservationCount++ % _terrainDispatchObservations.Length] = item;
+    }
+
+    private void RecordAppearanceBudgetObservation(Vector2Int coordinate, OwnerIteratorProgress progress,
+        bool admitted, int previousReservedFrame, float spent)
+    {
+        if (!_appearanceBudgetObservationActive || _appearanceBudgetObservations == null)
+            return;
+        int lane = _chunks.TryGetValue(coordinate, out RuntimeChunk owner) &&
+            ReferenceEquals(progress, owner.detailAppearanceProgress) ? 2 : 1;
+        bool wonReserve = admitted && previousReservedFrame != Time.frameCount &&
+            _reservedHardViewAppearanceFrame == Time.frameCount;
+        if (wonReserve)
+        {
+            _appearanceBudgetWinnerFrame = Time.frameCount;
+            _appearanceBudgetWinner = coordinate;
+            _appearanceBudgetWinnerLane = lane;
+        }
+        bool hasWinner = _appearanceBudgetWinnerFrame == Time.frameCount;
+        int outcome = admitted ? (wonReserve ? 1 : 0) :
+            _reservedHardViewAppearanceFrame == Time.frameCount ? 2 : 4;
+        if (!admitted && outcome == 4 && HasImmediateTerrainAppearanceDeadline(coordinate))
+        {
+            // note: Observe the same eligibility test without modifying reserve selection or iterator progress.
+            if (HasHigherPriorityAppearanceReserveOwner(coordinate))
+                outcome = 3;
+        }
+        _appearanceBudgetObservations[_appearanceBudgetObservationCount++ % _appearanceBudgetObservations.Length] =
+            new AppearanceBudgetObservation
+            {
+                frame = Time.frameCount, coordinate = coordinate, lane = lane, outcome = outcome,
+                visible = _guaranteedViewDemand.Contains(coordinate), arrival = GetAppearanceDeadlineArrival(coordinate),
+                spent = spent, winner = hasWinner ? _appearanceBudgetWinner : new Vector2Int(int.MinValue, int.MinValue),
+                winnerLane = hasWinner ? _appearanceBudgetWinnerLane : 0,
+                winnerVisible = hasWinner && _guaranteedViewDemand.Contains(_appearanceBudgetWinner),
+                winnerArrival = hasWinner ? GetAppearanceDeadlineArrival(_appearanceBudgetWinner) : float.PositiveInfinity
+            };
+    }
     // note: A fast-travel safety floor gets one bounded publication quantum per frame even when unrelated canonical work exhausts the shared allowance.
     private int _reservedTurnBufferGroundProgressFrame = -1;
+    // note: Reserve at most one demanded hard-view content start per frame after unrelated work consumes the aggregate allowance.
+    private int _reservedHardViewContentDispatchFrame = -1;
+    private int _hardViewContentDispatchReservationCount;
+    // note: Let one selected hard-view content owner spend the existing ecology reserve after unrelated work spends its allowance.
+    private int _reservedHardViewContentProgressFrame = -1;
+    private Vector2Int _reservedHardViewContentProgressOwner = new Vector2Int(int.MinValue, int.MinValue);
+    private float _hardViewContentProgressReservedSeconds;
+    private bool _nextContentSliceUsesHardViewReserve;
+    private int _hardViewContentProgressReservationCount;
+    // note: Rotate equal-deadline hard-view owners so coroutine start order cannot starve required content.
+    private Vector2Int _lastHardViewContentProgressOwner = new Vector2Int(int.MinValue, int.MinValue);
     private float _maximumAggregateFrameWorkSeconds;
     private string _maximumAggregateFrameWorkStage = string.Empty;
     // note: Identify one indivisible nested painter/ecology step when aggregate frame timing exposes a hitch.
@@ -533,6 +1299,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private float _maximumTerrainReadinessSeconds;
     // note: Measure the deferred save's synchronous serialization and atomic write so profiling reports the real persistence cost.
     private float _lastSemanticSaveSeconds;
+    private int _lastSemanticSaveFrameCount = -1;
     private float _maximumSemanticSaveSeconds;
     private bool _configured;
     private float _nextSemanticSaveAt;
@@ -545,6 +1312,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private int _lifecycleBudgetFrame = -1;
     private int _lifecycleBudgetRemaining;
     private float _lifecycleDeadline;
+    // note: Unity performs queued destruction after LateUpdate; share the existing eviction allowance across lifecycle, capacity and history retirement.
+    private int _streamingRetirementFrame = -1;
+    private int _streamingRetirementsThisFrame;
+    private int _retiredPhysicalOwnersThisFrame;
     // note: Reuse one bounded coordinate list so camera-visible owners receive activation slices before retained or distant owners.
     private readonly List<Vector2Int> _lifecyclePriorityScratch = new List<Vector2Int>();
     // note: Rotate the hard-view start point so a large visible frontier cannot let its first owner consume every activation slice.
@@ -559,6 +1330,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     // note: Keep a small bounded worker set so hard-view content does not serialize every required cell behind one site hierarchy.
     private readonly Dictionary<Vector2Int, Coroutine> _activeGenerations =
         new Dictionary<Vector2Int, Coroutine>();
+    private int _contentPreemptionCount;
+    private int _predictedContentPreemptionCount;
     private int _configurationEpoch;
     private long _streamingWorkVersion;
     private readonly Dictionary<Vector2Int, long> _activeGenerationWorkIds = new Dictionary<Vector2Int, long>();
@@ -575,6 +1348,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private Vector2Int _terrainPreparingCoordinate = new Vector2Int(int.MinValue, int.MinValue);
     // note: Keep the active terrain phase visible so a stalled single-owner slot can be diagnosed without changing admission or readiness semantics.
     private float _terrainPreparationStartedAt;
+    // note: Protect only the dispatch frame from cancellation while the newly-started terrain coroutine reaches its first yield.
+    private int _terrainPreparationDispatchFrame = -1;
     private string _terrainPreparationPhase = string.Empty;
     private bool _terrainPreparationPreempted;
     // note: Preserve the latest terrain handoff decision so a stalled publication names the owner that repeatedly displaced its sampler.
@@ -624,6 +1399,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     // note: Keep failed emergency entries visible separately from successfully published fallback tiles.
     private int _synchronousGroundFallbackAttemptCount;
     private int _synchronousGroundFallbackCount;
+    private int _cameraGroundFallbackAttemptCount;
+    private int _movementGroundFallbackAttemptCount;
+    private int _completedSamplerGroundFallbackCount;
+    private int _inFlightSamplerGroundFallbackCount;
+    private int _missingSamplerGroundFallbackCount;
+    // note: Retain only a few exceptional fallback snapshots so a speed witness can distinguish late view admission from sampler or owner starvation.
+    private readonly string[] _recentSynchronousGroundFallbackDiagnostics = new string[8];
+    private int _recentSynchronousGroundFallbackDiagnosticCount;
+    private int _recentSynchronousGroundFallbackDiagnosticNext;
     private float _maximumSynchronousGroundFallbackSeconds;
     private float _maximumSynchronousGroundSamplingSeconds;
     private float _maximumSynchronousGroundPublicationSeconds;
@@ -635,6 +1419,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     // note: Prefetched heightfields contain only deterministic scalar data; they are not physical terrain until the normal publication coroutine consumes them.
     private readonly Dictionary<Vector2Int, Task<float[,]>> _terrainHeightPrefetches =
         new Dictionary<Vector2Int, Task<float[,]>>();
+    private long _backgroundHeightTaskCount;
+    private long _backgroundHeightTaskSucceededCount;
+    private long _backgroundHeightTaskCanceledCount;
+    private long _backgroundHeightTaskFaultedCount;
+    private long _backgroundHeightTaskTotalTicks;
+    private long _backgroundHeightTaskMaximumTicks;
+    private int _terrainPreparationHandoffCount;
+    private float _terrainPreparationHandoffTotalSeconds;
+    private float _terrainPreparationHandoffMaximumSeconds;
     private readonly Dictionary<Vector2Int, CancellationTokenSource> _terrainHeightPrefetchCancellations =
         new Dictionary<Vector2Int, CancellationTokenSource>();
     private readonly List<Vector2Int> _terrainHeightPrefetchScratch = new List<Vector2Int>();
@@ -645,6 +1438,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         new List<Vector2Int>();
     private readonly List<Vector2Int> _appearanceReconciliationScratch =
         new List<Vector2Int>();
+    // note: Deduplicate the stable-priority candidate list in O(1) without changing its deterministic demand-enumeration order.
+    private readonly HashSet<Vector2Int> _appearanceReconciliationMembershipScratch =
+        new HashSet<Vector2Int>();
     // note: Track appearance recovery independently from collision retries so a collision-ready tile cannot silently remain visually incomplete.
     private readonly Dictionary<Vector2Int, float> _terrainAppearanceRetryAt =
         new Dictionary<Vector2Int, float>();
@@ -853,6 +1649,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             ",livePhysical=" + physicalOwners +
             ",capacity=" + PhysicalOwnerCapacity +
             ",reservationOwners=" + reservationOwners +
+            ",pendingNativeRetirements=" + PendingStreamingNativeRetirements +
+            ",reservationOwnersWithPendingNative=" + (reservationOwners + PendingStreamingNativeRetirements) +
             ",physicalWithoutReservation=" + physicalWithoutReservation +
             ",reservationWithoutPhysical=" + reservationWithoutPhysical +
             ",active=" + _activeCount +
@@ -914,6 +1712,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 ":owners=" + _lastOwnerReservationBlockCount +
                 ":urgent=" + _lastOwnerReservationBlockUrgent +
                 ":count=" + _ownerReservationBlockCount +
+                ";viewDemand=" + _guaranteedViewDemand.Count + "/" + _hardViewDemand.Count +
+                ";viewPrediction=" + _semanticViewPredictionArrivalSeconds.Count +
+                ";predictionPass=" + _lastSemanticViewPredictionAdmissionBudget +
+                ":admitted=" + _lastSemanticViewPredictionAdmitted +
+                ":projectedHard=" + _lastSemanticViewPredictionProjectedHard +
+                ":ownerLimitSkipped=" + _lastSemanticViewPredictionOwnerBudgetSkipped +
+                ":age=" + (_lastSemanticViewPredictionRefreshAt > 0f
+                    ? Mathf.Max(0f, Time.unscaledTime - _lastSemanticViewPredictionRefreshAt).ToString("0.000")
+                    : "n/a") +
                 ";current=" + _currentChunk + ";velocity=" + velocity.ToString("F2") +
                 ";physical=" + _physicalCount + ";capacity=" + PhysicalOwnerCapacity;
         }
@@ -944,6 +1751,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     public bool HasPendingLifecycleWork => _lifecyclePending || _frontierRefreshPending;
     public float LastTerrainBuildSeconds => _lastTerrainBuildSeconds;
     public float MaximumTerrainBuildSeconds => _maximumTerrainBuildSeconds;
+    public long BackgroundHeightTaskCount => Interlocked.Read(ref _backgroundHeightTaskCount);
+    public long BackgroundHeightTaskSucceededCount => Interlocked.Read(ref _backgroundHeightTaskSucceededCount);
+    public long BackgroundHeightTaskCanceledCount => Interlocked.Read(ref _backgroundHeightTaskCanceledCount);
+    public long BackgroundHeightTaskFaultedCount => Interlocked.Read(ref _backgroundHeightTaskFaultedCount);
+    // note: Expose cumulative worker time so the verifier can calculate a phase-local average without resetting live diagnostics.
+    public double BackgroundHeightTaskTotalSeconds => Interlocked.Read(ref _backgroundHeightTaskTotalTicks) /
+        (double)System.Diagnostics.Stopwatch.Frequency;
+    public float BackgroundHeightTaskAverageSeconds => BackgroundHeightTaskCount > 0
+        ? (float)(Interlocked.Read(ref _backgroundHeightTaskTotalTicks) /
+            (double)System.Diagnostics.Stopwatch.Frequency / BackgroundHeightTaskCount)
+        : 0f;
+    public float BackgroundHeightTaskMaximumSeconds =>
+        (float)(Interlocked.Read(ref _backgroundHeightTaskMaximumTicks) /
+            (double)System.Diagnostics.Stopwatch.Frequency);
+    public int TerrainPreparationHandoffCount => _terrainPreparationHandoffCount;
+    public float TerrainPreparationHandoffTotalSeconds => _terrainPreparationHandoffTotalSeconds;
+    public float TerrainPreparationHandoffAverageSeconds => _terrainPreparationHandoffCount > 0
+        ? _terrainPreparationHandoffTotalSeconds / _terrainPreparationHandoffCount
+        : 0f;
+    public float TerrainPreparationHandoffMaximumSeconds => _terrainPreparationHandoffMaximumSeconds;
     public float LastTerrainPaintSeconds => _lastTerrainPaintSeconds;
     public float MaximumTerrainPaintSeconds => _maximumTerrainPaintSeconds;
     public float LastStreamingWorkSeconds => _lastStreamingWorkSeconds;
@@ -987,6 +1814,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     public float MaximumTerrainReadinessSeconds => _maximumTerrainReadinessSeconds;
     public float P95TerrainReadinessSeconds => CalculateReadinessPercentile(0.95f);
     public float LastSemanticSaveSeconds => _lastSemanticSaveSeconds;
+    public int LastSemanticSaveFrameCount => _lastSemanticSaveFrameCount;
+    public int ContentPreemptionCount => _contentPreemptionCount;
+    public int PredictedContentPreemptionCount => _predictedContentPreemptionCount;
     public float MaximumSemanticSaveSeconds => _maximumSemanticSaveSeconds;
     // note: Expose the canonical authored terrain used by the streamer so diagnostics and seam checks never select an unrelated site terrain.
     public Terrain AuthoredTerrain => _terrain;
@@ -1242,6 +2072,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 ",colliderPendingMax=" + _maximumPendingTerrainColliderPublications +
                 ",aggregateFrameMaxMs=" + (_maximumAggregateFrameWorkSeconds * 1000f).ToString("0.0") +
                 ",aggregateFrameStage=" + _maximumAggregateFrameWorkStage +
+                ",aggregateFrameFrame=" + _maximumAggregateFrameWorkFrame +
+                ",hardViewContentDispatchReservations=" + _hardViewContentDispatchReservationCount +
+                ",hardViewContentProgressReservations=" + _hardViewContentProgressReservationCount +
                 ",contentSliceMaxMs=" + (_maximumContentSliceSeconds * 1000f).ToString("0.0") +
                 ",contentSliceStage=" + _maximumContentSliceStage +
                 ",terrainPaintSliceMaxMs=" + (_maximumTerrainPaintSliceSeconds * 1000f).ToString("0.0") +
@@ -1258,6 +2091,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 ",turnCoverageReadyPrefix=" + _highSpeedTurnBufferCoverageReadyCount +
                 ",syncFallbackAttempts=" + _synchronousGroundFallbackAttemptCount +
                 ",syncFallbacks=" + _synchronousGroundFallbackCount +
+                ",cameraFallbackAttempts=" + _cameraGroundFallbackAttemptCount +
+                ",movementFallbackAttempts=" + _movementGroundFallbackAttemptCount +
+                ",completedSamplerFallbacks=" + _completedSamplerGroundFallbackCount +
+                ",inFlightSamplerFallbacks=" + _inFlightSamplerGroundFallbackCount +
+                ",missingSamplerFallbacks=" + _missingSamplerGroundFallbackCount +
                 ",syncFallbackMaxMs=" + (_maximumSynchronousGroundFallbackSeconds * 1000f).ToString("0.0") +
                 ",syncSampleMaxMs=" + (_maximumSynchronousGroundSamplingSeconds * 1000f).ToString("0.0") +
                 ",syncPublishMaxMs=" + (_maximumSynchronousGroundPublicationSeconds * 1000f).ToString("0.0") +
@@ -1265,11 +2103,76 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 ",syncSpatialCacheHits=" + _lastSynchronousSpatialSampleCacheHits +
                 ",syncFallbackResolution=" + _lastSynchronousGroundFallbackResolution +
                 ",syncFallbackCell=" + _lastSynchronousGroundFallbackCell +
+                ",fallbackEvents=" + DescribeRecentSynchronousGroundFallbackDiagnostics() +
+                ",streamerDiagnosticLogMaxMs=" + (_maximumStreamerDiagnosticLogSeconds * 1000f).ToString("0.0") +
                 ",speed=" + ResolveTraversalVelocity().magnitude.ToString("0.0");
         }
     }
 
+    private string DescribeRecentSynchronousGroundFallbackDiagnostics()
+    {
+        // note: Serialize only the bounded exceptional event ring when a verification report requests diagnostics.
+        if (_recentSynchronousGroundFallbackDiagnosticCount <= 0)
+            return "none";
+        StringBuilder description = new StringBuilder(1024);
+        int oldest = (_recentSynchronousGroundFallbackDiagnosticNext - _recentSynchronousGroundFallbackDiagnosticCount +
+            _recentSynchronousGroundFallbackDiagnostics.Length) % _recentSynchronousGroundFallbackDiagnostics.Length;
+        for (int index = 0; index < _recentSynchronousGroundFallbackDiagnosticCount; index++)
+        {
+            if (index > 0)
+                description.Append('|');
+            int slot = (oldest + index) % _recentSynchronousGroundFallbackDiagnostics.Length;
+            description.Append(_recentSynchronousGroundFallbackDiagnostics[slot]);
+        }
+        return description.ToString();
+    }
+
+    private void RecordSynchronousGroundFallbackDiagnostic(
+        Vector2Int coordinate,
+        GroundFallbackSource fallbackSource,
+        bool samplerEntryFound,
+        bool sampleCompleted)
+    {
+        // note: Capture the scheduler state at the exact exceptional entry without adding recurring work to ordinary movement frames.
+        Vector2 velocity = ResolveTraversalDemandVelocity();
+        float predictedArrival = _semanticViewPredictionArrivalSeconds.TryGetValue(coordinate, out float arrival)
+            ? arrival
+            : -1f;
+        _recentSynchronousGroundFallbackDiagnostics[_recentSynchronousGroundFallbackDiagnosticNext] =
+            "frame=" + Time.frameCount +
+            ";age=" + Time.realtimeSinceStartup.ToString("0.000", CultureInfo.InvariantCulture) +
+            ";cell=" + coordinate +
+            ";source=" + fallbackSource +
+            ";current=" + (coordinate == _currentChunk) +
+            ";visible=" + _guaranteedViewDemand.Contains(coordinate) +
+            ";hard=" + _hardViewDemand.Contains(coordinate) +
+            ";predicted=" + predictedArrival.ToString("0.000", CultureInfo.InvariantCulture) +
+            ";turn=" + _provisionalGroundTurnBufferDemand.Contains(coordinate) +
+            ";prefetch=" + _provisionalGroundPrefetchDemand.Contains(coordinate) +
+            ";sampler=" + (sampleCompleted ? "completed" : samplerEntryFound ? "inFlight" : "missing") +
+            ";provisionalQueue=" + _provisionalGroundQueue.Count +
+            ";provisionalQueued=" + _provisionalGroundQueued.Contains(coordinate) +
+            ";samplers=" + _provisionalGroundSamplers.Count +
+            ";terrainPriority=" + TerrainPreparationPriority(coordinate, velocity) +
+            ";terrainQueued=" + _terrainQueued.Contains(coordinate) +
+            ";terrainActive=" + (_terrainPreparation != null ? _terrainPreparingCoordinate.ToString() : "none") +
+            ";colliderPending=" + _pendingTerrainPublications.Count +
+            ";physical=" + _physicalCount + "/" + PhysicalOwnerCapacity +
+            ";speed=" + velocity.magnitude.ToString("0.0", CultureInfo.InvariantCulture);
+        _recentSynchronousGroundFallbackDiagnosticNext =
+            (_recentSynchronousGroundFallbackDiagnosticNext + 1) % _recentSynchronousGroundFallbackDiagnostics.Length;
+        _recentSynchronousGroundFallbackDiagnosticCount = Mathf.Min(
+            _recentSynchronousGroundFallbackDiagnosticCount + 1,
+            _recentSynchronousGroundFallbackDiagnostics.Length);
+    }
+
     internal bool TryEnsureCurrentCameraGround(out string failure)
+    {
+        using (CameraGroundCoverageMarker.Auto())
+            return TryEnsureCurrentCameraGroundCore(out failure);
+    }
+
+    private bool TryEnsureCurrentCameraGroundCore(out string failure)
     {
         // note: The authoritative motor calls this after its final camera pose; background sampling is a preparation aid, never permission to render a hole.
         failure = string.Empty;
@@ -1298,7 +2201,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         bool allGroundPrepared = true;
         foreach (Vector2Int coordinate in _guaranteedViewDemand)
         {
-            if (!EnsureGroundRepresentationImmediately(coordinate, true, out failure))
+            if (!EnsureGroundRepresentationImmediately(coordinate, true, GroundFallbackSource.CameraView, out failure))
             {
                 allGroundPrepared = false;
                 break;
@@ -1461,6 +2364,132 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         return true;
     }
 
+    private RuntimeChunk _lastVisualCoverageFailureOwner;
+    private Vector2Int _lastVisualCoverageFailureCoordinate;
+    private bool _hasLastVisualCoverageFailureCoordinate;
+
+    // note: Only first-failure receipts and the existing bounded heartbeat format owner progress.
+    internal string DescribeLastVisualCoverageOwnerProgress()
+    {
+        RuntimeChunk chunk = _lastVisualCoverageFailureOwner;
+        string activeContentWorkers = DescribeActiveContentGenerationProgress();
+        string appearanceWorkAge = chunk != null && _terrainPainting.ContainsKey(_lastVisualCoverageFailureCoordinate) &&
+            chunk.appearanceWorkStartedAt >= 0d
+            ? (Time.realtimeSinceStartupAsDouble - chunk.appearanceWorkStartedAt).ToString("0.000")
+            : "n/a";
+        // note: Terrain dispatch wait reasons are recorded before content generation begins, so keep that evidence visible without an owner-progress epoch.
+        string terrainDispatchWait = chunk == null
+            ? " terrainDispatchWait{unavailable}"
+            : " terrainDispatchWait{frames=" + chunk.terrainDispatchWaitFrames +
+                ",active=" + chunk.terrainDispatchActiveFrames +
+                ",publication=" + chunk.terrainDispatchPublicationFrames +
+                ",painters=" + chunk.terrainDispatchPainterFrames +
+                ",admission=" + chunk.terrainDispatchAdmissionFrames +
+                ",capacity=" + chunk.terrainDispatchCapacityFrames +
+                ",otherCandidate=" + chunk.terrainDispatchOtherCandidateFrames +
+                ",started=" + chunk.terrainDispatchStartedFrames +
+                ",lastQueueIndex=" + chunk.lastTerrainDispatchQueueIndex + "}";
+        // note: At the first visual miss, identify whether the bounded painter slots or a scheduled retry owns the missing appearance stage.
+        _terrainAppearanceRetryCount.TryGetValue(_lastVisualCoverageFailureCoordinate, out int appearanceRetryCount);
+        bool appearanceRetryScheduled = _terrainAppearanceRetryAt.TryGetValue(
+            _lastVisualCoverageFailureCoordinate,
+            out float appearanceRetryAt);
+        StringBuilder appearancePainters = new StringBuilder(96);
+        foreach (KeyValuePair<Vector2Int, Coroutine> painter in _terrainPainting)
+        {
+            if (appearancePainters.Length > 0)
+                appearancePainters.Append(';');
+            RuntimeChunk painterOwner = _chunks.TryGetValue(painter.Key, out RuntimeChunk candidate)
+                ? candidate
+                : null;
+            appearancePainters.Append(painter.Key)
+                .Append(":age=")
+                .Append(painterOwner != null && painterOwner.appearanceWorkStartedAt >= 0d
+                    ? (Time.realtimeSinceStartupAsDouble - painterOwner.appearanceWorkStartedAt).ToString("0.000", CultureInfo.InvariantCulture)
+                    : "n/a")
+                .Append(":demand=")
+                .Append(_guaranteedViewDemand.Contains(painter.Key) ? "visible" :
+                    _hardViewDemand.Contains(painter.Key) ? "hard" :
+                    IsContentDemandedNow(painter.Key) ? "content" : "optional");
+        }
+        string appearanceAdmission = " appearanceAdmission{retryCount=" + appearanceRetryCount +
+            ",retryRemaining=" + (appearanceRetryScheduled
+                ? Mathf.Max(0f, appearanceRetryAt - Time.unscaledTime).ToString("0.000", CultureInfo.InvariantCulture)
+                : "n/a") +
+            ",painters=" + _terrainPainting.Count + "/" + MaximumTerrainPaintingWorkers +
+            ",failure=" + (chunk != null && !string.IsNullOrWhiteSpace(chunk.failureReason)
+                ? chunk.failureReason
+                : "<none>") +
+            ",owners=" + (appearancePainters.Length > 0 ? appearancePainters.ToString() : "<none>") + "}";
+        string appearanceLaneProgress = chunk == null
+            ? " appearanceLanes{unavailable}"
+            : " appearanceLanes{biome{" + chunk.biomeAppearanceProgress.Describe(Time.realtimeSinceStartupAsDouble) +
+              "},detail{" + chunk.detailAppearanceProgress.Describe(Time.realtimeSinceStartupAsDouble) +
+              (string.IsNullOrEmpty(chunk.appearanceDetailSubstage) ? string.Empty : ",substage=" + chunk.appearanceDetailSubstage) + "}}";
+        if (chunk == null || chunk.progressStartedAt < 0d)
+            return " ownerProgress{unavailable}" + terrainDispatchWait + appearanceAdmission + appearanceLaneProgress +
+                " appearanceWorkAge=" + appearanceWorkAge + activeContentWorkers;
+        double now = Time.realtimeSinceStartupAsDouble;
+        if (chunk.progressEpoch != chunk.contentOwnerEpoch)
+            return " ownerProgress{staleEpoch=" + chunk.progressEpoch + ",currentEpoch=" + chunk.contentOwnerEpoch +
+                ",attempt=" + chunk.contentAttemptCount + "}" + terrainDispatchWait + appearanceAdmission +
+                appearanceLaneProgress + " appearanceWorkAge=" + appearanceWorkAge + activeContentWorkers;
+        return " ownerProgress{epoch=" + chunk.progressEpoch + ",currentEpoch=" + chunk.contentOwnerEpoch +
+            ",attempt=" + chunk.contentAttemptCount + ",restarts=" + Math.Max(0, chunk.contentAttemptCount - 1) +
+            ",hardViewReserveSlices=" + chunk.hardViewProgressReserveSlices +
+            ",hardViewReserveDeniedFrames=" + chunk.hardViewProgressReserveDeniedFrames +
+            ",hardViewReserveYieldedToLiveFrames=" + chunk.hardViewProgressYieldedToLiveFrames +
+            ",start=" + chunk.progressStartedAt.ToString("0.000") + ",age=" + (now - chunk.progressStartedAt).ToString("0.000") +
+            ",epochHardAge=" + (chunk.epochHardDemandAt < 0d ? "n/a" : (now - chunk.epochHardDemandAt).ToString("0.000")) +
+            ",hardAtStart=" + chunk.hardDemandReadyAtStart +
+            ",epochCollisionAge=" + (chunk.epochCollisionAt < 0d ? "n/a" : (now - chunk.epochCollisionAt).ToString("0.000")) +
+            ",collisionAtStart=" + chunk.collisionReadyAtStart +
+            ",preemptions=" + chunk.diagnosticPreemptionCount + ",lastPreemptedEpoch=" + chunk.lastPreemptedEpoch +
+            ",lastPreemptedAge=" + (chunk.lastPreemptedAt < 0d ? "n/a" : (now - chunk.lastPreemptedAt).ToString("0.000")) +
+            ",preemptedBy=" + chunk.lastPreemptingCoordinate +
+            ",structure{" + chunk.structuralProgress.Describe(now) + "},ecology{" + chunk.ecologyProgress.Describe(now) + "}}" +
+            terrainDispatchWait + appearanceAdmission + appearanceLaneProgress + " appearanceWorkAge=" + appearanceWorkAge +
+            activeContentWorkers;
+    }
+
+    private string DescribeActiveContentGenerationProgress()
+    {
+        // note: At a first visible miss, identify whether each bounded content worker is progressing structure or waiting for its terrain prerequisite.
+        if (_activeGenerations.Count == 0)
+            return " activeContentWorkers{none}";
+        double now = Time.realtimeSinceStartupAsDouble;
+        StringBuilder workers = new StringBuilder(512);
+        int recorded = 0;
+        foreach (KeyValuePair<Vector2Int, Coroutine> pair in _activeGenerations)
+        {
+            if (recorded >= MaximumContentGenerationWorkers)
+                break;
+            RuntimeChunk owner = _chunks.TryGetValue(pair.Key, out RuntimeChunk current) ? current : null;
+            if (recorded++ > 0)
+                workers.Append(';');
+            workers.Append(pair.Key)
+                .Append(":state=").Append(owner == null ? "missing" : owner.state.ToString())
+                .Append(":terrainReady=").Append(ResolveTerrainForContentMaterialization(pair.Key) != null)
+                .Append(":visible=").Append(_guaranteedViewDemand.Contains(pair.Key))
+                .Append(":hard=").Append(_hardViewDemand.Contains(pair.Key))
+                .Append(":predicted=").Append(_semanticViewPredictionArrivalSeconds.TryGetValue(pair.Key, out float arrival))
+                .Append(":arrival=").Append(_semanticViewPredictionArrivalSeconds.TryGetValue(pair.Key, out arrival)
+                    ? arrival.ToString("0.000", CultureInfo.InvariantCulture)
+                    : "n/a")
+                .Append(":queuedAge=").Append(owner == null || owner.contentQueuedAt < 0f
+                    ? "n/a"
+                    : (Time.unscaledTime - owner.contentQueuedAt).ToString("0.000", CultureInfo.InvariantCulture))
+                .Append(":startedAge=").Append(owner == null || owner.contentStartedAt < 0f
+                    ? "n/a"
+                    : (Time.unscaledTime - owner.contentStartedAt).ToString("0.000", CultureInfo.InvariantCulture))
+                .Append(":structure{").Append(owner == null
+                    ? "unavailable"
+                    : owner.structuralProgress.Describe(now))
+                .Append('}');
+        }
+        return " activeContentWorkers{" + workers + "}";
+    }
+
     private bool TryValidateVisualCoverageCore(
         bool requireFullPublication,
         bool refreshSchedulerView,
@@ -1468,6 +2497,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         out string failure)
     {
         incompleteVisibleChunks = 0;
+        _lastVisualCoverageFailureOwner = null;
+        _hasLastVisualCoverageFailureCoordinate = false;
         // note: Validate every chunk intersecting the live camera frustum, including terrain paint and complete activation; cells outside the frustum are not falsely treated as visible.
         // note: Reject a qualification setup whose camera far clip cannot display the promised visual distance.
         if (QualificationCameraFarClipMeters < GuaranteedVisualDistanceMeters)
@@ -1512,10 +2543,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     failure = publicationWorkFailure;
                     return false;
                 }
-                bool fullyLoaded = IsFullyLoadedForView(coordinate, chunk);
-                bool traversable = IsTraversableChunk(coordinate, chunk);
-                if (!fullyLoaded || !traversable)
-                {
+                    bool fullyLoaded = IsFullyLoadedForView(coordinate, chunk);
+                    bool traversable = IsTraversableChunk(coordinate, chunk);
+                    if (!fullyLoaded || !traversable)
+                    {
                     incompleteVisibleChunks++;
                     if (!requireFullPublication)
                     {
@@ -1532,6 +2563,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     bool currentlyHardDemanded = _hardViewDemand.Contains(coordinate);
                     bool hasPredictedArrival = _semanticViewPredictionArrivalSeconds.TryGetValue(
                         coordinate, out float predictedArrivalSeconds);
+                    Vector2 failureTraversalVelocity = ResolveTraversalVelocity();
+                    int failureTerrainPriority = TerrainPreparationPriority(coordinate, failureTraversalVelocity);
+                    int failureQueueHeadPriority = _terrainQueue.Count > 0
+                        ? TerrainPreparationPriority(_terrainQueue[0], failureTraversalVelocity)
+                        : -1;
+                    bool failureHasActiveTerrainPreparation = _terrainPreparation != null;
+                    int failureActiveTerrainPriority = failureHasActiveTerrainPreparation
+                        ? TerrainPreparationPriority(_terrainPreparingCoordinate, failureTraversalVelocity)
+                        : -1;
+                    float failureActiveTerrainAgeSeconds = failureHasActiveTerrainPreparation
+                        ? Mathf.Max(0f, Time.realtimeSinceStartup - _terrainPreparationStartedAt)
+                        : 0f;
+                    bool failureTerrainQueued = _terrainQueued.Contains(coordinate);
+                    bool failureTerrainActive = _terrainPreparation != null && coordinate == _terrainPreparingCoordinate;
+                    bool failureTerrainPublicationPending = _pendingTerrainPublications.ContainsKey(coordinate);
+                    bool failurePhysicalDemand = _physicalDemand.ContainsKey(coordinate);
+                    string failureTerrainRequestAge = _terrainRequestedAt.TryGetValue(
+                        coordinate, out float terrainRequestedAt)
+                        ? Mathf.Max(0f, Time.unscaledTime - terrainRequestedAt).ToString("0.000")
+                        : "n/a";
                     string workDiagnostics = string.Empty;
                     if (TryGetPublicationSnapshot(coordinate, out YQSemanticChunkPublicationSnapshot workSnapshot))
                     {
@@ -1548,7 +2599,62 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                             "/retry:" + workSnapshot.ecologyRetryScheduled +
                             ";lifecycle:" + workSnapshot.lifecycleWorkPending;
                     }
+                    // note: Snapshot only the first failing view owner so queue delay can be separated from worker saturation without per-frame diagnostics.
+                    int failureContentQueueIndex = _queue.IndexOf(coordinate);
+                    string failureContentQueueHead = _queue.Count > 0
+                        ? _queue[0] + ":priority=" + CompareContentQueuePriority(coordinate, _queue[0], failureTraversalVelocity)
+                        : "<none>";
+                    StringBuilder failureActiveContent = new StringBuilder(192);
+                    int failureActiveContentCount = 0;
+                    foreach (KeyValuePair<Vector2Int, Coroutine> activeContent in _activeGenerations)
+                    {
+                        if (failureActiveContentCount >= MaximumContentGenerationWorkers)
+                            break;
+                        if (failureActiveContentCount > 0)
+                            failureActiveContent.Append(';');
+                        bool activeChunkFound = _chunks.TryGetValue(activeContent.Key, out RuntimeChunk activeChunk);
+                        float activeContentAge = activeChunkFound && activeChunk != null && activeChunk.contentStartedAt >= 0f
+                            ? Mathf.Max(0f, Time.unscaledTime - activeChunk.contentStartedAt)
+                            : -1f;
+                        bool activeHasArrival = _semanticViewPredictionArrivalSeconds.TryGetValue(
+                            activeContent.Key, out float activeArrivalSeconds);
+                        // note: Compare each occupied lane with the failed visible cell so the receipt proves whether the existing strict preemption rule could reclaim it.
+                        bool activeWorkerPreemptionEligible = activeChunkFound && activeChunk != null &&
+                            !activeChunk.physicalRepresentation &&
+                            activeChunk.state == YQSemanticChunkLifecycle.Generating &&
+                            activeContent.Key != _currentChunk;
+                        failureActiveContent.Append(activeContent.Key)
+                            .Append(":state=").Append(activeChunkFound && activeChunk != null ? activeChunk.state.ToString() : "missing")
+                            .Append(",view=").Append(_guaranteedViewDemand.Contains(activeContent.Key))
+                            .Append(",hard=").Append(_hardViewDemand.Contains(activeContent.Key))
+                            .Append(",physical=").Append(activeChunkFound && activeChunk != null && activeChunk.physicalRepresentation)
+                            .Append(",current=").Append(activeContent.Key == _currentChunk)
+                            .Append(",preemptible=").Append(activeWorkerPreemptionEligible)
+                            .Append(",deadlineVsFailure=").Append(CompareContentQueueDeadlines(coordinate, activeContent.Key, failureTraversalVelocity))
+                            .Append(",priorityVsFailure=").Append(CompareContentQueuePriority(coordinate, activeContent.Key, failureTraversalVelocity))
+                            .Append(",arrival=").Append(activeHasArrival
+                                ? activeArrivalSeconds.ToString("0.000")
+                                : "n/a")
+                            .Append(",age=").Append(activeContentAge >= 0f
+                                ? activeContentAge.ToString("0.000")
+                                : "n/a");
+                        failureActiveContentCount++;
+                    }
+                    _lastVisualCoverageFailureOwner = chunk;
+                    _lastVisualCoverageFailureCoordinate = coordinate;
+                    _hasLastVisualCoverageFailureCoordinate = true;
+                    string rendererPublicationBlocker = !fullyLoaded &&
+                        IsReadyForViewActivation(coordinate, chunk) &&
+                        chunk.activationComplete && chunk.activeState == 1
+                        ? DescribePublishedRendererBlocker(chunk)
+                        : string.Empty;
                     failure = "visual chunk is not fully loaded " + coordinate +
+                        " stageAges{hard=" + (chunk.hardViewAdmittedAt >= 0f ? (Time.unscaledTime - chunk.hardViewAdmittedAt).ToString("0.000") : "n/a") +
+                        ",collision=" + (chunk.collisionReadyAt >= 0f ? (Time.unscaledTime - chunk.collisionReadyAt).ToString("0.000") : "n/a") +
+                        ",contentQueue=" + (chunk.contentQueuedAt >= 0f ? (Time.unscaledTime - chunk.contentQueuedAt).ToString("0.000") : "n/a") +
+                        ",contentStart=" + (chunk.contentStartedAt >= 0f ? (Time.unscaledTime - chunk.contentStartedAt).ToString("0.000") : "n/a") +
+                        ",content=" + (chunk.contentReadyAt >= 0f ? (Time.unscaledTime - chunk.contentReadyAt).ToString("0.000") : "n/a") +
+                        ",ecology=" + (chunk.ecologyStartedAt >= 0f ? (Time.unscaledTime - chunk.ecologyStartedAt).ToString("0.000") : "n/a") + "}" +
                         " traversable=" + traversable +
                         " terrain=" + chunk.terrainReadiness +
                         " required=" + chunk.requiredContentReady +
@@ -1559,19 +2665,44 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                         " state=" + chunk.state +
                         " activation=" + chunk.activationComplete +
                         " activeState=" + chunk.activeState +
+                        (string.IsNullOrEmpty(rendererPublicationBlocker)
+                            ? string.Empty
+                            : " rendererBlocker=" + rendererPublicationBlocker) +
                         " demand{guaranteed=" + currentlyGuaranteed +
                         ",hard=" + currentlyHardDemanded +
                         ",predicted=" + hasPredictedArrival +
                         ",arrivalSeconds=" + (hasPredictedArrival ? predictedArrivalSeconds.ToString("0.000") : "n/a") +
                         ",camera=" + _queuePriorityCameraPosition.ToString("F1") +
                         ",player=" + (_player != null ? _player.position.ToString("F1") : "n/a") +
-                        ",velocity=" + ResolveTraversalVelocity().ToString("F1") +
+                        ",velocity=" + failureTraversalVelocity.ToString("F1") +
                         ",physical=" + _physicalCount + "/" + PhysicalOwnerCapacity +
                         ",terrainPending=" + PendingTerrainCollisionCount +
                         ",contentQueue=" + _queue.Count + "}" +
+                        " terrainAdmission{targetPriority=" + failureTerrainPriority +
+                        ",targetQueued=" + failureTerrainQueued +
+                        ",targetActive=" + failureTerrainActive +
+                        ",targetColliderPending=" + failureTerrainPublicationPending +
+                        ",targetRequestAge=" + failureTerrainRequestAge +
+                        ",physicalDemand=" + failurePhysicalDemand +
+                        ",queueHead=" + (_terrainQueue.Count > 0 ? _terrainQueue[0].ToString() : "<none>") +
+                        ",queueHeadPriority=" + failureQueueHeadPriority +
+                        // note: Capture the selected tile and single-slot owner at the exact visible miss to distinguish priority waiting from throughput delay.
+                        ",activePriority=" + failureActiveTerrainPriority +
+                        ",activeAge=" + (failureHasActiveTerrainPreparation
+                            ? failureActiveTerrainAgeSeconds.ToString("0.000", CultureInfo.InvariantCulture)
+                            : "n/a") +
+                        ",active=" + (_terrainPreparation != null
+                            ? _terrainPreparingCoordinate + ":" + _terrainPreparationPhase
+                            : "<none>") +
+                        ",colliderTickets=" + DescribePendingTerrainPublications() + "}" +
+                        " contentAdmission{targetIndex=" + failureContentQueueIndex +
+                        ",targetVersusHead=" + failureContentQueueHead +
+                        ",workers=" + _activeGenerations.Count +
+                        ",active=" + (failureActiveContent.Length > 0 ? failureActiveContent.ToString() : "<none>") + "}" +
                         " activationTarget=" + chunk.activationTarget +
                         " activationCursor=" + chunk.activationCursor +
                         " owned=" + chunk.ownedObjects.Count +
+                        " ecologyFrame{" + YQGeneratedWorldEnvironment.DescribeRequiredEcologyFrameAttribution(Time.frameCount) + "}" +
                         workDiagnostics +
                         (string.IsNullOrWhiteSpace(chunk.failureReason) ? string.Empty :
                             " failure=" + chunk.failureReason);
@@ -1863,6 +2994,18 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         float skinWidth,
         out Vector3 permittedDelta)
     {
+        using (MotorTraversalConstraintMarker.Auto())
+            return TryConstrainMovementCore(
+                start, requestedDelta, capsuleRadius, skinWidth, out permittedDelta);
+    }
+
+    private bool TryConstrainMovementCore(
+        Vector3 start,
+        Vector3 requestedDelta,
+        float capsuleRadius,
+        float skinWidth,
+        out Vector3 permittedDelta)
+    {
         permittedDelta = requestedDelta;
         float footprintRadius = Mathf.Max(0.01f, capsuleRadius + Mathf.Max(0f, skinWidth));
         float movementClearanceRadius = footprintRadius + TraversalSweepSafetyMarginMeters;
@@ -1872,7 +3015,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         for (int attempt = 0; !currentGroundReady && attempt < 4 && initialBlockingCell.x != int.MinValue; attempt++)
         {
             // note: Fill only the capsule's immediate footprint synchronously when streamed work misses the movement deadline.
-            if (!EnsureGroundRepresentationImmediately(initialBlockingCell, false, out _))
+            if (!EnsureGroundRepresentationImmediately(initialBlockingCell, false, GroundFallbackSource.CapsuleStart, out _))
                 break;
             currentGroundReady = IsTraversableCapsulePosition(start, footprintRadius, out initialBlockingCell);
         }
@@ -1898,7 +3041,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: A stationary capsule checks synchronized ground, without waiting for visual dressing or optional ecology.
             if (IsTraversableCapsulePosition(start, movementClearanceRadius, out Vector2Int stationaryBlockingCell))
                 return true;
-            if (EnsureGroundRepresentationImmediately(stationaryBlockingCell, false, out _) &&
+            if (EnsureGroundRepresentationImmediately(stationaryBlockingCell, false, GroundFallbackSource.StationaryProbe, out _) &&
                 IsTraversableCapsulePosition(start, movementClearanceRadius, out _))
                 return true;
             _traversalConstraintBlockCount++;
@@ -1930,6 +3073,25 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             for (int z = firstZ; z <= lastZ; z++)
             {
                 Vector2Int coordinate = new Vector2Int(x, z);
+                // note: Trace exact capsule sweep membership using the same pure clipping test; this does not change permitted movement.
+                if (_completeCellHistory != null || (_fixedTerrainObservations != null && coordinate == FixedTerrainTraceTarget))
+                {
+                    float traceEnter = enterX, traceExit = exitX;
+                    if (ClipSweepAxis(start.z, planarDelta.z, WorldGridOrigin + z * size - sweepRadius,
+                        WorldGridOrigin + (z + 1) * size + sweepRadius, ref traceEnter, ref traceExit))
+                    {
+                        if (_completeCellHistory != null)
+                        {
+                            _completeCellSweepFrames[coordinate] = Time.frameCount;
+                            ObserveCompleteCell(coordinate, "sweptMembership");
+                        }
+                        if (coordinate == FixedTerrainTraceTarget)
+                        {
+                            _fixedTerrainSweptFrame = Time.frameCount;
+                            RecordFixedTerrainObservation("sweptMembership", coordinate);
+                        }
+                    }
+                }
                 // note: Reject pathological teleport-sized input without skipping cells or spending unbounded time on the main thread.
                 if (++examined > 4096)
                 {
@@ -1943,7 +3105,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     !IsTraversableChunk(coordinate, owner))
                 {
                     // note: A speed spike can cross a tile before queued work starts; publish same-authority ground for the actual swept cells before submitting the motor step.
-                    if (EnsureGroundRepresentationImmediately(coordinate, false, out _) &&
+                    if (EnsureGroundRepresentationImmediately(coordinate, false, GroundFallbackSource.SweptFootprint, out _) &&
                         _chunks.TryGetValue(coordinate, out owner) && owner != null &&
                         IsTraversableChunk(coordinate, owner))
                         continue;
@@ -1984,6 +3146,18 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private bool EnsureGroundRepresentationImmediately(
         Vector2Int coordinate,
         bool exposeRenderer,
+        GroundFallbackSource fallbackSource,
+        out string failure)
+    {
+        using (ImmediateGroundFallbackMarker.Auto())
+            return EnsureGroundRepresentationImmediatelyCore(
+                coordinate, exposeRenderer, fallbackSource, out failure);
+    }
+
+    private bool EnsureGroundRepresentationImmediatelyCore(
+        Vector2Int coordinate,
+        bool exposeRenderer,
+        GroundFallbackSource fallbackSource,
         out string failure)
     {
         // note: Resolve a missed movement or render deadline from the existing continuous authority, while keeping semantic readiness on its own publication path.
@@ -2045,6 +3219,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
         // note: Count failed as well as successful emergency entries so qualification detects synchronous work before any early return.
         _synchronousGroundFallbackAttemptCount++;
+        if (fallbackSource == GroundFallbackSource.CameraView)
+            _cameraGroundFallbackAttemptCount++;
+        else
+            _movementGroundFallbackAttemptCount++;
         if (_continuousAuthority == null || _terrain == null || _terrain.terrainData == null)
         {
             failure = "continuous terrain authority or source TerrainData is unavailable " + coordinate;
@@ -2066,9 +3244,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         TryReservePhysicalOwner(coordinate);
 
         float[,] heights = null;
+        bool samplerEntryFound = false;
         if (_provisionalGroundSamplers.TryGetValue(coordinate, out ProvisionalGroundSampling sampling) &&
             sampling != null && ReferenceEquals(sampling.owner, owner))
         {
+            samplerEntryFound = true;
             if (sampling.task != null && sampling.task.IsCompleted)
             {
                 if (!sampling.task.IsCanceled && !sampling.task.IsFaulted)
@@ -2077,10 +3257,22 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     Debug.LogWarning("[YQSemanticChunkStreamer] Provisional ground sample failed for " + coordinate + ": " +
                         sampling.task.Exception.GetBaseException().Message);
                 _provisionalGroundSamplers.Remove(coordinate);
+                sampling.preparedBiomeAlphamap?.Dispose();
                 sampling.cancellation?.Dispose();
             }
             // note: Keep an in-flight immutable worker alive while the emergency surface is sampled; cancelling it here forced repeated long main-thread resamples.
         }
+        if (heights != null)
+            _completedSamplerGroundFallbackCount++;
+        else if (samplerEntryFound)
+            _inFlightSamplerGroundFallbackCount++;
+        else
+            _missingSamplerGroundFallbackCount++;
+        RecordSynchronousGroundFallbackDiagnostic(
+            coordinate,
+            fallbackSource,
+            samplerEntryFound,
+            heights != null);
 
         float startedAt = Time.realtimeSinceStartup;
         try
@@ -2432,8 +3624,19 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void ProcessProvisionalGroundQueue()
     {
+        // note: Keep the existing queue behavior intact while exposing one matching profiler sample for the bounded pass.
+        using (ProvisionalGroundQueueMarker.Auto())
+            ProcessProvisionalGroundQueueCore();
+    }
+
+    private void ProcessProvisionalGroundQueueCore()
+    {
         // note: Keep background floor sampling bounded independently from main-thread renderer/collider publication.
+        BeginAggregateBudgetFrame();
         int publicationsRemaining = MaximumProvisionalGroundPublicationsPerFrame;
+        int urgentVisiblePublicationsRemaining = MaximumUrgentVisibleProvisionalGroundPublicationsPerFrame;
+        float aggregateWorkBeforePublication = _aggregateFrameWorkSeconds;
+        float publicationPassStartedAt = Time.realtimeSinceStartup;
 
         // note: Remove superseded requests before admission so rapid changes in speed or direction cannot pin old lead cells in the bounded queue.
         for (int index = _provisionalGroundQueue.Count - 1; index >= 0; index--)
@@ -2505,7 +3708,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             : Vector2.zero;
         // note: Movement intent opens the high-speed sampler pool in the same frame a boost is requested, before motor acceleration updates measured velocity.
         Vector2 priorityVelocity = ResolveTraversalDemandVelocity();
-        while (publicationsRemaining > 0)
+        while (publicationsRemaining > 0 || urgentVisiblePublicationsRemaining > 0)
         {
             Vector2Int selectedCoordinate = new Vector2Int(int.MinValue, int.MinValue);
             ProvisionalGroundSampling selectedSampling = null;
@@ -2513,7 +3716,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             {
                 ProvisionalGroundSampling sampling = pair.Value;
                 if (sampling == null || sampling.abandoned || sampling.task == null || !sampling.task.IsCompleted ||
-                    sampling.task.IsCanceled || sampling.task.IsFaulted)
+                    sampling.task.IsCanceled || sampling.task.IsFaulted ||
+                    (sampling.preparedBiomeAlphamap != null && !sampling.preparedBiomeAlphamap.IsCompleted))
                     continue;
                 if (selectedSampling == null || CompareProvisionalGroundPriority(
                     pair.Key, selectedCoordinate, priorityPosition, priorityVelocity) < 0)
@@ -2527,6 +3731,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
             bool liveView = _guaranteedViewDemand.Contains(selectedCoordinate);
             bool turnBuffer = _provisionalGroundTurnBufferDemand.Contains(selectedCoordinate);
+            bool usesUrgentVisibleReserve = publicationsRemaining <= 0;
+            if (usesUrgentVisibleReserve &&
+                (!liveView || urgentVisiblePublicationsRemaining <= 0 ||
+                 aggregateWorkBeforePublication + (Time.realtimeSinceStartup - publicationPassStartedAt) >=
+                    AggregateMainThreadBudgetSeconds))
+                break;
             if ((!CanAdvanceAggregateWork("provisionalGroundTile") && !liveView && !turnBuffer) ||
                 !TryReservePhysicalOwner(selectedCoordinate))
                 break;
@@ -2536,22 +3746,28 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 selectedSampling.owner,
                 selectedSampling.task.Result,
                 synchronizePhysics: true,
-                recordAggregateSlice: false);
+                recordAggregateSlice: false,
+                preparedBiomeAlphamap: selectedSampling.preparedBiomeAlphamap);
             _provisionalGroundSamplers.Remove(selectedCoordinate);
             selectedSampling.cancellation?.Dispose();
+            selectedSampling.preparedBiomeAlphamap?.Dispose();
             if (!published)
                 QueueProvisionalGround(selectedCoordinate);
-            else
+            else if (publicationsRemaining > 0)
                 publicationsRemaining--;
+            else
+                urgentVisiblePublicationsRemaining--;
         }
 
-        // note: Spend more worker-side height sampling only during fast travel; Unity TerrainData/collider publication stays capped at one per frame.
+        // note: Spend more worker-side height sampling only during fast travel; the extra Terrain publication remains reserved for budget-safe live view.
         int samplerCapacity = priorityVelocity.magnitude >= 30f
             ? MaximumHighSpeedProvisionalGroundSamplers
             : MaximumConcurrentProvisionalGroundSamplers;
         int activeSamplerCount = Mathf.Max(0, Volatile.Read(ref _abandonedProvisionalGroundWorkerCount));
         foreach (ProvisionalGroundSampling sampling in _provisionalGroundSamplers.Values)
-            if (sampling != null && !sampling.abandoned && sampling.task != null && !sampling.task.IsCompleted)
+            if (sampling != null && !sampling.abandoned &&
+                ((sampling.task != null && !sampling.task.IsCompleted) ||
+                 (sampling.preparedBiomeAlphamap != null && !sampling.preparedBiomeAlphamap.IsCompleted)))
                 activeSamplerCount++;
 
         while (activeSamplerCount < samplerCapacity &&
@@ -2588,11 +3804,34 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (chunk == null)
                 continue;
 
+            YQContinuousWorldFeatureMaterializer.PreparedBiomeAlphamap preparedBiomeAlphamap = null;
+            TerrainLayer[] sourceLayers = _terrain.terrainData.terrainLayers;
+            if (sourceLayers != null && sourceLayers.Length > 0 &&
+                !SharesOriginTerrainBoundary(coordinate, size))
+            {
+                try
+                {
+                    // note: Sample identical biome weights off-thread while the heightfield runs; cells sharing an authored edge retain exact border copying.
+                    preparedBiomeAlphamap = YQContinuousWorldFeatureMaterializer.BeginBiomeAlphamapPreparation(
+                        sourceLayers,
+                        ProvisionalGroundAlphamapResolution,
+                        _continuousAuthority,
+                        coordinate,
+                        size);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogWarning("[YQSemanticChunkStreamer] Provisional biome preparation could not start for " +
+                        coordinate + "; retaining the border-compatible painter: " + exception.Message);
+                }
+            }
+
             CancellationTokenSource cancellation = new CancellationTokenSource();
             _provisionalGroundSamplers[coordinate] = new ProvisionalGroundSampling
             {
                 owner = chunk,
                 cancellation = cancellation,
+                preparedBiomeAlphamap = preparedBiomeAlphamap,
                 task = StartBackgroundHeightTask(
                     coordinate,
                     ProvisionalGroundHeightmapResolution,
@@ -2603,6 +3842,27 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             };
             activeSamplerCount++;
         }
+    }
+
+    private bool SharesOriginTerrainBoundary(Vector2Int coordinate, float size)
+    {
+        // note: Preserve authored alpha seams with the existing exact sampler; only fully external tiles use worker-prepared biome maps.
+        if (_terrain == null || _terrain.terrainData == null)
+            return true;
+
+        Vector3 baseOrigin = _terrain.transform.position;
+        Vector3 baseSize = _terrain.terrainData.size;
+        float tileMinX = WorldGridOrigin + coordinate.x * size;
+        float tileMaxX = WorldGridOrigin + (coordinate.x + 1) * size;
+        float tileMinZ = WorldGridOrigin + coordinate.y * size;
+        float tileMaxZ = WorldGridOrigin + (coordinate.y + 1) * size;
+        float overlapZ = Mathf.Min(tileMaxZ, baseOrigin.z + baseSize.z) - Mathf.Max(tileMinZ, baseOrigin.z);
+        float overlapX = Mathf.Min(tileMaxX, baseOrigin.x + baseSize.x) - Mathf.Max(tileMinX, baseOrigin.x);
+        return
+            (Mathf.Abs(tileMinX - (baseOrigin.x + baseSize.x)) < 0.01f && overlapZ > 0.01f) ||
+            (Mathf.Abs(tileMaxX - baseOrigin.x) < 0.01f && overlapZ > 0.01f) ||
+            (Mathf.Abs(tileMinZ - (baseOrigin.z + baseSize.z)) < 0.01f && overlapX > 0.01f) ||
+            (Mathf.Abs(tileMaxZ - baseOrigin.z) < 0.01f && overlapX > 0.01f);
     }
 
     private void PreemptProvisionalGroundSamplingForVisibleDemand()
@@ -2641,6 +3901,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private void CancelProvisionalGroundSampler(Vector2Int coordinate, ProvisionalGroundSampling sampling)
     {
         _provisionalGroundSamplers.Remove(coordinate);
+        sampling?.preparedBiomeAlphamap?.Dispose();
         if (sampling == null || sampling.cancellation == null)
             return;
         sampling.abandoned = true;
@@ -2835,7 +4096,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         RuntimeChunk owner,
         float[,] heights,
         bool synchronizePhysics = true,
-        bool recordAggregateSlice = true)
+        bool recordAggregateSlice = true,
+        YQContinuousWorldFeatureMaterializer.PreparedBiomeAlphamap preparedBiomeAlphamap = null)
     {
         // note: Materialize only a finished continuous-authority sample; normal terrain publication replaces this bounded fast-travel floor.
         if (_terrain == null || _terrain.terrainData == null || _continuousAuthority == null || owner == null ||
@@ -2899,7 +4161,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     heightmapResolution = resolution,
                     size = new Vector3(size, YQGeneratedWorldTerrain.TerrainHeight, size)
                 };
-                data.alphamapResolution = 32;
+                data.alphamapResolution = ProvisionalGroundAlphamapResolution;
                 TerrainLayer[] sourceLayers = _terrain.terrainData.terrainLayers;
                 if (sourceLayers != null)
                 {
@@ -2913,11 +4175,24 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 // note: Paint both new and pooled safety tiles from the canonical biome authority so a fast frontier never shows a stale or uniform layer-0 surface.
                 try
                 {
-                    YQContinuousWorldFeatureMaterializer.PaintBiomeAlphamaps(
-                        data,
-                        _continuousAuthority,
-                        coordinate,
-                        size);
+                    if (preparedBiomeAlphamap != null)
+                    {
+                        float[,,] maps = preparedBiomeAlphamap.TakeMaps();
+                        if (maps.GetLength(0) != data.alphamapResolution ||
+                            maps.GetLength(1) != data.alphamapResolution ||
+                            maps.GetLength(2) != data.terrainLayers.Length)
+                            throw new InvalidOperationException("Prepared provisional biome map does not match its TerrainData");
+                        // note: This small upload preserves the exact 32px biome result without replaying its scalar sampler on the gameplay thread.
+                        data.SetAlphamaps(0, 0, maps);
+                    }
+                    else
+                    {
+                        YQContinuousWorldFeatureMaterializer.PaintBiomeAlphamaps(
+                            data,
+                            _continuousAuthority,
+                            coordinate,
+                            size);
+                    }
                 }
                 catch (Exception paintFailure)
                 {
@@ -3630,6 +4905,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             _maximumStreamingWorkSeconds = 0f;
             _maximumAggregateFrameWorkSeconds = 0f;
             _maximumAggregateFrameWorkStage = string.Empty;
+            _maximumAggregateFrameWorkFrame = -1;
+            _hardViewContentDispatchReservationCount = 0;
+            _hardViewContentProgressReservationCount = 0;
+            _lastHardViewContentProgressOwner = new Vector2Int(int.MinValue, int.MinValue);
             _maximumPublicationSliceSeconds = 0f;
             _maximumPublicationSliceStage = string.Empty;
             _lastTerrainSliceSeconds = 0f;
@@ -3671,6 +4950,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _observedSpatialArtifactSignature = BuildSpatialArtifactSignature(_plan);
         _lifecyclePending = false;
         _lifecycleBudgetFrame = -1;
+        _streamingRetirementFrame = -1;
+        _streamingRetirementsThisFrame = 0;
+        _retiredPhysicalOwnersThisFrame = 0;
         _hardViewLifecycleCursor = 0;
         _unloadingLifecycleCursor = 0;
         // note: Re-resolve the accepted artifact on every configuration pass so an in-place save revision cannot leave the authority on stale arrays.
@@ -3711,7 +4993,16 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         RefreshForPlayer(true);
     }
 
+    // note: Keep Unity's Update message while exposing this scheduler owner's complete frame cost to the bounded CPU capture.
     private void Update()
+    {
+        if (!_configured)
+            return;
+        using (StreamingUpdateMarker.Auto())
+            UpdateStreamingFrame();
+    }
+
+    private void UpdateStreamingFrame()
     {
         if (!_configured)
             return;
@@ -3732,6 +5023,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _lastStreamingWorstStageSeconds = 0f;
         _lastStreamingWorstStage = string.Empty;
         BeginAggregateBudgetFrame();
+        ReserveRequiredHardViewEcologyBudget();
         float streamingWorkStarted = Time.realtimeSinceStartup;
         if (_playerMotor == null || !_playerMotor ||
             (_playerMotor.IsAuthoritative && YQInvestorPlayerMotor.ActiveMotor != _playerMotor))
@@ -3751,11 +5043,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         Vector2Int nextChunk = ChunkFor(playerPosition);
         if (_frontierRefreshPending)
         {
-            // note: A faster boundary crossing supersedes stale pending admission, while a stationary player lets the current frontier finish in bounded slices.
-            if (nextChunk != _frontierRefreshCenter)
-                RefreshForPlayer(false);
-            else
-                ProcessFrontierRefreshSlice();
+            // note: Preserve the bounded scan cursor across chunk crossings; restarting its square every few frames starves the frontier at high travel speeds.
+            _frontierRefreshPosition = playerPosition;
+            ProcessFrontierRefreshSlice();
         }
         else if (nextChunk != _currentChunk)
         {
@@ -3803,6 +5093,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
         RecordStreamingStage("hardViewAdmission", stageStarted);
         RecordAggregateWorkSlice(workStarted, "hardViewAdmission");
+        ReserveRequiredHardViewEcologyBudget();
 
         // note: Start current and pre-view ecology before terrain uploads consume the shared frame allowance; these bounded workers must finish before their cells cross into view.
         stageStarted = Time.realtimeSinceStartup;
@@ -3837,13 +5128,14 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             RecordAggregateWorkSlice(workStarted, "physicalDemandAndQueueAdmission");
         }
 
-        // note: Admit camera-visible structural content before terrain upload spends the remaining shared slice; this candidate already owns published collision ground.
+        // note: Admit ready hard-view content before terrain upload spends the remaining shared slice; prewarm work must start before it reaches the live frustum.
         bool hardViewContentDispatched = false;
-        if (physicalDemandReady && HasReadyHardViewContentCandidate() &&
+        if (physicalDemandReady &&
+            (HasReadyHardViewContentCandidate() || TryGetReadyHardPreparationContentCandidate(out _)) &&
             CanAdvanceAggregateWork("contentDispatch"))
         {
             stageStarted = Time.realtimeSinceStartup;
-            ProcessQueue();
+            ProcessQueue(_reservedHardViewContentDispatchFrame == Time.frameCount ? 1 : MaximumContentGenerationWorkers);
             RecordStreamingStage("contentDispatch", stageStarted);
             hardViewContentDispatched = true;
         }
@@ -3870,6 +5162,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 RetryFailedTerrainRequests();
             RecordAggregateWorkSlice(stageStarted, terrainDispatchBudgetReady ? "terrainDispatch" : "priorityTerrainDispatch");
         }
+        else
+            RecordFixedTerrainObservation(physicalDemandReady ? "refused:dispatchBudget" : "refused:demandRefreshBudget", FixedTerrainTraceTarget);
         RecordStreamingStage("terrainDispatch", stageStarted);
 
         bool visibleGroundWorkPending = HasPendingVisibleGroundWork();
@@ -3895,18 +5189,18 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (appearanceReconciliationBudgetReady)
             ReconcileDemandedAppearanceSlice();
         else if (physicalDemandReady)
-            TryReconcileLiveVisibleAppearance();
+            TryReconcileUrgentViewAppearance();
         RecordStreamingStage("appearanceReconciliation", stageStarted);
 
         stageStarted = Time.realtimeSinceStartup;
         if (!hardViewContentDispatched && physicalDemandReady && CanAdvanceAggregateWork("contentDispatch"))
-            ProcessQueue();
+            ProcessQueue(_reservedHardViewContentDispatchFrame == Time.frameCount ? 1 : MaximumContentGenerationWorkers);
         UpdateTerrainTelemetry();
         RecordStreamingStage("contentDispatch", stageStarted);
 
         stageStarted = Time.realtimeSinceStartup;
-        if (_lifecyclePending)
-            ApplyLifecycle();
+        // note: Let required content and ecology coroutines use the remaining shared slice before the final pre-render activation pass.
+        // note: LateUpdate applies the same pending lifecycle once, after those workers have had a chance to publish.
         RecordStreamingStage("lifecycle", stageStarted);
 
         // note: Re-admit interrupted optional ecology only after the current hard-view set has first received every available scatter slot.
@@ -3925,10 +5219,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _lastStreamingWorkSeconds = Time.realtimeSinceStartup - streamingWorkStarted;
         _lastStreamingWorkFrameCount = Time.frameCount;
         _maximumStreamingWorkSeconds = Mathf.Max(_maximumStreamingWorkSeconds, _lastStreamingWorkSeconds);
+        RecordFixedTerrainObservation("updateComplete", FixedTerrainTraceTarget);
         // note: Emit diagnostics after closing the measured slice so logging cannot masquerade as a gameplay streaming stall.
         if (Time.unscaledTime >= _nextDiagnosticsAt)
         {
             _nextDiagnosticsAt = Time.unscaledTime + DiagnosticsIntervalSeconds;
+            float diagnosticsStartedAt = Time.realtimeSinceStartup;
             int guaranteedViewLoaded = 0;
             foreach (Vector2Int demandedCoordinate in _guaranteedViewDemand)
             {
@@ -3972,38 +5268,75 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 " ecologyWorkers=" + DescribeEcologyWorkers() +
                 " traversalBlocks=" + _traversalConstraintBlockCount +
                 " traversalBlockCell=" + _lastTraversalConstraintCell);
+            _maximumStreamerDiagnosticLogSeconds = Mathf.Max(
+                _maximumStreamerDiagnosticLogSeconds,
+                Time.realtimeSinceStartup - diagnosticsStartedAt);
         }
     }
 
+    // note: Profile the post-motor hard-view pass separately so a long camera-admission frame has an identifiable owner.
     private void LateUpdate()
     {
         if (!_configured || _player == null)
             return;
+        using (StreamingLateUpdateMarker.Auto())
+            UpdateStreamingLateFrame();
+        RecordFixedTerrainObservation("lateUpdateComplete", FixedTerrainTraceTarget);
+        SampleCompleteCellObservation("frameEnd");
+    }
 
-        // note: The motor applies look rotation after Update; admit and hide the newly exposed frustum before Unity renders the frame.
-        UpdateQueuePriorityView();
-        if (!_queuePriorityViewValid || _queuePriorityCamera == null)
+    private void UpdateStreamingLateFrame()
+    {
+        if (!_configured || _player == null)
             return;
-        Vector2 playerPosition = new Vector2(_player.position.x, _player.position.z);
-        bool admissionChanged = ShouldRefreshHardViewDemand(playerPosition);
 
-        // note: LateUpdate observes the final camera pose, but sub-cell follow/rotation reuses the admitted all-direction safety runway.
-        if (admissionChanged)
-            RefreshHardViewDemand(playerPosition);
-        if (_cameraViewAdmissionPending && !TryValidateCurrentVisualCoverage(out _))
+        float lateUpdateStarted = Time.realtimeSinceStartup;
+        try
         {
-            return;
-        }
-        if (_cameraViewAdmissionPending)
-        {
-            _cameraViewAdmissionPending = false;
-            ApplyLifecycle();
-        }
+            // note: The motor applies look rotation after Update; admit and hide the newly exposed frustum before Unity renders the frame.
+            float stageStarted = Time.realtimeSinceStartup;
+            UpdateQueuePriorityView();
+            RecordStreamingStage("lateViewUpdate", stageStarted);
+            if (!_queuePriorityViewValid || _queuePriorityCamera == null)
+                return;
+            Vector2 playerPosition = new Vector2(_player.position.x, _player.position.z);
+            stageStarted = Time.realtimeSinceStartup;
+            bool admissionChanged = ShouldRefreshHardViewDemand(playerPosition);
+            RecordStreamingStage("lateHardViewAdmissionCheck", stageStarted);
 
-        if (admissionChanged)
+            // note: LateUpdate observes the final camera pose, but sub-cell follow/rotation reuses the admitted all-direction safety runway.
+            if (admissionChanged)
+            {
+                stageStarted = Time.realtimeSinceStartup;
+                RefreshHardViewDemand(playerPosition);
+                RecordStreamingStage("lateHardViewAdmission", stageStarted);
+            }
+            if (_lifecyclePending || _cameraViewAdmissionPending || admissionChanged)
+            {
+                // note: One final-pose pass handles pending publication and changed view demand without repeating a full owner census in this frame.
+                stageStarted = Time.realtimeSinceStartup;
+                ApplyLifecycle();
+                RecordStreamingStage("lateLifecycle", stageStarted);
+            }
+
+            if (_cameraViewAdmissionPending)
+            {
+                stageStarted = Time.realtimeSinceStartup;
+                bool currentCoverageReady = TryValidateCurrentVisualCoverage(out _);
+                RecordStreamingStage("lateVisualCoverage", stageStarted);
+                if (!currentCoverageReady)
+                    return;
+
+                _cameraViewAdmissionPending = false;
+            }
+        }
+        finally
         {
-            // note: Apply a newly crossed hard-view envelope immediately; physical generation remains in the next bounded Update slice.
-            ApplyLifecycle();
+            // note: Include post-motor demand, validation, and activation in the same frame receipt as Update so profiler attribution covers the full streamer owner.
+            float lateUpdateSeconds = Mathf.Max(0f, Time.realtimeSinceStartup - lateUpdateStarted);
+            _lastStreamingWorkSeconds += lateUpdateSeconds;
+            _lastStreamingWorkFrameCount = Time.frameCount;
+            _maximumStreamingWorkSeconds = Mathf.Max(_maximumStreamingWorkSeconds, _lastStreamingWorkSeconds);
         }
     }
 
@@ -4076,20 +5409,49 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _aggregateBudgetFrame = Time.frameCount;
         _aggregateFrameWorkSeconds = 0f;
         _aggregateBudgetDeferredSlices = 0;
+        _reservedHardViewContentProgressFrame = -1;
+        _reservedHardViewContentProgressOwner = new Vector2Int(int.MinValue, int.MinValue);
+        _hardViewContentProgressReservedSeconds = 0f;
+        _nextContentSliceUsesHardViewReserve = false;
     }
 
     // note: Do not start another indivisible main-thread slice after the shared deadline; visible publication remains fail-closed while deferred work resumes next frame.
-    private bool CanAdvanceAggregateWork(string stage)
+    private bool CanAdvanceAggregateWork(
+        string stage,
+        bool useHardViewActivationBudget = false,
+        bool useUrgentTerrainColliderSyncBudget = false,
+        bool useHardViewContentProgressBudget = false,
+        bool liveViewContentProgress = false,
+        Vector2Int? contentProgressCoordinate = null,
+        Vector2Int? appearanceCoordinate = null)
     {
         BeginAggregateBudgetFrame();
-        if (_aggregateFrameWorkSeconds >= AggregateMainThreadBudgetSeconds)
+        // note: Protect one existing ecology slice when hard-view required habitat can advance, without adding a separate budget or weakening the total cap.
+        float aggregateBudgetLimit = _requiredHardViewEcologyBudgetFrame == Time.frameCount &&
+            !string.Equals(stage, "requiredHardViewEcology", StringComparison.Ordinal)
+            ? Mathf.Max(0f, AggregateMainThreadBudgetSeconds - RequiredHardViewEcologyBudgetReserveSeconds)
+            : AggregateMainThreadBudgetSeconds;
+        if (_aggregateFrameWorkSeconds >= aggregateBudgetLimit)
         {
-            if (string.Equals(stage, "liveVisibleTerrainAppearance", StringComparison.Ordinal) &&
-                _reservedLiveAppearanceFrame != Time.frameCount)
+            // note: Honor the separate, time-bounded lifecycle allowance only for complete cells already inside the live view.
+            if (useHardViewActivationBudget &&
+                (stage == "lifecycleActivation" || stage == "lifecycleObjectActivation") &&
+                _lifecycleBudgetFrame == Time.frameCount &&
+                Time.realtimeSinceStartup < _lifecycleDeadline)
             {
-                _reservedLiveAppearanceFrame = Time.frameCount;
                 _lastAggregateWorkStage = stage;
                 return true;
+            }
+            if (string.Equals(stage, "hardViewTerrainAppearance", StringComparison.Ordinal) &&
+                _reservedHardViewAppearanceFrame != Time.frameCount)
+            {
+                // note: Choose the existing reserve by camera deadline, independent of the order Unity resumes painters.
+                if (!HasHigherPriorityAppearanceReserveOwner(appearanceCoordinate))
+                {
+                    _reservedHardViewAppearanceFrame = Time.frameCount;
+                    _lastAggregateWorkStage = stage;
+                    return true;
+                }
             }
             if (string.Equals(stage, "turnBufferGroundProgress", StringComparison.Ordinal) &&
                 _reservedTurnBufferGroundProgressFrame != Time.frameCount)
@@ -4108,6 +5470,65 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 _lastAggregateWorkStage = stage;
                 return true;
             }
+            // note: Keep demanded collider publication moving after background slices spend the budget; Physics.SyncTransforms remains globally limited to one call per frame.
+            if (useUrgentTerrainColliderSyncBudget &&
+                string.Equals(stage, "terrainColliderSync", StringComparison.Ordinal) &&
+                _reservedTerrainColliderSyncFrame != Time.frameCount)
+            {
+                _reservedTerrainColliderSyncFrame = Time.frameCount;
+                _lastAggregateWorkStage = stage;
+                return true;
+            }
+            bool activeLiveViewContentWorker = useHardViewContentProgressBudget &&
+                !liveViewContentProgress && HasActiveLiveViewContentWorker();
+            bool selectedHardViewContentProgressOwner = useHardViewContentProgressBudget &&
+                contentProgressCoordinate.HasValue &&
+                (liveViewContentProgress
+                    ? IsNextLiveViewContentProgressOwner(contentProgressCoordinate.Value)
+                    : !activeLiveViewContentWorker && IsNextHardPreparationContentProgressOwner(contentProgressCoordinate.Value));
+            bool ownsHardViewProgressReserve = contentProgressCoordinate.HasValue &&
+                _reservedHardViewContentProgressFrame == Time.frameCount &&
+                _reservedHardViewContentProgressOwner == contentProgressCoordinate.Value;
+            bool hardViewProgressReserveAvailable =
+                _aggregateFrameWorkSeconds < AggregateMainThreadBudgetSeconds &&
+                _hardViewContentProgressReservedSeconds < RequiredHardViewEcologyBudgetReserveSeconds;
+            bool hardViewProgressOwnerCanReserve = ownsHardViewProgressReserve ||
+                (_reservedHardViewContentProgressFrame != Time.frameCount && selectedHardViewContentProgressOwner);
+            if (useHardViewContentProgressBudget &&
+                hardViewProgressOwnerCanReserve &&
+                hardViewProgressReserveAvailable)
+            {
+                // note: Spend up to the already-reserved 4 ms on one deadline-selected owner; total streamer work remains under its 10 ms cap.
+                if (!ownsHardViewProgressReserve)
+                {
+                    _reservedHardViewContentProgressFrame = Time.frameCount;
+                    _reservedHardViewContentProgressOwner = contentProgressCoordinate.Value;
+                    _hardViewContentProgressReservationCount++;
+                    RecordHardViewProgressReservation(contentProgressCoordinate, reserved: true, yieldedToLive: false);
+                    _lastHardViewContentProgressOwner = contentProgressCoordinate.Value;
+                }
+                _nextContentSliceUsesHardViewReserve = true;
+                _lastAggregateWorkStage = stage;
+                return true;
+            }
+            if (useHardViewContentProgressBudget && liveViewContentProgress && !selectedHardViewContentProgressOwner)
+                RecordHardViewProgressReservation(contentProgressCoordinate, reserved: false, yieldedToLive: false);
+            else if (useHardViewContentProgressBudget && activeLiveViewContentWorker)
+                RecordHardViewProgressReservation(contentProgressCoordinate, reserved: false, yieldedToLive: true);
+            else if (useHardViewContentProgressBudget &&
+                _reservedHardViewContentProgressFrame == Time.frameCount)
+                RecordHardViewProgressReservation(contentProgressCoordinate, reserved: false, yieldedToLive: false);
+            // note: Only an unspent content-dispatch reserve consumes this candidate result; unrelated denied slices must not rescan both queues for every owner.
+            if (string.Equals(stage, "contentDispatch", StringComparison.Ordinal) &&
+                _reservedHardViewContentDispatchFrame != Time.frameCount &&
+                (HasReadyHardViewContentCandidate() || TryGetReadyHardPreparationContentCandidate(out _)))
+            {
+                // note: Keep ready hard-view content progressing with one worker start while preserving the shared aggregate budget for every other slice.
+                _reservedHardViewContentDispatchFrame = Time.frameCount;
+                _hardViewContentDispatchReservationCount++;
+                _lastAggregateWorkStage = stage;
+                return true;
+            }
             if (_aggregateBudgetDeferredSlices == 0)
                 _lastAggregateWorkStage = stage;
             _aggregateBudgetDeferredSlices++;
@@ -4116,6 +5537,118 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_aggregateBudgetDeferredSlices == 0)
             _lastAggregateWorkStage = stage;
         return true;
+    }
+
+    private void RecordHardViewProgressReservation(
+        Vector2Int? coordinate,
+        bool reserved,
+        bool yieldedToLive)
+    {
+        // note: Count at most once per owner/frame so nested iterator checks do not distort the shared-reservation evidence.
+        if (!coordinate.HasValue ||
+            !_chunks.TryGetValue(coordinate.Value, out RuntimeChunk owner) || owner == null ||
+            owner.lastHardViewProgressDiagnosticFrame == Time.frameCount)
+            return;
+
+        owner.lastHardViewProgressDiagnosticFrame = Time.frameCount;
+        if (reserved)
+            owner.hardViewProgressReserveSlices++;
+        else if (yieldedToLive)
+            owner.hardViewProgressYieldedToLiveFrames++;
+        else
+            owner.hardViewProgressReserveDeniedFrames++;
+    }
+
+    private bool IsNextLiveViewContentProgressOwner(Vector2Int requested)
+    {
+        // note: Pick the earliest live-view deadline, then rotate equal deadlines by stable cell order after the prior slice owner.
+        if (!_guaranteedViewDemand.Contains(requested) || !_activeGenerations.ContainsKey(requested))
+            return false;
+
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        Vector2Int selected = new Vector2Int(int.MinValue, int.MinValue);
+        bool found = false;
+        foreach (Vector2Int candidate in _activeGenerations.Keys)
+        {
+            if (!_guaranteedViewDemand.Contains(candidate) ||
+                !_chunks.TryGetValue(candidate, out RuntimeChunk owner) || owner == null ||
+                owner.state != YQSemanticChunkLifecycle.Generating)
+                continue;
+
+            if (!found)
+            {
+                selected = candidate;
+                found = true;
+                continue;
+            }
+
+            int deadline = CompareContentQueueDeadlines(candidate, selected, traversalVelocity);
+            if (deadline < 0)
+            {
+                selected = candidate;
+                continue;
+            }
+            if (deadline > 0)
+                continue;
+
+            bool candidateAfterLast = _lastHardViewContentProgressOwner.x != int.MinValue &&
+                CompareCoordinates(candidate, _lastHardViewContentProgressOwner) > 0;
+            bool selectedAfterLast = _lastHardViewContentProgressOwner.x != int.MinValue &&
+                CompareCoordinates(selected, _lastHardViewContentProgressOwner) > 0;
+            if (candidateAfterLast != selectedAfterLast
+                    ? candidateAfterLast
+                    : CompareCoordinates(candidate, selected) < 0)
+                selected = candidate;
+        }
+
+        return found && selected == requested;
+    }
+
+    private bool IsNextHardPreparationContentProgressOwner(Vector2Int requested)
+    {
+        // note: When no live-view worker is pending, give the earliest ready hard-view preparation owner the reserved ecology slice.
+        if (!_hardViewDemand.Contains(requested) || _guaranteedViewDemand.Contains(requested) ||
+            !_activeGenerations.ContainsKey(requested))
+            return false;
+
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        Vector2Int selected = new Vector2Int(int.MinValue, int.MinValue);
+        bool found = false;
+        foreach (Vector2Int candidate in _activeGenerations.Keys)
+        {
+            if (!_hardViewDemand.Contains(candidate) || _guaranteedViewDemand.Contains(candidate) ||
+                !_chunks.TryGetValue(candidate, out RuntimeChunk owner) || owner == null ||
+                owner.state != YQSemanticChunkLifecycle.Generating)
+                continue;
+
+            int deadline = found
+                ? CompareContentQueueDeadlines(candidate, selected, traversalVelocity)
+                : -1;
+            bool candidateAfterLast = _lastHardViewContentProgressOwner.x != int.MinValue &&
+                CompareCoordinates(candidate, _lastHardViewContentProgressOwner) > 0;
+            bool selectedAfterLast = found && _lastHardViewContentProgressOwner.x != int.MinValue &&
+                CompareCoordinates(selected, _lastHardViewContentProgressOwner) > 0;
+            if (!found || deadline < 0 || (deadline == 0 && (candidateAfterLast != selectedAfterLast
+                    ? candidateAfterLast
+                    : CompareCoordinates(candidate, selected) < 0)))
+            {
+                selected = candidate;
+                found = true;
+            }
+        }
+        return found && selected == requested;
+    }
+
+    private void RecordRequiredContentWorkSlice(float startedAt)
+    {
+        // note: Charge only the selected required-content MoveNext time against its reserved share of the existing aggregate budget.
+        float elapsed = Mathf.Max(0f, Time.realtimeSinceStartup - startedAt);
+        if (_nextContentSliceUsesHardViewReserve)
+        {
+            _hardViewContentProgressReservedSeconds += elapsed;
+            _nextContentSliceUsesHardViewReserve = false;
+        }
+        RecordAggregateWorkSlice(startedAt, "requiredContent");
     }
 
     private void RecordAggregateWorkSlice(float startedAt, string stage)
@@ -4127,6 +5660,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         {
             _maximumAggregateFrameWorkSeconds = _aggregateFrameWorkSeconds;
             _maximumAggregateFrameWorkStage = stage;
+            _maximumAggregateFrameWorkFrame = Time.frameCount;
         }
         if (elapsed > 0f)
             _lastAggregateWorkStage = stage;
@@ -4135,6 +5669,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     // note: Merge all live demand classes into one capacity-limited scheduler authority before any terrain/content dispatch.
     private void RebuildPhysicalDemandSet()
     {
+        // note: Diagnostic revision tracks when the existing dispatch map was rebuilt, without changing its authority.
+        if (_fixedTerrainObservations != null)
+        {
+            _fixedTerrainDemandRevision++;
+            _fixedTerrainDemandFrame = Time.frameCount;
+        }
         _physicalDemand.Clear();
         _physicalDemandOverflowCount = 0;
         _physicalDemandVisibleOverflow = false;
@@ -4326,7 +5866,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         // note: Defer history eviction to Update so a boundary crossing performs only frontier admission; eviction remains bounded to one slice.
         _semanticPrunePending = true;
         _queuedCount = _queue.Count;
-        PersistSemanticFrontier();
         _frontierRefreshPending = false;
 #if DEVELOPMENT_BUILD && !UNITY_EDITOR
         if (!_frontierRefreshInitial)
@@ -4334,23 +5873,37 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 #endif
     }
 
-    private void ProcessQueue()
+    private void ProcessQueue(int maximumStarts = MaximumContentGenerationWorkers)
     {
         // note: Fill the small required-content worker set so visible cells progress in parallel without allowing unbounded Unity allocations.
-        if (HasPendingHardViewContent() &&
-            HasReadyHardViewContentCandidate() &&
-            _activeGenerations.Count >= MaximumContentGenerationWorkers)
+        if (_activeGenerations.Count >= MaximumContentGenerationWorkers)
         {
-            // note: A view request can arrive after background owners already claimed every lane; cooperatively retire one unpublished background owner so the ready visible cell can start immediately.
-            PreemptLowerPriorityContentForHardView();
+            // note: Free one later-deadline worker before a ready predicted cell reaches the live frustum; visible cells retain first claim.
+            if (HasPendingHardViewContent() && HasReadyHardViewContentCandidate())
+                PreemptLowerPriorityContentForHardView();
+            else if (TryGetReadyPredictedContentCandidate(out Vector2Int predictedCandidate))
+                PreemptLowerPriorityContentForDemand(predictedCandidate, true);
+            else if (TryGetReadyHardPreparationContentCandidate(out Vector2Int preparationCandidate))
+                PreemptLowerPriorityContentForDemand(preparationCandidate, false);
         }
-        while (_activeGenerations.Count < MaximumContentGenerationWorkers &&
+        int starts = 0;
+        int startLimit = Mathf.Clamp(maximumStarts, 0, MaximumContentGenerationWorkers);
+        while (starts < startLimit &&
+               _activeGenerations.Count < MaximumContentGenerationWorkers &&
                TryStartNextContentGeneration())
         {
+            starts++;
         }
     }
 
     private bool TryStartNextContentGeneration()
+    {
+        // note: Measure one candidate scan separately from coroutine startup while leaving queue eligibility unchanged.
+        using (ContentStartSearchProfilerMarker.Auto())
+            return TryStartNextContentGenerationCore();
+    }
+
+    private bool TryStartNextContentGenerationCore()
     {
         if (_queue.Count == 0)
             return false;
@@ -4360,7 +5913,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return false;
 
         bool hardViewPending = HasPendingHardViewContent();
-        // note: Reserve a content lane only when a queued camera-visible cell can actually start; an unready view waiting on terrain must not leave a worker idle.
+        // note: Reserve a content lane only when a queued camera-visible cell has a complete sampleable heightfield; collider synchronization may continue in parallel.
         bool readyHardViewContentCandidate = hardViewPending && HasReadyHardViewContentCandidate();
         int selectedIndex = -1;
         for (int index = 0; index < _queue.Count; index++)
@@ -4386,14 +5939,22 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 // note: Preserve the final lane for a visible cell whenever background/site generation is already occupying the other bounded workers.
                 continue;
             }
+            int reservationBlockCount = _ownerReservationBlockCount;
             if (!TryReservePhysicalOwner(candidate))
             {
+                bool blockedByPinnedOwnerCapacity = _ownerReservationBlockCount > reservationBlockCount &&
+                    _lastOwnerReservationBlock == candidate;
+                bool predictedViewDeadline = _semanticViewPredictionArrivalSeconds.ContainsKey(candidate);
+                // note: A ready visible cell may have an open worker lane but no owner slot; reclaim one strictly later worker instead of leaving camera content queued behind the owner cap.
+                if (blockedByPinnedOwnerCapacity &&
+                    (_guaranteedViewDemand.Contains(candidate) || predictedViewDeadline || _hardViewDemand.Contains(candidate)))
+                    PreemptLowerPriorityContentForDemand(candidate, predictedViewDeadline);
                 // note: Full-contract stress keeps content publication bounded; distant semantic placeholders remain available until retention frees a physical slot.
                 continue;
             }
-            if (!IsChunkInsideAuthoredTerrain(candidate) && !HasPublishedTerrain(candidate))
+            if (ResolveTerrainForContentMaterialization(candidate) == null)
             {
-                // note: Content never occupies the serialized generation slot while its collision terrain is missing; terrain lookahead owns this wait separately.
+                // note: Keep accepted content queued until its exact heightfield exists, then let collision publication and semantic construction overlap.
                 RequestTerrainForChunk(candidate);
                 continue;
             }
@@ -4416,8 +5977,28 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
         // note: Start one bounded required-content owner; its nested iterator still yields through the shared per-worker content slice budget.
         chunk.state = YQSemanticChunkLifecycle.Generating;
+        chunk.contentQueuedAt = -1f;
+        chunk.contentStartedAt = Time.unscaledTime;
         chunk.record.lastVisitedUnix = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         chunk.contentOwnerEpoch++;
+        chunk.hardViewProgressReserveSlices = 0;
+        chunk.hardViewProgressReserveDeniedFrames = 0;
+        chunk.hardViewProgressYieldedToLiveFrames = 0;
+        chunk.lastHardViewProgressDiagnosticFrame = -1;
+        // note: Snapshot this attempt's demand lead separately from collision readiness already present when the attempt starts.
+        chunk.progressEpoch = chunk.contentOwnerEpoch;
+        chunk.contentAttemptCount++;
+        chunk.progressStartedAt = Time.realtimeSinceStartupAsDouble;
+        chunk.hardDemandReadyAtStart = _hardViewDemand.Contains(coordinate);
+        chunk.collisionReadyAtStart = IsChunkInsideAuthoredTerrain(coordinate) || HasPublishedTerrain(coordinate);
+        // note: Preserve pre-attempt queue lead while translating the unscaled admission timestamp into the diagnostic realtime clock.
+        chunk.epochHardDemandAt = chunk.hardDemandReadyAtStart
+            ? chunk.progressStartedAt - (chunk.hardViewAdmittedAt >= 0f
+                ? Math.Max(0d, Time.unscaledTime - chunk.hardViewAdmittedAt) : 0d)
+            : -1d;
+        chunk.epochCollisionAt = chunk.collisionReadyAtStart ? chunk.progressStartedAt : -1d;
+        chunk.structuralProgress.Reset();
+        chunk.ecologyProgress.Reset();
         StreamingWorkToken token = CaptureStreamingWorkToken(coordinate);
         _activeGenerationWorkIds[coordinate] = token.workId;
         _activeGenerations[coordinate] = null;
@@ -4577,6 +6158,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         {
             _semanticViewPredictionArrivalSeconds.Clear();
             _hasSemanticViewPrediction = false;
+            _lastSemanticViewPredictionAdmissionBudget = 0;
+            _lastSemanticViewPredictionAdmitted = 0;
+            _lastSemanticViewPredictionProjectedHard = 0;
+            _lastSemanticViewPredictionOwnerBudgetSkipped = 0;
+            _lastSemanticViewPredictionRefreshAt = Time.unscaledTime;
             return;
         }
 
@@ -4589,6 +6175,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return;
 
         _semanticViewPredictionArrivalSeconds.Clear();
+        _semanticViewPredictionVisited.Clear();
+        _lastSemanticViewPredictionAdmitted = 0;
+        _lastSemanticViewPredictionProjectedHard = 0;
+        _lastSemanticViewPredictionOwnerBudgetSkipped = 0;
+        _lastSemanticViewPredictionRefreshAt = Time.unscaledTime;
         _lastSemanticViewPredictionVelocity = velocity;
         _lastSemanticViewPredictionCameraChunk = cameraChunk;
         // note: Scale refresh cadence to the configured visible frontier; a radius-512m view at 260m/s exposes about 16 new cells per second, so the old fixed four-per-second cadence fell behind during coasting.
@@ -4605,6 +6196,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         int admissionBudget = Mathf.Max(0,
             PhysicalOwnerCapacity - _hardViewDemand.Count - 8 -
             _siteTerrainDependencies.Count - _siteTerrainHandoffRequests.Count);
+        _lastSemanticViewPredictionAdmissionBudget = admissionBudget;
         if (admissionBudget == 0)
             return;
 
@@ -4638,9 +6230,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             for (int index = 0; index < _semanticViewPredictionScratch.Count; index++)
             {
                 Vector2Int predictedCoordinate = _semanticViewPredictionScratch[index] + offset;
+                if (!_semanticViewPredictionVisited.Add(predictedCoordinate))
+                    continue;
                 bool alreadyHardView = _hardViewDemand.Contains(predictedCoordinate);
                 if (alreadyHardView)
                 {
+                    _lastSemanticViewPredictionProjectedHard++;
                     if (!_semanticViewPredictionArrivalSeconds.TryGetValue(predictedCoordinate, out float previousArrival) ||
                         predictionSeconds < previousArrival)
                         _semanticViewPredictionArrivalSeconds[predictedCoordinate] = predictionSeconds;
@@ -4652,11 +6247,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 if (!ownerExists &&
                     (createdOwners >= MaximumPredictiveSemanticOwnerCreationsPerPass ||
                      (createdOwners > 0 && Time.realtimeSinceStartup - admissionStartedAt >= PredictiveOwnerAdmissionBudgetSeconds)))
+                {
+                    _lastSemanticViewPredictionOwnerBudgetSkipped++;
                     continue;
+                }
 
                 AdmitHardViewCoordinate(predictedCoordinate);
                 _semanticViewPredictionArrivalSeconds[predictedCoordinate] = predictionSeconds;
                 admitted++;
+                _lastSemanticViewPredictionAdmitted++;
                 if (!ownerExists)
                     createdOwners++;
             }
@@ -4730,7 +6329,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     continue;
 
                 _highSpeedTurnBufferCoverageDemand.Add(coordinate);
-                if (_guaranteedViewDemand.Contains(coordinate) || _hardViewDemand.Contains(coordinate))
+                // note: A hidden preparation-ring cell may still be waiting for canonical collision publication; keep its one-second safety floor until it enters the live view.
+                if (_guaranteedViewDemand.Contains(coordinate))
                     continue;
 
                 // note: Keep a same-authority safety height sample around the one-second turn envelope; full accepted content is admitted when a cell enters the camera preparation/view envelope.
@@ -4774,6 +6374,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         bool firstAdmissionThisPass = _hardViewDemand.Add(coordinate);
         RuntimeChunk chunk = GetOrCreateChunk(coordinate);
+        if (chunk != null && chunk.progressStartedAt >= 0d && chunk.progressEpoch == chunk.contentOwnerEpoch && chunk.epochHardDemandAt < 0d)
+            chunk.epochHardDemandAt = Time.realtimeSinceStartupAsDouble;
+        if (chunk != null && firstAdmissionThisPass && !_previousHardViewDemand.Contains(coordinate))
+            chunk.hardViewAdmittedAt = Time.unscaledTime;
         _contentDemand.Add(coordinate);
         if (firstAdmissionThisPass)
         {
@@ -4886,7 +6490,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         if (_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) && chunk != null &&
             chunk.state == YQSemanticChunkLifecycle.Queued)
+        {
             chunk.state = YQSemanticChunkLifecycle.SemanticallyPlanned;
+            chunk.contentQueuedAt = -1f;
+        }
         _queue.RemoveAt(index);
         _contentDemand.Remove(coordinate);
     }
@@ -4925,23 +6532,46 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: Dispatch and the sampler share one strict-priority handoff rule; equal-priority visible work is allowed to finish instead of thrashing the only preparation slot.
             if (ShouldPreemptTerrainPreparation(_terrainPreparingCoordinate))
                 CancelTerrainPreparationForCoordinate(_terrainPreparingCoordinate);
+            RecordTerrainDispatchObservation();
+            if (_terrainPreparation != null)
+            {
+                RecordVisibleTerrainDispatchWait(visibleWaitReason: 1);
+                RecordFixedTerrainObservation("refused:activeSlot", FixedTerrainTraceTarget);
+            }
             MaintainTerrainHeightPrefetch();
             return;
         }
         // note: Keep unpublished terrain residency bounded while the prior colliders cross both physics frame boundaries.
         if (_pendingTerrainPublications.Count >= MaximumPendingTerrainColliderPublications)
+        {
+            RecordTerrainDispatchObservation();
+            RecordVisibleTerrainDispatchWait(visibleWaitReason: 2);
+            RecordFixedTerrainObservation("refused:colliderCapacity", FixedTerrainTraceTarget);
             return;
+        }
         if (_terrainQueue.Count == 0)
+        {
+            RecordTerrainDispatchObservation();
             return;
+        }
         // note: A camera-visible or site-required collision tile may start while two distant appearance painters finish; required physical dependencies must never wait behind optional painting.
         if (_terrainPainting.Count >= 2 && !HasQueuedPriorityTerrain())
+        {
+            RecordTerrainDispatchObservation();
+            RecordVisibleTerrainDispatchWait(visibleWaitReason: 3);
+            RecordFixedTerrainObservation("refused:painterGate", FixedTerrainTraceTarget);
             return;
+        }
 
         // note: Re-evaluate urgency every frame so a turn or acceleration promotes the new deadline before the next tile starts.
         SortTerrainQueue();
         int inspected = 0;
         while (_terrainQueue.Count > 0 && inspected++ < MaximumTerrainRequestsInspectedPerFrame)
         {
+            // note: Only an armed history observes the first eight sorted candidates before dequeuing; no admission, ordering or scheduler work is added.
+            if (_completeCellHistory != null)
+                for (int observed = 0; observed < Mathf.Min(8, _terrainQueue.Count); observed++)
+                    ObserveCompleteCell(_terrainQueue[observed], "dispatchOrder", true);
             Vector2Int coordinate = _terrainQueue[0];
             _terrainQueue.RemoveAt(0);
             _terrainQueued.Remove(coordinate);
@@ -4952,6 +6582,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 !hardViewPreparation &&
                 TerrainPreparationPriority(coordinate, ResolveTraversalVelocity()) > 3)
             {
+                if (coordinate == _lastVisualCoverageFailureCoordinate)
+                    RecordVisibleTerrainDispatchWait(visibleWaitReason: 4);
+                RecordFixedTerrainObservation("refused:dispatchDemandMap", coordinate);
                 // note: Keep over-cap site dependencies queued, but never strand a hard-view cell solely because the bounded dispatch map omitted it.
                 if (requiredSiteTerrain || _guaranteedViewDemand.Contains(coordinate))
                 {
@@ -4966,32 +6599,55 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: Drop an obsolete queued cell before starting TerrainData work; only the current retained frontier may consume a preparation slot.
             if (!IsTerrainRequestStillRelevant(coordinate))
             {
+                RecordFixedTerrainObservation("refused:obsoleteRequest", coordinate);
+                if (coordinate == _lastVisualCoverageFailureCoordinate)
+                    RecordVisibleTerrainDispatchWait(visibleWaitReason: 5);
                 if (requiredSiteTerrain)
                     Debug.LogError("[YQSemanticChunkStreamer] REQUIRED SITE TERRAIN DISPATCH LOST " + coordinate + " chunkPresent=" + _chunks.ContainsKey(coordinate));
                 continue;
             }
             // note: Keep the request queued until retained resources can release a slot; terrain and content share one owner budget.
+            int reservationBlockCount = _ownerReservationBlockCount;
             if (!TryReservePhysicalOwner(coordinate))
             {
+                RecordFixedTerrainObservation("refused:physicalOwnerReservation", coordinate);
+                bool blockedByPinnedOwnerCapacity = _ownerReservationBlockCount > reservationBlockCount &&
+                    _lastOwnerReservationBlock == coordinate;
+                bool predictedViewDeadline = _semanticViewPredictionArrivalSeconds.ContainsKey(coordinate);
+                // note: A visible terrain owner can be blocked by partial content reservations; reclaim one strictly later content deadline before rechecking the shared owner cap.
+                if (blockedByPinnedOwnerCapacity &&
+                    (_guaranteedViewDemand.Contains(coordinate) || predictedViewDeadline || hardViewPreparation))
+                    PreemptLowerPriorityContentForDemand(coordinate, predictedViewDeadline);
+                if (coordinate == _lastVisualCoverageFailureCoordinate)
+                    RecordVisibleTerrainDispatchWait(visibleWaitReason: 6);
                 if (requiredSiteTerrain)
                     Debug.LogWarning("[YQSemanticChunkStreamer] REQUIRED SITE TERRAIN RESERVATION WAIT " + coordinate + " capacity=" + PhysicalOwnerCapacity + " chunks=" + _chunks.Count + " physical=" + _physicalCount);
                 _terrainQueue.Insert(0, coordinate);
                 _terrainQueued.Add(coordinate);
+                RecordTerrainDispatchObservation();
                 return;
             }
             _siteTerrainHandoffRequests.Remove(coordinate);
             _terrainPreparingCoordinate = coordinate;
             _terrainPreparationStartedAt = Time.realtimeSinceStartup;
+            _terrainPreparationDispatchFrame = Time.frameCount;
             _terrainPreparationPhase = "dispatch";
             _terrainPreparationPreempted = false;
             StreamingWorkToken token = CaptureStreamingWorkToken(coordinate, true);
             _terrainPreparationWorkId = token.workId;
+            RecordFixedTerrainObservation("dispatched", coordinate, token.workId);
             Coroutine preparation = StartCoroutine(PrepareTerrainRoutine(coordinate, token));
             if (_terrainPreparationWorkId == token.workId)
                 _terrainPreparation = preparation;
+            if (coordinate == _lastVisualCoverageFailureCoordinate)
+                RecordVisibleTerrainDispatchWait(visibleWaitReason: 8);
+            else
+                RecordVisibleTerrainDispatchWait(visibleWaitReason: 7);
+            RecordTerrainDispatchObservation();
             MaintainTerrainHeightPrefetch();
             return;
         }
+        RecordTerrainDispatchObservation();
     }
 
     private bool HasQueuedPriorityTerrain()
@@ -5044,9 +6700,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             ? TryEnsureCurrentCameraGround(out _)
             : TryValidateGroundViewCoverage(out _);
         _cameraViewAdmissionPending = !visualReady || !groundReady;
-        // note: Apply same-frame renderer gating only when this call changed the demanded envelope; the regular update advances pending owners.
-        if (refreshAdmission)
-            ApplyLifecycle();
+        // note: The final-pose LateUpdate pass applies the changed envelope before rendering, so the motor does not repeat a full lifecycle census here.
     }
 
     private bool HasUndemandedCurrentViewCell(Vector2 playerPosition)
@@ -5108,6 +6762,16 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private bool TryGetReadyHardViewContentCandidate(out Vector2Int selectedCoordinate)
     {
+        #if UNITY_EDITOR
+        if (R2ObserveContentCandidateScans) R2ContentCandidateScans++;
+        #endif
+        // note: Measure the repeated visible-candidate scan on the main thread without changing its selection rule.
+        using (ReadyHardViewScanProfilerMarker.Auto())
+            return TryGetReadyHardViewContentCandidateCore(out selectedCoordinate);
+    }
+
+    private bool TryGetReadyHardViewContentCandidateCore(out Vector2Int selectedCoordinate)
+    {
         selectedCoordinate = default;
         bool foundCandidate = false;
         Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
@@ -5118,7 +6782,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 !_chunks.TryGetValue(candidate, out RuntimeChunk chunk) ||
                 chunk == null || chunk.physicalRepresentation ||
                 chunk.state == YQSemanticChunkLifecycle.Generating ||
-                (!IsChunkInsideAuthoredTerrain(candidate) && !HasPublishedTerrain(candidate)))
+                ResolveTerrainForContentMaterialization(candidate) == null)
                 continue;
 
             if (!foundCandidate || CompareContentQueuePriority(candidate, selectedCoordinate, traversalVelocity) < 0)
@@ -5136,6 +6800,108 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (!TryGetReadyHardViewContentCandidate(out Vector2Int requestedCoordinate))
             return false;
 
+        return PreemptLowerPriorityContentForDemand(requestedCoordinate, false);
+    }
+
+    private bool TryGetReadyPredictedContentCandidate(out Vector2Int selectedCoordinate)
+    {
+        selectedCoordinate = default;
+        bool foundCandidate = false;
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        for (int index = 0; index < _queue.Count; index++)
+        {
+            Vector2Int candidate = _queue[index];
+            if (!_semanticViewPredictionArrivalSeconds.ContainsKey(candidate) ||
+                _guaranteedViewDemand.Contains(candidate) ||
+                !_hardViewDemand.Contains(candidate) ||
+                !_chunks.TryGetValue(candidate, out RuntimeChunk chunk) ||
+                chunk == null || chunk.physicalRepresentation ||
+                chunk.state == YQSemanticChunkLifecycle.Generating ||
+                ResolveTerrainForContentMaterialization(candidate) == null)
+                continue;
+            if (!foundCandidate || CompareContentQueuePriority(candidate, selectedCoordinate, traversalVelocity) < 0)
+            {
+                selectedCoordinate = candidate;
+                foundCandidate = true;
+            }
+        }
+        return foundCandidate;
+    }
+
+    private void RecordVisibleTerrainDispatchWait(int visibleWaitReason)
+    {
+        // note: Attribute only the currently incomplete visual owner and at most one reason per frame; no queue scan or log is added to ordinary streaming.
+        Vector2Int coordinate = _lastVisualCoverageFailureCoordinate;
+        RuntimeChunk owner = _lastVisualCoverageFailureOwner;
+        if (owner == null || !_hasLastVisualCoverageFailureCoordinate ||
+            owner.terrainReadiness >= YQTerrainReadinessState.CollisionReady ||
+            (visibleWaitReason != 8 && !_terrainQueued.Contains(coordinate)) ||
+            owner.lastTerrainDispatchDiagnosticFrame == Time.frameCount)
+            return;
+
+        owner.lastTerrainDispatchDiagnosticFrame = Time.frameCount;
+        owner.terrainDispatchWaitFrames++;
+        owner.lastTerrainDispatchQueueIndex = _terrainQueue.IndexOf(coordinate);
+        switch (visibleWaitReason)
+        {
+            case 1: owner.terrainDispatchActiveFrames++; break;
+            case 2: owner.terrainDispatchPublicationFrames++; break;
+            case 3: owner.terrainDispatchPainterFrames++; break;
+            case 4: owner.terrainDispatchAdmissionFrames++; break;
+            case 6: owner.terrainDispatchCapacityFrames++; break;
+            case 7: owner.terrainDispatchOtherCandidateFrames++; break;
+            case 8: owner.terrainDispatchStartedFrames++; break;
+        }
+    }
+
+    private bool HasActiveLiveViewContentWorker()
+    {
+        // note: The worker set is capped at three, so this bounded check can protect the visible step without introducing a scheduler queue.
+        foreach (Vector2Int coordinate in _activeGenerations.Keys)
+            if (_guaranteedViewDemand.Contains(coordinate))
+                return true;
+        return false;
+    }
+
+    private bool TryGetReadyHardPreparationContentCandidate(out Vector2Int selectedCoordinate)
+    {
+        #if UNITY_EDITOR
+        if (R2ObserveContentCandidateScans) R2ContentCandidateScans++;
+        #endif
+        // note: Measure the bounded preparation-candidate scan separately from visible-view work.
+        using (ReadyHardPreparationScanProfilerMarker.Auto())
+            return TryGetReadyHardPreparationContentCandidateCore(out selectedCoordinate);
+    }
+
+    private bool TryGetReadyHardPreparationContentCandidateCore(out Vector2Int selectedCoordinate)
+    {
+        selectedCoordinate = default;
+        bool foundCandidate = false;
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        for (int index = 0; index < _queue.Count; index++)
+        {
+            Vector2Int candidate = _queue[index];
+            if (!_hardViewDemand.Contains(candidate) ||
+                _guaranteedViewDemand.Contains(candidate) ||
+                _semanticViewPredictionArrivalSeconds.ContainsKey(candidate) ||
+                !_chunks.TryGetValue(candidate, out RuntimeChunk chunk) ||
+                chunk == null || chunk.physicalRepresentation ||
+                chunk.state == YQSemanticChunkLifecycle.Generating ||
+                ResolveTerrainForContentMaterialization(candidate) == null)
+                continue;
+
+            if (!foundCandidate || CompareContentQueuePriority(candidate, selectedCoordinate, traversalVelocity) < 0)
+            {
+                selectedCoordinate = candidate;
+                foundCandidate = true;
+            }
+        }
+        return foundCandidate;
+    }
+
+    private bool PreemptLowerPriorityContentForDemand(Vector2Int requestedCoordinate, bool predictedDeadline)
+    {
+        // note: Predicted work preempts only a strictly later deadline; equal-deadline coordinate ties cannot churn live workers.
         Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
         Vector2Int victimCoordinate = default;
         RuntimeChunk victim = null;
@@ -5147,11 +6913,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 chunk.physicalRepresentation ||
                 chunk.state != YQSemanticChunkLifecycle.Generating ||
                 coordinate == _currentChunk ||
-                CompareContentQueuePriority(requestedCoordinate, coordinate, traversalVelocity) >= 0)
+                (predictedDeadline
+                    ? CompareContentQueueDeadlines(requestedCoordinate, coordinate, traversalVelocity)
+                    : CompareContentQueuePriority(requestedCoordinate, coordinate, traversalVelocity)) >= 0)
                 continue;
 
             if (victim == null ||
-                CompareContentQueuePriority(coordinate, victimCoordinate, traversalVelocity) > 0)
+                (predictedDeadline
+                    ? CompareContentQueueDeadlines(coordinate, victimCoordinate, traversalVelocity)
+                    : CompareContentQueuePriority(coordinate, victimCoordinate, traversalVelocity)) > 0)
             {
                 victimCoordinate = coordinate;
                 victim = chunk;
@@ -5160,19 +6930,27 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (victim == null)
             return false;
 
+        // note: Capture the last cancelled owner before disposal clears its work registration.
+        victim.diagnosticPreemptionCount++;
+        victim.lastPreemptedEpoch = victim.contentOwnerEpoch;
+        victim.lastPreemptedAt = Time.realtimeSinceStartupAsDouble;
+        victim.lastPreemptingCoordinate = requestedCoordinate;
+        victim.structuralProgress.Admitted();
+        victim.ecologyProgress.Admitted();
         if (_activeGenerations.TryGetValue(victimCoordinate, out Coroutine generation) && generation != null)
             StopCoroutine(generation);
         _activeGenerations.Remove(victimCoordinate);
         _activeGenerationWorkIds.Remove(victimCoordinate);
         _demandCancelledGenerations.Remove(victimCoordinate);
-        // note: A live-frustum deadline may reclaim an unpublished non-current coverage worker; its terrain owner remains independent, and the content request is requeued for deterministic continuation.
+        // note: A view deadline may reclaim an unpublished non-current worker; its terrain owner and canonical record remain intact.
         ReleaseObsoleteGenerationContent(victim);
         victim.state = YQSemanticChunkLifecycle.SemanticallyPlanned;
         if (IsContentDemandedNow(victimCoordinate))
             Enqueue(victimCoordinate);
-        Debug.Log("[YQSemanticChunkStreamer] CONTENT PREEMPTED FOR EARLIER VIEW " + victimCoordinate +
-            " requested=" + requestedCoordinate +
-            " replacementQueued=" + IsContentDemandedNow(victimCoordinate));
+        // note: Preemption is expected during rapid turns; counters retain evidence without allocating a Console message in the hot path.
+        _contentPreemptionCount++;
+        if (predictedDeadline)
+            _predictedContentPreemptionCount++;
         return true;
     }
 
@@ -5278,17 +7056,32 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             int leastUrgentIndex = FindLeastUrgentTerrainRequest(velocity);
             Vector2Int leastUrgent = _terrainQueue[leastUrgentIndex];
             if (!IsTerrainRequestMoreUrgent(coordinate, leastUrgent, velocity))
+            {
+                if (_completeCellHistory != null || coordinate == FixedTerrainTraceTarget)
+                    RecordFixedTerrainObservation("refused:queueAdmissionCapacity", coordinate);
                 return;
+            }
             // note: An urgent P0/P1 request may replace only the least-urgent queued owner; the active Unity mutation remains untouched.
             _terrainQueue.RemoveAt(leastUrgentIndex);
             _terrainQueued.Remove(leastUrgent);
             _terrainRequestedAt.Remove(leastUrgent);
             _terrainCriticalRequestedAt.Remove(leastUrgent);
+            if (_completeCellHistory != null || leastUrgent == FixedTerrainTraceTarget)
+                RecordFixedTerrainObservation("requestEvicted", leastUrgent);
         }
         if (!_terrainRequestedAt.ContainsKey(coordinate))
             _terrainRequestedAt[coordinate] = Time.unscaledTime;
         _terrainQueued.Add(coordinate);
         _terrainQueue.Add(coordinate);
+        ObserveCompleteCell(coordinate, "admitted");
+        // note: Retain the first admitted request's clock across requeues; the counter identifies subsequent queue admissions.
+        if (_fixedTerrainObservations != null && coordinate == FixedTerrainTraceTarget)
+        {
+            if (_fixedTerrainFirstAdmission < 0d)
+                _fixedTerrainFirstAdmission = Time.realtimeSinceStartupAsDouble;
+            _fixedTerrainRequest++;
+            RecordFixedTerrainObservation("admitted", coordinate);
+        }
         // note: Record total pending physical work at admission, including the one active preparation if present.
         _maximumTerrainQueueDepth = Mathf.Max(
             _maximumTerrainQueueDepth,
@@ -5303,22 +7096,28 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         // note: Snapshot only owners with unfinished work so a rotating batch of already-running distant painters cannot hide a visible repair.
         _appearanceReconciliationScratch.Clear();
+        _appearanceReconciliationMembershipScratch.Clear();
         foreach (Vector2Int coordinate in _guaranteedViewDemand)
         {
-            if (IsAppearanceReconciliationCandidate(coordinate))
+            if (IsAppearanceReconciliationCandidate(coordinate) &&
+                _appearanceReconciliationMembershipScratch.Add(coordinate))
                 _appearanceReconciliationScratch.Add(coordinate);
         }
         foreach (Vector2Int coordinate in _hardViewDemand)
         {
             if (!_guaranteedViewDemand.Contains(coordinate) &&
-                IsAppearanceReconciliationCandidate(coordinate))
+                IsAppearanceReconciliationCandidate(coordinate) &&
+                _appearanceReconciliationMembershipScratch.Add(coordinate))
                 _appearanceReconciliationScratch.Add(coordinate);
         }
         foreach (Vector2Int coordinate in _contentDemand)
         {
-            if (!_appearanceReconciliationScratch.Contains(coordinate) &&
+            if (!_appearanceReconciliationMembershipScratch.Contains(coordinate) &&
                 IsAppearanceReconciliationCandidate(coordinate))
+            {
+                _appearanceReconciliationMembershipScratch.Add(coordinate);
                 _appearanceReconciliationScratch.Add(coordinate);
+            }
         }
         // note: Physical admission is the authoritative demand union after it is built; include its owners so demanded recovery work cannot be invisible to this scheduler.
         foreach (Vector2Int coordinate in _physicalDemand.Keys)
@@ -5326,7 +7125,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (!_guaranteedViewDemand.Contains(coordinate) &&
                 !_hardViewDemand.Contains(coordinate) &&
                 !_contentDemand.Contains(coordinate) &&
-                IsAppearanceReconciliationCandidate(coordinate))
+                IsAppearanceReconciliationCandidate(coordinate) &&
+                _appearanceReconciliationMembershipScratch.Add(coordinate))
                 _appearanceReconciliationScratch.Add(coordinate);
         }
         // note: Verification pins use the same bounded priority and per-frame reconciliation cap as production demand.
@@ -5336,7 +7136,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 !_hardViewDemand.Contains(coordinate) &&
                 !_contentDemand.Contains(coordinate) &&
                 !_physicalDemand.ContainsKey(coordinate) &&
-                IsAppearanceReconciliationCandidate(coordinate))
+                IsAppearanceReconciliationCandidate(coordinate) &&
+                _appearanceReconciliationMembershipScratch.Add(coordinate))
                 _appearanceReconciliationScratch.Add(coordinate);
         }
 
@@ -5391,6 +7192,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             RequestTerrainForChunk(coordinate);
         }
         _appearanceReconciliationScratch.Clear();
+        _appearanceReconciliationMembershipScratch.Clear();
     }
 
     private bool IsAppearanceReconciliationCandidate(Vector2Int coordinate)
@@ -5465,7 +7267,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         return CompareCoordinates(left, right);
     }
 
-    private bool TryReconcileLiveVisibleAppearance()
+    private bool TryReconcileUrgentViewAppearance()
     {
         Vector2 playerPosition = _player != null
             ? new Vector2(_player.position.x, _player.position.z)
@@ -5474,6 +7276,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         Vector2Int selected = default;
         bool hasSelected = false;
         float selectedDistance = float.MaxValue;
+        float selectedArrival = float.MaxValue;
         foreach (Vector2Int coordinate in _guaranteedViewDemand)
         {
             if (IsChunkInsideAuthoredTerrain(coordinate) ||
@@ -5494,9 +7297,35 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             }
         }
         if (!hasSelected)
+        {
+            // note: Start one bounded appearance owner for the earliest predicted camera cell when ordinary reconciliation exhausts its frame allowance.
+            foreach (KeyValuePair<Vector2Int, float> prediction in _semanticViewPredictionArrivalSeconds)
+            {
+                Vector2Int coordinate = prediction.Key;
+                float arrival = prediction.Value;
+                if (arrival < 0f || arrival > CriticalTerrainEscalationSeconds ||
+                    IsChunkInsideAuthoredTerrain(coordinate) ||
+                    !_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) || chunk == null ||
+                    chunk.appearanceReady || _terrainPainting.ContainsKey(coordinate) ||
+                    !HasPublishedTerrain(coordinate) ||
+                    (_terrainAppearanceRetryAt.TryGetValue(coordinate, out float retryAt) &&
+                     retryAt > Time.unscaledTime))
+                    continue;
+
+                if (!hasSelected || arrival < selectedArrival ||
+                    (Mathf.Approximately(arrival, selectedArrival) &&
+                     CompareCoordinates(coordinate, selected) < 0))
+                {
+                    selected = coordinate;
+                    selectedArrival = arrival;
+                    hasSelected = true;
+                }
+            }
+        }
+        if (!hasSelected)
             return false;
 
-        // note: A visible published tile gets the one reserved appearance slice even when terrain dispatch consumed the ordinary frame allowance.
+        // note: A live or imminently visible published tile gets the one bounded appearance admission even when ordinary work used the frame allowance.
         RequestTerrainForChunk(selected);
         return true;
     }
@@ -5511,6 +7340,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
         // note: Do not start or repeatedly defer background paint while a live camera cell is incomplete; those paused workers otherwise occupy every reserved painter slot.
         if (!_guaranteedViewDemand.Contains(coordinate) &&
+            !_hardViewDemand.Contains(coordinate) &&
             ShouldPauseTerrainAppearanceForVisibleDemand(coordinate))
             return;
 
@@ -5609,6 +7439,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         long workId = ++_terrainPaintingWorkVersion;
         _terrainPaintingWorkIds[coordinate] = workId;
         _terrainPainting[coordinate] = null;
+        token.owner.appearanceWorkStartedAt = Time.realtimeSinceStartupAsDouble;
+        token.owner.biomeAppearanceProgress.Reset();
+        token.owner.detailAppearanceProgress.Reset();
+        token.owner.appearanceDetailSubstage = string.Empty;
         Coroutine painting;
         try
         {
@@ -5687,7 +7521,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         {
             Vector2Int deferredCoordinate = _terrainPaintingScratch[index++];
             if (_chunks.TryGetValue(deferredCoordinate, out RuntimeChunk deferredChunk) && deferredChunk != null)
+            {
+                // note: Opt-in history identifies both forecast deadlines and the discarded stage at destructive capacity preemption.
+                if (_completeCellHistory != null)
+                    ObserveCompleteCell(deferredCoordinate, "appearanceCapacityPreemption:request=" + coordinate +
+                        ":arrival=" + GetAppearanceDeadlineArrival(coordinate).ToString("F4", CultureInfo.InvariantCulture) +
+                        ":victimArrival=" + GetAppearanceDeadlineArrival(deferredCoordinate).ToString("F4", CultureInfo.InvariantCulture), true);
                 StopTerrainPaintingForChunk(deferredChunk);
+                ObserveCompleteCell(deferredCoordinate, "appearanceCapacityPreempted", true);
+            }
         }
         _terrainPaintingScratch.Clear();
         return HasTerrainAppearancePainterCapacity(coordinate);
@@ -5701,14 +7543,67 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             _publicationVerificationDemand.Contains(coordinate);
     }
 
+    private bool HasImmediateTerrainAppearanceDeadline(Vector2Int coordinate)
+    {
+        // note: A tile already in the camera frustum shares the hard-view painter quantum instead of yielding every traversal-reserved frame.
+        return _hardViewDemand.Contains(coordinate) || _guaranteedViewDemand.Contains(coordinate);
+    }
+
+    private bool HasHigherPriorityAppearanceReserveOwner(Vector2Int? coordinate)
+    {
+        bool visible = coordinate.HasValue && _guaranteedViewDemand.Contains(coordinate.Value);
+        // note: Only painters eligible for this reserve may block it; a farther forecast must not win merely because its coroutine resumed first.
+        foreach (Vector2Int candidate in _terrainPainting.Keys)
+        {
+            if ((coordinate.HasValue && candidate == coordinate.Value) ||
+                !HasImmediateTerrainAppearanceDeadline(candidate))
+                continue;
+            if (!coordinate.HasValue)
+                return true;
+            // note: Retain denial-age fairness among current visible painters, then use the existing deterministic forecast deadline order.
+            if (visible
+                ? _guaranteedViewDemand.Contains(candidate) && CompareLiveAppearanceProgress(candidate, coordinate.Value) < 0
+                : CompareAppearanceReconciliationPriority(candidate, coordinate.Value) < 0)
+                return true;
+        }
+        return false;
+    }
+
+    private int CompareLiveAppearanceProgress(Vector2Int left, Vector2Int right)
+    {
+        // note: Give a frame's single over-budget appearance slice to the visible painter with the longest accumulated budget denial, then use stable existing priority.
+        double now = Time.realtimeSinceStartupAsDouble;
+        double leftDenied = LiveAppearanceDeniedSeconds(left, now);
+        double rightDenied = LiveAppearanceDeniedSeconds(right, now);
+        int deniedCompare = rightDenied.CompareTo(leftDenied);
+        return deniedCompare != 0
+            ? deniedCompare
+            : CompareAppearanceReconciliationPriority(left, right);
+    }
+
+    private double LiveAppearanceDeniedSeconds(Vector2Int coordinate, double now)
+    {
+        if (!_chunks.TryGetValue(coordinate, out RuntimeChunk owner) || owner == null)
+            return 0d;
+        // note: Use the more-starved required paint lane rather than summing two overlapping denied intervals.
+        double biomeDenied = owner.biomeAppearanceProgress.deniedSeconds +
+            (owner.biomeAppearanceProgress.deniedStartedAt < 0d
+                ? 0d
+                : now - owner.biomeAppearanceProgress.deniedStartedAt);
+        double detailDenied = owner.detailAppearanceProgress.deniedSeconds +
+            (owner.detailAppearanceProgress.deniedStartedAt < 0d
+                ? 0d
+                : now - owner.detailAppearanceProgress.deniedStartedAt);
+        return Math.Max(biomeDenied, detailDenied);
+    }
+
     private bool IsAppearanceDeadlineEarlier(Vector2Int first, Vector2Int second)
     {
         // note: Compare live camera deadlines directly so a far-future prediction cannot occupy the reserved painter slot ahead of a near-entry cell.
         float firstArrival = GetAppearanceDeadlineArrival(first);
         float secondArrival = GetAppearanceDeadlineArrival(second);
-        int arrivalCompare = firstArrival.CompareTo(secondArrival);
-        return arrivalCompare < 0 ||
-            (arrivalCompare == 0 && CompareCoordinates(first, second) < 0);
+        // note: Equal forecast buckets do not justify discarding an in-flight paint/payload lane; coordinate ties only order admission into free slots.
+        return firstArrival < secondArrival;
     }
 
     private int CompareAppearancePreemptionCandidates(Vector2Int left, Vector2Int right)
@@ -5775,7 +7670,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             Debug.LogError("[YQSemanticChunkStreamer] REQUIRED ECOLOGY PUBLISH FAILED " + coordinate +
                 ": " + chunk.failureReason);
             _lifecyclePending = true;
-            PersistSemanticFrontier();
             return;
         }
 
@@ -5889,9 +7783,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
         // note: Advance by every inspected coordinate so already-ready cells cannot pin the cursor and starve a later missing cell.
         _requiredCoverageAdmissionCursor = (_requiredCoverageAdmissionCursor + Mathf.Max(1, scanned)) % totalCoordinates;
-        // note: Keep the bounded queue ordered after each repair slice so the active owner remains the only unbounded physical operation.
-        SortTerrainQueue();
-        TrimTerrainQueue();
+        // note: The Update pass performs one shared queue sort/trim after all demand sources; terrain dispatch sorts before selection if aggregate admission defers that pass.
     }
 
     private int TerrainPredictionRadius(Vector2 velocity)
@@ -6317,10 +8209,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private bool ShouldPreemptTerrainPreparation(Vector2Int coordinate)
     {
-        // note: Let a newly claimed slot cross its one-frame coroutine handoff before comparing queue priorities; otherwise the scheduler can cancel the iterator at its initial yield and redispatch the same owner forever.
+        // note: Let the dispatch frame cross its coroutine handoff, but never let a stalled dispatch phase shield lower-priority work indefinitely.
         if (_terrainPreparation != null &&
             coordinate == _terrainPreparingCoordinate &&
-            string.Equals(_terrainPreparationPhase, "dispatch", StringComparison.Ordinal))
+            string.Equals(_terrainPreparationPhase, "dispatch", StringComparison.Ordinal) &&
+            Time.frameCount <= _terrainPreparationDispatchFrame + 1)
             return false;
         // note: Preempt only unpublished work and only when the queue head has a strictly stronger deadline; an equal-priority owner must finish to prevent cancellation churn.
         if (_terrainQueue.Count > 0 && _terrainQueue[0] != coordinate)
@@ -6373,6 +8266,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _lastTerrainPreemptedPriority = activePriority;
         _lastTerrainPreemptingPriority = preemptingPriority;
         _lastTerrainPreemptionReason = reason ?? string.Empty;
+        RecordFixedTerrainObservation("preemptionDecision", preemptingCoordinate, _terrainPreparationWorkId);
         return true;
     }
 
@@ -6392,6 +8286,14 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: A required site terrain dependency is structural publication work, not speculative view warming; keep it ahead of lateral hard-view tiles so content cannot strand behind a continuously replenished camera queue.
             return 2;
         }
+        if (_semanticViewPredictionArrivalSeconds.TryGetValue(coordinate, out float predictedViewArrivalSeconds) &&
+            predictedViewArrivalSeconds <= CriticalTerrainEscalationSeconds)
+        {
+            // note: Let near-arrival camera terrain reserve the canonical prep lane before it becomes a P1 live-view request.
+            return 2;
+        }
+        if (IsAgedHardViewTerrainCoordinate(coordinate))
+            return 3;
         // note: The omnidirectional one-second floor must beat the distant three-second centerline so a sudden reversal never waits behind travel the player may not take.
         if (_provisionalGroundTurnBufferDemand.Contains(coordinate))
             return 3;
@@ -6407,6 +8309,17 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_hardViewDemand.Contains(coordinate))
             return 4;
         return 5;
+    }
+
+    private bool IsAgedHardViewTerrainCoordinate(Vector2Int coordinate)
+    {
+        // note: Escalate an unfinished preparation-ring request after the existing bounded deadline so camera-entry demand cannot wait behind fresh speculative work.
+        if (!_hardViewDemand.Contains(coordinate) ||
+            IsChunkInsideAuthoredTerrain(coordinate) ||
+            HasPublishedTerrain(coordinate) ||
+            !_terrainRequestedAt.TryGetValue(coordinate, out float requestedAt))
+            return false;
+        return Time.unscaledTime - requestedAt >= CriticalTerrainEscalationSeconds;
     }
 
     private bool IsAgedCriticalTerrainCoordinate(Vector2Int coordinate, Vector2 velocity)
@@ -6529,6 +8442,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             _terrainRequestedAt.Remove(coordinate);
             _terrainCriticalRequestedAt.Remove(coordinate);
             _terrainQueue.RemoveAt(index);
+            if (coordinate == FixedTerrainTraceTarget)
+                RecordFixedTerrainObservation("requestRetired:outsideRetention", coordinate);
         }
         if (_terrainQueue.Count > TerrainQueueCapacity)
         {
@@ -6540,6 +8455,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 Vector2Int trimmed = _terrainQueue[index];
                 _terrainRequestedAt.Remove(trimmed);
                 _terrainCriticalRequestedAt.Remove(trimmed);
+                if (trimmed == FixedTerrainTraceTarget)
+                    RecordFixedTerrainObservation("requestTrimmed", trimmed);
             }
             _terrainQueue.RemoveRange(TerrainQueueCapacity, _terrainQueue.Count - TerrainQueueCapacity);
             _terrainQueued.Clear();
@@ -6555,8 +8472,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         bool publicationHandedOff = false;
         try
         {
-        // note: Give every dispatched owner the same frame boundary; real urgency is handled by queue priority, not a verifier-only speed shortcut.
-        yield return null;
+        // note: A completed immutable prefetch can enter the existing budgeted publication lane immediately; an unfinished sampler still gets a frame boundary.
+        bool prefetchedHeightReady = _terrainHeightPrefetches.TryGetValue(coordinate, out Task<float[,]> prefetchedHeight) &&
+            prefetchedHeight != null && prefetchedHeight.IsCompleted;
+        if (!prefetchedHeightReady || !CanAdvanceAggregateWork("terrainStart"))
+            yield return null;
             if (!IsChunkInsideAuthoredTerrain(coordinate) && !HasPublishedTerrain(coordinate))
             {
                 // note: Manually advance the terrain builder so upload failures are caught here and cannot strand the scheduler's active-job slot.
@@ -6564,7 +8484,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 while (true)
                 {
                     if (_terrainPreparationPreempted || !IsGenerationCurrent(coordinate, GetRuntimeChunk(coordinate), token))
+                    {
+                        RecordFixedTerrainObservation("cancellationOrInvalidationAcknowledged", coordinate, token.workId);
                         yield break;
+                    }
                     if (Time.realtimeSinceStartup - _terrainPreparationStartedAt >= TerrainPreparationTimeoutSeconds)
                     {
                         preparationFailure = "terrain preparation timed out after " +
@@ -6576,6 +8499,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     }
                     if (!CanAdvanceAggregateWork("terrainHeightUpload"))
                     {
+                        RecordFixedTerrainObservation("refused:heightBudget", coordinate, token.workId);
                         yield return null;
                         continue;
                     }
@@ -6608,7 +8532,13 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     {
                         // note: Transfer the completed heightfield to its bounded collider lane so the next cell can use the sole sampler immediately.
                         if (TryStartPendingTerrainPublication(pendingPublication))
+                        {
+                            float preparationSeconds = Mathf.Max(0f, Time.realtimeSinceStartup - _terrainPreparationStartedAt);
+                            _terrainPreparationHandoffCount++;
+                            _terrainPreparationHandoffTotalSeconds += preparationSeconds;
+                            _terrainPreparationHandoffMaximumSeconds = Mathf.Max(_terrainPreparationHandoffMaximumSeconds, preparationSeconds);
                             publicationHandedOff = true;
+                        }
                         else
                         {
                             DestroyUnpublishedTerrainPublication(pendingPublication);
@@ -6639,14 +8569,17 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: A retired iterator may dispose its own data but cannot release a replacement preparation slot.
             if (_terrainPreparationWorkId == token.workId)
             {
+                RecordFixedTerrainObservation("preparationExiting", coordinate, token.workId);
                 _terrainPreparationWorkId = 0;
                 _terrainPreparation = null;
                 _terrainPreparingCoordinate = new Vector2Int(int.MinValue, int.MinValue);
                 _terrainPreparationStartedAt = 0f;
+                _terrainPreparationDispatchFrame = -1;
                 _terrainPreparationPhase = string.Empty;
                 bool requeue = _terrainPreparationPreempted &&
                     IsGenerationCurrent(coordinate, token.owner, token) && IsTerrainRequestStillRelevant(coordinate);
                 _terrainPreparationPreempted = false;
+                RecordFixedTerrainObservation("slotReleased", coordinate, token.workId);
                 if (requeue)
                     RequestTerrainForChunk(coordinate);
             }
@@ -6664,19 +8597,43 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
         // note: Register before starting the coroutine so a repeated demand sees one canonical owner during its first frame handoff.
         _pendingTerrainPublications.Add(publication.coordinate, publication);
+        RecordFixedTerrainObservation("colliderTicketRegistered", publication.coordinate, publication.token.workId);
         _maximumPendingTerrainColliderPublications = Mathf.Max(
             _maximumPendingTerrainColliderPublications,
             _pendingTerrainPublications.Count);
         try
         {
             publication.coroutine = StartCoroutine(CompletePendingTerrainPublicationRoutine(publication));
-            if (publication.coroutine != null)
-                return true;
         }
         catch (Exception exception)
         {
             Debug.LogError("[YQSemanticChunkStreamer] Could not start collider publication for " +
                 publication.coordinate + ": " + exception);
+        }
+
+        if (publication.coroutine != null)
+        {
+            // note: Paint independent channels while collider publication waits; appearance startup failure must not destroy a valid terrain ticket.
+            YQContinuousWorldFeatureMaterializer.PreparedBiomeAlphamap appearancePreparation =
+                publication.appearancePreparation;
+            publication.appearancePreparation = null;
+            try
+            {
+                StartTerrainAppearancePainting(
+                    publication.coordinate,
+                    publication.data,
+                    Mathf.Max(32f, chunkWorldSize),
+                    publication.terrain,
+                    publication.token,
+                    appearancePreparation);
+            }
+            catch (Exception exception)
+            {
+                // note: Collider publication remains authoritative and will retry painting after the terrain is published.
+                Debug.LogWarning("[YQSemanticChunkStreamer] Could not overlap appearance painting for " +
+                    publication.coordinate + ": " + exception.Message);
+            }
+            return true;
         }
 
         if (_pendingTerrainPublications.TryGetValue(publication.coordinate, out PendingTerrainPublication current) &&
@@ -6730,7 +8687,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (!IsPendingTerrainPublicationCurrent(publication))
             yield break;
 
-        while (_lastTerrainPhysicsSyncFrame == Time.frameCount || !CanAdvanceAggregateWork("terrainColliderSync"))
+        while (_lastTerrainPhysicsSyncFrame == Time.frameCount ||
+               !CanAdvanceAggregateWork(
+                   "terrainColliderSync",
+                   useUrgentTerrainColliderSyncBudget:
+                       TerrainPreparationPriority(publication.coordinate, ResolveTraversalVelocity()) <= 3))
             yield return null;
         float syncStartedAt = Time.realtimeSinceStartup;
         _lastTerrainPhysicsSyncFrame = Time.frameCount;
@@ -6783,6 +8744,24 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         RecordTerrainReadiness(publication.coordinate);
         publication.phase = "published";
         SetChunkVisualsEnabled(liveOwner, liveOwner.visualStateKnown && liveOwner.visualState);
+        if (publication.appearancePrepared)
+        {
+            // note: Reveal the renderer only after both paint channels and collider readiness have independently completed.
+            publication.terrain.enabled = ShouldExposeTerrainPreview(liveOwner);
+            publication.terrain.drawTreesAndFoliage = true;
+            liveOwner.appearanceReady = true;
+            liveOwner.visualReady = true;
+            liveOwner.publicationVersion++;
+            _terrainAppearanceRetryAt.Remove(publication.coordinate);
+            _terrainAppearanceRetryCount.Remove(publication.coordinate);
+            _lifecyclePending = true;
+            yield break;
+        }
+        if (_terrainPainting.ContainsKey(publication.coordinate))
+        {
+            // note: Keep an in-flight painter started during collider cooking; restarting it here would discard completed paint slices.
+            yield break;
+        }
         YQContinuousWorldFeatureMaterializer.PreparedBiomeAlphamap preparedBiomeAlphamap =
             publication.appearancePreparation;
         publication.appearancePreparation = null;
@@ -6822,9 +8801,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 _extendedTerrainTiles.Remove(publication.coordinate);
             if (_chunks.TryGetValue(publication.coordinate, out RuntimeChunk owner) && owner != null)
             {
+                // note: A failed collider ticket invalidates any parallel painter before its TerrainData is destroyed.
+                StopTerrainPaintingForChunk(owner);
                 owner.generatedObjects.Remove(publication.terrainObject);
                 InvalidateRendererValidationCache(owner);
-                owner.ownedObjects.Remove(publication.terrainObject);
+                RemoveOwnedObject(owner, publication.terrainObject);
                 if (owner.terrainReadiness < YQTerrainReadinessState.CollisionReady)
                     owner.terrainPublished = false;
             }
@@ -6868,6 +8849,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return;
         publication.cancelled = true;
         _pendingTerrainPublications.Remove(coordinate);
+        if (_chunks.TryGetValue(coordinate, out RuntimeChunk owner) && owner != null)
+            StopTerrainPaintingForChunk(owner);
         if (publication.coroutine != null)
             StopCoroutine(publication.coroutine);
         DestroyUnpublishedTerrainPublication(publication);
@@ -6914,6 +8897,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             yield break;
         Stack<IEnumerator> iterators = new Stack<IEnumerator>();
         iterators.Push(GenerateChunkRoutineCore(coordinate, chunk, token));
+        OwnerIteratorProgress progress = chunk.structuralProgress;
         float frameSliceStarted = Time.realtimeSinceStartup;
         try
         {
@@ -6927,20 +8911,30 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     _demandCancelledGenerations.Add(coordinate);
                     yield break;
                 }
+                progress.Resume();
+                progress.ObserveIterator(iterators.Peek());
                 // note: Hard-view owners must finish their required structure under high-speed load; only content outside the prepared view runway yields to urgent collision terrain.
                 if (ShouldReserveFrameForTraversalTerrain() && !_hardViewDemand.Contains(coordinate))
                 {
                     // note: T2/T3 content yields while elevated-speed T1 terrain is pending, then resumes from the same deterministic iterator state.
+                    progress.Admitted();
+                    progress.Yielded(null);
                     yield return null;
                     frameSliceStarted = Time.realtimeSinceStartup;
                     continue;
                 }
-                if (!CanAdvanceAggregateWork("requiredContent"))
+                if (!CanAdvanceAggregateWork(
+                        "requiredContent",
+                        useHardViewContentProgressBudget: _hardViewDemand.Contains(coordinate),
+                        liveViewContentProgress: _guaranteedViewDemand.Contains(coordinate),
+                        contentProgressCoordinate: coordinate))
                 {
+                    progress.Denied();
                     yield return null;
                     frameSliceStarted = Time.realtimeSinceStartup;
                     continue;
                 }
+                progress.Admitted();
                 IEnumerator current = null;
                 object yielded = null;
                 bool completedCurrent = false;
@@ -6948,7 +8942,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 try
                 {
                     current = iterators.Peek();
-                    if (!current.MoveNext())
+                    double stepStartedAt = Time.realtimeSinceStartupAsDouble;
+                    bool advanced;
+                    try { advanced = current.MoveNext(); }
+                    finally { progress.Stepped(stepStartedAt); }
+                    if (!advanced)
                     {
                         iterators.Pop();
                         (current as IDisposable)?.Dispose();
@@ -6959,11 +8957,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     float contentStepSeconds = Time.realtimeSinceStartup - contentStepStarted;
                     if (contentStepSeconds > _maximumContentSliceSeconds)
                         _maximumContentSliceStage = current.GetType().FullName;
-                    RecordAggregateWorkSlice(contentStepStarted, "requiredContent");
+                    RecordRequiredContentWorkSlice(contentStepStarted);
                 }
                 catch (Exception exception)
                 {
-                    RecordAggregateWorkSlice(contentStepStarted, "requiredContent");
+                    RecordRequiredContentWorkSlice(contentStepStarted);
                     if (!IsGenerationCurrent(coordinate, chunk, token))
                         yield break;
                     CancelEcologyForFailedStructure(chunk);
@@ -6989,7 +8987,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     {
                         _lastContentSliceSeconds = accumulatedSeconds;
                         _maximumContentSliceSeconds = Mathf.Max(_maximumContentSliceSeconds, _lastContentSliceSeconds);
+                        progress.Yielded(null);
                         yield return null;
+                        progress.Resume();
                         frameSliceStarted = Time.realtimeSinceStartup;
                         if (!IsGenerationCurrent(coordinate, chunk, token))
                             yield break;
@@ -6999,7 +8999,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 // note: Only an outward yield or complete stack marks a real Unity frame boundary; all nested completion and parent-resume work before it belongs to one measured slice.
                 _lastContentSliceSeconds = Time.realtimeSinceStartup - frameSliceStarted;
                 _maximumContentSliceSeconds = Mathf.Max(_maximumContentSliceSeconds, _lastContentSliceSeconds);
+                progress.Yielded(yielded);
                 yield return yielded;
+                progress.Resume();
                 frameSliceStarted = Time.realtimeSinceStartup;
                 if (!IsGenerationCurrent(coordinate, chunk, token))
                     yield break;
@@ -7010,6 +9012,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
         finally
         {
+            progress.Admitted();
+            progress.Resume();
             // note: A cancelled content build disposes every nested iterator it owns before the chunk can be retried or unloaded.
             while (iterators.Count > 0)
                 (iterators.Pop() as IDisposable)?.Dispose();
@@ -7027,13 +9031,13 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         GeneratedRegionRecord region = null;
         GeneratedRegionAssetPaletteRecord palette = null;
         YQRuntimeWorldAssetRegistry registry = null;
-        // note: Wait for the prioritized collision tile before entering the guarded setup block.
-        yield return EnsureTerrainReadyRoutine(coordinate);
+        // note: Start canonical structure once its complete hidden heightfield is sampleable; collider synchronization remains an independent ground-readiness gate.
+        yield return EnsureTerrainForContentMaterializationRoutine(coordinate);
         if (!IsGenerationCurrent(coordinate, chunk, token))
             yield break;
         try
         {
-            terrainForChunk = ResolveTerrainForChunk(coordinate);
+            terrainForChunk = ResolveTerrainForContentMaterialization(coordinate);
             if (terrainForChunk == null && !IsChunkInsideAuthoredTerrain(coordinate))
                 throw new InvalidOperationException("no deterministic terrain continuation was available");
             if (terrainForChunk != null && terrainForChunk != _terrain &&
@@ -7060,6 +9064,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             chunk.overlayReady = false;
             chunk.requiredEcologyReady = false;
             chunk.decorativeComplete = false;
+            // note: A replacement root starts a new diagnostic publication lifetime; old stage ages cannot certify this owner.
+            chunk.contentReadyAt = -1f;
+            chunk.ecologyStartedAt = -1f;
             chunk.generationRoot = root;
             chunk.generatedObjects.Add(root);
             InvalidateRendererValidationCache(chunk);
@@ -7173,6 +9180,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
         // note: Structural content is published independently from terrain appearance and decorative scatter, so either completion order is safe.
         chunk.requiredContentReady = !acceptedStructuralDemand || structuralObjects > 0;
+        if (chunk.requiredContentReady)
+            chunk.contentReadyAt = Time.unscaledTime;
         // note: Register and publish the required owner before optional ecology scatter so routes, crossings, sites, and overlays do not wait on decoration.
         BindGeneratedFeatureTargets(chunk, root);
         ApplyFeatureOverlays(chunk, root);
@@ -7197,6 +9206,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         chunk.publicationVersion++;
         chunk.state = YQSemanticChunkLifecycle.Generated;
         chunk.lastGenerationSeconds = Time.unscaledTime - startedAt;
+        // note: The just-completed overlay pass covered the prepared ecology under this root; publish its guarded receipt now instead of waiting another coroutine frame.
+        TryPublishPreparedRequiredEcology(coordinate, chunk, overlaysAlreadyApplied: true);
 #if DEVELOPMENT_BUILD && !UNITY_EDITOR
         // note: Standalone development logs retain accepted feature identity without flooding the editor during continuous streaming.
         string acceptedFeatureSummary = chunk.record != null && chunk.record.featureIds != null
@@ -7223,7 +9234,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
         _queuedCount = _queue.Count;
         ApplyLifecycle();
-        PersistSemanticFrontier();
     }
 
     private void StartDecorativeGeneration(
@@ -7241,6 +9251,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         // note: Register before starting so synchronous failure cannot leave a completed coroutine advertised as live work.
         long workId = ++_streamingWorkVersion;
         chunk.decorativeWorkId = workId;
+        chunk.ecologyStartedAt = Time.unscaledTime;
         InvalidateRendererValidationCache(chunk);
         Coroutine scatter = StartCoroutine(GenerateDecorativeScatterRoutine(
             coordinate, chunk, root, terrain, region, palette, registry, token, workId));
@@ -7263,12 +9274,15 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void StopDecorativeGeneration(RuntimeChunk chunk)
     {
+        chunk.ecologyProgress.Admitted();
+        chunk.ecologyProgress.Resume();
         Coroutine scatter = chunk.decorativeGeneration;
         GameObject uncommittedRoot = !chunk.requiredEcologyReady ? chunk.decorativeRoot : null;
         // note: Unity cancellation is not guaranteed to dispose the iterator; release its captured slot before retiring the registration.
         ReleaseDecorativeSlot(chunk, chunk.decorativeSlotWorkId);
         // note: Disposal may clean up its captured root, but must not publish retries or clear a replacement registration.
         chunk.decorativeWorkId = 0;
+        chunk.pendingRequiredEcology = null;
         InvalidateRendererValidationCache(chunk);
         chunk.decorativeGeneration = null;
         chunk.decorativeWorkPhase = string.Empty;
@@ -7289,6 +9303,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         // note: A stopped iterator's finally may still run; it cannot release another attempt's slot or decrement the count twice.
         if (workId == 0 || chunk.decorativeSlotWorkId != workId)
             return;
+        // note: Slot waits must not inflate a previously open aggregate-budget denial interval.
+        chunk.ecologyProgress.Admitted();
+        chunk.ecologyProgress.Resume();
         chunk.decorativeSlotWorkId = 0;
         _activeDecorativeScatters = Mathf.Max(0, _activeDecorativeScatters - 1);
     }
@@ -7325,6 +9342,53 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         return description.ToString();
     }
 
+    private void TryPublishPreparedRequiredEcology(
+        Vector2Int coordinate, RuntimeChunk chunk, bool overlaysAlreadyApplied = false)
+    {
+        PendingRequiredEcologyPublication pending = chunk.pendingRequiredEcology;
+        // note: A shared receipt never authorizes stale work, missing required content, or an unpublished overlay stage.
+        if (pending == null || pending.published || pending.failure != null || pending.result == int.MinValue ||
+            !IsDecorativeWorkCurrent(coordinate, chunk, pending.token, pending.workId) ||
+            !chunk.requiredContentReady || !chunk.overlayReady)
+            return;
+        if (IsPublicationVerificationStageHeld(coordinate, YQPublicationVerificationStage.RequiredEcology))
+        {
+            SetEcologyWorkPhase(chunk, "verificationHold");
+            return;
+        }
+        if (ConsumePublicationVerificationFailure(coordinate, YQPublicationVerificationStage.RequiredEcology))
+            pending.failure = "verification ecology fault";
+        else if (pending.result <= 0)
+            pending.failure = pending.providerFailure ?? "canonical ecology returned no accepted required layer";
+        if (pending.failure != null)
+            return;
+        try
+        {
+            if (pending.root == null)
+                throw new InvalidOperationException("required ecology content root is unavailable");
+            // note: Structural completion has already bound and replayed this same hierarchy without yielding; the ecology-first completion path still performs its own replay.
+            if (!overlaysAlreadyApplied)
+            {
+                BindGeneratedFeatureTargets(chunk, pending.root);
+                ApplyFeatureOverlays(chunk, pending.root);
+            }
+            if (!chunk.overlayReady)
+                pending.failure = "required ecology overlay was not applied";
+        }
+        catch (Exception exception)
+        {
+            pending.failure = exception.Message;
+        }
+        if (pending.failure != null)
+            return;
+        pending.published = true;
+        chunk.requiredEcologyReady = true;
+        chunk.publicationVersion++;
+        _requiredEcologyRetryAt.Remove(coordinate);
+        _requiredEcologyRetryCount.Remove(coordinate);
+        _lifecyclePending = true;
+    }
+
     private IEnumerator GenerateDecorativeScatterRoutine(
         Vector2Int coordinate,
         RuntimeChunk chunk,
@@ -7338,9 +9402,14 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         Stack<IEnumerator> iterators = new Stack<IEnumerator>();
         GameObject scatterRoot = null;
-        bool requiredPublished = false;
-        int requiredResult = int.MinValue;
-        string requiredFailure = null;
+        // note: The same attempt-local receipt is read by this coroutine's finally and by the structural completion handoff.
+        PendingRequiredEcologyPublication pending = new PendingRequiredEcologyPublication
+        {
+            token = token,
+            workId = workId,
+            root = root
+        };
+        chunk.pendingRequiredEcology = pending;
         int spawned = -1;
         string failure = null;
         float startedAt = Time.unscaledTime;
@@ -7369,8 +9438,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 // note: Provider callbacks only return local results; the guarded owner below is the publication authority.
                 iterators.Push(YQGeneratedWorldEnvironment.BuildSemanticChunkScatterRoutine(
                     scatterRoot.transform, terrain, _plan, chunk.record, region, palette, registry,
-                    Mathf.Max(32f, chunkWorldSize), count => spawned = count, count => requiredResult = count,
-                    reason => requiredFailure = reason));
+                    Mathf.Max(32f, chunkWorldSize), count => spawned = count, count => pending.result = count,
+                    reason => pending.providerFailure = reason));
             }
             catch (Exception exception)
             {
@@ -7379,13 +9448,14 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (failure != null)
                 yield break;
 
-            while (iterators.Count > 0 || (!requiredPublished && requiredResult != int.MinValue))
+            while (iterators.Count > 0 || (!pending.published && pending.result != int.MinValue))
             {
                 if (!IsDecorativeWorkCurrent(coordinate, chunk, token, workId))
                     yield break;
 
-                // note: Offscreen ecology yields its slot to runnable live-view work; current-view owners share an immediate deadline and may use every existing worker lane.
-                if (!requiredPublished && ShouldYieldEcologyToGuaranteedView(coordinate))
+                // note: Publish an already-computed minimum first; otherwise hand a slot to runnable ecology with an earlier camera deadline.
+                if (!pending.published && pending.result == int.MinValue &&
+                    ShouldYieldEcologyToEarlierDemand(coordinate))
                 {
                     SetEcologyWorkPhase(chunk, "waitingForEarlierVisibleEcology");
                     ReleaseDecorativeSlot(chunk, workId);
@@ -7393,7 +9463,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     continue;
                 }
 
-                if (!requiredPublished && requiredResult != int.MinValue)
+                if (!pending.published && pending.result != int.MinValue)
                 {
                     if (!chunk.requiredContentReady || !chunk.overlayReady)
                     {
@@ -7403,50 +9473,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                         yield return null;
                         continue;
                     }
-                    // note: Hold/fault the actual required-layer receipt before advancing any optional dressing.
-                    if (IsPublicationVerificationStageHeld(coordinate, YQPublicationVerificationStage.RequiredEcology))
+                    // note: Either completion order uses the same token, overlay, verification and accepted-result gates.
+                    TryPublishPreparedRequiredEcology(coordinate, chunk);
+                    failure = pending.failure;
+                    if (failure != null)
+                        yield break;
+                    if (!pending.published)
                     {
-                        SetEcologyWorkPhase(chunk, "verificationHold");
                         yield return null;
                         continue;
                     }
-                    if (ConsumePublicationVerificationFailure(coordinate, YQPublicationVerificationStage.RequiredEcology))
-                        failure = "verification ecology fault";
-                    else if (requiredResult <= 0)
-                        failure = requiredFailure ?? "canonical ecology returned no accepted required layer";
-                    if (failure != null)
-                        yield break;
-                    try
-                    {
-                        BindGeneratedFeatureTargets(chunk, root);
-                        ApplyFeatureOverlays(chunk, root);
-                        if (!chunk.overlayReady)
-                            failure = "required ecology overlay was not applied";
-                    }
-                    catch (Exception exception)
-                    {
-                        failure = exception.Message;
-                    }
-                    if (failure != null)
-                        yield break;
-                    requiredPublished = true;
-                    chunk.requiredEcologyReady = true;
-                    chunk.publicationVersion++;
-                    _requiredEcologyRetryAt.Remove(coordinate);
-                    _requiredEcologyRetryCount.Remove(coordinate);
-                    _lifecyclePending = true;
 #if DEVELOPMENT_BUILD && !UNITY_EDITOR
                     Debug.Log("[YQSemanticChunkStreamer] REQUIRED ECOLOGY PUBLISHED " + coordinate +
-                        " objects=" + requiredResult +
+                        " objects=" + pending.result +
                         " seconds=" + (Time.unscaledTime - startedAt).ToString("0.000"));
 #endif
-                    // note: Persist the camera-critical ecology receipt before optional dressing continues, so a cancellation cannot erase the last certified publication stage.
-                    PersistSemanticFrontier();
                     if (iterators.Count == 0)
                         break;
                 }
 
-                if (requiredPublished && HasUnreadyHardViewEcology(coordinate))
+                if (pending.published && HasUnreadyHardViewEcology(coordinate))
                 {
                     // note: Keep this chunk's unchanged target-count dressing iterator alive but release its slot while other camera-visible cells publish their own minimum ecology.
                     SetEcologyWorkPhase(chunk, "optionalAfterRequired");
@@ -7475,24 +9521,36 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 if (ShouldReserveFrameForTraversalTerrain() && !_hardViewDemand.Contains(coordinate))
                 {
                     SetEcologyWorkPhase(chunk, "terrainPriority");
+                    chunk.ecologyProgress.Admitted();
+                    chunk.ecologyProgress.Yielded(null);
                     yield return null;
+                    chunk.ecologyProgress.Resume();
                     continue;
                 }
                 // note: Flatten nested iterators so exceptions and cancellation remain inside this work identity.
                 SetEcologyWorkPhase(chunk, iterators.Peek().GetType().Name);
-                if (!TryAdvancePublicationIterator(iterators, out object yielded, out bool frameYield, out failure))
+                if (!TryAdvancePublicationIterator(
+                    iterators,
+                    out object yielded,
+                    out bool frameYield,
+                    out failure,
+                    budgetStage: !pending.published && _hardViewDemand.Contains(coordinate)
+                        ? "requiredHardViewEcology"
+                        : null,
+                    progress: chunk.ecologyProgress))
                     yield break;
                 if (frameYield)
                 {
                     if (yielded != null)
                         SetEcologyWorkPhase(chunk, "yield:" + yielded.GetType().Name);
                     yield return yielded;
+                    chunk.ecologyProgress.Resume();
                 }
             }
 
             if (!IsDecorativeWorkCurrent(coordinate, chunk, token, workId))
                 yield break;
-            if (!requiredPublished)
+            if (!pending.published)
             {
                 failure = "ecology provider completed without a required-layer receipt";
                 yield break;
@@ -7522,22 +9580,21 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 " objects=" + spawned +
                 " seconds=" + (Time.unscaledTime - startedAt).ToString("0.000"));
 #endif
-            PersistSemanticFrontier();
         }
         finally
         {
             string disposalFailure = DisposePublicationIterators(iterators);
-            failure = failure ?? disposalFailure;
+            failure = failure ?? pending.failure ?? disposalFailure;
             ReleaseDecorativeSlot(chunk, workId);
             // note: Cleanup owns only this captured attempt's root, never whichever root a replacement has registered.
-            if (!requiredPublished && scatterRoot != null)
+            if (!pending.published && scatterRoot != null)
             {
                 scatterRoot.SetActive(false);
                 Destroy(scatterRoot);
             }
             if (IsDecorativeWorkCurrent(coordinate, chunk, token, workId))
             {
-                if (!requiredPublished)
+                if (!pending.published)
                 {
                     if (chunk.decorativeRoot == scatterRoot)
                         chunk.decorativeRoot = null;
@@ -7547,8 +9604,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                         ScheduleRequiredEcologyRetry(coordinate, chunk, failure);
                     else if (IsContentDemandedNow(coordinate))
                         _requiredEcologyRetryAt[coordinate] = Time.unscaledTime + RequiredEcologyRetryDelaySeconds;
-                    // note: Save the retry/failure transition immediately; optional dressing must never hide a failed required stage from the next reload.
-                    PersistSemanticFrontier();
                 }
                 else if (failure != null)
                 {
@@ -7556,6 +9611,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     Debug.LogWarning("[YQSemanticChunkStreamer] OPTIONAL ECOLOGY INCOMPLETE " + coordinate + ": " + failure);
                 }
                 chunk.decorativeWorkId = 0;
+                if (ReferenceEquals(chunk.pendingRequiredEcology, pending))
+                    chunk.pendingRequiredEcology = null;
                 InvalidateRendererValidationCache(chunk);
                 chunk.decorativeGeneration = null;
                 chunk.decorativeWorkPhase = string.Empty;
@@ -7567,27 +9624,56 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private bool TryAdvancePublicationIterator(
         Stack<IEnumerator> iterators, out object yielded, out bool frameYield, out string failure,
         bool enforceAggregateBudget = true,
-        string budgetStage = null)
+        string budgetStage = null,
+        OwnerIteratorProgress progress = null,
+        Vector2Int? appearanceCoordinate = null)
     {
+        progress?.Resume();
+        if (progress != null && iterators.Count > 0)
+            progress.ObserveIterator(iterators.Peek());
         yielded = null;
         frameYield = false;
         failure = null;
         string effectiveBudgetStage = string.IsNullOrEmpty(budgetStage)
             ? "appearanceOrEcology"
             : budgetStage;
-        if (enforceAggregateBudget && !CanAdvanceAggregateWork(effectiveBudgetStage))
+        int previousAppearanceReservedFrame = _reservedHardViewAppearanceFrame;
+        float appearanceBudgetSpent = _aggregateFrameWorkSeconds;
+        bool budgetAdmitted = !enforceAggregateBudget || CanAdvanceAggregateWork(
+            effectiveBudgetStage, appearanceCoordinate: appearanceCoordinate);
+        if (appearanceCoordinate.HasValue)
+            RecordAppearanceBudgetObservation(appearanceCoordinate.Value, progress, budgetAdmitted,
+                previousAppearanceReservedFrame, appearanceBudgetSpent);
+        if (!budgetAdmitted)
         {
             // note: Pause all nested painter/ecology stacks at the same frame deadline instead of granting each worker a separate slice.
+            progress?.Denied();
             frameYield = true;
             return true;
         }
+        progress?.Admitted();
         float publicationSliceStartedAt = Time.realtimeSinceStartup;
         IEnumerator current = null;
         bool succeeded = true;
         try
         {
             current = iterators.Peek();
-            if (!current.MoveNext())
+            double stepStartedAt = progress == null ? 0d : Time.realtimeSinceStartupAsDouble;
+            bool advanced;
+            try { advanced = current.MoveNext(); }
+            finally
+            {
+                if (progress != null)
+                {
+                    progress.Stepped(stepStartedAt);
+                    // note: Capture the provider marker before another owner advances and overwrites its shared diagnostic value.
+                    progress.providerSubstage = current.GetType().Name.IndexOf(
+                        "PaintStreamedDetailRoutine", StringComparison.Ordinal) >= 0
+                        ? YQGeneratedWorldEnvironment.LastStreamedDetailStep
+                        : YQGeneratedWorldEnvironment.LastSemanticChunkScatterStep;
+                }
+            }
+            if (!advanced)
             {
                 iterators.Pop();
                 (current as IDisposable)?.Dispose();
@@ -7598,6 +9684,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             {
                 yielded = current.Current;
                 frameYield = true;
+                progress?.Yielded(yielded);
             }
         }
         catch (Exception exception)
@@ -7646,21 +9733,34 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         return failure;
     }
 
-    private bool ShouldYieldEcologyToGuaranteedView(Vector2Int coordinate)
+    private bool IsRunnableRequiredEcologyWaiter(Vector2Int coordinate, RuntimeChunk chunk)
     {
-        // note: Forecast ETAs and coordinate tie-breaks must not serialize already-visible ecology behind one unfinished owner. The slot cap and aggregate budget still bound concurrent work.
-        if (_guaranteedViewDemand.Contains(coordinate))
-            return false;
+        // note: Live camera-preparation ecology can run beneath an unpublished structure; keep it eligible for an earlier deadline while excluding work that already has its minimum receipt and is waiting only for publication.
+        return chunk != null && chunk.decorativeWorkId != 0 &&
+            chunk.decorativeSlotWorkId == 0 && !chunk.requiredEcologyReady &&
+            chunk.generationRoot != null &&
+            !string.Equals(chunk.decorativeWorkPhase, "verificationHold", StringComparison.Ordinal) &&
+            !string.Equals(chunk.decorativeWorkPhase, "waitingForRequiredOwner", StringComparison.Ordinal) &&
+            _hardViewDemand.Contains(coordinate);
+    }
 
-        foreach (Vector2Int candidate in _guaranteedViewDemand)
+    private bool ShouldYieldEcologyToEarlierDemand(Vector2Int coordinate)
+    {
+        // note: Keep a holder's progress for equal deadlines; yield only to ready waiters that enter the camera sooner.
+        bool currentVisible = _guaranteedViewDemand.Contains(coordinate);
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        foreach (Vector2Int candidate in _hardViewDemand)
         {
-            if (!_chunks.TryGetValue(candidate, out RuntimeChunk candidateChunk) ||
-                candidateChunk == null || candidateChunk.requiredEcologyReady ||
-                candidateChunk.decorativeWorkId == 0 || candidateChunk.generationRoot == null ||
-                !candidateChunk.requiredContentReady || !candidateChunk.overlayReady)
+            if (candidate == coordinate ||
+                !_chunks.TryGetValue(candidate, out RuntimeChunk candidateChunk) ||
+                !IsRunnableRequiredEcologyWaiter(candidate, candidateChunk))
                 continue;
-            // note: Missing terrain/structure or an unstarted ecology worker cannot use a surrendered slot; keep forecast cells preparing until a live-view worker can publish.
-            return true;
+            if (_guaranteedViewDemand.Contains(candidate) && !currentVisible)
+                return true;
+            // note: A predicted owner may preempt only another hard-view owner; background reservations retain their existing class limit.
+            if (!currentVisible && _hardViewDemand.Contains(coordinate) &&
+                CompareContentQueueDeadlines(candidate, coordinate, traversalVelocity) < 0)
+                return true;
         }
 
         return false;
@@ -7679,6 +9779,45 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
 
         return false;
+    }
+
+    // note: Preserve aggregate-budget headroom only while an in-demand hard-view ecology owner can actually advance or start.
+    private void ReserveRequiredHardViewEcologyBudget()
+    {
+        foreach (Vector2Int coordinate in _hardViewDemand)
+        {
+            if (!_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) || chunk == null ||
+                chunk.requiredEcologyReady)
+                continue;
+
+            if (chunk.decorativeWorkId != 0)
+            {
+                string phase = chunk.decorativeWorkPhase;
+                if (string.Equals(phase, "terrainPriority", StringComparison.Ordinal) ||
+                    string.Equals(phase, "verificationHold", StringComparison.Ordinal))
+                    continue;
+                if (chunk.decorativeSlotWorkId != 0 ||
+                    IsRunnableRequiredEcologyWaiter(coordinate, chunk))
+                {
+                    _requiredHardViewEcologyBudgetFrame = Time.frameCount;
+                    return;
+                }
+                continue;
+            }
+
+            if (!chunk.physicalRepresentation || chunk.generationRoot == null)
+                continue;
+
+            bool scheduledRetry = _requiredEcologyRetryAt.TryGetValue(coordinate, out float retryAt);
+            if (scheduledRetry && retryAt > Time.unscaledTime)
+                continue;
+            _requiredEcologyRetryCount.TryGetValue(coordinate, out int retryCount);
+            if (retryCount >= MaximumRequiredEcologyRetries && !scheduledRetry)
+                continue;
+
+            _requiredHardViewEcologyBudgetFrame = Time.frameCount;
+            return;
+        }
     }
 
     private bool HasPendingBackgroundEcology()
@@ -7708,6 +9847,22 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_activeDecorativeScatters >= MaximumDecorativeScatterWorkers + HardViewDecorativeWorkerReserve)
             return false;
         bool hardView = _hardViewDemand.Contains(coordinate);
+        if (hardView)
+        {
+            // note: A freed hard-view slot goes to the earliest runnable deadline, independent of Unity coroutine resume order.
+            Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+            foreach (Vector2Int waitingCoordinate in _hardViewDemand)
+            {
+                if (waitingCoordinate == coordinate ||
+                    !_chunks.TryGetValue(waitingCoordinate, out RuntimeChunk waitingChunk) ||
+                    !IsRunnableRequiredEcologyWaiter(waitingCoordinate, waitingChunk))
+                    continue;
+                int deadlineOrder = CompareContentQueueDeadlines(waitingCoordinate, coordinate, traversalVelocity);
+                if (deadlineOrder < 0 ||
+                    (deadlineOrder == 0 && CompareCoordinates(waitingCoordinate, coordinate) < 0))
+                    return false;
+            }
+        }
         int sameClassActive = 0;
         bool otherClassWaiting = false;
         // note: Reserve by the identities that actually hold slots, not by a lower total-count ceiling for hard-view work; otherwise background jobs can exclude the camera preparation ring.
@@ -7945,10 +10100,13 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             UnityEngine.Object.Destroy(item);
             chunk.generatedObjects.RemoveAt(index);
             InvalidateRendererValidationCache(chunk);
-            chunk.ownedObjects.Remove(item);
+            RemoveOwnedObject(chunk, item);
         }
         chunk.physicalRepresentation = false;
         chunk.requiredContentReady = false;
+        chunk.contentStartedAt = -1f;
+        chunk.contentReadyAt = -1f;
+        chunk.ecologyStartedAt = -1f;
         chunk.appearanceReady = retainedAppearanceReady;
         chunk.overlayReady = false;
         chunk.requiredEcologyReady = false;
@@ -7959,7 +10117,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         chunk.appliedOverlayRevisions.Clear();
         chunk.appliedOverlayReceipts.Clear();
         chunk.publicationVersion++;
-        chunk.ownedObjects.RemoveAll(item => item == null);
+        PruneDestroyedOwnedObjects(chunk);
         // note: If cancellation left a valid terrain tile without a completed paint coroutine, restart only that missing appearance lane; the next structural owner can then publish atomically without freezing traversal.
         if (retainedTerrainPublished && !retainedAppearanceReady && !_terrainPainting.ContainsKey(coordinate) &&
             _extendedTerrainTiles.TryGetValue(coordinate, out Terrain retainedTerrain) && retainedTerrain != null &&
@@ -7974,18 +10132,18 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
     }
 
-    private IEnumerator EnsureTerrainReadyRoutine(Vector2Int coordinate)
+    private IEnumerator EnsureTerrainForContentMaterializationRoutine(Vector2Int coordinate)
     {
-        if (IsChunkInsideAuthoredTerrain(coordinate) || HasPublishedTerrain(coordinate))
+        if (ResolveTerrainForContentMaterialization(coordinate) != null)
             yield break;
         RequestTerrainForChunk(coordinate);
         float deadline = Time.unscaledTime + 45f;
-        while (!HasPublishedTerrain(coordinate) && Time.unscaledTime < deadline)
+        while (ResolveTerrainForContentMaterialization(coordinate) == null && Time.unscaledTime < deadline)
             yield return null;
-        if (!HasPublishedTerrain(coordinate))
+        if (ResolveTerrainForContentMaterialization(coordinate) == null)
         {
             // note: Return a guarded failure instead of throwing from a nested iterator, so the owning generation wrapper can clear its active slot and retry safely.
-            Debug.LogWarning("[YQSemanticChunkStreamer] Terrain continuation timed out for " + coordinate);
+            Debug.LogWarning("[YQSemanticChunkStreamer] Terrain heightfield continuation timed out for " + coordinate);
         }
     }
 
@@ -8427,6 +10585,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private bool IsReadyForViewActivation(Vector2Int coordinate, RuntimeChunk chunk)
     {
+        using var lifecycleScope = LifecycleReadinessMarker.Auto();
         bool sharedAuthoredTerrain = IsChunkInsideAuthoredTerrain(coordinate);
         if (chunk == null || (!chunk.physicalRepresentation && !sharedAuthoredTerrain) || !chunk.requiredContentReady ||
             !chunk.overlayReady ||
@@ -8502,6 +10661,60 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         chunk.terrainValidationCache?.Clear();
     }
 
+    private string DescribePublishedRendererBlocker(RuntimeChunk chunk)
+    {
+        // note: Explain the last visual publication gate only when a view-ready owner fails its completeness check.
+        if (chunk == null)
+            return "missingOwner";
+
+        for (int objectIndex = 0; objectIndex < chunk.generatedObjects.Count; objectIndex++)
+        {
+            GameObject generatedObject = chunk.generatedObjects[objectIndex];
+            if (generatedObject != null && !generatedObject.activeInHierarchy)
+                return "inactiveObject=" + generatedObject.name +
+                    ":activeSelf=" + generatedObject.activeSelf;
+            if (generatedObject == null)
+                continue;
+
+            _rendererValidationScratch.Clear();
+            generatedObject.GetComponentsInChildren<Renderer>(true, _rendererValidationScratch);
+            for (int rendererIndex = 0; rendererIndex < _rendererValidationScratch.Count; rendererIndex++)
+            {
+                Renderer renderer = _rendererValidationScratch[rendererIndex];
+                if (renderer == null)
+                    continue;
+                if (!renderer.gameObject.activeInHierarchy)
+                {
+                    YQStreamedFeatureOverlayTarget tombstoneTarget =
+                        renderer.GetComponentInParent<YQStreamedFeatureOverlayTarget>(true);
+                    if (tombstoneTarget != null && !tombstoneTarget.gameObject.activeInHierarchy)
+                        continue;
+                    string blocker = "inactiveRenderer=" + renderer.name +
+                        ":object=" + renderer.gameObject.name +
+                        ":activeSelf=" + renderer.gameObject.activeSelf;
+                    _rendererValidationScratch.Clear();
+                    return blocker;
+                }
+                if (!renderer.enabled)
+                {
+                    string blocker = "disabledRenderer=" + renderer.name +
+                        ":object=" + renderer.gameObject.name +
+                        ":decorativeWork=" + chunk.decorativeWorkPhase;
+                    _rendererValidationScratch.Clear();
+                    return blocker;
+                }
+            }
+            _rendererValidationScratch.Clear();
+
+            Terrain terrain = generatedObject.GetComponent<Terrain>();
+            if (terrain != null && (!terrain.enabled || !terrain.gameObject.activeInHierarchy))
+                return "inactiveTerrain=" + terrain.name + ":enabled=" + terrain.enabled;
+        }
+
+        return "noInactiveRendererFound:decorativeWork=" + chunk.decorativeWorkId +
+            ":phase=" + chunk.decorativeWorkPhase;
+    }
+
     private bool ArePublishedTerrainRenderersEnabled(RuntimeChunk chunk)
     {
         if (chunk == null)
@@ -8529,7 +10742,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 if (!renderersEnabled)
                     return false;
 
-                Terrain terrain = generatedObject.GetComponent<Terrain>();
+                // note: Most generated roots have no Terrain; avoid Unity's Editor-only missing-component allocation while keeping the same live readiness checks.
+                generatedObject.TryGetComponent<Terrain>(out Terrain terrain);
                 if (terrain != null && (!terrain.enabled || !terrain.gameObject.activeInHierarchy))
                     return false;
             }
@@ -8559,7 +10773,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     chunk.rendererValidationCache.Add(_rendererValidationScratch[rendererIndex]);
                 _rendererValidationScratch.Clear();
 
-                Terrain terrain = generatedObject.GetComponent<Terrain>();
+                // note: Cache only real Terrain components without allocating a missing-component diagnostic for semantic roots.
+                generatedObject.TryGetComponent<Terrain>(out Terrain terrain);
                 if (terrain != null)
                     chunk.terrainValidationCache.Add(terrain);
             }
@@ -8625,46 +10840,68 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         }
         _lifecyclePending = false;
         int activationBudget = _lifecycleBudgetRemaining;
-        _lifecyclePriorityScratch.Clear();
-        _hardViewLifecycleScratch.Clear();
-        foreach (Vector2Int coordinate in _guaranteedViewDemand)
-            if (_chunks.ContainsKey(coordinate))
-                _hardViewLifecycleScratch.Add(coordinate);
-        int hardViewCount = _hardViewLifecycleScratch.Count;
-        if (hardViewCount > 0)
+        using (LifecycleDemandScanMarker.Auto())
         {
-            // note: Start at a rotating visible owner so every hard-view chunk receives work even when earlier owners have large hierarchies.
-            int start = _hardViewLifecycleCursor % hardViewCount;
-            for (int offset = 0; offset < hardViewCount; offset++)
-                _lifecyclePriorityScratch.Add(_hardViewLifecycleScratch[(start + offset) % hardViewCount]);
-            _hardViewLifecycleCursor = (_hardViewLifecycleCursor + 1) % hardViewCount;
+            _lifecyclePriorityScratch.Clear();
+            _hardViewLifecycleScratch.Clear();
+            foreach (Vector2Int coordinate in _guaranteedViewDemand)
+                if (_chunks.ContainsKey(coordinate))
+                    _hardViewLifecycleScratch.Add(coordinate);
+            int hardViewCount = _hardViewLifecycleScratch.Count;
+            if (hardViewCount > 0)
+            {
+                // note: Put view-ready owners with unfinished activation ahead of already-published frustum cells so rotation cannot spend the hard-view lifecycle slice while a ready cell remains hidden.
+                SortHardViewLifecycleScratch();
+                int pendingActivationCount = 0;
+                while (pendingActivationCount < hardViewCount &&
+                    NeedsHardViewActivation(_hardViewLifecycleScratch[pendingActivationCount]))
+                    pendingActivationCount++;
+                for (int index = 0; index < pendingActivationCount; index++)
+                    _lifecyclePriorityScratch.Add(_hardViewLifecycleScratch[index]);
+
+                // note: Retain rotating fairness for visible owners that do not currently need activation.
+                int remainingHardViewCount = hardViewCount - pendingActivationCount;
+                if (remainingHardViewCount > 0)
+                {
+                    int start = _hardViewLifecycleCursor % remainingHardViewCount;
+                    for (int offset = 0; offset < remainingHardViewCount; offset++)
+                        _lifecyclePriorityScratch.Add(
+                            _hardViewLifecycleScratch[pendingActivationCount + (start + offset) % remainingHardViewCount]);
+                    _hardViewLifecycleCursor = (start + 1) % remainingHardViewCount;
+                }
+                else
+                {
+                    _hardViewLifecycleCursor = 0;
+                }
+            }
+            foreach (Vector2Int coordinate in _publicationVerificationDemand)
+                if (!_guaranteedViewDemand.Contains(coordinate) && _chunks.ContainsKey(coordinate))
+                    _lifecyclePriorityScratch.Add(coordinate);
+            foreach (Vector2Int coordinate in _hardViewDemand)
+                if (!_guaranteedViewDemand.Contains(coordinate) &&
+                    !_publicationVerificationDemand.Contains(coordinate) &&
+                    _chunks.ContainsKey(coordinate))
+                    _lifecyclePriorityScratch.Add(coordinate);
+            // note: Give far pending teardowns a rotating turn before ordinary retained owners so bounded lifecycle slices cannot starve an unload indefinitely.
+            _unloadingLifecycleScratch.Clear();
+            foreach (KeyValuePair<Vector2Int, RuntimeChunk> pair in _chunks)
+                if (!_hardViewDemand.Contains(pair.Key) && !_publicationVerificationDemand.Contains(pair.Key) && pair.Value != null &&
+                    pair.Value.state == YQSemanticChunkLifecycle.Unloading)
+                    _unloadingLifecycleScratch.Add(pair.Key);
+            if (_unloadingLifecycleScratch.Count > 0)
+            {
+                int start = _unloadingLifecycleCursor % _unloadingLifecycleScratch.Count;
+                for (int offset = 0; offset < _unloadingLifecycleScratch.Count; offset++)
+                    _lifecyclePriorityScratch.Add(_unloadingLifecycleScratch[(start + offset) % _unloadingLifecycleScratch.Count]);
+                _unloadingLifecycleCursor = (start + 1) % _unloadingLifecycleScratch.Count;
+            }
+            foreach (KeyValuePair<Vector2Int, RuntimeChunk> pair in _chunks)
+                if (!_hardViewDemand.Contains(pair.Key) && !_publicationVerificationDemand.Contains(pair.Key) && pair.Value != null &&
+                    pair.Value.state != YQSemanticChunkLifecycle.Unloading)
+                    _lifecyclePriorityScratch.Add(pair.Key);
         }
-        foreach (Vector2Int coordinate in _publicationVerificationDemand)
-            if (!_guaranteedViewDemand.Contains(coordinate) && _chunks.ContainsKey(coordinate))
-                _lifecyclePriorityScratch.Add(coordinate);
-        foreach (Vector2Int coordinate in _hardViewDemand)
-            if (!_guaranteedViewDemand.Contains(coordinate) &&
-                !_publicationVerificationDemand.Contains(coordinate) &&
-                _chunks.ContainsKey(coordinate))
-                _lifecyclePriorityScratch.Add(coordinate);
-        // note: Give far pending teardowns a rotating turn before ordinary retained owners so bounded lifecycle slices cannot starve an unload indefinitely.
-        _unloadingLifecycleScratch.Clear();
-        foreach (KeyValuePair<Vector2Int, RuntimeChunk> pair in _chunks)
-            if (!_hardViewDemand.Contains(pair.Key) && !_publicationVerificationDemand.Contains(pair.Key) && pair.Value != null &&
-                pair.Value.state == YQSemanticChunkLifecycle.Unloading)
-                _unloadingLifecycleScratch.Add(pair.Key);
-        if (_unloadingLifecycleScratch.Count > 0)
-        {
-            int start = _unloadingLifecycleCursor % _unloadingLifecycleScratch.Count;
-            for (int offset = 0; offset < _unloadingLifecycleScratch.Count; offset++)
-                _lifecyclePriorityScratch.Add(_unloadingLifecycleScratch[(start + offset) % _unloadingLifecycleScratch.Count]);
-            _unloadingLifecycleCursor = (start + 1) % _unloadingLifecycleScratch.Count;
-        }
-        foreach (KeyValuePair<Vector2Int, RuntimeChunk> pair in _chunks)
-            if (!_hardViewDemand.Contains(pair.Key) && !_publicationVerificationDemand.Contains(pair.Key) && pair.Value != null &&
-                pair.Value.state != YQSemanticChunkLifecycle.Unloading)
-                _lifecyclePriorityScratch.Add(pair.Key);
         // note: Exact live-frustum coordinates are processed before the preparation ring, and both remain ahead of ordinary retention in the same bounded pass.
+        using (LifecycleOwnerPassMarker.Auto())
         for (int lifecycleIndex = 0; lifecycleIndex < _lifecyclePriorityScratch.Count; lifecycleIndex++)
         {
             Vector2Int lifecycleCoordinate = _lifecyclePriorityScratch[lifecycleIndex];
@@ -8773,12 +11010,16 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             activationBudget -= ownerBudget - ownerRemaining;
             if (nextState == YQSemanticChunkLifecycle.Unloaded &&
                 !IsChunkInsideAuthoredTerrain(pair.Key) &&
-                chunk.physicalRepresentation &&
                 chunk.generatedObjects.Count > 0 &&
                 (chunk.activeState == 0 || chunk.ownedObjects.Count == 0))
             {
-                // note: Retain the semantic owner but release its generated TerrainData and hierarchy at the unload boundary so a new traversable cell can claim the bounded physical budget.
-                DestroyGeneratedObjects(chunk);
+                // note: Release generated hierarchy even when content-only objects outlive their TerrainData; accepted records remain the regeneration authority.
+                if (!TryDestroyGeneratedObjectsForStreaming(chunk))
+                {
+                    // note: A deferred owner remains physically resident and eligible for returning demand; do not report it Unloaded while its hierarchy still exists.
+                    nextState = YQSemanticChunkLifecycle.Unloading;
+                    chunk.state = nextState;
+                }
             }
             if (nextState == YQSemanticChunkLifecycle.Unloading)
             {
@@ -8793,8 +11034,51 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         _physicalCountRefreshFrame = Time.frameCount;
     }
 
+    private void SortHardViewLifecycleScratch()
+    {
+        Vector2 traversalVelocity = ResolveTraversalDemandVelocity();
+        for (int index = 1; index < _hardViewLifecycleScratch.Count; index++)
+        {
+            Vector2Int candidate = _hardViewLifecycleScratch[index];
+            int previous = index - 1;
+            while (previous >= 0 && CompareHardViewLifecycleDemand(
+                candidate,
+                _hardViewLifecycleScratch[previous],
+                traversalVelocity) < 0)
+            {
+                _hardViewLifecycleScratch[previous + 1] = _hardViewLifecycleScratch[previous];
+                previous--;
+            }
+            _hardViewLifecycleScratch[previous + 1] = candidate;
+        }
+    }
+
+    private int CompareHardViewLifecycleDemand(
+        Vector2Int left,
+        Vector2Int right,
+        Vector2 traversalVelocity)
+    {
+        bool leftNeedsActivation = NeedsHardViewActivation(left);
+        bool rightNeedsActivation = NeedsHardViewActivation(right);
+        if (leftNeedsActivation != rightNeedsActivation)
+            return leftNeedsActivation ? -1 : 1;
+
+        int deadlineCompare = CompareContentQueuePriority(left, right, traversalVelocity);
+        return deadlineCompare != 0 ? deadlineCompare : CompareCoordinates(left, right);
+    }
+
+    private bool NeedsHardViewActivation(Vector2Int coordinate)
+    {
+        if (!_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) || chunk == null ||
+            !IsReadyForViewActivation(coordinate, chunk))
+            return false;
+
+        return !chunk.activationComplete || chunk.activeState != 1 || chunk.activationTarget == 0;
+    }
+
     private int ApplyObjectsActiveSlice(RuntimeChunk chunk, bool active, int budget)
     {
+        using var lifecycleScope = LifecycleActivationSliceMarker.Auto();
         if (chunk == null)
             return budget;
         Vector2Int coordinate = chunk.record != null
@@ -8806,6 +11090,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         sbyte desired = (sbyte)(active ? 1 : 0);
         if (chunk.activeState == desired && chunk.activationTarget == -1)
         {
+            // note: Opt-in replay captures a stale aggregate activation cache before renderer reconciliation can obscure its origin.
+            if (_completeCellHistory != null && active && chunk.generationRoot != null && !chunk.generationRoot.activeSelf)
+                ObserveCompleteCell(coordinate, "activationFastPathInactiveRoot", true);
             // note: Reconcile publication bookkeeping for an already-activated owner even after the shared frame budget is spent; otherwise a ready visible cell can stay hidden behind a stale completion flag.
             if (active)
                 chunk.activationComplete = true;
@@ -8821,7 +11108,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             // note: Keep a collision-ready ground renderer exposed for every exact-view cell even while aggregate budget defers optional object activation.
             SetChunkVisualsEnabled(chunk, fullyPublished);
         }
-        if (!CanAdvanceAggregateWork("lifecycleActivation"))
+        // note: A ready visible cell uses its separate hard-view deadline even when background work has reached the shared slice ceiling.
+        bool hardViewActivationReady = active && hardViewRequired && hardViewReady;
+        if (!CanAdvanceAggregateWork("lifecycleActivation", hardViewActivationReady))
         {
             _lifecyclePending = true;
             return budget;
@@ -8851,24 +11140,30 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             chunk.activationCursor = 0;
         }
         int start = chunk.activationCursor;
+        ObserveCompleteCell(coordinate, "activationSliceBegin", true);
         int end = Mathf.Min(chunk.ownedObjects.Count, start + Mathf.Max(1, budget));
         int cursor = start;
         for (; cursor < end; cursor++)
         {
             // note: Imported object activation is indivisible, but the next object waits once either aggregate or lifecycle allowance is spent.
             if (Time.realtimeSinceStartup >= _lifecycleDeadline ||
-                !CanAdvanceAggregateWork("lifecycleObjectActivation"))
+                !CanAdvanceAggregateWork("lifecycleObjectActivation", hardViewActivationReady))
                 break;
             float activationSliceStartedAt = Time.realtimeSinceStartup;
             GameObject item = chunk.ownedObjects[cursor];
             // note: Keep TerrainCollider objects active for collision while their Terrain renderer is independently gated by visual readiness.
-            bool keepCollisionActive = item != null && item.GetComponent<TerrainCollider>() != null;
+            // note: An absent TerrainCollider is ordinary for content roots; preserve collision ownership without creating Editor missing-component diagnostics.
+            bool keepCollisionActive = item != null && item.TryGetComponent<TerrainCollider>(out _);
             bool desiredActive = keepCollisionActive || active;
             if (item != null && item.activeSelf != desiredActive)
-                item.SetActive(desiredActive);
+            {
+                using (LifecycleObjectActivationMarker.Auto())
+                    item.SetActive(desiredActive);
+            }
             RecordAggregateWorkSlice(activationSliceStartedAt, "lifecycleObjectActivation");
         }
         chunk.activationCursor = cursor;
+        ObserveCompleteCell(coordinate, "activationSliceEnd", true);
         int consumed = cursor - start;
         // note: Complete a chunk only after every owned object received the requested activation state.
         if (chunk.activationCursor >= chunk.ownedObjects.Count)
@@ -8878,10 +11173,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             chunk.activationCursor = 0;
             chunk.activationComplete = active;
             chunk.publicationVersion++;
+            ObserveCompleteCell(coordinate, "activationCompletedBeforeVisuals", true);
             // note: Renderer visibility follows the complete hard-view contract, never merely terrain, paint, or partial activation publication.
             // note: Exposure is driven by readiness before the renderer is enabled; the strict predicate is reserved for post-publication validation.
             bool expose = active && hardViewReady && IsReadyForViewActivation(coordinate, chunk) && chunk.activationComplete;
             SetChunkVisualsEnabled(chunk, expose);
+            ObserveCompleteCell(coordinate, "activationCompletedAfterVisuals", true);
         }
         else
             _lifecyclePending = true;
@@ -8897,7 +11194,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             GameObject generatedObject = chunk.generatedObjects[index];
             if (generatedObject == null)
                 continue;
-            Terrain terrain = generatedObject.GetComponent<Terrain>();
+            // note: Preserve the renderer gate on real terrain while avoiding missing-component allocations on other roots.
+            generatedObject.TryGetComponent<Terrain>(out Terrain terrain);
             if (terrain != null)
                 terrain.enabled = enabled;
         }
@@ -8905,24 +11203,88 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private static void SetStreamedVisualsEnabled(RuntimeChunk chunk, bool enabled)
     {
+        // note: Standalone publication gates still control every Terrain and Renderer in the owned hierarchy.
+        SetStreamedVisualsExceptManagedTerrain(chunk, enabled, null);
+    }
+
+    private static void SetStreamedVisualsExceptManagedTerrain(RuntimeChunk chunk, bool enabled, Terrain independentlyGatedTerrain)
+    {
+        using var lifecycleScope = LifecycleHierarchyVisualGateMarker.Auto();
         if (chunk == null)
             return;
+#if UNITY_EDITOR
+        if (R2ObserveVisualGateWrites)
+            R2VisualGateWriteCounts[0]++;
+#endif
         for (int index = 0; index < chunk.generatedObjects.Count; index++)
         {
             GameObject generatedObject = chunk.generatedObjects[index];
             if (generatedObject == null)
                 continue;
             // note: Gate every renderer in the owned hierarchy, not only Terrain, so trees, rocks, route meshes, sites, and partial roots cannot leak into the camera before the cell is certified.
-            Renderer[] renderers = generatedObject.GetComponentsInChildren<Renderer>(true);
+#if UNITY_EDITOR
+            if (R2ObserveVisualGateWrites)
+                R2VisualGateWriteCounts[5]++;
+#endif
+            Renderer[] renderers;
+            using (LifecycleRendererEnumerationMarker.Auto())
+                renderers = generatedObject.GetComponentsInChildren<Renderer>(true);
             for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
             {
                 Renderer renderer = renderers[rendererIndex];
                 if (renderer != null)
-                    renderer.enabled = enabled;
+                {
+                    // note: Preserve the full hierarchy gate while avoiding native renderer callbacks for an already-correct enabled state.
+                    bool alreadyRequested;
+                    using (LifecycleRendererStateReadMarker.Auto())
+                        alreadyRequested = renderer.enabled == enabled;
+#if UNITY_EDITOR
+                    if (R2ObserveVisualGateWrites)
+                    {
+                        R2VisualGateWriteCounts[1]++;
+                        if (alreadyRequested)
+                            R2VisualGateWriteCounts[2]++;
+                    }
+#endif
+                    if (!alreadyRequested)
+                    {
+                        using (LifecycleRendererStateWriteMarker.Auto())
+                            renderer.enabled = enabled;
+#if UNITY_EDITOR
+                        if (R2ObserveVisualGateWrites)
+                            R2VisualRendererWritesPerformed++;
+#endif
+                    }
+                }
             }
-            Terrain terrain = generatedObject.GetComponent<Terrain>();
-            if (terrain != null)
-                terrain.enabled = enabled;
+            // note: The same hierarchy still receives its full visual gate; optional Terrain lookup does not allocate in the Editor.
+            Terrain terrain;
+            using (LifecycleTerrainLookupMarker.Auto())
+                generatedObject.TryGetComponent<Terrain>(out terrain);
+            if (terrain != null && terrain != independentlyGatedTerrain)
+            {
+                // note: Terrain keeps the same independent visual gate; unchanged state needs no repeated native setter.
+                bool alreadyRequested;
+                using (LifecycleTerrainStateReadMarker.Auto())
+                    alreadyRequested = terrain.enabled == enabled;
+#if UNITY_EDITOR
+                if (R2ObserveVisualGateWrites)
+                {
+                    R2VisualGateWriteCounts[3]++;
+                    if (alreadyRequested)
+                        R2VisualGateWriteCounts[4]++;
+                }
+#endif
+                if (!alreadyRequested)
+                {
+                    using (LifecycleTerrainStateWriteMarker.Auto())
+                        terrain.enabled = enabled;
+#if UNITY_EDITOR
+                    if (R2ObserveVisualGateWrites)
+                        R2VisualTerrainWritesPerformed++;
+#endif
+                }
+            }
         }
     }
 
@@ -8940,14 +11302,18 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void SetChunkVisualsEnabled(RuntimeChunk chunk, bool enabled)
     {
+        using var lifecycleScope = LifecycleVisualReconciliationMarker.Auto();
         if (chunk == null)
             return;
 
         bool visualStateChanged = !chunk.visualStateKnown || chunk.visualState != enabled;
         if (visualStateChanged)
         {
-            // note: Apply the hierarchy-wide renderer gate only when exposure actually changes, preserving atomic publication without paying a per-frame hierarchy scan.
-            SetStreamedVisualsEnabled(chunk, enabled);
+            // note: The mapped Terrain receives its final existing full/preview gate below; avoid hiding it here only to re-enable the same permitted preview in this call.
+            Terrain independentlyGatedTerrain = null;
+            if (chunk.record != null)
+                _extendedTerrainTiles.TryGetValue(new Vector2Int(chunk.record.chunkX, chunk.record.chunkZ), out independentlyGatedTerrain);
+            SetStreamedVisualsExceptManagedTerrain(chunk, enabled, independentlyGatedTerrain);
             chunk.visualState = enabled;
             chunk.visualStateKnown = true;
         }
@@ -8961,7 +11327,13 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             {
                 fullTerrainVisible = enabled || ShouldExposeTerrainPreview(chunk);
                 if (terrain.enabled != fullTerrainVisible)
+                {
                     terrain.enabled = fullTerrainVisible;
+#if UNITY_EDITOR
+                    if (R2ObserveVisualGateWrites)
+                        R2ManagedTerrainWritesPerformed++;
+#endif
+                }
             }
             if (_provisionalGroundTiles.TryGetValue(coordinate, out Terrain provisional) && provisional != null)
             {
@@ -8997,6 +11369,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return;
 
         GameObject tileObject = provisional.gameObject;
+        if (_completeCellHistory != null && owner != null && owner.record != null)
+            ObserveCompleteCell(new Vector2Int(owner.record.chunkX, owner.record.chunkZ), "provisionalRetirementBefore", true);
         TerrainData data = provisional.terrainData;
         TerrainCollider collider = provisional.GetComponent<TerrainCollider>();
         provisional.SetNeighbors(null, null, null, null);
@@ -9007,7 +11381,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             tileObject.SetActive(false);
         owner?.generatedObjects.Remove(tileObject);
         InvalidateRendererValidationCache(owner);
-        owner?.ownedObjects.Remove(tileObject);
+        RemoveOwnedObject(owner, tileObject);
         if (owner != null)
             owner.visualStateKnown = false;
 
@@ -9151,7 +11525,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         CollectBoundedPhysicalObjects(_worldRoot);
     }
 
-    private static void RegisterOwnedObject(RuntimeChunk chunk, GameObject item)
+    private void RegisterOwnedObject(RuntimeChunk chunk, GameObject item)
     {
         if (chunk == null || item == null || chunk.ownedObjects.Contains(item))
             return;
@@ -9163,6 +11537,45 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         else if (chunk.activeState != itemState)
             chunk.activeState = -1;
         chunk.ownedObjects.Add(item);
+        if (_completeCellHistory != null && chunk.record != null)
+            ObserveCompleteCell(new Vector2Int(chunk.record.chunkX, chunk.record.chunkZ), "ownedAdded:" + item.name, true);
+    }
+
+    private void RemoveOwnedObject(RuntimeChunk chunk, GameObject item)
+    {
+        if (chunk == null)
+            return;
+        RemoveOwnedObjectAt(chunk, chunk.ownedObjects.IndexOf(item));
+    }
+
+    private void RemoveOwnedObjectAt(RuntimeChunk chunk, int index)
+    {
+        if (index < 0 || index >= chunk.ownedObjects.Count)
+            return;
+        GameObject item = chunk.ownedObjects[index];
+        if (_completeCellHistory != null && chunk.record != null)
+            ObserveCompleteCell(new Vector2Int(chunk.record.chunkX, chunk.record.chunkZ), "ownedRemoving:index=" + index + ":" + (item != null ? item.name : "null"), true);
+        // note: Removing an already-processed entry shifts the next unprocessed object left; retain that object as the next activation/deactivation slice target.
+        chunk.activationCursor = RemoveOwnedActivationEntry(chunk.ownedObjects, index, chunk.activationCursor);
+        if (_completeCellHistory != null && chunk.record != null)
+            ObserveCompleteCell(new Vector2Int(chunk.record.chunkX, chunk.record.chunkZ), "ownedRemoved:index=" + index, true);
+    }
+
+    internal static int RemoveOwnedActivationEntry(List<GameObject> ownedObjects, int index, int activationCursor)
+    {
+        if (ownedObjects == null || index < 0 || index >= ownedObjects.Count)
+            return activationCursor;
+        // note: The cursor denotes a processed prefix, so only a removal inside that prefix changes its length; the next entry remains eligible before completion can be published.
+        ownedObjects.RemoveAt(index);
+        return index < activationCursor ? activationCursor - 1 : activationCursor;
+    }
+
+    private void PruneDestroyedOwnedObjects(RuntimeChunk chunk)
+    {
+        // note: Unity-destroyed entries obey the same cursor contract as explicitly retired terrain/content owners.
+        for (int index = chunk.ownedObjects.Count - 1; index >= 0; index--)
+            if (chunk.ownedObjects[index] == null)
+                RemoveOwnedObjectAt(chunk, index);
     }
 
     private void CollectBoundedPhysicalObjects(Transform parent)
@@ -9550,6 +11963,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return;
         // note: Queued semantic demand owns no Unity resources; enforce capacity at physical dispatch so urgent requests cannot disappear at saturation.
         chunk.state = YQSemanticChunkLifecycle.Queued;
+        if (chunk.contentQueuedAt < 0f)
+            chunk.contentQueuedAt = Time.unscaledTime;
         _queue.Add(coordinate);
         if (!_batchingHardViewAdmission)
             TrimQueue();
@@ -9571,8 +11986,16 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private bool TryReservePhysicalOwner(Vector2Int requested)
     {
+        // note: Measure the exact owner census and reclamation path before designing a persistent census optimization.
+        using (PhysicalOwnerReservationProfilerMarker.Auto())
+            return TryReservePhysicalOwnerCore(requested);
+    }
+
+    private bool TryReservePhysicalOwnerCore(Vector2Int requested)
+    {
         // note: Count partial terrain/content owners as well as completed cells, avoiding an uncounted TerrainData backlog.
-        int count = 0;
+        // note: A retired hierarchy still owns native resources until frame end, including across repeated admission calls in this same frame.
+        int count = PendingStreamingNativeRetirements;
         RuntimeChunk victim = null;
         Vector2Int victimCoordinate = default;
         int farthest = -1;
@@ -9634,7 +12057,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             return false;
         }
         // note: Release only this runtime owner's generated content; accepted semantic records and borrowed site objects remain intact.
-        DestroyGeneratedObjects(victim);
+        if (!TryDestroyGeneratedObjectsForStreaming(victim))
+            return false;
         _extendedTerrainTiles.Remove(victimCoordinate);
         victim.state = YQSemanticChunkLifecycle.Unloaded;
         _contentDemand.Remove(victimCoordinate);
@@ -9648,6 +12072,13 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     }
 
     private void SortContentQueue()
+    {
+        // note: Separate queue sorting from content dispatch so frame-budget evidence identifies repeated comparator work.
+        using (ContentQueueSortProfilerMarker.Auto())
+            SortContentQueueCore();
+    }
+
+    private void SortContentQueueCore()
     {
         UpdateQueuePriorityView();
         // note: Required content uses the same near-player deadline ordering as terrain so a ready collider cannot wait behind remote camera/prewarm decoration.
@@ -9725,6 +12156,19 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         bool rightHardView = _hardViewDemand.Contains(right);
         if (leftHardView != rightHardView)
             return leftHardView ? -1 : 1;
+        if (leftHardView)
+        {
+            // note: Among nonvisible preparation owners with equal live deadlines, finish the oldest admission first so a moving camera cannot perpetually replace unfinished prewarm work.
+            float leftAdmittedAt = _chunks.TryGetValue(left, out RuntimeChunk leftHardViewChunk) && leftHardViewChunk != null
+                ? leftHardViewChunk.hardViewAdmittedAt
+                : float.MaxValue;
+            float rightAdmittedAt = _chunks.TryGetValue(right, out RuntimeChunk rightHardViewChunk) && rightHardViewChunk != null
+                ? rightHardViewChunk.hardViewAdmittedAt
+                : float.MaxValue;
+            int admissionAgeCompare = leftAdmittedAt.CompareTo(rightAdmittedAt);
+            if (admissionAgeCompare != 0)
+                return admissionAgeCompare;
+        }
 
         bool leftRequiredCoverage = IsRequiredCoverageCoordinate(left);
         bool rightRequiredCoverage = IsRequiredCoverageCoordinate(right);
@@ -9877,7 +12321,23 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             bool rightImmediate = IsImmediateTraversalTerrainCoordinate(right, velocity);
             if (leftImmediate != rightImmediate)
                 return leftImmediate ? -1 : 1;
-            // note: Keep every live centerline owner ahead of lateral view/retention work; camera demand remains bounded and resumes after the traversal corridor is collision-ready.
+        }
+        // note: Within one urgency class, prepare the earliest camera exposure before a farther centerline owner; current and immediate collision owners remain ahead.
+        bool leftPredictedView = _semanticViewPredictionArrivalSeconds.TryGetValue(
+            left, out float leftPredictedArrival);
+        bool rightPredictedView = _semanticViewPredictionArrivalSeconds.TryGetValue(
+            right, out float rightPredictedArrival);
+        if (leftPredictedView != rightPredictedView)
+            return leftPredictedView ? -1 : 1;
+        if (leftPredictedView)
+        {
+            int predictedArrivalCompare = leftPredictedArrival.CompareTo(rightPredictedArrival);
+            if (predictedArrivalCompare != 0)
+                return predictedArrivalCompare;
+        }
+        if (hasVelocity)
+        {
+            // note: Equal exposure deadlines and unpredicted requests retain the existing centerline age ordering.
             bool leftCritical = IsTraversalCriticalTerrainCoordinate(left, velocity, false);
             bool rightCritical = IsTraversalCriticalTerrainCoordinate(right, velocity, false);
             if (leftCritical != rightCritical)
@@ -9895,19 +12355,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 if (ageCompare != 0)
                     return ageCompare;
             }
-        }
-        // note: Match terrain dispatch to semantic-content deadlines; proximity alone delayed a predicted camera tile until it was already visible.
-        bool leftPredictedView = _semanticViewPredictionArrivalSeconds.TryGetValue(
-            left, out float leftPredictedArrival);
-        bool rightPredictedView = _semanticViewPredictionArrivalSeconds.TryGetValue(
-            right, out float rightPredictedArrival);
-        if (leftPredictedView != rightPredictedView)
-            return leftPredictedView ? -1 : 1;
-        if (leftPredictedView)
-        {
-            int predictedArrivalCompare = leftPredictedArrival.CompareTo(rightPredictedArrival);
-            if (predictedArrivalCompare != 0)
-                return predictedArrivalCompare;
         }
         // note: Nearby player cells outrank distant work so local readiness cannot wait behind remote speculation.
         int nearbyCompare = CompareNearbyAndViewPriority(left, right);
@@ -10031,7 +12478,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 continue;
             if (_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) && chunk != null &&
                 chunk.state == YQSemanticChunkLifecycle.Queued)
+            {
                 chunk.state = YQSemanticChunkLifecycle.SemanticallyPlanned;
+                chunk.contentQueuedAt = -1f;
+            }
             _queue.RemoveAt(i);
         }
         _queuedCount = _queue.Count;
@@ -10048,7 +12498,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 continue;
             if (_chunks.TryGetValue(coordinate, out RuntimeChunk chunk) && chunk != null &&
                 chunk.state == YQSemanticChunkLifecycle.Queued)
+            {
                 chunk.state = YQSemanticChunkLifecycle.SemanticallyPlanned;
+                chunk.contentQueuedAt = -1f;
+            }
             _queue.RemoveAt(index);
         }
     }
@@ -10105,8 +12558,14 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     continue;
                 if (chunk.state == YQSemanticChunkLifecycle.Generating)
                     continue;
+                // note: History pruning shares the same native retirement allowance; keep queues, records and resource ownership intact when that allowance is spent.
+                if (!TryDestroyGeneratedObjectsForStreaming(chunk))
+                    return false;
                 if (chunk.state == YQSemanticChunkLifecycle.Queued)
+                {
                     _queue.Remove(coordinate);
+                    chunk.contentQueuedAt = -1f;
+                }
                 // note: Remove pending requests and retries with the runtime owner so stale work cannot retain an evicted cell.
                 _contentDemand.Remove(coordinate);
                 _terrainQueue.Remove(coordinate);
@@ -10115,7 +12574,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 _terrainRequestedAt.Remove(coordinate);
                 _terrainCriticalRequestedAt.Remove(coordinate);
                 // note: Evict generated roots and extension terrain together before forgetting the semantic record; authored borrowed objects remain owned by their original world systems.
-                DestroyGeneratedObjects(chunk);
                 _chunks.Remove(coordinate);
                 _extendedTerrainTiles.Remove(coordinate);
                 RefreshTerrainNeighbors(new Vector2Int(coordinate.x - 1, coordinate.y));
@@ -10239,6 +12697,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (sampling == null)
                 continue;
             sampling.abandoned = true;
+            sampling.preparedBiomeAlphamap?.Dispose();
             sampling.cancellation?.Cancel();
             if (sampling.cancellation == null)
                 continue;
@@ -10291,15 +12750,62 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void CancelTerrainPreparationForCoordinate(Vector2Int coordinate)
     {
+        using var lifecycleScope = LifecycleCancellationMarker.Auto();
         if (_terrainPreparation == null || _terrainPreparingCoordinate != coordinate)
             return;
         // note: Set the cooperative cancellation flag for both background and main-thread samplers so their next safe yield releases the owner.
         _terrainPreparationPreempted = true;
         _terrainHeightPreparationCancellation?.Cancel();
+        RecordFixedTerrainObservation("cancellationRequested", coordinate, _terrainPreparationWorkId);
+    }
+
+    private int PendingStreamingNativeRetirements =>
+        _streamingRetirementFrame == Time.frameCount ? _retiredPhysicalOwnersThisFrame : 0;
+
+    internal static bool TryTakeStreamingRetirementSlot(int frame, ref int allowanceFrame, ref int used)
+    {
+        // note: Repeated lifecycle/capacity/prune passes cannot renew the existing one-cell-per-frame retirement allowance.
+        if (allowanceFrame != frame)
+        {
+            allowanceFrame = frame;
+            used = 0;
+        }
+        if (used >= SemanticEvictionsPerFrame)
+            return false;
+        used++;
+        return true;
+    }
+
+    private bool TryDestroyGeneratedObjectsForStreaming(RuntimeChunk chunk)
+    {
+        if (chunk == null)
+            return true;
+        Vector2Int coordinate = chunk.record != null
+            ? new Vector2Int(chunk.record.chunkX, chunk.record.chunkZ)
+            : new Vector2Int(int.MinValue, int.MinValue);
+        bool ownsResources = chunk.generatedObjects.Count > 0 || chunk.decorativeRoot != null ||
+            chunk.state == YQSemanticChunkLifecycle.Generating ||
+            (_terrainPreparation != null && coordinate == _terrainPreparingCoordinate) ||
+            _pendingTerrainPublications.ContainsKey(coordinate);
+        if (ownsResources)
+        {
+            if (_streamingRetirementFrame != Time.frameCount)
+                _retiredPhysicalOwnersThisFrame = 0;
+            if (!TryTakeStreamingRetirementSlot(Time.frameCount, ref _streamingRetirementFrame, ref _streamingRetirementsThisFrame))
+            {
+                _lifecyclePending = true;
+                return false;
+            }
+            // note: Count the retiring owner before invalidating its registrations; native destruction is deferred and replacement allocation must still obey the same owner cap.
+            _retiredPhysicalOwnersThisFrame++;
+        }
+        DestroyGeneratedObjects(chunk);
+        return true;
     }
 
     private void DestroyGeneratedObjects(RuntimeChunk chunk)
     {
+        using var lifecycleScope = LifecycleTeardownMarker.Auto();
         if (chunk == null)
             return;
         Vector2Int coordinate = chunk.record != null
@@ -10324,6 +12830,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         // note: Retire both physical owners before stopping workers; content-only cancellation uses its separate epoch.
         chunk.terrainOwnerEpoch++;
         chunk.contentOwnerEpoch++;
+        if (coordinate == FixedTerrainTraceTarget)
+            RecordFixedTerrainObservation("ownerInvalidated", coordinate);
         _activeGenerationWorkIds.Remove(coordinate);
         if (_activeGenerations.TryGetValue(coordinate, out Coroutine generation))
         {
@@ -10351,7 +12859,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             }
             UnityEngine.Object.Destroy(item);
             // note: Remove destroyed generated roots from the ownership list while preserving borrowed authored objects assigned to this chunk.
-            chunk.ownedObjects.Remove(item);
+            RemoveOwnedObject(chunk, item);
             if (data != null)
                 UnityEngine.Object.Destroy(data);
         }
@@ -10365,6 +12873,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         chunk.terrainPublished = authoredProviderReady;
         // note: Teardown revokes every transient publication flag before the owner can be re-admitted, preventing an unloaded cell from becoming traversable on stale state.
         chunk.requiredContentReady = false;
+        chunk.contentStartedAt = -1f;
+        chunk.contentReadyAt = -1f;
+        chunk.ecologyStartedAt = -1f;
         // note: Generated teardown does not destroy the borrowed authored Terrain or its accepted base appearance.
         chunk.appearanceReady = authoredProviderReady;
         chunk.overlayReady = false;
@@ -10393,7 +12904,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             : new Vector2Int(int.MinValue, int.MinValue)) && IsTerrainColliderReady(_terrain)
             ? YQTerrainReadinessState.CollisionReady
             : YQTerrainReadinessState.None;
-        chunk.ownedObjects.RemoveAll(item => item == null);
+        PruneDestroyedOwnedObjects(chunk);
     }
 
     private void DestroyDecorativeRoot(RuntimeChunk chunk)
@@ -10408,10 +12919,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void PersistSemanticFrontier()
     {
+        // note: Only accepted semantic mutations request this active-world mirror; terrain, ecology, and readiness are reconstructed runtime state.
         if (_world == null || Time.unscaledTime < _nextSemanticSaveAt)
             return;
         _nextSemanticSaveAt = Time.unscaledTime + 1f;
-        // note: Defer disk serialization by one frame so a frontier transition never blocks the timed streaming scheduler.
+        // note: Yield before the mirror write so accepted overlay replay is not serialized inside its publication call stack; the write remains synchronous.
         if (_semanticSaveRoutine == null)
             _semanticSaveRoutine = StartCoroutine(PersistSemanticFrontierRoutine());
     }
@@ -10427,10 +12939,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         float saveStarted = Time.realtimeSinceStartup;
         bool saved = manager != null && ReferenceEquals(manager.State, _world) && manager.TrySave(out failure);
         _lastSemanticSaveSeconds = Time.realtimeSinceStartup - saveStarted;
+        // note: Pair a synchronous save with the rendered frame that paid for it during the speed witness.
+        _lastSemanticSaveFrameCount = Time.frameCount;
         _maximumSemanticSaveSeconds = Mathf.Max(_maximumSemanticSaveSeconds, _lastSemanticSaveSeconds);
         // note: Report save-owner failures after measuring the same synchronous path used by successful frontier commits.
         if (!saved)
-            Debug.LogWarning("[YQSemanticChunkStreamer] Semantic frontier save deferred: " + (string.IsNullOrWhiteSpace(failure) ? "world save owner unavailable" : failure));
+            Debug.LogWarning("[YQSemanticChunkStreamer] Active world mirror save failed after semantic mutation: " + (string.IsNullOrWhiteSpace(failure) ? "world save owner unavailable" : failure));
     }
 
     private Vector2Int ChunkFor(Vector2 position)
@@ -10464,6 +12978,19 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (IsChunkInsideAuthoredTerrain(coordinate))
             return _terrain;
         return _extendedTerrainTiles.TryGetValue(coordinate, out Terrain existing) ? existing : null;
+    }
+
+    private Terrain ResolveTerrainForContentMaterialization(Vector2Int coordinate)
+    {
+        // note: Use only published terrain or a current hidden TerrainCreated ticket whose complete canonical heightfield is already assigned.
+        Terrain terrain = ResolveTerrainForChunk(coordinate);
+        if (terrain != null || !_pendingTerrainPublications.TryGetValue(coordinate, out PendingTerrainPublication publication) ||
+            publication == null || publication.cancelled || publication.published ||
+            publication.terrain == null || publication.data == null ||
+            publication.terrain.terrainData != publication.data ||
+            !IsGenerationCurrent(coordinate, GetRuntimeChunk(coordinate), publication.token))
+            return terrain;
+        return publication.terrain;
     }
 
     private static float[,] SampleAuthorityHeightmap(
@@ -10542,18 +13069,58 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         CancellationToken cancellationToken)
     {
         YQContinuousWorldCellAuthority authority = _continuousAuthority;
+#if UNITY_EDITOR
+        // note: Read profiler state on the Unity thread; the worker only uses this immutable diagnostic flag.
+        bool traceHeightWorker = UnityEngine.Profiling.Profiler.enabled;
+#endif
         // note: Capture only immutable accepted-world sampling inputs before leaving the Unity thread; no UnityEngine object is touched by the worker.
-        return Task.Run(
-            () => SampleAuthorityHeightmap(
-                authority,
-                extensionResolution,
-                tileMinX,
-                tileMinZ,
-                size,
-                cancellationToken,
-                out _,
-                out _),
-            cancellationToken);
+        return Task.Run(() =>
+        {
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#if UNITY_EDITOR
+            if (traceHeightWorker)
+                BackgroundHeightSamplingMarker.Begin();
+#endif
+            try
+            {
+                float[,] heights = SampleAuthorityHeightmap(
+                    authority, extensionResolution, tileMinX, tileMinZ, size,
+                    cancellationToken, out _, out _);
+                // note: Record the actual task outcome without changing cancellation, sampled values, or publication ownership.
+                Interlocked.Increment(ref _backgroundHeightTaskSucceededCount);
+                return heights;
+            }
+            catch (OperationCanceledException)
+            {
+                Interlocked.Increment(ref _backgroundHeightTaskCanceledCount);
+                throw;
+            }
+            catch
+            {
+                Interlocked.Increment(ref _backgroundHeightTaskFaultedCount);
+                throw;
+            }
+            finally
+            {
+#if UNITY_EDITOR
+                // note: Close the worker scope even when sampling is canceled or fails.
+                if (traceHeightWorker)
+                    BackgroundHeightSamplingMarker.End();
+#endif
+                // note: One atomic sample per tile exposes worker throughput without touching deterministic height values or Unity objects.
+                long elapsed = System.Diagnostics.Stopwatch.GetTimestamp() - started;
+                Interlocked.Increment(ref _backgroundHeightTaskCount);
+                Interlocked.Add(ref _backgroundHeightTaskTotalTicks, elapsed);
+                long previous = Interlocked.Read(ref _backgroundHeightTaskMaximumTicks);
+                while (elapsed > previous)
+                {
+                    long observed = Interlocked.CompareExchange(ref _backgroundHeightTaskMaximumTicks, elapsed, previous);
+                    if (observed == previous)
+                        break;
+                    previous = observed;
+                }
+            }
+        }, cancellationToken);
     }
 
     private void MaintainTerrainHeightPrefetch()
@@ -10714,6 +13281,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 {
                     _terrainPreparationPreempted = true;
                     backgroundCancellation.Cancel();
+                    RecordFixedTerrainObservation("backgroundCancellationRequested", coordinate, token.workId);
                 }
                 yield return null;
             }
@@ -10725,6 +13293,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (backgroundHeightTask.IsCanceled)
             {
                 _terrainPreparationPreempted = true;
+                RecordFixedTerrainObservation("backgroundCancellationAcknowledged", coordinate, token.workId);
                 yield break;
             }
             if (backgroundHeightTask.IsFaulted)
@@ -11002,14 +13571,22 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     count => streamedDetailCount = count));
             }
             bool advanceBiomeFirst = true;
+            bool authoredAlphaEdgesQueued = false;
             while (iterators.Count > 0 || detailIterators.Count > 0)
             {
                 // note: A retired painter must stop before advancing another nested Unity mutation.
                 if (!IsTerrainAppearanceWorkCurrent(coordinate, token, workId))
                     yield break;
+                if (!authoredAlphaEdgesQueued && iterators.Count == 0)
+                {
+                    // note: Repair authored alpha seams as soon as biome upload ends so independent grass detail work can overlap the final required stage.
+                    iterators.Push(CopyAuthoredAlphaEdgesRoutine(targetTerrain));
+                    authoredAlphaEdgesQueued = true;
+                }
                 // note: Prepared hard-view tiles must complete their accepted appearance lane before camera arrival; distant paint remains subordinate to imminent collision work.
-                if (ShouldPauseTerrainAppearanceForVisibleDemand(coordinate) ||
-                    (ShouldReserveFrameForTraversalTerrain() && !_hardViewDemand.Contains(coordinate)))
+                bool immediateAppearanceDeadline = HasImmediateTerrainAppearanceDeadline(coordinate);
+                if ((!immediateAppearanceDeadline && ShouldPauseTerrainAppearanceForVisibleDemand(coordinate)) ||
+                    (ShouldReserveFrameForTraversalTerrain() && !immediateAppearanceDeadline))
                 {
                     // note: Keep distant partial paint intact while a visible tile is unfinished or collision-critical traversal work is pending.
                     yield return null;
@@ -11024,14 +13601,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 object yielded = null;
                 if (firstLane.Count > 0)
                 {
-                    if (!TryAdvancePublicationIterator(
+                    object firstYielded;
+                    bool firstFrameYield;
+                    bool firstLaneAdvanced;
+                    OwnerIteratorProgress firstLaneProgress = ReferenceEquals(firstLane, iterators)
+                        ? token.owner.biomeAppearanceProgress
+                        : token.owner.detailAppearanceProgress;
+                    using (TerrainAppearanceSliceMarker.Auto())
+                        firstLaneAdvanced = TryAdvancePublicationIterator(
                             firstLane,
-                            out object firstYielded,
-                            out bool firstFrameYield,
+                            out firstYielded,
+                            out firstFrameYield,
                             out failure,
-                            budgetStage: _guaranteedViewDemand.Contains(coordinate)
-                                ? "liveVisibleTerrainAppearance"
-                                : "appearanceOrEcology"))
+                            budgetStage: HasImmediateTerrainAppearanceDeadline(coordinate)
+                                ? "hardViewTerrainAppearance"
+                                : "appearanceOrEcology",
+                            progress: firstLaneProgress,
+                            appearanceCoordinate: coordinate);
+                    if (ReferenceEquals(firstLane, detailIterators) && firstLaneProgress.lastStepFrame == Time.frameCount)
+                        token.owner.appearanceDetailSubstage = YQGeneratedWorldEnvironment.LastStreamedDetailStep;
+                    if (!firstLaneAdvanced)
                         yield break;
                     frameYield = firstFrameYield;
                     yielded = firstYielded;
@@ -11039,14 +13628,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 // note: Both streamed providers yield at frame boundaries; share one boundary after giving each active lane a chance within the aggregate budget.
                 if (secondLane.Count > 0 && yielded == null)
                 {
-                    if (!TryAdvancePublicationIterator(
+                    object secondYielded;
+                    bool secondFrameYield;
+                    bool secondLaneAdvanced;
+                    OwnerIteratorProgress secondLaneProgress = ReferenceEquals(secondLane, iterators)
+                        ? token.owner.biomeAppearanceProgress
+                        : token.owner.detailAppearanceProgress;
+                    using (TerrainAppearanceSliceMarker.Auto())
+                        secondLaneAdvanced = TryAdvancePublicationIterator(
                             secondLane,
-                            out object secondYielded,
-                            out bool secondFrameYield,
+                            out secondYielded,
+                            out secondFrameYield,
                             out failure,
-                            budgetStage: _guaranteedViewDemand.Contains(coordinate)
-                                ? "liveVisibleTerrainAppearance"
-                                : "appearanceOrEcology"))
+                            budgetStage: HasImmediateTerrainAppearanceDeadline(coordinate)
+                                ? "hardViewTerrainAppearance"
+                                : "appearanceOrEcology",
+                            progress: secondLaneProgress,
+                            appearanceCoordinate: coordinate);
+                    if (ReferenceEquals(secondLane, detailIterators) && secondLaneProgress.lastStepFrame == Time.frameCount)
+                        token.owner.appearanceDetailSubstage = YQGeneratedWorldEnvironment.LastStreamedDetailStep;
+                    if (!secondLaneAdvanced)
                         yield break;
                     frameYield |= secondFrameYield;
                     if (yielded == null)
@@ -11092,34 +13693,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 if (!TryAdvancePublicationIterator(iterators, out _, out _, out failure, false))
                     yield break;
             }
-            // note: Reconcile the authored terrain edge through the same guarded iterator so one seam repair cannot stall the frame or expose partial paint.
-            iterators.Push(CopyAuthoredAlphaEdgesRoutine(targetTerrain));
-            while (iterators.Count > 0)
-            {
-                if (!IsTerrainAppearanceWorkCurrent(coordinate, token, workId))
-                    yield break;
-                if (ShouldPauseTerrainAppearanceForVisibleDemand(coordinate))
-                {
-                    yield return null;
-                    frameSliceStarted = Time.realtimeSinceStartup;
-                    continue;
-                }
-                if (!TryAdvancePublicationIterator(
-                        iterators,
-                        out object yielded,
-                        out bool frameYield,
-                        out failure,
-                        budgetStage: _guaranteedViewDemand.Contains(coordinate)
-                            ? "liveVisibleTerrainAppearance"
-                            : "appearanceOrEcology"))
-                    yield break;
-                if (!frameYield)
-                    continue;
-                _lastTerrainPaintSliceSeconds = Time.realtimeSinceStartup - frameSliceStarted;
-                _maximumTerrainPaintSliceSeconds = Mathf.Max(_maximumTerrainPaintSliceSeconds, _lastTerrainPaintSliceSeconds);
-                yield return yielded;
-                frameSliceStarted = Time.realtimeSinceStartup;
-            }
             if (failure != null)
                 yield break;
             // note: Include a no-yield paint completion tail even when the alphamap iterator ends immediately.
@@ -11138,7 +13711,16 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 failure = failure ?? detailDisposalFailure;
                 bool currentWork = IsTerrainAppearanceWorkCurrent(coordinate, token, workId);
                 // note: A cancelled painter is cleanup, not a completed performance sample; only normal completion updates the report.
-                if (completed && failure == null && currentWork &&
+                bool matchingPendingTicket = _pendingTerrainPublications.TryGetValue(
+                        coordinate, out PendingTerrainPublication pendingTicket) &&
+                    pendingTicket != null && !pendingTicket.cancelled && !pendingTicket.published &&
+                    pendingTicket.terrain == targetTerrain && pendingTicket.data == data;
+                if (completed && failure == null && currentWork && matchingPendingTicket)
+                {
+                    // note: Record prepared channels on their pending owner, but leave terrain and visual readiness false until collider publication.
+                    pendingTicket.appearancePrepared = true;
+                }
+                else if (completed && failure == null && currentWork &&
                     _extendedTerrainTiles.TryGetValue(coordinate, out Terrain publishedTerrain) &&
                     publishedTerrain != null && publishedTerrain == targetTerrain && token.owner.terrainPublished)
                 {
@@ -11156,8 +13738,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     Debug.Log("[YQSemanticChunkStreamer] TERRAIN APPEARANCE PUBLISHED " + coordinate +
                         " seconds=" + (Time.realtimeSinceStartup - terrainPaintStarted).ToString("0.000"));
 #endif
-                    // note: Appearance/seam completion is a persisted publication receipt even when ecology is still running.
-                    PersistSemanticFrontier();
                     _lastTerrainPaintSeconds = Time.realtimeSinceStartup - terrainPaintStarted;
                     _maximumTerrainPaintSeconds = Mathf.Max(_maximumTerrainPaintSeconds, _lastTerrainPaintSeconds);
                 }
@@ -11166,7 +13746,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     // note: Every unsuccessful live attempt consumes exactly one retry; terminal failures leave no retry timer behind.
                     RecordTerrainAppearanceRetryFailure(coordinate, token.owner,
                         failure ?? "terrain binding changed before appearance completion");
-                    PersistSemanticFrontier();
                 }
             }
             finally
@@ -11311,6 +13890,11 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_chunks.TryGetValue(coordinate, out RuntimeChunk owner) && owner != null && state > owner.terrainReadiness)
         {
             owner.terrainReadiness = state;
+            if (state >= YQTerrainReadinessState.CollisionReady && owner.progressStartedAt >= 0d &&
+                owner.progressEpoch == owner.contentOwnerEpoch && owner.epochCollisionAt < 0d)
+                owner.epochCollisionAt = Time.realtimeSinceStartupAsDouble;
+            if (state >= YQTerrainReadinessState.CollisionReady && owner.collisionReadyAt < 0f)
+                owner.collisionReadyAt = Time.unscaledTime;
             owner.publicationVersion++;
         }
     }

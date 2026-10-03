@@ -78,6 +78,8 @@ public sealed class YQInvestorWorldPickup : MonoBehaviour
             GeneratedRpgContentService.Instance?.SetInventoryMessage("Picked up " + gold + " gold.");
         }
 
+        // note: The accepted collection supplies the reach gesture; animation never mutates the inventory.
+        collector?.GetComponent<YQPlayerEquipmentVisual>()?.PlayInteractionFeedback(true);
         YQRuntimeAudioFeedback.PlayPickup(transform.position);
         psm.Save();
         Destroy(gameObject);

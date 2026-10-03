@@ -505,6 +505,7 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
             name = "YQ_AnimatedUniverse_Stars_Runtime",
             renderQueue = 3000
         };
+        ConfigureCelestialTransparency(_universeParticleMaterial);
         if (_universeParticleMaterial.HasProperty("_BaseMap"))
             _universeParticleMaterial.SetTexture("_BaseMap", _celestialSpriteTexture);
         if (_universeParticleMaterial.HasProperty("_MainTex"))
@@ -582,6 +583,7 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
     {
         // note: Configure transparent depth-tested material state so opaque assets hide anything behind them.
         Material material = new Material(shader) { name = materialName, renderQueue = 3000 };
+        ConfigureCelestialTransparency(material);
         if (material.HasProperty("_BaseMap")) material.SetTexture("_BaseMap", _celestialSpriteTexture);
         if (material.HasProperty("_MainTex")) material.SetTexture("_MainTex", _celestialSpriteTexture);
         if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
@@ -590,6 +592,21 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
         if (material.HasProperty("_ZWrite")) material.SetInt("_ZWrite", 0);
         if (material.HasProperty("_ZTest")) material.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.LessEqual);
         return material;
+    }
+
+    private static void ConfigureCelestialTransparency(Material material)
+    {
+        // note: Runtime URP materials do not run the Inspector's surface setup; alpha textures alone leave opaque billboard rectangles.
+        material.SetOverrideTag("RenderType", "Transparent");
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        if (material.HasProperty("_Surface")) material.SetFloat("_Surface", 1f);
+        if (material.HasProperty("_SrcBlend")) material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        if (material.HasProperty("_DstBlend")) material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        if (material.HasProperty("_SrcBlendAlpha")) material.SetInt("_SrcBlendAlpha", (int)UnityEngine.Rendering.BlendMode.One);
+        if (material.HasProperty("_DstBlendAlpha")) material.SetInt("_DstBlendAlpha", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        if (material.HasProperty("_ZWrite")) material.SetInt("_ZWrite", 0);
+        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
     }
 
     private ParticleSystem CreateCelestialParticleSystem(string systemName, Material material, int count,
@@ -650,6 +667,7 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
             name = "YQ_AnimatedUniverse_ShootingStars_Runtime",
             renderQueue = 3000
         };
+        ConfigureCelestialTransparency(_shootingStarMaterial);
         if (_shootingStarMaterial.HasProperty("_MainTex"))
             _shootingStarMaterial.SetTexture("_MainTex", Texture2D.whiteTexture);
         if (_shootingStarMaterial.HasProperty("_BaseMap"))

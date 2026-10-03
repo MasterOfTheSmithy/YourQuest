@@ -109,10 +109,12 @@ public sealed class YourQuestProgressionOfferUI : MonoBehaviour
 
         _title.text = BuildHeading(_current);
         StringBuilder sb = new StringBuilder(256);
-        sb.AppendLine(_current.description);
-        sb.Append("Conf " + _current.confidence.ToString("0.00"));
+        // note: The offer presents its benefit and progression tier; generation confidence stays in diagnostics.
+        sb.AppendLine(YQBlueglassText.Description(_current.description));
         if (_current.proposedTier > 0)
-            sb.Append("   •   Tier T" + _current.proposedTier);
+            // note: Spell offers show their circle; skill offers retain the existing tier vocabulary.
+            sb.Append(YQSpellCircleRules.IsSpell(_current) ? "Circle " + YQSpellCircleRules.ClampCircle(_current.proposedTier) :
+                "Tier " + _current.proposedTier);
         if (_current.isUpgrade && !string.IsNullOrWhiteSpace(_current.upgradeTargetName))
             sb.Append("   •   " + Safe(_current.upgradeTargetName, _current.upgradeTargetId));
         _body.text = sb.ToString();
@@ -131,15 +133,15 @@ public sealed class YourQuestProgressionOfferUI : MonoBehaviour
         // note: Keep the offer toast on the same scale grid as the other runtime UI.
         YQUITheme.ApplyCanvasScaler(scaler);
 
-        RectTransform panel = CreatePanel(canvasGo.transform, "Panel", new Vector2(1f, 0.5f), new Vector2(388f, 178f), new Vector2(-18f, 0f), YQUITheme.Panel);
+        RectTransform panel = CreatePanel(canvasGo.transform, "Panel", new Vector2(1f, 0.5f), new Vector2(480f, 244f), new Vector2(-18f, 0f), YQUITheme.Panel);
         panel.pivot = new Vector2(1f, 0.5f);
         YQUITheme.ApplyPanel(panel.GetComponent<Image>());
 
-        _title = CreateText(panel, "Title", 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(14f, -12f), new Vector2(350f, 24f));
+        _title = CreateText(panel, "Title", 22f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(20f, -16f), new Vector2(440f, 52f));
         _title.color = YQUITheme.Gold;
-        _body = CreateText(panel, "Body", 14f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(14f, -42f), new Vector2(350f, 92f));
+        _body = CreateText(panel, "Body", 18f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(20f, -78f), new Vector2(440f, 116f));
         _body.textWrappingMode = TextWrappingModes.Normal;
-        _footer = CreateText(panel, "Footer", 14f, FontStyles.Bold, TextAlignmentOptions.BottomRight, new Vector2(14f, -146f), new Vector2(350f, 18f));
+        _footer = CreateText(panel, "Footer", 18f, FontStyles.Bold, TextAlignmentOptions.BottomRight, new Vector2(20f, -210f), new Vector2(440f, 24f));
         _footer.color = YQUITheme.Muted;
     }
 

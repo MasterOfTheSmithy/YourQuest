@@ -319,6 +319,8 @@ public sealed class YQLockpickUi : MonoBehaviour
         _canvas.sortingOrder = 5600;
 
         CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        // note: Keep the authored lock geometry/meters; skin the surrounding interactive presentation only.
+        YQBlueglassStyle.AttachCanvas(scaler);
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 0.5f;

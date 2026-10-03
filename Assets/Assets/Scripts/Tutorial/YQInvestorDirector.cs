@@ -29,6 +29,11 @@ public sealed class YQInvestorDirector : MonoBehaviour
     public string CurrentObjective { get; private set; } = "Talk to Archivist Vey in the hub.";
     public string LastDirectorMessage { get; private set; } = string.Empty;
 
+    // note: Presentation dedupe belongs to the active player/session, not every profile visited by this persistent component.
+    private string _voicePlayerId = string.Empty;
+    private int _voiceEpoch = -1;
+    private int _voiceSequence;
+    private YQRepairEpisode _voiceEpisode;
     private int _killCount;
     private bool _talkedToArchivist;
     private bool _talkedToWarden;
@@ -48,6 +53,16 @@ public sealed class YQInvestorDirector : MonoBehaviour
         ResolveReferences();
         _nextSmallUpdateTime = Time.time + smallUpdateIntervalSeconds;
         _nextMajorUpdateTime = Time.time + majorUpdateIntervalSeconds;
+    }
+
+    private void OnDisable()
+    {
+        // note: Retire the exact pending speech children when this presentation owner is disabled or destroyed.
+        _voiceSequence++;
+        if (_voiceEpisode == null || _voiceEpisode.IsTerminal) return;
+        _voiceEpisode.Finish("Superseded");
+        LLMClient.Instance?.CancelRepairEpisode(_voiceEpisode);
+        _voiceEpisode = null;
     }
 
     private void Update()
@@ -221,28 +236,28 @@ public sealed class YQInvestorDirector : MonoBehaviour
     {
         string task = "Create one concise world-lore entry. Return JSON: {\"canonLine\":string,\"rationale\":string}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"canonLine\":\"...\",\"rationale\":\"...\"}");
-        Request(tag, task + " " + hint, schema, ApplyWorldLore);
+        Request(tag, task + " " + hint, schema, ApplyWorldLore, YQGoddessSpeechPlan.Purpose.WorldDescription);
     }
 
     private void RequestQuest(string tag, string hint)
     {
         string task = "Create one grounded, player-facing quest that responds to what the player did. Do not name it after a region. Return JSON: {\"name\":string,\"stimulus\":string,\"description\":string,\"tags\":[string],\"confidence\":0.0}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"name\":\"...\",\"stimulus\":\"...\",\"description\":\"...\",\"tags\":[\"player_response\"],\"confidence\":0.82}");
-        Request(tag, task + " " + hint, schema, ApplyQuest);
+        Request(tag, task + " " + hint, schema, ApplyQuest, YQGoddessSpeechPlan.Purpose.Guidance);
     }
 
     private void RequestClass(string tag, string hint)
     {
         string task = "Grant one player-facing class identity only if evidence strongly supports it. Name the player's pattern, not the region. Return JSON: {\"name\":string,\"stimulus\":string,\"description\":string,\"confidence\":0.0}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"name\":\"...\",\"stimulus\":\"...\",\"description\":\"...\",\"confidence\":0.82}");
-        Request(tag, task + " " + hint, schema, ApplyClass);
+        Request(tag, task + " " + hint, schema, ApplyClass, YQGoddessSpeechPlan.Purpose.Progression);
     }
 
     private void RequestTitle(string tag, string hint)
     {
         string task = "Grant one title only if evidence strongly supports it. The title must name the player's repeated response, not the current region. Return JSON: {\"name\":string,\"stimulus\":string,\"description\":string,\"confidence\":0.0}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"name\":\"...\",\"stimulus\":\"...\",\"description\":\"...\",\"confidence\":0.82}");
-        Request(tag, task + " " + hint, schema, ApplyTitle);
+        Request(tag, task + " " + hint, schema, ApplyTitle, YQGoddessSpeechPlan.Purpose.Progression);
     }
 
     private void RequestItem(string tag, string hint)
@@ -256,14 +271,14 @@ public sealed class YQInvestorDirector : MonoBehaviour
     {
         string task = "Create one concise world event. Return JSON: {\"canonLine\":string,\"rationale\":string,\"tensionDelta\":number}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"canonLine\":\"...\",\"rationale\":\"...\",\"tensionDelta\":0.05}");
-        Request(tag, task + " " + hint, schema, ApplyWorldEvent);
+        Request(tag, task + " " + hint, schema, ApplyWorldEvent, YQGoddessSpeechPlan.Purpose.WorldDescription);
     }
 
     private void RequestPlayerEvent(string tag, string hint)
     {
         string task = "Create one concise acknowledgement line. Return JSON: {\"message\":string}.";
         string schema = PromptContextBuilder.WrapJsonSchema("{\"message\":\"...\"}");
-        Request(tag, task + " " + hint, schema, ApplyPlayerEvent);
+        Request(tag, task + " " + hint, schema, ApplyPlayerEvent, YQGoddessSpeechPlan.Purpose.AcknowledgeChoice);
     }
 
     private void RequestProgressionDecision(string tag, string hint)
@@ -276,12 +291,13 @@ public sealed class YQInvestorDirector : MonoBehaviour
         string schema = PromptContextBuilder.WrapJsonSchema("{\"decision\":\"skill\",\"confidence\":0.82,\"reason\":\"...\",\"payload\":{\"skillSeedName\":\"...\",\"skillType\":\"combat\",\"stimulus\":\"...\",\"hook\":\"...\",\"loreAnchor\":\"optional\"}}");
         Request(tag, task + " " + hint, schema, raw =>
         {
-            // note: Progression status belongs in gameplay state and logs; the Goddess presentation channel accepts only the response's authored goddessLine.
+            // note: Progression status stays in gameplay state and logs; the separate speech transaction reads only post-apply records.
             progressionDecisionApplier.TryApply(raw, out _, out _);
-        });
+        }, YQGoddessSpeechPlan.Purpose.Progression);
     }
 
-    private void Request(string tag, string task, string schema, Action<string> apply)
+    private void Request(string tag, string task, string schema, Action<string> apply,
+        YQGoddessSpeechPlan.Purpose speechPurpose = YQGoddessSpeechPlan.Purpose.Curation)
     {
         if (_pendingTags.Contains(tag))
             return;
@@ -296,13 +312,9 @@ public sealed class YQInvestorDirector : MonoBehaviour
         }
 
         _pendingTags.Add(tag);
-        string directive = "Player-oriented curation rules: every generated offer must answer the player's observed stimulus directly. Use regions as pressure/context only. Do not name skills, classes, or titles after region ids or biomes. The tutorial fiction begins at the Goddess statue beside Archivist Vey's witch hut, with four cardinal mentor roads. For nature evidence, use Auralith, the First Green, as an optional lore anchor while keeping the skill or quest about the player. Avoid generic fantasy filler. Every root JSON object must also contain goddessLine: 2-3 short present-tense sentences spoken by one persistent, benevolent but high-strung Goddess who is trying to make the perfect world for this player. She is intelligent, controlling, dryly sarcastic, occasionally bratty, and quietly possessive of her creation. Ground the line in the accepted event and one relevant detail from GODDESS_PERSISTENT_CONTEXT. If the player has repeatedly behaved in difficult or contradictory ways, let her composure fray gradually through a clipped clause, defensive aside, or sharper joke; keep the underlying care and never become cruel. Do not mention AI, LLM, model, generation, phase, validation, JSON, code, Unity, director, queue, delay, system status, or hidden machinery.";
-        PlayerState currentPlayer = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
-        if (string.IsNullOrWhiteSpace(LastDirectorMessage) && currentPlayer != null && currentPlayer.goddessVoiceMemory != null && currentPlayer.goddessVoiceMemory.Count > 0)
-            LastDirectorMessage = currentPlayer.goddessVoiceMemory[currentPlayer.goddessVoiceMemory.Count - 1] ?? string.Empty;
-        string priorVoice = string.IsNullOrWhiteSpace(LastDirectorMessage) ? "No prior spoken line." : "Previous spoken line—do not reuse its wording or sentence machinery: " + LastDirectorMessage;
-        string journeyContext = BuildGoddessPersistentContext(currentPlayer);
-        string prompt = PromptContextBuilder.BuildContext(directive + "\n" + priorVoice + "\n" + journeyContext + "\n" + task, schema, BuildRecentSummary(), BuildBehaviorLedger());
+        // note: Gameplay proposals retain their existing authority; speech is generated separately from the post-apply accepted snapshot.
+        string directive = "Player-oriented curation rules: every generated offer must answer the player's observed stimulus directly. Use regions as pressure/context only. Do not name skills, classes, or titles after region ids or biomes. The tutorial fiction begins at the Goddess statue beside Archivist Vey's witch hut, with four cardinal mentor roads. For nature evidence, use Auralith, the First Green, as an optional lore anchor while keeping the skill or quest about the player. Avoid generic fantasy filler.";
+        string prompt = PromptContextBuilder.BuildContext(directive + "\n" + task, schema, BuildRecentSummary(), BuildBehaviorLedger());
         if (LLMClient.Instance == null)
         {
             _pendingTags.Remove(tag);
@@ -317,6 +329,8 @@ public sealed class YQInvestorDirector : MonoBehaviour
             debugTag = "InvestorDirector:" + tag,
             category = LLMGenerationCategory.StructuredState,
             priority = YQLlmRequestPriority.Background,
+            // note: A retired or disabled voice owner cannot publish a late thought into another presentation.
+            ownerStillCurrent = () => this != null && isActiveAndEnabled,
             requireJson = true
         }, result =>
         {
@@ -340,13 +354,48 @@ public sealed class YQInvestorDirector : MonoBehaviour
             try
             {
                 apply(raw);
-                PublishGeneratedGoddessLine(raw);
+                RequestGoddessSpeech(tag, task, speechPurpose);
             }
             catch (Exception ex)
             {
                 Debug.LogWarning("[YQInvestorDirector] Apply failed for " + tag + ":\n" + ex);
             }
         });
+    }
+
+    private void RequestGoddessSpeech(string tag, string task, YQGoddessSpeechPlan.Purpose purpose)
+    {
+        BindGoddessVoiceOwner();
+        if (_voiceEpisode != null && !_voiceEpisode.IsTerminal)
+        {
+            _voiceEpisode.Finish("Superseded");
+            LLMClient.Instance?.CancelRepairEpisode(_voiceEpisode);
+        }
+        int sequence = ++_voiceSequence;
+        PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        JObject evidence = YQGoddessLoadingVoice.CaptureKnownContext(state, world);
+        string playerId = state?.playerId ?? string.Empty;
+        string worldId = world?.worldIdentity?.worldId ?? string.Empty;
+        long playerRevision = state?.stateRevision ?? -1, worldRevision = world?.stateRevision ?? -1;
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        // note: An unapplied reward is not a voice fact. The current objective and typed post-apply records supply guidance.
+        string speechTask = "React to the current curation request without announcing an unaccepted outcome. Use relevant accepted facts; guide toward the unfinished objective when useful. Curation request: " + task;
+        _voiceEpisode = YQGoddessSpeech.Request(LLMClient.Instance, evidence, speechTask, tag,
+            () => this != null && isActiveAndEnabled && sequence == _voiceSequence && epoch == YQServiceLifecycle.RequestEpoch &&
+                string.Equals(PlayerStateManager.Instance?.state?.playerId ?? string.Empty, playerId, StringComparison.Ordinal) &&
+                string.Equals(WorldStateManager.Instance?.State?.worldIdentity?.worldId ?? string.Empty, worldId, StringComparison.Ordinal) &&
+                PlayerStateManager.Instance?.state?.stateRevision == playerRevision && WorldStateManager.Instance?.State?.stateRevision == worldRevision,
+            result =>
+            {
+                // note: Background curation failure is not a player question; keep the last accepted thought instead of repeating an unrelated abstention.
+                if (result.isFallback)
+                {
+                    Debug.LogWarning("[YQInvestorDirector] Goddess speech " + result.disposition);
+                    return;
+                }
+                PublishGeneratedGoddessLine(JsonConvert.SerializeObject(new { goddessLine = result.line }));
+            }, purpose);
     }
 
     private void PublishGeneratedGoddessLine(string raw)
@@ -367,22 +416,6 @@ public sealed class YQInvestorDirector : MonoBehaviour
             }
         }
 
-        if (!_usedGoddessLines.Add(line))
-        {
-            // note: Repeated model prose is discarded so the visible Goddess never loops a canned response within a play session.
-            return;
-        }
-
-        string lower = line.ToLowerInvariant();
-        if (lower.Contains("llm") || lower.Contains("model") || lower.Contains("generation") ||
-            lower.Contains("validation") || lower.Contains("json") || lower.Contains("director") ||
-            lower.Contains("queue") || lower.Contains("system status"))
-        {
-            // note: Internal workflow text is logged, never exposed as Goddess dialogue when a local response ignores the prose contract.
-            Debug.LogWarning("[YQInvestorDirector] Rejected out-of-character Goddess line: " + line);
-            return;
-        }
-
         if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(line, 12))
         {
             // note: Live curation can fail safely without exposing a narrator sentence or diagnostic fragment as Goddess speech.
@@ -390,6 +423,8 @@ public sealed class YQInvestorDirector : MonoBehaviour
             return;
         }
 
+        // note: Rejected speech must not poison the session's accepted-speech index; accepted repeats remain silent.
+        if (!_usedGoddessLines.Add(line)) return;
         LastDirectorMessage = line;
         PlayerStateManager psm = PlayerStateManager.Instance;
         if (psm != null && psm.state != null)
@@ -408,98 +443,11 @@ public sealed class YQInvestorDirector : MonoBehaviour
     // note: Build a compact journey memory from persisted player state so each live Goddess thought can reference the player's actual history without dumping a save file into the prompt.
     private string BuildGoddessPersistentContext(PlayerState state)
     {
-        if (state == null)
-            return "GODDESS_PERSISTENT_CONTEXT\n- No persistent player context is available yet.\n- goddessLine must stay grounded in the accepted event.\n";
-
-        StringBuilder sb = new StringBuilder(1800);
-        sb.AppendLine("GODDESS_PERSISTENT_CONTEXT");
-        sb.AppendLine("- This is remembered evidence from the player's journey, not new canon. Use at most one or two relevant details naturally.");
-        sb.AppendLine("- player=" + SafeContext(state.displayName, "the player"));
-        sb.AppendLine("- direction=" + SafeContext(state.characterLifeDirection, "unspecified"));
-        sb.AppendLine("- vow=" + SafeContext(state.characterVow, "unspecified"));
-        sb.AppendLine("- currentPlace=" + SafeContext(state.currentRegionName, "unknown") + " | scene=" + SafeContext(state.currentScene, "unknown"));
-        sb.AppendLine("- level=" + state.level + " | currency=" + state.currency);
-
-        if (state.generatedOrigin != null)
-        {
-            sb.AppendLine("- originClass=" + SafeContext(state.generatedOrigin.className, "unspecified") +
-                         " | title=" + SafeContext(state.generatedOrigin.titleName, "unspecified") +
-                         " | ability=" + SafeContext(state.generatedOrigin.abilityName, "unspecified"));
-        }
-
-        if (state.activeQuestId != null && state.quests != null)
-        {
-            for (int i = 0; i < state.quests.Count; i++)
-            {
-                QuestRecord quest = state.quests[i];
-                if (quest != null && string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase))
-                {
-                    sb.AppendLine("- activeQuest=" + SafeContext(quest.name, "unnamed") + " | status=" + SafeContext(quest.status, "active"));
-                    break;
-                }
-            }
-        }
-
-        if (state.quests != null)
-        {
-            int rememberedQuests = 0;
-            for (int i = state.quests.Count - 1; i >= 0 && rememberedQuests < 2; i--)
-            {
-                QuestRecord quest = state.quests[i];
-                if (quest == null || string.Equals(quest.questId, state.activeQuestId, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (string.Equals(quest.status, "complete", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(quest.status, "completed", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(quest.status, "failed", StringComparison.OrdinalIgnoreCase))
-                {
-                    sb.AppendLine("- resolvedQuest=" + SafeContext(quest.name, "unnamed") + " | outcome=" + SafeContext(quest.status, "resolved"));
-                    rememberedQuests++;
-                }
-            }
-        }
-
-        if (state.classes != null && state.classes.Count > 0)
-            sb.AppendLine("- unlockedClass=" + SafeContext(state.classes[state.classes.Count - 1]?.name, "unspecified"));
-        if (state.skills != null && state.skills.Count > 0)
-            sb.AppendLine("- unlockedSkill=" + SafeContext(state.skills[state.skills.Count - 1]?.name, "unspecified"));
-
-        if (state.reputation != null && state.reputation.Count > 0)
-        {
-            int writtenReputation = 0;
-            foreach (KeyValuePair<string, float> pair in state.reputation)
-            {
-                if (writtenReputation++ >= 3) break;
-                sb.AppendLine("- relationship=" + SafeContext(pair.Key, "faction") + ":" + pair.Value.ToString("0.00"));
-            }
-        }
-
-        if (state.equippedItemBySlot != null && state.equippedItemBySlot.Count > 0)
-        {
-            int written = 0;
-            foreach (KeyValuePair<string, string> pair in state.equippedItemBySlot)
-            {
-                if (written++ >= 3) break;
-                sb.AppendLine("- equipped=" + SafeContext(pair.Key, "slot") + ":" + SafeContext(pair.Value, "item"));
-            }
-        }
-
-        if (state.behaviorLedger != null && state.behaviorLedger.Count > 0)
-        {
-            int start = Mathf.Max(0, state.behaviorLedger.Count - 5);
-            for (int i = start; i < state.behaviorLedger.Count; i++)
-                sb.AppendLine("- recentMemory=" + SafeContext(state.behaviorLedger[i], "unrecorded action"));
-        }
-
-        if (state.goddessVoiceMemory != null && state.goddessVoiceMemory.Count > 0)
-        {
-            int start = Mathf.Max(0, state.goddessVoiceMemory.Count - 3);
-            for (int i = start; i < state.goddessVoiceMemory.Count; i++)
-                sb.AppendLine("- priorGoddessThought=" + SafeContext(state.goddessVoiceMemory[i], "unrecorded thought"));
-        }
-
-        sb.AppendLine("- stability=" + ResolveGoddessStability(state));
-        sb.AppendLine("- Match the player's history with the current accepted event; do not recite this block or invent relationships, discoveries, or consequences.");
-        return sb.ToString();
+        // note: Read the selected player's paired world only; prior speech supplies cadence, never new factual authority.
+        WorldState world = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        return YQGoddessLoadingVoice.BuildKnownContextForPrompt(state, world) +
+            "COMPOSURE_HINT: " + ResolveGoddessStability(state) + "\n" +
+            "This hint affects phrasing only. Never diagnose the player or invent an event to justify it.\n";
     }
 
     // note: Stability is derived from persisted repeated behavior, making frustration accumulate with evidence instead of random line selection.
@@ -521,22 +469,33 @@ public sealed class YQInvestorDirector : MonoBehaviour
             foreach (KeyValuePair<string, float> pair in state.behaviorCounters)
             {
                 string key = (pair.Key ?? string.Empty).ToLowerInvariant();
-                if (ContainsAny(key, "fail", "break", "steal", "kill", "ignore", "contradict"))
+                if (!float.IsNaN(pair.Value) && !float.IsInfinity(pair.Value) &&
+                    ContainsAny(key, "fail", "break", "steal", "kill", "ignore", "contradict"))
                     difficult += Mathf.Clamp(Mathf.RoundToInt(pair.Value), 0, 4);
             }
         }
         int strain = Mathf.Clamp(difficult - steady / 2, 0, 8);
-        if (strain >= 6) return "slipping: concise, defensive, sharper sarcasm, still protective";
-        if (strain >= 3) return "frayed: mild impatience and self-correction, still benevolent";
-        if (strain >= 1) return "watchful: precise and slightly tense, quietly caring";
-        return "composed: clever, benevolent, mildly smug";
+        if (strain >= 6) return "slipping: a hurried correction covers panic; she recovers precision and stays invested in the player";
+        if (strain >= 3) return "frayed: clinical precision becomes over-specific; one defensive aside reveals effort";
+        if (strain >= 1) return "watchful: precise, controlling and privately concerned; dry humor covers the concern";
+        return "composed: clever, clinical and mildly smug; one concrete detail shows she knows this person";
     }
 
     private static bool ContainsAny(string value, params string[] tokens)
     {
         if (string.IsNullOrWhiteSpace(value) || tokens == null) return false;
         for (int i = 0; i < tokens.Length; i++)
-            if (value.Contains(tokens[i])) return true;
+        {
+            int offset = 0;
+            while ((offset = value.IndexOf(tokens[i], offset, StringComparison.Ordinal)) >= 0)
+            {
+                // note: A skill record is not a kill, and a class name is not a record of misconduct.
+                int end = offset + tokens[i].Length;
+                if ((offset == 0 || !char.IsLetter(value[offset - 1])) &&
+                    (end == value.Length || !char.IsLetter(value[end]))) return true;
+                offset = end;
+            }
+        }
         return false;
     }
 
@@ -807,8 +766,37 @@ public sealed class YQInvestorDirector : MonoBehaviour
         return count;
     }
 
+    private void BindGoddessVoiceOwner()
+    {
+        PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        string playerId = state?.playerId ?? string.Empty;
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        if (_voiceEpoch == epoch && string.Equals(_voicePlayerId, playerId, StringComparison.Ordinal)) return;
+        // note: Retire transient work on an owner change, then restore only this player's previously accepted presentation memory.
+        _voicePlayerId = playerId;
+        _voiceEpoch = epoch;
+        _voiceSequence++;
+        if (_voiceEpisode != null && !_voiceEpisode.IsTerminal)
+        {
+            _voiceEpisode.Finish("Superseded");
+            LLMClient.Instance?.CancelRepairEpisode(_voiceEpisode);
+        }
+        _voiceEpisode = null;
+        LastDirectorMessage = string.Empty;
+        _usedGoddessLines.Clear();
+        if (state?.goddessVoiceMemory == null) return;
+        for (int index = state.goddessVoiceMemory.Count - 1; index >= 0; index--)
+        {
+            string remembered = state.goddessVoiceMemory[index];
+            if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(remembered, 12)) continue;
+            LastDirectorMessage = remembered;
+            break;
+        }
+    }
+
     private void ResolveReferences()
     {
+        BindGoddessVoiceOwner();
         if (player == null)
         {
             GameObject playerObject = GameObject.FindWithTag("Player");

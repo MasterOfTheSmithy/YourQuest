@@ -217,11 +217,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
             yield return null;
         }
 
-        while (YQStartupLoadingScreen.IsGenerationVisible)
-        {
-            // note: The generation owner closes its own presentation; ordinary loading remains until the final streamed-view certificate is ready.
-            yield return null;
-        }
+        // note: Retain the Goddess presentation while streaming and camera readiness finish; this bootstrap owns its final removal at player release.
         loading = YQStartupLoadingScreen.Current;
         if (loading == null)
             loading = YQStartupLoadingScreen.Show("YourQuest", "Preparing your surroundings");

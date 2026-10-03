@@ -179,8 +179,8 @@ public sealed class YQProfileTransactionReceipt
 
 public static class YQStateContract
 {
-    // note: Schema 7 records accepted proposal provenance and normalized payloads required for deterministic reload reuse.
-    public const int CurrentStateSchemaVersion = 7;
+    // note: Schema 8 adds profile-owned container inventories; accepted proposal provenance and world authority remain unchanged.
+    public const int CurrentStateSchemaVersion = 8;
     public const int CurrentProfileManifestSchemaVersion = 2;
     public const string IdentitySchemaVersion = "stable-id-v1";
     public const string CoordinateSchemaVersion = "world-coordinate-v1";
@@ -422,6 +422,9 @@ public static class YQStateReferenceValidator
         }
         if (world != null)
         {
+            // note: Paired commits/load validation include container ownership and cross-store item identity conservation.
+            if (player != null && !YQContainerInventory.ValidateOwnership(world, player, null, player.inventoryItems, out string containerFailure))
+                result.failures.Add(containerFailure);
             HashSet<string> factionIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             HashSet<string> locationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (int index = 0; index < world.factions.Count; index++) if (world.factions[index] != null) factionIds.Add(world.factions[index].factionId ?? string.Empty);
@@ -633,7 +636,8 @@ public static class YQStateMigrations
             case 3:
             case 4:
             case 5:
-            case 6: return false;
+            case 6:
+            case 7: return false;
             default: return false;
         }
     }
@@ -649,6 +653,11 @@ public static class YQStateMigrations
             case 4:
             case 5:
             case 6: return false;
+            case 7:
+                // note: Opened legacy rewards remain consumed; lazy source binding imports their existing receipts as empty storage.
+                if (document["containers"] != null && document["containers"].Type != JTokenType.Null) return false;
+                document["containers"] = new JObject();
+                return true;
             default: return false;
         }
     }

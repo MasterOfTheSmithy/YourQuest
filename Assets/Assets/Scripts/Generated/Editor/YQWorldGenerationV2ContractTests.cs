@@ -264,6 +264,25 @@ public static class YQWorldGenerationV2ContractTests
             return "The safe shadow-era replacement boundary is not version-exact.";
         }
 
+        GeneratedSpatialWorldPlanV2Record immediatePreviousAccepted =
+            new GeneratedSpatialWorldPlanV2Record
+            {
+                schemaVersion =
+                    GeneratedSpatialWorldPlanV2Record.SupportedSchemaVersion,
+                generationVersion =
+                    GeneratedSpatialWorldPlanV2Record.ImmediatePreviousAcceptedGenerationVersion,
+                validationVersion =
+                    GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion,
+                acceptanceState =
+                    GeneratedSpatialPlanAcceptanceState.Accepted
+            };
+        // note: The former current topology must enter the explicit rebuild path so a saved world can retain its seed and canonical semantic plan after this route repair.
+        if (!YQSpatialPlanVersionRouter
+                .IsKnownLegacyNonAuthoritativeArtifact(immediatePreviousAccepted))
+        {
+            return "The immediately previous accepted topology cannot enter the explicit migration path.";
+        }
+
         GeneratedSpatialWorldPlanV2Record previousAccepted =
             new GeneratedSpatialWorldPlanV2Record
             {
@@ -321,7 +340,7 @@ public static class YQWorldGenerationV2ContractTests
             return "The legacy accepted topology cannot enter the explicit migration path.";
         }
 
-        GeneratedSpatialWorldPlanV2Record oldestAccepted =
+        GeneratedSpatialWorldPlanV2Record topology3Accepted =
             new GeneratedSpatialWorldPlanV2Record
             {
                 schemaVersion =
@@ -333,11 +352,30 @@ public static class YQWorldGenerationV2ContractTests
                 acceptanceState =
                     GeneratedSpatialPlanAcceptanceState.Accepted
             };
-        // note: The topology-2 save family remains readable while still entering the current transactional rebuild path.
+        // note: Topology 3 remains migratable while older protected saves continue to enter the current transactional rebuild path.
         if (!YQSpatialPlanVersionRouter
-                .IsKnownLegacyNonAuthoritativeArtifact(oldestAccepted))
+                .IsKnownLegacyNonAuthoritativeArtifact(topology3Accepted))
         {
-            return "The oldest accepted topology cannot enter the explicit migration path.";
+            return "The topology-3 accepted artifact cannot enter the explicit migration path.";
+        }
+
+        GeneratedSpatialWorldPlanV2Record ancientAccepted =
+            new GeneratedSpatialWorldPlanV2Record
+            {
+                schemaVersion =
+                    GeneratedSpatialWorldPlanV2Record.SupportedSchemaVersion,
+                generationVersion =
+                    GeneratedSpatialWorldPlanV2Record.AncientAcceptedGenerationVersion,
+                validationVersion =
+                    GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion,
+                acceptanceState =
+                    GeneratedSpatialPlanAcceptanceState.Accepted
+            };
+        // note: Topology 2 stays in the accepted-save migration chain instead of becoming an unrecognized artifact after the version bump.
+        if (!YQSpatialPlanVersionRouter
+                .IsKnownLegacyNonAuthoritativeArtifact(ancientAccepted))
+        {
+            return "The topology-2 accepted artifact cannot enter the explicit migration path.";
         }
 
         // note: Production now prefers a fully prepared V2 world and reserves whole-world V1 fallback for non-canonical compatibility fixtures.

@@ -70,6 +70,34 @@ public class ProgressionDecisionApplier : MonoBehaviour
     public bool TryApply(string rawJson, out string appliedCategory, out string reason)
     {
         ResolveReferences();
+        return TryApplyInternal(rawJson, PlayerStateManager.Instance?.state, GetSnapshot(), true,
+            out appliedCategory, out reason, out _);
+    }
+
+    public YQProgressionEvaluation EvaluateProposal(string rawJson, PlayerState frozenState, string situationJson)
+    {
+        // note: All preview normalization is confined to a detached state; no retry can save or advance active counters.
+        PlayerState detached = frozenState == null ? null :
+            JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(frozenState));
+        bool ready = TryApplyInternal(rawJson, detached, SituationSnapshot.Parse(situationJson), false,
+            out string category, out string reason, out bool evidenceRecorded);
+        bool abstained = TryParseDecision(rawJson, out ProgressionDecision decision, out _) && SafeLower(decision.decision) == "none";
+        bool deferred = reason == "PlayerStateManager missing." || reason.Contains("blocked by") ||
+            reason.Contains("confidence") || reason == "Decision ignored.";
+        return new YQProgressionEvaluation {
+            rawJson = rawJson, category = category, reason = reason, evidenceDiagnostic = reason,
+            playerRevision = frozenState != null ? frozenState.stateRevision : -1,
+            disposition = ready ? YQProgressionDisposition.OfferReady :
+                evidenceRecorded ? YQProgressionDisposition.EvidenceRecordReady :
+                abstained ? YQProgressionDisposition.ValidAbstention :
+                deferred ? YQProgressionDisposition.Deferred : YQProgressionDisposition.RepairableRejection
+        };
+    }
+
+    private bool TryApplyInternal(string rawJson, PlayerState state, SituationSnapshot snapshot, bool applyEffects,
+        out string appliedCategory, out string reason, out bool evidenceRecorded)
+    {
+        evidenceRecorded = false;
         appliedCategory = "none";
         reason = "No decision applied.";
 
@@ -102,9 +130,9 @@ public class ProgressionDecisionApplier : MonoBehaviour
                     reason = "Skill confidence below threshold.";
                     return false;
                 }
-                if (gateSkillsToCalmLowThreat && !PassesSkillGate(out reason))
+                if (gateSkillsToCalmLowThreat && !PassesSkillGate(snapshot, out reason))
                     return false;
-                if (TryQueueSkillOffer(decision.payload, decision.reason, confidence, kind == "spell", out reason))
+                if (TryQueueSkillOffer(state, decision.payload, decision.reason, confidence, kind == "spell", applyEffects, ref evidenceRecorded, out reason))
                 {
                     appliedCategory = kind;
                     return true;
@@ -117,7 +145,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
                     reason = "Title confidence below threshold.";
                     return false;
                 }
-                if (TryQueueSimpleOffer("title", decision.payload, decision.reason, confidence, duplicateTitleThreshold, out reason))
+                if (TryQueueSimpleOffer(state, "title", decision.payload, decision.reason, confidence, duplicateTitleThreshold, applyEffects, ref evidenceRecorded, out reason))
                 {
                     appliedCategory = kind;
                     return true;
@@ -130,9 +158,9 @@ public class ProgressionDecisionApplier : MonoBehaviour
                     reason = "Quest confidence below threshold.";
                     return false;
                 }
-                if (gateQuestsToMeaningfulContext && !PassesQuestGate(out reason))
+                if (gateQuestsToMeaningfulContext && !PassesQuestGate(snapshot, out reason))
                     return false;
-                if (TryQueueSimpleOffer("quest", decision.payload, decision.reason, confidence, duplicateQuestThreshold, out reason))
+                if (TryQueueSimpleOffer(state, "quest", decision.payload, decision.reason, confidence, duplicateQuestThreshold, applyEffects, ref evidenceRecorded, out reason))
                 {
                     appliedCategory = kind;
                     return true;
@@ -145,7 +173,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
                     reason = "Class confidence below threshold.";
                     return false;
                 }
-                if (TryQueueSimpleOffer("class", decision.payload, decision.reason, confidence, duplicateClassThreshold, out reason))
+                if (TryQueueSimpleOffer(state, "class", decision.payload, decision.reason, confidence, duplicateClassThreshold, applyEffects, ref evidenceRecorded, out reason))
                 {
                     appliedCategory = kind;
                     return true;
@@ -158,7 +186,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
                     reason = "Item confidence below threshold.";
                     return false;
                 }
-                if (TryQueueItemOffer(decision.payload, decision.reason, confidence, out reason))
+                if (TryQueueItemOffer(state, decision.payload, decision.reason, confidence, applyEffects, out reason))
                 {
                     appliedCategory = kind;
                     return true;
@@ -171,10 +199,9 @@ public class ProgressionDecisionApplier : MonoBehaviour
         }
     }
 
-    private bool PassesSkillGate(out string reason)
+    private bool PassesSkillGate(SituationSnapshot snapshot, out string reason)
     {
         reason = string.Empty;
-        SituationSnapshot snapshot = GetSnapshot();
         if (snapshot == null)
             return true;
 
@@ -188,10 +215,9 @@ public class ProgressionDecisionApplier : MonoBehaviour
         return false;
     }
 
-    private bool PassesQuestGate(out string reason)
+    private bool PassesQuestGate(SituationSnapshot snapshot, out string reason)
     {
         reason = string.Empty;
-        SituationSnapshot snapshot = GetSnapshot();
         if (snapshot == null)
             return true;
 
@@ -221,11 +247,11 @@ public class ProgressionDecisionApplier : MonoBehaviour
         // note: Progression decisions already commit through PlayerStateManager; retain this serialized field only until old scene references are retired.
     }
 
-    private bool TryQueueSkillOffer(JObject payload, string modelReason, float confidence, bool isSpell, out string reason)
+    private bool TryQueueSkillOffer(PlayerState state, JObject payload, string modelReason, float confidence,
+        bool isSpell, bool applyEffects, ref bool evidenceRecorded, out string reason)
     {
         reason = "Skill offer queued.";
-        PlayerStateManager manager = PlayerStateManager.Instance;
-        if (manager == null || manager.state == null)
+        if (state == null)
         {
             reason = "PlayerStateManager missing.";
             return false;
@@ -242,10 +268,11 @@ public class ProgressionDecisionApplier : MonoBehaviour
             return false;
         }
 
-        PlayerState state = manager.state;
         state.EnsureCollections();
 
         string loweredType = string.IsNullOrWhiteSpace(type) ? (isSpell ? "spell" : "combat") : type.Trim().ToLowerInvariant();
+        // note: Structured spell type follows circle progression even when an older caller labels the decision as a skill.
+        isSpell |= string.Equals(loweredType, "spell", StringComparison.OrdinalIgnoreCase);
         name = YQGeneratedContentCuration.CuratePlayerFacingName(
             state,
             isSpell ? "spell" : "skill",
@@ -263,13 +290,6 @@ public class ProgressionDecisionApplier : MonoBehaviour
             stimulus,
             loreAnchor);
         string[] offerTags = BuildTags(loweredType, isSpell, name + " " + hook + " " + stimulus + " " + loreAnchor);
-        if (YQGeneratedContentCuration.IsOddityCandidate(name, hook, offerTags) &&
-            !TryPromoteOdditySeed(state, isSpell ? "spell" : "skill", name, hook, stimulus, ref offerTags, out reason))
-        {
-            manager.Save();
-            return false;
-        }
-
         if (requirePlayerEvidenceForSkills &&
             !PassesPlayerEvidenceGate(
                 state,
@@ -287,16 +307,33 @@ public class ProgressionDecisionApplier : MonoBehaviour
             return false;
         }
 
-        if (!YQGeneratedContentCuration.PassesBasicQuality(isSpell ? "spell" : "skill", name, hook, offerTags, confidence, out reason))
+        bool oddity = YQGeneratedContentCuration.IsOddityCandidate(name, hook, offerTags);
+        // note: Validate every other constraint before recording incubation; temporary quality tags do not publish an evolution.
+        string[] qualityTags = oddity ? YQGeneratedContentCuration.AddProgressionTags(offerTags, "evolved_oddity") : offerTags;
+        if (!YQGeneratedContentCuration.PassesBasicQuality(isSpell ? "spell" : "skill", name, hook, qualityTags, confidence, out reason))
             return false;
+        if (oddity && !TryPromoteOdditySeed(state, isSpell ? "spell" : "skill", name, hook, stimulus,
+            ref offerTags, applyEffects, ref evidenceRecorded, out reason))
+        {
+            if (applyEffects) PlayerStateManager.Instance.Save();
+            return false;
+        }
 
-        if (TryRejectNearMatch(state, "skill", name, hook, offerTags, confidence, out SkillRecord evolvedTarget, out reason))
+        if (TryRejectNearMatch(state, "skill", name, hook, offerTags, confidence, applyEffects, ref evidenceRecorded, out SkillRecord evolvedTarget, out reason))
+        {
+            // note: A terminal evolution step is persisted once even when no offer is ready yet.
+            if (applyEffects && evidenceRecorded) PlayerStateManager.Instance.Save();
             return false;
+        }
+
+        // note: A preview ends before persistent IDs, offer insertion or save calls are created.
+        if (!applyEffects) return true;
 
         SkillRecord bestMatch = evolvedTarget ?? state.FindBestSkillMatch(name, hook, offerTags, upgradeSkillThreshold);
         bool isUpgrade = bestMatch != null;
         int tierBonus = evolvedTarget != null ? Mathf.Max(0, evolutionBonusTier) : 0;
         int proposedTier = isUpgrade ? Mathf.Max(bestMatch.tier + 1 + tierBonus, 2 + tierBonus) : 1;
+        if (isSpell) proposedTier = YQSpellCircleRules.ClampCircle(proposedTier);
         string familyId = isUpgrade && !string.IsNullOrWhiteSpace(bestMatch.familyId) ? bestMatch.familyId : Guid.NewGuid().ToString("N");
 
         PendingProgressionOfferRecord offer = new PendingProgressionOfferRecord
@@ -322,18 +359,18 @@ public class ProgressionDecisionApplier : MonoBehaviour
         };
 
         PendingProgressionOfferRecord queued = state.QueueOrRefreshOffer(offer, pendingDuplicateThreshold);
-        manager.Save();
+        PlayerStateManager.Instance.Save();
         reason = queued.isUpgrade
             ? "Queued skill upgrade offer: " + queued.name + " -> " + queued.upgradeTargetName
             : "Queued " + queued.offerKind + " offer: " + queued.name;
         return true;
     }
 
-    private bool TryQueueSimpleOffer(string kind, JObject payload, string modelReason, float confidence, float duplicateThreshold, out string reason)
+    private bool TryQueueSimpleOffer(PlayerState state, string kind, JObject payload, string modelReason, float confidence,
+        float duplicateThreshold, bool applyEffects, ref bool evidenceRecorded, out string reason)
     {
         reason = kind + " offer queued.";
-        PlayerStateManager manager = PlayerStateManager.Instance;
-        if (manager == null || manager.state == null)
+        if (state == null)
         {
             reason = "PlayerStateManager missing.";
             return false;
@@ -351,7 +388,6 @@ public class ProgressionDecisionApplier : MonoBehaviour
             return false;
         }
 
-        PlayerState state = manager.state;
         state.EnsureCollections();
 
         name = YQGeneratedContentCuration.CuratePlayerFacingName(
@@ -375,13 +411,6 @@ public class ProgressionDecisionApplier : MonoBehaviour
             : YQGeneratedContentCuration.BuildPlayerResponseTags(Array.Empty<string>(), kind, false, name + " " + description + " " + stimulus + " " + loreAnchor);
         if (kind == "quest" && !HasSupportedQuestObjective(payload, out reason))
             return false;
-        if (YQGeneratedContentCuration.IsOddityCandidate(name, description, tags) &&
-            !TryPromoteOdditySeed(state, kind, name, description, stimulus, ref tags, out reason))
-        {
-            manager.Save();
-            return false;
-        }
-
         if (kind == "quest" &&
             requirePlayerEvidenceForQuests &&
             !PassesPlayerEvidenceGate(
@@ -400,11 +429,24 @@ public class ProgressionDecisionApplier : MonoBehaviour
             return false;
         }
 
-        if (!YQGeneratedContentCuration.PassesBasicQuality(kind, name, description, tags, confidence, out reason))
+        bool oddity = YQGeneratedContentCuration.IsOddityCandidate(name, description, tags);
+        string[] qualityTags = oddity ? YQGeneratedContentCuration.AddProgressionTags(tags, "evolved_oddity") : tags;
+        if (!YQGeneratedContentCuration.PassesBasicQuality(kind, name, description, qualityTags, confidence, out reason))
             return false;
+        if (oddity && !TryPromoteOdditySeed(state, kind, name, description, stimulus, ref tags, applyEffects, ref evidenceRecorded, out reason))
+        {
+            if (applyEffects) PlayerStateManager.Instance.Save();
+            return false;
+        }
 
-        if (TryRejectNearMatch(state, kind, name, description, tags, confidence, out _, out reason))
+        if (TryRejectNearMatch(state, kind, name, description, tags, confidence, applyEffects, ref evidenceRecorded, out _, out reason))
+        {
+            if (applyEffects && evidenceRecorded) PlayerStateManager.Instance.Save();
             return false;
+        }
+
+        // note: Simple offer evaluation shares all gates but does not publish an offer.
+        if (!applyEffects) return true;
 
         PendingProgressionOfferRecord offer = new PendingProgressionOfferRecord
         {
@@ -420,7 +462,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
         };
 
         PendingProgressionOfferRecord queued = state.QueueOrRefreshOffer(offer, Mathf.Max(pendingDuplicateThreshold, duplicateThreshold));
-        manager.Save();
+        PlayerStateManager.Instance.Save();
         reason = "Queued " + kind + " offer: " + queued.name;
         return true;
     }
@@ -465,11 +507,11 @@ public class ProgressionDecisionApplier : MonoBehaviour
         return true;
     }
 
-    private bool TryQueueItemOffer(JObject payload, string modelReason, float confidence, out string reason)
+    private bool TryQueueItemOffer(PlayerState state, JObject payload, string modelReason, float confidence,
+        bool applyEffects, out string reason)
     {
         reason = "Item offer queued.";
-        PlayerStateManager manager = PlayerStateManager.Instance;
-        if (manager == null || manager.state == null)
+        if (state == null)
         {
             reason = "PlayerStateManager missing.";
             return false;
@@ -485,13 +527,15 @@ public class ProgressionDecisionApplier : MonoBehaviour
             return false;
         }
 
-        PlayerState state = manager.state;
         state.EnsureCollections();
         name = YQGeneratedContentCuration.CuratePlayerFacingName(state, "item", name, itemType, false, stimulus);
         description = YQGeneratedContentCuration.CuratePlayerFacingDescription(state, "item", name, description, itemType, false, stimulus);
         string[] tags = YQGeneratedContentCuration.BuildPlayerResponseTags(ReadStringArray(payload, "tags"), "item", false, name + " " + description + " " + stimulus);
         if (!YQGeneratedContentCuration.PassesOfferQuality(state, "item", name, description, tags, confidence, true, out reason))
             return false;
+
+        // note: Item generation/binding remains deferred to the existing player-choice path.
+        if (!applyEffects) return true;
 
         PendingProgressionOfferRecord offer = new PendingProgressionOfferRecord
         {
@@ -511,7 +555,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
         };
 
         PendingProgressionOfferRecord queued = state.QueueOrRefreshOffer(offer, pendingDuplicateThreshold);
-        manager.Save();
+        PlayerStateManager.Instance.Save();
         reason = "Queued item offer: " + queued.name;
         return true;
     }
@@ -537,6 +581,8 @@ public class ProgressionDecisionApplier : MonoBehaviour
         string candidateDescription,
         string[] tags,
         float confidence,
+        bool applyEffects,
+        ref bool evidenceRecorded,
         out SkillRecord evolvedSkillTarget,
         out string reason)
     {
@@ -625,10 +671,12 @@ public class ProgressionDecisionApplier : MonoBehaviour
         if (bestScore < evolutionSimilarityThreshold || string.IsNullOrWhiteSpace(bestCounterKey))
             return false;
 
-        state.IncCounter(bestCounterKey, 1f);
-
-        int steps = Mathf.RoundToInt(state.behaviorCounters.TryGetValue(bestCounterKey, out float current) ? current : 0f);
-        if (logEvolutionToLedger && !string.IsNullOrWhiteSpace(bestName))
+        // note: Preview the same next step without treating another model attempt as another player action.
+        evidenceRecorded = true;
+        state.behaviorCounters.TryGetValue(bestCounterKey, out float current);
+        int steps = Mathf.RoundToInt(current + 1f);
+        if (applyEffects) state.IncCounter(bestCounterKey, 1f);
+        if (applyEffects && logEvolutionToLedger && !string.IsNullOrWhiteSpace(bestName))
             state.AddLedgerLine($"Near-match {kind} '{candidateName}' advanced toward '{bestName}' ({bestScore:0.00}, step {steps}/{evolutionStepsRequired}).");
 
         if (steps >= evolutionStepsRequired &&
@@ -652,6 +700,8 @@ public class ProgressionDecisionApplier : MonoBehaviour
         string candidateDescription,
         string stimulus,
         ref string[] tags,
+        bool applyEffects,
+        ref bool evidenceRecorded,
         out string reason)
     {
         reason = string.Empty;
@@ -665,11 +715,14 @@ public class ProgressionDecisionApplier : MonoBehaviour
         }
 
         string key = BuildOddityCounterKey(kind, candidateName, stimulus);
-        state.IncCounter(key, 1f);
-        int steps = Mathf.RoundToInt(state.behaviorCounters.TryGetValue(key, out float current) ? current : 0f);
+        // note: Incubation is a terminal evidence disposition, never a reason to mint another step through repair.
+        evidenceRecorded = true;
+        state.behaviorCounters.TryGetValue(key, out float current);
+        int steps = Mathf.RoundToInt(current + 1f);
+        if (applyEffects) state.IncCounter(key, 1f);
         int required = Mathf.Max(1, oddityEvolutionStepsRequired);
 
-        if (logOdditiesToLedger)
+        if (applyEffects && logOdditiesToLedger)
         {
             string name = string.IsNullOrWhiteSpace(candidateName) ? "unnamed oddity" : candidateName.Trim();
             state.AddLedgerLine("Oddity seed '" + name + "' repeated (" + steps + "/" + required + "). It will not become progression until it proves itself.");
@@ -721,6 +774,14 @@ public class ProgressionDecisionApplier : MonoBehaviour
             if (start >= 0 && end > start)
                 trimmed = trimmed.Substring(start, end - start + 1);
             decision = JsonConvert.DeserializeObject<ProgressionDecision>(trimmed);
+            // note: NaN and infinity bypass ordinary confidence comparisons; untrusted proposals must contain a finite probability.
+            if (decision != null && (float.IsNaN(decision.confidence) || float.IsInfinity(decision.confidence) ||
+                decision.confidence < 0f || decision.confidence > 1f))
+            {
+                decision = null;
+                parseError = "Confidence must be finite and between zero and one.";
+                return false;
+            }
             return decision != null;
         }
         catch (Exception ex)
@@ -905,8 +966,24 @@ public class ProgressionDecisionApplier : MonoBehaviour
                 ", precision " + precision.ToString("0.#") +
                 ", social " + social.ToString("0.#") +
                 ", recovery " + recovery.ToString("0.#") +
-                ", movement " + movement.ToString("0.#");
+                ", movement " + movement.ToString("0.#") +
+                "; required buckets " + EvidenceBucketLabel(wantsCombat, wantsMagic, wantsPrecision,
+                    wantsSocial, wantsRecovery, wantsMovement, wantsNature);
         return Mathf.Clamp01(result);
+    }
+
+    private static string EvidenceBucketLabel(bool combat, bool magic, bool precision, bool social, bool recovery, bool movement, bool nature)
+    {
+        // note: Feedback names the same scorer's required evidence buckets without changing the score or its threshold.
+        List<string> buckets = new List<string>(7);
+        if (combat) buckets.Add("combat");
+        if (magic) buckets.Add("magic");
+        if (precision) buckets.Add("precision");
+        if (social) buckets.Add("social");
+        if (recovery) buckets.Add("recovery");
+        if (movement) buckets.Add("movement");
+        if (nature) buckets.Add("nature");
+        return buckets.Count == 0 ? "broad" : string.Join(",", buckets);
     }
 
     private static float SumCountersByPrefix(PlayerState state, params string[] prefixes)

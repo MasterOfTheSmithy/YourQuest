@@ -1,13 +1,26 @@
 using UnityEngine;
+using Unity.Profiling;
 
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(300)]
 public sealed class YQGeneratedWorldPlayerFallSafety : MonoBehaviour
 {
+    private static readonly ProfilerMarker G08LateUpdateMarker = new ProfilerMarker("G08FrameCost.YQGeneratedWorldPlayerFallSafety.LateUpdate()");
     private Terrain generatedTerrain;
     private Vector3 lastSafeGroundedPosition;
     private bool hasSafePosition;
     private float nextGroundCheck;
+    private int recoveryCount;
+    private int historicalDropWithoutPenetrationCount;
+    private Vector3 lastRecoveryPosition;
+    private float lastRecoveryTerrainHeight;
+    private float lastRecoveryPenetrationDepth;
+
+    public int RecoveryCount => recoveryCount;
+    public int HistoricalDropWithoutPenetrationCount => historicalDropWithoutPenetrationCount;
+    public Vector3 LastRecoveryPosition => lastRecoveryPosition;
+    public float LastRecoveryTerrainHeight => lastRecoveryTerrainHeight;
+    public float LastRecoveryPenetrationDepth => lastRecoveryPenetrationDepth;
 
     public static void EnsureInstalled(GameObject player, Terrain terrain)
     {
@@ -21,7 +34,14 @@ public sealed class YQGeneratedWorldPlayerFallSafety : MonoBehaviour
         safety.hasSafePosition = true;
     }
 
+    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void LateUpdate()
+    {
+        using (G08LateUpdateMarker.Auto())
+            LateUpdateCore();
+    }
+
+    private void LateUpdateCore()
     {
         if (Time.unscaledTime < nextGroundCheck)
             return;
@@ -53,14 +73,27 @@ public sealed class YQGeneratedWorldPlayerFallSafety : MonoBehaviour
             position);
         bool belowTerrain = position.y < terrainHeight - 6f;
         bool catastrophicDrop = position.y < lastSafeGroundedPosition.y - 28f;
-        if (!belowTerrain && !catastrophicDrop)
+        if (catastrophicDrop && !belowTerrain)
+        {
+            // note: A stale grounded height can be far above a lower neighboring cell; record the old false-positive case without moving the player.
+            historicalDropWithoutPenetrationCount++;
+        }
+        if (!belowTerrain)
             return;
 
-        // note: This recovery catches catastrophic collision failures only; ordinary jumping, slopes, and intentional falling remain untouched.
+        // note: Recover only when the player's current cell confirms deep terrain penetration; a historical height delta alone is not a hole.
+        recoveryCount++;
+        lastRecoveryPosition = position;
+        lastRecoveryTerrainHeight = terrainHeight;
+        lastRecoveryPenetrationDepth = terrainHeight - position.y;
         Restore(lastSafeGroundedPosition + Vector3.up * 0.55f);
         Debug.LogError(
             "[WORLDGEN ERROR] Player fall-through recovered. " +
-            "InvalidPosition=" + position + ", restored=" + lastSafeGroundedPosition + ".");
+            "InvalidPosition=" + position +
+            ", terrainHeight=" + terrainHeight.ToString("F2") +
+            ", penetrationDepth=" + lastRecoveryPenetrationDepth.ToString("F2") +
+            ", historicalDrop=" + (lastSafeGroundedPosition.y - position.y).ToString("F2") +
+            ", restored=" + lastSafeGroundedPosition + ".");
     }
 
     private void Restore(Vector3 position)

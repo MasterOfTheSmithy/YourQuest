@@ -7,6 +7,9 @@ using UnityEngine.InputSystem;
 [DefaultExecutionOrder(-100)]
 public sealed class YQInvestorPlayerMotor : MonoBehaviour
 {
+    // note: Attribute authoritative motor work independently from streamer scheduling and Unity's aggregate behaviour sample.
+    private static readonly Unity.Profiling.ProfilerMarker MotorUpdateMarker =
+        new Unity.Profiling.ProfilerMarker("YQInvestorPlayerMotor.Update");
     public static YQInvestorPlayerMotor ActiveMotor { get; private set; }
 
     public Transform cameraPivot;
@@ -21,8 +24,10 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     public float pitchMax = 82f;
 
     [Header("Move")]
-    public float walkSpeed = 6.8f;
-    public float sprintSpeed = 11.25f;
+    // note: Natural walking/running pace matches the approved human gait; legacy saved speed stats retain their existing progression baseline.
+    public float walkSpeed = 1.8f;
+    public float sprintSpeed = 5.4f;
+    private const float SavedMoveSpeedBaseline = 6.8f;
     public float acceleration = 28f;
     public float deceleration = 34f;
     public float airControl = 0.55f;
@@ -51,11 +56,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     public float dashDistance = 5.1f;
     public float dashDuration = 0.18f;
     public float dashCooldown = 0.65f;
+    // note: Grounded crouch-dash uses the same accepted traversal/cost path with enough time and a low capsule for the authored roll.
+    public float rollDistance = 3.2f;
+    public float rollDuration = 0.6f;
+    private bool _dashIsRoll;
     public float airDashSpeedMultiplier = 0.82f;
 
     [Header("Crouch")]
     public float crouchHeight = 1.12f;
-    public float crouchSpeed = 3.7f;
+    public float crouchSpeed = 1.1f;
     public float crouchTransitionSharpness = 12f;
     public Vector3 crouchCameraPivotLocalPosition = new Vector3(0f, 1.10f, 0.02f);
 
@@ -129,6 +138,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private Vector3 _lastBlockingControllerContactNormal;
     private int _blockingControllerContactCount;
     private CollisionFlags _lastMoveCollisionFlags;
+    private int _animationGroundContactFrame = -1;
     private bool _lastMoveRejectedByTraversalGate;
 
     private bool _generationMovementLocked;
@@ -139,17 +149,27 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     public bool IsCrouching => _isCrouching;
     // note: Animation reads the motor's grounded state, excluding the stale contact on a jump's launch frame.
     public bool IsGrounded => _controller != null && _controller.isGrounded && _verticalVelocity <= 0f;
+    // note: A later step-assist Move can clear isGrounded. Preserve this frame's real support contact for presentation only.
+    public bool HasAnimationGroundContact => IsGrounded ||
+        (_animationGroundContactFrame == Time.frameCount && _verticalVelocity <= 0f && !_isClimbing);
     // note: Expose the production gate state so verification can distinguish an input-delivery failure from an intentional motor early return.
     public bool CanProcessMovementInput => isActiveAndEnabled && IsAuthoritative &&
         _controller != null && _controller.enabled && cameraPivot != null && playerCamera != null &&
         !YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked && !RuntimeModalUiBlocker.IsBlocked;
     public bool IsDashing => _dashTimeRemaining > 0f;
+    public bool IsDodgeRolling => IsDashing && _dashIsRoll;
+    public float DodgeAnimationDuration => _dashIsRoll ? rollDuration : dashDuration;
     // note: Verification and animation-adjacent observers can distinguish a dash that began and completed within one long frame from a rejected dash.
     public bool DashStartedThisFrame => _dashStartedThisFrame;
     public bool IsSprinting => _isSprinting;
+    // note: Presentation observes accepted traversal state; it never integrates a second movement simulation.
+    public bool IsClimbing => _isClimbing;
+    public float VerticalVelocity => _verticalVelocity;
     public Vector2 MoveInput => _moveInput;
     // note: Streaming uses the motor's already-computed planar velocity so lookahead follows CharacterController motion without duplicating movement state.
     public Vector3 PlanarVelocity => _planarVelocity;
+    // note: Expose the exact simulation step consumed by movement so frame witnesses do not pair displacement with a later coroutine sample.
+    internal float LastMovementDeltaTime { get; private set; }
     // note: Verification distinguishes requested speed from collision-resolved movement and names the contact that stopped the authoritative capsule.
     internal Vector3 LastRequestedMoveDisplacement => _lastRequestedMoveDisplacement;
     internal Vector3 LastActualMoveDisplacement => _lastActualMoveDisplacement;
@@ -199,7 +219,16 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         manager.state.playerCollisionContract = contract;
     }
 
+    // note: Preserve Unity's Update callback while measuring the authoritative motor's complete per-frame cost.
     private void Update()
+    {
+        if (!IsAuthoritative)
+            return;
+        using (MotorUpdateMarker.Auto())
+            UpdateAuthoritativeMotorFrame();
+    }
+
+    private void UpdateAuthoritativeMotorFrame()
     {
         if (!IsAuthoritative)
             return;
@@ -274,6 +303,8 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         HandleLook(dt);
 
+        // note: Pair displacement evidence with this motor Update's own time step.
+        LastMovementDeltaTime = dt;
         HandleMove(dt);
 
         AlignCameraPivot(dt);
@@ -351,6 +382,9 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     }
     private void HandleLook(float dt)
     {
+        // note: Alt UI releases only camera/pointer input; the same motor still simulates locomotion and gravity.
+        if (YourQuestTutorialMenuUI.CapturesPointerInput)
+            return;
         if (Mouse.current == null)
             return;
 
@@ -410,7 +444,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         if (_dashTimeRemaining > 0f)
         {
-            _isCrouching = false;
+            _isCrouching = _dashIsRoll;
             UpdateCrouchController(dt);
             ApplyDash(dt);
             _isSprinting = false;
@@ -432,7 +466,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             ? GeneratedRpgContentService.Instance.GetMoveSpeedBonus(PlayerStateManager.Instance.state)
             : 0f;
         float statMoveBonus = PlayerStateManager.Instance != null
-            ? Mathf.Max(0f, PlayerStateManager.Instance.state.stats.moveSpeed - walkSpeed)
+            ? Mathf.Max(0f, PlayerStateManager.Instance.state.stats.moveSpeed - SavedMoveSpeedBaseline)
             : 0f;
 
         bool wantsSprint = !_isCrouching && sprintHeld && move.sqrMagnitude > 0.01f && move.y > 0.1f && HasStamina(minSprintStamina);
@@ -553,6 +587,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         // note: Observe collision-resolved motion immediately, before another owner can change publication, without correcting or hiding the actual movement result.
         CollisionFlags flags = _controller.Move(displacement);
+        if ((flags & CollisionFlags.Below) != 0) _animationGroundContactFrame = Time.frameCount;
         _lastMoveCollisionFlags = flags;
         _lastActualMoveDisplacement = transform.position - movementStart;
         if (startedTraversable && !streamer.TryValidateCurrentTraversability(
@@ -679,12 +714,13 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             _dashDirection = transform.forward;
 
         _dashStartedGrounded = grounded;
-        _dashTimeRemaining = Mathf.Max(0.05f, dashDuration);
+        _dashIsRoll = grounded && _isCrouching;
+        _dashTimeRemaining = Mathf.Max(0.05f, DodgeAnimationDuration);
         _dashStartedThisFrame = true;
         _nextDashTime = Time.time + dashCooldown;
-        _isCrouching = false;
-        // note: Establish the checked standing shape before the dash moves, not gradually during its travel.
-        _wasCrouching = false;
+        _isCrouching = _dashIsRoll;
+        // note: Keep a roll low; ordinary dashes still use the existing checked standing shape.
+        _wasCrouching = _isCrouching;
         UpdateCrouchController(0f);
         _planarVelocity = _dashDirection * sprintSpeed;
         actionRecorder?.RecordDodge();
@@ -693,7 +729,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     private void UpdateCrouchState(bool crouchHeld, bool grounded, float dt)
     {
-        bool targetCrouch = crouchHeld && grounded && _dashTimeRemaining <= 0f && !_isClimbing;
+        bool targetCrouch = (_dashIsRoll && IsDashing) || (crouchHeld && grounded && _dashTimeRemaining <= 0f && !_isClimbing);
         _isCrouching = targetCrouch;
         // note: Resolve obstruction before publishing/recording the stance used by movement, camera, and animation.
         UpdateCrouchController(dt);
@@ -775,7 +811,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         // note: The last frame spends only the remaining dash time, keeping travel distance stable across frame rates and occasional long frames.
         float dashStep = Mathf.Min(Mathf.Max(0f, dt), _dashTimeRemaining);
         _dashTimeRemaining = Mathf.Max(0f, _dashTimeRemaining - dashStep);
-        float speed = dashDistance / Mathf.Max(0.05f, dashDuration);
+        float speed = (_dashIsRoll ? rollDistance : dashDistance) / Mathf.Max(0.05f, DodgeAnimationDuration);
         if (!_dashStartedGrounded)
             speed *= airDashSpeedMultiplier;
 

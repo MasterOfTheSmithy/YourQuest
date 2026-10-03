@@ -584,7 +584,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         List<DialogueTurn> turns = BuildMergedTranscript();
         if (turns == null || turns.Count == 0)
         {
-            _transcriptText.text = "<color=#8F98A4>[system]</color> Conversation ready.";
+            _transcriptText.text = "<color=#A9BFCE>What would you like to say?</color>";
             RefreshTranscriptLayout();
             return;
         }
@@ -616,7 +616,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         }
 
         if (_waitingOnReply)
-            sb.Append("\n\n<color=#8F98A4>[system]</color> Thinking...");
+            sb.Append("\n\n<color=#A9BFCE>Waiting for a reply...</color>");
 
         _transcriptText.text = sb.ToString();
         RefreshTranscriptLayout();
@@ -754,6 +754,8 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         _canvas.sortingOrder = 5100;
 
         CanvasScaler scaler = canvasGo.GetComponent<CanvasScaler>();
+        // note: Dialogue/transcript/input controls share the imported skin without changing the authored window size.
+        YQBlueglassStyle.AttachCanvas(scaler);
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = referenceResolution;
         scaler.matchWidthOrHeight = 0.5f;

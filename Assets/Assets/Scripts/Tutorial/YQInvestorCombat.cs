@@ -37,6 +37,25 @@ public sealed class YQInvestorCombat : MonoBehaviour
     private YQPlayerEquipmentVisual _equipmentVisual;
     private Camera _viewCamera;
     private GeneratedRpgContentService _content;
+    // note: One pending cast belongs to this player and the captured profile; no coroutine can outlive that ownership.
+    private SkillRecord _castingSpell;
+    private PlayerState _castingOwner;
+    private YQSpellCircleVfx _castingCircles;
+    private string _castingDescriptor;
+    private string _castingResource;
+    private float _castingResourceCost;
+    private float _castStartedAt;
+    private float _castDuration;
+    private float _castCooldown;
+    private int _castPower;
+
+    public bool IsCasting => _castingSpell != null;
+    public int CastingCircle => IsCasting ? YQSpellCircleRules.GetCircle(_castingSpell) : 0;
+    public float CastDurationSeconds => IsCasting ? _castDuration : 0f;
+    public float CastProgress => IsCasting ? Mathf.Clamp01((Time.time - _castStartedAt) / _castDuration) : 0f;
+    // note: HUD availability reads this executor's real clocks; presentation never simulates a competing cooldown.
+    public float AttackCooldownRemaining => Mathf.Max(0f, _nextAttackTime - Time.time);
+    public float SpellCooldownRemaining => Mathf.Max(0f, _nextSpellTime - Time.time);
 
     private void Awake()
     {
@@ -55,13 +74,18 @@ public sealed class YQInvestorCombat : MonoBehaviour
             _motor = GetComponent<YQInvestorPlayerMotor>();
         if ((_motor != null && !_motor.IsAuthoritative) ||
             RuntimeModalUiBlocker.IsBlocked ||
+            // note: A realtime cursor menu consumes clicks without acquiring the world's full-pause modal token.
+            YourQuestTutorialMenuUI.CapturesPointerInput ||
             YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked ||
             (_vitals != null && _vitals.IsDead))
         {
             // note: Neither loading nor modal UI can queue an attack that fires when gameplay unlocks.
             _queuedAttackUntil = float.NegativeInfinity;
+            CancelSpellCast();
             return;
         }
+
+        AdvanceSpellCast();
 
         Mouse mouse = Mouse.current;
         Keyboard kb = Keyboard.current;
@@ -85,11 +109,12 @@ public sealed class YQInvestorCombat : MonoBehaviour
         // note: Disabling/re-enabling this player must never replay pending combat input.
         _queuedAttackUntil = float.NegativeInfinity;
         _damagedEnemies.Clear();
+        CancelSpellCast();
     }
 
     private void TryAttack()
     {
-        if (Time.time < _nextAttackTime)
+        if (IsCasting || Time.time < _nextAttackTime)
             return;
 
         _nextAttackTime = Time.time + attackCooldown;
@@ -194,6 +219,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
     private void TryCastPulse()
     {
+        if (IsCasting || Time.time < _nextSpellTime) return;
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
         SkillRecord equippedSpell = ResolveEquippedSpell(state);
         if (equippedSpell == null)
@@ -202,21 +228,77 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return;
         }
 
-        float resolvedCooldown = ResolveCooldown(equippedSpell, spellCooldown);
-        if (Time.time < _nextSpellTime)
+        float cost = YQSpellCircleRules.GetResourceCost(equippedSpell);
+        string resource = YQSpellCircleRules.GetResourceType(equippedSpell);
+        if (_vitals == null || (resource == "stamina" ? _vitals.CurrentStamina : _vitals.CurrentMana) < cost)
+        {
+            Content?.SetInventoryMessage("Not enough " + resource + " to cast " + equippedSpell.name + ".");
             return;
+        }
 
-        if (!SpendAbilityResource(equippedSpell, 15f))
-            return;
-
-        _nextSpellTime = Time.time + Mathf.Max(0.1f, resolvedCooldown);
-        int power = 16 + (Content != null ? Content.GetManaBonus(state) / 10 : 0);
-        string spellDescriptor = BuildSkillDescriptor(equippedSpell);
+        // note: Freeze the mechanical inputs; resources, effects, counters and cooldown commit only at successful release.
+        int equipmentBonus = Content != null ? Content.GetManaBonus(state) : 0;
+        _castingSpell = equippedSpell;
+        _castingOwner = state;
+        _castingDescriptor = BuildSkillDescriptor(equippedSpell);
+        _castingResource = resource;
+        _castingResourceCost = cost;
+        _castPower = YQSpellCircleRules.GetPower(equippedSpell, equipmentBonus);
+        _castDuration = YQSpellCircleRules.GetCastSeconds(equippedSpell, equipmentBonus);
+        _castCooldown = ResolveCooldown(equippedSpell, spellCooldown);
+        _castStartedAt = Time.time;
+        _castingCircles = YQGeneratedRuntimeVfx.SpawnSpellCircles(transform, _castingDescriptor, CastingCircle);
         if (_equipmentVisual == null)
             _equipmentVisual = GetComponent<YQPlayerEquipmentVisual>();
-        _equipmentVisual?.PlayCastFeedback();
+        _equipmentVisual?.PlayAbilityFeedback(equippedSpell.animationIntent);
+    }
+
+    private void AdvanceSpellCast()
+    {
+        if (!IsCasting) return;
+        PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        // note: A profile switch, unequip or replacement cannot release a spell captured by the old owner.
+        if (!ReferenceEquals(state, _castingOwner) || !ReferenceEquals(ResolveEquippedSpell(state), _castingSpell))
+        {
+            CancelSpellCast();
+            return;
+        }
+        _castingCircles?.SetProgress(CastProgress);
+        if (Time.time - _castStartedAt < _castDuration) return;
+        if (!SpendAbilityResource(_castingResourceCost, _castingResource))
+        {
+            Content?.SetInventoryMessage("Spell interrupted: insufficient " + _castingResource + ".");
+            CancelSpellCast();
+            return;
+        }
+
+        SkillRecord releasedSpell = _castingSpell;
+        string descriptor = _castingDescriptor;
+        int power = _castPower;
+        _nextSpellTime = Time.time + Mathf.Max(0.1f, _castCooldown);
+        CancelSpellCast();
+        ReleaseSpell(state, releasedSpell, descriptor, power);
+    }
+
+    private void CancelSpellCast()
+    {
+        if (_castingCircles != null)
+        {
+            // note: Hide immediately, including paused modal transitions, then release all transient presentation objects.
+            _castingCircles.gameObject.SetActive(false);
+            Destroy(_castingCircles.gameObject);
+        }
+        _castingCircles = null;
+        _castingSpell = null;
+        _castingOwner = null;
+        _castingDescriptor = null;
+    }
+
+    private void ReleaseSpell(PlayerState state, SkillRecord equippedSpell, string spellDescriptor, int power)
+    {
+        // note: Both supported delivery paths use the same power that determined this cast's wind-up.
         YQRuntimeAudioFeedback.PlaySpellCast(transform.position + transform.forward * 0.8f + Vector3.up * 1.1f);
-        if (WantsProjectile(equippedSpell, spellDescriptor) && YQGeneratedRuntimeVfx.TrySpawnSpellProjectile(transform, spellDescriptor, power + 6, gameObject))
+        if (WantsProjectile(equippedSpell, spellDescriptor) && YQGeneratedRuntimeVfx.TrySpawnSpellProjectile(transform, spellDescriptor, power, gameObject))
         {
             if (state != null)
             {
@@ -265,7 +347,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (landmarkResource != null)
         {
             // note: Landmark harvesting uses the authoritative interaction ray and save path, making the required resource site usable in normal travel.
-            landmarkResource.TryUse(gameObject);
+            // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
+            if (landmarkResource.TryUse(gameObject)) _equipmentVisual?.PlayInteractionFeedback(true);
             _recorder?.RecordInteract(landmarkResource.gameObject);
             return;
         }
@@ -274,27 +357,23 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (settlementService != null)
         {
             // note: Settlement services consume the same authoritative interaction input as doors and pickups, so the beta itinerary has a real gameplay endpoint.
-            settlementService.TryUse(gameObject);
+            // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
+            if (settlementService.TryUse(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
             _recorder?.RecordInteract(settlementService.gameObject);
             return;
         }
 
-        YQGeneratedFish fish = hit.collider.GetComponentInParent<YQGeneratedFish>();
-        if (fish != null)
+        if (TryOpenDialogueFromCollider(hit.collider))
         {
-            // note: Fishing uses the same E interaction ray as doors and pickups while the fish owns the skill gate and inventory write.
-            if (fish.TryCatch(gameObject))
-                _recorder?.RecordInteract(fish.gameObject);
+            _equipmentVisual?.PlayInteractionFeedback();
             return;
         }
-
-        if (TryOpenDialogueFromCollider(hit.collider))
-            return;
 
         YQLockpickableDoor door = hit.collider.GetComponentInParent<YQLockpickableDoor>();
         if (door != null)
         {
-            door.TryInteract(gameObject);
+            // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
+            if (door.TryInteract(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
             _recorder?.RecordInteract(door.gameObject);
             return;
         }
@@ -302,7 +381,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
         YQLockpickableLoot lockpickable = hit.collider.GetComponentInParent<YQLockpickableLoot>();
         if (lockpickable != null)
         {
-            lockpickable.TryInteract(gameObject);
+            // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
+            if (lockpickable.TryInteract(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
             _recorder?.RecordInteract(lockpickable.gameObject);
             return;
         }
@@ -323,10 +403,20 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return;
         }
 
+        // note: Physical storage adapters share inventory UI; locks, pickups and corpse-specific behavior retain their existing priority.
+        YQWorldContainer storage = hit.collider.GetComponentInParent<YQWorldContainer>();
+        if (storage != null)
+        {
+            if (storage.TryOpen(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
+            _recorder?.RecordInteract(storage.gameObject);
+            return;
+        }
+
         YQInvestorShrine shrine = hit.collider.GetComponentInParent<YQInvestorShrine>();
         if (shrine != null)
         {
             shrine.Interact(gameObject);
+            _equipmentVisual?.PlayInteractionFeedback();
             _recorder?.RecordInteract(shrine.gameObject);
         }
     }
@@ -406,9 +496,9 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return true;
         if (collider.GetComponentInParent<YQInvestorLootableCorpse>() != null)
             return true;
-        if (collider.GetComponentInParent<YQInvestorShrine>() != null)
+        if (collider.GetComponentInParent<YQWorldContainer>() != null)
             return true;
-        if (collider.GetComponentInParent<YQGeneratedFish>() != null)
+        if (collider.GetComponentInParent<YQInvestorShrine>() != null)
             return true;
         if (collider.GetComponentInParent<YQGeneratedLandmarkResource>() != null)
             return true;
@@ -432,6 +522,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (motor != null && !motor.IsAuthoritative)
             return;
 
+        // note: Accepted damage interrupts wind-up before the existing vitals/animation owners respond.
+        if (amount > 0) CancelSpellCast();
         YQRuntimeAudioFeedback.PlayPlayerDamaged(transform.position + Vector3.up * 1.1f);
         if (_vitals != null)
             _vitals.TakeDamage(amount);
@@ -477,8 +569,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
     private static bool IsSpellRecord(SkillRecord skill)
     {
-        return skill != null &&
-               (skill.isSpell || string.Equals(skill.type, "spell", System.StringComparison.OrdinalIgnoreCase));
+        return YQSpellCircleRules.IsSpell(skill);
     }
 
     private static string BuildSkillDescriptor(SkillRecord skill)
@@ -495,13 +586,11 @@ public sealed class YQInvestorCombat : MonoBehaviour
                (skill.animationIntent ?? string.Empty);
     }
 
-    private bool SpendAbilityResource(SkillRecord skill, float fallbackManaCost)
+    private bool SpendAbilityResource(float amount, string resource)
     {
         if (_vitals == null)
             return false;
 
-        float amount = Mathf.Max(0f, skill != null && skill.resourceCost > 0 ? skill.resourceCost : fallbackManaCost);
-        string resource = skill != null ? (skill.resourceType ?? string.Empty).Trim().ToLowerInvariant() : "mana";
         if (amount <= 0f || resource == "none" || resource == "free")
             return true;
         if (resource == "stamina")

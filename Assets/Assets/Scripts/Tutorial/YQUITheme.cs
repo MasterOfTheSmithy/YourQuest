@@ -51,9 +51,11 @@ public static class YQUITheme
         scaler.referenceResolution =
             new Vector2(1920f, 1080f);
         scaler.screenMatchMode =
-            CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            CanvasScaler.ScreenMatchMode.Expand;
         scaler.matchWidthOrHeight =
             0.5f;
+        // note: Existing runtime canvases opt into the same art and control feedback after their builders finish.
+        YQBlueglassStyle.AttachCanvas(scaler);
     }
 
     public static void ApplyPanel(
@@ -67,6 +69,11 @@ public static class YQUITheme
             Panel;
         image.raycastTarget =
             true;
+
+        // note: Reuse imported nine-slice glass instead of adding decorative rail objects to each panel.
+        YQBlueglassStyle.Panel(image);
+        if (image.sprite != null)
+            return;
 
         if (framed)
         {
@@ -83,6 +90,9 @@ public static class YQUITheme
 
         image.color =
             PanelSoft;
+        YQBlueglassStyle.Panel(image);
+        if (image.sprite != null)
+            return;
         image.raycastTarget =
             true;
         AddDataStreamDecoration(image.gameObject);
@@ -180,10 +190,8 @@ public static class YQUITheme
         button.colors =
             colors;
 
-        AddFrame(
-            button.gameObject);
-        AddDataStreamDecoration(
-            button.gameObject);
+        // note: The native control keeps its listeners/navigation; artwork and persistent selection are presentation only.
+        YQBlueglassStyle.Button(button, selected);
 
         TMP_Text label =
             button.GetComponentInChildren<TMP_Text>(

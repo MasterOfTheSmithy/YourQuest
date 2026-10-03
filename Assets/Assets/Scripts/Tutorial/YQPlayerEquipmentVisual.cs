@@ -13,6 +13,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 {
     private const string HumanMalePrefabPath = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human Male (v4.1.1).prefab";
     private const string HumanAnimatorControllerPath = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Demo Files/Human (Male & Female).controller";
+    public const string PlayerAnimatorResourcePath = "Player/YQPlayer";
     private const float ThirdPersonAvatarHeight = 1.86f;
     private const float AvatarGroundClearance = 0.015f;
     // note: Equipment targets are world-space extents relative to the normalized 1.86 m avatar, not arbitrary prefab units.
@@ -50,7 +51,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         new SlotVisual("ring_left", new Vector3(-0.41f, 0.96f, 0.17f), Vector3.zero, 0.09f),
         new SlotVisual("ring_right", new Vector3(0.41f, 0.96f, 0.17f), Vector3.zero, 0.09f),
         new SlotVisual("trinket", new Vector3(0f, 0.96f, -0.14f), Vector3.zero, 0.24f),
-        new SlotVisual("cloak", Vector3.zero, Vector3.zero, 1.05f)
+        new SlotVisual("cloak", new Vector3(0f, 1.15f, -0.18f), Vector3.zero, 1.05f)
     };
 
     private static readonly string[] NativeWearableSlots = { "head", "chest", "gloves", "belt", "legs", "boots", "cloak" };
@@ -60,9 +61,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     public bool allowImportedEquipmentInPlay = true;
 
     private Transform _visualRig;
+    // note: Presentation views may read the canonical body/equipment rig even when first-person gameplay hides its root.
+    public Transform CharacterPresentationRoot => _visualRig;
     private Transform _avatarRoot;
     private Transform _equipmentRoot;
     private Transform _firstPersonRoot;
+    private YQFirstPersonArmsView _firstPersonArms;
+    private bool _firstPersonArmsAttempted;
+    public YQFirstPersonArmsView FirstPersonArms => _firstPersonArms;
     private Transform _firstPersonWeaponAnchor;
     private Transform _firstPersonOffhandAnchor;
     private Vector3 _firstPersonWeaponBasePosition;
@@ -73,13 +79,36 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private readonly Dictionary<string, Transform> _avatarBoneMap = new Dictionary<string, Transform>(StringComparer.OrdinalIgnoreCase);
     private CharacterController _controller;
     private YQInvestorPlayerMotor _motor;
+    private YQInvestorCombat _combat;
+    private bool _observedCasting;
+    private float _observedCastReleaseAt;
     private Animator _animator;
+    // note: Read-only presentation access supports animation inspection without introducing another player owner.
+    public Animator CharacterAnimator => _animator;
+    private bool _productionAnimation;
+    private int _requestedActionFrame = -1;
+    private bool _hasEquippedWeapon;
+    private bool _hasHandEquipment;
+    private string _presentedEquipmentSignature;
+    private static readonly string[] AdditionalActionTriggers = { "PunchLeft", "PunchRight", "Interact", "Pickup", "Consume", "Equip", "Unequip" };
+    private Renderer[] _bodyRenderers = Array.Empty<Renderer>();
+    private bool? _bodyFirstPerson;
+    private Vector3 _lastAnimationPosition;
+    private Vector3 _visualVelocity;
+    private float _bodyVisualYaw;
+    private float _lastAnimationGroundContact = float.NegativeInfinity;
+    private float _hitKickUntil;
     // note: Cache controller contracts once per binding instead of allocating Animator.parameters for every parameter every frame.
     private Animator _parameterAnimator;
     private RuntimeAnimatorController _parameterController;
     private readonly Dictionary<string, AnimatorControllerParameterType> _parameterTypes = new Dictionary<string, AnimatorControllerParameterType>(StringComparer.Ordinal);
     private bool _jumpUsesAnimation;
     private bool _jumpAnimationInFlight;
+    private bool _observedClimbing;
+    private bool _mountedPresentation;
+    private bool _mountedFlyingPresentation;
+    private float _mountedTravel;
+    private bool _traversalPose;
     private bool _nativeCrouchAnimation;
     private readonly Transform[] _crouchBones = new Transform[7];
     private readonly Quaternion[] _preCrouchRotations = new Quaternion[7];
@@ -101,8 +130,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private float _nextGhostVisualSweepTime;
     private Vector3 _rigBaseLocalPosition;
     private bool _legacyVisualCleaned;
-    private bool _lastDashVisualState;
     private bool _strayVisualCleanupPerformed;
+    private bool _incompatibleCloakReported;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallOnPlayer()
@@ -153,6 +182,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _motor = GetComponent<YQInvestorPlayerMotor>();
+        _lastAnimationPosition = transform.position;
         CleanupLegacyPrimitiveVisual();
         EnsureVisualRig();
         EnsureAvatar();
@@ -163,6 +193,13 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     {
         // note: Remove last frame's fallback offsets before the Animator evaluates a fresh pose.
         RestoreCrouchPose();
+        // note: Sample the collision-resolved displacement after the authoritative motor, including its step/dash submoves.
+        float animationDt = Time.deltaTime;
+        _visualVelocity = animationDt > 0.00001f ? (transform.position - _lastAnimationPosition) / animationDt : Vector3.zero;
+        _lastAnimationPosition = transform.position;
+        float maximumVisualSpeed = _motor != null ? Mathf.Max(_motor.sprintSpeed * 3f, _motor.dashDistance / Mathf.Max(0.05f, _motor.dashDuration) * 2f) : 60f;
+        if (_visualVelocity.sqrMagnitude > maximumVisualSpeed * maximumVisualSpeed)
+            _visualVelocity = Vector3.zero;
         if (_motor == null)
             _motor = GetComponent<YQInvestorPlayerMotor>();
         if (_motor != null && !_motor.IsAuthoritative)
@@ -204,6 +241,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     {
         _meleeKickUntil = Time.time + 0.22f;
         _meleeSide = _meleeSide >= 0f ? -1f : 1f;
+        if (_productionAnimation)
+        {
+            // note: A new accepted strike replaces the previous action, including an unfinished cast, without queuing stale triggers.
+            ClearProductionActionTriggers();
+            TriggerFirstAnimator(_hasEquippedWeapon ? (_meleeSide > 0f ? "MeleeRight" : "MeleeLeft") :
+                (_meleeSide > 0f ? "PunchRight" : "PunchLeft"));
+            return;
+        }
         if (!TriggerFirstAnimator(
                 _meleeSide > 0f ? "attack1Right" : "attack1Left",
                 _meleeSide > 0f ? "attack2Right" : "attack2Left",
@@ -225,6 +270,12 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     public void PlayCastFeedback()
     {
         _castKickUntil = Time.time + 0.28f;
+        if (_productionAnimation)
+        {
+            ClearProductionActionTriggers();
+            TriggerFirstAnimator("Cast");
+            return;
+        }
         if (TriggerFirstAnimator("bCast"))
         {
             QueueCastAnimatorEnd("bCastEnd", 0.32f);
@@ -235,10 +286,74 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             QueueCastAnimatorEnd("cast1End", 0.32f);
     }
 
+    public void PlayAbilityFeedback(string animationIntent)
+    {
+        if (_combat == null) _combat = GetComponent<YQInvestorCombat>();
+        if (_productionAnimation && _combat != null && _combat.IsCasting)
+        {
+            // note: Every pending spell keeps its wind-up pose for the combat owner's full duration, regardless of its eventual animation intent.
+            PlayCastFeedback();
+            return;
+        }
+        // note: Accepted structured intent selects presentation; names/descriptions never select mechanics or arbitrary clips.
+        if (_productionAnimation && (string.Equals(animationIntent, "guard", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(animationIntent, "channel", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(animationIntent, "emote", StringComparison.OrdinalIgnoreCase)))
+        {
+            ClearProductionActionTriggers();
+            string trigger = string.Equals(animationIntent, "guard", StringComparison.OrdinalIgnoreCase) ? "Guard" :
+                string.Equals(animationIntent, "channel", StringComparison.OrdinalIgnoreCase) ? "Channel" : "Emote";
+            TriggerFirstAnimator(trigger);
+            _castKickUntil = Time.time + 0.28f;
+            return;
+        }
+        if (string.Equals(animationIntent, "melee", StringComparison.OrdinalIgnoreCase))
+            PlayMeleeFeedback();
+        else
+            PlayCastFeedback();
+    }
+
+    public void PlayInteractionFeedback(bool pickup = false)
+    {
+        // note: Successful gameplay owners request presentation only; animation cannot collect, consume or commit an interaction.
+        if (!_productionAnimation) return;
+        ClearProductionActionTriggers();
+        TriggerFirstAnimator(pickup ? "Pickup" : "Interact");
+    }
+
+    public void PlayConsumeFeedback()
+    {
+        if (!_productionAnimation) return;
+        ClearProductionActionTriggers();
+        TriggerFirstAnimator("Consume");
+    }
+
+    // note: A future accepting mount owner supplies attachment and travel. This adapter presents native rider motions without moving or saving the player.
+    public bool SetMountedPresentation(bool mounted, bool flying = false, float travelSpeed01 = 0f)
+    {
+        if (!_productionAnimation || _animator == null || !HasAnimatorParameter("Mounted", AnimatorControllerParameterType.Bool) ||
+            (_motor != null && _motor.vitals != null && _motor.vitals.IsDead)) return false;
+        if (_mountedPresentation != mounted)
+        {
+            ClearProductionActionTriggers();
+            _animator.ResetTrigger(mounted ? "Dismount" : "Mount");
+            TriggerFirstAnimator(mounted ? "Mount" : "Dismount");
+        }
+        _mountedPresentation = mounted;
+        _mountedFlyingPresentation = mounted && flying;
+        _mountedTravel = mounted ? Mathf.Clamp01(travelSpeed01) : 0f;
+        SetAnimatorBool("Mounted", mounted);
+        return true;
+    }
+
     public void PlayRollFeedback()
     {
         _rollKickUntil = Time.time + 0.20f;
-        TriggerFirstAnimator("Dash", "dash");
+        // note: The motor has already accepted the cost and chosen dash versus grounded crouch-roll.
+        if (_productionAnimation && _motor != null && _motor.IsDodgeRolling)
+            TriggerFirstAnimator("DodgeRoll");
+        else
+            TriggerFirstAnimator("Dash", "dash");
     }
 
     public void PlayJumpFeedback()
@@ -248,6 +363,73 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         _jumpUsesAnimation = TriggerFirstAnimator("bRunningJump1", "Jump", "jump") ||
             PlayFirstAnimatorState("RunningJump01", "Jump", "jump");
         _jumpAnimationInFlight = _jumpUsesAnimation;
+    }
+
+    // note: Vitals emits these only after accepting damage or recovery; animation cannot change health or award loot.
+    public void PlayDamageFeedback(bool dead)
+    {
+        _hitKickUntil = Time.time + 0.24f;
+        _pendingCastAnimatorEndTrigger = string.Empty;
+        if (dead)
+        {
+            ResetMountedPresentation();
+            _meleeKickUntil = _castKickUntil = _rollKickUntil = _jumpKickUntil = 0f;
+            ClearProductionActionTriggers();
+            if (_productionAnimation)
+            {
+                _animator.ResetTrigger("Jump");
+                _animator.ResetTrigger("Dash");
+                if (HasAnimatorParameter("DodgeRoll", AnimatorControllerParameterType.Trigger)) _animator.ResetTrigger("DodgeRoll");
+                SetAnimatorBool("Dead", true);
+            }
+            else
+                TriggerFirstAnimator("die", "bDie", "Death");
+        }
+        else
+        {
+            ClearProductionActionTriggers();
+            TriggerFirstAnimator("Hit", "gotHit");
+        }
+    }
+
+    public void PlayReviveFeedback()
+    {
+        ResetMountedPresentation();
+        RestoreCrouchPose();
+        _hitKickUntil = _meleeKickUntil = _castKickUntil = _rollKickUntil = _jumpKickUntil = 0f;
+        _jumpAnimationInFlight = false;
+        _pendingCastAnimatorEndTrigger = string.Empty;
+        _lastAnimationPosition = transform.position;
+        _visualVelocity = Vector3.zero;
+        ClearProductionActionTriggers();
+        SetAnimatorBool("Dead", false);
+        PlayFirstAnimatorState("Locomotion", "Idle_Combat", "Idle");
+    }
+
+    private void ResetMountedPresentation()
+    {
+        _mountedPresentation = _mountedFlyingPresentation = false;
+        _mountedTravel = 0f;
+        SetAnimatorBool("Mounted", false);
+        if (_animator == null) return;
+        foreach (string trigger in new[] { "Mount", "Dismount", "ClimbEnter" })
+            if (HasAnimatorParameter(trigger, AnimatorControllerParameterType.Trigger)) _animator.ResetTrigger(trigger);
+    }
+
+    private void ClearProductionActionTriggers()
+    {
+        if (!_productionAnimation || _animator == null)
+            return;
+        _animator.ResetTrigger("MeleeLeft");
+        _animator.ResetTrigger("MeleeRight");
+        _animator.ResetTrigger("Cast");
+        _animator.ResetTrigger("Hit");
+        _animator.ResetTrigger("Guard");
+        _animator.ResetTrigger("Channel");
+        _animator.ResetTrigger("Emote");
+        _animator.ResetTrigger("CancelCast");
+        foreach (string trigger in AdditionalActionTriggers)
+            if (HasAnimatorParameter(trigger, AnimatorControllerParameterType.Trigger)) _animator.ResetTrigger(trigger);
     }
 
     private void QueueCastAnimatorEnd(string triggerName, float delaySeconds)
@@ -353,19 +535,48 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         Animator animator = avatar.GetComponentInChildren<Animator>(true);
         if (animator != null)
         {
-            RuntimeAnimatorController controller = CanUseImportedAvatar() ? LoadAnimatorController(HumanAnimatorControllerPath) : null;
-            if (controller != null && animator.runtimeAnimatorController == null)
+            // note: The imported character includes clothing bind-skeleton Animators; only the selected body may evaluate the player's pose.
+            foreach (Animator nested in avatar.GetComponentsInChildren<Animator>(true))
+            {
+                if (nested == animator) continue;
+                nested.enabled = false;
+                DestroyUnityObject(nested);
+            }
+            // note: The project controller and its approved clips are build assets; imported demo controllers remain a compatibility fallback.
+            RuntimeAnimatorController controller = Resources.Load<RuntimeAnimatorController>(PlayerAnimatorResourcePath);
+            if (controller != null)
+            {
+                // note: Imported prefab Awake/demo setup may already assign its controller. The production player's visual owner binds the approved project contract explicitly.
                 animator.runtimeAnimatorController = controller;
+            }
+            else if (animator.runtimeAnimatorController == null && CanUseImportedAvatar())
+            {
+                animator.runtimeAnimatorController = LoadAnimatorController(HumanAnimatorControllerPath);
+            }
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             animator.keepAnimatorStateOnDisable = true;
+            if (_animator != animator)
+            {
+                // note: Avatar recovery invalidates mirrored bones. Rebind the presentation without changing the gameplay player or equipment records.
+                if (_firstPersonArms != null) DestroyUnityObject(_firstPersonArms.gameObject);
+                if (_firstPersonWeaponAnchor != null) DestroyUnityObject(_firstPersonWeaponAnchor.gameObject);
+                if (_firstPersonOffhandAnchor != null) DestroyUnityObject(_firstPersonOffhandAnchor.gameObject);
+                _firstPersonArms = null;
+                _firstPersonWeaponAnchor = _firstPersonOffhandAnchor = null;
+                _firstPersonArmsAttempted = false;
+                _lastFirstPersonSignature = string.Empty;
+            }
             _animator = animator;
+            _productionAnimation = HasAnimatorParameter("MoveX", AnimatorControllerParameterType.Float) &&
+                HasAnimatorParameter("Dead", AnimatorControllerParameterType.Bool);
             BindCrouchPose();
             ResetAnimatorToIdle();
         }
 
         EnsureAnimationEventReceivers(avatar);
         YQRuntimeUrpMaterialRepair.RepairHierarchy(avatar);
+        CacheBodyRenderers();
     }
 
     private void RebuildEquipment()
@@ -386,11 +597,24 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         _anchors.Clear();
 
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        CacheBodyRenderers();
         if (state == null)
             return;
 
         state.EnsureCollections();
         string weaponId = state.GetEquippedItem("weapon")?.itemId ?? string.Empty;
+        bool wasArmed = _hasEquippedWeapon;
+        _hasEquippedWeapon = weaponId.Length > 0;
+        _hasHandEquipment = _hasEquippedWeapon || state.GetEquippedItem("offhand") != null;
+        string nextPresentation = BuildEquipmentSignature();
+        bool changedPresentation = _presentedEquipmentSignature != null && _presentedEquipmentSignature != nextPresentation;
+        _presentedEquipmentSignature = nextPresentation;
+        if (changedPresentation && _productionAnimation)
+        {
+            // note: React to accepted equipment changes once; startup and visibility repairs do not replay an equip gesture.
+            ClearProductionActionTriggers();
+            TriggerFirstAnimator(wasArmed && !_hasEquippedWeapon ? "Unequip" : "Equip");
+        }
 
         for (int i = 0; i < Slots.Length; i++)
         {
@@ -418,16 +642,18 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             }
             else
             {
-                NormalizeEquippedInstance(itemVisual, anchor, slot.MaxSize);
+                bool preserveGrip = IsHandEquipment(slot.Slot);
+                NormalizeEquippedInstance(itemVisual, anchor, slot.MaxSize, preserveGrip);
                 // note: A delayed bounds sample catches imported LOD/skinned meshes that finish initialization after the equip frame.
                 if (Application.isPlaying)
-                    StartCoroutine(StabilizeThirdPersonItemScaleRoutine(itemVisual, anchor, slot.MaxSize));
+                    StartCoroutine(StabilizeThirdPersonItemScaleRoutine(itemVisual, anchor, slot.MaxSize, preserveGrip));
             }
             ApplyItemTint(itemVisual, item);
 
-            if (LooksMagical(item))
+            if (LooksMagical(item) && !itemVisual.name.StartsWith("MissingVisual_", StringComparison.Ordinal))
                 AddMagicLoop(itemVisual.transform, ResolveItemColor(item));
         }
+        CacheBodyRenderers();
     }
 
     private Transform CreateAnchor(SlotVisual slot, bool nativeWearable)
@@ -455,7 +681,10 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         YQEquipmentBoneFollower follower = anchor.gameObject.GetComponent<YQEquipmentBoneFollower>();
         if (follower == null)
             follower = anchor.gameObject.AddComponent<YQEquipmentBoneFollower>();
-        if (TryGetDirectHandAttachment(slot, out Vector3 localPosition, out Quaternion localRotation))
+        // note: The approved body supplies authored grip sockets; guessed palm offsets are only a compatibility fallback.
+        if (IsAuthoredGrip(target))
+            follower.Bind(target, Vector3.zero, Quaternion.identity);
+        else if (TryGetDirectHandAttachment(slot, out Vector3 localPosition, out Quaternion localRotation))
             follower.Bind(target, localPosition, localRotation);
         else
             follower.Bind(target, anchor);
@@ -494,9 +723,11 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         switch (normalized)
         {
             case "weapon":
+                return FindAvatarBone("HandBoneR") ?? FirstBone(HumanBodyBones.RightHand, "Base HumanRPalm");
             case "ring_right":
                 return FirstBone(HumanBodyBones.RightHand, "HandBoneR", "Base HumanRPalm", "Base HumanRForearm1");
             case "offhand":
+                return FindAvatarBone("ShieldBoneL") ?? FindAvatarBone("HandBoneL") ?? FirstBone(HumanBodyBones.LeftHand, "Base HumanLPalm");
             case "ring_left":
                 return FirstBone(HumanBodyBones.LeftHand, "ShieldBoneL", "HandBoneL", "Base HumanLPalm", "Base HumanLForearm1");
             case "head":
@@ -518,6 +749,16 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
                 return FirstBone(HumanBodyBones.Chest, "Base HumanRibcage", "Base HumanSpine2");
         }
     }
+
+    private Transform FindAvatarBone(string name)
+    {
+        RebuildAvatarBoneMap();
+        return _avatarBoneMap.TryGetValue(name, out Transform bone) ? bone : null;
+    }
+
+    private static bool IsHandEquipment(string slot) => slot == "weapon" || slot == "offhand";
+    private static bool IsAuthoredGrip(Transform bone) => bone != null &&
+        (bone.name == "HandBoneR" || bone.name == "HandBoneL" || bone.name == "ShieldBoneL");
 
     private Transform FirstBone(HumanBodyBones humanoidBone, params string[] fallbackNames)
     {
@@ -560,11 +801,18 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (_avatarRoot == null)
             return;
 
-        Transform[] bones = _avatarRoot.GetComponentsInChildren<Transform>(true);
+        // note: Built-in wardrobe pieces also have duplicate joint names. Start at the selected Animator's hips hierarchy, never at all avatar children.
+        Transform skeleton = _animator != null && _animator.isHuman ? _animator.GetBoneTransform(HumanBodyBones.Hips) : null;
+        if (skeleton == null) return;
+        while (skeleton.parent != null && skeleton.parent != _animator.transform) skeleton = skeleton.parent;
+        Transform[] bones = skeleton.GetComponentsInChildren<Transform>(true);
         for (int i = 0; i < bones.Length; i++)
         {
             Transform bone = bones[i];
             if (bone == null || string.IsNullOrWhiteSpace(bone.name))
+                continue;
+            // note: Imported armor carries duplicate bind-bone names; only the canonical body may supply animation and equipment targets.
+            if (_equipmentRoot != null && bone.IsChildOf(_equipmentRoot))
                 continue;
             if (!_avatarBoneMap.ContainsKey(bone.name))
                 _avatarBoneMap.Add(bone.name, bone);
@@ -626,7 +874,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
         _rigBaseLocalPosition = Vector3.zero;
         _visualRig.localPosition = Vector3.zero;
-        _visualRig.localRotation = Quaternion.identity;
+        // note: Visibility recovery preserves the movement-facing pose computed by AnimateRig, including its LateUpdate repair.
+        _visualRig.localRotation = _productionAnimation && !IsLocalFirstPerson() ? Quaternion.Euler(0f, _bodyVisualYaw, 0f) : Quaternion.identity;
         _visualRig.localScale = Vector3.one;
     }
 
@@ -644,10 +893,12 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             return;
 
         _lastFirstPersonSignature = signature;
-        for (int i = _firstPersonRoot.childCount - 1; i >= 0; i--)
-            Destroy(_firstPersonRoot.GetChild(i).gameObject);
+        // note: Equipment changes replace hand attachments, preserving the mirrored skeleton and its renderer bindings.
+        if (_firstPersonWeaponAnchor != null) DestroyUnityObject(_firstPersonWeaponAnchor.gameObject);
+        if (_firstPersonOffhandAnchor != null) DestroyUnityObject(_firstPersonOffhandAnchor.gameObject);
         _firstPersonWeaponAnchor = null;
         _firstPersonOffhandAnchor = null;
+        if (_firstPersonArms != null) _firstPersonArms.NotifyEquipmentChanged();
 
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
         if (state == null)
@@ -670,7 +921,19 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
         SlotVisual slot = new SlotVisual(slotName, localPosition, euler, maxSize);
         GameObject anchorGo = new GameObject("FP_" + slotName + "_Anchor");
-        anchorGo.transform.SetParent(_firstPersonRoot, false);
+        Transform hand = _firstPersonArms != null ? (slotName == "weapon" ? _firstPersonArms.RightGrip : _firstPersonArms.LeftGrip) : null;
+        anchorGo.transform.SetParent(hand != null ? hand : _firstPersonRoot, false);
+        if (IsAuthoredGrip(hand))
+        {
+            localPosition = Vector3.zero;
+            euler = Vector3.zero;
+        }
+        else if (hand != null && TryGetDirectHandAttachment(slotName, out Vector3 gripPosition, out Quaternion gripRotation))
+        {
+            // note: The weapon follows the sampled hand through anticipation, strike, and recovery instead of a separate camera-space swing.
+            localPosition = gripPosition;
+            euler = gripRotation.eulerAngles;
+        }
         anchorGo.transform.localPosition = localPosition;
         anchorGo.transform.localRotation = Quaternion.Euler(euler);
         anchorGo.transform.localScale = Vector3.one;
@@ -682,7 +945,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         itemVisual.transform.localRotation = Quaternion.identity;
         PrepareVisualInstance(itemVisual);
         YQRuntimeUrpMaterialRepair.RepairHierarchy(itemVisual);
-        NormalizeEquippedInstance(itemVisual, itemVisual.transform, maxSize);
+        NormalizeEquippedInstance(itemVisual, anchorGo.transform, maxSize, true);
         ApplyItemTint(itemVisual, item);
 
         if (LooksMagical(item))
@@ -690,7 +953,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
         // note: Imported skinned/LOD equipment can report incomplete bounds on its creation frame; reapply the screen-space size contract after Unity has initialized those renderers.
         StartCoroutine(StabilizeFirstPersonItemScaleRoutine(
-            itemVisual,
+            itemVisual, anchorGo.transform,
             maxSize));
 
         if (string.Equals(slotName, "weapon", StringComparison.OrdinalIgnoreCase))
@@ -709,40 +972,52 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
     private static IEnumerator StabilizeFirstPersonItemScaleRoutine(
         GameObject itemVisual,
-        float maximumSize)
-    {
-        yield return null;
-
-        if (itemVisual != null && itemVisual.activeInHierarchy)
-            NormalizeEquippedInstance(itemVisual, itemVisual.transform, maximumSize);
-
-        // note: A second late sample catches animated bounds that become valid only after the first skinning update without adding a permanent per-frame scan.
-        yield return new WaitForEndOfFrame();
-
-        if (itemVisual != null && itemVisual.activeInHierarchy)
-            NormalizeEquippedInstance(itemVisual, itemVisual.transform, maximumSize);
-    }
-
-    private static IEnumerator StabilizeThirdPersonItemScaleRoutine(
-        GameObject itemVisual,
         Transform anchor,
         float maximumSize)
     {
         yield return null;
 
         if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
-            NormalizeEquippedInstance(itemVisual, anchor, maximumSize);
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize, true);
+
+        // note: A second late sample catches animated bounds that become valid only after the first skinning update without adding a permanent per-frame scan.
+        yield return new WaitForEndOfFrame();
+
+        if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize, true);
+    }
+
+    private static IEnumerator StabilizeThirdPersonItemScaleRoutine(
+        GameObject itemVisual,
+        Transform anchor,
+        float maximumSize,
+        bool preserveGrip)
+    {
+        yield return null;
+
+        if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize, preserveGrip);
 
         // note: A final end-of-frame sample avoids a one-frame size jump when a renderer's bounds become valid after animation/skinning.
         yield return new WaitForEndOfFrame();
 
         if (itemVisual != null && anchor != null && itemVisual.activeInHierarchy)
-            NormalizeEquippedInstance(itemVisual, anchor, maximumSize);
+            NormalizeEquippedInstance(itemVisual, anchor, maximumSize, preserveGrip);
     }
 
     private GameObject CreateItemVisual(InventoryItemRecord item, SlotVisual slot)
     {
-        string prefabPath = item != null ? item.prefabKey : string.Empty;
+        string prefabPath = item != null ? item.prefabKey ?? string.Empty : string.Empty;
+        // note: An accepted item keeps its identity and mechanics; an incompatible gem binding must not become a floor-sized cloak.
+        if (slot.Slot == "cloak" && prefabPath.Replace('\\', '/').IndexOf("/Accessories/_Prefabs/Gems/", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            if (!_incompatibleCloakReported)
+            {
+                _incompatibleCloakReported = true;
+                Debug.LogWarning("[YourQuest] Equipped cloak keeps its accepted stats, but its gem asset is incompatible with wearable presentation. A compatible cloak visual is required.");
+            }
+            return new GameObject("MissingVisual_cloak");
+        }
         GameObject prefab = CanUseImportedEquipment() &&
                             !string.IsNullOrWhiteSpace(prefabPath) &&
                             !IsPlayerOrFullCharacterPrefabPath(prefabPath)
@@ -751,8 +1026,30 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (prefab != null)
         {
             GameObject instance = Instantiate(prefab);
-            if (!LooksLikeFullHumanoidCharacterVisual(instance))
+            bool nativeWearable = ShouldUseNativeWearableFit(item, slot);
+            if (instance.GetComponentInChildren<YQInvestorPlayerMotor>(true) == null &&
+                (nativeWearable || !LooksLikeFullHumanoidCharacterVisual(instance)))
             {
+                // note: Native armor contains a bind skeleton, not a second character. Disable its Animator before it shares the player's bones.
+                if (nativeWearable)
+                {
+                    foreach (Animator animator in instance.GetComponentsInChildren<Animator>(true)) animator.enabled = false;
+                    string pairedPath = prefabPath.EndsWith("_Left.prefab", StringComparison.OrdinalIgnoreCase) ?
+                        prefabPath.Substring(0, prefabPath.Length - "_Left.prefab".Length) + "_Right.prefab" :
+                        prefabPath.EndsWith("_Right.prefab", StringComparison.OrdinalIgnoreCase) ?
+                        prefabPath.Substring(0, prefabPath.Length - "_Right.prefab".Length) + "_Left.prefab" : null;
+                    if (slot.Slot == "boots" && pairedPath != null)
+                    {
+                        GameObject paired = LoadPrefab(pairedPath);
+                        if (paired != null)
+                        {
+                            GameObject pair = Instantiate(paired, instance.transform, false);
+                            pair.transform.localPosition = Vector3.zero;
+                            pair.transform.localRotation = Quaternion.identity;
+                            pair.transform.localScale = Vector3.one;
+                        }
+                    }
+                }
                 // note: Imported roots start from unit scale; fallback primitives retain their authored shape until the shared extent pass.
                 instance.transform.localScale = Vector3.one;
                 RepairMissingRendererMaterials(instance, ResolveItemColor(item));
@@ -830,7 +1127,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             return true;
 
         Animator animator = root.GetComponentInChildren<Animator>(true);
-        if (animator == null)
+        if (animator == null || !animator.enabled)
             return false;
 
         return CountFullHumanVisualMarkers(root.transform) >= 2;
@@ -914,9 +1211,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         bool dashing = _motor != null && _motor.IsDashing;
         bool sprinting = _motor != null && _motor.IsSprinting;
         float speed = ResolveVisualMoveSpeed(dashing, sprinting, out bool moving);
-        if (dashing && !_lastDashVisualState)
-            PlayRollFeedback();
-        _lastDashVisualState = dashing;
+        // note: Dash feedback is emitted once by the motor when stamina and traversal accept it.
         _crouchBlend = Mathf.MoveTowards(_crouchBlend, crouching ? 1f : 0f, Time.deltaTime * 7.5f);
         UpdateAnimator(speed, moving, sprinting, crouching, dashing);
 
@@ -928,6 +1223,28 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
         if (_visualRig == null)
             return;
+
+        if (_productionAnimation)
+        {
+            // note: Free library gait is forward-authored. Turn only the presentation towards lateral travel while actions keep the aiming pose.
+            Vector3 travel = transform.InverseTransformDirection(_visualVelocity);
+            bool canTurn = moving && !dashing && !_traversalPose && _motor != null && _animator.GetBool("Grounded") && !_motor.IsClimbing &&
+                (_combat == null || !_combat.IsCasting) && _animator.GetCurrentAnimatorStateInfo(1).IsName("Actions.Empty");
+            float yaw = 0f;
+            if (canTurn)
+                yaw = travel.z >= -0.1f ? Mathf.Atan2(travel.x, Mathf.Max(0.01f, travel.z)) * Mathf.Rad2Deg :
+                    Mathf.Atan2(-travel.x, Mathf.Max(0.01f, -travel.z)) * Mathf.Rad2Deg;
+            yaw = Mathf.Clamp(yaw, -90f, 90f);
+            // note: A forward-authored roll faces the accepted travel direction without rotating the motor or aim.
+            if (_motor != null && _motor.IsDodgeRolling && travel.sqrMagnitude > 0.01f)
+                yaw = Mathf.Atan2(travel.x, travel.z) * Mathf.Rad2Deg;
+            else if (_traversalPose && IsRollState(_animator.GetCurrentAnimatorStateInfo(0))) yaw = _bodyVisualYaw;
+            _bodyVisualYaw = Mathf.MoveTowardsAngle(_bodyVisualYaw, yaw, Time.deltaTime * 420f);
+            _visualRig.localPosition = _rigBaseLocalPosition;
+            _visualRig.localRotation = Quaternion.Euler(0f, _bodyVisualYaw, 0f);
+            _visualRig.localScale = Vector3.one;
+            return;
+        }
 
         float bob = Mathf.Sin(Time.time * Mathf.Lerp(2.2f, 10.5f, speed)) * 0.025f * speed;
         float sway = Mathf.Sin(Time.time * Mathf.Lerp(1.6f, 7.5f, speed)) * 1.8f * speed;
@@ -960,6 +1277,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (_firstPersonRoot == null)
             return;
 
+        if (_firstPersonArms != null && _firstPersonArms.ArmRendererCount > 0)
+        {
+            // note: Mirrored authored bones supply locomotion, melee, casting, hit, and traversal. The view adds only damped look lag/equip framing.
+            _firstPersonRoot.localPosition = Vector3.zero;
+            _firstPersonRoot.localRotation = Quaternion.identity;
+            return;
+        }
+
         float walkBob = Mathf.Sin(Time.time * Mathf.Lerp(2f, 9.5f, speed)) * 0.018f * speed;
         float walkSway = Mathf.Cos(Time.time * Mathf.Lerp(2f, 8.5f, speed)) * 0.022f * speed;
         float meleeRemaining = Mathf.Clamp01((_meleeKickUntil - Time.time) / 0.22f);
@@ -974,12 +1299,15 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         float rollArc = rollRemaining > 0f ? Mathf.Sin((1f - rollRemaining) * Mathf.PI) : 0f;
         float jumpArc = jumpRemaining > 0f ? Mathf.Sin((1f - jumpRemaining) * Mathf.PI) : 0f;
         Vector3 recoil = new Vector3(0.02f * castArc, -0.012f * meleeRecover - 0.10f * _crouchBlend - 0.012f * rollArc + 0.035f * jumpArc, -0.08f * Mathf.Max(meleeRecover, castArc) + 0.075f * rollArc);
+        // note: First-person damage shares the same accepted hit cue as the skeletal reaction.
+        float hitArc = Mathf.Sin(Mathf.Clamp01((_hitKickUntil - Time.time) / 0.24f) * Mathf.PI);
+        recoil += new Vector3(0.02f, -0.015f, -0.06f) * hitArc;
 
         _firstPersonRoot.localPosition = new Vector3(walkSway, walkBob, 0f) + recoil;
         _firstPersonRoot.localRotation = Quaternion.Euler(
             -2f * meleeRecover - 2f * castArc - 2.5f * rollArc - 5f * jumpArc - 2f * _crouchBlend,
             2.5f * Mathf.Sin(Time.time * 5.7f) * speed,
-            -1.5f * meleeRecover + 4f * castArc);
+            -1.5f * meleeRecover + 4f * castArc + 5f * hitArc);
 
         AnimateFirstPersonAnchor(
             _firstPersonWeaponAnchor,
@@ -1050,28 +1378,12 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private float ResolveVisualMoveSpeed(bool dashing, bool sprinting, out bool moving)
     {
         moving = false;
-        if (dashing)
-        {
-            moving = true;
-            return 1f;
-        }
-
-        if (_motor != null)
-        {
-            float inputAmount = Mathf.Clamp01(_motor.MoveInput.magnitude);
-            moving = inputAmount > 0.05f;
-            if (!moving)
-                return 0f;
-
-            return sprinting
-                ? Mathf.Lerp(0.78f, 1f, inputAmount)
-                : Mathf.Lerp(0.44f, 0.68f, inputAmount);
-        }
-
-        Vector3 velocity = _controller != null ? _controller.velocity : Vector3.zero;
+        // note: Holding movement into a wall or a streaming hold must animate idle, not an in-place walk/run.
+        Vector3 velocity = _visualVelocity;
         velocity.y = 0f;
-        float speed = Mathf.Clamp01(velocity.magnitude / 7.5f);
-        moving = speed > 0.05f;
+        float referenceSpeed = _motor != null ? Mathf.Max(0.1f, _motor.sprintSpeed) : 11.25f;
+        float speed = Mathf.Clamp01(velocity.magnitude / referenceSpeed);
+        moving = velocity.sqrMagnitude > 0.01f;
         return moving ? speed : 0f;
     }
 
@@ -1079,6 +1391,82 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     {
         if (_animator == null || !_animator.isActiveAndEnabled)
             return;
+
+        if (_productionAnimation)
+        {
+            // note: Local collision-resolved velocity supplies direction; motor/vitals supply accepted traversal and terminal state.
+            Vector3 localVelocity = transform.InverseTransformDirection(_visualVelocity);
+            float referenceSpeed = _motor != null ? Mathf.Max(0.1f, _motor.sprintSpeed) : 11.25f;
+            float planarSpeed = new Vector2(localVelocity.x, localVelocity.z).magnitude;
+            float walkSpeed = _motor != null ? Mathf.Max(0.1f, _motor.walkSpeed) : referenceSpeed * 0.6f;
+            // note: The walk/run blend thresholds describe poses, not a fixed ratio of motor speeds. A full walk keeps its complete stride after pace changes.
+            float amount = planarSpeed <= walkSpeed ? 0.6f * planarSpeed / walkSpeed : Mathf.Lerp(0.6f, 1f, Mathf.InverseLerp(walkSpeed, referenceSpeed, planarSpeed));
+            if (crouching && _motor != null) amount = 0.3f * Mathf.Clamp01(planarSpeed / Mathf.Max(0.1f, _motor.crouchSpeed));
+            Vector3 direction = planarSpeed > 0.001f ? localVelocity / planarSpeed : Vector3.zero;
+            SetAnimatorFloat("MoveX", moving ? direction.x * amount : 0f);
+            SetAnimatorFloat("MoveZ", moving ? direction.z * amount : 0f);
+            SetAnimatorFloatImmediate("FirstPersonPose", IsLocalFirstPerson() ? 1f : 0f);
+            // note: Cadence follows resolved travel, including collision slowdown; controller defaults describe the approved gait's foot speed.
+            float gaitSpeed = HasAnimatorParameter("WalkFootSpeed", AnimatorControllerParameterType.Float) ? _animator.GetFloat("WalkFootSpeed") : referenceSpeed * 0.6f;
+            if (localVelocity.z < -0.1f && HasAnimatorParameter("BackFootSpeed", AnimatorControllerParameterType.Float)) gaitSpeed = _animator.GetFloat("BackFootSpeed");
+            else if (HasAnimatorParameter("RunFootSpeed", AnimatorControllerParameterType.Float)) gaitSpeed = Mathf.Lerp(gaitSpeed, _animator.GetFloat("RunFootSpeed"), Mathf.InverseLerp(0.6f, 1f, amount));
+            float poseAmount = new Vector2(_animator.GetFloat("MoveX"), _animator.GetFloat("MoveZ")).magnitude;
+            float gaitWeight = Mathf.Min(1f, poseAmount / 0.6f);
+            SetAnimatorFloatImmediate("LocomotionRate", moving ? Mathf.Clamp(planarSpeed / Mathf.Max(0.1f, gaitSpeed * gaitWeight), 0.25f, 4f) : 1f);
+            // note: Crouch cadence is calibrated on this body, including a blended slow stride and reverse playback for backward travel.
+            float crouchFootSpeed = HasAnimatorParameter("CrouchFootSpeed", AnimatorControllerParameterType.Float) ? _animator.GetFloat("CrouchFootSpeed") : 1f;
+            float crouchRate = moving ? Mathf.Clamp(planarSpeed / Mathf.Max(.1f, crouchFootSpeed * Mathf.Min(1f, poseAmount / .3f)), .25f, 4f) : 1f;
+            SetAnimatorFloatImmediate("CrouchRate", crouchRate * (localVelocity.z < -.1f ? -1f : 1f));
+            SetAnimatorFloatImmediate("VerticalSpeed", _motor != null ? _motor.VerticalVelocity : _visualVelocity.y);
+            bool contact = _motor != null ? _motor.HasAnimationGroundContact : _controller == null || _controller.isGrounded;
+            if (contact) _lastAnimationGroundContact = Time.time;
+            // note: A brief descending contact gap on slopes must not restart Fall/Land every step. Jump/climb still enter their accepted airborne states immediately.
+            bool groundedPose = contact || (_motor != null && _motor.VerticalVelocity <= 0f && !_motor.IsClimbing && Time.time - _lastAnimationGroundContact < 0.12f);
+            SetAnimatorBool("Grounded", groundedPose);
+            bool climbing = _motor != null && _motor.IsClimbing;
+            if (climbing && !_observedClimbing) TriggerFirstAnimator("ClimbEnter");
+            _observedClimbing = climbing;
+            SetAnimatorBool("Climbing", climbing);
+            // note: Pause a blocked climbing stroke; actual vertical travel supplies its cycle rate, not the held input.
+            float climbSeconds = HasAnimatorParameter("ClimbCycleSeconds", AnimatorControllerParameterType.Float) ? _animator.GetFloat("ClimbCycleSeconds") : .4f;
+            float climbMetres = HasAnimatorParameter("ClimbCycleMeters", AnimatorControllerParameterType.Float) ? _animator.GetFloat("ClimbCycleMeters") : .6f;
+            SetAnimatorFloatImmediate("ClimbRate", climbing ? Mathf.Clamp(Mathf.Abs(_visualVelocity.y) * climbSeconds / Mathf.Max(.1f, climbMetres), 0f, 4f) : 1f);
+            SetAnimatorBool("Dashing", dashing);
+            SetAnimatorBool("DodgeRolling", _motor != null && _motor.IsDodgeRolling);
+            SetAnimatorFloatImmediate("RollRate", _motor != null ? 1f / Mathf.Max(0.05f, _motor.rollDuration) : 1f / 0.6f);
+            SetAnimatorFloatImmediate("DashRate", _motor != null ? 1f / Mathf.Max(.05f, _motor.dashDuration) : 1f / .18f);
+            AnimatorStateInfo body = _animator.GetCurrentAnimatorStateInfo(0);
+            _traversalPose = IsTraversalState(body) || (_animator.IsInTransition(0) && IsTraversalState(_animator.GetNextAnimatorStateInfo(0)));
+            SetAnimatorBool("TraversalPose", _traversalPose);
+            SetAnimatorBool("JumpTakingOff", !groundedPose && body.IsName("Base Layer.JumpRise") && body.normalizedTime < .82f);
+            SetAnimatorBool("Mounted", _mountedPresentation);
+            SetAnimatorBool("MountedFlying", _mountedFlyingPresentation);
+            SetAnimatorFloat("MountedSpeed", _mountedTravel);
+            SetAnimatorBool("Crouching", crouching);
+            if (_combat == null) _combat = GetComponent<YQInvestorCombat>();
+            // note: Combat owns wind-up, release, cancellation, and resource commitment; animation observes that accepted timer.
+            bool casting = _combat != null && _combat.IsCasting;
+            if (casting && !_observedCasting)
+                _observedCastReleaseAt = Time.time + _combat.CastDurationSeconds * (1f - _combat.CastProgress);
+            else if (!casting && _observedCasting && Time.time < _observedCastReleaseAt - 0.02f && _hitKickUntil <= Time.time)
+                TriggerFirstAnimator("CancelCast");
+            _observedCasting = casting;
+            SetAnimatorBool("Casting", casting);
+            // note: Spell motions keep their authored open palms; the equipment grip resumes after recovery.
+            AnimatorStateInfo action = _animator.GetCurrentAnimatorStateInfo(1);
+            bool spellHands = action.IsName("Actions.Cast") || action.IsName("Actions.CastHold") || action.IsName("Actions.CastRelease") || action.IsName("Actions.Channel");
+            // note: Empty override states retain an upper-body pose. Zero their layer weight at rest so authored idle and arm swing remain visible.
+            bool fullBodyAction = dashing || _traversalPose || (_motor != null && (_motor.IsClimbing || (_motor.vitals != null && _motor.vitals.IsDead)));
+            bool actionActive = !fullBodyAction && (!action.IsName("Actions.Empty") || _animator.IsInTransition(1) || _requestedActionFrame == Time.frameCount);
+            _animator.SetLayerWeight(1, Mathf.MoveTowards(_animator.GetLayerWeight(1), actionActive ? 1f : 0f, Time.deltaTime * 16f));
+            bool openHands = fullBodyAction || spellHands || action.IsName("Actions.Interact") || action.IsName("Actions.Pickup") || action.IsName("Actions.Consume");
+            float grip = !openHands && _hasHandEquipment ? 1f : 0f;
+            if (_animator.layerCount > 2) _animator.SetLayerWeight(2, Mathf.MoveTowards(_animator.GetLayerWeight(2), grip, Time.deltaTime * 12f));
+            SetAnimatorBool("Dead", _motor != null && _motor.vitals != null && _motor.vitals.IsDead);
+            if (_motor != null && _motor.IsGrounded)
+                _jumpAnimationInFlight = false;
+            return;
+        }
 
         float locomotion = 1f;
         if (moving || dashing)
@@ -1119,6 +1507,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         SetAnimatorBool("IsGrounded", grounded);
         SetAnimatorBool("isGrounded", grounded);
     }
+
+    private static bool IsRollState(AnimatorStateInfo state) => state.IsName("Base Layer.DodgeRollStart") ||
+        state.IsName("Base Layer.DodgeRoll") || state.IsName("Base Layer.DodgeRollRecover");
+
+    private static bool IsTraversalState(AnimatorStateInfo state) => IsRollState(state) ||
+        state.IsName("Base Layer.DashStart") || state.IsName("Base Layer.Dash") || state.IsName("Base Layer.DashRecover") ||
+        state.IsName("Base Layer.ClimbStart") || state.IsName("Base Layer.Climb") || state.IsName("Base Layer.ClimbRecover") ||
+        state.IsName("Base Layer.Mount") || state.IsName("Base Layer.MountedRide") || state.IsName("Base Layer.MountedFlight") || state.IsName("Base Layer.Dismount");
 
     private void CleanupLegacyPrimitiveVisual()
     {
@@ -1380,7 +1776,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         return !float.IsNaN(value) && !float.IsInfinity(value);
     }
 
-    private static void NormalizeEquippedInstance(GameObject instance, Transform anchor, float maxSize)
+    private static void NormalizeEquippedInstance(GameObject instance, Transform anchor, float maxSize, bool preserveGrip = false)
     {
         Bounds bounds;
         if (!TryGetBounds(instance, out bounds))
@@ -1397,7 +1793,10 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             instance.transform.localScale = currentScale * scale;
         }
 
-        if (TryGetBounds(instance, out bounds))
+        // note: A weapon's authored pivot is its grip, not the center of the blade. Preserve that pivot through every delayed sizing pass.
+        if (preserveGrip)
+            instance.transform.position = anchor.position;
+        else if (TryGetBounds(instance, out bounds))
             instance.transform.position += anchor.position - bounds.center;
     }
 
@@ -1700,7 +2099,11 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
                 colliders[i];
 
             if (collider != null)
+            {
                 collider.enabled = false;
+                // note: Cosmetic equipment never contributes contact to the motor, including inactive child objects enabled later.
+                if (!preserveBehaviours) DestroyUnityObject(collider);
+            }
         }
 
         Rigidbody[] bodies =
@@ -1732,6 +2135,12 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
          */
         if (!preserveBehaviours)
         {
+            // note: Native wearables are skinned by the one player Animator after bone rebinding; imported equipment cannot animate those shared bones.
+            foreach (Animator animator in root.GetComponentsInChildren<Animator>(true))
+            {
+                animator.enabled = false;
+                DestroyUnityObject(animator);
+            }
             YQAnimationEventAudioReceiver[] audioReceivers =
                 root.GetComponentsInChildren<
                     YQAnimationEventAudioReceiver>(
@@ -2087,7 +2496,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private void ApplyPerspectiveVisibility(bool firstPerson)
     {
         if (_visualRig != null)
-            _visualRig.gameObject.SetActive(!firstPerson);
+            _visualRig.gameObject.SetActive(true);
 
         if (!firstPerson)
         {
@@ -2095,10 +2504,30 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             EnsureThirdPersonAvatarVisible();
         }
 
+        // note: Hide drawing, not the rig: actions and wearable skinning continue while first-person gameplay or portraits are active.
+        if (_bodyFirstPerson != firstPerson)
+        {
+            for (int i = 0; i < _bodyRenderers.Length; i++)
+                if (_bodyRenderers[i] != null)
+                    _bodyRenderers[i].shadowCastingMode = firstPerson ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
+            _bodyFirstPerson = firstPerson;
+        }
+
         if (firstPerson)
             EnsureFirstPersonRoot();
         else if (_firstPersonRoot != null)
             _firstPersonRoot.gameObject.SetActive(false);
+    }
+
+    private void CacheBodyRenderers()
+    {
+        _bodyRenderers = _visualRig != null ? _visualRig.GetComponentsInChildren<Renderer>(true) : Array.Empty<Renderer>();
+        // note: Newly equipped meshes must inherit perspective before their first rendered frame.
+        bool firstPerson = IsLocalFirstPerson();
+        for (int i = 0; i < _bodyRenderers.Length; i++)
+            if (_bodyRenderers[i] != null)
+                _bodyRenderers[i].shadowCastingMode = firstPerson ? ShadowCastingMode.ShadowsOnly : ShadowCastingMode.On;
+        _bodyFirstPerson = firstPerson;
     }
 
     private void ForceThirdPersonVisibleNow()
@@ -2301,6 +2730,23 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         _firstPersonRoot.localScale = Vector3.one;
         if (rootChanged)
             CleanupCameraPlayerVisuals(camera);
+        if (!_firstPersonArmsAttempted && _animator != null && _productionAnimation)
+        {
+            _firstPersonArmsAttempted = true;
+            var armsObject = new GameObject("YQ_FirstPersonArms");
+            armsObject.transform.SetParent(_firstPersonRoot, false);
+            var arms = armsObject.AddComponent<YQFirstPersonArmsView>();
+            if (arms.Initialize(_animator, camera, Resources.Load<YQFirstPersonArmsAssets>(YQFirstPersonArmsAssets.ResourcePath)))
+            {
+                _firstPersonArms = arms;
+                _lastFirstPersonSignature = string.Empty;
+            }
+            else
+            {
+                DestroyUnityObject(armsObject);
+                Debug.LogError("[YourQuest] Approved first-person arms could not bind to the active player body mesh.");
+            }
+        }
     }
 
     private void CleanupCameraPlayerVisuals(Camera camera)
@@ -2353,6 +2799,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
             _animator.ResetTrigger(parameterName);
             _animator.SetTrigger(parameterName);
+            if (_productionAnimation && parameterName != "Jump" && parameterName != "Dash" && parameterName != "DodgeRoll")
+                _requestedActionFrame = Time.frameCount;
             return true;
         }
 
@@ -2414,6 +2862,14 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     {
         if (_animator == null)
             return;
+
+        if (_productionAnimation)
+        {
+            SetAnimatorFloatImmediate("MoveX", 0f);
+            SetAnimatorFloatImmediate("MoveZ", 0f);
+            SetAnimatorFloatImmediate("LocomotionRate", 1f);
+            SetAnimatorBool("Grounded", true);
+        }
 
         SetAnimatorFloatImmediate("locomotion", 1f);
         SetAnimatorFloatImmediate("Locomotion", 1f);
@@ -2485,6 +2941,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (_crouchBlend <= 0f || _nativeCrouchAnimation || _crouchBones[0] == null ||
             _animator == null || !_animator.isActiveAndEnabled || (_motor != null && !_motor.IsAuthoritative))
             return;
+        if (_motor != null && (_motor.IsClimbing || !_motor.IsGrounded || (_motor.vitals != null && _motor.vitals.IsDead)))
+            return;
         for (int i = 0; i < _crouchBones.Length; i++)
             _preCrouchRotations[i] = _crouchBones[i].localRotation;
         _preCrouchHipPosition = _crouchBones[0].localPosition;
@@ -2525,6 +2983,13 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         if (string.IsNullOrWhiteSpace(path) || !path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
             return null;
 
+#if UNITY_EDITOR
+        if (!Application.isPlaying) return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+#endif
+        // note: Build-time equipment uses the existing approved lazy registry for asset resolution.
+        var registry = YQRuntimeWorldAssetRegistry.Instance;
+        GameObject prefab = registry != null ? registry.ResolvePrefab(path) : null;
+        if (prefab != null) return prefab;
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<GameObject>(path);
 #else
