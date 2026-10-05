@@ -1374,7 +1374,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private AsyncOperation _frontierConstructionPendingLoad;
     private readonly Dictionary<Vector2Int, int> _frontierConstructionAttempts = new Dictionary<Vector2Int, int>();
     private readonly Queue<Vector2Int> _frontierConstructionAttemptOrder = new Queue<Vector2Int>();
-    private const float FrontierConstructionRetrySeconds = 5f;
+    private const float FrontierConstructionRetrySeconds = 0.75f;
+    private const int FrontierConstructionBlocksPerSlice = 8;
+    private const float FrontierConstructionScanBudgetSeconds = 0.0015f;
     private static readonly Vector2Int[] FrontierConstructionScanOffsets = BuildFrontierConstructionScanOffsets();
     private WorldState _frontierConstructionWorld;
     private GeneratedWorldPlanRecord _frontierConstructionPlan;
@@ -2710,6 +2712,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                         chunk.activationComplete && chunk.activeState == 1
                         ? DescribePublishedRendererBlocker(chunk)
                         : string.Empty;
+                    string readinessBlocker = fullyLoaded ? string.Empty :
+                        DescribeViewActivationBlocker(coordinate, chunk);
                     failure = "visual chunk is not fully loaded " + coordinate +
                         " stageAges{hard=" + (chunk.hardViewAdmittedAt >= 0f ? (Time.unscaledTime - chunk.hardViewAdmittedAt).ToString("0.000") : "n/a") +
                         ",collision=" + (chunk.collisionReadyAt >= 0f ? (Time.unscaledTime - chunk.collisionReadyAt).ToString("0.000") : "n/a") +
@@ -2730,6 +2734,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                         (string.IsNullOrEmpty(rendererPublicationBlocker)
                             ? string.Empty
                             : " rendererBlocker=" + rendererPublicationBlocker) +
+                        (string.IsNullOrEmpty(readinessBlocker)
+                            ? string.Empty
+                            : " readinessBlocker=" + readinessBlocker) +
                         " demand{guaranteed=" + currentlyGuaranteed +
                         ",hard=" + currentlyHardDemanded +
                         ",predicted=" + hasPredictedArrival +
@@ -10887,10 +10894,17 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private static Vector2Int[] BuildFrontierConstructionScanOffsets()
     {
-        // note: Visit the player block first, then deterministic Chebyshev rings so near content is considered before distant terrain.
-        var offsets = new Vector2Int[25];
+        // note: Check candidate blocks beyond the protected opening collar first, then retain the deterministic near rings as bounded recovery.
+        const int openingSafePriorityRadius = 3;
+        const int maximumRadius = 8;
+        var offsets = new Vector2Int[(maximumRadius * 2 + 1) * (maximumRadius * 2 + 1)];
         int index = 0;
-        for (int radius = 0; radius <= 2; radius++)
+        for (int radius = openingSafePriorityRadius; radius <= maximumRadius; radius++)
+            for (int z = -radius; z <= radius; z++)
+                for (int x = -radius; x <= radius; x++)
+                    if (Mathf.Max(Mathf.Abs(x), Mathf.Abs(z)) == radius)
+                        offsets[index++] = new Vector2Int(x, z);
+        for (int radius = 0; radius < openingSafePriorityRadius; radius++)
             for (int z = -radius; z <= radius; z++)
                 for (int x = -radius; x <= radius; x++)
                     if (Mathf.Max(Mathf.Abs(x), Mathf.Abs(z)) == radius)
@@ -10900,6 +10914,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
 
     private void ProcessFrontierConstructionWork()
     {
+        float started = Time.realtimeSinceStartup;
         if (!Application.isPlaying || !_configured || _player == null ||
             _acceptedSpatialProjection == null || YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked) return;
         if (_frontierConstructionWork.Count > 0 && !IsFrontierConstructionWorkCurrent()) CancelFrontierConstructionWork();
@@ -10919,44 +10934,72 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             var predictedBlock = new Vector2Int(
                 Mathf.FloorToInt((predicted.x + 0.5f) * chunkSize / blockWorldSize),
                 Mathf.FloorToInt((predicted.y + 0.5f) * chunkSize / blockWorldSize));
-            // note: Query the nearest deterministic block first; only accepted V2 publication can make a candidate renderer-visible.
-            var block = predictedBlock + FrontierConstructionScanOffsets[scan];
-            _frontierConstructionAttempts.TryGetValue(block, out int attempts);
-            if (attempts >= 2) return;
-            if (!_frontierConstructionAttempts.ContainsKey(block))
+            GeneratedSpatialContinuationLocationV2Record candidate = null;
+            Vector2Int candidateBlock = default;
+            int candidateAttempts = 0;
+            double scanStarted = Time.realtimeSinceStartupAsDouble;
+            int scannedBlocks = 0;
+            // note: Batch cheap deterministic opportunity checks under a strict time/count cap so collar-only blocks no longer stall site discovery.
+            while (scannedBlocks < FrontierConstructionBlocksPerSlice &&
+                   Time.realtimeSinceStartupAsDouble - scanStarted < FrontierConstructionScanBudgetSeconds)
             {
-                while (_frontierConstructionAttemptOrder.Count >= 128)
-                    _frontierConstructionAttempts.Remove(_frontierConstructionAttemptOrder.Dequeue());
-                _frontierConstructionAttemptOrder.Enqueue(block);
+                int scan = _frontierConstructionScan++ % FrontierConstructionScanOffsets.Length;
+                Vector2Int block = predictedBlock + FrontierConstructionScanOffsets[scan];
+                scannedBlocks++;
+                _frontierConstructionAttempts.TryGetValue(block, out int attempts);
+                if (attempts >= 2 || !YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(
+                        _plan, block.x, block.y, out var opportunity, out _))
+                    continue;
+
+                GeneratedRegionRecord region = null;
+                float nearest = float.PositiveInfinity;
+                foreach (var entry in _plan.regions)
+                {
+                    if (entry == null || !_acceptedSpatialProjection.TryGetRegion(entry.regionId, out var physicalRegion)) continue;
+                    float dx = physicalRegion.centerX - opportunity.worldX, dz = physicalRegion.centerZ - opportunity.worldZ;
+                    float distance = dx * dx + dz * dz;
+                    if (distance < nearest || distance == nearest && region != null && string.CompareOrdinal(entry.regionId, region.regionId) < 0)
+                    { region = entry; nearest = distance; }
+                }
+                if (region == null)
+                    continue;
+                if (!YQSemanticWorldAuthority.TryBuildFrontierLocationCandidate(_plan, block.x, block.y,
+                        region.regionId, out var proposed, out string candidateFailure))
+                {
+                    if (candidateFailure.IndexOf("unique on-rim frontages", StringComparison.OrdinalIgnoreCase) >= 0)
+                        TrackFrontierConstructionAttempt(block, 2);
+                    continue;
+                }
+
+                TrackFrontierConstructionAttempt(block, attempts);
+                candidate = proposed;
+                candidateBlock = block;
+                candidateAttempts = attempts;
+                break;
             }
-            // note: Keep this bounded tracked block at its existing count; a skipped/invalid reserve or transient inference failure has not spent a substantive proposal attempt.
-            _frontierConstructionAttempts[block] = attempts;
-            if (!YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(_plan, block.x, block.y, out var opportunity, out _)) return;
-            GeneratedRegionRecord region = null;
-            float nearest = float.PositiveInfinity;
-            foreach (var entry in _plan.regions)
+            if (candidate == null)
             {
-                if (entry == null || !_acceptedSpatialProjection.TryGetRegion(entry.regionId, out var physicalRegion)) continue;
-                float dx = physicalRegion.centerX - opportunity.worldX, dz = physicalRegion.centerZ - opportunity.worldZ;
-                float distance = dx * dx + dz * dz;
-                if (distance < nearest || distance == nearest && region != null && string.CompareOrdinal(entry.regionId, region.regionId) < 0)
-                { region = entry; nearest = distance; }
+                RecordAggregateWorkSlice(started, "frontierConstruction");
+                return;
             }
-            if (region == null || !YQSemanticWorldAuthority.TryBuildFrontierLocationCandidate(_plan, block.x, block.y,
-                    region.regionId, out var candidate, out _)) return;
             _frontierConstructionWorld = _world; _frontierConstructionPlan = _plan;
             _frontierConstructionEpoch = _configurationEpoch; _frontierConstructionServiceEpoch = YQServiceLifecycle.RequestEpoch;
             _frontierConstructionBaseHash = _plan.spatialPlanV2.contentHash;
             _frontierConstructionPrevious = _plan.spatialPlanV2.acceptedContinuation;
             _frontierConstructionAccepted = null; _frontierConstructionFailure = string.Empty;
             _frontierConstructionWork.Push(builder.PrepareFrontierConstructionWithAdmissionRoutine(_world, candidate,
-                (accepted, reason) => { _frontierConstructionAccepted = accepted; _frontierConstructionFailure = reason; },
+                (accepted, reason) =>
+                {
+                    _frontierConstructionAccepted = accepted;
+                    _frontierConstructionFailure = reason;
+                    if (accepted == null && IsPermanentFrontierPlacementFailure(reason) && IsFrontierConstructionWorkCurrent())
+                        _frontierConstructionAttempts[candidateBlock] = 2;
+                },
                 () => {
-                    // note: Charge only the exact current block whose actual typed proposal passed provenance and engine-reservation checks; the existing 15-second cadence bounds transient retries.
-                    if (IsFrontierConstructionWorkCurrent()) _frontierConstructionAttempts[block] = attempts + 1;
+                    // note: Charge only the exact current block whose typed proposal passed provenance and engine-reservation checks; transient model failures remain eligible for retry.
+                    if (IsFrontierConstructionWorkCurrent()) _frontierConstructionAttempts[candidateBlock] = candidateAttempts + 1;
                 }, TryScreenFrontierTerrainOwnership));
         }
-        float started = Time.realtimeSinceStartup;
         try
         {
             // note: Resources.LoadAsync remains owned until completion; a frame boundary alone cannot authorize reading its asset.
@@ -10989,6 +11032,26 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             CancelFrontierConstructionWork();
         }
         RecordAggregateWorkSlice(started, "frontierConstruction");
+    }
+
+    private void TrackFrontierConstructionAttempt(Vector2Int block, int attempts)
+    {
+        if (!_frontierConstructionAttempts.ContainsKey(block))
+        {
+            while (_frontierConstructionAttemptOrder.Count >= 128)
+                _frontierConstructionAttempts.Remove(_frontierConstructionAttemptOrder.Dequeue());
+            _frontierConstructionAttemptOrder.Enqueue(block);
+        }
+        _frontierConstructionAttempts[block] = attempts;
+    }
+
+    private static bool IsPermanentFrontierPlacementFailure(string failure)
+    {
+        // note: Same-block physical retries are deterministic for this accepted plan; remember a proven geometry rejection and keep scanning other opportunities.
+        return !string.IsNullOrWhiteSpace(failure) &&
+            (failure.IndexOf("bounded same-opportunity retries", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             failure.IndexOf("intersects opening/collar terrain", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             failure.IndexOf("unique on-rim frontages", StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
     private bool TryScreenFrontierTerrainOwnership(IReadOnlyList<Rect> influences, out string failure)
@@ -11389,6 +11452,44 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         // note: A visible sector cannot certify a missing or still inactive central site hierarchy.
         return IsReadyForViewActivationCore(coordinate, chunk) && AreSharedSiteOwnersReady(coordinate);
+    }
+
+    private string DescribeViewActivationBlocker(Vector2Int coordinate, RuntimeChunk chunk)
+    {
+        // note: Report the exact failed readiness owner on the rare coverage-failure path without changing the publication gate.
+        bool sharedAuthoredTerrain = IsChunkInsideAuthoredTerrain(coordinate);
+        if (chunk == null) return "chunkMissing";
+        if (!chunk.physicalRepresentation && !sharedAuthoredTerrain) return "physicalRepresentationMissing";
+        if (!chunk.requiredContentReady) return "requiredContentPending";
+        if (!chunk.overlayReady) return "overlayPending";
+        if (!chunk.appearanceReady) return "appearancePending";
+        if (!chunk.visualReady) return "visualPending";
+        if (_terrainPainting.ContainsKey(coordinate)) return "terrainPainterActive";
+        if (!chunk.requiredEcologyReady) return "ecologyPending";
+        if (!sharedAuthoredTerrain && chunk.terrainReadiness < YQTerrainReadinessState.CollisionReady)
+            return "terrainCollisionPending:" + chunk.terrainReadiness;
+
+        if (_acceptedSpatialProjection != null)
+        {
+            _acceptedSpatialProjection.CollectSiteIndicesForCell(coordinate, Mathf.Max(32f, chunkWorldSize),
+                _sharedSiteReadinessScratch);
+            foreach (int index in _sharedSiteReadinessScratch)
+            {
+                YQSpatialMaterializationSiteV2 site = _acceptedSpatialProjection.GetSite(index);
+                if (site.kind == YQSiteKindV2.Origin) continue;
+                Vector2Int owner = ChunkFor(new Vector2(site.x, site.z));
+                if (!_chunks.TryGetValue(owner, out RuntimeChunk ownerChunk) || ownerChunk == null)
+                    return "sharedSiteOwnerMissing:" + site.siteId + "@" + owner;
+                if (!IsReadyForSharedSitePreparation(owner, ownerChunk))
+                    return "sharedSiteOwnerNotPrepared:" + site.siteId + "@" + owner;
+                if (!IsSharedSitePresentationReady(ownerChunk, site.siteId))
+                    return "sharedSitePresentationPending:" + site.siteId + "@" + owner;
+            }
+        }
+        if (!chunk.activationComplete) return "activationIncomplete";
+        if (chunk.activeState != 1) return "activationState:" + chunk.activeState;
+        string rendererBlocker = DescribePublishedRendererBlocker(chunk);
+        return string.IsNullOrEmpty(rendererBlocker) ? "unknown" : "renderer:" + rendererBlocker;
     }
 
     private bool IsReadyForViewActivationCore(Vector2Int coordinate, RuntimeChunk chunk)

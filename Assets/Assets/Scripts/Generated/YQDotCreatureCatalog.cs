@@ -79,6 +79,9 @@ public sealed class YQDotCreatureCatalog : ScriptableObject
                 case "kitsune": return "kitsune";
                 case "bramblekin": return "bramblekin";
                 case "cairnback": case "thornweaver": case "sporewarden": case "maw": return token;
+                // note: Bind the accepted generic frontier families to the closest approved imported creature so they do not degrade to capsule stand-ins.
+                case "sewer": case "mutant": case "mutants": case "burrower": case "burrowers": return "maw";
+                case "beast": case "beasts": return "cairnback";
                 // note: An explicit DOT qualifier selects the new mimic shell without changing established generic mimic bindings.
                 case "mimic": if (Array.IndexOf(tokens, "dot") >= 0) return "mimic"; break;
                 case "rabbit": case "rabbits": return "rabbit";

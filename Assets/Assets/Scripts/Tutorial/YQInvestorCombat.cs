@@ -353,16 +353,6 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return;
         }
 
-        YQGeneratedSettlementService settlementService = hit.collider.GetComponentInParent<YQGeneratedSettlementService>();
-        if (settlementService != null)
-        {
-            // note: Settlement services consume the same authoritative interaction input as doors and pickups, so the beta itinerary has a real gameplay endpoint.
-            // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
-            if (settlementService.TryUse(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
-            _recorder?.RecordInteract(settlementService.gameObject);
-            return;
-        }
-
         if (TryOpenDialogueFromCollider(hit.collider))
         {
             _equipmentVisual?.PlayInteractionFeedback();
@@ -418,6 +408,15 @@ public sealed class YQInvestorCombat : MonoBehaviour
             shrine.Interact(gameObject);
             _equipmentVisual?.PlayInteractionFeedback();
             _recorder?.RecordInteract(shrine.gameObject);
+            return;
+        }
+
+        YQGeneratedSettlementService settlementService = hit.collider.GetComponentInParent<YQGeneratedSettlementService>();
+        if (settlementService != null)
+        {
+            // note: Resolve the broad settlement action only after the ray misses its specific door, loot, storage, dialogue, pickup, corpse, or shrine target.
+            if (settlementService.TryUse(gameObject)) _equipmentVisual?.PlayInteractionFeedback(false);
+            _recorder?.RecordInteract(settlementService.gameObject);
         }
     }
 
@@ -427,7 +426,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
         Transform door = collider.GetComponentInParent<YQLockpickableDoor>(true)?.transform;
         Transform loot = collider.GetComponentInParent<YQLockpickableLoot>(true)?.transform;
         Transform storage = collider.GetComponentInParent<YQWorldContainer>(true)?.transform;
-        return IsDescendant(door) || IsDescendant(loot) || IsDescendant(storage);
+        Transform shrine = collider.GetComponentInParent<YQInvestorShrine>(true)?.transform;
+        return IsDescendant(door) || IsDescendant(loot) || IsDescendant(storage) || IsDescendant(shrine);
 
         bool IsDescendant(Transform target) => target != null && target != landmarkRoot && target.IsChildOf(landmarkRoot);
     }
