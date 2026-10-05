@@ -582,6 +582,14 @@ public static class YQGeneratedWorldPopulation
             failure = "Continuation encampment requires its canonical region and asset palette in the active plan.";
             return false;
         }
+        int minimumPopulation = location.settlement != null ? 2 : 1;
+        if (location.population.Count < minimumPopulation)
+        {
+            failure = location.settlement != null
+                ? "Continuation settlement requires at least two persisted residents."
+                : "Continuation hostile site requires its persisted hostile leader.";
+            return false;
+        }
         // note: Preserve dead/removed NPCs and the existing one-commander camp contract without modifying base plan collections.
         foreach (GeneratedNpcPlanRecord npc in location.population)
         {

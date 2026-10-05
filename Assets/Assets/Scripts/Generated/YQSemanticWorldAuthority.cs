@@ -16,10 +16,10 @@ public static class YQSemanticWorldAuthority
     public const string HashAlgorithmVersion = "fnv1a32_utf16_v1";
     public const string SiteFootprintProjectionVersion = "accepted_member_footprint_union_v1";
     public const string ContinuationProjectionVersion = "accepted_continuation_projection_v1";
-    // note: Version four sets a practical small-site cadence and spaces rare multi-sector settlements without rerolling accepted locations.
-    public const string FrontierOpportunityVersion = "frontier_sites_v4";
+    // note: Version five increases small-site cadence and keeps rare multi-sector settlements spaced without rerolling accepted locations.
+    public const string FrontierOpportunityVersion = "frontier_sites_v5";
     internal const string FrontierCandidateReservationVersion = "frontier_candidate_reserves_v2";
-    public const int FrontierOpportunitySpanCells = 8;
+    public const int FrontierOpportunitySpanCells = 4;
     public const int FrontierOpportunityHaloRadius = 1;
     public const int CellSizeMeters = 128;
     public const int QueryNeighborhoodRadiusCells = 2;
@@ -30,13 +30,12 @@ public static class YQSemanticWorldAuthority
     private const int BasinSpanCells = 16;
     private const int HugePoiSpacingCells = 30;
     private const int LargeSettlementSpacingCells = 30;
-    private const float FrontierOpportunityPresenceChance = 0.52f;
+    private const float FrontierOpportunityPresenceChance = 0.84f;
     private const float FrontierHostileDangerThreshold = 0.54f;
     private const float FrontierSmallSettlementCivilizationThreshold = 0.50f;
     private const float FrontierLargeSettlementChance = 0.10f;
-    // note: A failed physical candidate may move within its 1,024m deterministic opportunity block while keeping its original identity.
+    // note: Physical recovery stays inside the candidate's 512m deterministic opportunity block and retains its original identity.
     internal const float FrontierPhysicalRecoveryDistance = 768f;
-    internal const float FrontierTerrainRecoveryDistance = 320f;
     private const int ContinentCount = 4;
     private const float SyntheticWorldCellRadius = 4096f;
     private const int RuntimeCellCoreCacheCapacity = 512;
@@ -561,6 +560,36 @@ public static class YQSemanticWorldAuthority
         return true;
     }
 
+    internal static bool TryGetFrontierRecoveryOffset(GeneratedSpatialContinuationLocationV2Record candidate,
+        float normalizedX, float normalizedZ, out float offsetX, out float offsetZ)
+    {
+        // note: Recovery probes a stable 3x3 grid inside the candidate's own block so steep frontage failures can find nearby usable ground.
+        offsetX = 0f;
+        offsetZ = 0f;
+        var anchor = candidate?.anchor;
+        if (anchor == null || !FrontierFinite(anchor.x) || !FrontierFinite(anchor.z) ||
+            !FrontierFinite(normalizedX) || !FrontierFinite(normalizedZ) ||
+            normalizedX < 0.18f || normalizedX > 0.82f || normalizedZ < 0.18f || normalizedZ > 0.82f)
+            return false;
+
+        double blockSize = (double)CellSizeMeters * FrontierOpportunitySpanCells;
+        double blockMinimumX = WorldGridOrigin + (double)candidate.blockX * blockSize;
+        double blockMinimumZ = WorldGridOrigin + (double)candidate.blockZ * blockSize;
+        if (Math.Floor(((double)anchor.x - WorldGridOrigin) / blockSize) != candidate.blockX ||
+            Math.Floor(((double)anchor.z - WorldGridOrigin) / blockSize) != candidate.blockZ)
+            return false;
+
+        double targetX = blockMinimumX + normalizedX * blockSize;
+        double targetZ = blockMinimumZ + normalizedZ * blockSize;
+        if (Math.Floor((targetX - WorldGridOrigin) / blockSize) != candidate.blockX ||
+            Math.Floor((targetZ - WorldGridOrigin) / blockSize) != candidate.blockZ)
+            return false;
+        offsetX = (float)(targetX - anchor.x);
+        offsetZ = (float)(targetZ - anchor.z);
+        return FrontierFinite(offsetX) && FrontierFinite(offsetZ) &&
+            offsetX * offsetX + offsetZ * offsetZ <= FrontierPhysicalRecoveryDistance * FrontierPhysicalRecoveryDistance;
+    }
+
     private static bool FrontierCandidateDestinationMatchesReservation(GeneratedWorldPlanRecord plan,
         YQPreparedSpatialMaterializationV2 prepared, GeneratedSpatialContinuationLocationV2Record candidate,
         float worldX, float worldZ)
@@ -672,8 +701,12 @@ public static class YQSemanticWorldAuthority
         priority = AppendHash(2166136261u, seed + "|priority");
         if (!IsRepresentableOpportunityBlock(blockX, blockZ) || Hash01(seed + "|presence") >= FrontierOpportunityPresenceChance)
             return false;
-        int cellX = blockX * FrontierOpportunitySpanCells + Mathf.RoundToInt((0.18f + Hash01(seed + "|x") * 0.64f) * 7f);
-        int cellZ = blockZ * FrontierOpportunitySpanCells + Mathf.RoundToInt((0.18f + Hash01(seed + "|z") * 0.64f) * 7f);
+        int localCellX = Mathf.Clamp(Mathf.FloorToInt((0.12f + Hash01(seed + "|x") * 0.76f) * FrontierOpportunitySpanCells),
+            0, FrontierOpportunitySpanCells - 1);
+        int localCellZ = Mathf.Clamp(Mathf.FloorToInt((0.12f + Hash01(seed + "|z") * 0.76f) * FrontierOpportunitySpanCells),
+            0, FrontierOpportunitySpanCells - 1);
+        int cellX = blockX * FrontierOpportunitySpanCells + localCellX;
+        int cellZ = blockZ * FrontierOpportunitySpanCells + localCellZ;
         float x = WorldGridOrigin + cellX * (float)CellSizeMeters + CellSizeMeters * 0.5f;
         float z = WorldGridOrigin + cellZ * (float)CellSizeMeters + CellSizeMeters * 0.5f;
         if (Math.Floor(((double)x - WorldGridOrigin) / CellSizeMeters) != cellX ||

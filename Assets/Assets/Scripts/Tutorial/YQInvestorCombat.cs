@@ -344,7 +344,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return;
 
         YQGeneratedLandmarkResource landmarkResource = hit.collider.GetComponentInParent<YQGeneratedLandmarkResource>();
-        if (landmarkResource != null)
+        if (landmarkResource != null && !HasSpecificLandmarkInteraction(hit.collider, landmarkResource.transform))
         {
             // note: Landmark harvesting uses the authoritative interaction ray and save path, making the required resource site usable in normal travel.
             // note: Animate only accepted interactions; rejected or exhausted targets do not play a success gesture.
@@ -421,6 +421,17 @@ public sealed class YQInvestorCombat : MonoBehaviour
         }
     }
 
+    private static bool HasSpecificLandmarkInteraction(Collider collider, Transform landmarkRoot)
+    {
+        // note: A compiled POI's broad harvest owner must not consume the input aimed at its reviewed door or reward chest.
+        Transform door = collider.GetComponentInParent<YQLockpickableDoor>(true)?.transform;
+        Transform loot = collider.GetComponentInParent<YQLockpickableLoot>(true)?.transform;
+        Transform storage = collider.GetComponentInParent<YQWorldContainer>(true)?.transform;
+        return IsDescendant(door) || IsDescendant(loot) || IsDescendant(storage);
+
+        bool IsDescendant(Transform target) => target != null && target != landmarkRoot && target.IsChildOf(landmarkRoot);
+    }
+
     private bool TryFindInteractHit(out RaycastHit bestHit)
     {
         bestHit = default;
@@ -450,6 +461,26 @@ public sealed class YQInvestorCombat : MonoBehaviour
             if (candidate.distance < nearestDistance)
             {
                 nearestDistance = candidate.distance;
+                nearest = candidate;
+            }
+        }
+
+        // note: Prefer a nearby approved door or reward collider over the enclosing landmark harvest collider on the same authored site.
+        YQGeneratedLandmarkResource nearestLandmark = nearest.collider != null
+            ? nearest.collider.GetComponentInParent<YQGeneratedLandmarkResource>()
+            : null;
+        if (nearestLandmark != null && !HasSpecificLandmarkInteraction(nearest.collider, nearestLandmark.transform))
+        {
+            float nearestSpecificDistance = nearestDistance + 0.45f;
+            for (int i = 0; i < count; i++)
+            {
+                RaycastHit candidate = _interactHits[i];
+                if (candidate.collider == null || IsOwnCollider(candidate.collider) || candidate.distance > nearestSpecificDistance)
+                    continue;
+                if (!ReferenceEquals(candidate.collider.GetComponentInParent<YQGeneratedLandmarkResource>(), nearestLandmark) ||
+                    !HasSpecificLandmarkInteraction(candidate.collider, nearestLandmark.transform))
+                    continue;
+                nearestSpecificDistance = candidate.distance;
                 nearest = candidate;
             }
         }

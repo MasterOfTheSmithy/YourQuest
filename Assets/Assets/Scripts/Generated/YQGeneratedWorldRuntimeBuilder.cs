@@ -380,35 +380,69 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         string initialFailure = failure;
         string lastFailure = failure;
-        float recoveryDistance = YQSemanticWorldAuthority.FrontierTerrainRecoveryDistance;
         Vector2 outward = Mathf.Abs(original.anchor.x) >= Mathf.Abs(original.anchor.z)
             ? new Vector2(original.anchor.x < 0f ? -1f : 1f, 0f)
             : new Vector2(0f, original.anchor.z < 0f ? -1f : 1f);
         Vector2 perpendicular = new Vector2(-outward.y, outward.x);
         Vector2[] directions = { outward, perpendicular, -outward, -perpendicular };
-        float[] recoveryDistances = new float[directions.Length];
         bool recoveringOpeningCollar = initialFailure.IndexOf("opening/collar terrain", StringComparison.OrdinalIgnoreCase) >= 0;
-        for (int index = 0; index < directions.Length; index++)
-            recoveryDistances[index] = recoveringOpeningCollar
-                ? (YQContinuousWorldCellAuthority.TryGetFrontierOpeningCollarRecoveryDistance(original, directions[index], out float distance)
-                    ? distance : 0f)
-                : recoveryDistance;
-        bool[] triedDirection = new bool[directions.Length];
+        var recoveryOffsets = new List<Vector2>(13);
+        if (recoveringOpeningCollar)
+        {
+            // note: Retain the exact clearance probe first when an opportunity collides with a protected terrain collar.
+            var collarOffsets = new List<Vector2>(directions.Length);
+            for (int index = 0; index < directions.Length; index++)
+                if (YQContinuousWorldCellAuthority.TryGetFrontierOpeningCollarRecoveryDistance(original, directions[index], out float distance) &&
+                    distance > 0f)
+                    collarOffsets.Add(directions[index] * distance);
+            collarOffsets.Sort((first, second) =>
+            {
+                int distanceOrder = first.sqrMagnitude.CompareTo(second.sqrMagnitude);
+                if (distanceOrder != 0) return distanceOrder;
+                int xOrder = first.x.CompareTo(second.x);
+                return xOrder != 0 ? xOrder : first.y.CompareTo(second.y);
+            });
+            recoveryOffsets.AddRange(collarOffsets);
+        }
+
+        // note: Probe nearby block positions in stable distance order so route and earthwork failures can recover without weakening their limits.
+        float[] sampleFractions = { 0.18f, 0.5f, 0.82f };
+        var localOffsets = new List<Vector2>(sampleFractions.Length * sampleFractions.Length);
+        foreach (float sampleX in sampleFractions)
+        foreach (float sampleZ in sampleFractions)
+        {
+            if (!YQSemanticWorldAuthority.TryGetFrontierRecoveryOffset(original, sampleX, sampleZ,
+                    out float offsetX, out float offsetZ))
+                continue;
+            var offset = new Vector2(offsetX, offsetZ);
+            if (offset.sqrMagnitude > 0.01f)
+                localOffsets.Add(offset);
+        }
+        localOffsets.Sort((first, second) =>
+        {
+            int distanceOrder = first.sqrMagnitude.CompareTo(second.sqrMagnitude);
+            if (distanceOrder != 0) return distanceOrder;
+            int xOrder = first.x.CompareTo(second.x);
+            return xOrder != 0 ? xOrder : first.y.CompareTo(second.y);
+        });
+        foreach (Vector2 offset in localOffsets)
+        {
+            bool duplicate = false;
+            for (int index = 0; index < recoveryOffsets.Count; index++)
+                if ((recoveryOffsets[index] - offset).sqrMagnitude < 0.01f)
+                { duplicate = true; break; }
+            if (!duplicate) recoveryOffsets.Add(offset);
+        }
+
         int attempted = 0;
-        for (int attempt = 0; attempt < directions.Length; attempt++)
+        for (int attempt = 0; attempt < recoveryOffsets.Count; attempt++)
         {
             if (!ownerIsCurrent()) { failure = "Frontier physical placement owner changed."; return false; }
-            int index = -1;
-            for (int candidateIndex = 0; candidateIndex < directions.Length; candidateIndex++)
-                if (!triedDirection[candidateIndex] && recoveryDistances[candidateIndex] > 0f &&
-                    (index < 0 || recoveryDistances[candidateIndex] < recoveryDistances[index])) index = candidateIndex;
-            if (index < 0) break;
-            triedDirection[index] = true;
             try
             {
                 var clone = JsonConvert.DeserializeObject<GeneratedSpatialContinuationLocationV2Record>(
                     JsonConvert.SerializeObject(original, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
-                Vector2 offset = directions[index] * recoveryDistances[index];
+                Vector2 offset = recoveryOffsets[attempt];
                 if (!YQSemanticWorldAuthority.TryOffsetFrontierCandidateWithinOpportunityBlock(plan, prepared, clone, offset.x, offset.y) ||
                     !YQSemanticWorldAuthority.IsFrontierCandidateWithinLargeSettlementSpacing(prepared, clone)) continue;
                 attempted++;
