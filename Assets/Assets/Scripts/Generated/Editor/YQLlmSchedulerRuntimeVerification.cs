@@ -293,7 +293,7 @@ public static class YQLlmSchedulerRuntimeVerification
             bool disconnectPass = disconnectedDone && disconnectedFailed;
             _evidence.Add("disconnect terminal pass=" + disconnectPass);
 
-            // note: A local listener accepts the request but withholds its response, making the one-second transport timeout deterministic and offline.
+            // note: Withhold the service response past a legacy one-second override; only explicit cancellation may retire this pending request.
             bool timeoutDone = false;
             bool timeoutFailed = false;
             TcpListener listener = new TcpListener(IPAddress.Loopback, 0);
@@ -308,11 +308,11 @@ public static class YQLlmSchedulerRuntimeVerification
                 }
                 catch (SocketException)
                 {
-                    // note: Stopping the listener after the client timeout is expected cleanup, not a verifier failure.
+                    // note: Stopping the listener after explicit cancellation is expected fixture cleanup.
                 }
                 catch (ObjectDisposedException)
                 {
-                    // note: Disposal races are harmless once the timeout terminal result has been observed.
+                    // note: Disposal races are harmless once the cancelled terminal result has been observed.
                 }
             });
             ApplyFixtureConfig(true, "http://127.0.0.1:" + timeoutPort);
@@ -335,16 +335,18 @@ public static class YQLlmSchedulerRuntimeVerification
                 }
             }, result =>
             {
-                timeoutFailed = !result.success && result.outcome == YQLlmTerminalOutcome.Failed && _client.TimeoutFailureCount > timeoutCountBefore;
+                timeoutFailed = !result.success && result.outcome == YQLlmTerminalOutcome.Cancelled && _client.TimeoutFailureCount == timeoutCountBefore;
                 timeoutDone = true;
                 _evidence.Add("timeout id=" + timeoutId + " outcome=" + result.outcome + " success=" + result.success + " classified=" + timeoutFailed);
             });
-            deadline = Time.realtimeSinceStartup + 6f;
+            deadline = Time.realtimeSinceStartup + 1.5f;
             while (Application.isPlaying && !timeoutDone && Time.realtimeSinceStartup < deadline)
                 yield return null;
-            bool timeoutPass = timeoutDone && timeoutFailed;
+            bool remainedPending = !timeoutDone;
+            _client.CancelRequest(timeoutId, "Slow-service fixture explicitly cancelled");
+            bool timeoutPass = remainedPending && timeoutDone && timeoutFailed;
             listener.Stop();
-            _evidence.Add("timeout terminal pass=" + timeoutPass);
+            _evidence.Add("no automatic timeout; explicit cancellation pass=" + timeoutPass);
             completed?.Invoke(switchPass && disconnectPass && timeoutPass);
         }
 

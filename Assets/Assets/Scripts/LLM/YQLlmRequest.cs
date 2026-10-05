@@ -31,7 +31,8 @@ public sealed class YQLlmRequest
     public Dictionary<string, object> jsonSchema;
     // note: Domain parsers may repair optional presentation fields while still strictly validating canonical gameplay data.
     public bool deferJsonValidationToCaller;
-    public bool disableTimeout;
+    // note: Retained for callers compiled against the earlier API; transport is unlimited even when old callers explicitly assign false.
+    public bool disableTimeout = true;
     public string exclusiveOwner;
     // note: These optional stamps let callers pin a request to a profile/world snapshot; omitted values are captured at admission.
     public string profileId;

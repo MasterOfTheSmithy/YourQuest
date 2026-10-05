@@ -34,10 +34,9 @@ public static class YQGoddessSpeech
             worldStateRevision = scope?.Value<long>("worldRevision") ?? -1
         };
         // note: Purpose and current-turn words participate in indexing; equal task prose cannot alias a different speech transaction.
-        // note: Leave room for the existing scheduler backlog before the bounded three-call voice budget; queued world generation is not failed voice inference.
-        double queueAllowance = client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.GoddessCommentary, "GoddessSpeech");
+        // note: The three-call repair limit remains; neither queue waiting nor a slow CPU voice response consumes an elapsed-time deadline.
         YQRepairEpisode episode = client.CreateRepairEpisode(binding, "goddess:" + hash + ":" + (int)purpose + ":" +
-            YQRepairEpisode.Hash(task) + ":" + YQRepairEpisode.Hash(playerStatement), queueAllowance + 45d);
+            YQRepairEpisode.Hash(task) + ":" + YQRepairEpisode.Hash(playerStatement), double.PositiveInfinity);
         if (episode == null)
         {
             onComplete?.Invoke(new Result(YQGoddessGrounding.UnknownLine, "RepairUnavailable", hash, string.Empty, true));
@@ -107,7 +106,7 @@ public static class YQGoddessSpeech
                 jsonSchema = YQGoddessSpeechPlan.Schema(evidence, purpose, playerStatement), maxRetries = 0, parentRequestKey = parentKey,
                 requiredOllamaModelDigest = digest,
                 ownerStillCurrent = () => client != null && (stillCurrent == null || stillCurrent()),
-                optionsOverride = new Dictionary<string, object> { { "request_timeout_seconds", 15 }, { "presence_penalty", 0f },
+                optionsOverride = new Dictionary<string, object> { { "presence_penalty", 0f },
                     { "num_ctx", YQGoddessSpeechPlan.ContextTokens } }
             };
             // note: A qualified CPU route can leave occupied graphics memory available to the game; it is part of the contract signature.
@@ -118,7 +117,6 @@ public static class YQGoddessSpeech
             {
                 if (!Current()) return;
                 if (Retired(generated)) { episode.Finish("Superseded"); return; }
-                if (episode.RemainingSeconds < 1d) { Finish("DeadlineExhausted", null); return; }
                 if (!client.GoddessSpeechPlanEnabled || !string.Equals(client.QualifiedGoddessSpeechPlanDigest, digest, StringComparison.Ordinal))
                 { Finish("SpeechPlanUnavailable", null); return; }
                 if (!MatchesScope(generated) || (generated.success && !Belongs(generated, false)))

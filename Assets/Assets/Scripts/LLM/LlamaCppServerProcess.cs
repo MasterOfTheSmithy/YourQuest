@@ -251,10 +251,9 @@ public sealed class LlamaCppServerProcess : IDisposable
 
     private IEnumerator WaitForHealth(string baseUrl, int timeoutSeconds, Action<bool, string> onComplete)
     {
-        float deadline = Time.realtimeSinceStartup + Mathf.Max(1, timeoutSeconds);
         string lastError = string.Empty;
-
-        while (Time.realtimeSinceStartup < deadline)
+        // note: Do not fail a queued generation request while its model is still loading. Known process death and owner disposal remain real failures.
+        while (!_disposed)
         {
             bool ready = false;
             yield return ProbeServer(baseUrl, 2, (ok, error) =>
@@ -269,10 +268,16 @@ public sealed class LlamaCppServerProcess : IDisposable
                 yield break;
             }
 
+            if (_ownedProcess != null && _ownedProcess.HasExited)
+            {
+                onComplete?.Invoke(false, "Owned llama.cpp process exited while loading. Last health probe: " + lastError);
+                yield break;
+            }
+
             yield return new WaitForSecondsRealtime(0.25f);
         }
 
-        onComplete?.Invoke(false, "llama.cpp server did not become ready before timeout. Last health probe: " + lastError);
+        onComplete?.Invoke(false, "llama.cpp service owner was disposed while waiting. Last health probe: " + lastError);
     }
 
     private static IEnumerator ProbeServer(string baseUrl, int timeoutSeconds, Action<bool, string> onComplete, Action<bool> onReachable = null)

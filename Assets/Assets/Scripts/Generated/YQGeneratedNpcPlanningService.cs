@@ -59,7 +59,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
     [Range(30f, 300f)]
     [Tooltip(
-        "Maximum seconds to wait for one NPC batch before using deterministic fallback identities.")]
+        "Legacy serialized compatibility only. Slow NPC generation no longer times out or triggers fallback.")]
     public float maxNpcBatchRequestSeconds = 180f;
 
     public string LastPopulationMessage
@@ -490,7 +490,6 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         new List<GeneratedNpcPlanRecord>();
 
     private int _activeBatchIndex;
-    private long _populationRequestId;
     private GeneratedWorldPlanRecord _populationPlan;
     private string _populationPlanIdentity;
 
@@ -777,24 +776,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
         if (_requestInFlight)
         {
-            // note: Waiting behind another model is queue time, not a stalled NPC call. The shared scheduler owns the active attempt clock.
-            LLMClient client = LLMClient.Instance;
-            if (client != null && ShouldTimeoutPopulationRequest(_populationRequestTag, client.ActiveRequestDebugTag,
-                client.ActiveRequestAgeSeconds, Mathf.Max(300f, maxNpcBatchRequestSeconds)))
-            {
-                // note: Retire the exact transport before fallback advances its batch; a late model reply cannot apply twice.
-                if (_populationRequestId > 0) client.CancelRequest(_populationRequestId, "NPC active attempt exceeded its safety budget");
-                // note: A stalled local model must not trap the loading lock forever.
-                _requestInFlight =
-                    false;
-
-                AcceptDeterministicFallbackForCurrentBatch(
-                    "Ollama NPC batch timed out while the world was waiting.");
-
-                return;
-            }
-
-            // note: Preserve the last accepted Ollama-authored line while this request runs; periodic empty/canned updates caused needless UI churn.
+            // note: Slow queued or active generation waits for the typed terminal callback; elapsed time cannot substitute fallback identities.
             return;
         }
 
@@ -1489,11 +1471,6 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 {
                     "top_p",
                     0.92f
-                },
-                {
-                    // note: Unity's web timeout should fire before the planner's stall guard, avoiding stale late callbacks.
-                    "request_timeout_seconds",
-                    240
                 }
             };
 
@@ -1838,7 +1815,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         // note: NPC identities depend on this accepted location, not walking, autosave revisions or additions to other frontier locations.
         string semanticBinding = PopulationSemanticBinding(plan, target);
         bool locked = YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked;
-        _populationRequestId = LLMClient.Instance.Submit(BuildPopulationRequest(prompt, _populationRequestTag, options, locked,
+        LLMClient.Instance.Submit(BuildPopulationRequest(prompt, _populationRequestTag, options, locked,
             () => this != null && _requestInFlight && ReferenceEquals(CurrentBatchTarget(), target) &&
                 WorldStateManager.Instance != null && ReferenceEquals(WorldStateManager.Instance.State, world) &&
                 ReferenceEquals(world.generatedWorldPlan, plan) &&
@@ -1915,13 +1892,6 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             region = FindRegion(plan, target.regionId), location,
             expectedNpcCount = GetExpectedNpcCountForTarget(plan, target)
         }));
-    }
-
-    private static bool ShouldTimeoutPopulationRequest(string pendingTag, string activeTag, float activeAgeSeconds, float maximumSeconds)
-    {
-        // note: Owner identity and active inference age retain the stall guard without spending its budget on someone else's turn.
-        return !string.IsNullOrWhiteSpace(pendingTag) && string.Equals(pendingTag, activeTag, StringComparison.Ordinal) &&
-            activeAgeSeconds > Mathf.Max(30f, maximumSeconds);
     }
 
     private static bool IsNameCollisionFailure(

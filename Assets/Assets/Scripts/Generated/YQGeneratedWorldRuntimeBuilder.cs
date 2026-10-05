@@ -528,10 +528,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             if (service == null || !service.TryRequestFrontierLocationBrief(world, engineCandidate,
                     (value, reason) => { staged = value; failure = reason; briefFinished = true; }, out requestId))
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier generation service is unavailable."); yield break; }
-            // note: Queue waiting does not spend the transport attempt budget. The shared scheduler bounds active work; this owner still cancels retired construction.
+            // note: Queue/inference waiting has no clock deadline; this owner still cancels retired construction.
             while (!briefFinished && Current() && LLMClient.Instance != null) yield return null;
             if (!briefFinished || !Current() || staged == null)
-            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier brief timed out or its owner changed."); yield break; }
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier brief failed or its owner changed."); yield break; }
             // note: Retain the actual prepared proposal provenance before adding engine-owned physical decisions.
             string proposalHash = staged.sourceContentHash;
             if (staged.state != YQSpatialContinuationStateV2.Staged || staged.source != YQSpatialContinuationSourceV2.LlmProposal ||
@@ -1234,6 +1234,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         _initialGenerationLastWatchdogUpdateAt = watchdogNow;
+
+        // note: Model waiting is not a stalled physical build. Let slow queued, loading and active requests finish without the world watchdog cancelling them.
+        if (IsInitialGenerationGameplayLocked && LLMClient.Instance != null && LLMClient.Instance.IsBusy)
+            _initialGenerationLastProgressAt = watchdogNow;
 
         if (IsInitialGenerationGameplayLocked &&
             _initialGenerationLastProgressAt >= 0f &&

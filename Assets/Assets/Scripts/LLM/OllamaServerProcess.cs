@@ -43,8 +43,8 @@ public sealed class OllamaServerProcess
                 yield break;
             }
         }
-        float deadline = Time.realtimeSinceStartup + Mathf.Max(1, config.startupTimeoutSeconds);
-        while (Time.realtimeSinceStartup < deadline)
+        // note: A loading/busy service can take arbitrarily long; only disposal or a known process exit ends readiness waiting.
+        while (!disposed)
         {
             yield return Probe(baseUrl, (ok, present) => { ready = ok; reachable = present; });
             if (ready)
@@ -64,7 +64,7 @@ public sealed class OllamaServerProcess
             }
             yield return new WaitForSecondsRealtime(.25f);
         }
-        completed?.Invoke(false, "Ollama service did not become ready before startup timeout at " + baseUrl);
+        completed?.Invoke(false, "Ollama service owner was disposed while waiting at " + baseUrl);
     }
 
     internal static bool TryGetLocalEndpoint(string baseUrl, out string endpoint)
@@ -105,6 +105,8 @@ public sealed class OllamaServerProcess
             // note: Only the game-owned service is constrained to one runner; LLMClient remains the single request scheduler.
             info.EnvironmentVariables["OLLAMA_MAX_LOADED_MODELS"] = "1";
             info.EnvironmentVariables["OLLAMA_NUM_PARALLEL"] = "1";
+            // note: Ollama itself treats a nonpositive load timeout as infinite; slow model loading must not terminate a game request.
+            info.EnvironmentVariables["OLLAMA_LOAD_TIMEOUT"] = "0";
             ownedProcess = Process.Start(info);
             if (ownedProcess == null) { error = "Failed to start headless Ollama service."; return false; }
             UnityEngine.Debug.Log("[OllamaServerProcess] Started owned headless Ollama service at " + endpoint + ".");

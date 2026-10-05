@@ -24,8 +24,8 @@ public sealed class OllamaRequest
 public sealed class LLMClient : MonoBehaviour
 {
     public static LLMClient Instance { get; private set; }
-    private float nextRepairDeadlineSweep;
-    private readonly List<long> expiredRepairRequestIds = new List<long>();
+    // note: All generation waits until a response, a real failure, or explicit ownership cancellation; Unity uses zero for an unlimited HTTP timeout.
+    internal const int GenerationRequestTimeoutSeconds = 0;
     private const string LocalRequestTimeoutSecondsOption = "request_timeout_seconds";
 
     [Header("Runtime Config")]
@@ -36,7 +36,8 @@ public sealed class LLMClient : MonoBehaviour
     public string apiUrl = "http://127.0.0.1:11434";
 
     [Header("Request Safety")]
-    [Min(0)] public int requestTimeoutSeconds = 180;
+    [Tooltip("Legacy serialized compatibility only. LLM generation has no elapsed-time timeout.")]
+    [Min(0)] public int requestTimeoutSeconds = 0;
     [Min(5)] public float maxQueuedRequestAgeSeconds = 90f;
     [Min(64)] public int numPredict = 300;
     [Range(2048, 16384)] public int contextLength = 6144;
@@ -106,7 +107,7 @@ public sealed class LLMClient : MonoBehaviour
         public string repairRequestKey;
         public Func<bool> ownerStillCurrent;
 
-        // note: Waiting duration is telemetry; only retired ownership or an explicit deadline expires admitted work.
+        // note: Waiting duration is telemetry; only retired ownership cancels admitted work.
         public float queuedAt;
         public float firstQueuedAt;
 
@@ -229,24 +230,8 @@ public sealed class LLMClient : MonoBehaviour
         if (_quitting)
             return;
 
-        // note: Episode time includes queue and health setup; retire expired children through the existing scheduler.
-        if (Time.unscaledTime >= nextRepairDeadlineSweep)
-        {
-            nextRepairDeadlineSweep = Time.unscaledTime + 0.25f;
-            ExpireRepairRequests();
-        }
         LLMRuntimeConfig config = ActiveConfig();
-        if (IsExclusiveSequenceActive &&
-            Time.realtimeSinceStartup - _exclusiveSequenceStartedAt >
-            Mathf.Max(15, config != null ? config.exclusiveSequenceTimeoutSeconds : 120))
-        {
-            // note: A vanished startup owner cannot keep lower-priority work locked indefinitely; terminalize its work before releasing the lease.
-            CancelRequestsOwnedBy(_exclusiveSequenceOwner, YQLlmTerminalOutcome.Superseded, "Exclusive LLM sequence exceeded its bounded lease.");
-            string expiredOwner = _exclusiveSequenceOwner;
-            _exclusiveSequenceOwner = string.Empty;
-            Debug.LogWarning("[LLMClient] Exclusive sequence lease expired: " + expiredOwner);
-            EnsureQueueProcessorRunning();
-        }
+        // note: Startup ownership ends through its explicit completion/cancellation path, never while a slow model is still working.
 
         if (_llamaServer == null || !_llamaServer.OwnsProcess)
             return;
@@ -372,26 +357,6 @@ public sealed class LLMClient : MonoBehaviour
     public bool GoddessSpeechPlanEnabled => ActiveConfig().HasQualifiedGoddessSpeechPlan;
     public string QualifiedGoddessSpeechPlanDigest => GoddessSpeechPlanEnabled ? ActiveConfig().goddessSpeechPlanModelDigest : string.Empty;
     public bool GoddessSpeechPlanCpuOnly => ActiveConfig().goddessSpeechPlanCpuOnly;
-    private void ExpireRepairRequests()
-    {
-        expiredRepairRequestIds.Clear();
-        foreach (QueuedRequest request in _exclusiveQueue) CaptureExpiredRepair(request);
-        foreach (QueuedRequest request in _highPriorityQueue) CaptureExpiredRepair(request);
-        foreach (QueuedRequest request in _normalQueue) CaptureExpiredRepair(request);
-        foreach (QueuedRequest request in _retryingRequests.Values) CaptureExpiredRepair(request);
-        if (_activeRequestValid) CaptureExpiredRepair(_activeRequest);
-        // note: Callbacks may change queues, so collect IDs before terminalizing any child.
-        for (int i = 0; i < expiredRepairRequestIds.Count; i++)
-            TerminalizeRequestById(expiredRepairRequestIds[i], YQLlmTerminalOutcome.Failed,
-                "Repair episode deadline exhausted.", false);
-    }
-
-    private void CaptureExpiredRepair(QueuedRequest request)
-    {
-        if (request.repairEpisode != null && request.repairEpisode.RemainingSeconds < 1d)
-            expiredRepairRequestIds.Add(request.id);
-    }
-
     public void CancelRepairEpisode(YQRepairEpisode episode)
     {
         // note: Cancel exact admitted children, preserving unrelated work that happens to share an owner label.
@@ -407,12 +372,7 @@ public sealed class LLMClient : MonoBehaviour
         CaptureRequestBinding(request, request.debugTag, out string profile, out string world, out int epoch,
             out string owner, out long playerRev, out long worldRev);
         if (request.priority == YQLlmRequestPriority.StartupExclusive)
-        {
             owner = request.exclusiveOwner;
-            if (IsExclusiveSequenceActive)
-                seconds = Math.Min(seconds, Math.Max(0d, ActiveConfig().exclusiveSequenceTimeoutSeconds -
-                    (Time.realtimeSinceStartup - _exclusiveSequenceStartedAt) - 5d));
-        }
         return new YQRepairEpisode(profile, world, epoch, owner, playerRev, worldRev, taskFingerprint, seconds);
     }
 
@@ -426,7 +386,7 @@ public sealed class LLMClient : MonoBehaviour
         // note: Admission failures cannot restart the same repair episode indefinitely.
         if (request.repairEpisode != null && !request.repairEpisode.TryAdmit(request.repairVerification))
         {
-            CompleteDirectFailure(onComplete, request, "Repair episode budget or deadline exhausted.");
+            CompleteDirectFailure(onComplete, request, "Repair episode submission budget exhausted.");
             return 0;
         }
 
@@ -884,7 +844,7 @@ public sealed class LLMClient : MonoBehaviour
             _activeRequest = request;
             _activeRequestValid = true;
             _activeRequestStartedAt = Time.unscaledTime;
-            yield return SendOnceCoroutine(request);
+            yield return WaitForRequestRoutine(request.id, SendOnceCoroutine(request));
             // note: Idle time starts after the attempt ends, including failures, rather than counting inference time as idle.
             _lastLlmActivityTime = Time.realtimeSinceStartup;
             _activeRequestValid = false;
@@ -951,6 +911,43 @@ public sealed class LLMClient : MonoBehaviour
         return false;
     }
 
+    private IEnumerator WaitForRequestRoutine(long requestId, IEnumerator routine)
+    {
+        // note: Pump this request's nested waits so explicit cancellation can dispose loading/probing/unload HTTP as well as active inference, without adding a clock deadline.
+        var pending = new Stack<IEnumerator>();
+        pending.Push(routine);
+        try
+        {
+            while (!_quitting && !_terminalRequestIds.Contains(requestId) && pending.Count > 0)
+            {
+                IEnumerator current = pending.Peek();
+                if (!current.MoveNext())
+                {
+                    pending.Pop();
+                    (current as IDisposable)?.Dispose();
+                    continue;
+                }
+                if (current.Current is IEnumerator nested)
+                {
+                    pending.Push(nested);
+                    continue;
+                }
+                if (current.Current is AsyncOperation operation)
+                {
+                    while (!operation.isDone && !_quitting && !_terminalRequestIds.Contains(requestId))
+                        yield return null;
+                }
+                else
+                    yield return current.Current;
+            }
+        }
+        finally
+        {
+            while (pending.Count > 0) (pending.Pop() as IDisposable)?.Dispose();
+            _activeWebRequest = null;
+        }
+    }
+
     private IEnumerator SendOnceCoroutine(QueuedRequest request)
     {
         _lastLlmActivityTime = Time.realtimeSinceStartup;
@@ -982,11 +979,7 @@ public sealed class LLMClient : MonoBehaviour
         YQLlmBackend requestBackend = config.GetBackend(category);
         Dictionary<string, object> options = BuildEffectiveOptions(config, profile, request.optionsOverride);
         int reservedOutputTokens = ReadIntOption(options, "num_predict", profile != null ? profile.maxOutputTokens : numPredict);
-        int requestTimeout = request.disableTimeout
-            ? 0
-            : Mathf.Max(0, ReadIntOption(options, LocalRequestTimeoutSecondsOption, requestTimeoutSeconds));
-
-        // note: Local transport controls must not leak into Ollama/llama.cpp sampling payloads.
+        // note: Ignore every legacy per-role timeout override, including explicitly false disableTimeout flags and serialized old limits; never pass them to model sampling.
         options.Remove(LocalRequestTimeoutSecondsOption);
 
         // note: The protected path rejects overflow instead of removing required repair facts from the payload.
@@ -1118,12 +1111,10 @@ public sealed class LLMClient : MonoBehaviour
         {
             if (!request.repairEpisode.TryBeginCall(request.repairVerification, json, request.parentRequestKey, out request.repairRequestKey))
             {
-                CompleteRequest(request, false, null, "Repair episode budget or deadline exhausted.", 0f, 0f, compiled);
+                CompleteRequest(request, false, null, "Repair episode physical-call budget exhausted.", 0f, 0f, compiled);
                 yield break;
             }
             if (_activeRequestValid && _activeRequest.id == request.id) _activeRequest = request;
-            requestTimeout = Math.Max(1, Math.Min(requestTimeout > 0 ? requestTimeout : int.MaxValue,
-                (int)Math.Floor(request.repairEpisode.RemainingSeconds)));
         }
         float queueWait = Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt);
         float startedAt = Time.unscaledTime;
@@ -1171,7 +1162,7 @@ public sealed class LLMClient : MonoBehaviour
             byte[] body = Encoding.UTF8.GetBytes(json);
             www.uploadHandler = new UploadHandlerRaw(body);
             www.downloadHandler = new DownloadHandlerBuffer();
-            www.timeout = requestTimeout;
+            www.timeout = GenerationRequestTimeoutSeconds;
             www.SetRequestHeader("Content-Type", "application/json");
             www.SetRequestHeader("Accept", "application/json");
 
@@ -1183,13 +1174,6 @@ public sealed class LLMClient : MonoBehaviour
 
             if (_quitting || _terminalRequestIds.Contains(request.id))
                 yield break;
-            if (request.repairEpisode != null && request.repairEpisode.RemainingSeconds < 1d)
-            {
-                CompleteRequest(request, false, null, "Repair episode deadline exhausted.", queueWait,
-                    Mathf.Max(0f, Time.unscaledTime - startedAt), compiled);
-                yield break;
-            }
-
             if (!IsRequestCurrent(request))
             {
                 CompleteRequest(request, false, null, "Request completed after its profile/world ownership became stale.", queueWait, Mathf.Max(0f, Time.unscaledTime - startedAt), compiled, YQLlmTerminalOutcome.Superseded);
@@ -1421,13 +1405,13 @@ public sealed class LLMClient : MonoBehaviour
         using (var release = new UnityWebRequest(endpoint + "/api/generate", "POST"))
         {
             release.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { model = retiring, keep_alive = 0, stream = false })));
-            release.downloadHandler = new DownloadHandlerBuffer(); release.timeout = 10; release.SetRequestHeader("Content-Type", "application/json");
+            // note: Runner unload can also be slow; wait for its acknowledgement before allocating a different model.
+            release.downloadHandler = new DownloadHandlerBuffer(); release.timeout = GenerationRequestTimeoutSeconds; release.SetRequestHeader("Content-Type", "application/json");
             yield return release.SendWebRequest();
             if (release.result != UnityWebRequest.Result.Success)
             { completed(false, "Model unload failed; replacement loading deferred: " + release.error); yield break; }
         }
-        float deadline = Time.realtimeSinceStartup + 10f;
-        while (!_quitting && Time.realtimeSinceStartup < deadline)
+        while (!_quitting)
         {
             using (var probe = UnityWebRequest.Get(endpoint + "/api/ps"))
             {
@@ -1954,7 +1938,7 @@ public sealed class LLMClient : MonoBehaviour
 
     private bool ShouldAbandonQueuedRequest(QueuedRequest request)
     {
-        // note: A valid admitted request waits behind slow inference. Ownership changes and explicit repair deadlines still cancel obsolete work.
+        // note: A valid admitted request waits behind slow inference; ownership changes still cancel obsolete work.
         if (IsRequestCurrent(request))
             return false;
         CompleteRequest(request, false, null, "Queued request ownership is no longer current.",

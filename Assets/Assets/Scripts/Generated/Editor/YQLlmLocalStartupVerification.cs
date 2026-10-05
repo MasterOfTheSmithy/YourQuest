@@ -50,6 +50,7 @@ public static class YQLlmLocalStartupVerification
         foreach (string url in new[] { "http://192.0.2.1:11434", "https://localhost:11434", "http://localhost:11434/api", "bad-url" })
             Check("nonlocal or incompatible auto-start refused: " + url, !(bool)localEndpoint.Invoke(null, new object[] { url, null }));
         config = LLMRuntimeConfig.CreateRuntimeDefault();
+        Check("qualified Goddess model and prompt remain valid", config.HasQualifiedGoddessSpeechPlan);
         foreach (var category in new[] { LLMGenerationCategory.WorldGeneration, LLMGenerationCategory.NpcPopulation,
             LLMGenerationCategory.OriginGeneration, LLMGenerationCategory.StructuredState, LLMGenerationCategory.QuestGeneration, LLMGenerationCategory.Progression })
             Check("approved control route retained: " + category, config.GetBackend(category) == YQLlmBackend.LlamaCpp);
@@ -67,12 +68,43 @@ public static class YQLlmLocalStartupVerification
         Check("current work stays queued beyond former 90s limit", !(bool)abandon.Invoke(client, new[] { queued }));
         Set("ownerStillCurrent", new Func<bool>(() => false));
         Check("retired owner work is still superseded", (bool)abandon.Invoke(client, new[] { queued }));
+        // note: Time cannot expire admitted requests, even when legacy serialized fields or role overrides contain finite limits.
+        Check("generation transport always has unlimited timeout", (int)typeof(LLMClient).GetField("GenerationRequestTimeoutSeconds", flags).GetRawConstantValue() == 0);
+        Check("NPC has no independent elapsed-time fallback", typeof(YQGeneratedNpcPlanningService).GetMethod("ShouldTimeoutPopulationRequest", flags) == null);
+        var episode = new YQRepairEpisode("fixture", "fixture-world", -1, "fixture-owner", -1, -1, "no-timeout", 0d);
+        Check("zero legacy deadline does not expire a repair", double.IsPositiveInfinity(episode.RemainingSeconds) && episode.CanSubmit(false));
+        for (int call = 0; call < 3; call++)
+            Check("bounded physical repair call " + call, episode.TryBeginCall(false, "payload", null, out _));
+        Check("physical-call limit remains enforced without a clock", !episode.TryBeginCall(false, "payload", null, out _));
+        episode.Finish("Cancelled");
+        Check("explicit episode retirement still forbids calls", !episode.CanSubmit(true));
+        var lease = typeof(LLMClient).GetField("_exclusiveSequenceStartedAt", BindingFlags.Instance | BindingFlags.NonPublic);
+        client.BeginExclusiveSequence("fixture-owner"); lease.SetValue(client, Time.realtimeSinceStartup - 100000f);
+        typeof(LLMClient).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(client, null);
+        Check("old startup lease cannot expire slow requests", client.IsExclusiveSequenceActive);
+        client.EndExclusiveSequence("fixture-owner");
+        Check("explicit startup lease release still works", !client.IsExclusiveSequenceActive);
+        // note: Explicit cancellation must unwind indefinite nested model-loading waits and release their resources exactly once.
+        Set("id", 98766L); Set("ownerStillCurrent", new Func<bool>(() => true));
+        typeof(LLMClient).GetField("_activeRequest", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(client, queued);
+        typeof(LLMClient).GetField("_activeRequestValid", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(client, true);
+        bool nestedDisposed = false, outerDisposed = false;
+        IEnumerator NestedWait()
+        {
+            try { while (true) yield return null; }
+            finally { nestedDisposed = true; }
+        }
+        IEnumerator OuterWait()
+        {
+            try { yield return NestedWait(); }
+            finally { outerDisposed = true; }
+        }
+        var wait = (IEnumerator)typeof(LLMClient).GetMethod("WaitForRequestRoutine", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(client, new object[] { 98766L, OuterWait() });
+        Check("indefinite model-loading wait remains pending", wait.MoveNext() && !nestedDisposed);
+        Check("explicit request cancellation remains accepted", client.CancelRequest(98766L, "fixture cancellation"));
+        Check("cancelled nested loading releases its queue and resources", !wait.MoveNext() && nestedDisposed && outerDisposed);
         UnityEngine.Object.DestroyImmediate(clientObject); clientObject = null;
-        var populationTimeout = typeof(YQGeneratedNpcPlanningService).GetMethod("ShouldTimeoutPopulationRequest", flags);
-        Check("NPC budget waits while another role is active", !(bool)populationTimeout.Invoke(null, new object[] { "npc-a", "dialogue", 1000f, 180f }));
-        Check("NPC budget waits while its request is queued", !(bool)populationTimeout.Invoke(null, new object[] { "npc-a", "", 1000f, 180f }));
-        Check("active NPC call keeps its full execution budget", !(bool)populationTimeout.Invoke(null, new object[] { "npc-a", "npc-a", 179f, 180f }));
-        Check("stalled active NPC call still times out", (bool)populationTimeout.Invoke(null, new object[] { "npc-a", "npc-a", 181f, 180f }));
         if (Array.IndexOf(Environment.GetCommandLineArgs(), "-yqLlmQueueOnly") >= 0) yield break;
 
         var listener = new TcpListener(IPAddress.Loopback, 0); listener.Start();
@@ -151,10 +183,16 @@ public static class YQLlmLocalStartupVerification
         service?.Dispose(true); llama?.Dispose();
         if (clientObject != null) UnityEngine.Object.DestroyImmediate(clientObject);
         if (config != null) UnityEngine.Object.DestroyImmediate(config);
-        string folder = Path.Combine(Directory.GetCurrentDirectory(), "outputs", "LlmLocalStartup_20261005");
+        // note: Keep the no-timeout override receipt separate from earlier startup/finite-budget evidence.
+        string folder = Path.Combine(Directory.GetCurrentDirectory(), "outputs",
+            Array.IndexOf(Environment.GetCommandLineArgs(), "-yqLlmNoTimeout") >= 0 ? "LlmNoTimeout_20261005" : "LlmLocalStartup_20261005");
         Directory.CreateDirectory(folder);
+        // note: Policy-only qualification does not start a model or establish live inference/gameplay evidence.
+        string evidence = Array.IndexOf(Environment.GetCommandLineArgs(), "-yqLlmQueueOnly") >= 0
+            ? "Fresh Unity compilation and detached queue/episode/lease policy checks; no model inference or ordinary gameplay proof"
+            : "Isolated real server startup and transport; detached queue checks; no ordinary gameplay certification";
         File.WriteAllText(Path.Combine(folder, "Receipt.json"), JsonConvert.SerializeObject(new {
-            generatedAtUtc = DateTime.UtcNow, evidence = "Isolated real server startup and transport; detached queue checks; no ordinary gameplay certification", checks, failures }, Formatting.Indented));
+            generatedAtUtc = DateTime.UtcNow, evidence, checks, failures }, Formatting.Indented));
         Debug.Log("[YQLlmLocalStartup] checks=" + checks.Count + "; failures=" + failures);
         EditorApplication.Exit(failures == 0 ? 0 : 1);
     }

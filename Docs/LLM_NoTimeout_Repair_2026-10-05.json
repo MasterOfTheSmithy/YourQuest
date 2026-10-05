@@ -1,0 +1,123 @@
+{
+  "generatedAtUtc": "2026-10-05T17:12:42.707925Z",
+  "evidence": "Fresh Unity compilation and detached queue/episode/lease policy checks; no model inference or ordinary gameplay proof",
+  "checks": [
+    {
+      "name": "local endpoint accepted: http://127.0.0.1:11434",
+      "pass": true
+    },
+    {
+      "name": "local endpoint accepted: http://localhost:11434",
+      "pass": true
+    },
+    {
+      "name": "local endpoint accepted: http://[::1]:11434",
+      "pass": true
+    },
+    {
+      "name": "nonlocal or incompatible auto-start refused: http://192.0.2.1:11434",
+      "pass": true
+    },
+    {
+      "name": "nonlocal or incompatible auto-start refused: https://localhost:11434",
+      "pass": true
+    },
+    {
+      "name": "nonlocal or incompatible auto-start refused: http://localhost:11434/api",
+      "pass": true
+    },
+    {
+      "name": "nonlocal or incompatible auto-start refused: bad-url",
+      "pass": true
+    },
+    {
+      "name": "qualified Goddess model and prompt remain valid",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: WorldGeneration",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: NpcPopulation",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: OriginGeneration",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: StructuredState",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: QuestGeneration",
+      "pass": true
+    },
+    {
+      "name": "approved control route retained: Progression",
+      "pass": true
+    },
+    {
+      "name": "current work stays queued beyond former 90s limit",
+      "pass": true
+    },
+    {
+      "name": "retired owner work is still superseded",
+      "pass": true
+    },
+    {
+      "name": "generation transport always has unlimited timeout",
+      "pass": true
+    },
+    {
+      "name": "NPC has no independent elapsed-time fallback",
+      "pass": true
+    },
+    {
+      "name": "zero legacy deadline does not expire a repair",
+      "pass": true
+    },
+    {
+      "name": "bounded physical repair call 0",
+      "pass": true
+    },
+    {
+      "name": "bounded physical repair call 1",
+      "pass": true
+    },
+    {
+      "name": "bounded physical repair call 2",
+      "pass": true
+    },
+    {
+      "name": "physical-call limit remains enforced without a clock",
+      "pass": true
+    },
+    {
+      "name": "explicit episode retirement still forbids calls",
+      "pass": true
+    },
+    {
+      "name": "old startup lease cannot expire slow requests",
+      "pass": true
+    },
+    {
+      "name": "explicit startup lease release still works",
+      "pass": true
+    },
+    {
+      "name": "indefinite model-loading wait remains pending",
+      "pass": true
+    },
+    {
+      "name": "explicit request cancellation remains accepted",
+      "pass": true
+    },
+    {
+      "name": "cancelled nested loading releases its queue and resources",
+      "pass": true
+    }
+  ],
+  "failures": 0
+}

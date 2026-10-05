@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
@@ -9,8 +8,6 @@ using Newtonsoft.Json.Linq;
 // note: Episodes are transient ownership/budget records, not another scheduler or persistent content authority.
 public sealed class YQRepairEpisode
 {
-    private readonly Stopwatch clock = Stopwatch.StartNew();
-    private readonly double deadlineSeconds;
     private int generatorSubmissions, verifierSubmissions, generatorCalls, verifierCalls;
     private bool terminal;
     private readonly List<long> requestIds = new List<long>(6);
@@ -29,7 +26,8 @@ public sealed class YQRepairEpisode
     public readonly int generationEpoch;
     public readonly long playerRevision, worldRevision;
     public string Disposition { get; private set; } = string.Empty;
-    public double RemainingSeconds => Math.Max(0d, deadlineSeconds - clock.Elapsed.TotalSeconds);
+    // note: Retain the public compatibility property, but elapsed queue/inference time never expires an LLM episode. Attempts and ownership still bound it.
+    public double RemainingSeconds => double.PositiveInfinity;
     public bool IsTerminal => terminal;
     public int GeneratorCalls => generatorCalls;
     public int VerifierCalls => verifierCalls;
@@ -43,7 +41,7 @@ public sealed class YQRepairEpisode
         ownerId = owner ?? string.Empty;
         playerRevision = playerRev;
         worldRevision = worldRev;
-        deadlineSeconds = Math.Max(0d, seconds);
+        // note: The legacy seconds argument is intentionally ignored under the user's no-timeout generation policy.
         key = Hash(JsonConvert.SerializeObject(new object[] { profileId, worldId, epoch, ownerId,
             playerRev, worldRev, taskFingerprint, "bounded_repair_v1" }));
     }
@@ -64,7 +62,7 @@ public sealed class YQRepairEpisode
 
     public bool CanDispatch(bool verification)
     {
-        return !terminal && RemainingSeconds >= 1d && (verification ? verifierCalls : generatorCalls) < 3;
+        return !terminal && (verification ? verifierCalls : generatorCalls) < 3;
     }
 
     public bool TryAdmit(bool verification)
