@@ -63,6 +63,7 @@ public sealed class LLMClient : MonoBehaviour
         _retryingRequests.Count;
 
     public long ActiveRequestId => _activeRequestValid ? _activeRequest.id : 0;
+    public string ActiveRequestDebugTag => _activeRequestValid ? _activeRequest.debugTag : string.Empty;
     public float ActiveRequestAgeSeconds => _activeRequestValid
         ? Mathf.Max(0f, Time.unscaledTime - _activeRequestStartedAt)
         : 0f;
@@ -73,6 +74,7 @@ public sealed class LLMClient : MonoBehaviour
     public int SuccessfulRequestCount { get; private set; }
     public int FailedRequestCount { get; private set; }
     public YQLlmRequestResult LastCompletedRequest { get; private set; }
+    public string ActiveModelName { get; private set; } = "awaiting first request";
 
     // note: A single completion stream gives UI, telemetry, and gameplay systems one truthful LLM status surface.
     public event Action<YQLlmRequestResult> RequestCompleted;
@@ -129,6 +131,7 @@ public sealed class LLMClient : MonoBehaviour
     private bool _usingRuntimeDefaultConfig;
     private bool _runtimeBackendResolved;
     private LlamaCppServerProcess _llamaServer;
+    private OllamaServerProcess _ollamaServer;
     private UnityWebRequest _activeWebRequest;
     private string _exclusiveSequenceOwner = string.Empty;
     private bool _processing;
@@ -210,7 +213,7 @@ public sealed class LLMClient : MonoBehaviour
 
         if (config == null || !config.closeOwnedServerWhenIdle ||
             _processing || _activeWebRequest != null ||
-            _exclusiveQueue.Count > 0 || _highPriorityQueue.Count > 0 || _normalQueue.Count > 0)
+            _exclusiveQueue.Count > 0 || _highPriorityQueue.Count > 0 || _normalQueue.Count > 0 || _retryingRequests.Count > 0)
             return;
 
         float idleSeconds = Time.realtimeSinceStartup - _lastLlmActivityTime;
@@ -219,8 +222,8 @@ public sealed class LLMClient : MonoBehaviour
 
         // note: Stop only the process launched by this client so its model leaves VRAM; a user-managed server remains available.
         _llamaServer.StopOwnedProcess();
-        RuntimeState = YQLlmRuntimeState.Disabled;
-        Debug.Log("[LLMClient] Closed owned llama-server after " + idleSeconds.ToString("0") + "s idle.");
+        RuntimeState = YQLlmRuntimeState.Standby;
+        Debug.Log("[LLMClient] Unloaded owned llama.cpp model after " + idleSeconds.ToString("0") + "s idle; the next queued request restarts it automatically.");
     }
 
     private void OnApplicationQuit()
@@ -832,6 +835,8 @@ public sealed class LLMClient : MonoBehaviour
             _activeRequestValid = true;
             _activeRequestStartedAt = Time.unscaledTime;
             yield return SendOnceCoroutine(request);
+            // note: Idle time starts after the attempt ends, including failures, rather than counting inference time as idle.
+            _lastLlmActivityTime = Time.realtimeSinceStartup;
             _activeRequestValid = false;
             _activeRequestStartedAt = 0f;
 
@@ -993,6 +998,21 @@ public sealed class LLMClient : MonoBehaviour
                 yield break;
             }
         }
+        else if (requestBackend == YQLlmBackend.Ollama)
+        {
+            // note: Every routed request can recover a stopped local service without requiring the Ollama desktop app.
+            bool ready = false;
+            string readyMessage = string.Empty;
+            yield return EnsureOllamaReady(config, (ok, message) => { ready = ok; readyMessage = message; });
+            if (!ready)
+            {
+                RuntimeState = YQLlmRuntimeState.Faulted;
+                RecordFailure(readyMessage, request.debugTag);
+                if (!TryScheduleTransientRetry(request, readyMessage))
+                    CompleteRequest(request, false, null, readyMessage, 0f, 0f, compiled);
+                yield break;
+            }
+        }
 
         if (!TryBuildGenerateUrl(config, requestBackend, out string url, out string urlError))
         {
@@ -1045,6 +1065,9 @@ public sealed class LLMClient : MonoBehaviour
         }
         float queueWait = Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt);
         float startedAt = Time.unscaledTime;
+        // note: Report the routed model actually receiving this request instead of the legacy llama3.1 fallback field.
+        ActiveModelName = requestBackend == YQLlmBackend.LlamaCpp ? System.IO.Path.GetFileName(config.ggufModelPath)
+            : JObject.Parse(json).Value<string>("model");
 
         if (logRequestSummaries)
         {
@@ -1054,6 +1077,7 @@ public sealed class LLMClient : MonoBehaviour
                 FormatTag(request.debugTag) +
                 ": backend=" +
                 requestBackend +
+                ", model=" + ActiveModelName +
                 ", category=" +
                 category +
                 ", attempt=" +
@@ -1247,19 +1271,25 @@ public sealed class LLMClient : MonoBehaviour
         yield return _llamaServer.EnsureReady(config, onComplete, protectLivePresentation);
     }
 
+    private IEnumerator EnsureOllamaReady(LLMRuntimeConfig config, Action<bool, string> onComplete)
+    {
+        // note: Transport ownership stays under this scheduler; the service adapter never dispatches generation independently.
+        if (_ollamaServer == null) _ollamaServer = new OllamaServerProcess();
+        yield return _ollamaServer.EnsureReady(config, onComplete);
+    }
+
     private IEnumerator EnsureRuntimeDefaultBackend(LLMRuntimeConfig config, Action<bool, string> onComplete)
     {
         // note: Screened Ollama role selections must reach Ollama rather than silently running every role on the llama.cpp model.
         if (config.backend == YQLlmBackend.Ollama)
         {
-            string baseUrl = string.IsNullOrWhiteSpace(config.ollamaApiUrl) ? apiUrl : config.ollamaApiUrl;
-            string healthUrl = (baseUrl ?? string.Empty).Trim().TrimEnd('/') + "/api/tags";
             bool ready = false;
-            yield return ProbeLocalHealth(healthUrl, 2, (ok, _) => ready = ok);
+            string readyMessage = string.Empty;
+            yield return EnsureOllamaReady(config, (ok, message) => { ready = ok; readyMessage = message; });
             _runtimeBackendResolved = ready;
             onComplete?.Invoke(ready, ready
                 ? "Connected to Ollama with category-specific local models."
-                : "The configured Ollama backend is not reachable: " + healthUrl);
+                : readyMessage);
             yield break;
         }
 
@@ -1338,7 +1368,7 @@ public sealed class LLMClient : MonoBehaviour
         {
             request.timeout = Mathf.Max(1, timeoutSeconds);
             yield return request.SendWebRequest();
-            bool ok = request.result == UnityWebRequest.Result.Success && request.responseCode >= 200 && request.responseCode < 500;
+            bool ok = request.result == UnityWebRequest.Result.Success && request.responseCode >= 200 && request.responseCode < 300;
             onComplete?.Invoke(ok, ok ? (includeResponseBody ? request.downloadHandler.text : string.Empty) : request.error);
         }
     }
@@ -1748,22 +1778,11 @@ public sealed class LLMClient : MonoBehaviour
 
     private bool ShouldAbandonQueuedRequest(QueuedRequest request)
     {
-        if (request.exclusive)
+        // note: A valid admitted request waits behind slow inference. Ownership changes and explicit repair deadlines still cancel obsolete work.
+        if (IsRequestCurrent(request))
             return false;
-
-        float maxAge = Mathf.Max(5f, maxQueuedRequestAgeSeconds);
-        float age = Time.unscaledTime - request.queuedAt;
-        if (age <= maxAge)
-            return false;
-
-        RecordFailure(
-            "Abandoned queued LLM request after " +
-            age.ToString("0.0") +
-            "s behind generation/busy work.",
-            request.debugTag);
-        QueueEvictionCount++;
-
-        CompleteRequest(request, false, null, LastError, age, 0f, default, YQLlmTerminalOutcome.Evicted);
+        CompleteRequest(request, false, null, "Queued request ownership is no longer current.",
+            Mathf.Max(0f, Time.unscaledTime - request.firstQueuedAt), 0f, default, YQLlmTerminalOutcome.Superseded);
         return true;
     }
 
@@ -2105,13 +2124,12 @@ public sealed class LLMClient : MonoBehaviour
 
     private void DisposeOwnedRuntime()
     {
-        if (_llamaServer == null)
-            return;
-
         LLMRuntimeConfig config = ActiveConfig();
         // note: Preserve an explicitly externalized owned server when requested; normal config defaults still close it on teardown.
-        _llamaServer.Dispose(config == null || config.closeOwnedServerOnQuit);
+        _llamaServer?.Dispose(config == null || config.closeOwnedServerOnQuit);
         _llamaServer = null;
+        _ollamaServer?.Dispose(config == null || config.closeOwnedServerOnQuit);
+        _ollamaServer = null;
     }
 
     private void BeginShutdown()

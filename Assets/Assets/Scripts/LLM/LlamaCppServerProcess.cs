@@ -55,7 +55,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         }
     }
 
-    private static void TerminateOwnedProcessTree(Process process)
+    internal static void TerminateOwnedProcessTree(Process process)
     {
         // note: Unity's supported Process API varies by editor runtime; prefer tree termination when available without binding the project to a newer overload.
         MethodInfo killTree = typeof(Process).GetMethod(
@@ -91,16 +91,24 @@ public sealed class LlamaCppServerProcess : IDisposable
 
         string baseUrl = config.BuildBaseUrl();
         bool ready = false;
+        bool reachable = false;
         string probeError = string.Empty;
         yield return ProbeServer(baseUrl, 2, (ok, error) =>
         {
             ready = ok;
             probeError = error;
-        });
+        }, present => reachable = present);
 
         if (ready)
         {
             onComplete?.Invoke(true, "Connected to existing llama.cpp server.");
+            yield break;
+        }
+
+        // note: A loading or busy existing server owns the port; wait for it instead of starting a duplicate model process.
+        if (reachable)
+        {
+            yield return WaitForHealth(baseUrl, config.startupTimeoutSeconds, onComplete);
             yield break;
         }
 
@@ -194,7 +202,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         onComplete?.Invoke(false, "llama.cpp server did not become ready before timeout. Last health probe: " + lastError);
     }
 
-    private static IEnumerator ProbeServer(string baseUrl, int timeoutSeconds, Action<bool, string> onComplete)
+    private static IEnumerator ProbeServer(string baseUrl, int timeoutSeconds, Action<bool, string> onComplete, Action<bool> onReachable = null)
     {
         string url = baseUrl.TrimEnd('/') + "/health";
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -205,8 +213,9 @@ public sealed class LlamaCppServerProcess : IDisposable
             bool ok =
                 request.result == UnityWebRequest.Result.Success &&
                 request.responseCode >= 200 &&
-                request.responseCode < 500;
+                request.responseCode < 300;
 
+            onReachable?.Invoke(request.responseCode > 0);
             onComplete?.Invoke(ok, ok ? string.Empty : request.error);
         }
     }

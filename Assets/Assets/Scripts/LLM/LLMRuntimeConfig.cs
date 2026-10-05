@@ -15,7 +15,9 @@ public enum YQLlmRuntimeState
     Ready = 2,
     Busy = 3,
     Recovering = 4,
-    Faulted = 5
+    Faulted = 5,
+    // note: An unloaded model can restart on demand; this is distinct from explicitly disabling generation.
+    Standby = 6
 }
 
 public enum LLMGenerationCategory
@@ -100,6 +102,10 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Header("Ollama")]
     public string ollamaModel = "llama3.1";
     public string ollamaApiUrl = "http://127.0.0.1:11434";
+    // note: The existing client owns a headless local service when needed; remote and externally running services remain external.
+    public bool startLocalOllamaOnDemand = true;
+    public string ollamaExecutablePath = string.Empty;
+    public string ollamaModelsDirectory = string.Empty;
 
     [Header("Budgets")]
     [Range(64, 2048)] public int contextSafetyTokens = 256;
@@ -156,6 +162,7 @@ public sealed class LLMRuntimeConfig : ScriptableObject
         config.generationProfiles = CreateDefaultProfiles();
         // note: Keep the qualified Goddess lane on Ollama while routing canonical records to the configured Qwen3.5 llama.cpp model.
         config.backend = YQLlmBackend.Ollama;
+        if (System.IO.Directory.Exists("D:\\OllamaModels")) config.ollamaModelsDirectory = "D:\\OllamaModels";
         config.enableBoundedRepair = true;
         SetBackendOverride(config, LLMGenerationCategory.Default, YQLlmBackend.LlamaCpp);
         SetBackendOverride(config, LLMGenerationCategory.OriginGeneration, YQLlmBackend.LlamaCpp);

@@ -373,7 +373,7 @@ public sealed class YQProductionBaselineDiagnostics : MonoBehaviour
         string modelMode = _llmClient == null
             ? "unavailable"
             : "runtime=" + _llmClient.RuntimeState +
-              ";model=" + (_llmClient.model ?? "<empty>") +
+              ";model=" + (_llmClient.ActiveModelName ?? "<empty>") +
               ";pending=" + _llmClient.PendingRequestCount +
               ";lastFailure=" + _llmClient.LastRequestFailed;
         CharacterController playerController = motor != null ? motor.GetComponent<CharacterController>() : null;

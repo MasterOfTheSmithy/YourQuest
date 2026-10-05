@@ -133,8 +133,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
     private float _nextCoordinatorTickTime;
 
-    private float _requestStartedAt =
-        -9999f;
+    private string _populationRequestTag = string.Empty;
 
     private const float RetryDelaySeconds =
         12f;
@@ -780,11 +779,10 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
         if (_requestInFlight)
         {
-            if (Time.unscaledTime -
-                _requestStartedAt >
-                Mathf.Max(
-                    30f,
-                    maxNpcBatchRequestSeconds))
+            // note: Waiting behind another model is queue time, not a stalled NPC call. The shared scheduler owns the active attempt clock.
+            LLMClient client = LLMClient.Instance;
+            if (client != null && ShouldTimeoutPopulationRequest(_populationRequestTag, client.ActiveRequestDebugTag,
+                client.ActiveRequestAgeSeconds, maxNpcBatchRequestSeconds))
             {
                 // note: A stalled local model must not trap the loading lock forever.
                 _requestInFlight =
@@ -1018,8 +1016,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         _nextRequestTime =
             0f;
 
-        _requestStartedAt =
-            -9999f;
+        _populationRequestTag = string.Empty;
 
         _activeBatchIndex =
             0;
@@ -1554,8 +1551,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             generationMessage,
             CurrentBatchProgress());
 
-        _requestStartedAt =
-            Time.unscaledTime;
+        _populationRequestTag = "GeneratedNpcPopulation:" + requestedLocationId;
 
         // note: The callback is shared by initial locked generation and later background population repairs.
         Action<string> handleResponse =
@@ -1839,9 +1835,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                     CurrentBatchProgress());
             };
 
-        string debugTag =
-            "GeneratedNpcPopulation:" +
-            requestedLocationId;
+        string debugTag = _populationRequestTag;
 
         if (YQGeneratedWorldRuntimeBuilder
                 .IsInitialGenerationGameplayLocked)
@@ -1865,6 +1859,13 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 options);
         }
     }
+    private static bool ShouldTimeoutPopulationRequest(string pendingTag, string activeTag, float activeAgeSeconds, float maximumSeconds)
+    {
+        // note: Owner identity and active inference age retain the stall guard without spending its budget on someone else's turn.
+        return !string.IsNullOrWhiteSpace(pendingTag) && string.Equals(pendingTag, activeTag, StringComparison.Ordinal) &&
+            activeAgeSeconds > Mathf.Max(30f, maximumSeconds);
+    }
+
     private static bool IsNameCollisionFailure(
     string reason)
     {
