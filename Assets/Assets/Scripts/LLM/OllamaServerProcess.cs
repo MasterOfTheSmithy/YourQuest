@@ -102,6 +102,9 @@ public sealed class OllamaServerProcess
                 UseShellExecute = false, CreateNoWindow = true };
             info.EnvironmentVariables["OLLAMA_HOST"] = endpoint;
             if (!string.IsNullOrWhiteSpace(modelDirectory)) info.EnvironmentVariables["OLLAMA_MODELS"] = modelDirectory;
+            // note: Only the game-owned service is constrained to one runner; LLMClient remains the single request scheduler.
+            info.EnvironmentVariables["OLLAMA_MAX_LOADED_MODELS"] = "1";
+            info.EnvironmentVariables["OLLAMA_NUM_PARALLEL"] = "1";
             ownedProcess = Process.Start(info);
             if (ownedProcess == null) { error = "Failed to start headless Ollama service."; return false; }
             UnityEngine.Debug.Log("[OllamaServerProcess] Started owned headless Ollama service at " + endpoint + ".");

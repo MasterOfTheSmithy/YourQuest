@@ -1,0 +1,622 @@
+{
+  "utc": "2026-10-05T13:28:02.2115976Z",
+  "evidence": "Isolated timing, detached acceptance preparation and actual owned model handoff; no ordinary gameplay or renewed model qualification",
+  "requests": 52,
+  "textReturned": 51,
+  "transportFailures": [
+    {
+      "name": "Frontier Settlement",
+      "placement": "cpu",
+      "seconds": 180.0,
+      "error": "timed out"
+    }
+  ],
+  "handoffChecks": 45,
+  "handoffFailures": 0,
+  "finalChecks": 35,
+  "finalFailures": 0,
+  "fixedSeedFrontierChecks": 237,
+  "fixedSeedFrontierFailures": 0,
+  "frontierPrepared": 18,
+  "frontierRejections": [
+    {
+      "file": "Frontier_HostileSite_cpu_0.json",
+      "name": "Frontier HostileSite",
+      "normalized": true,
+      "frontierProposalPrepared": false,
+      "reason": "Proposal normalization failed: The hostile commander must belong to the location's existing faction."
+    },
+    {
+      "file": "Frontier_HostileSite_cpu_1.json",
+      "name": "Frontier HostileSite",
+      "normalized": true,
+      "frontierProposalPrepared": false,
+      "reason": "Proposal normalization failed: The hostile commander must belong to the location's existing faction."
+    }
+  ],
+  "activeSaves": [
+    {
+      "File": "world_state.json",
+      "Preserved": true
+    },
+    {
+      "File": "player_state.json",
+      "Preserved": true
+    }
+  ],
+  "goddessDigestRetained": true,
+  "timings": [
+    {
+      "name": "Origin questionnaire",
+      "role": "OriginGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 9.453000000001339,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQOriginGenerationService.BuildPrompt"
+    },
+    {
+      "name": "Origin questionnaire",
+      "role": "OriginGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 10.18699999999808,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQOriginGenerationService.BuildPrompt"
+    },
+    {
+      "name": "World initial plan",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 26.375,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQWorldGenerationService.BuildPrompt"
+    },
+    {
+      "name": "World initial plan",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 27.593999999997322,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQWorldGenerationService.BuildPrompt"
+    },
+    {
+      "name": "NPC location population",
+      "role": "NpcPopulation",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 26.32800000000134,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQGeneratedNpcPlanningService.BuildPopulationPrompt"
+    },
+    {
+      "name": "NPC location population",
+      "role": "NpcPopulation",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 19.281999999999243,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current YQGeneratedNpcPlanningService.BuildPopulationPrompt"
+    },
+    {
+      "name": "Quest director",
+      "role": "QuestGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 6.0,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current DirectorPromptBuilder; detached owners, explicit empty snapshot"
+    },
+    {
+      "name": "Quest director",
+      "role": "QuestGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 7.703000000001339,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current DirectorPromptBuilder; detached owners, explicit empty snapshot"
+    },
+    {
+      "name": "Progression earned offer",
+      "role": "Progression",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 3.0310000000026776,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current ProgressionThinkCycle.BuildPrompt"
+    },
+    {
+      "name": "Progression earned offer",
+      "role": "Progression",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 2.437000000005355,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current ProgressionThinkCycle.BuildPrompt"
+    },
+    {
+      "name": "Structured canonical proposal",
+      "role": "StructuredState",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 1.0619999999980791,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current InvestorDirector canon schema and PromptContextBuilder"
+    },
+    {
+      "name": "Structured canonical proposal",
+      "role": "StructuredState",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 1.1869999999980791,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current InvestorDirector canon schema and PromptContextBuilder"
+    },
+    {
+      "name": "Default fallback",
+      "role": "Default",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 0.39100000000325963,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Diagnostic fallback route probe"
+    },
+    {
+      "name": "Default fallback",
+      "role": "Default",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 0.35899999999674037,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Diagnostic fallback route probe"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 7.6710000000020955,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 4.9060000000026776,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 15.828000000001339,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 13.23399999999674,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 0,
+      "seconds": 16.125,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu",
+      "sample": 1,
+      "seconds": 8.828000000001339,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Quest director",
+      "role": "QuestGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 117.125,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current DirectorPromptBuilder; detached owners, explicit empty snapshot"
+    },
+    {
+      "name": "Quest director",
+      "role": "QuestGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 77.7809999999954,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current DirectorPromptBuilder; detached owners, explicit empty snapshot"
+    },
+    {
+      "name": "Progression earned offer",
+      "role": "Progression",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 45.82800000000134,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current ProgressionThinkCycle.BuildPrompt"
+    },
+    {
+      "name": "Progression earned offer",
+      "role": "Progression",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 40.68699999999808,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current ProgressionThinkCycle.BuildPrompt"
+    },
+    {
+      "name": "Structured canonical proposal",
+      "role": "StructuredState",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 10.5,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current InvestorDirector canon schema and PromptContextBuilder"
+    },
+    {
+      "name": "Structured canonical proposal",
+      "role": "StructuredState",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 11.718000000000757,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Current InvestorDirector canon schema and PromptContextBuilder"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 70.625,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 70.21899999999732,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 172.38999999999942,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 180.0,
+      "success": false,
+      "loadSeconds": null,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 115.07800000000134,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 117.375,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Read-only replay of accepted current footprint with current canonical brief schema and prompt"
+    },
+    {
+      "name": "Dialogue grounded uncertainty",
+      "role": "Dialogue",
+      "model": "hf.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF:Q4_K_M",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 16.07800000000134,
+      "success": true,
+      "loadSeconds": 8.43791,
+      "source": "Earlier source-bound acceptance fixture: vey_unknown_box"
+    },
+    {
+      "name": "Dialogue grounded uncertainty",
+      "role": "Dialogue",
+      "model": "hf.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF:Q4_K_M",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 5.188000000001921,
+      "success": true,
+      "loadSeconds": 0.2815752,
+      "source": "Earlier source-bound acceptance fixture: vey_unknown_box"
+    },
+    {
+      "name": "Goddess qualified speech",
+      "role": "GoddessCommentary",
+      "model": "smaller-test:latest",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 16.82800000000134,
+      "success": true,
+      "loadSeconds": 4.6599024,
+      "source": "Qualified native defaults idle v11 fixture"
+    },
+    {
+      "name": "Goddess qualified speech",
+      "role": "GoddessCommentary",
+      "model": "smaller-test:latest",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 4.078000000001339,
+      "success": true,
+      "loadSeconds": 0.2712063,
+      "source": "Qualified native defaults idle v11 fixture"
+    },
+    {
+      "name": "Summarization",
+      "role": "Summarization",
+      "model": "small-test:latest",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 3.4840000000040163,
+      "success": true,
+      "loadSeconds": 2.3827438,
+      "source": "Diagnostic role probe; no direct Summarization domain caller exists in current source"
+    },
+    {
+      "name": "Summarization",
+      "role": "Summarization",
+      "model": "small-test:latest",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 0.9220000000059372,
+      "success": true,
+      "loadSeconds": 0.1007631,
+      "source": "Diagnostic role probe; no direct Summarization domain caller exists in current source"
+    },
+    {
+      "name": "DialogueVerification",
+      "role": "DialogueVerification",
+      "model": "yourquest-qwen3-4b:latest",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 10.390999999995984,
+      "success": true,
+      "loadSeconds": 8.0391016,
+      "source": "Disabled verifier diagnostic transport only; cannot qualify or enable the lane"
+    },
+    {
+      "name": "DialogueVerification",
+      "role": "DialogueVerification",
+      "model": "yourquest-qwen3-4b:latest",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 1.235000000000582,
+      "success": true,
+      "loadSeconds": 0.1824896,
+      "source": "Disabled verifier diagnostic transport only; cannot qualify or enable the lane"
+    },
+    {
+      "name": "GoddessVerification",
+      "role": "GoddessVerification",
+      "model": "yourquest-qwen3-4b:latest",
+      "placement": "cpu",
+      "sample": 0,
+      "seconds": 5.139999999999418,
+      "success": true,
+      "loadSeconds": 2.7926971,
+      "source": "Disabled verifier diagnostic transport only; cannot qualify or enable the lane"
+    },
+    {
+      "name": "GoddessVerification",
+      "role": "GoddessVerification",
+      "model": "yourquest-qwen3-4b:latest",
+      "placement": "cpu",
+      "sample": 1,
+      "seconds": 1.2030000000013388,
+      "success": true,
+      "loadSeconds": 0.1732685,
+      "source": "Disabled verifier diagnostic transport only; cannot qualify or enable the lane"
+    },
+    {
+      "name": "Dialogue grounded uncertainty",
+      "role": "Dialogue",
+      "model": "hf.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF:Q4_K_M",
+      "placement": "gpu-switch-probe",
+      "sample": 0,
+      "seconds": 6.640999999995984,
+      "success": true,
+      "loadSeconds": 3.9619169,
+      "source": "Earlier source-bound acceptance fixture: vey_unknown_box"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu-direct",
+      "sample": 0,
+      "seconds": 40.65699999999924,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu-direct",
+      "sample": 0,
+      "seconds": 169.57800000000134,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "cpu-direct",
+      "sample": 0,
+      "seconds": 87.375,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-direct",
+      "sample": 0,
+      "seconds": 2.5319999999992433,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-direct",
+      "sample": 0,
+      "seconds": 10.453000000001339,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-direct",
+      "sample": 0,
+      "seconds": 6.23399999999674,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Compact direct comparison; same model, canonical schema, unchanged domain validators"
+    },
+    {
+      "name": "Frontier PointOfInterest",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-production",
+      "sample": 0,
+      "seconds": 2.2189999999973224,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Exact repaired current production wire"
+    },
+    {
+      "name": "Frontier Settlement",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-production",
+      "sample": 0,
+      "seconds": 13.375,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Exact repaired current production wire"
+    },
+    {
+      "name": "Frontier HostileSite",
+      "role": "WorldGeneration",
+      "model": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+      "placement": "gpu-production",
+      "sample": 0,
+      "seconds": 5.125,
+      "success": true,
+      "loadSeconds": 0.0,
+      "source": "Exact repaired current production wire"
+    }
+  ]
+}

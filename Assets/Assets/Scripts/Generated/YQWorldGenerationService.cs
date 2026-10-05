@@ -451,7 +451,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 {
                     { "num_predict", 1800 }, { "temperature", Mathf.Clamp(worldTemperature, 0.36f, 0.60f) },
                     { "top_p", 0.90f }, { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(engineCandidate.deterministicSeed) },
-                    { "request_timeout_seconds", 120 }
+                    // note: Measured CPU settlement briefs take about 170s; allow completion while the streamer plans before approach, without reducing population or schema requirements.
+                    { "request_timeout_seconds", anchor.kind == YQSiteKindV2.Settlement ? 240 : 120 }
                 }
             };
             _frontierLocationRequestInFlight = true;
@@ -547,7 +548,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             "The engine owns all IDs, coordinates, entrances and member footprints. Do not output positions, transforms, routes, kit IDs, asset paths, " +
             "bindings, accepted state or physical/asset/proof claims. Services, cell roles and monster descriptions are semantic requests subject to later owner validation. " +
             "Use only the listed faction IDs (empty means unaffiliated). Settlement population has 2-6 non-hostile residents; " +
-            "hostile population has exactly one named hostile leader; POI population is empty. Keep prose compact, preferably 3-8 words per field.\n" +
+            // note: State the existing cross-field acceptance rule so a structurally valid leader is not discarded for an unrelated faction.
+            "hostile population has exactly one named hostile leader whose factionId equals location.inhabitantFactionId; POI population is empty. Keep prose compact, preferably 3-8 words per field.\n" +
             YQDotCreatureCatalog.BuildBindingPrompt() + "\nACCEPTED_CANON\n" + context.ToString(Formatting.None) + "\nJSON_SCHEMA\n" + schema.ToString(Formatting.None);
     }
 

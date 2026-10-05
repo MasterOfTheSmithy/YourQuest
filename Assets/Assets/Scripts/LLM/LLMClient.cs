@@ -106,7 +106,7 @@ public sealed class LLMClient : MonoBehaviour
         public string repairRequestKey;
         public Func<bool> ownerStillCurrent;
 
-        // note: Queue age lets background requests expire instead of piling onto the model after generation.
+        // note: Waiting duration is telemetry; only retired ownership or an explicit deadline expires admitted work.
         public float queuedAt;
         public float firstQueuedAt;
 
@@ -134,6 +134,9 @@ public sealed class LLMClient : MonoBehaviour
     private OllamaServerProcess _ollamaServer;
     private UnityWebRequest _activeWebRequest;
     private string _exclusiveSequenceOwner = string.Empty;
+    private string _residentOllamaModel = string.Empty;
+    private string _residentOllamaBaseUrl = string.Empty;
+    private string _ownedLlamaResidencyKey = string.Empty;
     private bool _processing;
     private bool _quitting;
     private float _lastLlmActivityTime;
@@ -159,6 +162,41 @@ public sealed class LLMClient : MonoBehaviour
 
     // note: Category counters expose scheduler health without logging private prompts or full model transcripts.
     private readonly Dictionary<LLMGenerationCategory, int> _categoryTerminalCounts = new Dictionary<LLMGenerationCategory, int>();
+    private readonly Dictionary<string, float> _workloadServiceSeconds = new Dictionary<string, float>();
+
+    private static string WorkloadKey(LLMGenerationCategory category, string debugTag)
+        => category + ((debugTag ?? string.Empty).StartsWith("FrontierLocationBrief", StringComparison.Ordinal) ? ":frontier" : string.Empty);
+
+    private void RecordServiceLatency(LLMGenerationCategory category, string debugTag, float seconds)
+    {
+        // note: The estimate includes model preparation and inference, but never another request's queue wait; cancellation before dispatch is not a timing sample.
+        if (seconds <= 0f) return;
+        string key = WorkloadKey(category, debugTag);
+        _workloadServiceSeconds.TryGetValue(key, out float previous);
+        _workloadServiceSeconds[key] = previous > 0f ? Mathf.Lerp(previous, Mathf.Clamp(seconds, .1f, 300f), .35f) : Mathf.Clamp(seconds, .1f, 300f);
+    }
+
+    private float EstimatedServiceSeconds(LLMGenerationCategory category, string debugTag)
+    {
+        bool frontier = (debugTag ?? string.Empty).StartsWith("FrontierLocationBrief", StringComparison.Ordinal);
+        // note: A fast POI cannot erase the measured 170s settlement budget in this shared frontier lane.
+        if (_workloadServiceSeconds.TryGetValue(WorkloadKey(category, debugTag), out float observed)) return Mathf.Max(frontier ? 180f : 2f, observed * 1.5f);
+        // note: Conservative cold-start estimates are replaced by live observations, without persisting speculative content or changing role selection.
+        if (frontier) return 180f;
+        return category == LLMGenerationCategory.WorldGeneration || category == LLMGenerationCategory.NpcPopulation ? 95f : 20f;
+    }
+
+    public float GetPlanningLeadTimeSeconds(LLMGenerationCategory category, string debugTag = null)
+    {
+        // note: One canonical queue supplies planning lead time. Include backlog, the remaining active call, and a margin for publication/model switching.
+        float seconds = EstimatedServiceSeconds(category, debugTag) + 10f;
+        if (_activeRequestValid) seconds += Mathf.Max(0f, EstimatedServiceSeconds(_activeRequest.category, _activeRequest.debugTag) - ActiveRequestAgeSeconds);
+        foreach (QueuedRequest queued in _exclusiveQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
+        foreach (QueuedRequest queued in _highPriorityQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
+        foreach (QueuedRequest queued in _normalQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
+        foreach (QueuedRequest queued in _retryingRequests.Values) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
+        return Mathf.Clamp(seconds, 15f, 300f);
+    }
 
     private void Awake()
     {
@@ -222,6 +260,13 @@ public sealed class LLMClient : MonoBehaviour
 
         // note: Stop only the process launched by this client so its model leaves VRAM; a user-managed server remains available.
         _llamaServer.StopOwnedProcess();
+        if (_llamaServer.OwnsProcess)
+        {
+            // note: A failed termination still owns its allocations; back off rather than repeatedly blocking frames or claiming an unload.
+            _lastLlmActivityTime = Time.realtimeSinceStartup;
+            RuntimeState = YQLlmRuntimeState.Recovering;
+            return;
+        }
         RuntimeState = YQLlmRuntimeState.Standby;
         Debug.Log("[LLMClient] Unloaded owned llama.cpp model after " + idleSeconds.ToString("0") + "s idle; the next queued request restarts it automatically.");
     }
@@ -666,6 +711,9 @@ public sealed class LLMClient : MonoBehaviour
         if (!_terminalRequestIds.Add(request.id))
             return;
 
+        if (_activeRequestValid && _activeRequest.id == request.id && generationSeconds > 0f)
+            RecordServiceLatency(request.category, request.debugTag, Mathf.Max(generationSeconds, ActiveRequestAgeSeconds));
+
         YQLlmTerminalOutcome outcome = success ? YQLlmTerminalOutcome.AcceptedResponse : requestedOutcome;
         YQLlmRequestResult result = new YQLlmRequestResult(
             request.id,
@@ -978,6 +1026,18 @@ public sealed class LLMClient : MonoBehaviour
             requestBackend = config.GetBackend(category);
         }
 
+        bool residencyReady = false;
+        string residencyFailure = string.Empty;
+        yield return PrepareRoutedModelResidency(config, requestBackend, profile,
+            (ready, reason) => { residencyReady = ready; residencyFailure = reason; });
+        if (!residencyReady)
+        {
+            RuntimeState = YQLlmRuntimeState.Recovering;
+            RecordFailure(residencyFailure, request.debugTag);
+            if (!TryScheduleTransientRetry(request, residencyFailure)) CompleteRequest(request, false, null, residencyFailure, 0f, 0f, compiled);
+            yield break;
+        }
+
         if (requestBackend == YQLlmBackend.LlamaCpp)
         {
             bool ready = false;
@@ -1068,6 +1128,12 @@ public sealed class LLMClient : MonoBehaviour
         // note: Report the routed model actually receiving this request instead of the legacy llama3.1 fallback field.
         ActiveModelName = requestBackend == YQLlmBackend.LlamaCpp ? System.IO.Path.GetFileName(config.ggufModelPath)
             : JObject.Parse(json).Value<string>("model");
+        if (requestBackend == YQLlmBackend.Ollama)
+        {
+            // note: Track only a model dispatched by this scheduler, so switching never unloads unrelated externally loaded tags.
+            _residentOllamaModel = ActiveModelName;
+            _residentOllamaBaseUrl = OllamaBaseUrl(config.ollamaApiUrl);
+        }
 
         if (logRequestSummaries)
         {
@@ -1268,7 +1334,115 @@ public sealed class LLMClient : MonoBehaviour
         // note: Automatic on-demand model loading must not evict rendering resources during released gameplay; explicit configurations and startup generation retain their selected offload policy.
         bool protectLivePresentation = _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
             YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
-        yield return _llamaServer.EnsureReady(config, onComplete, protectLivePresentation);
+        yield return _llamaServer.EnsureReady(config, (ready, reason) =>
+        {
+            if (ready && _llamaServer.OwnsProcess) _ownedLlamaResidencyKey = LlamaResidencyKey(config);
+            onComplete?.Invoke(ready, reason);
+        }, protectLivePresentation);
+    }
+
+    private string LlamaResidencyKey(LLMRuntimeConfig config)
+        => config.ggufModelPath + "|" + config.contextSizeTokens + "|" + config.gpuLayerCount + "|" +
+            (_usingRuntimeDefaultConfig && !IsExclusiveSequenceActive && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased &&
+             config.preserveGameResponsiveness && config.gpuLayerCount < 0 && string.IsNullOrWhiteSpace(config.extraLlamaServerArguments));
+
+    private static string OllamaBaseUrl(string url)
+    {
+        string result = (url ?? string.Empty).Trim().TrimEnd('/');
+        if (result.EndsWith("/api/generate", StringComparison.OrdinalIgnoreCase)) return result.Substring(0, result.Length - 13);
+        if (result.EndsWith("/api", StringComparison.OrdinalIgnoreCase)) return result.Substring(0, result.Length - 4);
+        return result;
+    }
+
+    private IEnumerator PrepareRoutedModelResidency(LLMRuntimeConfig config, YQLlmBackend backend, LLMGenerationProfile profile,
+        Action<bool, string> completed)
+    {
+        // note: The existing single queue owns the entire unload/acknowledgement/load handoff; there is never a competing model loader.
+        string targetModel = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel) ? profile.ollamaModel.Trim() : config.ollamaModel;
+        bool differentOllama = !string.IsNullOrEmpty(_residentOllamaModel) &&
+            (backend != YQLlmBackend.Ollama || !string.Equals(_residentOllamaModel, targetModel, StringComparison.Ordinal) ||
+             !string.Equals(_residentOllamaBaseUrl, OllamaBaseUrl(config.ollamaApiUrl), StringComparison.Ordinal));
+        if (differentOllama)
+        {
+            bool unloaded = false;
+            string failure = string.Empty;
+            if (string.Equals(_residentOllamaBaseUrl, OllamaBaseUrl(config.ollamaApiUrl), StringComparison.Ordinal))
+            {
+                // note: Recover a stopped local service before checking its old residency; recovery still loads no model by itself.
+                yield return EnsureOllamaReady(config, (ok, reason) => { unloaded = ok; failure = reason; });
+                if (!unloaded) { completed(false, failure); yield break; }
+                unloaded = false;
+            }
+            yield return ReleaseResidentOllama((ok, reason) => { unloaded = ok; failure = reason; });
+            if (!unloaded) { completed(false, failure); yield break; }
+        }
+        if (_llamaServer != null && _llamaServer.OwnsProcess &&
+            (backend != YQLlmBackend.LlamaCpp || _ownedLlamaResidencyKey != LlamaResidencyKey(config)))
+        {
+            bool stopped = false;
+            string failure = string.Empty;
+            yield return _llamaServer.StopOwnedProcessRoutine((ok, reason) => { stopped = ok; failure = reason; });
+            if (!stopped) { completed(false, failure); yield break; }
+            _ownedLlamaResidencyKey = string.Empty;
+            Debug.Log("[LLMClient] Owned control model exited before routed model/policy switch.");
+        }
+        completed(true, string.Empty);
+    }
+
+    private static bool TryOllamaResident(string json, string modelName, out bool resident)
+    {
+        resident = false;
+        try
+        {
+            var models = JObject.Parse(json)["models"] as JArray;
+            if (models == null) return false;
+            if (string.IsNullOrWhiteSpace(modelName)) return false;
+            string normalized = modelName.Contains(":") ? modelName : modelName + ":latest";
+            foreach (JToken entry in models)
+            {
+                if (!(entry is JObject item)) return false;
+                string name = item["name"]?.Type == JTokenType.String ? (string)item["name"] : null;
+                string model = item["model"]?.Type == JTokenType.String ? (string)item["model"] : null;
+                if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(model)) return false;
+                if (string.Equals(name, normalized, StringComparison.Ordinal) ||
+                    string.Equals(model, normalized, StringComparison.Ordinal)) { resident = true; break; }
+            }
+            return true;
+        }
+        catch (JsonException) { return false; }
+    }
+
+    private IEnumerator ReleaseResidentOllama(Action<bool, string> completed)
+    {
+        string retiring = _residentOllamaModel;
+        string endpoint = _residentOllamaBaseUrl;
+        using (var release = new UnityWebRequest(endpoint + "/api/generate", "POST"))
+        {
+            release.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { model = retiring, keep_alive = 0, stream = false })));
+            release.downloadHandler = new DownloadHandlerBuffer(); release.timeout = 10; release.SetRequestHeader("Content-Type", "application/json");
+            yield return release.SendWebRequest();
+            if (release.result != UnityWebRequest.Result.Success)
+            { completed(false, "Model unload failed; replacement loading deferred: " + release.error); yield break; }
+        }
+        float deadline = Time.realtimeSinceStartup + 10f;
+        while (!_quitting && Time.realtimeSinceStartup < deadline)
+        {
+            using (var probe = UnityWebRequest.Get(endpoint + "/api/ps"))
+            {
+                probe.timeout = 2;
+                yield return probe.SendWebRequest();
+                if (probe.result == UnityWebRequest.Result.Success && TryOllamaResident(probe.downloadHandler.text, retiring, out bool resident) && !resident)
+                {
+                    _residentOllamaModel = string.Empty; _residentOllamaBaseUrl = string.Empty;
+                    // note: Ollama acknowledges runner release before the next model request; driver cleanup gets a frame boundary as well.
+                    yield return null;
+                    Debug.Log("[LLMClient] Ollama acknowledged unload before model switch: " + retiring);
+                    completed(true, string.Empty); yield break;
+                }
+            }
+            yield return null;
+        }
+        completed(false, "Model is still resident after unload; replacement loading deferred.");
     }
 
     private IEnumerator EnsureOllamaReady(LLMRuntimeConfig config, Action<bool, string> onComplete)
@@ -1487,11 +1661,11 @@ public sealed class LLMClient : MonoBehaviour
 
             if (profile != null && (profile.directMode || profile.reasoningMode))
             {
-                // note: Select Qwen's direct or reasoning template explicitly so the chosen role does not depend on server defaults.
+                // note: Local frontier briefs use schema-constrained direct generation; larger cross-region plans retain their approved reasoning template.
                 payload["chat_template_kwargs"] =
                     new Dictionary<string, object>
                     {
-                        { "enable_thinking", profile.reasoningMode }
+                        { "enable_thinking", profile.reasoningMode && !(debugTag ?? string.Empty).StartsWith("FrontierLocationBrief", StringComparison.Ordinal) }
                     };
             }
 

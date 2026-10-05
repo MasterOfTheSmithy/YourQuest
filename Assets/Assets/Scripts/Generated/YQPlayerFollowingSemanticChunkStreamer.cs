@@ -10930,9 +10930,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             if (builder == null || !builder.isActiveAndEnabled || YQProfileSaveSystem.Instance == null ||
                 !ReferenceEquals(WorldStateManager.Instance?.State, _world)) return;
             int span = YQSemanticWorldAuthority.FrontierOpportunitySpanCells;
-            var predicted = ResolvePredictedContentChunk(new Vector2(_player.position.x, _player.position.z));
+            var predicted = ResolvePredictedFrontierPlanningChunk(new Vector2(_player.position.x, _player.position.z));
             // note: Scheduling changes proximity only; physical admission still rejects edits to protected or currently owned terrain.
-            Vector2Int[] scanOffsets = Mathf.Max(Mathf.Abs(_player.position.x), Mathf.Abs(_player.position.z)) < 1664f
+            Vector2Int[] scanOffsets = Mathf.Max(Mathf.Abs(predicted.x * chunkWorldSize), Mathf.Abs(predicted.y * chunkWorldSize)) < 1664f
                 ? FrontierConstructionScanOffsets : FrontierNearbyConstructionScanOffsets;
             // note: Convert physical chunk coordinates to the semantic block grid; configured chunk sizes need not equal 128m.
             float chunkSize = Mathf.Max(32f, chunkWorldSize);
@@ -13487,6 +13487,30 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             velocity = (playerPosition - _lastLookaheadPosition) / deltaTime;
         }
         return ChunkFor(playerPosition + velocity * 3f);
+    }
+
+    private Vector2Int ResolvePredictedFrontierPlanningChunk(Vector2 playerPosition)
+    {
+        // note: Semantic inference plans beyond the visible footprint using observed model/queue lead time; deterministic ground publication keeps its existing three-second prediction.
+        Vector2 velocity = Vector2.zero;
+        if (_playerMotor != null && _playerMotor.isActiveAndEnabled && _playerMotor.IsAuthoritative)
+        {
+            Vector3 planar = _playerMotor.PlanarVelocity;
+            velocity = new Vector2(planar.x, planar.z);
+        }
+        else if (_hasLastLookaheadPosition) velocity = (playerPosition - _lastLookaheadPosition) / Mathf.Max(.001f, Time.unscaledDeltaTime);
+        float speed = velocity.magnitude;
+        if (speed < .1f) return ChunkFor(playerPosition);
+        float lead = LLMClient.Instance != null ? LLMClient.Instance.GetPlanningLeadTimeSeconds(LLMGenerationCategory.WorldGeneration, "FrontierLocationBrief") : 190f;
+        float distance = FrontierPlanningDistance(speed, lead, Mathf.Max(32f, chunkWorldSize), GuaranteedViewChunkRadius);
+        return ChunkFor(playerPosition + velocity / speed * distance);
+    }
+
+    private static float FrontierPlanningDistance(float speed, float leadSeconds, float cellSize, int visibleRadius)
+    {
+        // note: A bounded scheduling horizon changes only which deterministic opportunity is considered first; all footprint, authority and admission guards remain intact.
+        float visibleMargin = Mathf.Max(1, visibleRadius) * Mathf.Max(32f, cellSize) + 256f;
+        return Mathf.Clamp(visibleMargin + Mathf.Max(0f, speed) * Mathf.Clamp(leadSeconds, 15f, 300f), 512f, 3840f);
     }
 
     private bool PruneSemanticHistory(int maximumEvictions)

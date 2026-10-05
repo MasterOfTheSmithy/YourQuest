@@ -15,6 +15,22 @@ public sealed class LlamaCppServerProcess : IDisposable
 
     public bool OwnsProcess => _ownsProcess;
 
+    public IEnumerator StopOwnedProcessRoutine(Action<bool, string> onComplete)
+    {
+        // note: A model switch waits for this exact owned process to exit without blocking Unity's main thread or abandoning a still-live handle.
+        if (!_ownsProcess || _ownedProcess == null) { onComplete?.Invoke(true, string.Empty); yield break; }
+        Process retiring = _ownedProcess;
+        try { if (!retiring.HasExited) TerminateOwnedProcessTree(retiring); }
+        catch (Exception error) { onComplete?.Invoke(false, "Owned model termination failed: " + error.Message); yield break; }
+        float deadline = Time.realtimeSinceStartup + 5f;
+        while (!retiring.HasExited && Time.realtimeSinceStartup < deadline) yield return null;
+        if (!retiring.HasExited) { onComplete?.Invoke(false, "Owned model is still alive; replacement loading deferred."); yield break; }
+        if (ReferenceEquals(_ownedProcess, retiring)) { retiring.Dispose(); _ownedProcess = null; _ownsProcess = false; }
+        // note: Process exit releases its CUDA allocations; give the driver a frame boundary before a replacement can allocate.
+        yield return null;
+        onComplete?.Invoke(true, string.Empty);
+    }
+
     public void Dispose()
     {
         Dispose(true);
@@ -32,6 +48,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         if (!_ownsProcess || _ownedProcess == null)
             return;
 
+        bool exited = false;
         try
         {
             if (!_ownedProcess.HasExited)
@@ -42,6 +59,7 @@ public sealed class LlamaCppServerProcess : IDisposable
                 // note: Wait briefly for the operating system to reap the owned server before releasing its handle.
                 _ownedProcess.WaitForExit(2000);
             }
+            exited = _ownedProcess.HasExited;
         }
         catch (Exception ex)
         {
@@ -49,9 +67,13 @@ public sealed class LlamaCppServerProcess : IDisposable
         }
         finally
         {
-            _ownedProcess.Dispose();
-            _ownedProcess = null;
-            _ownsProcess = false;
+            // note: A failed exit retains ownership/handle so a later model switch cannot mistake live GPU allocations for a clean unload.
+            if (exited)
+            {
+                _ownedProcess.Dispose();
+                _ownedProcess = null;
+                _ownsProcess = false;
+            }
         }
     }
 
