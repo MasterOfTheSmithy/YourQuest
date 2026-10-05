@@ -1,0 +1,5 @@
+# Save and persistence context
+
+`YQProfileSaveSystem` owns profile selection, manifest, active projections, and transaction coordination. `PlayerStateManager` and `WorldStateManager` own active player/world documents. `YQProfileCommitStore` stages both documents plus registered auxiliary snapshots, checksums them, publishes one complete revision, refreshes shared projections, and advances the manifest pointer. Source inspected on 2026-09-30 declares player/world schema **7** in `YQStateContract` within `Data/State/YQStateFoundation.cs`. Verify that constant before schema-sensitive work. State identity, world seed, spatial artifact hashes, cell semantics, and render origin are persisted through the state models and migrations.
+
+Loads validate profile ownership, checksums, revision completeness, migrations, and paired player/world identity. `YQProfileSaveSystem` is the only profile publisher. The September 15 baseline documents semantic save/reload/rebind integrity and a 0.111 s measurement against a 0.100 s timing budget; this is historical evidence, not a current benchmark. Consult the goal ledger for later affected receipts.
