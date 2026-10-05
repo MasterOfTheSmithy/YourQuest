@@ -779,64 +779,88 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
 
     private void RecoverNewerActiveSnapshot()
     {
+        // note: Recover through the paired revision owner; copying compatibility files alone leaves Continue pointing at an older immutable commit.
         string profileId = _manifest.activeProfileId;
-        ProfileEntry entry = FindProfile(profileId);
-        if (entry == null ||
-            !File.Exists(ActivePlayerPath) ||
-            !File.Exists(ActiveWorldPath))
-        {
-            return;
-        }
-
+        if (_manifestUnsupported || FindProfile(profileId) == null || YQDeveloperConsoleGate.BlocksPersistence) return;
         string folder = GetProfileFolder(profileId);
-        string profilePlayerPath = Path.Combine(folder, PlayerFileName);
-        string profileWorldPath = Path.Combine(folder, WorldFileName);
-        if (!File.Exists(profilePlayerPath) || !File.Exists(profileWorldPath))
-            return;
-
         try
         {
-            PlayerState activePlayer =
-                JsonConvert.DeserializeObject<PlayerState>(
-                    File.ReadAllText(ActivePlayerPath));
-            PlayerState profilePlayer =
-                JsonConvert.DeserializeObject<PlayerState>(
-                    File.ReadAllText(profilePlayerPath));
-
-            if (activePlayer == null ||
-                !string.Equals(
-                    activePlayer.playerId,
-                    profileId,
-                    StringComparison.OrdinalIgnoreCase) ||
-                (profilePlayer != null &&
-                 activePlayer.lastUpdatedUnix <= profilePlayer.lastUpdatedUnix))
+            bool committed = TryResolveLatestCommit(folder, profileId, out string committedPlayerPath, out string committedWorldPath,
+                out YQProfileCommitRecord previous, out _);
+            PlayerState baselinePlayer = null;
+            WorldState baselineWorld = null;
+            if (committed && !TryReadRecoveryPair(committedPlayerPath, committedWorldPath, profileId,
+                out baselinePlayer, out baselineWorld, out _, out _)) return;
+            PlayerState selectedPlayer = baselinePlayer;
+            WorldState selectedWorld = baselineWorld;
+            string selectedPlayerJson = null, selectedWorldJson = null;
+            foreach (string pairRoot in new[] { folder, Application.persistentDataPath })
             {
-                return;
+                if (!TryReadRecoveryPair(Path.Combine(pairRoot, PlayerFileName), Path.Combine(pairRoot, WorldFileName), profileId,
+                    out PlayerState candidatePlayer, out WorldState candidateWorld, out string playerJson, out string worldJson) ||
+                    !IsNewerRecoveryPair(candidatePlayer, candidateWorld, selectedPlayer, selectedWorld)) continue;
+                selectedPlayer = candidatePlayer; selectedWorld = candidateWorld;
+                selectedPlayerJson = playerJson; selectedWorldJson = worldJson;
             }
-
-            // note: A newer shared save is recoverable only for the same active player id; this repairs an interrupted profile-copy boundary without importing another character or replacing a newer profile snapshot.
-            File.Copy(ActivePlayerPath, profilePlayerPath, true);
-            File.Copy(ActiveWorldPath, profileWorldPath, true);
-            CopyOrRemoveProfileBackup(
-                ActivePlayerPath + BackupSuffix,
-                profilePlayerPath + BackupSuffix);
-            CopyOrRemoveProfileBackup(
-                ActiveWorldPath + BackupSuffix,
-                profileWorldPath + BackupSuffix);
-
-            entry.updatedUnix = activePlayer.lastUpdatedUnix;
-            SaveManifest();
-            Debug.Log(
-                "[YQProfileSaveSystem] RECOVERED NEWER ACTIVE PROFILE SNAPSHOT " +
-                profileId);
+            if (selectedPlayerJson == null) return;
+            // note: Preserve the exact auxiliary revision (terrain snapshot, dialogue, etc.) when recovering this same world's newer canonical documents.
+            var auxiliary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (previous?.auxiliaryDocuments != null)
+                foreach (var document in previous.auxiliaryDocuments)
+                {
+                    if (!YQProfileCommitStore.TryReadAuxiliaryDocument(folder, previous.commitId, document.documentId, document.checksum,
+                        out string path, out string failure)) throw new IOException("Recovery auxiliary document rejected: " + failure);
+                    auxiliary.Add(document.documentId, File.ReadAllText(path));
+                }
+            int revision = previous != null ? previous.revision + 1 : 1;
+            if (!YQProfileCommitStore.TryCommit(folder, profileId, ActivePlayerPath, ActiveWorldPath, revision,
+                selectedPlayerJson, selectedWorldJson, auxiliary, null, out YQProfileTransactionReceipt receipt))
+                throw new IOException("Recovery paired commit failed: " + receipt?.failure);
+            receipt.previousCommitId = previous?.commitId ?? string.Empty;
+            ProfileManifest next = _manifest.PrepareCommit(receipt);
+            if (!SaveManifest(next)) throw new IOException("Recovery pointer publication failed: " + LastFailure);
+            _manifest = next;
+            LastTransactionReceipt = receipt;
+            Debug.Log("[YQProfileSaveSystem] RECOVERED NEWER PAIRED PROFILE REVISION " + profileId +
+                " player=" + selectedPlayer.stateRevision + " world=" + selectedWorld.stateRevision + " revision=" + revision);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            // note: Recovery is opportunistic; unreadable shared state must not prevent the title screen from offering the last valid profile snapshot.
-            Debug.LogWarning(
-                "[YQProfileSaveSystem] Active profile snapshot recovery skipped: " +
-                ex.Message);
+            // note: Keep the previous complete revision and recovered source documents available if validation or publication fails.
+            Debug.LogWarning("[YQProfileSaveSystem] Paired profile recovery skipped: " + exception.Message);
         }
+    }
+
+    private static bool TryReadRecoveryPair(string playerPath, string worldPath, string profileId,
+        out PlayerState player, out WorldState world, out string playerJson, out string worldJson)
+    {
+        // note: Detached parsing and migration validate both documents before a recovery can write any projection or pointer.
+        player = null; world = null; playerJson = null; worldJson = null;
+        if (!File.Exists(playerPath) || !File.Exists(worldPath)) return false;
+        if (!YQStateMigrations.TryNormalizePlayerDocument(File.ReadAllText(playerPath), out string normalizedPlayer, out _, out _) ||
+            !YQStateMigrations.TryNormalizeWorldDocument(File.ReadAllText(worldPath), out string normalizedWorld, out _, out _)) return false;
+        var settings = new JsonSerializerSettings { Converters = { new Vector3JsonConverter(), new Vector2JsonConverter(), new QuaternionJsonConverter() } };
+        player = JsonConvert.DeserializeObject<PlayerState>(normalizedPlayer, settings);
+        world = JsonConvert.DeserializeObject<WorldState>(normalizedWorld, settings);
+        if (player == null || world == null || !string.Equals(player.playerId, profileId, StringComparison.OrdinalIgnoreCase) ||
+            !YQStateMigrations.TryMigrate(player, out _) || !YQStateMigrations.TryMigrate(world, out _)) return false;
+        if (world.worldIdentity == null || !string.Equals(world.worldIdentity.ownerProfileId, profileId, StringComparison.OrdinalIgnoreCase) ||
+            !YQStateReferenceValidator.Validate(player, world).IsValid) return false;
+        playerJson = JsonConvert.SerializeObject(player, settings);
+        worldJson = JsonConvert.SerializeObject(world, settings);
+        return true;
+    }
+
+    private static bool IsNewerRecoveryPair(PlayerState candidatePlayer, WorldState candidateWorld, PlayerState baselinePlayer, WorldState baselineWorld)
+    {
+        // note: Wall-clock autosaves from an older loaded revision cannot roll back newer accepted canon; both state revisions must advance monotonically.
+        if (candidatePlayer == null || candidateWorld == null) return false;
+        if (baselinePlayer == null || baselineWorld == null) return true;
+        if (!string.Equals(candidateWorld.worldIdentity?.worldId, baselineWorld.worldIdentity?.worldId, StringComparison.Ordinal) ||
+            candidatePlayer.stateRevision < baselinePlayer.stateRevision || candidateWorld.stateRevision < baselineWorld.stateRevision) return false;
+        if (candidatePlayer.stateRevision > baselinePlayer.stateRevision || candidateWorld.stateRevision > baselineWorld.stateRevision) return true;
+        return candidatePlayer.stateRevision == 0 && candidateWorld.stateRevision == 0 &&
+            candidatePlayer.lastUpdatedUnix > baselinePlayer.lastUpdatedUnix && candidateWorld.lastUpdatedUnix >= baselineWorld.lastUpdatedUnix;
     }
 
     private string EnsureProfileFolder(string profileId)

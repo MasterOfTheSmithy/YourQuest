@@ -210,12 +210,28 @@ public sealed class YQContinuousWorldCellAuthority
         var pads = new List<ContinuationPad>();
         if (candidate != null) CopyPads(candidate, pads);
         if (acceptedMaterialization != null)
+        {
+            var continuedOwners = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < acceptedMaterialization.ContinuationPadCount; i++)
             {
                 var pad = acceptedMaterialization.GetContinuationPad(i);
+                continuedOwners.Add(pad.ownerSiteId);
                 if (candidate != null && pad.ownerSiteId == candidate.anchor.siteId) continue;
                 pads.Add(new ContinuationPad(pad.x, pad.z, pad.reservedRadius, pad.elevationNormalized, pad.shoulderWidth));
             }
+            // note: The accepted blueprint may already place settlements far beyond the origin collar. Their reviewed surface is authoritative too.
+            for (int i = 0; i < acceptedMaterialization.SiteCount; i++)
+            {
+                var site = acceptedMaterialization.GetSite(i);
+                if (!site.terrainReserveReady || continuedOwners.Contains(site.siteId) ||
+                    (site.kind != YQSiteKindV2.Settlement && site.kind != YQSiteKindV2.HostileSite && site.kind != YQSiteKindV2.PointOfInterest)) continue;
+                pads.Add(new ContinuationPad(site.x, site.z, site.reservedRadius, site.surfaceElevationNormalized,
+                    YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance));
+                foreach (var member in site.MemberFootprint)
+                    pads.Add(new ContinuationPad(member.x, member.z, member.reservedRadius, site.surfaceElevationNormalized,
+                        YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance));
+            }
+        }
         pads.Sort((a, b) => { int order = a.x.CompareTo(b.x); if (order != 0) return order;
             order = a.z.CompareTo(b.z); if (order != 0) return order; return a.elevation.CompareTo(b.elevation); });
         continuationPads = pads.ToArray();
@@ -264,6 +280,18 @@ public sealed class YQContinuousWorldCellAuthority
                     maximumZ = Mathf.Max(maximumZ, point.z);
                 }
                 YQSpatialMaterializationRouteV2 route = acceptedMaterialization.GetRoute(routeIndex);
+                // note: Permitted road continuations are real network terrain, so include their full bounded rays in the sampling envelope.
+                if (route.permittedBoundaryContinuation && pointCount >= 2)
+                    for (int endpointIndex = 0; endpointIndex < 2; endpointIndex++)
+                    {
+                        var endpoint = acceptedMaterialization.GetRoutePoint(routeIndex, endpointIndex == 0 ? 0 : pointCount - 1);
+                        var adjacent = acceptedMaterialization.GetRoutePoint(routeIndex, endpointIndex == 0 ? 1 : pointCount - 2);
+                        Vector2 direction = new Vector2(endpoint.x - adjacent.x, endpoint.z - adjacent.z).normalized;
+                        if (!YQContinuousWorldFeatureAuthority.TryGetOutwardBoundaryDistance(endpoint.x, endpoint.z, direction, out _)) continue;
+                        Vector2 end = new Vector2(endpoint.x, endpoint.z) + direction * YQContinuousWorldFeatureAuthority.AcceptedContinuationMaxDistance;
+                        minimumX = Mathf.Min(minimumX, end.x); maximumX = Mathf.Max(maximumX, end.x);
+                        minimumZ = Mathf.Min(minimumZ, end.y); maximumZ = Mathf.Max(maximumZ, end.y);
+                    }
                 float padding = Mathf.Max(2f, route.width * 0.5f + route.shoulderWidth) + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance;
                 acceptedRouteBounds[routeIndex] = new AcceptedRouteBounds(
                     minimumX, maximumX, minimumZ, maximumZ, padding);
@@ -514,8 +542,14 @@ public sealed class YQContinuousWorldCellAuthority
             bool insideFiniteWaterEnvelope = hasAcceptedWaterBounds &&
                 worldX >= acceptedWaterMinX && worldX <= acceptedWaterMaxX &&
                 worldZ >= acceptedWaterMinZ && worldZ <= acceptedWaterMaxZ;
-            return YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(acceptedMaterialization,
+            float result = YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(acceptedMaterialization,
                 worldX, worldZ, normalizedHeight, originHeight, out float waterHeight, insideFiniteWaterEnvelope) ? waterHeight : normalizedHeight;
+            // note: Dry shore/road shoulders cannot move occupied construction pads. Actual wet cores keep their accepted water datum.
+            var padCoordinate = new Vector2Int(Mathf.FloorToInt((worldX + 512f) / 128f), Mathf.FloorToInt((worldZ + 512f) / 128f));
+            if (!continuationPadIndex.ContainsKey(padCoordinate)) return result;
+            if (YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterCoreModifiers(acceptedMaterialization,
+                worldX, worldZ, result, originHeight, out _)) return result;
+            return ApplyContinuationPads(worldX, worldZ, result);
         }
         return ApplyFeatureModifier(worldX, worldZ, normalizedHeight);
     }
@@ -560,8 +594,11 @@ public sealed class YQContinuousWorldCellAuthority
         foreach (var pad in localPads)
         {
             float distance = Vector2.Distance(new Vector2(x, z), new Vector2(pad.x, pad.z));
-            float mask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((distance - pad.radius) / pad.shoulder));
-            if (mask > winningMask) { winningMask = mask; elevation = Mathf.Lerp(height, pad.elevation, mask); }
+            float mask = 1f - Mathf.Clamp01((distance - pad.radius) / Mathf.Max(1f, pad.shoulder));
+            // note: An absolute grade envelope is idempotent when reapplied after hydrology; repeated interpolation lifted or lowered previously graded shoulders.
+            // note: Conformance measures a two-metre derivative at the reserve edge; keep that probe inside the flat floor before the existing shoulder grades outward.
+            float allowance = Mathf.Max(0f, distance - pad.radius - 2f) * .45f / Mathf.Max(1f, originHeight);
+            if (mask > winningMask) { winningMask = mask; elevation = Mathf.Clamp(height, pad.elevation - allowance, pad.elevation + allowance); }
         }
         return elevation;
     }
@@ -590,20 +627,31 @@ public sealed class YQContinuousWorldCellAuthority
     private float ApplyContinuationRouteModifier(float x, float z, float height)
     {
         if (candidateRoutes.Length == 0) return ApplyAcceptedRouteModifier(x, z, height);
-        // note: Every route grades the same original post-pad height. Strictly stronger changes win in the exact runtime order, including equal-change ties.
-        float bestChange = 0f, result = height;
+        // note: A road core owns its datum before distant cut/fill shoulders; the largest earthwork must not override another route's actual surface.
+        float bestChange = 0f, bestCoreDistance = float.PositiveInfinity, result = height;
         foreach (int projection in continuationRouteProjectionOrder)
         {
-            float grade;
-            if (projection >= 0) grade = SampleAcceptedRouteModifier(projection, x, z, height);
+            float distance, elevation, width, shoulder;
+            if (projection >= 0)
+            {
+                MeasureAcceptedRoute(projection, x, z, height, out distance, out elevation);
+                var route = acceptedMaterialization.GetRoute(projection); width = route.width; shoulder = route.shoulderWidth;
+            }
             else
             {
                 var route = candidateRoutes[-projection - 1];
-                MeasureRoute(route.points, x, z, out float distance, out Vector3 nearest);
-                grade = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(height, nearest.y,
-                    originHeight, route.width * .5f, route.shoulder, distance);
+                MeasureRoute(route.points, x, z, out distance, out Vector3 nearest);
+                elevation = nearest.y; width = route.width; shoulder = route.shoulder;
             }
-            if (Mathf.Abs(grade - height) > bestChange) { bestChange = Mathf.Abs(grade - height); result = grade; }
+            float core = Mathf.Max(1f, width * .5f + shoulder);
+            float grade = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(height, elevation, originHeight, width * .5f, shoulder, distance);
+            if (distance <= core)
+            {
+                float score = distance / core;
+                if (score < bestCoreDistance) { bestCoreDistance = score; result = grade; }
+            }
+            else if (float.IsPositiveInfinity(bestCoreDistance) && Mathf.Abs(grade - height) > bestChange)
+            { bestChange = Mathf.Abs(grade - height); result = grade; }
         }
         return result;
     }
@@ -1156,7 +1204,7 @@ public sealed class YQContinuousWorldCellAuthority
             float perpendicular = (delta - ray.direction * along).magnitude;
             if (along >= 0f && along <= YQContinuousWorldFeatureAuthority.AcceptedContinuationMaxDistance &&
                 perpendicular <= (width + ray.width) * .5f + 2f &&
-                Mathf.Abs(endpoint.y - (ray.elevation + along * ray.elevationSlope)) * YQGeneratedWorldTerrain.TerrainHeight <= .5f) return true;
+                Mathf.Abs(endpoint.y - Mathf.Clamp01(ray.elevation + along * ray.elevationSlope)) * YQGeneratedWorldTerrain.TerrainHeight <= .5f) return true;
         }
         return false;
     }
@@ -1169,19 +1217,24 @@ public sealed class YQContinuousWorldCellAuthority
         if (acceptedMaterialization == null || acceptedMaterialization.RouteCount <= 0)
             return normalizedHeight;
 
-        float bestMask = 0f;
+        // note: Use the same core-first projection as staged continuation routes, preserving deterministic canonical-order ties.
+        float bestMask = 0f, bestCoreDistance = float.PositiveInfinity;
         float bestElevation = normalizedHeight;
         for (int routeIndex = 0; routeIndex < acceptedMaterialization.RouteCount; routeIndex++)
         {
-            YQSpatialMaterializationRouteV2 route = acceptedMaterialization.GetRoute(routeIndex);
+            var route = acceptedMaterialization.GetRoute(routeIndex);
             if (pureAcceptedProjection && candidateRouteIds != null && candidateRouteIds.Contains(route.routeId)) continue;
-            float candidate = SampleAcceptedRouteModifier(routeIndex, worldX, worldZ, normalizedHeight);
-            float mask = Mathf.Abs(candidate - normalizedHeight);
-            if (mask > bestMask)
+            MeasureAcceptedRoute(routeIndex, worldX, worldZ, normalizedHeight, out float distance, out float elevation);
+            float core = Mathf.Max(1f, route.width * .5f + route.shoulderWidth);
+            float candidate = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(normalizedHeight, elevation,
+                originHeight, route.width * .5f, route.shoulderWidth, distance);
+            if (distance <= core)
             {
-                bestMask = mask;
-                bestElevation = candidate;
+                float score = distance / core;
+                if (score < bestCoreDistance) { bestCoreDistance = score; bestElevation = candidate; }
             }
+            else if (float.IsPositiveInfinity(bestCoreDistance) && Mathf.Abs(candidate - normalizedHeight) > bestMask)
+            { bestMask = Mathf.Abs(candidate - normalizedHeight); bestElevation = candidate; }
         }
 
         return bestElevation;
@@ -1189,18 +1242,40 @@ public sealed class YQContinuousWorldCellAuthority
 
     private float SampleAcceptedRouteModifier(int routeIndex, float worldX, float worldZ, float originalHeight)
     {
-        // note: Runtime and pure candidate projection share the same finite-road calculation and conservative envelope.
+        MeasureAcceptedRoute(routeIndex, worldX, worldZ, originalHeight, out float distance, out float elevation);
+        var route = acceptedMaterialization.GetRoute(routeIndex);
+        return YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(originalHeight,
+            elevation, originHeight, route.width * .5f, route.shoulderWidth, distance);
+    }
+
+    internal float SampleRoadPaintWeight(float x, float z)
+    {
+        // note: Only accepted roads receive packed-earth paint, with a smooth two-metre terrain shoulder beyond the ribbon.
+        if (acceptedMaterialization == null) return 0f;
+        float weight = 0f;
+        for (int i = 0; i < acceptedMaterialization.RouteCount; i++)
+        {
+            MeasureAcceptedRoute(i, x, z, 0f, out float distance, out _);
+            float halfWidth = Mathf.Max(1f, acceptedMaterialization.GetRoute(i).width * .5f);
+            weight = Mathf.Max(weight, 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(halfWidth * .65f, halfWidth + 2f, distance)));
+        }
+        return weight;
+    }
+
+    private void MeasureAcceptedRoute(int routeIndex, float worldX, float worldZ, float originalHeight, out float routeDistance, out float routeElevation)
+    {
+        // note: Terrain and path paint share finite and permitted terminal footprints without allocating per sample.
+        routeDistance = float.MaxValue; routeElevation = originalHeight;
         Vector2 sample = new Vector2(worldX, worldZ);
         if (acceptedRouteBounds != null && routeIndex < acceptedRouteBounds.Length)
         {
             AcceptedRouteBounds bounds = acceptedRouteBounds[routeIndex];
             if (sample.x < bounds.minX - bounds.padding || sample.x > bounds.maxX + bounds.padding ||
                 sample.y < bounds.minZ - bounds.padding || sample.y > bounds.maxZ + bounds.padding)
-                return originalHeight;
+                return;
         }
         int pointCount = acceptedMaterialization.GetRoutePointCount(routeIndex);
-        if (pointCount < 2) return originalHeight;
-        float routeDistance = float.MaxValue, routeElevation = originalHeight;
+        if (pointCount < 2) return;
         for (int pointIndex = 0; pointIndex + 1 < pointCount; pointIndex++)
         {
             var first = acceptedMaterialization.GetRoutePoint(routeIndex, pointIndex);
@@ -1216,8 +1291,24 @@ public sealed class YQContinuousWorldCellAuthority
             routeElevation = Mathf.Lerp(first.surfaceElevationNormalized, second.surfaceElevationNormalized, t);
         }
         var route = acceptedMaterialization.GetRoute(routeIndex);
-        return YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(originalHeight,
-            routeElevation, originHeight, route.width * .5f, route.shoulderWidth, routeDistance);
+        // note: Use the same terminal datum as network admission and ribbon projection; otherwise valid frontage routes fail terrain conformance.
+        if (route.permittedBoundaryContinuation)
+            for (int endpointIndex = 0; endpointIndex < 2; endpointIndex++)
+            {
+                var endpoint = acceptedMaterialization.GetRoutePoint(routeIndex, endpointIndex == 0 ? 0 : pointCount - 1);
+                var adjacent = acceptedMaterialization.GetRoutePoint(routeIndex, endpointIndex == 0 ? 1 : pointCount - 2);
+                Vector2 start = new Vector2(endpoint.x, endpoint.z);
+                Vector2 delta = start - new Vector2(adjacent.x, adjacent.z);
+                float length = delta.magnitude;
+                if (length < .01f) continue;
+                Vector2 direction = delta / length;
+                if (!YQContinuousWorldFeatureAuthority.TryGetOutwardBoundaryDistance(start.x, start.y, direction, out _)) continue;
+                float along = Mathf.Clamp(Vector2.Dot(sample - start, direction), 0f, YQContinuousWorldFeatureAuthority.AcceptedContinuationMaxDistance);
+                float distance = Vector2.Distance(sample, start + direction * along);
+                if (distance >= routeDistance) continue;
+                routeDistance = distance;
+                routeElevation = Mathf.Clamp01(endpoint.surfaceElevationNormalized + along * (endpoint.surfaceElevationNormalized - adjacent.surfaceElevationNormalized) / length);
+            }
     }
 
     public List<float> SampleBiomeWeights(float worldX, float worldZ)
@@ -1629,11 +1720,31 @@ public sealed class YQContinuousWorldCellAuthority
         float ridgeNoise = Mathf.PerlinNoise(worldX * 0.0032f + ridgeOffset.x, worldZ * 0.0032f + ridgeOffset.y);
         float ridges = 1f - Mathf.Abs(ridgeNoise * 2f - 1f);
         float mountainNoise = Mathf.PerlinNoise(worldX * 0.0011f + ridgeOffset.y + 17.7f, worldZ * 0.0011f + ridgeOffset.x - 9.4f);
-        float mountainMask = Mathf.SmoothStep(0.48f, 0.82f, mountainNoise);
+        float mountainMask = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.48f, 0.82f, mountainNoise));
         float mountainRidges = Mathf.Pow(1f - Mathf.Abs(Mathf.PerlinNoise(worldX * 0.0024f + macroOffset.x - 3.1f, worldZ * 0.0024f + macroOffset.y + 8.6f) * 2f - 1f), 1.35f);
         float basins = Mathf.PerlinNoise(worldX * 0.0015f + biomeOffset.x + 5.2f, worldZ * 0.0015f + biomeOffset.y - 4.8f);
         float relief = mountainMask * mountainRidges * 0.24f - (1f - mountainMask) * (1f - basins) * 0.06f;
-        return Mathf.Clamp01(0.20f + continental * 0.18f + hills * 0.09f + ridges * 0.12f + relief);
+        return Mathf.Clamp01(0.20f + continental * 0.18f + hills * 0.09f + ridges * 0.12f + relief + SampleMountainRelief(worldX, worldZ));
+    }
+
+    private float SampleMountainRelief(float x, float z)
+    {
+        // note: One seeded massif per 3.84km region gives large-settlement-scale cadence without cell-local random state or origin regeneration.
+        const float spacing = 3840f;
+        int regionX = Mathf.FloorToInt(x / spacing), regionZ = Mathf.FloorToInt(z / spacing);
+        float relief = 0f;
+        for (int dz = -1; dz <= 1; dz++)
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            uint hash = StableHash(seedHash ^ unchecked((uint)(regionX + dx) * 73856093u) ^ unchecked((uint)(regionZ + dz) * 19349663u));
+            float centerX = (regionX + dx + .25f + (hash & 65535u) / 65535f * .5f) * spacing;
+            float centerZ = (regionZ + dz + .25f + (hash >> 16) / 65535f * .5f) * spacing;
+            float radius = 640f + (StableHash(hash) & 65535u) / 65535f * 320f;
+            float distance = Vector2.Distance(new Vector2(x, z), new Vector2(centerX, centerZ)) / radius;
+            float envelope = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(1f - distance));
+            relief = Mathf.Max(relief, envelope * .48f);
+        }
+        return relief;
     }
 
     private bool ContainsOrigin(float worldX, float worldZ)

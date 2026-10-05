@@ -1377,7 +1377,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private const float FrontierConstructionRetrySeconds = 0.75f;
     private const int FrontierConstructionBlocksPerSlice = 8;
     private const float FrontierConstructionScanBudgetSeconds = 0.0015f;
-    private static readonly Vector2Int[] FrontierConstructionScanOffsets = BuildFrontierConstructionScanOffsets();
+    private static readonly Vector2Int[] FrontierConstructionScanOffsets = BuildFrontierConstructionScanOffsets(true);
+    private static readonly Vector2Int[] FrontierNearbyConstructionScanOffsets = BuildFrontierConstructionScanOffsets(false);
     private WorldState _frontierConstructionWorld;
     private GeneratedWorldPlanRecord _frontierConstructionPlan;
     private int _frontierConstructionEpoch, _frontierConstructionServiceEpoch, _frontierConstructionScan;
@@ -10397,14 +10398,17 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 continue;
             }
 
-            Terrain terrain = ResolveTerrainForChunk(coordinate);
+            // note: Ecology participates in publication; it must see the ready staged terrain rather than wait for its own publication gate.
+            Terrain terrain = ResolveTerrainForContentMaterialization(coordinate);
             GeneratedRegionRecord region = ResolveRegion(chunk.record.parentRegionId);
             GeneratedRegionAssetPaletteRecord palette = ResolvePalette(
                 region,
                 chunk.record.biome,
                 !IsChunkInsideAuthoredTerrain(coordinate));
             YQRuntimeWorldAssetRegistry registry = YQRuntimeWorldAssetRegistry.Instance;
-            if (terrain == null || region == null || palette == null || registry == null)
+            if (terrain == null)
+                continue;
+            if (region == null || palette == null || registry == null)
             {
                 // note: A demanded ecology lane records missing provider prerequisites for bounded recovery instead of silently disappearing from the scheduler.
                 ScheduleRequiredEcologyRetry(coordinate, chunk, "ecology provider prerequisite unavailable");
@@ -10892,10 +10896,10 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_continuationPopulationWork.Count == 0) CancelContinuationPopulationWork();
     }
 
-    private static Vector2Int[] BuildFrontierConstructionScanOffsets()
+    private static Vector2Int[] BuildFrontierConstructionScanOffsets(bool nearOpening)
     {
-        // note: Check candidate blocks beyond the protected opening collar first, then retain the deterministic near rings as bounded recovery.
-        const int openingSafePriorityRadius = 3;
+        // note: Skip the protected opening collar first only at the origin; frontier travel needs nearby content before distant rings.
+        int openingSafePriorityRadius = nearOpening ? 3 : 0;
         const int maximumRadius = 8;
         var offsets = new Vector2Int[(maximumRadius * 2 + 1) * (maximumRadius * 2 + 1)];
         int index = 0;
@@ -10927,6 +10931,9 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 !ReferenceEquals(WorldStateManager.Instance?.State, _world)) return;
             int span = YQSemanticWorldAuthority.FrontierOpportunitySpanCells;
             var predicted = ResolvePredictedContentChunk(new Vector2(_player.position.x, _player.position.z));
+            // note: Scheduling changes proximity only; physical admission still rejects edits to protected or currently owned terrain.
+            Vector2Int[] scanOffsets = Mathf.Max(Mathf.Abs(_player.position.x), Mathf.Abs(_player.position.z)) < 1664f
+                ? FrontierConstructionScanOffsets : FrontierNearbyConstructionScanOffsets;
             // note: Convert physical chunk coordinates to the semantic block grid; configured chunk sizes need not equal 128m.
             float chunkSize = Mathf.Max(32f, chunkWorldSize);
             float blockWorldSize = span * YQSemanticWorldAuthority.CellSizeMeters;
@@ -10942,8 +10949,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
             while (scannedBlocks < FrontierConstructionBlocksPerSlice &&
                    Time.realtimeSinceStartupAsDouble - scanStarted < FrontierConstructionScanBudgetSeconds)
             {
-                int scan = _frontierConstructionScan++ % FrontierConstructionScanOffsets.Length;
-                Vector2Int block = predictedBlock + FrontierConstructionScanOffsets[scan];
+                int scan = _frontierConstructionScan++ % scanOffsets.Length;
+                Vector2Int block = predictedBlock + scanOffsets[scan];
                 scannedBlocks++;
                 _frontierConstructionAttempts.TryGetValue(block, out int attempts);
                 if (attempts >= 2 || !YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(

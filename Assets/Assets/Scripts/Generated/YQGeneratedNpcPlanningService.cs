@@ -17,12 +17,6 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
     private const string InitialGenerationOwner =
         "InitialWorldGeneration";
 
-    private const int StartupSettlementBatchHardCap =
-        1;
-
-    private const int StartupEncampmentBatchHardCap =
-        1;
-
     /*
      * NPC population requests describe the completed location, then
      * provide a grounded transition and a short thought buffer for the
@@ -477,6 +471,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
     private sealed class PopulationBatchTarget
     {
         public PopulationBatchKind kind;
+        public int retainedNpcCount;
 
         public string locationId =
             string.Empty;
@@ -876,20 +871,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 return;
             }
 
-            // note: Older saves may contain only the previous 1-settlement/0-encampment slice; regenerate full coverage.
-            Debug.LogWarning(
-                "[YQGeneratedNpcPlanningService] Existing canonical NPC list is incomplete; rebuilding. " +
-                existingCoverageError);
-
-            plan.generatedNpcs.Clear();
-            _pendingGeneratedNpcs.Clear();
-            _activeBatchIndex =
-                0;
-            _attemptCount =
-                0;
-            _lastBatchRejectionReason =
-                string.Empty;
-            _rejectedCanonicalNamesForCurrentBatch.Clear();
+            // note: Partial saved coverage stays authoritative. ResetGenerationForPlan retained these records; only missing slots are requested.
         }
 
         if (HasTerminalPopulationFailure)
@@ -1035,15 +1017,20 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             CountAvailableBatchTargets(
                 plan);
 
+        // note: Populate every configured accepted location; a hidden one-location cap left the rest permanently without identities.
         BuildBatchTargets(
             plan,
             _batchTargets,
-            Mathf.Min(
-                maxInitialSettlementBatches,
-                StartupSettlementBatchHardCap),
-            Mathf.Min(
-                maxInitialEncampmentBatches,
-                StartupEncampmentBatchHardCap));
+            Mathf.Clamp(maxInitialSettlementBatches, 1, 64),
+            Mathf.Clamp(maxInitialEncampmentBatches, 0, 64));
+
+        // note: Preserve accepted names, IDs and equipment owners when adding coverage to saves created under the old startup cap.
+        if (plan?.generatedNpcs != null) _pendingGeneratedNpcs.AddRange(plan.generatedNpcs);
+        foreach (PopulationBatchTarget target in _batchTargets)
+            target.retainedNpcCount = _pendingGeneratedNpcs.FindAll(npc => npc != null &&
+                (target.kind == PopulationBatchKind.Settlement
+                    ? !npc.hostile && string.Equals(npc.settlementId, target.locationId, StringComparison.OrdinalIgnoreCase)
+                    : npc.hostile && string.Equals(npc.encampmentId, target.locationId, StringComparison.OrdinalIgnoreCase))).Count;
 
         int settlementBatches =
             0;
@@ -1137,7 +1124,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
             settlementBatches++;
 
-            // note: Initial loading only needs a representative canonical slice, not every distant resident.
+            // note: Each accepted settlement gets its own canonical population batch.
             result.Add(
                 new PopulationBatchTarget
                 {
@@ -1184,7 +1171,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
             encampmentBatches++;
 
-            // note: Hostiles beyond this cap can remain procedural until a later background expansion pass.
+            // note: Every configured accepted hostile location gets a significant canonical inhabitant.
             result.Add(
                 new PopulationBatchTarget
                 {
@@ -1994,6 +1981,15 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             return;
         }
 
+        // note: A retained complete batch needs no fallback, including the development fixture's direct batch loop.
+        if (GetExpectedNpcCountForTarget(plan, target) == 0)
+        {
+            _activeBatchIndex++;
+            _attemptCount = 0;
+            if (_activeBatchIndex >= _batchTargets.Count) CompletePopulationGeneration(worldManager, world, plan);
+            return;
+        }
+
         List<GeneratedNpcPlanRecord> fallback =
             BuildDeterministicFallbackBatch(
                 plan,
@@ -2206,7 +2202,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 plan,
                 settlement);
 
-        for (int i = 0;
+        for (int i = target.retainedNpcCount;
              i < count;
              i++)
         {
@@ -3882,9 +3878,9 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
             return
                 settlement != null
-                    ? ResolveDesiredResidentCount(
+                    ? Mathf.Max(0, ResolveDesiredResidentCount(
                         plan,
-                        settlement)
+                        settlement) - target.retainedNpcCount)
                     : 0;
         }
 
@@ -3895,7 +3891,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
         return
             encampment != null
-                ? 1
+                ? Mathf.Max(0, 1 - target.retainedNpcCount)
                 : 0;
     }
 
@@ -5055,7 +5051,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 }
             }
 
-            if (actual != expected)
+            if (actual != Mathf.Max(expected, target.retainedNpcCount))
             {
                 error =
                     "settlement '" +
@@ -5112,7 +5108,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
                 }
             }
 
-            if (actual != 1)
+            if (actual != Mathf.Max(1, target.retainedNpcCount))
             {
                 error =
                     "encampment '" +

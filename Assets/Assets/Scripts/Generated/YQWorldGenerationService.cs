@@ -397,7 +397,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         GeneratedSpatialWorldPlanV2Record artifact = plan.spatialPlanV2;
         string parentHash = artifact.contentHash;
         int epoch = YQServiceLifecycle.RequestEpoch;
-        long worldRevision = world.stateRevision;
+        // note: Streaming updates world counters while inference runs. Bind the accepted semantic inputs, not an unrelated global revision.
+        string semanticContextHash = BuildFrontierSemanticContextHash(plan, region.regionId, factionIds);
         string profileId = CaptureFrontierProfileId();
         string worldId = world.worldIdentity.worldId;
         string ownerId = engineCandidate.contentId;
@@ -414,6 +415,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             string.Equals(world.worldIdentity?.worldId, worldId, StringComparison.OrdinalIgnoreCase) &&
             ReferenceEquals(plan.spatialPlanV2, artifact) && artifact.contentHash == parentHash &&
             artifact.acceptanceState == GeneratedSpatialPlanAcceptanceState.Accepted &&
+            BuildFrontierSemanticContextHash(plan, anchor.parentRegionId, factionIds) == semanticContextHash &&
             engineCandidate.contentId == ownerId && engineCandidate.deterministicSeed == candidateSeed &&
             engineCandidate.state == YQSpatialContinuationStateV2.Staged;
         Action<GeneratedSpatialContinuationLocationV2Record, string> finish = (staged, failure) =>
@@ -440,7 +442,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 profileId = profileId,
                 worldId = worldId,
                 generationEpoch = epoch,
-                worldStateRevision = worldRevision,
+                bindWorldStateRevision = false,
                 bindPlayerStateRevision = false,
                 ownerStillCurrent = ownerCurrent,
                 maxRetries = 0,
@@ -463,10 +465,10 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 {
                     if (!result.success)
                         failure = "Frontier inference ended with " + result.outcome + ": " + result.error;
-                    else if (!ownerCurrent() || world.stateRevision != worldRevision ||
+                    else if (!ownerCurrent() ||
                         !string.Equals(result.profileId, profileId, StringComparison.OrdinalIgnoreCase) ||
                         !string.Equals(result.worldId, worldId, StringComparison.OrdinalIgnoreCase) ||
-                        result.generationEpoch != epoch || result.ownerId != ownerId || result.worldStateRevision != worldRevision ||
+                        result.generationEpoch != epoch || result.ownerId != ownerId || result.worldStateRevision != -1 ||
                         YQStateContract.Sha256Hex(JsonConvert.SerializeObject(engineCandidate, FrontierBriefJsonSettings)) != candidateHash)
                         failure = "Frontier inference returned after its profile, world, epoch, owner or engine candidate changed.";
                     else
@@ -546,7 +548,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             "bindings, accepted state or physical/asset/proof claims. Services, cell roles and monster descriptions are semantic requests subject to later owner validation. " +
             "Use only the listed faction IDs (empty means unaffiliated). Settlement population has 2-6 non-hostile residents; " +
             "hostile population has exactly one named hostile leader; POI population is empty. Keep prose compact, preferably 3-8 words per field.\n" +
-            "ACCEPTED_CANON\n" + context.ToString(Formatting.None) + "\nJSON_SCHEMA\n" + schema.ToString(Formatting.None);
+            YQDotCreatureCatalog.BuildBindingPrompt() + "\nACCEPTED_CANON\n" + context.ToString(Formatting.None) + "\nJSON_SCHEMA\n" + schema.ToString(Formatting.None);
     }
 
     private static JObject BuildFrontierLocationBriefSchema(YQSiteKindV2 kind, string style, string[] factionIds)
@@ -576,7 +578,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         {
             location["threatTier"] = new JObject { ["type"] = "integer", ["minimum"] = 1, ["maximum"] = 12 };
             location["inhabitantFactionId"] = FrontierBriefStringSchema(160, factionIds.Where(id => !string.IsNullOrEmpty(id)).ToArray());
-            location["monsterFamily"] = FrontierBriefStringSchema(120);
+            // note: Semantic family is an executable visual contract. Fresh lore can be original while the body must be one actually installed and bindable.
+            location["monsterFamily"] = FrontierBriefStringSchema(120, BuildFrontierMonsterFamilyVocabulary());
             location["layoutIntent"] = FrontierBriefStringSchema(200);
             location["abilityProfile"] = FrontierBriefStringSchema(220);
             location["rewardProfile"] = FrontierBriefStringSchema(160);
@@ -604,6 +607,24 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             ["location"] = FrontierBriefObjectSchema(location),
             ["population"] = FrontierBriefArraySchema(FrontierBriefObjectSchema(npc), minimum, maximum)
         });
+    }
+
+    private static string[] BuildFrontierMonsterFamilyVocabulary()
+    {
+        var candidates = new SortedSet<string>(StringComparer.Ordinal)
+        { "bandit", "rock monster", "worm monster", "demon", "dragon", "plant monster", "mushroom monster", "undead", "spider", "beast" };
+        var catalog = YQDotCreatureCatalog.Current;
+        if (catalog != null)
+            foreach (var entry in catalog.entries)
+                if (entry != null && entry.kind == "monster" && string.IsNullOrEmpty(entry.moduleSlot) && !string.IsNullOrEmpty(entry.species))
+                    candidates.Add(entry.species == "mimic" ? "DOT mimic" : entry.species);
+        var available = new List<string>();
+        var registry = YQRuntimeWorldAssetRegistry.Instance;
+        // note: Use the production binder to exclude unavailable bodies rather than admitting a capsule or an unrelated species.
+        foreach (string family in candidates)
+            if (YQRuntimeCreatureAssetIndex.TryResolveMonster(registry, family, "frontier-family-v1", "frontier-family-v1", out _, out _)) available.Add(family);
+        if (available.Count == 0) throw new InvalidOperationException("No approved monster family is currently bindable for frontier generation.");
+        return available.ToArray();
     }
 
     private static JObject FrontierBriefStringSchema(int maximum, string[] allowed = null, bool allowEmpty = false)
@@ -4749,6 +4770,17 @@ targetWorld);
         GeneratedRegionRecord region = FindRegion(plan, encampment.regionId);
         if (region != null)
             AddUnique(region.encampmentIds, encampment.encampmentId);
+    }
+
+    private static string BuildFrontierSemanticContextHash(GeneratedWorldPlanRecord plan, string regionId, List<string> factionIds)
+    {
+        // note: Resolve current canonical records so replacing a region/faction is detected as well as changing it in place.
+        var region = FindRegion(plan, regionId);
+        var factions = new List<GeneratedFactionPlanRecord>();
+        foreach (string id in factionIds)
+            if (!string.IsNullOrWhiteSpace(id))
+                factions.Add(plan?.factions?.Find(faction => faction != null && faction.factionId == id));
+        return YQStateContract.Sha256Hex(JsonConvert.SerializeObject(new { seed = plan?.worldSeed, region, factions }, FrontierBriefJsonSettings));
     }
 
     private static GeneratedRegionRecord FindRegion(GeneratedWorldPlanRecord plan, string regionId)

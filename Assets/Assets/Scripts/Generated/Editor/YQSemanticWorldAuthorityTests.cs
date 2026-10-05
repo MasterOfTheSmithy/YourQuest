@@ -469,6 +469,7 @@ public static class YQSemanticWorldAuthorityTests
             Check("corrupt accepted identity cannot reuse a claimed cache fingerprint", !(bool)identityMethod.Invoke(null, identityArgs));
             RunFrontierBriefAndPhysicalContracts(Check, continuation.locations[0]);
             RunFrontierPhysicalPlanningContracts(Check, physicalSamples);
+            RunPairedProfileRecoveryContracts(Check);
             RunFrontierPublicationOwnershipContracts(Check);
             RunFrontierRefreshOwnershipContracts(Check);
             RunLandmarkInteractionPrecedenceContracts(Check);
@@ -511,6 +512,39 @@ public static class YQSemanticWorldAuthorityTests
         }, Newtonsoft.Json.Formatting.Indented));
         Debug.Log("[YQFrontierContinuationContracts] " + checks.Count + " checks; failures=" + failures);
         return failures;
+    }
+
+    private static void RunPairedProfileRecoveryContracts(Action<string, bool> check)
+    {
+        // note: Detached revision tests prevent a newer wall-clock timestamp from making Continue discard more recent accepted world state.
+        var flags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var newer = typeof(YQProfileSaveSystem).GetMethod("IsNewerRecoveryPair", flags);
+        var baselinePlayer = new PlayerState { stateRevision = 100, lastUpdatedUnix = 1000 };
+        var baselineWorld = new WorldState { stateRevision = 100, lastUpdatedUnix = 1000, worldIdentity = new YQWorldIdentityRecord { worldId = "recovery-world" } };
+        var candidatePlayer = new PlayerState { stateRevision = 101, lastUpdatedUnix = 2000 };
+        var candidateWorld = new WorldState { stateRevision = 101, lastUpdatedUnix = 2000, worldIdentity = new YQWorldIdentityRecord { worldId = "recovery-world" } };
+        bool IsNewer() => (bool)newer.Invoke(null, new object[] { candidatePlayer, candidateWorld, baselinePlayer, baselineWorld });
+        check("paired recovery accepts monotonically newer player and world", IsNewer());
+        candidateWorld.stateRevision = 99;
+        check("paired recovery rejects newer time with older accepted world", !IsNewer());
+        candidateWorld.stateRevision = 101; candidatePlayer.stateRevision = 99;
+        check("paired recovery rejects newer world with older player", !IsNewer());
+        candidatePlayer.stateRevision = 100; candidateWorld.stateRevision = 100;
+        check("equal canonical revisions do not publish a timestamp-only recovery", !IsNewer());
+        candidatePlayer.stateRevision = 101; candidateWorld.stateRevision = 101; candidateWorld.worldIdentity.worldId = "other-world";
+        check("paired recovery cannot cross world identity", !IsNewer());
+        string[] args = Environment.GetCommandLineArgs();
+        int folderArgument = Array.IndexOf(args, "-yqRecoverySnapshotFolder");
+        if (folderArgument >= 0 && folderArgument + 1 < args.Length)
+        {
+            string folder = args[folderArgument + 1];
+            string playerPath = Path.Combine(folder, "player_state.json"), worldPath = Path.Combine(folder, "world_state.json");
+            string playerBefore = File.ReadAllText(playerPath), worldBefore = File.ReadAllText(worldPath);
+            string profileId = (string)JObject.Parse(playerBefore)["playerId"];
+            object[] readArgs = { playerPath, worldPath, profileId, null, null, null, null };
+            check("supplied recovered snapshot passes paired identity and reference validation", (bool)typeof(YQProfileSaveSystem).GetMethod("TryReadRecoveryPair", flags).Invoke(null, readArgs));
+            check("recovery preflight preserves supplied snapshot documents", File.ReadAllText(playerPath) == playerBefore && File.ReadAllText(worldPath) == worldBefore);
+        }
     }
 
     private static void RunFrontierBriefAndPhysicalContracts(Action<string, bool> check,
@@ -620,7 +654,8 @@ public static class YQSemanticWorldAuthorityTests
             stable &= forward[index] == (exists ? JsonUtility.ToJson(args[3]) : string.Empty);
             if (exists) stable &= !((GeneratedSemanticSiteReservationRecord)args[3]).accepted;
         }
-        check("seeded opportunity policy retains quiet wilderness", present > 0 && quiet > 0 && present < 128);
+        // note: The requested denser frontier policy still leaves quiet blocks; the previous sub-50% fixture assumed the superseded sparse chance.
+        check("seeded opportunity policy retains quiet wilderness", present > 0 && quiet > 0 && present < 256);
         check("opportunity results are unaccepted and independent of traversal order", stable);
         var unsupportedPlan = new GeneratedWorldPlanRecord { worldSeed = "detached-opportunity-fixture" };
         check("public opportunity query rejects absent accepted parent", !YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(unsupportedPlan, int.MaxValue, int.MinValue, out _, out _));
@@ -645,6 +680,68 @@ public static class YQSemanticWorldAuthorityTests
         var authorityConstructor = typeof(YQContinuousWorldCellAuthority).GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Single(constructor => constructor.GetParameters().Length == 8);
         var authority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, empty, null, true });
+        // note: A real accepted terminal ray must grade distant terrain and remain available to frontage admission, including the rendered clamped datum.
+        object terminalRoute = new YQSpatialMaterializationRouteV2 { routeId = "numeric-terminal-road", width = 6f, shoulderWidth = 12f,
+            parentRegionId = "numeric-region", permittedBoundaryContinuation = true, maximumGradeDegrees = 28f };
+        typeof(YQSpatialMaterializationRouteV2).GetField("pointStart", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(terminalRoute, 0);
+        typeof(YQSpatialMaterializationRouteV2).GetField("pointCount", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(terminalRoute, 2);
+        var terminalNetwork = Prepared(new[] { (YQSpatialMaterializationRouteV2)terminalRoute }, new[] {
+            new YQSpatialMaterializationRoutePointV2 { x = 512f, z = 2048f, surfaceElevationNormalized = .5f, width = 6f },
+            new YQSpatialMaterializationRoutePointV2 { x = 544f, z = 2048f, surfaceElevationNormalized = .51f, width = 6f } });
+        var terminalAuthority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, terminalNetwork, null, true });
+        var privateStatic = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var privateInstance = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        // note: Base blueprint sites outside the origin collar need the same immutable terrain reserves as accepted frontier additions.
+        var remotePrepared = (YQPreparedSpatialMaterializationV2)preparedConstructor.Invoke(new object[] {
+            new[] { new YQSpatialMaterializationRegionV2 { regionId = "numeric-region", radius = 25000f } },
+            new[] { new YQSpatialMaterializationSiteV2 { siteId = "numeric-remote-settlement", kind = YQSiteKindV2.Settlement,
+                x = 4096f, z = 2048f, reservedRadius = 40f, surfaceElevationNormalized = .7f, terrainReserveReady = true } },
+            Array.Empty<YQSpatialMaterializationWaterV2>(), Array.Empty<YQSpatialMaterializationWaterPointV2>(),
+            Array.Empty<YQSpatialMaterializationRouteV2>(), Array.Empty<YQSpatialMaterializationRoutePointV2>(), Array.Empty<YQSpatialMaterializationCrossingV2>(),
+            new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["numeric-region"] = 0 },
+            new Dictionary<string, int>(), new Dictionary<string, int>(), null, "", 0L, null });
+        var remoteAuthority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, remotePrepared, null, true });
+        check("remote base settlement receives its accepted ground datum", Mathf.Abs(remoteAuthority.SampleHeightNormalizedOffMainThread(4096f, 2048f) - .7f) < .00001f);
+        var padProjection = typeof(YQContinuousWorldCellAuthority).GetMethod("ApplyContinuationPads", privateInstance);
+        float shoulderHeight = (float)padProjection.Invoke(remoteAuthority, new object[] { 4186f, 2048f, .1f });
+        check("remote settlement shoulder stays within accepted grade", Mathf.Abs(shoulderHeight - (.7f - 48f * .45f / 140f)) < .00001f);
+        check("remote settlement reserve edge keeps its flat conformance probe", Mathf.Abs((float)padProjection.Invoke(remoteAuthority,
+            new object[] { 4138f, 2048f, .1f }) - .7f) < .00001f);
+        check("remote settlement shoulder projection is idempotent", shoulderHeight == (float)padProjection.Invoke(remoteAuthority, new object[] { 4186f, 2048f, shoulderHeight }));
+        var connectionType = typeof(YQContinuousWorldFeatureAuthority).GetNestedType("FrontierRouteConnection", System.Reflection.BindingFlags.NonPublic);
+        var terminalConnections = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(connectionType));
+        object[] connectionArgs = { terminalNetwork, 4096f, 2048f, seed, terminalConnections, null };
+        bool connectedTerminal = (bool)typeof(YQContinuousWorldFeatureAuthority).GetMethod("TryCollectFrontierRouteConnections", privateStatic).Invoke(null, connectionArgs);
+        check("distant accepted terminal road remains a valid bounded network connection", connectedTerminal && terminalConnections.Count > 0 &&
+            ((Vector3)connectionType.GetField("point", privateInstance).GetValue(terminalConnections[0])).y == 1f);
+        check("accepted terminal terrain matches the rendered clamped road datum", Mathf.Abs(terminalAuthority.SampleHeightNormalizedOffMainThread(4096f, 2048f) - 1f) < .00001f);
+        var roadPaint = typeof(YQContinuousWorldCellAuthority).GetMethod("SampleRoadPaintWeight", privateInstance);
+        check("accepted terminal road receives packed-earth paint", (float)roadPaint.Invoke(terminalAuthority, new object[] { 4096f, 2048f }) > .99f &&
+            (float)roadPaint.Invoke(terminalAuthority, new object[] { 4096f, 2080f }) == 0f);
+        // note: Accepted area water must carve remote macro terrain even after the origin sampling collar has ended.
+        object lake = new YQSpatialMaterializationWaterV2 { hydrologyId = "numeric-streamed-lake", kind = YQHydrologyKindV2.Lake,
+            nominalWidth = 100f, nominalDepth = 2f, waterLevelNormalized = .4f };
+        typeof(YQSpatialMaterializationWaterV2).GetField("pointStart", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(lake, 0);
+        typeof(YQSpatialMaterializationWaterV2).GetField("pointCount", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(lake, 2);
+        var lakePrepared = (YQPreparedSpatialMaterializationV2)preparedConstructor.Invoke(new object[] {
+            new[] { new YQSpatialMaterializationRegionV2 { regionId = "numeric-region", radius = 25000f } }, Array.Empty<YQSpatialMaterializationSiteV2>(),
+            new[] { (YQSpatialMaterializationWaterV2)lake }, new[] {
+                new YQSpatialMaterializationWaterPointV2 { x = 3800f, z = 2048f, width = 100f, waterSurfaceNormalized = .4f },
+                new YQSpatialMaterializationWaterPointV2 { x = 4200f, z = 2048f, width = 100f, waterSurfaceNormalized = .4f } },
+            Array.Empty<YQSpatialMaterializationRouteV2>(), Array.Empty<YQSpatialMaterializationRoutePointV2>(), Array.Empty<YQSpatialMaterializationCrossingV2>(),
+            new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["numeric-region"] = 0 },
+            new Dictionary<string, int>(), new Dictionary<string, int>(), null, "", 0L, null });
+        object[] footprintArgs = { lakePrepared, 0, null, null, 0f, 0f };
+        typeof(YQContinuousWorldFeatureAuthority).GetMethod("GetAcceptedAreaWaterFootprint", privateStatic).Invoke(null, footprintArgs);
+        check("elongated streamed lake shares the canonical basin inset", (Vector2)footprintArgs[2] == new Vector2(4000f, 2048f) &&
+            Mathf.Abs((float)footprintArgs[4] - 235f) < .001f && Mathf.Abs((float)footprintArgs[5] - 47f) < .001f);
+        var waterProjection = typeof(YQContinuousWorldFeatureAuthority).GetMethod("TryApplyAcceptedWaterTerrainModifiers", privateStatic);
+        object[] waterArgs = { lakePrepared, 4000f, 2048f, .9f, 140f, 0f, true };
+        bool carved = (bool)waterProjection.Invoke(null, waterArgs);
+        float lakeBed = (float)waterArgs[5];
+        check("remote accepted lake center is submerged", carved && lakeBed < .4f);
+        waterArgs[3] = lakeBed;
+        check("remote lake terrain projection is idempotent", (bool)waterProjection.Invoke(null, waterArgs) && lakeBed == (float)waterArgs[5]);
         var parent = new GeneratedSpatialWorldPlanV2Record { worldSeed = seed, acceptanceState = GeneratedSpatialPlanAcceptanceState.Accepted };
         parent.contentHash = parent.validatedContentHash = YQSpatialBlueprintHasherV2.ComputeContentHashReadOnly(parent);
         var plan = new GeneratedWorldPlanRecord { worldSeed = seed, spatialPlanV2 = parent };
@@ -1194,7 +1291,13 @@ public static class YQSemanticWorldAuthorityTests
                 bool isMultiple = opportunity.structuralIntent == YQSemanticWorldAuthority.FrontierOpportunityVersion + "_large_settlement";
                 if (isMultiple ? multiple : ordinaryKinds.Contains(opportunity.siteKind)) continue;
                 var block = new Vector2Int(x, z);
-                if (!Candidate(block, plan.regions[0].regionId, out var candidate)) continue;
+                // note: Production chooses the nearest accepted region before physical recovery; the fixture must use that same region owner.
+                string nearestRegion = plan.regions.Where(region => prepared.TryGetRegion(region.regionId, out _)).OrderBy(region => {
+                    prepared.TryGetRegion(region.regionId, out var physical);
+                    return (physical.centerX - opportunity.worldX) * (physical.centerX - opportunity.worldX) +
+                        (physical.centerZ - opportunity.worldZ) * (physical.centerZ - opportunity.worldZ);
+                }).ThenBy(region => region.regionId, StringComparer.Ordinal).First().regionId;
+                if (!Candidate(block, nearestRegion, out var candidate)) continue;
                 chosen.Add(new KeyValuePair<Vector2Int, GeneratedSpatialContinuationLocationV2Record>(block, candidate));
                 if (isMultiple) multiple = true; else ordinaryKinds.Add(opportunity.siteKind);
             }
@@ -1245,7 +1348,7 @@ public static class YQSemanticWorldAuthorityTests
                     candidate.anchor.kind + " block(" + pair.Key.x + "," + pair.Key.y + ")";
                 check(label + " candidate is untouched at the real brief boundary", (bool)untouched.Invoke(null, new object[] { candidate }) &&
                     candidate.source == YQSpatialContinuationSourceV2.None && candidate.revision == 0);
-                check(label + " candidate records its canonical styled region and full versioned seed", candidate.anchor.parentRegionId == plan.regions[0].regionId &&
+                check(label + " candidate records its canonical styled region and full versioned seed", plan.regions.Any(region => region.regionId == candidate.anchor.parentRegionId && !string.IsNullOrWhiteSpace(region.assetStyleKey)) &&
                     candidate.deterministicSeed.Contains("frontier_candidate_reserves_v2") && candidate.contentId != candidate.anchor.siteId &&
                     candidate.anchor.sourceSemanticId != candidate.anchor.siteId);
                 bool uniqueFrontages = candidate.entrances.Count == candidate.anchor.memberFootprint.Count + 1;
@@ -1257,7 +1360,7 @@ public static class YQSemanticWorldAuthorityTests
                     uniqueFrontages &= matches == 1 && string.IsNullOrEmpty(entry.permittedRouteId);
                 }
                 check(label + " candidate has one unique engine-owned reserve frontage per sector", uniqueFrontages);
-                bool repeat = Candidate(pair.Key, plan.regions[0].regionId.ToUpperInvariant(), out var replay);
+                bool repeat = Candidate(pair.Key, candidate.anchor.parentRegionId.ToUpperInvariant(), out var replay);
                 check(label + " candidate canonical region spelling and repeat query preserve the body", repeat &&
                     JsonUtility.ToJson(replay) == JsonUtility.ToJson(candidate));
                 var moved = CloneCandidate(candidate);

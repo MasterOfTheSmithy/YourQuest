@@ -108,7 +108,7 @@ public static class YQContinuousWorldFeatureAuthority
                 float along = Mathf.Clamp(Vector2.Dot(target - start, direction), 0f, AcceptedContinuationMaxDistance);
                 Add(route.routeId + "|terminal:" + end.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     start + direction * along,
-                    terminal.surfaceElevationNormalized + along * (terminal.surfaceElevationNormalized - adjacent.surfaceElevationNormalized) / length);
+                    Mathf.Clamp01(terminal.surfaceElevationNormalized + along * (terminal.surfaceElevationNormalized - adjacent.surfaceElevationNormalized) / length));
             }
         }
         if (connections.Count == 0)
@@ -642,6 +642,12 @@ public static class YQContinuousWorldFeatureAuthority
         for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
         {
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
+            // note: Area demand uses the same fitted surface footprint as construction; a broad circle must not require water in dry ellipse corners.
+            if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline)
+            {
+                if (AreaIntersectsCell(prepared, waterIndex, coordinate, cellSize)) indices.Add(waterIndex);
+                continue;
+            }
             float padding = Mathf.Max(8f, water.nominalWidth * 0.5f);
             if (!water.hasSpatialBounds || !SpatialBoundsIntersectCell(
                     water.minimumX, water.maximumX, water.minimumZ, water.maximumZ,
@@ -754,10 +760,48 @@ public static class YQContinuousWorldFeatureAuthority
     {
         if (prepared == null || prepared.GetWaterPointCount(waterIndex) <= 0)
             return false;
-        // note: Keep the same vertex-average containment rule while reusing the immutable V2 projection's precomputed center.
-        Vector2 center = prepared.GetWaterAreaCenter(waterIndex);
-        float radius = Mathf.Max(8f, prepared.GetWater(waterIndex).nominalWidth * 0.5f);
-        return PointIntersectsCell(center.x, center.y, coordinate, cellSize, radius);
+        // note: Elongated lakes occupy their complete accepted ellipse, not only a nominal-width circle at their center.
+        GetAcceptedAreaWaterFootprint(prepared, waterIndex, out Vector2 center, out Vector2 axis, out float major, out float minor);
+        float minX = WorldGridOrigin + coordinate.x * cellSize, minZ = WorldGridOrigin + coordinate.y * cellSize;
+        Vector2 side = new Vector2(-axis.y, axis.x);
+        if (center.x >= minX && center.x <= minX + cellSize && center.y >= minZ && center.y <= minZ + cellSize) return true;
+        // note: Transform the cell to ellipse space, then measure each edge against the unit disk without temporary arrays.
+        for (int edge = 0; edge < 4; edge++)
+        {
+            Vector2 Corner(int i) => new Vector2(minX + (i == 1 || i == 2 ? cellSize : 0f), minZ + (i >= 2 ? cellSize : 0f));
+            Vector2 Normalize(Vector2 p) { p -= center; return new Vector2(Vector2.Dot(p, axis) / major, Vector2.Dot(p, side) / minor); }
+            Vector2 first = Normalize(Corner(edge)), second = Normalize(Corner((edge + 1) % 4));
+            Vector2 delta = second - first;
+            float t = delta.sqrMagnitude > .000001f ? Mathf.Clamp01(-Vector2.Dot(first, delta) / delta.sqrMagnitude) : 0f;
+            // note: The inscribed 96-segment mesh contains this disk, avoiding a demanded sub-texel sliver outside its rim chords.
+            if ((first + delta * t).sqrMagnitude <= .9989f) return true;
+        }
+        return false;
+    }
+
+    internal static void GetAcceptedAreaWaterFootprint(YQPreparedSpatialMaterializationV2 prepared, int index,
+        out Vector2 center, out Vector2 axis, out float major, out float minor)
+    {
+        // note: Share the canonical basin's fitted ellipse and 0.94 surface inset across terrain, demand, and mesh construction.
+        var water = prepared.GetWater(index);
+        int count = prepared.GetWaterPointCount(index);
+        center = prepared.GetWaterAreaCenter(index);
+        var first = prepared.GetWaterPoint(index, 0);
+        var last = prepared.GetWaterPoint(index, count - 1);
+        axis = new Vector2(last.x - first.x, last.z - first.z);
+        axis = axis.sqrMagnitude < .0001f ? Vector2.right : axis.normalized;
+        Vector2 side = new Vector2(-axis.y, axis.x);
+        major = Mathf.Max(6f, water.nominalWidth * .5f);
+        minor = Mathf.Max(5f, water.nominalWidth * .36f);
+        for (int i = 0; i < count; i++)
+        {
+            var point = prepared.GetWaterPoint(index, i);
+            Vector2 offset = new Vector2(point.x, point.z) - center;
+            float radius = Mathf.Max(1f, Mathf.Max(water.nominalWidth, point.width) * .5f);
+            major = Mathf.Max(major, Mathf.Abs(Vector2.Dot(offset, axis)) + radius);
+            minor = Mathf.Max(minor, Mathf.Abs(Vector2.Dot(offset, side)) + radius);
+        }
+        major *= .94f; minor *= .94f;
     }
 
     internal static bool TryGetAcceptedRouteContinuation(
@@ -1122,7 +1166,7 @@ public static class YQContinuousWorldFeatureAuthority
         }
     }
 
-    private static bool TryGetOutwardBoundaryDistance(float x, float z, Vector2 direction, out float distance)
+    internal static bool TryGetOutwardBoundaryDistance(float x, float z, Vector2 direction, out float distance)
     {
         distance = float.PositiveInfinity;
         bool found = false;
@@ -1407,9 +1451,21 @@ public static class YQContinuousWorldFeatureAuthority
         for (int waterIndex = firstWaterIndex; waterIndex < lastWaterIndex; waterIndex++)
         {
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
-            // note: Area water already has its canonical basin; a linear river carve must not flatten that basin a second time.
+            // note: Distant continuation terrain no longer samples the origin basin graph; accepted area water must carve its own shared submerged footprint.
             if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline)
+            {
+                if (prepared.GetWaterPointCount(waterIndex) == 0) continue;
+                GetAcceptedAreaWaterFootprint(prepared, waterIndex, out Vector2 center, out Vector2 axis, out float major, out float minor);
+                Vector2 offset = new Vector2(worldX, worldZ) - center;
+                float radius = Mathf.Min(major, minor);
+                float u = Vector2.Dot(offset, axis) / major;
+                float v = Vector2.Dot(offset, new Vector2(-axis.y, axis.x)) / minor;
+                float distance = Mathf.Sqrt(u * u + v * v) * radius;
+                if (wetOnly && distance > radius + AcceptedWaterBankPadding + 2f) continue;
+                float surface = water.waterLevelNormalized > 0f ? water.waterLevelNormalized : prepared.GetWaterPoint(waterIndex, 0).waterSurfaceNormalized;
+                envelope.Add(terrainHeight, surface, water.nominalDepth, radius, distance);
                 continue;
+            }
             float nearestClearance = float.PositiveInfinity, nearestDistance = 0f, nearestWidth = 0f, nearestSurface = 0f;
             for (int pointIndex = 0; pointIndex + 1 < prepared.GetWaterPointCount(waterIndex); pointIndex++)
             {
@@ -1577,7 +1633,7 @@ public static class YQContinuousWorldFeatureAuthority
         // note: Cut and fill share one idempotent grade profile in the accepted sampler, continuation, and restored origin terrain.
         float core = Mathf.Max(1f, halfWidth + shoulderWidth);
         if (distance >= core + AcceptedTerrainTransitionDistance) return originalHeight;
-        float allowance = Mathf.Max(0f, distance - core) * 0.65f / Mathf.Max(1f, terrainHeight);
+        float allowance = Mathf.Max(0f, distance - core) * 0.45f / Mathf.Max(1f, terrainHeight);
         return Mathf.Clamp(originalHeight, routeHeight - allowance, routeHeight + allowance);
     }
 
@@ -2025,11 +2081,13 @@ public static class YQContinuousWorldFeatureMaterializer
             {
                 float worldX = WorldGridOrigin + coordinate.x * cellSize + x / (float)sampleDenominator * cellSize;
                 authority.SampleBiomeWeightsValues(worldX, worldZ, out float forest, out float grassland, out float wetland);
+                // note: The immutable accepted route projection also owns streamed terrain path grading.
+                float roadWeight = Array.IndexOf(bindings, -1) >= 0 ? authority.SampleRoadPaintWeight(worldX, worldZ) : 0f;
                 float total = 0f;
                 for (int layer = 0; layer < layerCount; layer++)
                 {
                     // note: A road layer cannot become the default grassland layer across an entire continuation tile.
-                    float value = bindings[layer] < 0 ? 0f : bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland;
+                    float value = bindings[layer] < 0 ? roadWeight : (1f - roadWeight) * (bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland);
                     maps[z, x, layer] = value;
                     total += value;
                 }
@@ -2173,7 +2231,7 @@ public static class YQContinuousWorldFeatureMaterializer
         for (int layer = 0; layer < layerCount; layer++)
         {
             string name = data.terrainLayers[layer] != null ? (data.terrainLayers[layer].name ?? string.Empty).ToLowerInvariant() : string.Empty;
-            bindings[layer] = name.Contains("wet") || name.Contains("marsh") || name.Contains("swamp") ? 2 :
+            bindings[layer] = name.EndsWith("_livedpath", StringComparison.Ordinal) ? -1 : name.Contains("wet") || name.Contains("marsh") || name.Contains("swamp") ? 2 :
                 name.Contains("forest") || name.Contains("wood") || name.Contains("moss") ? 0 : 1;
         }
         const int rowsPerSlice = 8;
@@ -2199,10 +2257,12 @@ public static class YQContinuousWorldFeatureMaterializer
                         continue;
                     }
                     authority.SampleBiomeWeightsValues(worldX, worldZ, out float forest, out float grassland, out float wetland);
+                // note: The immutable accepted route projection also owns streamed terrain path grading.
+                float roadWeight = Array.IndexOf(bindings, -1) >= 0 ? authority.SampleRoadPaintWeight(worldX, worldZ) : 0f;
                     float total = 0f;
                     for (int layer = 0; layer < layerCount; layer++)
                     {
-                        float value = bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland;
+                        float value = bindings[layer] < 0 ? roadWeight : (1f - roadWeight) * (bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland);
                         maps[row, x, layer] = value;
                         total += value;
                     }
@@ -2410,6 +2470,17 @@ public static class YQContinuousWorldFeatureMaterializer
             substageStarted = Time.realtimeSinceStartup;
             Material roadMaterial = FindPaletteMaterial(palette, registry, YQWorldAssetCatalog.SlotPath, plan.worldSeed + "|continuous-road|" + chunk.chunkX + "|" + chunk.chunkZ);
             roadMaterial = roadMaterial ?? BuildFallbackRoadMaterial();
+            // note: Reuse the approved packed-earth terrain texture on the ribbon instead of a prefab's foliage/stone atlas.
+            foreach (TerrainLayer layer in terrain.terrainData.terrainLayers)
+            {
+                if (layer == null || !layer.name.EndsWith("_LivedPath", StringComparison.Ordinal) || layer.diffuseTexture == null) continue;
+                if (roadMaterial.HasProperty("_BaseMap")) roadMaterial.SetTexture("_BaseMap", layer.diffuseTexture);
+                roadMaterial.mainTexture = layer.diffuseTexture;
+                roadMaterial.mainTextureScale = Vector2.one;
+                if (roadMaterial.HasProperty("_BaseColor")) roadMaterial.SetColor("_BaseColor", new Color(.58f, .48f, .36f, 1f));
+                if (roadMaterial.HasProperty("_BumpMap")) roadMaterial.SetTexture("_BumpMap", layer.normalMapTexture);
+                break;
+            }
             RegisterCellResource(parent, roadMaterial);
             roadObjects = BuildRibbonSpans(parent, "ContinuousRoad_" + chunk.chunkX + "_" + chunk.chunkZ, road, roadBreaks, roadWidth, roadMaterial, false, cellSize, roadPointWidths, terrain);
             RecordSubstage(substageTelemetry, "roadRibbonBuild", substageStarted);
@@ -4381,58 +4452,49 @@ public static class YQContinuousWorldFeatureMaterializer
             int pointCount = prepared.GetWaterPointCount(waterIndex);
             if (pointCount == 0)
                 continue;
-            Vector2 center = Vector2.zero;
-            for (int pointIndex = 0; pointIndex < pointCount; pointIndex++)
-            {
-                YQSpatialMaterializationWaterPointV2 point = prepared.GetWaterPoint(waterIndex, pointIndex);
-                center += new Vector2(point.x, point.z);
-            }
-            center /= pointCount;
-            YQSpatialMaterializationWaterPointV2 first = prepared.GetWaterPoint(waterIndex, 0);
-            YQSpatialMaterializationWaterPointV2 last = prepared.GetWaterPoint(waterIndex, pointCount - 1);
-            Vector2 longAxis = new Vector2(last.x - first.x, last.z - first.z);
-            if (longAxis.sqrMagnitude < 0.0001f)
-                longAxis = Vector2.right;
-            longAxis.Normalize();
+            // note: Clip a canonical ellipse to the cell; coarse square tiles both buried shore water and leaked beyond the accepted basin.
+            YQContinuousWorldFeatureAuthority.GetAcceptedAreaWaterFootprint(prepared, waterIndex,
+                out Vector2 center, out Vector2 longAxis, out float longRadius, out float shortRadius);
             Vector2 shortAxis = new Vector2(-longAxis.y, longAxis.x);
-            float longRadius = Mathf.Max(6f, water.nominalWidth * 0.5f);
-            float shortRadius = Mathf.Max(5f, water.nominalWidth * 0.36f);
-            for (int pointIndex = 0; pointIndex < pointCount; pointIndex++)
-            {
-                YQSpatialMaterializationWaterPointV2 point = prepared.GetWaterPoint(waterIndex, pointIndex);
-                Vector2 offset = new Vector2(point.x, point.z) - center;
-                float pointRadius = Mathf.Max(1f, Mathf.Max(water.nominalWidth, point.width) * 0.5f);
-                longRadius = Mathf.Max(longRadius, Mathf.Abs(Vector2.Dot(offset, longAxis)) + pointRadius);
-                shortRadius = Mathf.Max(shortRadius, Mathf.Abs(Vector2.Dot(offset, shortAxis)) + pointRadius);
-            }
-            if (center.x + longRadius < minX || center.x - longRadius > maxX || center.y + longRadius < minZ || center.y - longRadius > maxZ)
+            float radius = Mathf.Max(longRadius, shortRadius);
+            if (center.x + radius < minX || center.x - radius > maxX || center.y + radius < minZ || center.y - radius > maxZ)
                 continue;
+            var first = prepared.GetWaterPoint(waterIndex, 0);
             float surfaceNormalized = water.waterLevelNormalized > 0f ? water.waterLevelNormalized : first.waterSurfaceNormalized;
             float surfaceY = terrain.transform.position.y + terrain.terrainData.size.y * Mathf.Clamp01(surfaceNormalized) + 0.045f;
-            const int grid = 10;
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
-            for (int zIndex = 0; zIndex < grid; zIndex++)
+            var polygon = new List<Vector2>(8);
+            var clipped = new List<Vector2>(8);
+            const int segments = 96;
+            Vector2 Rim(int i)
             {
-                float z0 = Mathf.Lerp(minZ, maxZ, zIndex / (float)grid);
-                float z1 = Mathf.Lerp(minZ, maxZ, (zIndex + 1) / (float)grid);
-                for (int xIndex = 0; xIndex < grid; xIndex++)
+                float angle = i * Mathf.PI * 2f / segments;
+                return center + longAxis * (Mathf.Cos(angle) * longRadius) + shortAxis * (Mathf.Sin(angle) * shortRadius);
+            }
+            for (int segment = 0; segment < segments; segment++)
+            {
+                polygon.Clear(); polygon.Add(center); polygon.Add(Rim(segment)); polygon.Add(Rim(segment + 1));
+                for (int edge = 0; edge < 4; edge++)
                 {
-                    float x0 = Mathf.Lerp(minX, maxX, xIndex / (float)grid);
-                    float x1 = Mathf.Lerp(minX, maxX, (xIndex + 1) / (float)grid);
-                    Vector2 cellCenter = new Vector2((x0 + x1) * 0.5f, (z0 + z1) * 0.5f) - center;
-                    float major = Vector2.Dot(cellCenter, longAxis) / Mathf.Max(1f, longRadius);
-                    float minor = Vector2.Dot(cellCenter, shortAxis) / Mathf.Max(1f, shortRadius);
-                    if (major * major + minor * minor > 1.08f)
-                        continue;
-                    int start = vertices.Count;
-                    vertices.Add(parent.InverseTransformPoint(new Vector3(x0, surfaceY, z0)));
-                    vertices.Add(parent.InverseTransformPoint(new Vector3(x1, surfaceY, z0)));
-                    vertices.Add(parent.InverseTransformPoint(new Vector3(x1, surfaceY, z1)));
-                    vertices.Add(parent.InverseTransformPoint(new Vector3(x0, surfaceY, z1)));
-                    triangles.Add(start); triangles.Add(start + 2); triangles.Add(start + 1);
-                    triangles.Add(start); triangles.Add(start + 3); triangles.Add(start + 2);
+                    clipped.Clear();
+                    float Distance(Vector2 point) => edge == 0 ? point.x - minX : edge == 1 ? maxX - point.x :
+                        edge == 2 ? point.y - minZ : maxZ - point.y;
+                    for (int i = 0; i < polygon.Count; i++)
+                    {
+                        Vector2 current = polygon[i], previous = polygon[(i + polygon.Count - 1) % polygon.Count];
+                        float cd = Distance(current), pd = Distance(previous);
+                        if ((cd >= 0f) != (pd >= 0f)) clipped.Add(Vector2.Lerp(previous, current, pd / (pd - cd)));
+                        if (cd >= 0f) clipped.Add(current);
+                    }
+                    var swap = polygon; polygon = clipped; clipped = swap;
                 }
+                if (polygon.Count < 3) continue;
+                int start = vertices.Count;
+                foreach (Vector2 point in polygon)
+                    vertices.Add(parent.InverseTransformPoint(new Vector3(point.x, surfaceY, point.y)));
+                for (int i = 1; i + 1 < polygon.Count; i++)
+                { triangles.Add(start); triangles.Add(start + i + 1); triangles.Add(start + i); }
             }
             if (vertices.Count < 4)
                 continue;

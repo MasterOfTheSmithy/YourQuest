@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-public enum YQContainerType { Chest, Wardrobe, Cupboard, Barrel, Crate, Cache, Hostile }
+// note: Append NPC ownership without changing existing serialized container values or item identities.
+public enum YQContainerType { Chest, Wardrobe, Cupboard, Barrel, Crate, Cache, Hostile, Npc }
 public enum YQContainerAccess { Public, OwnerOnly, CorpseOnly }
 public enum YQContainerRestock { Never, ExplicitWhenEmpty }
 public enum YQLootRarity { Common, Uncommon, Rare, Epic, Unique, Legendary, Mythical }
@@ -267,7 +268,8 @@ public static class YQContainerInventory
                 record.revision < 0 || !Enum.IsDefined(typeof(YQContainerAccess), record.access) || !Enum.IsDefined(typeof(YQContainerRestock), record.restock) ||
                 !Enum.IsDefined(typeof(YQContainerType), record.context.sourceType) || record.contents == null || record.contents.Count > record.capacity ||
                 record.equippedItemBySlot == null || record.restockReceipts == null || record.authoredClaimIds == null ||
-                (record.context.sourceType == YQContainerType.Hostile && (record.access != YQContainerAccess.CorpseOnly || record.restock != YQContainerRestock.Never))) return false;
+                (record.context.sourceType == YQContainerType.Hostile && (record.access != YQContainerAccess.CorpseOnly || record.restock != YQContainerRestock.Never)) ||
+                (record.context.sourceType == YQContainerType.Npc && (record.access != YQContainerAccess.OwnerOnly || record.ownerId != record.entityId || record.restock != YQContainerRestock.Never))) return false;
             foreach (InventoryItemRecord item in record.contents)
                 if (item == null || string.IsNullOrWhiteSpace(item.itemId) || !ids.Add(item.itemId) || item.quantity < 1 ||
                     (item.stackable ? item.quantity > MaxStack : item.quantity != 1) || string.IsNullOrWhiteSpace(item.templateId)) return false;

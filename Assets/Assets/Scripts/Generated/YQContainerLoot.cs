@@ -149,7 +149,9 @@ public static class YQContainerLoot
         if (string.IsNullOrWhiteSpace(item.prefabKey) || !item.prefabKey.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)) return false;
 #if UNITY_EDITOR
         // note: Validate approved modular pieces against actual assets in the Editor; runtime uses the same curated semantic allowlist.
-        GameObject prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(item.prefabKey);
+        // note: The approved registry preserves legacy item keys through prefab GUIDs after asset organization. Validate the same binding the build uses.
+        GameObject prefab = YQRuntimeWorldAssetRegistry.Instance?.ResolvePrefab(item.prefabKey) ??
+            UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(item.prefabKey);
         if (prefab == null || prefab.GetComponentInChildren<Renderer>(true) == null) return false;
 #endif
         return true;

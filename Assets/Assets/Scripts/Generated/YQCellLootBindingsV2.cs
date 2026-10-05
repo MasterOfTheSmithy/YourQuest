@@ -120,7 +120,7 @@ public static class YQCellLootBindingsV2
             string.IsNullOrWhiteSpace(binding.targetPath) ||
             string.IsNullOrWhiteSpace(signature) || !string.Equals(binding.sourceSignature, signature, StringComparison.Ordinal) ||
             !Enum.IsDefined(typeof(YQCellLootPurposeV2), binding.purpose) ||
-            !Enum.IsDefined(typeof(YQContainerType), binding.containerType) || binding.containerType == YQContainerType.Hostile ||
+            !Enum.IsDefined(typeof(YQContainerType), binding.containerType) || binding.containerType == YQContainerType.Hostile || binding.containerType == YQContainerType.Npc ||
             !Finite(binding.sourceLocalPosition) || !Positive(binding.sourceLocalScale) ||
             !Rotation(binding.sourceLocalRotation) || !Finite(binding.colliderCenter) || !Positive(binding.colliderSize))
             return false;

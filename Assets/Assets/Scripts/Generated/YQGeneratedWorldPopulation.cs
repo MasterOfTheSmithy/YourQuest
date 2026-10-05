@@ -1126,6 +1126,10 @@ public static class YQGeneratedWorldPopulation
         info.tags =
             tags;
 
+        // note: Character gear uses the existing world inventory and approved asset binder, never a separate NPC item store.
+        YQGeneratedActorEquipment.Bind(info, settlement != null ? settlement.regionId : npcRecord.regionId,
+            settlement != null ? settlement.settlementId : string.Empty, npcRecord.guard);
+
         // note: Distant compiled settlements register their residents directly, avoiding a later full-scene EntityInfo scan when reviewed floors stream in.
         YQCompiledWorldSiteInstance.RegisterResidentPositionBinding(
             settlement != null ? settlement.settlementId : string.Empty,
@@ -2222,6 +2226,8 @@ public static class YQGeneratedWorldPopulation
         enemy.Initialize(
             null);
 
+        YQGeneratedActorEquipment.Bind(info, enemy.semanticRegionId, encampment.encampmentId, true);
+
         // note: Attach runtime grounding at the frame-budgeted leader spawn point instead of relying on a later all-enemy scan.
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
             enemy);
@@ -2349,6 +2355,8 @@ public static class YQGeneratedWorldPopulation
 
         enemy.Initialize(
             null);
+
+        YQGeneratedActorEquipment.Bind(info, enemy.semanticRegionId, encampment.encampmentId, true);
 
         // note: Attach runtime grounding at the frame-budgeted hostile spawn point so safety setup cannot bunch into a later frame.
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
@@ -3459,6 +3467,10 @@ public static class YQGeneratedWorldPopulation
     {
         if (root == null)
             return;
+
+        // note: Resident movement belongs to the project wander controller; imported animation root motion must not lift or slide the grounded actor.
+        foreach (Animator animator in root.GetComponentsInChildren<Animator>(true))
+            animator.applyRootMotion = false;
 
         /*
          * GENERATED RESIDENT PREFABS ARE VISUAL SHELLS.
