@@ -10927,7 +10927,6 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 !ReferenceEquals(WorldStateManager.Instance?.State, _world)) return;
             int span = YQSemanticWorldAuthority.FrontierOpportunitySpanCells;
             var predicted = ResolvePredictedContentChunk(new Vector2(_player.position.x, _player.position.z));
-            int scan = _frontierConstructionScan++ % FrontierConstructionScanOffsets.Length;
             // note: Convert physical chunk coordinates to the semantic block grid; configured chunk sizes need not equal 128m.
             float chunkSize = Mathf.Max(32f, chunkWorldSize);
             float blockWorldSize = span * YQSemanticWorldAuthority.CellSizeMeters;
