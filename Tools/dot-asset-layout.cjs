@@ -175,7 +175,9 @@ function verify() {
     if (row.retiredUnreferencedFolder) continue;
     if (!fs.existsSync(row.path) || !fs.existsSync(row.path + '.meta')) { failures.push(`Missing: ${row.path}`); continue; }
     if (guid(row.path + '.meta') !== row.guid || hash(fs.readFileSync(row.path + '.meta')) !== row.metaSha256) failures.push(`Sidecar changed: ${row.path}`);
-    if (row.sha256 && hash(fs.readFileSync(row.path)) !== row.sha256) failures.push(`Payload changed: ${row.path}`);
+    // note: Explicit corrective deliveries retain the original intake hash and declare the reviewed installed revision separately.
+    const installedHash = row.installedSha256 || row.sha256;
+    if (installedHash && hash(fs.readFileSync(row.path)) !== installedHash) failures.push(`Payload changed: ${row.path}`);
   }
   let catalogMetadataChecks = 0;
   for (const [name, current] of [['creature', 'YQDotCreatureCatalog'], ['equipment', 'YQDotEquipmentCatalog']]) {

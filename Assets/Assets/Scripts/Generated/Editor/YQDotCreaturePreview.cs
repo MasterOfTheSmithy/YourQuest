@@ -21,7 +21,7 @@ public static class YQDotCreaturePreview
         RenderEntries(catalog.entries.Where(e => string.IsNullOrEmpty(e.moduleSlot)).GroupBy(e => e.species).Select(g => g.First()), "outputs/DOT_Integration_20261003/Preview");
     }
 
-    public static void RenderEntries(IEnumerable<YQDotCreatureEntry> entries, string output, bool allLods = false, string[] poses = null)
+    public static void RenderEntries(IEnumerable<YQDotCreatureEntry> entries, string output, bool allLods = false, string[] poses = null, bool allowSourceGreet = false, bool bakeSkins = true)
     {
         // note: Reuse the existing pose renderer for all newly supplied NPC assemblies while preserving earlier review images and evidence.
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Creature render review requires Edit Mode.");
@@ -50,18 +50,21 @@ public static class YQDotCreaturePreview
                     Transform model = actor.transform.Find("LOD" + level);
                     Animator animator = model.GetComponentInChildren<Animator>(true);
                     var controller = animator.runtimeAnimatorController as AnimatorController;
-                    var state = controller.layers[0].stateMachine.states.First(s => s.state.name == pose).state;
-                    var clip = state.motion as AnimationClip;
+                    var state = controller.layers[0].stateMachine.states.FirstOrDefault(s => s.state.name == pose).state;
+                    var clip = state != null ? state.motion as AnimationClip : null;
+                    // note: A material-only review can evaluate a delivered greeting absent from a historical controller without adding a state or rebuilding that controller.
+                    if (clip == null && allowSourceGreet && pose == "DotGreet") clip = AssetDatabase.LoadAllAssetsAtPath(entry.sourcePaths[level]).OfType<AnimationClip>().Single(c => c.name.IndexOf("greet", StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (clip == null) throw new InvalidDataException("Missing own preview clip: " + entry.assetId + " " + pose);
                     foreach (Animator other in actor.GetComponentsInChildren<Animator>(true)) other.enabled = false;
                     clip.SampleAnimation(animator.gameObject, clip.length * .4f);
                     // note: Bake the actual supplied skin after evaluating its own clip. No replacement geometry, texture or material is synthesized.
-                    foreach (var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    foreach (var skin in bakeSkins ? model.GetComponentsInChildren<SkinnedMeshRenderer>(true) : Array.Empty<SkinnedMeshRenderer>())
                     {
                         var mesh = new Mesh(); skin.BakeMesh(mesh); meshes.Add(mesh);
                         var baked = new GameObject("Evaluated creature skin"); baked.transform.SetParent(skin.transform, false);
                         baked.AddComponent<MeshFilter>().sharedMesh = mesh; baked.AddComponent<MeshRenderer>().sharedMaterials = skin.sharedMaterials; skin.enabled = false;
                     }
-                    Renderer[] renderers = model.GetComponentsInChildren<MeshRenderer>(true);
+                    Renderer[] renderers = model.GetComponentsInChildren<Renderer>(true).Where(r => r is MeshRenderer || (!bakeSkins && r is SkinnedMeshRenderer)).ToArray();
                     if (renderers.Length == 0) throw new InvalidOperationException("Creature pose has no evaluated geometry: " + entry.assetId);
                     Bounds bounds = renderers[0].bounds;
                     foreach (var renderer in renderers) { renderer.enabled = true; renderer.forceRenderingOff = false; bounds.Encapsulate(renderer.bounds); }
