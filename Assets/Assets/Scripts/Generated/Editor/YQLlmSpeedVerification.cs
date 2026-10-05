@@ -230,6 +230,8 @@ public static class YQLlmSpeedVerification
     private static void Finish()
     {
         EditorApplication.update -= Tick;
+        // note: Detached Editor components may never receive Awake/OnDestroy; release the exact adapters explicitly before exiting the batch.
+        if (client != null) Invoke("DisposeOwnedRuntime");
         if (host != null) UnityEngine.Object.DestroyImmediate(host);
         if (config != null) UnityEngine.Object.DestroyImmediate(config);
         File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "outputs/LlmTiming_20261005/Verification.json"), JsonConvert.SerializeObject(new {

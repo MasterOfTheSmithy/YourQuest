@@ -60,6 +60,7 @@ All six comparison replies passed canonical frontier proposal preparation. This 
 - Partial GPU dialogue probe: 6.64 seconds including 3.96 seconds loading; total VRAM rose from about 4,972 to 6,340 MiB. After unload, Windows attributed only 270,336 dedicated bytes to the owned service/process tree.
 - Other model-authoring processes changed total VRAM during testing. The original CPU cleanup total-baseline check failed and was retained in `Measurements.jsonl`; subsequent checks attribute ownership when total usage is ambiguous. No unrelated process was stopped.
 - Runtime uses asynchronous service/process acknowledgement rather than running GPU diagnostic commands on gameplay frames. Ollama's documented [unload request](https://docs.ollama.com/api/generate) and [running-model endpoint](https://docs.ollama.com/api/ps) support this handoff.
+- The detached Editor runner initially left two CPU servers after exit because its non-playing component did not receive lifecycle teardown. Both recorded test-owned processes were stopped, with no remaining process GPU counters. The runner now explicitly disposes its adapters before exiting; this final Editor-only cleanup change compiled in the reopened editor, but that batch teardown was not rerun. Gameplay's tested model-switch path is unchanged.
 
 ## Verification and limits
 
