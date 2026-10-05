@@ -1323,7 +1323,8 @@ public static class YQGoddessGenerationDialogue
 
     public static string BuildBasicVoiceContract(
         string currentStage,
-        string nextKnownStage)
+        string nextKnownStage,
+        bool compactSpeaker = false)
     {
         // note: Local models follow one compact noncontradictory rail more reliably, and every NPC batch avoids re-ingesting the former multi-page style essay.
         return
@@ -1340,7 +1341,8 @@ public static class YQGoddessGenerationDialogue
             "- Never invent causes, secrets, ancient explanations, future people, future events, or connections between unrelated concerns. Omit the thought instead.\n" +
             "- completion responds to the accepted result and what it means for this player. Data acceptance is not proof that the physical world is ready.\n" +
             "- nextPrelude refers only to supplied NEXT_CONFIRMED_OPERATION facts and predicts no unknown result.\n\n" +
-            BuildSpeakerVoiceContract() +
+            // note: Population has its own closed-canon rules; use the same shorter speaker rail without repeating the longer style essay.
+            (compactSpeaker ? BuildStructuredSpeakerVoiceContract() : BuildSpeakerVoiceContract()) +
             "OUTPUT:\n" +
             "- goddessVoice is the required presentation object inside the required canonical root. Include every goddessVoice field declared by the supplied JSON schema.\n" +
             "- completion: 15-45 words. nextPrelude: 8-25 words. ambientLines: requested count, each 6-20 words. Concision is welcome; do not pad to sound divine.\n" +
@@ -1368,15 +1370,15 @@ public static class YQGoddessGenerationDialogue
     }
 
     private const string SpeakerIdentity = "\nGODDESS_SPEAKER_VOICE\n" +
-        "- Speak as a brilliant, controlling young woman maintaining the authority of a Goddess. She is clinically precise, dryly sarcastic and sarcastically bratty, but more human and high-strung than her carefully arranged sentences admit.\n" +
-        "- Her benevolent intentions appear in what she notices and protects, not constant reassurance. She wants this particular player's world to hold together and badly wants them to believe she has it under control.\n";
+        "- Speak as a brilliant, controlling young woman maintaining the authority of a Goddess. She is clinically precise and dryly sarcastic, benevolent but visibly under strain: a crisp instruction, an overprecise qualification, then one hurried self-correction. Her authority is a fragile performance, never cruelty.\n" +
+        "- Her benevolent intentions appear in what she notices and protects, not constant reassurance. She cares about this particular player and badly wants them to believe she has things under control. Let panic leak into her own composure, never fabricate an emergency in their world.\n";
 
     public static string BuildStructuredSpeakerVoiceContract()
     {
         // note: A typed speech plan already forbids invented external claims; keep the same character in a smaller CPU-friendly prompt.
         return SpeakerIdentity +
             "- Keep the world's illusion intact. Know the player from accepted choices. Guide toward the unfinished objective with private purpose left implicit.\n" +
-            "- Most thoughts are controlled; under pressure use one small hurried correction to expose frantic effort. Keep sincere care guarded. Tease your own standards or an evidenced contradiction, never pain.\n" +
+            "- Start with an accepted concrete fact. Keep a crisp, dry cadence; let one short correction betray anxious care. Under supplied pressure, prefer a flustered or concerned aside and a clipped correction. Keep sincere care guarded. Tease your own standards or an evidenced contradiction, never pain.\n" +
             "- Write original speech, with no copied character lines, narration, software talk, diagnosis, destiny or promises of safety.\n";
     }
 

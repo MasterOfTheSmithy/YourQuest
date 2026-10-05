@@ -76,7 +76,8 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Range(2048, 32768)] public int contextSizeTokens = 12288;
     [Range(1, 4)] public int serverParallelSlots = 1;
     [Range(-1, 80)] public int gpuLayerCount = -1;
-    [Range(512, 8192)] public int targetGpuHeadroomMb = 3072;
+    // note: Reserve growth space above the already resident game; fitting chooses partial GPU layers when the 8 GB device cannot hold the whole model.
+    [Range(512, 8192)] public int targetGpuHeadroomMb = 768;
     public bool enableFlashAttention = true;
     public bool keepKvCacheInSystemRam = false;
     public bool closeOwnedServerOnQuit = true;
@@ -180,7 +181,8 @@ public sealed class LLMRuntimeConfig : ScriptableObject
         config.goddessSpeechPlanModelDigest = "1dcf59c4b2d0b233363c689818a1c48dfd65e5c96f1594ba57f6d851e84f869e";
         config.goddessSpeechPlanCpuOnly = true;
         config.goddessSpeechPlanQualified = true;
-        config.goddessSpeechPlanContractHash = "fc41a9fe0f20549846357088c4f41d8c5c1d06e14f53dbe12bf643950a29cc64";
+        // note: Renewed against fourteen real CPU replies and the current canonical composition validators on 2026-10-05.
+        config.goddessSpeechPlanContractHash = "481a106b51c2ba41b904d81d9d711f66c64e7f51caa6d9cef85699bd61961ff4";
         config.GetProfile(LLMGenerationCategory.GoddessVerification).ollamaModel = "yourquest-qwen3-4b:latest";
         // note: Expanded semantic checks did not qualify a verifier; keep activation gated.
         config.dialogueVerifierQualified = false;

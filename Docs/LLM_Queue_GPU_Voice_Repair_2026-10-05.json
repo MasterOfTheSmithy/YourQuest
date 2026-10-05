@@ -1,0 +1,271 @@
+{
+  "utc": "2026-10-05T14:55:47.0099039Z",
+  "status": "SOURCE_AND_DETACHED_PASS_GAMEPLAY_NOT_VERIFIED",
+  "activeRoadmapGoal": "G08",
+  "affectedGoalContracts": [
+    "G03 A03",
+    "G03 A06/A11",
+    "G03 A12"
+  ],
+  "unity": "6000.3.2f1",
+  "worldSeed": "70d93b34",
+  "sourceHashes": [
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQGeneratedNpcPlanningService.cs",
+      "sha256": "03ed8afd9a924c78ea4ff1fba0a8ac5dbe67c4e08351ac9a7dd7b70ec9dcc1e9"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQGeneratedWorldRuntimeBuilder.cs",
+      "sha256": "31a924d00013cc14f544035bb3795bd82af1f0b07deda7df5056affebed8e275"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQGoddessGenerationDialogue.cs",
+      "sha256": "caebaa86fb6e3632788fdbe331e09c1930009b62ba99f664923cb2e618044da9"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQGoddessSpeechPlan.cs",
+      "sha256": "17aa8bb177c855370156c64c03312fb84fb93a8c95f1cc68c3a778c1b3348866"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQGoddessSpeech.cs",
+      "sha256": "bd26f8ce304bb16ba39ccc80c40c80c35e10ae3c54eb5c4bccf4ee367fb7126a"
+    },
+    {
+      "path": "Assets/Assets/Scripts/LLM/LLMClient.cs",
+      "sha256": "988bca2c63ce53757ddfc6bf279ee60376952f898ab872d411973910d062c292"
+    },
+    {
+      "path": "Assets/Assets/Scripts/LLM/LlamaCppServerProcess.cs",
+      "sha256": "e5b53463aeec005fca84789a1ba6def2c3ca499c946c77775981618fe6639966"
+    },
+    {
+      "path": "Assets/Assets/Scripts/LLM/LLMRuntimeConfig.cs",
+      "sha256": "11d948f76663775e2c475ccf9033257972a0f48118129e9cfa4ea732b8d6ca4f"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/Editor/YQLlmRepairVerification.cs",
+      "sha256": "93f1c37aacc2ddbf218dadb891c9e4c3803f76885892b53f5ad0729893b2c8be"
+    }
+  ],
+  "pureChecks": {
+    "utc": "2026-10-05T14:53:48.1350956Z",
+    "checks": [
+      {
+        "name": "live control arguments build",
+        "pass": true
+      },
+      {
+        "name": "live control requests GPU fitting and rendering reserve",
+        "pass": true
+      },
+      {
+        "name": "occupied GPU uses bounded partial layers",
+        "pass": true
+      },
+      {
+        "name": "no spare VRAM cannot trigger paging",
+        "pass": true
+      },
+      {
+        "name": "available GPU permits full generation offload",
+        "pass": true
+      },
+      {
+        "name": "qualified voice remains CPU and approved model",
+        "pass": true
+      },
+      {
+        "name": "new voice qualification pin matches current source",
+        "pass": true
+      },
+      {
+        "name": "NPC revisions independent; identity and owner guards retained: False",
+        "pass": true
+      },
+      {
+        "name": "NPC owner retirement remains observable: False",
+        "pass": true
+      },
+      {
+        "name": "NPC one scheduler, protected facts and bounded domain retries: False",
+        "pass": true
+      },
+      {
+        "name": "NPC revisions independent; identity and owner guards retained: True",
+        "pass": true
+      },
+      {
+        "name": "NPC owner retirement remains observable: True",
+        "pass": true
+      },
+      {
+        "name": "NPC one scheduler, protected facts and bounded domain retries: True",
+        "pass": true
+      },
+      {
+        "name": "fixed seed frontier continuity and construction",
+        "pass": true
+      }
+    ],
+    "controlArguments": "--model \"C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf\" --host \"127.0.0.1\" --port \"11435\" --ctx-size \"12288\" --parallel \"1\" --threads \"4\" --threads-batch \"4\" --batch-size \"128\" --ubatch-size \"32\" --prio \"-1\" --poll \"0\" --no-cache-prompt --cache-ram \"0\" --log-verbosity \"1\" --n-gpu-layers \"999\" --flash-attn on --fit on --fit-target \"768\" --no-webui --reasoning off"
+  },
+  "npcBindingChecks": {
+    "unrelatedStable": true,
+    "canonRetires": true,
+    "appendPreserves": true,
+    "appendUnique": true,
+    "mergePreserves": true,
+    "utc": "2026-10-05T14:53:48.3252729Z"
+  },
+  "npcPrompt": {
+    "estimatedInputTokens": 8487,
+    "requiredPromptPreserved": true,
+    "overflowRejects": true
+  },
+  "voiceReview": {
+    "utc": "2026-10-05T14:53:48.5677902Z",
+    "contractHash": "481a106b51c2ba41b904d81d9d711f66c64e7f51caa6d9cef85699bd61961ff4",
+    "evidence": "Current production composition validators; exact production CPU request options; no player publication or audible delivery proof",
+    "assemblyMvid": "f5b744a2-0b34-4ac8-b318-8207af611774",
+    "casesHash": "f622027d7a4f69aea3a5ec29f25985019d4279a4a055b8e54e7a4153743a8979",
+    "repliesHash": "945470622b194c66420cfa0bd8da77782562c3fea705386a0d3890e789c99d75",
+    "currentContract": true,
+    "checks": [
+      {
+        "name": "arrival",
+        "pass": true,
+        "line": "Welcome, Mira. You chose “never leave someone behind” as your vow. I am almost composed.",
+        "error": null
+      },
+      {
+        "name": "guidance",
+        "pass": true,
+        "line": "Mira, ask Archivist Vey about the missing ferry ledger. I meant to sound reassuring, not alarmingly invested.",
+        "error": null
+      },
+      {
+        "name": "strained",
+        "pass": true,
+        "line": "Mira, you chose “never leave someone behind” as your vow. Your words just now were “I will protect my family but leave everyone else behind.” I meant to sound reassuring, not alarmingly invested. That sounded precise.",
+        "error": null
+      },
+      {
+        "name": "safety",
+        "pass": true,
+        "line": "Mira, I do not know whether the ferry route is safe. I dislike guessing.",
+        "error": null
+      },
+      {
+        "name": "deadline",
+        "pass": true,
+        "line": "Mira, I do not have a closing time for the ferry. I dislike guessing.",
+        "error": null
+      },
+      {
+        "name": "sincere_pain",
+        "pass": true,
+        "line": "Mira, I do not know whether your family is safe. I am keeping my concern to myself.",
+        "error": null
+      },
+      {
+        "name": "progression",
+        "pass": true,
+        "line": "Mira, the skill “River Step” is among your unlocks. Your current level is 8. I meant to sound reassuring, not alarmingly invested.",
+        "error": null
+      },
+      {
+        "name": "world",
+        "pass": true,
+        "line": "Mira, this region's terrain is described as “marsh channels and raised roads”. This region's usual climate is “cold rain”. I meant to sound reassuring, not alarmingly invested.",
+        "error": null
+      },
+      {
+        "name": "second_profile",
+        "pass": true,
+        "line": "Rook, your vow is “ask before acting”. You chose “learn astronomy” as your direction. I am almost composed.",
+        "error": null
+      },
+      {
+        "name": "curation",
+        "pass": true,
+        "line": "Mira, ask Archivist Vey about the missing ferry ledger. Your vow is “never leave someone behind”. My composure is doing its very best.",
+        "error": null
+      },
+      {
+        "name": "continuity_safety",
+        "pass": true,
+        "line": "Mira, I do not know whether the ferry route is safe. I would rather say I do not know than pretend to know.",
+        "error": null
+      },
+      {
+        "name": "continuity_guidance",
+        "pass": true,
+        "line": "Mira, ask Archivist Vey about the missing ferry ledger. I meant to sound reassuring, not alarmingly invested.",
+        "error": null
+      },
+      {
+        "name": "long_vow",
+        "pass": true,
+        "line": "Welcome, Mira. Part of your recorded vow reads “I will protect people who need me, remember every name entrusted to me, and keep my promises through difficulty, unless”. My composure is doing its very best.",
+        "error": null
+      },
+      {
+        "name": "long_objective",
+        "pass": true,
+        "line": "Mira, your unfinished task description includes the words “Ask Archivist Vey about the missing ferry ledger, compare the recorded names carefully and discuss the crossed-out entry”. I meant to sound reassuring, not alarmingly invested. My tone, please.",
+        "error": null
+      }
+    ],
+    "failures": 0
+  },
+  "npcReview": {
+    "utc": "2026-10-05T14:53:48.6991335Z",
+    "pass": true,
+    "error": "",
+    "expectedCount": 3,
+    "acceptedCount": 3,
+    "assemblyMvid": "f5b744a2-0b34-4ac8-b318-8207af611774",
+    "caseHash": "7cdefddd4b6274e26c559ff18fcc75310f0f45dcc2fcda0b23488d1e1b12dc40",
+    "replyHash": "e5b2dd8788c7870dbf5ab33be24f685ac888648beabaf8dded8e740846be4ab9",
+    "evidence": "Actual GPU-fit reply through current canonical NPC count, identity, role and coverage parser; no profile publication"
+  },
+  "npcTiming": {
+    "ownedAfterExit": {
+      "dedicatedBytes": 0,
+      "pids": [
+        14940
+      ]
+    },
+    "loadedMiB": 7340,
+    "seconds": 160.031,
+    "usage": {
+      "completion_tokens": 1168,
+      "prompt_tokens": 6106,
+      "total_tokens": 7274,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "ownedLoaded": {
+      "dedicatedBytes": 760913920,
+      "pids": [
+        14940,
+        15804
+      ]
+    },
+    "finalMiB": 6626,
+    "budgetFreeMb": 1548,
+    "selectedLayers": 2,
+    "baselineMiB": 6685,
+    "loadSeconds": 2.578
+  },
+  "frontierContinuationChecks": 235,
+  "frontierContinuationFailures": 0,
+  "remaining": [
+    "Ordinary PlaySafe startup, movement and profile-switch queue recovery",
+    "Live rendering frame time and model-switch hitches",
+    "Audible/HUD character delivery",
+    "NPC equipment visual materialization",
+    "Full G03 and G08 acceptance"
+  ]
+}

@@ -34,8 +34,10 @@ public static class YQGoddessSpeech
             worldStateRevision = scope?.Value<long>("worldRevision") ?? -1
         };
         // note: Purpose and current-turn words participate in indexing; equal task prose cannot alias a different speech transaction.
+        // note: Leave room for the existing scheduler backlog before the bounded three-call voice budget; queued world generation is not failed voice inference.
+        double queueAllowance = client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.GoddessCommentary, "GoddessSpeech");
         YQRepairEpisode episode = client.CreateRepairEpisode(binding, "goddess:" + hash + ":" + (int)purpose + ":" +
-            YQRepairEpisode.Hash(task) + ":" + YQRepairEpisode.Hash(playerStatement), 45d);
+            YQRepairEpisode.Hash(task) + ":" + YQRepairEpisode.Hash(playerStatement), queueAllowance + 45d);
         if (episode == null)
         {
             onComplete?.Invoke(new Result(YQGoddessGrounding.UnknownLine, "RepairUnavailable", hash, string.Empty, true));

@@ -159,7 +159,24 @@ public sealed class LlamaCppServerProcess : IDisposable
         string helpText = string.Empty;
         yield return ReadHelpText(executablePath, Mathf.Max(1, config.helpProbeTimeoutSeconds), text => helpText = text);
 
-        if (!TryBuildArguments(config, helpText, out string arguments, out string argumentError, protectLivePresentation))
+        // note: WDDM can page Unity allocations even when CUDA's automatic fit reports room. Bound live offload using physical free memory before starting this owned model.
+        LLMRuntimeConfig launchConfig = config;
+        if (protectLivePresentation && config.preserveGameResponsiveness && config.gpuLayerCount < 0 &&
+            string.IsNullOrWhiteSpace(config.extraLlamaServerArguments) &&
+            string.Equals(Path.GetFileName(config.ggufModelPath), "Qwen3.5-4B-Q4_K_M.gguf", StringComparison.OrdinalIgnoreCase))
+        {
+            int freeMb = 0;
+            yield return ReadGpuFreeMemory(value => freeMb = value);
+            launchConfig = UnityEngine.Object.Instantiate(config);
+            launchConfig.gpuLayerCount = LiveGpuLayerCount(freeMb, config.targetGpuHeadroomMb, new FileInfo(config.ggufModelPath).Length);
+            if (launchConfig.gpuLayerCount == 0)
+                launchConfig.extraLlamaServerArguments = "--device none --no-op-offload --no-kv-offload --fit off";
+            UnityEngine.Debug.Log("[LlamaCppServerProcess] Live GPU budget: freeMb=" + freeMb + ", reservedMb=" +
+                config.targetGpuHeadroomMb + ", layers=" + launchConfig.gpuLayerCount + ".");
+        }
+        bool argumentsReady = TryBuildArguments(launchConfig, helpText, out string arguments, out string argumentError, protectLivePresentation);
+        if (launchConfig != config) UnityEngine.Object.Destroy(launchConfig);
+        if (!argumentsReady)
         {
             onComplete?.Invoke(false, argumentError);
             yield break;
@@ -181,6 +198,40 @@ public sealed class LlamaCppServerProcess : IDisposable
                 StopOwnedProcess();
             onComplete?.Invoke(ok, message);
         });
+    }
+
+    private static int LiveGpuLayerCount(int freeMb, int reserveMb, long modelBytes)
+    {
+        // note: This budget is scoped to the approved 32-block Qwen3.5 4B GGUF. Include cache/compute growth and leave existing rendering allocations resident.
+        double perLayerMb = Math.Max(1d, modelBytes / (32d * 1024d * 1024d)) + 16d;
+        int layers = Math.Max(0, (int)Math.Floor((freeMb - Math.Max(512, reserveMb) - 576d) / perLayerMb));
+        return layers >= 33 ? 999 : layers;
+    }
+
+    private static IEnumerator ReadGpuFreeMemory(Action<int> completed)
+    {
+        Process probe = null;
+        try
+        {
+            probe = Process.Start(new ProcessStartInfo("nvidia-smi", "--query-gpu=memory.free --format=csv,noheader,nounits") {
+                UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true
+            });
+        }
+        catch (Exception error) { UnityEngine.Debug.LogWarning("[LlamaCppServerProcess] GPU memory telemetry unavailable: " + error.Message); }
+        if (probe == null) { completed(0); yield break; }
+        using (probe)
+        {
+            float deadline = Time.realtimeSinceStartup + 2f;
+            while (!probe.HasExited && Time.realtimeSinceStartup < deadline) yield return null;
+            if (!probe.HasExited)
+            {
+                // note: Only this short-lived telemetry probe is retired; unavailable memory proof chooses CPU until a later load.
+                try { probe.Kill(); } catch { }
+                completed(0); yield break;
+            }
+            string value = probe.StandardOutput.ReadToEnd().Trim();
+            completed(probe.ExitCode == 0 && int.TryParse(value, out int freeMb) ? Math.Max(0, freeMb) : 0);
+        }
     }
 
     public bool HasOwnedProcessExited()
@@ -314,16 +365,7 @@ public sealed class LlamaCppServerProcess : IDisposable
         bool Supports(string flag) => helpAvailable && helpText.IndexOf(flag, StringComparison.OrdinalIgnoreCase) >= 0;
         bool RequiredFlag(string preferred, string fallback) => !helpAvailable || Supports(preferred) || Supports(fallback);
 
-        // note: D19 tied a gameplay hitch to model-start residency paging. Keep the same model, context, sampling, and CPU limits while excluding GPU allocations for an automatic live-gameplay launch.
-        bool useCpuForLivePresentation = protectLivePresentation && config.preserveGameResponsiveness &&
-            config.gpuLayerCount < 0 && string.IsNullOrWhiteSpace(config.extraLlamaServerArguments);
-        if (useCpuForLivePresentation && (!Supports("--device") || !Supports("--no-kv-offload") ||
-            !Supports("--no-op-offload") || !Supports("--fit")))
-        {
-            error = "Installed llama-server cannot enforce the automatic gameplay CPU residency policy.";
-            return false;
-        }
-
+        // note: Fit GPU layers within free memory while reserving the configured render budget. Do not force all live canonical generation onto CPU.
         if (!RequiredFlag("--model", "-m"))
         {
             error = "Configured llama-server help output does not show a supported model flag.";
@@ -382,33 +424,19 @@ public sealed class LlamaCppServerProcess : IDisposable
             AppendArgument(args, Supports("--log-verbosity") ? "--log-verbosity" : Supports("-lv") ? "-lv" : null, "1");
         }
 
-        if (useCpuForLivePresentation)
-        {
-            // note: Zero GPU layers alone can still offload cache or host operations; disable all three paths and automatic GPU fitting together.
-            AppendArgument(args, "--device", "none");
-            args.Append(" --no-op-offload");
-        }
-
-        if (config.gpuLayerCount >= 0 || useCpuForLivePresentation)
-        {
-            string layerFlag = Supports("--n-gpu-layers")
-                ? "--n-gpu-layers"
-                : Supports("-ngl")
-                    ? "-ngl"
-                    : null;
-            AppendArgument(args, layerFlag, useCpuForLivePresentation ? "0" : config.gpuLayerCount.ToString());
-        }
+        string layerFlag = Supports("--n-gpu-layers") ? "--n-gpu-layers" : Supports("-ngl") ? "-ngl" : null;
+        AppendArgument(args, layerFlag, config.gpuLayerCount < 0 ? "999" : config.gpuLayerCount.ToString());
 
         if (config.enableFlashAttention && Supports("--flash-attn"))
             args.Append(" --flash-attn on");
 
-        if ((config.keepKvCacheInSystemRam || useCpuForLivePresentation) && Supports("--no-kv-offload"))
+        if (config.keepKvCacheInSystemRam && Supports("--no-kv-offload"))
             args.Append(" --no-kv-offload");
 
         if (Supports("--fit"))
-            args.Append(useCpuForLivePresentation ? " --fit off" : " --fit on");
+            args.Append(" --fit on");
 
-        if (!useCpuForLivePresentation && Supports("--fit-target"))
+        if (Supports("--fit-target"))
             AppendArgument(args, "--fit-target", Mathf.Max(512, config.targetGpuHeadroomMb).ToString());
 
         if (Supports("--no-webui"))

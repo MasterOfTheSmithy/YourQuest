@@ -183,7 +183,9 @@ public sealed class LLMClient : MonoBehaviour
         if (_workloadServiceSeconds.TryGetValue(WorkloadKey(category, debugTag), out float observed)) return Mathf.Max(frontier ? 180f : 2f, observed * 1.5f);
         // note: Conservative cold-start estimates are replaced by live observations, without persisting speculative content or changing role selection.
         if (frontier) return 180f;
-        return category == LLMGenerationCategory.WorldGeneration || category == LLMGenerationCategory.NpcPopulation ? 95f : 20f;
+        // note: The full NPC contract takes substantially longer under a rendering-safe partial GPU budget than a short control response.
+        if (category == LLMGenerationCategory.NpcPopulation) return 180f;
+        return category == LLMGenerationCategory.WorldGeneration ? 95f : 20f;
     }
 
     public float GetPlanningLeadTimeSeconds(LLMGenerationCategory category, string debugTag = null)
@@ -1331,7 +1333,7 @@ public sealed class LLMClient : MonoBehaviour
         if (_llamaServer == null)
             _llamaServer = new LlamaCppServerProcess();
 
-        // note: Automatic on-demand model loading must not evict rendering resources during released gameplay; explicit configurations and startup generation retain their selected offload policy.
+        // note: Live generation uses GPU fitting with rendering headroom; explicit CPU placement remains an intentional configuration choice.
         bool protectLivePresentation = _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
             YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
         yield return _llamaServer.EnsureReady(config, (ready, reason) =>
@@ -1343,8 +1345,8 @@ public sealed class LLMClient : MonoBehaviour
 
     private string LlamaResidencyKey(LLMRuntimeConfig config)
         => config.ggufModelPath + "|" + config.contextSizeTokens + "|" + config.gpuLayerCount + "|" +
-            (_usingRuntimeDefaultConfig && !IsExclusiveSequenceActive && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased &&
-             config.preserveGameResponsiveness && config.gpuLayerCount < 0 && string.IsNullOrWhiteSpace(config.extraLlamaServerArguments));
+            config.targetGpuHeadroomMb + "|" + config.keepKvCacheInSystemRam + "|" + config.extraLlamaServerArguments + "|" +
+            (_usingRuntimeDefaultConfig && !IsExclusiveSequenceActive && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
 
     private static string OllamaBaseUrl(string url)
     {

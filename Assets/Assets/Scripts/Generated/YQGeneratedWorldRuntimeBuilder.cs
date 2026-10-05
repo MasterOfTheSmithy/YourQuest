@@ -528,8 +528,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             if (service == null || !service.TryRequestFrontierLocationBrief(world, engineCandidate,
                     (value, reason) => { staged = value; failure = reason; briefFinished = true; }, out requestId))
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier generation service is unavailable."); yield break; }
-            float deadline = Time.realtimeSinceStartup + 180f;
-            while (!briefFinished && Current() && Time.realtimeSinceStartup < deadline) yield return null;
+            // note: Queue waiting does not spend the transport attempt budget. The shared scheduler bounds active work; this owner still cancels retired construction.
+            while (!briefFinished && Current() && LLMClient.Instance != null) yield return null;
             if (!briefFinished || !Current() || staged == null)
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier brief timed out or its owner changed."); yield break; }
             // note: Retain the actual prepared proposal provenance before adding engine-owned physical decisions.
