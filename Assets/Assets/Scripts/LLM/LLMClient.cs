@@ -174,7 +174,7 @@ public sealed class LLMClient : MonoBehaviour
         if (seconds <= 0f) return;
         string key = WorkloadKey(category, debugTag);
         _workloadServiceSeconds.TryGetValue(key, out float previous);
-        _workloadServiceSeconds[key] = previous > 0f ? Mathf.Lerp(previous, Mathf.Clamp(seconds, .1f, 300f), .35f) : Mathf.Clamp(seconds, .1f, 300f);
+        _workloadServiceSeconds[key] = previous > 0f ? Mathf.Lerp(previous, Mathf.Clamp(seconds, .1f, 1800f), .35f) : Mathf.Clamp(seconds, .1f, 1800f);
     }
 
     private float EstimatedServiceSeconds(LLMGenerationCategory category, string debugTag)
@@ -185,7 +185,7 @@ public sealed class LLMClient : MonoBehaviour
         // note: Conservative cold-start estimates are replaced by live observations, without persisting speculative content or changing role selection.
         if (frontier) return 180f;
         // note: The full NPC contract takes substantially longer under a rendering-safe partial GPU budget than a short control response.
-        if (category == LLMGenerationCategory.NpcPopulation) return 180f;
+        if (category == LLMGenerationCategory.NpcPopulation) return 600f;
         return category == LLMGenerationCategory.WorldGeneration ? 95f : 20f;
     }
 
@@ -193,12 +193,19 @@ public sealed class LLMClient : MonoBehaviour
     {
         // note: One canonical queue supplies planning lead time. Include backlog, the remaining active call, and a margin for publication/model switching.
         float seconds = EstimatedServiceSeconds(category, debugTag) + 10f;
-        if (_activeRequestValid) seconds += Mathf.Max(0f, EstimatedServiceSeconds(_activeRequest.category, _activeRequest.debugTag) - ActiveRequestAgeSeconds);
+        if (_activeRequestValid) seconds += RemainingPlanningServiceSeconds(
+            EstimatedServiceSeconds(_activeRequest.category, _activeRequest.debugTag), ActiveRequestAgeSeconds);
         foreach (QueuedRequest queued in _exclusiveQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
         foreach (QueuedRequest queued in _highPriorityQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
         foreach (QueuedRequest queued in _normalQueue) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
         foreach (QueuedRequest queued in _retryingRequests.Values) seconds += EstimatedServiceSeconds(queued.category, queued.debugTag);
-        return Mathf.Clamp(seconds, 15f, 300f);
+        return Mathf.Clamp(seconds, 15f, 1800f);
+    }
+
+    internal static float RemainingPlanningServiceSeconds(float estimatedSeconds, float activeSeconds)
+    {
+        // note: An overdue live request is still busy; preserve a growing planning margin instead of treating it as finished. This forecast cannot cancel work.
+        return Mathf.Max(estimatedSeconds - activeSeconds, Mathf.Max(5f, activeSeconds * .5f));
     }
 
     private void Awake()
@@ -1320,17 +1327,23 @@ public sealed class LLMClient : MonoBehaviour
         // note: Live generation uses GPU fitting with rendering headroom; explicit CPU placement remains an intentional configuration choice.
         bool protectLivePresentation = _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
             YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
+        // note: Readiness can cross the startup reveal; retain the policy actually requested, rather than labeling an earlier allocation with the later policy.
+        string launchResidencyKey = BuildLlamaResidencyKey(config, protectLivePresentation);
         yield return _llamaServer.EnsureReady(config, (ready, reason) =>
         {
-            if (ready && _llamaServer.OwnsProcess) _ownedLlamaResidencyKey = LlamaResidencyKey(config);
+            if (ready && _llamaServer.OwnsProcess) _ownedLlamaResidencyKey = launchResidencyKey;
             onComplete?.Invoke(ready, reason);
         }, protectLivePresentation);
     }
 
     private string LlamaResidencyKey(LLMRuntimeConfig config)
+        => BuildLlamaResidencyKey(config, _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
+            YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
+
+    private static string BuildLlamaResidencyKey(LLMRuntimeConfig config, bool protectLivePresentation)
         => config.ggufModelPath + "|" + config.contextSizeTokens + "|" + config.gpuLayerCount + "|" +
             config.targetGpuHeadroomMb + "|" + config.keepKvCacheInSystemRam + "|" + config.extraLlamaServerArguments + "|" +
-            (_usingRuntimeDefaultConfig && !IsExclusiveSequenceActive && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
+            protectLivePresentation;
 
     private static string OllamaBaseUrl(string url)
     {

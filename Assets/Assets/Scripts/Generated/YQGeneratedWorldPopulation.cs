@@ -696,6 +696,7 @@ public static class YQGeneratedWorldPopulation
                     npcRecord,
                     seed,
                     index,
+                    occupiedResidentPositions,
                     out Vector3 position);
             if (!usesCompiledSite)
             {
@@ -790,6 +791,7 @@ public static class YQGeneratedWorldPopulation
                     npcRecord,
                     seed,
                     index,
+                    occupiedResidentPositions,
                     out Vector3 position);
             if (!usesCompiledSite)
             {
@@ -994,6 +996,20 @@ public static class YQGeneratedWorldPopulation
                     radius);
     }
 
+    private const float MinimumResidentSeparation = 2.4f;
+
+    internal static bool IsResidentPositionSeparated(Vector3 candidate, IReadOnlyList<Vector3> occupiedPositions)
+    {
+        // note: Staged residents are inactive in Physics; this shared horizontal spacing contract must apply during floor search as well as final placement.
+        for (int index = 0; occupiedPositions != null && index < occupiedPositions.Count; index++)
+        {
+            Vector3 offset = candidate - occupiedPositions[index];
+            offset.y = 0f;
+            if (offset.sqrMagnitude < MinimumResidentSeparation * MinimumResidentSeparation) return false;
+        }
+        return true;
+    }
+
     private static bool TryResolveSeparatedResidentPosition(
         Vector3 anchor,
         List<Vector3> occupiedPositions,
@@ -1002,8 +1018,6 @@ public static class YQGeneratedWorldPopulation
         out Vector3 position)
     {
         position = anchor;
-        const float minimumSpacing = 2.4f;
-        const float minimumSquared = minimumSpacing * minimumSpacing;
         // note: Keep the finite search near the role anchor; distant floors are not interchangeable with the resident's assigned location.
         for (int attempt = 0; attempt <= 8; attempt++)
         {
@@ -1011,7 +1025,7 @@ public static class YQGeneratedWorldPopulation
             if (attempt > 0)
             {
                 float angle = Deterministic01(seed + "|resident_separation_angle|" + (attempt - 1)) * Mathf.PI * 2f;
-                float radius = minimumSpacing + (attempt - 1) * 1.15f;
+                float radius = MinimumResidentSeparation + (attempt - 1) * 1.15f;
                 // note: Each offset is relative to the role anchor, not accumulated into a random walk outside the building.
                 candidate += new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
             }
@@ -1019,18 +1033,7 @@ public static class YQGeneratedWorldPopulation
                 !YQCompiledWorldSiteInstance.TryProjectToSiteSurface(compiledSiteId, candidate, out candidate))
                 continue;
 
-            bool overlaps = false;
-            for (int i = 0; occupiedPositions != null && i < occupiedPositions.Count; i++)
-            {
-                Vector3 offset = candidate - occupiedPositions[i];
-                offset.y = 0f;
-                if (offset.sqrMagnitude < minimumSquared)
-                {
-                    overlaps = true;
-                    break;
-                }
-            }
-            if (!overlaps)
+            if (IsResidentPositionSeparated(candidate, occupiedPositions))
             {
                 position = candidate;
                 return true;

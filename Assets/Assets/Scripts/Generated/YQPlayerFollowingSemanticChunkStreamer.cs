@@ -1374,6 +1374,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     private AsyncOperation _frontierConstructionPendingLoad;
     private readonly Dictionary<Vector2Int, int> _frontierConstructionAttempts = new Dictionary<Vector2Int, int>();
     private readonly Queue<Vector2Int> _frontierConstructionAttemptOrder = new Queue<Vector2Int>();
+    private readonly Dictionary<Vector2Int, string> _frontierNetworkRefusals = new Dictionary<Vector2Int, string>();
     private const float FrontierConstructionRetrySeconds = 0.75f;
     private const int FrontierConstructionBlocksPerSlice = 8;
     private const float FrontierConstructionScanBudgetSeconds = 0.0015f;
@@ -4917,6 +4918,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         CancelFrontierConstructionWork();
         _frontierConstructionAttempts.Clear();
         _frontierConstructionAttemptOrder.Clear();
+        _frontierNetworkRefusals.Clear();
         _frontierConstructionScan = 0;
         _nextFrontierConstructionAt = Time.unscaledTime;
         if (_configured)
@@ -10924,6 +10926,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (_frontierConstructionWork.Count > 0 && !IsFrontierConstructionWorkCurrent()) CancelFrontierConstructionWork();
         if (_frontierConstructionWork.Count == 0)
         {
+            // note: Optional frontier inference waits for the released render workload and the existing save barrier; an unpublishable test session must not occupy the model.
+            if (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || YQDeveloperConsoleGate.BlocksPersistence) return;
             if (Time.unscaledTime < _nextFrontierConstructionAt || _continuationPopulationWork.Count > 0) return;
             _nextFrontierConstructionAt = Time.unscaledTime + FrontierConstructionRetrySeconds;
             var builder = YQGeneratedWorldRuntimeBuilder.Instance;
@@ -10953,7 +10957,8 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                 Vector2Int block = predictedBlock + scanOffsets[scan];
                 scannedBlocks++;
                 _frontierConstructionAttempts.TryGetValue(block, out int attempts);
-                if (attempts >= 2 || !YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(
+                if (attempts >= 2 || IsFrontierNetworkRefusalCurrent(block, _acceptedSpatialProjection.ContinuationFingerprint) ||
+                    !YQSemanticWorldAuthority.TryGetUnacceptedContinuationOpportunity(
                         _plan, block.x, block.y, out var opportunity, out _))
                     continue;
 
@@ -10999,7 +11004,12 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
                     _frontierConstructionAccepted = accepted;
                     _frontierConstructionFailure = reason;
                     if (accepted == null && IsPermanentFrontierPlacementFailure(reason) && IsFrontierConstructionWorkCurrent())
-                        _frontierConstructionAttempts[candidateBlock] = 2;
+                    {
+                        // note: A missing connecting road can become valid after a parent publishes; retain spent model attempts while stamping this physical refusal to its exact network.
+                        if (IsTopologyDependentFrontierPlacementFailure(reason))
+                            _frontierNetworkRefusals[candidateBlock] = _acceptedSpatialProjection.ContinuationFingerprint;
+                        else _frontierConstructionAttempts[candidateBlock] = 2;
+                    }
                 },
                 () => {
                     // note: Charge only the exact current block whose typed proposal passed provenance and engine-reservation checks; transient model failures remain eligible for retry.
@@ -11045,11 +11055,29 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
         if (!_frontierConstructionAttempts.ContainsKey(block))
         {
             while (_frontierConstructionAttemptOrder.Count >= 128)
-                _frontierConstructionAttempts.Remove(_frontierConstructionAttemptOrder.Dequeue());
+            {
+                Vector2Int retired = _frontierConstructionAttemptOrder.Dequeue();
+                _frontierConstructionAttempts.Remove(retired);
+                _frontierNetworkRefusals.Remove(retired);
+            }
             _frontierConstructionAttemptOrder.Enqueue(block);
         }
         _frontierConstructionAttempts[block] = attempts;
     }
+
+    private bool IsFrontierNetworkRefusalCurrent(Vector2Int block, string fingerprint)
+    {
+        // note: Reconsider only topology-dependent preflight refusals on a changed accepted network, without resetting substantive inference attempts.
+        if (!_frontierNetworkRefusals.TryGetValue(block, out string rejectedFingerprint)) return false;
+        if (string.Equals(rejectedFingerprint, fingerprint, StringComparison.Ordinal)) return true;
+        _frontierNetworkRefusals.Remove(block);
+        return false;
+    }
+
+    private static bool IsTopologyDependentFrontierPlacementFailure(string failure)
+        => !string.IsNullOrWhiteSpace(failure) &&
+            (failure.IndexOf("no real accepted road", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             failure.IndexOf("lacks an accepted network connection", StringComparison.OrdinalIgnoreCase) >= 0);
 
     private static bool IsPermanentFrontierPlacementFailure(string failure)
     {
@@ -13510,7 +13538,7 @@ public sealed class YQPlayerFollowingSemanticChunkStreamer : MonoBehaviour
     {
         // note: A bounded scheduling horizon changes only which deterministic opportunity is considered first; all footprint, authority and admission guards remain intact.
         float visibleMargin = Mathf.Max(1, visibleRadius) * Mathf.Max(32f, cellSize) + 256f;
-        return Mathf.Clamp(visibleMargin + Mathf.Max(0f, speed) * Mathf.Clamp(leadSeconds, 15f, 300f), 512f, 3840f);
+        return Mathf.Clamp(visibleMargin + Mathf.Max(0f, speed) * Mathf.Clamp(leadSeconds, 15f, 1800f), 512f, 3840f);
     }
 
     private bool PruneSemanticHistory(int maximumEvictions)

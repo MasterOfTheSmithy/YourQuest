@@ -3176,7 +3176,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
                             plan, encampment, region, palette, out record, out bindingChanged, persistBinding: false);
                     tags = YQCompiledWorldSiteBindingService.BuildEncampmentSemanticSliceTags(encampment);
-                    seed = !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
+                    seed = !string.IsNullOrWhiteSpace(encampment.proceduralLayout?.seed) ? encampment.proceduralLayout.seed : !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
                         ? encampment.deterministicSeed : encampment.encampmentId;
                     displayName = encampment.displayName;
                     break;
@@ -4493,6 +4493,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             string[] semanticSliceTags =
                 YQCompiledWorldSiteBindingService
                     .BuildEncampmentSemanticSliceTags(encampment);
+            // note: Prefer the committed selection before consulting this build's candidate variants.
+            string hostileLayoutSeed = ResolveSemanticCompositionSeedV2(plan, encampment.encampmentId,
+                !string.IsNullOrWhiteSpace(encampment.proceduralLayout?.seed) ? encampment.proceduralLayout.seed :
+                !string.IsNullOrWhiteSpace(encampment.deterministicSeed) ? encampment.deterministicSeed : encampment.encampmentId);
             // note: A hostile town, camp, or lair consumes a seeded semantic approach slice; the reviewed source map is never materialized wholesale as an encounter.
             yield return
                 YQCompiledWorldSiteInstance.MaterializeSemanticSliceRoutine(
@@ -4500,13 +4504,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     encampment.encampmentId,
                     siteRecord,
                     semanticSliceTags,
-                    ResolveSemanticCompositionSeedV2(
-                        plan,
-                        encampment.encampmentId,
-                        !string.IsNullOrWhiteSpace(
-                            encampment.deterministicSeed)
-                            ? encampment.deterministicSeed
-                            : encampment.encampmentId),
+                    hostileLayoutSeed,
                     success => materialized = success);
 
             if (!materialized)
@@ -4520,6 +4518,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 continue;
             }
 
+            // note: Failed loads leave the optional base layout absent; normal paired publication persists only successful geometry.
+            _compiledBindingsChangedDuringBuild |= YQProceduralSettlementLayout.Commit(encampment, hostileLayoutSeed);
             Debug.Log(
                 "[YQGeneratedWorldRuntimeBuilder] COMPILED HOSTILE SITE READY\n" +
                 "Site: " + encampment.displayName + " (" +
@@ -7793,9 +7793,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         continue;
                     }
 
+                    // note: The aggregate circle encloses unowned gaps; validate the exact accepted sector union instead.
                     if (materializationV2 != null &&
-                        !materializationV2.TryValidateFootprint(
+                        !TryValidatePreparedCompositionFootprint(materializationV2,
                             settlement.settlementId,
+                            ResolveSemanticCompositionSeedV2(plan, settlement.settlementId, SettlementSeed(settlement)),
                             footprintRadius,
                             out string footprintFailure))
                     {
@@ -7843,7 +7845,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
                 if (!centerResolved ||
                     !acceptedV2CenterPreserved ||
-                    !GradeTerrainPad(
+                    !TryGradePreparedCompositionTerrain(
+                        materializationV2,
+                        settlement.settlementId,
+                        ResolveSemanticCompositionSeedV2(plan, settlement.settlementId, SettlementSeed(settlement)),
                         terrain,
                         center,
                         flatRadius,
@@ -7853,8 +7858,6 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             terrain,
                             center,
                             footprintRadius),
-                        YQProceduralSettlementLayout.Get(ResolveSemanticCompositionSeedV2(
-                            plan, settlement.settlementId, SettlementSeed(settlement))),
                         ResolveSettlementHeading(plan, settlement),
                         constructionTerrainSampler))
                 {
@@ -7988,6 +7991,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     YQCompiledWorldSiteBindingService
                         .BuildEncampmentSemanticSliceTags(encampment);
                 string semanticSliceSeed =
+                    !string.IsNullOrWhiteSpace(encampment.proceduralLayout?.seed) ? encampment.proceduralLayout.seed :
                     !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
                         ? encampment.deterministicSeed
                         : encampment.encampmentId;
@@ -8043,9 +8047,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     continue;
                 }
 
+                // note: Hostile sector compositions obey the same member-reserve gate as inhabited sites.
                 if (materializationV2 != null &&
-                    !materializationV2.TryValidateFootprint(
+                    !TryValidatePreparedCompositionFootprint(materializationV2,
                         encampment.encampmentId,
+                        ResolveSemanticCompositionSeedV2(plan, encampment.encampmentId, semanticSliceSeed),
                         footprintRadius,
                         out string footprintFailure))
                 {
@@ -8081,7 +8087,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     HorizontalDistanceSquared(center, requestedCenter) <= 0.01f;
                 bool terrainPadGraded = centerResolved &&
                     acceptedV2CenterPreserved &&
-                    GradeTerrainPad(
+                    TryGradePreparedCompositionTerrain(
+                        materializationV2,
+                        encampment.encampmentId,
+                        ResolveSemanticCompositionSeedV2(plan, encampment.encampmentId, semanticSliceSeed),
                         terrain,
                         center,
                         flatRadius,
@@ -8090,7 +8099,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                             plan.worldSeed,
                             terrain,
                             center,
-                            footprintRadius));
+                            footprintRadius),
+                        ResolveSpatialSiteHeading(plan, encampment.encampmentId,
+                            DeterministicQuarterTurn(encampment.deterministicSeed + ":compiled_hostile_orientation")),
+                        constructionTerrainSampler);
                 if (!terrainPadGraded)
                 {
                     // note: Hostile camps already run the same canonical-terrain grounding pass when their reviewed cells stream in; a pad that cannot be pre-graded is a degraded camp placement, not grounds to imprison a fully materialized saved world behind Continue forever.
@@ -8113,6 +8125,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 YQGeneratedWorldLayout.SetRuntimeEncampmentAnchor(
                     encampment.encampmentId,
                     center);
+                // note: Terrain success establishes the saved parcel planes; retain accepted layouts on subsequent builds.
+                string acceptedHostileSeed = ResolveSemanticCompositionSeedV2(plan, encampment.encampmentId, semanticSliceSeed);
+                _compiledBindingsChangedDuringBuild |= YQProceduralSettlementLayout.Commit(encampment, acceptedHostileSeed);
 
                 Vector2 centerHorizontal = new Vector2(center.x, center.z);
                 Vector2 requestedHorizontal = new Vector2(
@@ -8134,10 +8149,20 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     center,
                     footprintRadius));
                 // note: Keep only the actual hostile foundation protected; the outer presentation shelf must remain gradeable so the accepted route gate cannot step off a cliff at the site boundary.
-                pathTerrainReservations.Add(
-                    new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
-                        center,
-                        footprintRadius + 3f));
+                var hostileLayout = YQProceduralSettlementLayout.Get(acceptedHostileSeed);
+                if (hostileLayout != null && hostileLayout.earthworkVersion == 3)
+                {
+                    // note: Protect bounded hostile foundations from later road/water repair without reserving the empty aggregate circle.
+                    float heading = ResolveSpatialSiteHeading(plan, encampment.encampmentId,
+                        DeterministicQuarterTurn(encampment.deterministicSeed + ":compiled_hostile_orientation"));
+                    Quaternion rotation = Quaternion.Euler(0f, heading, 0f);
+                    foreach (var cell in hostileLayout.cells)
+                        pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
+                            center + rotation * (cell.boundsCenter - hostileLayout.origin),
+                            new Vector2(cell.boundsSize.x, cell.boundsSize.z) * .5f + Vector2.one * 3f,
+                            Mathf.Repeat(heading + cell.yaw, 360f)));
+                }
+                else pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(center, footprintRadius + 3f));
 
                 yield return null;
             }
@@ -8373,6 +8398,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
         failure = "Composition has no accepted materialization context.";
         return materialization != null && materialization.TryValidateFootprint(locationId, radius, out failure);
+    }
+
+    internal static bool TryGradePreparedCompositionTerrain(
+        YQPreparedSpatialMaterializationV2 materialization, string locationId, string seed,
+        Terrain terrain, Vector3 center, float flatRadius, float outerRadius, float minimumHeight,
+        float heading, YQSpatialBlueprintTerrainSamplerV2 spatialSampler)
+    {
+        // note: Both production prepasses use this gate and the exact prepared layout before any terrain writes.
+        var layout = YQProceduralSettlementLayout.Get(seed);
+        if (materialization != null && !TryValidatePreparedCompositionFootprint(
+                materialization, locationId, seed, layout != null ? layout.radius : flatRadius - 3f, out _))
+            return false;
+        return GradeTerrainPad(terrain, center, flatRadius, outerRadius, minimumHeight, layout, heading, spatialSampler);
     }
 
     private string ResolveSemanticCompositionSeedV2(
@@ -8696,6 +8734,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 minimumWorldHeight, out parcelHeights))
             return false;
         Vector2 horizontalCenter = new Vector2(center.x, center.z);
+        // note: Saved versions zero through two replay their radial grading; new sector earthworks own only bounded parcels and streets.
+        bool boundedEarthworks = constructionLayout != null && constructionLayout.earthworkVersion == 3;
 
         for (int z = 0; z < height; z++)
         {
@@ -8743,8 +8783,25 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         constructionHeading,
                         out float parcelBlend,
                         out float worldTarget);
-                    // note: Preserve the broad radial shoulder outside semantic cells; discarding it left an abrupt parcel edge and a sheer settlement cut.
-                    if (parcelBlend > 0.0001f)
+                    if (boundedEarthworks)
+                    {
+                        // note: Reject unsupported foundations atomically; protected external corridors retain their accepted surface.
+                        if (parcelBlend <= .0001f) continue;
+                        Vector3 point = new Vector3(worldX, 0f, worldZ);
+                        if (!YQTerrainApproachV2.TrySampleTerrain(terrain, point, out _)) return false;
+                        if (protectedCorridor)
+                        {
+                            if (IsWithinParcelFoundation(constructionLayout, point - center, constructionHeading))
+                            {
+                                Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Parcel earthwork rejected: protected corridor under foundation at " + point);
+                                return false;
+                            }
+                            continue;
+                        }
+                        blend = parcelBlend;
+                        localTargetHeight = (worldTarget - origin.y) / size.y;
+                    }
+                    else if (parcelBlend > 0.0001f)
                     {
                         blend = Mathf.Max(radialBlend, parcelBlend);
                         localTargetHeight = (worldTarget - origin.y) / size.y;
@@ -8784,7 +8841,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     {
         heights = null;
         // note: Unknown profile versions and malformed saved elevations require migration, never silent reinterpretation.
-        if ((layout.earthworkVersion != 1 && layout.earthworkVersion != 2) || layout.cells == null || layout.cells.Count == 0 ||
+        if ((layout.earthworkVersion != 1 && layout.earthworkVersion != 2 && layout.earthworkVersion != 3) || layout.cells == null || layout.cells.Count == 0 ||
             layout.parcelGroundHeights == null ||
             (layout.parcelGroundHeights.Count != 0 && layout.parcelGroundHeights.Count != layout.cells.Count))
             return false;
@@ -8822,7 +8879,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             resolved[i] = value;
         }
         // note: Reconcile only unsaved version-two proposals; accepted parcel elevations remain authoritative on reload.
-        if (layout.earthworkVersion == 2 && layout.parcelGroundHeights.Count == 0)
+        if (layout.earthworkVersion >= 2 && layout.parcelGroundHeights.Count == 0)
         {
             var original = (float[])resolved.Clone();
             for (int pass = 0; pass < 64; pass++)
@@ -8865,7 +8922,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 var a = layout.cells[i];
                 var b = layout.cells[j];
                 // note: Version two requires enough space between flat cores to connect their elevations at the shared surface grade.
-                if (layout.earthworkVersion == 2)
+                if (layout.earthworkVersion >= 2)
                 {
                     float gapX = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.x - b.boundsCenter.x) - (a.boundsSize.x + b.boundsSize.x) * .5f - 6f);
                     float gapZ = Mathf.Max(0f, Mathf.Abs(a.boundsCenter.z - b.boundsCenter.z) - (a.boundsSize.z + b.boundsSize.z) * .5f - 6f);
@@ -8954,6 +9011,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return Mathf.Max(0f, allowance);
     }
 
+    private static bool IsWithinParcelFoundation(YQProceduralSettlementLayoutRecord layout, Vector3 worldOffset, float heading)
+    {
+        // note: Use the same rotated core and three-metre apron as the terrain mask when checking corridor conflicts.
+        float angle = heading * Mathf.Deg2Rad;
+        float cosine = Mathf.Cos(angle), sine = Mathf.Sin(angle);
+        Vector2 point = new Vector2(cosine * worldOffset.x - sine * worldOffset.z + layout.origin.x,
+            sine * worldOffset.x + cosine * worldOffset.z + layout.origin.z);
+        foreach (var cell in layout.cells)
+            if (Mathf.Abs(point.x - cell.boundsCenter.x) <= cell.boundsSize.x * .5f + 3f &&
+                Mathf.Abs(point.y - cell.boundsCenter.z) <= cell.boundsSize.z * .5f + 3f) return true;
+        return false;
+    }
+
     internal static void ResolveParcelEarthwork(YQProceduralSettlementLayoutRecord layout, float[] heights,
         Vector2 worldOffset, float heading, out float weight, out float target)
     {
@@ -8976,7 +9046,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             // note: Lipschitz envelopes share a continuous height at every junction and reproduce feasible parcel planes exactly.
             float distance = Mathf.Sqrt(dx * dx + dz * dz);
             nearestCoreDistance = Mathf.Min(nearestCoreDistance, distance);
-            float riseAllowance = layout.earthworkVersion == 2 ? ResolvePointRiseAllowance(layout, cell, point, distance) : .4f * distance;
+            float riseAllowance = layout.earthworkVersion >= 2 ? ResolvePointRiseAllowance(layout, cell, point, distance) : .4f * distance;
             lowerSurface = Mathf.Max(lowerSurface, heights[i] - riseAllowance);
             upperSurface = Mathf.Min(upperSurface, heights[i] + riseAllowance);
             if (influence >= 1f) { weight = 1f; target = heights[i]; return; }
@@ -8990,7 +9060,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         // note: New layouts use the same continuous parcel interpolant at junctions and shoulders; a compact influence cutoff compressed the rise near the edge of its radius.
         if (layout.version >= 4 && layout.earthworkVersion == 1)
             target = SharedParcelHeight(layout, heights, point);
-        if (layout.earthworkVersion == 2) target = (lowerSurface + upperSurface) * .5f;
+        if (layout.earthworkVersion >= 2) target = (lowerSurface + upperSurface) * .5f;
         if (layout.streets == null) return;
         // note: Street intersections share a bounded weighted surface; returning the first full-width road created height jumps when road enumeration changed.
         float roadHeightSum = 0f, roadStrengthSum = 0f, roadMask = 0f;
@@ -9005,7 +9075,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             float influence = 1f - Mathf.SmoothStep(0f, 1f, shoulder / 6f);
             if (influence <= 0f) continue;
             // note: New roads extend one common surface's mask; saved version-one roads retain their original profiles.
-            if (layout.earthworkVersion == 2) { weight = Mathf.Max(weight, influence); continue; }
+            if (layout.earthworkVersion >= 2) { weight = Mathf.Max(weight, influence); continue; }
             float length = segment.magnitude;
             Vector2 direction = length > .0001f ? segment / length : Vector2.zero;
             // note: Keep the approach flat through each foundation core, then grade the space between the two landings.

@@ -490,6 +490,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         new List<GeneratedNpcPlanRecord>();
 
     private int _activeBatchIndex;
+    private string _lastPopulationPublicationFailure = string.Empty;
     private GeneratedWorldPlanRecord _populationPlan;
     private string _populationPlanIdentity;
 
@@ -761,6 +762,10 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
         if (!initialGenerationLocked)
         {
+            // note: Returning journeys reveal their accepted physical world before optional NPC inference; the existing test save barrier defers work that cannot be published.
+            if (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || YQDeveloperConsoleGate.BlocksPersistence)
+                return;
+
             float secondsSinceReveal =
                 Time.unscaledTime -
                 YQGeneratedWorldRuntimeBuilder
@@ -882,6 +887,10 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         }
 #endif
 
+        // note: A completed nearby batch is independently validated and paired-published; distant pending batches cannot keep its inhabitants transient.
+        if (!initialGenerationLocked && _activeBatchIndex > 0 && _activeBatchIndex < _batchTargets.Count &&
+            !TryPublishCompletedPopulationBatches(world, plan)) return;
+
         if (_activeBatchIndex >=
             _batchTargets.Count)
         {
@@ -929,6 +938,11 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
             return;
         }
+
+        // note: Retain every missing batch, but only start unlocked V2 population within the player's planning buffer. Remote settlements cannot block nearer frontier briefs.
+        if (!initialGenerationLocked && !TryPrioritizeBufferedPopulation(plan))
+            return;
+        batch = CurrentBatchTarget();
 
         RequestPopulationBatch(
             playerManager.state,
@@ -1244,6 +1258,158 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         return
             _batchTargets[
                 _activeBatchIndex];
+    }
+
+    private bool TryPrioritizeBufferedPopulation(GeneratedWorldPlanRecord plan)
+    {
+        // note: Reordering affects only idle pending work; accepted identities, active callbacks and compatibility-world scheduling remain unchanged.
+        if (!YQWorldGenerationArchitecture.TryResolveRuntimeAuthority(plan, out var authority, out _)) return false;
+        if (authority != YQSpatialPlanAuthority.AcceptedV2) return true;
+        var current = CurrentBatchTarget();
+        if (current == null || GetExpectedNpcCountForTarget(plan, current) <= 0) return true;
+        // note: Finish an already-attempted batch with its retained retry context, even if the player leaves its buffer; otherwise it could starve every later location.
+        if (_attemptCount > 0) return true;
+        var player = YQInvestorPlayerMotor.ActiveMotor;
+        if (player == null || !player.IsAuthoritative ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out _)) return false;
+        float lead = LLMClient.Instance != null
+            ? LLMClient.Instance.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation, "GeneratedNpcPopulation") : 600f;
+        float visible = YQPlayerFollowingSemanticChunkStreamer.Active != null
+            ? YQPlayerFollowingSemanticChunkStreamer.Active.GuaranteedVisualDistanceMeters : 512f;
+        float radius = PopulationPlanningDistance(Mathf.Max(player.walkSpeed, player.sprintSpeed), lead, visible);
+        var position = new Vector2(player.transform.position.x, player.transform.position.z);
+        int selected = -1;
+        float nearest = float.PositiveInfinity;
+        // note: A rejected batch keeps its retry/name context until it finishes; only an untouched idle batch may exchange places with nearer pending work.
+        for (int index = _activeBatchIndex; index < _batchTargets.Count; index++)
+        {
+            var target = _batchTargets[index];
+            if (target == null || GetExpectedNpcCountForTarget(plan, target) <= 0 ||
+                !prepared.TryGetSiteBySemanticId(target.locationId, out var site)) continue;
+            float distance = PopulationSiteClearance(position, site);
+            if (float.IsNaN(distance) || float.IsInfinity(distance) || distance > radius) continue;
+            if (distance < nearest || distance == nearest && selected >= 0 &&
+                string.CompareOrdinal(target.locationId, _batchTargets[selected].locationId) < 0)
+            { selected = index; nearest = distance; }
+        }
+        if (selected < 0) return false;
+        if (selected != _activeBatchIndex)
+        {
+            var target = _batchTargets[selected];
+            _batchTargets[selected] = current;
+            _batchTargets[_activeBatchIndex] = target;
+        }
+        return true;
+    }
+
+    internal static float PopulationPlanningDistance(float travelSpeed, float leadSeconds, float visibleDistance)
+    {
+        // note: This is a scheduling horizon, never a request deadline or a reduction of canonical population coverage.
+        return Mathf.Clamp(Mathf.Max(512f, visibleDistance) + 256f + Mathf.Max(0f, travelSpeed) *
+            Mathf.Clamp(leadSeconds, 15f, 1800f), 1024f, 4096f);
+    }
+
+    internal static float PopulationSiteClearance(Vector2 player, YQSpatialMaterializationSiteV2 site)
+    {
+        // note: A member sector is part of the same accepted site; approaching it must plan that owner's population even when its central reserve is farther away.
+        float clearance = Vector2.Distance(player, new Vector2(site.x, site.z)) - Mathf.Max(0f, site.reservedRadius);
+        foreach (var member in site.MemberFootprint)
+            if (member != null) clearance = Mathf.Min(clearance,
+                Vector2.Distance(player, new Vector2(member.x, member.z)) - Mathf.Max(0f, member.reservedRadius));
+        return Mathf.Max(0f, clearance);
+    }
+
+    private bool TryPublishCompletedPopulationBatches(WorldState world, GeneratedWorldPlanRecord plan)
+    {
+        bool missing = false;
+        foreach (var pending in _pendingGeneratedNpcs)
+            if (pending != null && !plan.generatedNpcs.Exists(accepted => accepted != null && accepted.npcId == pending.npcId))
+            { missing = true; break; }
+        if (!missing) return true;
+        // note: Keep the final whole-world gate intact. This transaction certifies only the complete accepted prefix and every retained identity's uniqueness.
+        if (!ValidateCoverage(plan, _pendingGeneratedNpcs, _batchTargets.GetRange(0, _activeBatchIndex), out string failure) ||
+            !TryPublishPopulationAppend(plan, world, _pendingGeneratedNpcs,
+                () => YQProfileSaveSystem.Instance != null && YQProfileSaveSystem.Instance.SaveActiveProfile(), out failure))
+        {
+            DeferPopulationPublication(failure);
+            return false;
+        }
+        _lastPopulationPublicationFailure = string.Empty;
+        Debug.Log("[YQGeneratedNpcPlanningService] Paired-published completed NPC batches; remaining location batches stay pending.");
+        return true;
+    }
+
+    private void DeferPopulationPublication(string failure)
+    {
+        // note: Persistence failure keeps the accepted proposal buffered for retry; it never spends another inference attempt or announces full population completion.
+        LastPopulationMessage = "Canonical NPC publication deferred: " + failure;
+        if (_lastPopulationPublicationFailure != failure) Debug.LogWarning("[YQGeneratedNpcPlanningService] " + LastPopulationMessage);
+        _lastPopulationPublicationFailure = failure;
+        _nextRequestTime = Time.unscaledTime + 2f;
+    }
+
+    internal static bool TryPublishPopulationAppend(GeneratedWorldPlanRecord plan, WorldState world,
+        List<GeneratedNpcPlanRecord> validatedRecords, Func<bool> publish, out string failure, string completedCanon = null)
+    {
+        // note: The population owner stages an additive mutation around the existing paired publisher; failed publication restores the original live lists and canon.
+        failure = string.Empty;
+        if (plan == null || world == null || !ReferenceEquals(world.generatedWorldPlan, plan) ||
+            validatedRecords == null || publish == null || plan.generatedNpcs == null || world.npcs == null ||
+            world.identityRecords == null || world.globalFlags == null)
+        { failure = "Population append requires its exact world and paired publisher."; return false; }
+        var identities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var npc in plan.generatedNpcs)
+            if (npc == null || string.IsNullOrWhiteSpace(npc.npcId) || !identities.Add(npc.npcId) ||
+                string.IsNullOrWhiteSpace(npc.displayName) || !names.Add(npc.displayName))
+            { failure = "Retained population contains an invalid identity or name."; return false; }
+        var additions = new List<GeneratedNpcPlanRecord>();
+        var proposedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var npc in validatedRecords)
+        {
+            if (npc == null || string.IsNullOrWhiteSpace(npc.npcId) || !proposedIds.Add(npc.npcId))
+            { failure = "Population append contains a null, empty or duplicate identity."; return false; }
+            if (identities.Contains(npc.npcId)) continue;
+            if (string.IsNullOrWhiteSpace(npc.displayName) || !names.Add(npc.displayName) ||
+                world.npcs.Exists(record => record != null && string.Equals(record.npcId, npc.npcId, StringComparison.OrdinalIgnoreCase)))
+            { failure = "New population identity conflicts with retained world records or names."; return false; }
+            identities.Add(npc.npcId); additions.Add(npc);
+        }
+        if (additions.Count == 0 && completedCanon == null) return true;
+        var previousPopulation = plan.generatedNpcs;
+        var previousRuntimeRecords = world.npcs;
+        var previousIdentities = world.identityRecords;
+        string previousCanon = world.canonLedger;
+        long previousRevision = world.stateRevision, previousUpdatedUnix = world.lastUpdatedUnix;
+        bool hadFlag = world.globalFlags.TryGetValue("worldplan:generated_npcs", out float previousFlag);
+        bool published = false;
+        try
+        {
+            plan.generatedNpcs = new List<GeneratedNpcPlanRecord>(previousPopulation);
+            plan.generatedNpcs.AddRange(additions);
+            world.npcs = new List<WorldState.NpcRecord>(previousRuntimeRecords);
+            // note: Snapshot normalization appends new NPC identities. Stage that list too so a refused paired commit cannot leave orphan identity rows.
+            world.identityRecords = new List<YQEntityIdentityRecord>(previousIdentities);
+            EnsureRuntimeNpcRecords(plan, world, additions);
+            world.globalFlags["worldplan:generated_npcs"] = plan.generatedNpcs.Count;
+            if (completedCanon != null) world.AppendCanon(completedCanon, 64);
+            else if (additions.Count > 0) world.TouchNow();
+            published = publish();
+            if (!published) failure = "The paired profile publisher refused the NPC transaction.";
+            return published;
+        }
+        catch (Exception exception) { failure = "NPC publication failed: " + exception.Message; return false; }
+        finally
+        {
+            if (!published)
+            {
+                plan.generatedNpcs = previousPopulation; world.npcs = previousRuntimeRecords;
+                world.identityRecords = previousIdentities; world.canonLedger = previousCanon;
+                world.stateRevision = previousRevision; world.lastUpdatedUnix = previousUpdatedUnix;
+                if (hadFlag) world.globalFlags["worldplan:generated_npcs"] = previousFlag;
+                else world.globalFlags.Remove("worldplan:generated_npcs");
+            }
+        }
     }
 
     private float CurrentBatchProgress(
@@ -2727,45 +2893,13 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             return;
         }
 
-        plan.generatedNpcs.Clear();
-
-        for (int i = 0;
-             i < _pendingGeneratedNpcs.Count;
-             i++)
-        {
-            GeneratedNpcPlanRecord npc =
-                _pendingGeneratedNpcs[i];
-
-            if (npc != null)
-            {
-                plan.generatedNpcs.Add(
-                    npc);
-            }
-        }
-
-        plan.EnsureCollections();
-
-        world.globalFlags[
-            "worldplan:generated_npcs"] =
-            plan.generatedNpcs.Count;
-
-        EnsureRuntimeNpcRecords(
-            plan,
-            world);
-
-        world.AppendCanon(
-            "Canonical generated population accepted for world " +
-            plan.worldSeed +
-            ": " +
-            plan.generatedNpcs.Count +
-            " generated NPC identities across " +
-            _batchTargets.Count +
-            " location batches.",
-            64);
-
-        world.TouchNow();
-
-        worldManager.Save();
+        string completedCanon = "Canonical generated population accepted for world " + plan.worldSeed +
+            ": " + _pendingGeneratedNpcs.Count + " generated NPC identities across " + _batchTargets.Count + " location batches.";
+        // note: Final coverage is still mandatory, and completion now requires the existing paired profile owner to acknowledge persistence.
+        if (!TryPublishPopulationAppend(plan, world, _pendingGeneratedNpcs,
+                () => YQProfileSaveSystem.Instance != null && YQProfileSaveSystem.Instance.SaveActiveProfile(), out error, completedCanon))
+        { DeferPopulationPublication(error); return; }
+        _lastPopulationPublicationFailure = string.Empty;
 
         HasCompletedCanonicalPopulation =
             true;
@@ -5273,7 +5407,8 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
 
     private static void EnsureRuntimeNpcRecords(
         GeneratedWorldPlanRecord plan,
-        WorldState world)
+        WorldState world,
+        IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null)
     {
         if (plan == null ||
             world == null)
@@ -5289,12 +5424,14 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
             DateTimeOffset.UtcNow
                 .ToUnixTimeSeconds();
 
+        // note: Additive publication prepares only new runtime records, preserving all existing dialogue/state record objects during staging and rollback.
+        IReadOnlyList<GeneratedNpcPlanRecord> population = scopedPopulation ?? plan.generatedNpcs;
         for (int i = 0;
-             i < plan.generatedNpcs.Count;
+             i < population.Count;
              i++)
         {
             GeneratedNpcPlanRecord generated =
-                plan.generatedNpcs[i];
+                population[i];
 
             if (generated == null ||
                 string.IsNullOrWhiteSpace(

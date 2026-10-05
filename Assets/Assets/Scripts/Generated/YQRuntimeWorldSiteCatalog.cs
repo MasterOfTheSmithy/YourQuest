@@ -1010,6 +1010,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private GameObject pendingSiteContent;
     private readonly List<ResidentPositionBinding> residentPositionBindings =
         new List<ResidentPositionBinding>();
+    // note: Reviewed cell-local approach datums follow the actual grounded cell; the aggregate site pivot is not a resident floor.
+    private readonly Dictionary<Transform, Vector3> residentSurfaceDatums =
+        new Dictionary<Transform, Vector3>();
 
     // note: Keep ordinary authored sites outside the origin's startup memory footprint; the curated origin pair is pinned explicitly below.
     // note: Begin hidden staging well before an approaching player reaches town sightlines; the former 260m visible-camera gate could prevent a settlement from ever instantiating.
@@ -1597,7 +1600,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         // note: Preflight and loading use the same explicit sector seed and geometry. Committed older layouts retain their saved policy.
         if (acceptedSectorSite.HasValue && acceptedSectorSite.Value.MemberFootprint.Count > 0)
         {
-            var savedLayout = YQProceduralSettlementLayout.FindOwner(selectionSeed)?.proceduralLayout;
+            var savedLayout = YQProceduralSettlementLayout.FindCommittedLayout(selectionSeed);
             if (YQProceduralSettlementLayout.UsesSectors(selectionSeed) || savedLayout == null &&
                 YQProceduralSettlementLayout.CountReviewedSectorAssemblies(manifest) > 0)
             {
@@ -2023,7 +2026,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 // note: Only uncommitted geometry adopts the explicit sector policy. Existing saved streets/cells remain authoritative and are never relocated implicitly.
                 if (acceptedSite.MemberFootprint.Count > 0)
                 {
-                    var committedLayout = YQProceduralSettlementLayout.FindOwner(selectionSeed)?.proceduralLayout;
+                    var committedLayout = YQProceduralSettlementLayout.FindCommittedLayout(selectionSeed);
                     if (YQProceduralSettlementLayout.UsesSectors(selectionSeed) || committedLayout == null &&
                         YQProceduralSettlementLayout.CountReviewedSectorAssemblies(selectedManifest) > 0)
                     {
@@ -2143,6 +2146,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             ? (string[])requiredSemanticTags.Clone()
             : Array.Empty<string>();
         semanticSliceSeed = newSelectionSeed ?? string.Empty;
+        residentSurfaceDatums.Clear();
         acceptedSectorFootprint = preparedSectorSite;
         activeCellIds = preparedCellIds != null
             ? new HashSet<string>(preparedCellIds,
@@ -3159,7 +3163,43 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 yield break;
             }
         }
+        // note: The same source-matched contract that admitted doors supplies the height band for initial placement, separation and rebinding.
+        CacheReviewedResidentSurfaceDatum(cell.transform, contract, source.SourceSignature);
         completed?.Invoke(true);
+    }
+
+    private void CacheReviewedResidentSurfaceDatum(Transform cell,
+        YQReviewedCellFunctionContractV2 contract, string expectedSourceSignature)
+    {
+        // note: Cache only an approved exact-source datum with a real unique support path; missing legacy evidence keeps its existing pivot guard.
+        if (cell == null) return;
+        residentSurfaceDatums.Remove(cell);
+        if (contract == null || contract.reviewState != YQSemanticSiteReviewState.Approved ||
+            string.IsNullOrWhiteSpace(expectedSourceSignature) || contract.sourceSignature != expectedSourceSignature ||
+            contract.doorBindings == null) return;
+        bool found = false;
+        Vector3 datum = default;
+        foreach (var door in contract.doorBindings)
+        {
+            var approach = door?.terrainApproach;
+            if (door == null || door.reviewState != YQSemanticSiteReviewState.Approved || approach == null ||
+                approach.reviewState != YQSemanticSiteReviewState.Approved || !approach.authoredRouteVerified ||
+                !IsFiniteVector(approach.localStart) || !IsFinite(approach.walkingSurfaceAboveTerrain) ||
+                approach.walkingSurfaceAboveTerrain < 0f || approach.walkingSurfaceAboveTerrain > .15f ||
+                !YQCellDoorBindingsV2.TryResolveUniquePath(cell, approach.supportPath, out _)) continue;
+            if (!found || approach.localStart.y < datum.y) { datum = approach.localStart; found = true; }
+        }
+        if (found) residentSurfaceDatums.Add(cell, datum);
+    }
+
+    private float MaximumResidentSurfaceHeight(Transform surface, Vector3 candidate)
+    {
+        // note: Resolve through the hit's own cell, preserving the existing ceiling tolerance and candidate cap rather than admitting roofs or foreign geometry.
+        float referenceHeight = transform.position.y;
+        for (Transform current = surface; current != null && current != transform; current = current.parent)
+            if (residentSurfaceDatums.TryGetValue(current, out Vector3 localDatum))
+            { referenceHeight = current.TransformPoint(localDatum).y; break; }
+        return Mathf.Min(referenceHeight + 1.25f, candidate.y + 1.25f);
     }
 
     private IEnumerator LoadPreparedSiteGuardedRoutine()
@@ -3272,6 +3312,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private void ReportStreamExecutionFailure(Exception exception)
     {
         // note: Preserve the exception and site identity; rejected content stays non-playable and does not retry every distance-check tick.
+        loadFailure = exception?.Message ?? "Site stream execution failed.";
         Debug.LogException(exception, this);
         Debug.LogError("[WORLDGEN ERROR] Site stream failed. Location=" + settlementId + ", kit=" + expectedKitId, this);
         loaded = false;
@@ -3807,6 +3848,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         unloading = true;
         loaded = false;
+        residentSurfaceDatums.Clear();
         // note: Population belongs to this content lifetime; retained providers reconstruct the saved cast after geometry returns.
         continuationPopulationReady = continuationLocation == null || continuationLocation.pointOfInterest != null;
         List<Transform> hierarchy = new List<Transform>();
@@ -3948,6 +3990,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         int movedTotal = 0;
         int unresolvedTotal = 0;
         float frameStartedAt = Time.realtimeSinceStartup;
+        var occupiedPositions = new List<Vector3>(residentPositionBindings.Count);
         for (int bindingIndex = residentPositionBindings.Count - 1;
              bindingIndex >= 0;
              bindingIndex--)
@@ -3960,12 +4003,18 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 continue;
             }
 
-            if (TryResolveRolePosition(
+            // note: Rebinding excludes this actor's own body while retaining every other bound resident's separation, including actors already moved this pass.
+            occupiedPositions.Clear();
+            foreach (var other in residentPositionBindings)
+                if (other != null && other != binding && other.entity != null)
+                    occupiedPositions.Add(other.entity.transform.position);
+            if (TryResolveRolePositionWithOccupancy(
                     binding.roleIntent,
                     binding.seed,
                     binding.index,
                     out Vector3 position,
-                    binding.entity.transform) &&
+                    binding.entity.transform,
+                    occupiedPositions) &&
                 YQGeneratedWorldPopulation.TryPlaceResidentOnReviewedSurface(binding.entity.gameObject, position))
             {
                 // note: A streamed floor is a contact height, not an imported model's root pivot; preserve its feet-to-root offset on every reload.
@@ -4014,13 +4063,25 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         int index,
         out Vector3 position)
     {
+        // note: Preserve callers that request an unoccupied role anchor and its original deterministic search order.
+        return TryResolveResidentPosition(targetSettlementId, npc, seed, index, null, out position);
+    }
+
+    public static bool TryResolveResidentPosition(
+        string targetSettlementId,
+        GeneratedNpcPlanRecord npc,
+        string seed,
+        int index,
+        IReadOnlyList<Vector3> occupiedPositions,
+        out Vector3 position)
+    {
         position = default;
 
         return Instances.TryGetValue(
                 targetSettlementId ?? string.Empty,
                 out YQCompiledWorldSiteInstance site) &&
             site != null &&
-            site.TryResolveResidentPosition(npc, seed, index, out position);
+            site.TryResolveResidentPosition(npc, seed, index, out position, occupiedPositions);
     }
 
     public static bool TryResolveWorldActorPosition(
@@ -4323,7 +4384,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         GeneratedNpcPlanRecord npc,
         string seed,
         int index,
-        out Vector3 position)
+        out Vector3 position,
+        IReadOnlyList<Vector3> occupiedPositions = null)
     {
         position = default;
 
@@ -4332,7 +4394,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         string role = (npc != null ? npc.role : string.Empty) + " " +
             (npc != null ? npc.archetype : string.Empty);
-        return TryResolveRolePosition(role, seed, index, out position);
+        return TryResolveRolePositionWithOccupancy(role, seed, index, out position, null, occupiedPositions);
     }
 
     private bool TryResolveRolePosition(
@@ -4341,6 +4403,18 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         int index,
         out Vector3 position,
         Transform ignoredResident = null)
+    {
+        // note: Keep the existing reflected role-anchor API; occupancy-aware construction uses the same selected zone and candidate sequence.
+        return TryResolveRolePositionWithOccupancy(role, seed, index, out position, ignoredResident, null);
+    }
+
+    private bool TryResolveRolePositionWithOccupancy(
+        string role,
+        string seed,
+        int index,
+        out Vector3 position,
+        Transform ignoredResident,
+        IReadOnlyList<Vector3> occupiedPositions)
     {
         position = default;
 
@@ -4365,20 +4439,39 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             extents = placedZone.boundsSize * .5f;
         }
 
-        for (int attempt = 0; attempt < 24; attempt++)
+        // note: Preserve the original 24 candidates; short FNV suffixes can cluster, so occupied casts get one finite stratified sweep of the same reviewed bounds.
+        const int originalAttempts = 24, coverageWidth = 7, coverageCount = coverageWidth * coverageWidth;
+        bool needsCoverage = occupiedPositions != null && occupiedPositions.Count > 0;
+        int coverageStart = (int)(StableHash(seed + "|resident_coverage|" + index) % coverageCount);
+        int attemptCount = originalAttempts + (needsCoverage ? coverageCount : 0);
+        for (int attempt = 0; attempt < attemptCount; attempt++)
         {
-            float x = Mathf.Lerp(-0.72f, 0.72f,
-                Deterministic01(seed + "|site_x|" + index + "|" + attempt));
-            float z = Mathf.Lerp(-0.72f, 0.72f,
-                Deterministic01(seed + "|site_z|" + index + "|" + attempt));
+            float x, z;
+            if (attempt < originalAttempts)
+            {
+                x = Mathf.Lerp(-0.72f, 0.72f, Deterministic01(seed + "|site_x|" + index + "|" + attempt));
+                z = Mathf.Lerp(-0.72f, 0.72f, Deterministic01(seed + "|site_z|" + index + "|" + attempt));
+            }
+            else
+            {
+                // note: Eleven is coprime to 49; every bounded grid point is visited once in a seed-stable order without consuming canonical random state.
+                int point = (coverageStart + (attempt - originalAttempts) * 11) % coverageCount;
+                x = Mathf.Lerp(-0.72f, 0.72f, (point % coverageWidth) / (float)(coverageWidth - 1));
+                z = Mathf.Lerp(-0.72f, 0.72f, (point / coverageWidth) / (float)(coverageWidth - 1));
+            }
             Vector3 candidate = transform.TransformPoint(
                 localCenter + new Vector3(
                     x * Mathf.Max(2f, extents.x),
                     0f,
                     z * Mathf.Max(2f, extents.z)));
 
-            if (TryProjectToSurface(candidate, out position, ignoredResident))
+            // note: Search support and spacing together inside the assigned reviewed cell; a later radial correction may already be outside its floor.
+            if (TryProjectToSurface(candidate, out Vector3 projected, ignoredResident) &&
+                YQGeneratedWorldPopulation.IsResidentPositionSeparated(projected, occupiedPositions))
+            {
+                position = projected;
                 return true;
+            }
         }
 
         return false;
@@ -4484,10 +4577,6 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             260f,
             ~0,
             QueryTriggerInteraction.Ignore);
-        // note: Resident sockets stay near the authored floor band; a tight ceiling guard prevents roof shells from becoming NPC standing surfaces.
-        float maximumResidentHeight = Mathf.Min(
-            transform.position.y + 1.25f,
-            candidate.y + 1.25f);
         float bestHeight = float.MinValue;
 
         for (int index = 0; index < hitCount; index++)
@@ -4496,8 +4585,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
             if (hit.collider == null ||
                 hit.normal.y < MinimumResidentSurfaceNormalY ||
-                hit.point.y > maximumResidentHeight ||
                 !hit.collider.transform.IsChildOf(transform) ||
+                hit.point.y > MaximumResidentSurfaceHeight(hit.collider.transform, candidate) ||
                 IsRoofOrCeilingCollider(hit.collider) ||
                 !HasResidentStandingClearance(hit.point, hit.collider, ignoredResident))
             {
@@ -5792,9 +5881,10 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         bool proceduralBlocks = YQProceduralSettlementLayout.Enabled(selectionSeed);
         var layoutOwner = proceduralBlocks ? YQProceduralSettlementLayout.FindOwner(selectionSeed) : null;
         // note: Continue consumes the committed source selection; sector aliases remain distinct placements and current demand cannot rewrite accepted geometry.
-        if (layoutOwner?.proceduralLayout != null && layoutOwner.proceduralLayout.seed == selectionSeed)
+        var committedLayout = proceduralBlocks ? YQProceduralSettlementLayout.FindCommittedLayout(selectionSeed) : null;
+        if (committedLayout != null)
         {
-            return BuildCommittedSourceIds(layoutOwner.proceduralLayout);
+            return BuildCommittedSourceIds(committedLayout);
         }
         int desiredBlocks = Mathf.Max(layoutOwner != null ? layoutOwner.proceduralBlockTarget : 0, minimumSelectedUnits);
         // note: Additional member sectors consume the existing cell budget; an oversized accepted demand fails rather than increasing capacity or duplicating whole sites.

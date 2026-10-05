@@ -1313,7 +1313,10 @@ public static class YQSpatialMaterializationCompilerV2
         var routes = new List<YQSpatialMaterializationRouteV2>();
         var points = new List<YQSpatialMaterializationRoutePointV2>();
         var pads = new List<YQSpatialMaterializationContinuationPadV2>();
-        foreach (GeneratedSpatialContinuationLocationV2Record location in locations)
+        // note: Prove connectivity against earlier accepted geometry before adding this site's own roads. Saved enumeration/ID order cannot hide a rooted frontier parent or admit a disconnected cycle.
+        var replayLocations = GetContinuationReplayOrder(locations);
+        var replayPrepared = basePrepared;
+        foreach (GeneratedSpatialContinuationLocationV2Record location in replayLocations)
         {
             YQSiteAnchorV2 source = location.anchor;
             if (!basePrepared.TryGetRegion(source.parentRegionId, out _))
@@ -1332,7 +1335,7 @@ public static class YQSpatialMaterializationCompilerV2
                 }
             }
             // note: Real terrain/access and cached reviewed-source functions are independently repeated; recorded claims cannot make either gate pass.
-            if (!YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, basePrepared, location,
+            if (!YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, replayPrepared, location,
                     out YQSpatialContinuationSiteSampleV2 sample, out failure) ||
                 !YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure))
                 return false;
@@ -1420,6 +1423,8 @@ public static class YQSpatialMaterializationCompilerV2
                     hasSpatialBounds = true, minimumX = minX, maximumX = maxX, minimumZ = minZ, maximumZ = maxZ
                 });
             }
+            replayPrepared = basePrepared.WithAcceptedContinuation(sites.ToArray(), routes.ToArray(), points.ToArray(),
+                pads.ToArray(), fingerprint, location.revision);
         }
         foreach (GeneratedSpatialContinuationLocationV2Record location in locations)
             foreach (GeneratedSemanticEntranceRecord entrance in location.entrances)
@@ -1428,6 +1433,8 @@ public static class YQSpatialMaterializationCompilerV2
                     failure = "Accepted continuation entrance references an unknown route: " + entrance.entranceId;
                     return false;
                 }
+        // note: Rooted proof order is separate from the unchanged canonical projection order and parallel point ranges.
+        points = CanonicalizeContinuationProjection(sites, routes, points);
         pads.Sort((first, second) => {
             int owner = string.CompareOrdinal(first.ownerSiteId, second.ownerSiteId);
             return owner != 0 ? owner : string.CompareOrdinal(first.sectorId, second.sectorId);
@@ -1442,6 +1449,40 @@ public static class YQSpatialMaterializationCompilerV2
                 return false;
             }
         return true;
+    }
+
+    private static List<GeneratedSpatialContinuationLocationV2Record> GetContinuationReplayOrder(
+        List<GeneratedSpatialContinuationLocationV2Record> locations)
+    {
+        // note: Detach the proof sequence; accepted records and their serialized enumeration remain unchanged.
+        var ordered = new List<GeneratedSpatialContinuationLocationV2Record>(locations);
+        ordered.Sort((first, second) => {
+            int revision = first.revision.CompareTo(second.revision);
+            return revision != 0 ? revision : string.CompareOrdinal(first.anchor.siteId, second.anchor.siteId);
+        });
+        return ordered;
+    }
+
+    private static List<YQSpatialMaterializationRoutePointV2> CanonicalizeContinuationProjection(
+        List<YQSpatialMaterializationSiteV2> sites, List<YQSpatialMaterializationRouteV2> routes,
+        List<YQSpatialMaterializationRoutePointV2> points)
+    {
+        // note: Restore the established owner/route ordering while retaining every accepted point and each route's exact parallel range.
+        sites.Sort((first, second) => string.CompareOrdinal(first.siteId, second.siteId));
+        routes.Sort((first, second) => {
+            int owner = string.CompareOrdinal(first.continuationOwnerSiteId, second.continuationOwnerSiteId);
+            return owner != 0 ? owner : string.CompareOrdinal(first.routeId, second.routeId);
+        });
+        var canonicalPoints = new List<YQSpatialMaterializationRoutePointV2>(points.Count);
+        for (int index = 0; index < routes.Count; index++)
+        {
+            var route = routes[index];
+            int previousStart = route.pointStart;
+            route.pointStart = canonicalPoints.Count;
+            for (int point = 0; point < route.pointCount; point++) canonicalPoints.Add(points[previousStart + point]);
+            routes[index] = route;
+        }
+        return canonicalPoints;
     }
 
     private static bool ContinuationFootprintsOverlap(YQSiteAnchorV2 added, YQSpatialMaterializationSiteV2 accepted)

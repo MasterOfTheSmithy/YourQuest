@@ -45,11 +45,45 @@ public static class YQLlmSpeedVerification
         Debug.Log("[YQLlmSpeed] " + (pass ? "PASS " : "FAIL ") + name);
     }
 
-    private static IEnumerator Run()
+    [MenuItem("YourQuest/Verification/Verify Streaming Planning Contracts")]
+    public static void VerifyPlanningInEditor()
     {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || LLMClient.Instance != null)
+            throw new InvalidOperationException("An idle Editor without a live model owner is required.");
+        checks.Clear(); responses.Clear(); failures = 0;
         host = new GameObject("Detached LLM speed verification"); client = host.AddComponent<LLMClient>();
         config = LLMRuntimeConfig.CreateRuntimeDefault(); client.runtimeConfig = config;
         Set("_usingRuntimeDefaultConfig", false); Set("_activeConfig", config);
+        try { VerifyPlanningContracts(); VerifyPopulationPublicationContracts(); }
+        catch (Exception error) { Check("planning contract exception: " + error, false); }
+        finally
+        {
+            if (host != null) UnityEngine.Object.DestroyImmediate(host);
+            if (config != null) UnityEngine.Object.DestroyImmediate(config);
+            host = null; client = null; config = null;
+        }
+        // note: Isolated in-memory fixtures exercise the actual scheduling/publication helpers without a profile, model call, scene import or gameplay claim.
+        const string folder = "outputs/G08_Environment_Repair_20261005";
+        Directory.CreateDirectory(folder);
+        string path = folder + "/StreamingPlanning_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + ".json";
+        File.WriteAllText(path, JsonConvert.SerializeObject(new {
+            utc = DateTime.UtcNow.ToString("O"), evidence = "DETACHED_PLANNING_AND_POPULATION_PUBLICATION_CONTRACTS",
+            runtimeMvid = typeof(LLMClient).Assembly.ManifestModule.ModuleVersionId,
+            editorMvid = typeof(YQLlmSpeedVerification).Assembly.ManifestModule.ModuleVersionId, checks, failures,
+            limits = "No live model latency, paired disk publication, ordinary player traversal or NPC/equipment appearance acceptance."
+        }, Formatting.Indented));
+        Debug.Log("[YQLlmSpeed] Planning contracts failures=" + failures + " receipt=" + path);
+    }
+
+    private static void VerifyPlanningContracts()
+    {
+        // note: A later startup reveal must not relabel the launch policy captured before the asynchronous model load.
+        MethodInfo residency = typeof(LLMClient).GetMethod("BuildLlamaResidencyKey", PrivateStatic);
+        string startupResidency = (string)residency.Invoke(null, new object[] { config, false });
+        string liveResidency = (string)residency.Invoke(null, new object[] { config, true });
+        Check("startup and live GPU policies have distinct residency keys", startupResidency != liveResidency);
+        Check("captured startup residency remains stable across later policy reads", startupResidency == (string)residency.Invoke(null, new object[] { config, false }));
+        VerifyFrontierNetworkAdmissionContracts();
         // note: Forecasts separate frontier work from full world generation and include all queues without changing their admission/order.
         Check("cold frontier includes measured CPU budget", client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.WorldGeneration, "FrontierLocationBrief") >= 190f);
         Invoke("RecordServiceLatency", LLMGenerationCategory.WorldGeneration, "FrontierLocationBrief:test", 170f);
@@ -78,6 +112,142 @@ public static class YQLlmSpeedVerification
         Check("slower inference plans farther ahead", Distance(5f, 170f) > Distance(5f, 20f));
         Check("faster travel plans farther ahead", Distance(10f, 100f) > Distance(5f, 100f));
         Check("planning distance remains bounded", Distance(1000f, 1000f) == 3840f && Distance(-1f, -1f) >= 512f);
+        Check("long frontier inference expands the retained planning horizon", Distance(5.4f, 667f) > Distance(5.4f, 300f));
+        Check("cold NPC forecast accommodates the observed long partial-GPU work", client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation) >= 610f);
+        Invoke("RecordServiceLatency", LLMGenerationCategory.NpcPopulation, "GeneratedNpcPopulation:test", 667f);
+        Check("NPC observations are no longer truncated at 300 seconds", client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation) > 1000f);
+        Check("overdue active work retains a planning margin", (float)typeof(LLMClient).GetMethod("RemainingPlanningServiceSeconds", PrivateStatic)
+            .Invoke(null, new object[] { 180f, 667f }) >= 333f);
+        Invoke("RecordServiceLatency", LLMGenerationCategory.NpcPopulation, "GeneratedNpcPopulation:test", 2000f);
+        Check("long observations still use the rolling service average", Mathf.Abs(client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation) - 1605.325f) < .01f);
+        Invoke("RecordServiceLatency", LLMGenerationCategory.NpcPopulation, "GeneratedNpcPopulation:test", 2000f);
+        Check("planning horizon remains finite without expiring requests", client.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation) == 1800f);
+        float Buffer(float speed, float lead) => (float)typeof(YQGeneratedNpcPlanningService).GetMethod("PopulationPlanningDistance", PrivateStatic)
+            .Invoke(null, new object[] { speed, lead, 512f });
+        float buffer = Buffer(5.4f, 600f);
+        Check("remote NPC work remains outside the ordinary origin buffer", buffer >= 1024f && buffer < 4800f);
+        Check("NPC buffer remains bounded for extreme travel and inference", Buffer(1000f, 100000f) == 4096f);
+        object site = new YQSpatialMaterializationSiteV2 { x = 4096f, z = 0f, reservedRadius = 72f };
+        var memberField = typeof(YQSpatialMaterializationSiteV2).GetField("memberFootprint", BindingFlags.NonPublic | BindingFlags.Instance);
+        memberField.SetValue(site, new[] { new YQSiteMemberFootprintV2 { x = 768f, z = 0f, reservedRadius = 32f } });
+        float Clearance() => (float)typeof(YQGeneratedNpcPlanningService).GetMethod("PopulationSiteClearance", PrivateStatic)
+            .Invoke(null, new object[] { Vector2.zero, site });
+        Check("NPC planning includes the accepted member sector", Mathf.Approximately(Clearance(), 736f));
+        memberField.SetValue(site, Array.Empty<YQSiteMemberFootprintV2>());
+        Check("central reserve alone keeps a remote site outside a smaller buffer", Clearance() > 1024f);
+    }
+
+    private static void VerifyFrontierNetworkAdmissionContracts()
+    {
+        // note: Exercise the existing owner's bounded refusal cache without activating streaming, generation or persistence.
+        var ownerObject = new GameObject("Detached frontier network admission");
+        try
+        {
+            var owner = ownerObject.AddComponent<YQPlayerFollowingSemanticChunkStreamer>();
+            Type type = typeof(YQPlayerFollowingSemanticChunkStreamer);
+            var refusals = (Dictionary<Vector2Int, string>)type.GetField("_frontierNetworkRefusals", PrivateInstance).GetValue(owner);
+            var attempts = (Dictionary<Vector2Int, int>)type.GetField("_frontierConstructionAttempts", PrivateInstance).GetValue(owner);
+            MethodInfo track = type.GetMethod("TrackFrontierConstructionAttempt", PrivateInstance);
+            MethodInfo current = type.GetMethod("IsFrontierNetworkRefusalCurrent", PrivateInstance);
+            MethodInfo topology = type.GetMethod("IsTopologyDependentFrontierPlacementFailure", PrivateStatic);
+            Vector2Int block = new Vector2Int(3, -4);
+            track.Invoke(owner, new object[] { block, 1 }); refusals[block] = "accepted-network-1";
+            Check("unchanged accepted network suppresses repeated disconnected preflight", (bool)current.Invoke(owner, new object[] { block, "accepted-network-1" }));
+            Check("published parent network reconsiders its refused neighbor", !(bool)current.Invoke(owner, new object[] { block, "accepted-network-2" }) && !refusals.ContainsKey(block));
+            Check("network reconsideration retains spent substantive model attempts", attempts[block] == 1);
+            Check("only connecting-road failures use topology invalidation", (bool)topology.Invoke(null, new object[] { "frontier frontage has no real accepted road within 1536 metres" }) &&
+                !(bool)topology.Invoke(null, new object[] { "frontier reserve exceeds its slope contract" }));
+            refusals[block] = "accepted-network-2";
+            for (int index = 0; index < 129; index++) track.Invoke(owner, new object[] { new Vector2Int(index + 10, 0), 0 });
+            Check("physical refusals share the existing bounded opportunity lifetime", !refusals.ContainsKey(block) && attempts.Count == 128);
+        }
+        finally { UnityEngine.Object.DestroyImmediate(ownerObject); }
+    }
+
+    private static void VerifyPopulationPublicationContracts()
+    {
+        var plan = new GeneratedWorldPlanRecord { worldSeed = "planning-publication-fixture" };
+        var world = new WorldState { generatedWorldPlan = plan, canonLedger = "Retained canon" };
+        var retained = new GeneratedNpcPlanRecord { npcId = "npc:retained", displayName = "Retained", settlementId = "settlement:retained" };
+        var existing = new WorldState.NpcRecord { npcId = retained.npcId, name = retained.displayName, status = "dead" };
+        plan.generatedNpcs.Add(retained); world.npcs.Add(existing);
+        var originalPopulation = plan.generatedNpcs; var originalRuntime = world.npcs; var originalIdentities = world.identityRecords;
+        var proposed = new GeneratedNpcPlanRecord { npcId = "npc:new", displayName = "New", settlementId = "settlement:new" };
+        var records = new List<GeneratedNpcPlanRecord> { retained, proposed };
+        bool Publish(List<GeneratedNpcPlanRecord> values, Func<bool> publisher, string canon = null)
+        {
+            // note: Editor fixtures invoke the internal production helper without widening its runtime API or changing assembly visibility.
+            object[] arguments = { plan, world, values, publisher, null, canon };
+            return (bool)typeof(YQGeneratedNpcPlanningService).GetMethod("TryPublishPopulationAppend", PrivateStatic).Invoke(null, arguments);
+        }
+        bool Refuse()
+        {
+            YQStateIdentity.EnsureIdentity(world.identityRecords, proposed.npcId, YQStableEntityKind.Npc, "fixture-world", proposed.displayName, 0);
+            return false;
+        }
+        Check("paired refusal leaves the accepted proposal available for retry",
+            !Publish(records, Refuse) && records.Count == 2);
+        Check("refused append restores canonical and runtime list owners",
+            ReferenceEquals(plan.generatedNpcs, originalPopulation) && ReferenceEquals(world.npcs, originalRuntime) && world.npcs.Count == 1);
+        Check("refused append restores the identity table and canon",
+            ReferenceEquals(world.identityRecords, originalIdentities) && world.identityRecords.Count == 0 && world.canonLedger == "Retained canon");
+        Check("refused append preserves retained NPC status and flags", existing.status == "dead" && !world.globalFlags.ContainsKey("worldplan:generated_npcs"));
+        long priorRevision = world.stateRevision, priorUpdated = world.lastUpdatedUnix;
+        Check("refused final canon restores revision and timestamp", !Publish(records, Refuse, "Completed fixture population") &&
+            world.stateRevision == priorRevision && world.lastUpdatedUnix == priorUpdated && world.canonLedger == "Retained canon");
+        bool Accept()
+        {
+            YQStateIdentity.EnsureIdentity(world.identityRecords, proposed.npcId, YQStableEntityKind.Npc, "fixture-world", proposed.displayName, 0);
+            return plan.generatedNpcs.Count == 2 && world.npcs.Count == 2 && world.globalFlags["worldplan:generated_npcs"] == 2;
+        }
+        Check("completed batch exposes both canonical and runtime records to the paired publisher",
+            Publish(records, Accept));
+        Check("successful partial publication advances the canonical revision once", world.stateRevision == priorRevision + 1);
+        Check("successful append retains accepted object identities and death state",
+            ReferenceEquals(plan.generatedNpcs[0], retained) && ReferenceEquals(world.npcs[0], existing) && existing.status == "dead");
+        bool called = false;
+        var replacement = new GeneratedNpcPlanRecord { npcId = retained.npcId, displayName = "Unauthorized replacement" };
+        Check("accepted ID matches cannot overwrite retained content",
+            Publish(new List<GeneratedNpcPlanRecord> { replacement },
+                () => { called = true; return true; }) && !called && retained.displayName == "Retained");
+        Check("duplicate proposed IDs remain rejected", !Publish(new List<GeneratedNpcPlanRecord> { proposed, proposed }, () => true));
+        var third = new GeneratedNpcPlanRecord { npcId = "npc:third", displayName = "Third", settlementId = "settlement:third" };
+        Check("publisher exceptions roll back provisional NPCs", !Publish(new List<GeneratedNpcPlanRecord> { third },
+            () => throw new InvalidOperationException("fixture publisher failure")) &&
+            plan.generatedNpcs.Count == 2 && world.npcs.Count == 2);
+        priorRevision = world.stateRevision; priorUpdated = world.lastUpdatedUnix;
+        Check("throwing final publisher rolls back canon and mutation stamps", !Publish(new List<GeneratedNpcPlanRecord> { third },
+            () => throw new InvalidOperationException("fixture final publisher failure"), "Final fixture canon") &&
+            world.stateRevision == priorRevision && world.lastUpdatedUnix == priorUpdated && world.canonLedger == "Retained canon");
+
+        // note: Scoped publication can certify a completed location without relaxing final whole-world coverage.
+        var coveragePlan = new GeneratedWorldPlanRecord();
+        coveragePlan.encampments.Add(new GeneratedEncampmentRecord { encampmentId = "camp:one", displayName = "One" });
+        coveragePlan.encampments.Add(new GeneratedEncampmentRecord { encampmentId = "camp:two", displayName = "Two" });
+        var commander = new GeneratedNpcPlanRecord { npcId = "npc:commander", displayName = "Commander", hostile = true, encampmentId = "camp:one" };
+        var targetType = typeof(YQGeneratedNpcPlanningService).GetNestedType("PopulationBatchTarget", BindingFlags.NonPublic);
+        var targetListType = typeof(List<>).MakeGenericType(targetType);
+        var targets = (IList)Activator.CreateInstance(targetListType);
+        object Target(string id)
+        {
+            var target = Activator.CreateInstance(targetType);
+            targetType.GetField("kind").SetValue(target, Enum.Parse(targetType.GetField("kind").FieldType, "Encampment"));
+            targetType.GetField("locationId").SetValue(target, id); return target;
+        }
+        targets.Add(Target("camp:one"));
+        var validate = typeof(YQGeneratedNpcPlanningService).GetMethod("ValidateCoverage", PrivateStatic);
+        object[] args = { coveragePlan, new List<GeneratedNpcPlanRecord> { commander }, targets, null };
+        Check("completed location coverage stays strict and independently publishable", (bool)validate.Invoke(null, args));
+        targets.Add(Target("camp:two"));
+        Check("missing distant location still fails final full coverage", !(bool)validate.Invoke(null, args));
+    }
+
+    private static IEnumerator Run()
+    {
+        host = new GameObject("Detached LLM speed verification"); client = host.AddComponent<LLMClient>();
+        config = LLMRuntimeConfig.CreateRuntimeDefault(); client.runtimeConfig = config;
+        Set("_usingRuntimeDefaultConfig", false); Set("_activeConfig", config);
+        VerifyPlanningContracts(); VerifyPopulationPublicationContracts();
         var resident = typeof(LLMClient).GetMethod("TryOllamaResident", PrivateStatic);
         foreach (string bad in new[] { "{}", "bad", "{\"models\":[null]}", "{\"models\":[{}]}", "{\"models\":[{\"name\":{}}]}" })
         {

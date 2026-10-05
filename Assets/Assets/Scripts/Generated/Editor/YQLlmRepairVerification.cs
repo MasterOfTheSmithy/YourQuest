@@ -25,7 +25,8 @@ public static class YQLlmRepairVerification
         EditorApplication.update -= Consume;
         if (!File.Exists(Marker)) return;
         string mode = File.ReadAllText(Marker).Trim(); AssetDatabase.DeleteAsset(Marker);
-        if (mode == "review") Review();
+        if (mode == "planning") YQLlmSpeedVerification.VerifyPlanningInEditor();
+        else if (mode == "review") Review();
         else { Export(); if (mode == "verify") Review(); }
     }
     [MenuItem("YourQuest/Verification/Export LLM Repair Fixtures")]

@@ -1,0 +1,1774 @@
+{
+  "schemaVersion": 1,
+  "observedOn": "2026-10-05",
+  "status": "INCOMPLETE",
+  "authority": "Execution/evidence bookkeeping; existing approved catalogs and production saves remain authoritative.",
+  "specification": "Docs/ClosedBetaRoadmap_2026-09-16/goals/G08-Environment-Cohesion.md",
+  "specificationSha256": "2f4a5a92af225d0a4c1befe9859a321eedcf985292ba71ec95a7242e29fa4f3f",
+  "executionPlan": "Docs/G08_EnvironmentCohesion_ExecutionPlan_2026-10-03.md",
+  "latestEnvironmentRepair": {
+    "requestSha256": "A42037972469AE639E80C892F08650D2B4282C59BDB3118D8785115726C7FCBC",
+    "note": "The three resent revised G08 attachments are identical. Existing legacy overrides remain accepted; EC01-EC15 are not certified by these focused repairs.",
+    "repairRecord": "Docs/G08_EnvironmentCohesion_Repair_2026-10-05.md",
+    "missingContent": "Docs/G08_EnvironmentCohesion_MissingContent_2026-10-05.md",
+    "focusedContracts": {
+      "planning": "outputs/G08_Environment_Repair_20261005/StreamingPlanning_20261005_192729_158.json",
+      "planningChecks": 43,
+      "planningFailures": 0,
+      "continuation": "outputs/YourQuest_Tandem_20261004/frontier-continuation-verification/20261005_201730_543.json",
+      "continuationChecks": 288,
+      "continuationFailures": 0,
+      "residentPhysicsChecks": 23,
+      "residentJointSearchChecks": 15,
+      "residentJointSearchFailedReceipt": "outputs/YourQuest_Tandem_20261004/frontier-continuation-verification/20261005_201451_041.json",
+      "residentJointSearchInitialFailures": 5,
+      "boundary": "Detached current helper/contract and real physics checks, not complete asset-bound cast publication or ordinary traversal. The five failed initial joint-search checks remain preserved; the final bounded-coverage repair passes all 288 checks."
+    },
+    "ordinaryContinue": {
+      "profileId": "85e6507c43004c39af986702206a1d49",
+      "worldId": "yq-world-81269e5c7801f6443d046688",
+      "seed": "622eff02",
+      "artifactHash": "65858c82ae6b730d",
+      "pairedRevision": 21,
+      "commitId": "5621ec2cd1ec436bb7f3a1cc32f3753b",
+      "acceptedFrontierSettlements": 1,
+      "acceptedFrontierHostileSites": 2,
+      "boundary": "Model responses accepted and paired-published; persistence records alone do not prove populated physical arrival."
+    },
+    "stoppingPoint": {
+      "utc": "2026-10-05T20:22:30.4946931Z",
+      "reason": "Explicit user request to reach a good stopping point and report",
+      "playing": false,
+      "modelProcessCount": 0,
+      "pendingTestMarkers": 0,
+      "selectedProfileId": "85e6507c43004c39af986702206a1d49",
+      "selectedRevision": 24,
+      "selectedCommitId": "7026625a56f74219b86131b0b8d41dd5",
+      "originalProfilePreserved": "83eaeb76095647a7be6836a0d961d6e4",
+      "latestAssistedReceipt": "outputs/Asset_Contracts_20261002/Remote_Sites_20261005_202114.txt",
+      "latestAssistedVerdict": "FAIL",
+      "latestAssistedRestoredWithoutSave": true,
+      "latestAssistedBoundary": "Saved settlement still rejects the fifth resident's provider position. Zero active nearby NPCs/enemies; full authored cast, equipment and site readiness remain unverified.",
+      "releaseReady": false
+    },
+    "assistedReview": {
+      "receipt": "outputs/Asset_Contracts_20261002/Remote_Sites_20261005_194145.txt",
+      "lakeCensus": "outputs/G08_R3_Physical_20261003/20261005_194145_424_read_only_hydrology_census",
+      "observedLakeWetSamples": 86,
+      "observedLakeDrySamples": 0,
+      "observedLakeMissingTerrainSamples": 0,
+      "restoredWithoutSave": true,
+      "boundary": "Observed building roots and one clipped lake patch. No nearby actors; continued resident floor rejection found. Complete site, lake, appearance, traversal, performance and equipment acceptance remain open."
+    }
+  },
+  "legacyAcceptance": {
+    "verdict": "PASS",
+    "basis": "Explicit user acceptance/verification of prior forced PASS decisions",
+    "clarification": "No, the forced pass for the old goals is still verified.",
+    "rerunPolicy": "Do not reopen or rerun waived legacy gates. Revalidate affected new content and final expanded requirements.",
+    "historicalEvidence": "Docs/G08_R2_User_Override_2026-10-03.md",
+    "rawHistoricalFailuresPreserved": true
+  },
+  "modelRouting": {
+    "unityOperator": "root",
+    "libraryLane": {
+      "model": "gpt-6.1-sol",
+      "reasoning": "xhigh",
+      "status": "Completed frozen handoff; root verified 72 focused checks and 152 publication inputs, published v7 current-intake observations. No art or runtime admission approval."
+    },
+    "architectureLane": {
+      "model": "gpt-6-astra",
+      "reasoning": "ultra",
+      "status": "Stopped at explicit user request; live agent listing empty and interrupt returned not_found. Do not restart without a new request."
+    }
+  },
+  "baseline": {
+    "project": "C:/Users/Garri/YourQuest",
+    "branch": "codex/local-project-guidance-2026-09-30",
+    "head": "14abe4a19f30be4ed2affb4aa7055f62cdf19b1b",
+    "unity": "6000.3.2f1",
+    "urpPackage": "17.3.0",
+    "inputSystem": "1.17.0",
+    "stateSchema": 8,
+    "profileManifestSchema": 2,
+    "lockedTargetConfiguration": "NOT VERIFIED",
+    "discovery": "outputs/G08_R3_Physical_20261003/20261003_231619_459_session/Discovery.json",
+    "profileId": "b138c228684b48739bad60f17f6ba5eb",
+    "worldId": "yq-world-300bc1cdba75926d8224ffb9",
+    "seed": "610adf18",
+    "acceptedArtifact": "e37706d3ad7f55b6",
+    "runtimeMvid": "31199ae1-bac7-491b-b65b-189ef0ce04f6",
+    "runtimeAssemblyHash": "44eed927f5bd346953615eaf2d37bc32ac2f6203bfb8b3055fe1de304430ff8c",
+    "editorMvid": "b9794182-f10c-4289-b8b1-1c5aa162d0f5",
+    "editorAssemblyHash": "0918ca72b3343c24e962dcc7b97d3050f941d6d3a0d43b57d82856f315fd8bce",
+    "commitId": "223cae1e22b244d29875eb33156ac700",
+    "profileRevision": 14,
+    "runtimeSiteBindings": [
+      {
+        "semanticId": "settlement_pyrspire_crossing_2abf5f08",
+        "kind": "settlement",
+        "runtimeSiteKitId": "qualified_viking_home",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "settlement_vaelward_rest_2abf5f09",
+        "kind": "settlement",
+        "runtimeSiteKitId": "qualified_viking_home",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "encampment_jorhollow_depths_6ee39527",
+        "kind": "encampment",
+        "runtimeSiteKitId": "qualified_occupied_homestead",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "encampment_orcairn_site_6ee39528",
+        "kind": "encampment",
+        "runtimeSiteKitId": "qualified_occupied_homestead",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      }
+    ],
+    "relevantSourceHashes": {
+      "Assets/Assets/Scripts/Generated/Editor/YQG08R3PhysicalItineraryVerification.cs": "432c458889f8b0968bc1d00fc83332f0b22c2398d695494ab77184a055c822d8",
+      "Assets/Assets/Scripts/Generated/Editor/YQEditorAutoRefreshBootstrap.cs": "d6ad6150dfb7fdc70a9195a9cb431949acb70167110249d3a04a1d0972be3b27",
+      "Assets/Assets/Scripts/Generated/YQGeneratedWorldRuntimeBuilder.cs": "10bb0fd0c9ac9adcbc1766fe7d51323d774d47b01ac191f4ad00502f4678cc6a",
+      "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs": "ebfe6e7b619d4d0010708deb90def65ae3cde8474757a9f806806f8655bd4db0",
+      "Assets/Assets/Scripts/Generated/YQContinuousWorldFeatureAuthority.cs": "f90bf565871f5a04252ca96305d5a89e73a5a3573823710f7339a43b43863439",
+      "Assets/Assets/Scripts/Generated/YQContinuousWorldCellAuthority.cs": "533bf5cceaa74e49890d1db85515292d6bb94b8f728898846d95a3f3919fac13",
+      "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs": "2a2cd5ff40f33780b09c9e584e4fbbf1d00d5866568a44e72f0de9607d7d12dc",
+      "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs": "23ce00ced243c1e81ccfc8e9fb289628e8fdf60a71858fd63ecde3e5638a91be",
+      "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs": "504e82f9179e862b47499439d9e7c8d44cfb382a06a9bcff6c2c020a5cdf7598",
+      "Assets/Assets/Scripts/Tutorial/YQDeveloperConsoleGate.cs": "608f80a29316b7e426d989c48f42545bbac0f08c1c1e0e3dfa0d58ddcdb898c2",
+      "Assets/Assets/Scripts/Tutorial/YQProfileSaveSystem.cs": "83933a6d577770687145fcf6a895b700c764f5da4df26d13a4574f265e82d90c",
+      "Assets/Assets/Scripts/Tutorial/YQDeveloperTestSession.cs": "f049ef0d002997822dbdecf315b510b21aa678b2e550e35974f954e63a8972cd"
+    }
+  },
+  "rows": [
+    {
+      "id": "EC01",
+      "title": "Complete library reconciliation",
+      "owners": [
+        "G04"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "v7 preserves 56,435 sources and 28,199 historical tuples; 72 checks validate 6,414 exact current-intake observations. 13,770 snapshot observations represent 10,092 unique binding IDs, not extra assets. Technical eligibility is separate from independent art approval and actual production use. Full source/archive review, approvals/roles, 162 relative exports, measured costs, three current transport gaps and all eligible-family use remain open.",
+      "evidence": [
+        "Assets/Assets/GeneratedAssets/WorldIntake/YQWorldGenerationAssetInventory.json",
+        "Docs/ArtDirection_Production_Tracker.md",
+        "outputs/G08_EnvironmentCohesion_20261003/world-asset-library-reconciliation.json",
+        "Docs/G08_EnvironmentCohesion_LibraryCoverage_2026-10-03.md",
+        "Docs/G08_EnvironmentCohesion_DocumentaryContracts_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261003_234135_250_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261003_234246_582_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/world-asset-library-all-named-roots.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_003329_230_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_003329_230_asset_library_documentary_contracts/Publication.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_002203_044_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_002512_721_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_003056_172_asset_library_documentary_contracts/Receipt.json",
+        "Docs/G08_EnvironmentCohesion_ProductionFamilyCoverage_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/production-family-coverage_20261004_012842.json",
+        "outputs/G08_EnvironmentCohesion_20261003/current-intake-curation-authority_20261004_014832.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/Publication.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/BindingObservationReview.json"
+      ]
+    },
+    {
+      "id": "EC02",
+      "title": "Deterministic asset integration",
+      "owners": [
+        "G04",
+        "G05",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Site catalog/query-order defect repaired under version five; 22 synthetic checks passed, accepted version-four replay tested in fixture. Actual Continue observed four version-five bindings. Live old-version preservation, parallel/frontier order and ecology selectors/full family materialization remain open.",
+      "evidence": [
+        "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs",
+        "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs",
+        "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs",
+        "outputs/G08_EnvironmentCohesion_20261003/20261003_230124_825_binding_contracts/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261003_231301_682_binding_contracts/Receipt.json",
+        "Docs/G08_EnvironmentCohesion_BindingRepair_2026-10-03.md",
+        "outputs/G08_R3_Physical_20261003/20261003_231619_459_session/Discovery.json",
+        "Docs/G08_EnvironmentCohesion_ProductionFamilyCoverage_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/production-family-coverage_20261004_012842.json",
+        "outputs/G08_EnvironmentCohesion_20261003/current-intake-curation-authority_20261004_014832.json"
+      ]
+    },
+    {
+      "id": "EC03",
+      "title": "World-wide coverage",
+      "owners": [
+        "G05",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Enumerate actual regions, five current terrain biomes, supported sites and transitions; primary plus three varied seed/frontier coverage pending.",
+      "evidence": [
+        "Docs/G08_EnvironmentCohesion_WorldCoverage_2026-10-03.json"
+      ]
+    },
+    {
+      "id": "EC04",
+      "title": "Macro terrain and seams",
+      "owners": [
+        "G05",
+        "G06"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Repaired synthetic numeric fixture passed 295 signed/far coordinates x4 seeds x6 query modes, including parallel queries. Accepted-origin and independent sample/normal/paint/collision realization and full physical seam coverage remain open.",
+      "evidence": [
+        "Docs/G08_EnvironmentCohesion_TerrainSampler_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261003_234626_320_terrain_sampler/Receipt.md",
+        "Assets/Assets/Scripts/Generated/Editor/YQContinuousTerrainDeterminismTests.cs",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_bridge_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/PersistedAfterPlayExit.json",
+        "Docs/G08_EnvironmentCohesion_TerrainReplayRepair_2026-10-04.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_source_reload_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_road_regrading_removed_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_build_terrain_replay_repair_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_050756_768_bridge_ownership/Receipt.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Restored.txt",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_whole_span_walk_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_footprint_profile.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053506_263_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053853_845_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054323_672_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054647_812_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/Retirement.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/CompilationDiagnostics.txt",
+        "Docs/G08_EnvironmentCohesion_FootprintDiagnosis_2026-10-04.md",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/BridgeColliders.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/OriginalProfilePreservationAudit.json"
+      ]
+    },
+    {
+      "id": "EC05",
+      "title": "Hydrology",
+      "owners": [
+        "G05",
+        "G06",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Reproduced internal-bend extrapolation repaired through existing materializer: six numeric cases passed; matched active-water census changed 25 below-ground samples to zero on identical accepted world. Two unavailable samples, non-ribbon water, terminal/topology, full region/camera/reload/visual coverage remain unverified.",
+      "evidence": [
+        "Docs/G08_EnvironmentCohesion_HydrologyRepair_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_005637_628_hydrology_segments/Receipt.json",
+        "outputs/G08_R3_Physical_20261003/20261004_003949_889_hydrology_census/Hydrology.json",
+        "outputs/G08_R3_Physical_20261003/20261004_010205_662_hydrology_census/Hydrology.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_runtime_water_bridge_review.json"
+      ]
+    },
+    {
+      "id": "EC06",
+      "title": "Routes and crossings",
+      "owners": [
+        "G05",
+        "G06",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Whole-span first-person local-origin forward/dry-egress/reverse reaches all endpoints across159.644m, retaining86 UnsupportedFootprint warnings. Captured lateral faces reach67.94032 degrees against58-degree capsule; current126 fixture reproduces four failures while original119 pass. Three unsuccessful candidates retired; shared-width grade review, semantic detour ownership, other crossings, both cameras and final affected checks remain open.",
+      "evidence": [
+        "Docs/G08_R3_Physical_Itinerary_2026-10-03.md",
+        "Docs/G08_EnvironmentCohesion_CrossingAnalysis_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/retained_bridge_support_analysis.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_runtime_water_bridge_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_010144_944_session/20261004_010301_191_first_bridge_after_bounded_water/Result.json",
+        "Docs/G08_EnvironmentCohesion_BridgeRepair_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_bridge_repair_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_014947_979_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_031216_526_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_031116_347_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_bridge_winding_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_disposable_bridge_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/BridgeColliders.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_042758_256_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_bridge_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/PersistedAfterPlayExit.json",
+        "Docs/G08_EnvironmentCohesion_TerrainReplayRepair_2026-10-04.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_source_reload_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_road_regrading_removed_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_build_terrain_replay_repair_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_050756_768_bridge_ownership/Receipt.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Restored.txt",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_whole_span_walk_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_footprint_profile.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053506_263_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053853_845_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054323_672_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054647_812_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/Retirement.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/CompilationDiagnostics.txt",
+        "Docs/G08_EnvironmentCohesion_FootprintDiagnosis_2026-10-04.md",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/BridgeColliders.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/OriginalProfilePreservationAudit.json"
+      ]
+    },
+    {
+      "id": "EC07",
+      "title": "Ecology and exclusions",
+      "owners": [
+        "G04",
+        "G05",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Layered habitat/exclusion/grounding/camera/visual coverage pending; selected origin captures are insufficient.",
+      "evidence": []
+    },
+    {
+      "id": "EC08",
+      "title": "Settlement and interior function",
+      "owners": [
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Narrow hut entry/exit observed on its recorded build; service settlement, full circulation, both-camera and navigation evidence remain open.",
+      "evidence": [
+        "Docs/G08_R3_Physical_Itinerary_2026-10-03.md"
+      ]
+    },
+    {
+      "id": "EC09",
+      "title": "Hostile and other POIs",
+      "owners": [
+        "G05",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Hostile/ruin, cave/interior and landmark/resource traversal and truthful function coverage pending.",
+      "evidence": []
+    },
+    {
+      "id": "EC10",
+      "title": "Multi-cell ownership",
+      "owners": [
+        "G05",
+        "G07",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Accepted semantic member-cell lists observed; opposite-order sector crossing, single ownership, unload/revisit and stable bounds/layout pending.",
+      "evidence": []
+    },
+    {
+      "id": "EC11",
+      "title": "Reconstruction and mutations",
+      "owners": [
+        "G02",
+        "G05",
+        "G07"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Same-source reproduction changed 11,792 terrain samples, max1.239033m; removal of restored-terrain regrading now preserves all263,169 samples and forty collision meshes across two ordinary Continue sessions on identical repaired assemblies. All12 protected and9 original paths match. Earlier deferred in-memory restore remains recorded as false. Full mutation/order/unload/profile/cancel and multi-world semantic reconstruction remain NOT VERIFIED.",
+      "evidence": [
+        "outputs/G08_R3_Physical_20261003/20261003_223959_253_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261003_225016_007_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261003_231619_459_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/PreProtectionPublicationAudit.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_disposable_profile_identity.json",
+        "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/StartupRecoveryAttribution.json",
+        "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/PostExitProfileIdentity.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_bridge_review.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/PersistedAfterPlayExit.json",
+        "Docs/G08_EnvironmentCohesion_TerrainReplayRepair_2026-10-04.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_source_reload_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_road_regrading_removed_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_build_terrain_replay_repair_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_050756_768_bridge_ownership/Receipt.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Restored.txt",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_whole_span_walk_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_footprint_profile.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053506_263_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053853_845_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054323_672_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054647_812_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/Retirement.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/CompilationDiagnostics.txt",
+        "Docs/G08_EnvironmentCohesion_FootprintDiagnosis_2026-10-04.md",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/BridgeColliders.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/OriginalProfilePreservationAudit.json"
+      ]
+    },
+    {
+      "id": "EC12",
+      "title": "Affected final-content R1 publication and recovery",
+      "owners": [
+        "G07"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Legacy accepted PASS remains valid by user decision. Validate only affected new integration/publication contracts; do not reopen waived legacy gates.",
+      "evidence": [
+        "Docs/G08_R2_User_Override_2026-10-03.md"
+      ]
+    },
+    {
+      "id": "EC13",
+      "title": "Affected final-content full R2 and repeatability",
+      "owners": [
+        "G07"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Legacy forced PASS remains accepted/verified. New final content needs its own affected full matrix and qualifying repeatability evidence without weakening budgets.",
+      "evidence": [
+        "Docs/G08_R2_User_Override_2026-10-03.md"
+      ]
+    },
+    {
+      "id": "EC14",
+      "title": "Visual floor",
+      "owners": [
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "All18 images in the existing12-family publisher board have now been inspected with exact hashes. This board is not the full eligible-family matrix. Real-landscape visual retrieval, verified original-Xbox360 scene/timestamps, full-matrix ordinary both-camera comparisons, independent rubric and locked target performance remain incomplete.",
+      "evidence": [
+        "Docs/G08_EnvironmentCohesion_ReferenceSheets_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_expanded_reference_review.json"
+      ]
+    },
+    {
+      "id": "EC15",
+      "title": "Regression and handoff",
+      "owners": [
+        "G02",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "verdict": "NOT VERIFIED",
+      "remaining": "Current source/build identity is recorded by the expanded126 native fixture with four known failures. Earlier whole-span movement is scoped to its captured v2 build. Primary plus three varied production worlds, full family/transition/camera coverage and final affected checks remain incomplete.",
+      "evidence": [
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_031216_526_bridge_ownership/Receipt.json",
+        "Docs/G08_EnvironmentCohesion_BridgeRepair_2026-10-03.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_disposable_bridge_review.json",
+        "Docs/G08_EnvironmentCohesion_TerrainReplayRepair_2026-10-04.md",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_source_reload_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_road_regrading_removed_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_same_build_terrain_replay_repair_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_050756_768_bridge_ownership/Receipt.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_045151_665_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_050646_043_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/OriginalProfilePreservationAudit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_051005_135_session/Restored.txt",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_whole_span_walk_review.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_footprint_profile.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053506_263_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_053853_845_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054323_672_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_054647_812_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/Retirement.json",
+        "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/CompilationDiagnostics.txt",
+        "Docs/G08_EnvironmentCohesion_FootprintDiagnosis_2026-10-04.md",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Discovery.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/BridgeColliders.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Restored.txt",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/PersistedAfterPlayExit.json",
+        "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/OriginalProfilePreservationAudit.json"
+      ]
+    }
+  ],
+  "latestContractBatch": {
+    "utc": "2026-10-04T02:36:28.6563064Z",
+    "scope": "72 Edit documentary/source/current-intake checks and guarded v7 publication only",
+    "runtimeMvid": "030a996a-3bae-47cb-a729-0d8eb5a06fcd",
+    "runtimeAssemblySha256": "e90b0418f6a9bbb794df86d5e1ada744f1b4b8831211addbbf694ecc11c5c702",
+    "editorMvid": "bccee6e0-4d04-4be2-95a0-2407986c5b5e",
+    "editorAssemblySha256": "57d71090c07a8cb170e20db528275ccc73ba62b6a9341f0c045e0b75f88f368b",
+    "verifierVersion": "current-intake-3-historical-separation",
+    "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/Receipt.json",
+    "publication": "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/Publication.json",
+    "accounting": "outputs/G08_EnvironmentCohesion_20261003/20261004_023825_216_asset_library_documentary_contracts/BindingObservationReview.json",
+    "checks": 72,
+    "checkedTextInputs": 152,
+    "publishedMasterSha256": "3086e5a78d1b1b3a349de3985d1bce99eb897bcd6cfd1ef70273b888895cb37a",
+    "approvalChanged": false,
+    "runtimeAdmissionChanged": false,
+    "currentIntakeObservations": 6414,
+    "snapshotObservations": 13770,
+    "uniqueBindingIds": 10092,
+    "technicalEligibleCurrentIntake": 2866,
+    "technicalIneligibleCurrentIntake": 3548,
+    "validity": "Executing publication identity retained; subsequent bridge-only repair leaves documentary owners and inputs unchanged. Not runtime asset-use acceptance."
+  },
+  "targetConfiguration": {
+    "verdict": "NOT VERIFIED",
+    "observation": "outputs/G08_EnvironmentCohesion_20261003/observed-host-hardware.json",
+    "pending": "User target-configuration answer; desktop resolution is not a locked Game view or quality contract."
+  },
+  "latestHydrologyRepair": {
+    "runtimeMvid": "757967fb-d790-486a-b75f-9f2d08c7eaaf",
+    "editorMvid": "36fe9e4d-4706-43ce-bc74-5524f7588a4c",
+    "runtimeAssemblySha256": "6cd95669d8e6cfc9fdf0735c440c8e101587b412d6b4e689c1bb4cacab1979d6",
+    "editorAssemblySha256": "d6d75618e182b473c6e51db4b07bf6d77607e548f7e65559f7da125ec3288d43",
+    "scope": "Bounded accepted-water clipping defect only; six synthetic cases and matched production depth census",
+    "source": "Assets/Assets/Scripts/Generated/YQContinuousWorldFeatureAuthority.cs",
+    "sourceSha256": "b354e17905f1a6ce2b807a1481aaaf396369eef7c2d0273e2d9d4df069ab4293",
+    "after": "outputs/G08_R3_Physical_20261003/20261004_010205_662_hydrology_census/Discovery.json",
+    "remaining": "Full EC05 and affected final publication/streaming/regression coverage required; accepted old gates stay accepted.",
+    "restoration": "outputs/G08_R3_Physical_20261003/20261004_010144_944_session/PersistedAfterPlayExit.json"
+  },
+  "latestBridgeRepair": {
+    "utc": "2026-10-04T05:52:50.8014358Z",
+    "status": "INCOMPLETE",
+    "report": "Docs/G08_EnvironmentCohesion_BridgeRepair_2026-10-03.md",
+    "scope": "Retained v2 union and centerline constraints: original119 pass; expanded126 reproduces four lateral-slope/native-footprint failures. Three unsuccessful grade-section candidates retired.",
+    "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+    "failedReproduction": "outputs/G08_EnvironmentCohesion_20261003/20261004_031116_347_bridge_ownership/Receipt.json",
+    "fixtureChecks": 126,
+    "fixtureVerdict": "FAIL",
+    "verifierVersion": "generated-bridge-buffered-footprint-9",
+    "bridgeSourceSha256": "993cd0d1bd2099e9d38182a006ba26a5addf69de65bdcf660a65d039f50f44f9",
+    "verifierSourceSha256": "a25f06fbf6bf8c478c393148257986b9c8098cb158da51a9639a344907df3de2",
+    "environmentSourceSha256": "4eddf0592ce0a57af35dc032f2a30e80df5e45dde9eec052a856602249f72d30",
+    "integritySourceSha256": "b6fa309cbc61032201347b1b70ee1a260a84892b0a0fb81fe2a161698a89e409",
+    "runtimeMvid": "408b3d45-3134-49f1-9f2b-e366065eeb3a",
+    "runtimeAssemblySha256": "150d04bfc07af0f817d2867e4dc496cdef99df36c8a658b2ca1b02b1d0d36b0b",
+    "editorMvid": "f3080c83-0bca-4638-925d-f7690dd6d1dc",
+    "editorAssemblySha256": "4db739a449b9d54e8d9e4d2a20711db210461ab9851849f23b33849be2483cff",
+    "reconstructedCapturedProfiles": 40,
+    "recordedGeometryPath": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+    "recordedGeometrySha256": "431a901e738f5a46a5cc662676966e3dd6c4336397a5b55e5ff153c675d004bc",
+    "runtimeVerified": false,
+    "limits": "No repaired ordinary traversal or final performance acceptance. The stopped repair loop and all candidate failures remain explicit.",
+    "expandedFixture": {
+      "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+      "verdict": "FAIL",
+      "checks": 75,
+      "passes": 74,
+      "failures": 1,
+      "verifierVersion": "generated-bridge-two-world-profiles-6",
+      "verifierSourceSha256": "787e87bd4b015e23180ebe8185abb5fc897ec0bb1d7b886a76a4914e93e7b120",
+      "runtimeMvid": "920b79ea-8e0e-443c-8c08-a6c243a1984a",
+      "runtimeAssemblySha256": "7c69eed743ad328312bfbcd3d677f435349853a5be49978680799b8ffd4e4c4f",
+      "editorMvid": "7701ae29-633c-4087-8e7d-c30de6b3ae13",
+      "editorAssemblySha256": "473240573f3a399b4a27fef55c95b7d75c0751d01518f31ebc9bc42a9992babe",
+      "originalCensus": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+      "originalCensusSha256": "431a901e738f5a46a5cc662676966e3dd6c4336397a5b55e5ff153c675d004bc",
+      "additionalCensus": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/BridgeColliders.json",
+      "additionalCensusSha256": "e269e03ca8263c8a9ea8f708952bb00bbd4e6861350410e37dbea97fc65996e3",
+      "failure": "Distinct sharp bend on bridge -12227348 folds inner ribbon triangles; not the previously repaired duplicate-endpoint cause."
+    },
+    "previousFocusedFixture": {
+      "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_031216_526_bridge_ownership/Receipt.json",
+      "checks": 54,
+      "verdict": "PASS",
+      "verifierVersion": "generated-bridge-repeated-samples-5",
+      "editorMvid": "4a9a257f-4931-42b5-a786-0031753c4118",
+      "editorAssemblySha256": "ca87dd8c222a6623052f8b7e145df86af7a5f2bcd01f8c175435634fa7273ab0",
+      "scope": "Earlier 54-case pass on unchanged runtime source; expanded two-world fixture supersedes the current fixture verdict."
+    },
+    "history": [
+      {
+        "utc": "2026-10-04T03:57:11.4686157Z",
+        "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+        "checks": 75,
+        "verdict": "FAIL",
+        "bridgeSourceSha256": "f95575944b852b8cf47ef2e131b589b3f68c4ab11226b482d5b9f79ff9ef699a",
+        "runtimeMvid": "920b79ea-8e0e-443c-8c08-a6c243a1984a",
+        "scope": "Retained two-world sharp-bend reproduction; superseded focused verdict, not erased."
+      },
+      {
+        "utc": "2026-10-04T04:27:58.2596554Z",
+        "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_042758_256_bridge_ownership/Receipt.json",
+        "checks": 119,
+        "verdict": "PASS",
+        "runtimeMvid": "c13d0c75-d977-430f-8549-042002fb98c5",
+        "runtimeAssemblySha256": "2436b1ccc3eccfc767502acc03e27cac0069b5a6cc99f5fce22248daca5ad980",
+        "scope": "Prior 119-case fixture retained; runtime builder changed for terrain replay repair."
+      }
+    ],
+    "collisionGeometryVersion": "buffered_road_union_v2",
+    "bufferedRepair": {
+      "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_042758_256_bridge_ownership/Receipt.json",
+      "checks": 119,
+      "verdict": "PASS",
+      "retainedAttempts": [
+        {
+          "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042130_118_bridge_ownership/Receipt.json",
+          "exists": true
+        },
+        {
+          "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042253_043_bridge_ownership/Receipt.json",
+          "exists": true
+        },
+        {
+          "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042413_095_bridge_ownership/Receipt.json",
+          "exists": true
+        },
+        {
+          "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042545_470_bridge_ownership/Receipt.json",
+          "exists": true
+        }
+      ],
+      "gradeHeightErrors": [
+        {
+          "name": "sharp bend 0 fitted",
+          "maximumCenterlineHeightError": 2.682209e-7
+        },
+        {
+          "name": "sharp bend 0 support",
+          "maximumCenterlineHeightError": 2.83122063e-7
+        },
+        {
+          "name": "sharp bend 1 fitted",
+          "maximumCenterlineHeightError": 2.682209e-7
+        },
+        {
+          "name": "sharp bend 1 support",
+          "maximumCenterlineHeightError": 2.83122063e-7
+        },
+        {
+          "name": "sharp bend 2 fitted",
+          "maximumCenterlineHeightError": 2.682209e-7
+        },
+        {
+          "name": "sharp bend 2 support",
+          "maximumCenterlineHeightError": 2.83122063e-7
+        },
+        {
+          "name": "sharp bend 3 fitted",
+          "maximumCenterlineHeightError": 0.0000292956829
+        },
+        {
+          "name": "sharp bend 3 support",
+          "maximumCenterlineHeightError": 0.00006957352
+        }
+      ],
+      "pairedClearance": [
+        {
+          "name": "paired sharp bend support clearance",
+          "maximumSupportAboveDeck": -0.009999752
+        },
+        {
+          "name": "paired sharp bend support clearance",
+          "maximumSupportAboveDeck": -0.009999752
+        },
+        {
+          "name": "paired sharp bend support clearance",
+          "maximumSupportAboveDeck": -0.009999514
+        },
+        {
+          "name": "paired sharp bend support clearance",
+          "maximumSupportAboveDeck": -0.009952545
+        }
+      ],
+      "runtimeVerified": false
+    },
+    "runtimeCollisionTopBottomFacesVerified": true,
+    "runtimeCollisionTopBottomFacesEvidenceValidity": "Historical preceding-build witness; collision source unchanged. No new face census computation implied by height comparison."
+  },
+  "contractBatchHistory": [
+    {
+      "utc": "2026-10-04T00:32:20.5473257Z",
+      "scope": "53 Edit documentary/source coverage checks and reviewed publication only",
+      "runtimeMvid": "4bffde7f-87aa-4831-9e17-67636d8b582d",
+      "runtimeAssemblySha256": "344b61c6244b20a0d7ca47d462e0f2afd572815d0a519265f332d5298d4959f4",
+      "editorMvid": "edbfb111-4773-4351-b987-04d9550c8b6f",
+      "editorAssemblySha256": "a939a2690966832a5a767e0103449b90fb4b7a1a8ef01720c65e9473c395ab7d",
+      "verifierVersion": "source-coverage-2-exact-export-anchor",
+      "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_003329_230_asset_library_documentary_contracts/Receipt.json",
+      "publication": "outputs/G08_EnvironmentCohesion_20261003/20261004_003329_230_asset_library_documentary_contracts/Publication.json",
+      "startupBaselineStillRecordedSeparately": true
+    }
+  ],
+  "bridgeRepairHistory": [
+    {
+      "limits": "Synthetic-device protected diagnostics, not disposable R2 fixture evidence, unassisted traversal or visual/performance acceptance. One reverse stone-bank overlap plus nineteen origin-approach warnings remain.",
+      "fixtureChecks": 21,
+      "allDiskFingerprintsUnchanged": true,
+      "environmentSourceSha256": "4eddf0592ce0a57af35dc032f2a30e80df5e45dde9eec052a856602249f72d30",
+      "utc": "2026-10-04T02:01:08.031349Z",
+      "bridgeSourceSha256": "85a8d9ebf52073cf8fb5f67cd569fc7f08efbbf0158994be5cd584e3cc59f9bd",
+      "finalLiveRestoreSucceeded": true,
+      "runtimeAssemblySha256": "9535eb759f6acff125a879cd9318bc69d85e46f9145d3d73228f829c3228c783",
+      "report": "Docs/G08_EnvironmentCohesion_BridgeRepair_2026-10-03.md",
+      "scope": "Three bounded collision/grade repairs; first-band forward warnings 32 to zero; reverse entire approach still twenty warnings",
+      "runtimeMvid": "96b0c903-b0a0-4478-8093-c2cc2f7ac5f5",
+      "editorAssemblySha256": "03cb73cfa2d1de80284873710d67ffb1ff73567a1db62fa89967bf763e04f28c",
+      "discovery": "outputs/G08_R3_Physical_20261003/20261004_015212_952_session/Discovery.json",
+      "editorMvid": "f3e85fdb-8d5d-4ff1-869f-9715910c5071",
+      "intermediateLiveRestoreDeferred": true,
+      "census": "outputs/G08_R3_Physical_20261003/20261004_015212_952_session/BridgeColliders.json",
+      "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_014947_979_bridge_ownership/Receipt.json",
+      "protectedSessions": 4,
+      "review": "outputs/G08_EnvironmentCohesion_20261003/20261004_bridge_repair_review.json",
+      "integritySourceSha256": "b6fa309cbc61032201347b1b70ee1a260a84892b0a0fb81fe2a161698a89e409",
+      "status": "INCOMPLETE",
+      "postExitFingerprintsPerSession": 12,
+      "fixtureVerdict": "PASS",
+      "preservationScopeCorrection": "AllDiskFingerprintsUnchanged referred only to the protected post-begin path set; ordinary startup preservation was not certified."
+    }
+  ],
+  "latestProtectedProductionReplay": {
+    "profile": "3ccfff4df9a1479884061e51940e4457",
+    "world": "yq-world-0284d4409a720743c13eb56e",
+    "seed": "4bb221dc",
+    "artifact": "c1d6ce9d3e06f760",
+    "revision": 87,
+    "commit": "3743f86b8ee74118b27d09b259e3262e",
+    "runtimeMvid": "a63612f1-1e30-4f0b-a920-3fa65a114fbd",
+    "editorMvid": "58cd43bd-193d-431e-9734-4bb2d3c8fb6e",
+    "runtimeAssemblyHash": "29f7b648e04eca6bd08020b5cc7473ff809b47665980b24d4e4a5a9ecef10c42",
+    "editorAssemblyHash": "b3fa8df2a2ee5e9e2c7b8018ce4fd36c914a53e45ca37a7726f0c720add4b303",
+    "status": "ENDPOINTS_TRAVERSED_WITH_UNRESOLVED_CAPSULE_FOOTPRINT_WARNINGS",
+    "review": "outputs/G08_EnvironmentCohesion_20261003/20261004_whole_span_walk_review.json",
+    "discovery": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Discovery.json",
+    "census": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/BridgeColliders.json",
+    "distance": 159.64421529999998,
+    "warnings": 86,
+    "legs": [
+      {
+        "path": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/20261004_052248_124_EC06_local_origin_west_whole_span_dry_approach",
+        "result": "TRAVERSED_ENDPOINTS",
+        "distance": 72.4210739,
+        "frames": 1555,
+        "inputFrames": 1542,
+        "probeWarnings": 45,
+        "groundedWarnings": 45,
+        "streamerFailures": 0,
+        "unfocused": 0
+      },
+      {
+        "path": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/20261004_052434_812_EC06_local_origin_west_span_dry_egress",
+        "result": "TRAVERSED_ENDPOINTS",
+        "distance": 7.6607914,
+        "frames": 101,
+        "inputFrames": 101,
+        "probeWarnings": 0,
+        "groundedWarnings": 0,
+        "streamerFailures": 0,
+        "unfocused": 0
+      },
+      {
+        "path": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/20261004_052541_957_EC06_local_origin_west_whole_span_reverse",
+        "result": "TRAVERSED_ENDPOINTS",
+        "distance": 79.56235,
+        "frames": 1081,
+        "inputFrames": 1058,
+        "probeWarnings": 41,
+        "groundedWarnings": 41,
+        "streamerFailures": 0,
+        "unfocused": 0
+      }
+    ],
+    "preservation": {
+      "restored": true,
+      "protectedPaths": 12,
+      "protectedMismatches": 0,
+      "normalPaths": 9,
+      "normalMismatches": 0
+    },
+    "restoration": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/Restored.txt",
+    "postExit": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/PersistedAfterPlayExit.json",
+    "normalProfileAudit": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session/OriginalProfilePreservationAudit.json",
+    "bankInterpretation": {
+      "firstDryApproach": {
+        "x": -21.1147118,
+        "z": -3.827282
+      },
+      "oldBlockedSectionSeam": {
+        "x": -7.59904432,
+        "z": -23.5244637
+      },
+      "dryEgressFinalSupport": "YQ_GENERATED_WORLD_RUNTIME/YQ_GENERATED_TERRAIN",
+      "retainedFirstBankTerrainDelta": 0.400001526,
+      "basis": "Recorded whole-span source trace and contiguous first-section geometry. A segmented collision end is not automatically the whole-span bank."
+    },
+    "limits": "First-person local-origin ordinary-input diagnostic. Existing observed-home locality guard is explicit. Semantic detour validation, both cameras, other crossings, full EC06 and performance remain unverified. No sweep was measured.",
+    "validity": "Executed v2 physical diagnostic before grade-section candidates. Retired production geometry reproduces the exact captured fitted mesh; current assembly differs, so this is not final-source runtime acceptance."
+  },
+  "nextRuntimeFixture": {
+    "evidence": "outputs/G08_EnvironmentCohesion_20261003/20261004_disposable_profile_identity.json",
+    "status": "LOCAL_BIDIRECTIONAL_ENDPOINTS_TRAVERSED_FOOTPRINT_FAIL_REPAIR_LOOP_STOPPED",
+    "profileId": "3ccfff4df9a1479884061e51940e4457",
+    "worldId": "yq-world-0284d4409a720743c13eb56e",
+    "seed": "4bb221dc",
+    "artifactHash": "c1d6ce9d3e06f760",
+    "persistedSchema": 7,
+    "revision": 84,
+    "limitation": "Different accepted world from primary diagnostic; source schema 8 reads a persisted schema 7 fixture. No Play/session, migration or runtime acceptance verified in this preflight.",
+    "lastExecutedSession": "outputs/G08_R3_Physical_20261003/20261004_052230_073_session",
+    "lastObservedRevision": 87
+  },
+  "protectedProductionReplayHistory": [
+    {
+      "discovery": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/Discovery.json",
+      "census": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+      "review": "outputs/G08_EnvironmentCohesion_20261003/20261004_bridge_winding_review.json",
+      "runtimeMvid": "030a996a-3bae-47cb-a729-0d8eb5a06fcd",
+      "runtimeAssemblySha256": "e90b0418f6a9bbb794df86d5e1ada744f1b4b8831211addbbf694ecc11c5c702",
+      "editorMvid": "bccee6e0-4d04-4be2-95a0-2407986c5b5e",
+      "editorAssemblySha256": "57d71090c07a8cb170e20db528275ccc73ba62b6a9341f0c045e0b75f88f368b",
+      "forwardWarnings": 2,
+      "reverseWarnings": 13,
+      "supportOverlapWarnings": 0,
+      "reverseMissingSupportWarnings": 9,
+      "maximumMissingSupportTerrainDropMetres": 1.91794,
+      "invertedCapturedTopBottomFaces": 4,
+      "restored": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/Restored.txt",
+      "postExitFingerprints": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/PersistedAfterPlayExit.json",
+      "protectedFingerprintCount": 12,
+      "protectedMismatches": 0,
+      "preProtectionAudit": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/PreProtectionPublicationAudit.json",
+      "startupRevisionBefore": 20,
+      "startupRevisionAfter": 21,
+      "changedOriginalPaths": 7,
+      "unchangedOriginalPaths": 5,
+      "ordinaryStartupPreservationVerified": false,
+      "validity": "Retained diagnosis on the outward-winding build. Subsequent repeated-sample collision repair requires a new disposable-profile runtime replay. Not final-source traversal or performance acceptance."
+    },
+    {
+      "discovery": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/Discovery.json",
+      "census": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/BridgeColliders.json",
+      "review": "outputs/G08_EnvironmentCohesion_20261003/20261004_disposable_bridge_review.json",
+      "profile": "3ccfff4df9a1479884061e51940e4457",
+      "world": "yq-world-0284d4409a720743c13eb56e",
+      "seed": "4bb221dc",
+      "artifact": "c1d6ce9d3e06f760",
+      "revision": 85,
+      "runtimeMvid": "920b79ea-8e0e-443c-8c08-a6c243a1984a",
+      "runtimeSha256": "7c69eed743ad328312bfbcd3d677f435349853a5be49978680799b8ffd4e4c4f",
+      "editorMvid": "4a9a257f-4931-42b5-a786-0031753c4118",
+      "editorSha256": "ca87dd8c222a6623052f8b7e145df86af7a5f2bcd01f8c175435634fa7273ab0",
+      "scope": "Disposable-world connected first-person ordinary-input physical diagnosis",
+      "directApproachResult": "FAIL_NO_PROGRESS",
+      "directApproachDistanceMetres": 5.356862,
+      "bankApproachForwardDistanceMetres": 81.20845,
+      "bankApproachForwardWarnings": 1,
+      "bankApproachReverseDistanceMetres": 82.25942,
+      "bankApproachReverseWarnings": 0,
+      "streamerFailuresAcrossThreeLegs": 0,
+      "unfocusedFramesAcrossThreeLegs": 0,
+      "capturedCollisionMeshes": 40,
+      "capturedTopTriangles": 1628,
+      "capturedBottomTriangles": 1628,
+      "invertedFaces": 8,
+      "restored": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/Restored.txt",
+      "postExitFingerprints": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/PersistedAfterPlayExit.json",
+      "protectedFingerprints": 12,
+      "protectedMismatches": 0,
+      "originalProfileAudit": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/OriginalProfilePreservationAudit.json",
+      "startupRecoveryAttribution": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/StartupRecoveryAttribution.json",
+      "normalWorkingPathsChanged": 4,
+      "normalCommittedPathsUnchanged": 5,
+      "limits": "Different world from the prior primary diagnostic; no matched improvement, whole crossing PASS, both-camera, visual or performance certification. Later Editor-only regression expansion leaves runtime source unchanged."
+    },
+    {
+      "discovery": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/Discovery.json",
+      "census": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/BridgeColliders.json",
+      "review": "outputs/G08_EnvironmentCohesion_20261003/20261004_buffered_bridge_review.json",
+      "profile": "3ccfff4df9a1479884061e51940e4457",
+      "world": "yq-world-0284d4409a720743c13eb56e",
+      "seed": "4bb221dc",
+      "artifact": "c1d6ce9d3e06f760",
+      "revision": 86,
+      "runtimeMvid": "c13d0c75-d977-430f-8549-042002fb98c5",
+      "runtimeSha256": "2436b1ccc3eccfc767502acc03e27cac0069b5a6cc99f5fce22248daca5ad980",
+      "editorMvid": "58cd43bd-193d-431e-9734-4bb2d3c8fb6e",
+      "editorSha256": "b3fa8df2a2ee5e9e2c7b8018ce4fd36c914a53e45ca37a7726f0c720add4b303",
+      "status": "INCOMPLETE",
+      "legs": [
+        {
+          "path": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/20261004_043500_259_disposable_west_trail_buffered_bridge_forward",
+          "result": "FAIL",
+          "distance": 30.93522,
+          "frames": 663,
+          "warnings": 0,
+          "streamerFailures": 0,
+          "unfocused": 0
+        },
+        {
+          "path": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/20261004_043717_749_disposable_buffered_bridge_bank_retreat",
+          "result": "TRAVERSED_ENDPOINTS",
+          "distance": 30.1987171,
+          "frames": 505,
+          "warnings": 0,
+          "streamerFailures": 0,
+          "unfocused": 0
+        }
+      ],
+      "collisionFaces": {
+        "meshes": 40,
+        "bufferedMeshes": 2,
+        "topTriangles": 1674,
+        "bottomTriangles": 1674,
+        "inwardFaces": 0
+      },
+      "restoration": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/Restored.txt",
+      "postExit": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/PersistedAfterPlayExit.json",
+      "protectedPaths": 12,
+      "protectedMismatches": 0,
+      "normalProfileAudit": "outputs/G08_R3_Physical_20261003/20261004_043254_948_session/OriginalProfilePreservationAudit.json",
+      "normalProfilePaths": 9,
+      "normalProfileMismatches": 0,
+      "reconstructionHeightComparison": {
+        "stripMeshes": 38,
+        "exactFootprintMatches": 38,
+        "changedHeights": 24,
+        "maximumHeightDifference": 1.3386337999999967,
+        "cause": "NOT VERIFIED"
+      },
+      "limits": "Actual collision census and synthetic ordinary controls. Bank ingress fails; retreat is not a reverse crossing. Different heights after startup require a same-source reload comparison. No full EC06 or visual/performance acceptance.",
+      "validity": "Historical movement witness on preceding builder assembly; bank FAIL retained. Latest idle terrain replay is recorded separately."
+    }
+  ],
+  "latestTerrainReplayRepair": {
+    "utc": "2026-10-04T05:13:10.398Z",
+    "status": "PASS_BOUNDED_HEIGHT_RECONSTRUCTION",
+    "report": "Docs/G08_EnvironmentCohesion_TerrainReplayRepair_2026-10-04.md",
+    "defect": "EC11-D02",
+    "source": "Assets/Assets/Scripts/Generated/YQGeneratedWorldRuntimeBuilder.cs",
+    "sourceSha256": "cc9ff07e21152283ff2e544bdb4be2351f5f3a7744bee9dff5c2a49d623e1494",
+    "reproduction": "outputs/G08_EnvironmentCohesion_20261003/20261004_same_source_reload_review.json",
+    "causalComparison": "outputs/G08_EnvironmentCohesion_20261003/20261004_road_regrading_removed_review.json",
+    "sameBuildRepeat": "outputs/G08_EnvironmentCohesion_20261003/20261004_same_build_terrain_replay_repair_review.json",
+    "runtimeMvid": "a63612f1-1e30-4f0b-a920-3fa65a114fbd",
+    "runtimeAssemblySha256": "29f7b648e04eca6bd08020b5cc7473ff809b47665980b24d4e4a5a9ecef10c42",
+    "editorMvid": "58cd43bd-193d-431e-9734-4bb2d3c8fb6e",
+    "editorAssemblySha256": "b3fa8df2a2ee5e9e2c7b8018ce4fd36c914a53e45ca37a7726f0c720add4b303",
+    "profile": "3ccfff4df9a1479884061e51940e4457",
+    "world": "yq-world-0284d4409a720743c13eb56e",
+    "seed": "4bb221dc",
+    "artifact": "c1d6ce9d3e06f760",
+    "revision": 87,
+    "commit": "3743f86b8ee74118b27d09b259e3262e",
+    "samples": 263169,
+    "changedSamples": 0,
+    "collisionMeshes": 40,
+    "changedMeshes": 0,
+    "audits": [
+      {
+        "directory": "outputs/G08_R3_Physical_20261003/20261004_045151_665_session",
+        "restored": false,
+        "protectedPaths": 12,
+        "protectedMismatches": 0,
+        "normalPaths": 9,
+        "normalMismatches": 0
+      },
+      {
+        "directory": "outputs/G08_R3_Physical_20261003/20261004_050646_043_session",
+        "restored": true,
+        "protectedPaths": 12,
+        "protectedMismatches": 0,
+        "normalPaths": 9,
+        "normalMismatches": 0
+      },
+      {
+        "directory": "outputs/G08_R3_Physical_20261003/20261004_051005_135_session",
+        "restored": true,
+        "protectedPaths": 12,
+        "protectedMismatches": 0,
+        "normalPaths": 9,
+        "normalMismatches": 0
+      }
+    ],
+    "scope": "One accepted disposable world, ordinary Continue twice, exact finalized terrain/bridge replay. No full EC11, traversal, mutations, visual or performance certification."
+  },
+  "bridgeContractHistory": [
+    {
+      "utc": "2026-10-04T05:07:56.7684243Z",
+      "status": "INCOMPLETE",
+      "report": "Docs/G08_EnvironmentCohesion_BridgeRepair_2026-10-03.md",
+      "scope": "Derived collision union only when the existing strip folds; full segment width, original grade edge chains and bank planes retained.",
+      "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_050756_768_bridge_ownership/Receipt.json",
+      "failedReproduction": "outputs/G08_EnvironmentCohesion_20261003/20261004_031116_347_bridge_ownership/Receipt.json",
+      "fixtureChecks": 119,
+      "fixtureVerdict": "PASS",
+      "verifierVersion": "generated-bridge-buffered-corridor-8",
+      "bridgeSourceSha256": "f32ce5c0dea6c11fcdc279689932567de647044453b60566a8fd033641302aad",
+      "verifierSourceSha256": "fc0b7b5edbd60ba36ca5b665076303d86040ca38347c4299351faa97910d442c",
+      "environmentSourceSha256": "4eddf0592ce0a57af35dc032f2a30e80df5e45dde9eec052a856602249f72d30",
+      "integritySourceSha256": "b6fa309cbc61032201347b1b70ee1a260a84892b0a0fb81fe2a161698a89e409",
+      "runtimeMvid": "a63612f1-1e30-4f0b-a920-3fa65a114fbd",
+      "runtimeAssemblySha256": "29f7b648e04eca6bd08020b5cc7473ff809b47665980b24d4e4a5a9ecef10c42",
+      "editorMvid": "58cd43bd-193d-431e-9734-4bb2d3c8fb6e",
+      "editorAssemblySha256": "b3fa8df2a2ee5e9e2c7b8018ce4fd36c914a53e45ca37a7726f0c720add4b303",
+      "reconstructedCapturedProfiles": 40,
+      "recordedGeometryPath": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+      "recordedGeometrySha256": "431a901e738f5a46a5cc662676966e3dd6c4336397a5b55e5ff153c675d004bc",
+      "runtimeVerified": false,
+      "limits": "119 refreshed Edit Mode checks. Prior runtime face census is historical on the preceding builder build. Same-build height reconstruction now passes for one world; bank ingress, both cameras, full reconstruction and final affected costs remain open.",
+      "expandedFixture": {
+        "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+        "verdict": "FAIL",
+        "checks": 75,
+        "passes": 74,
+        "failures": 1,
+        "verifierVersion": "generated-bridge-two-world-profiles-6",
+        "verifierSourceSha256": "787e87bd4b015e23180ebe8185abb5fc897ec0bb1d7b886a76a4914e93e7b120",
+        "runtimeMvid": "920b79ea-8e0e-443c-8c08-a6c243a1984a",
+        "runtimeAssemblySha256": "7c69eed743ad328312bfbcd3d677f435349853a5be49978680799b8ffd4e4c4f",
+        "editorMvid": "7701ae29-633c-4087-8e7d-c30de6b3ae13",
+        "editorAssemblySha256": "473240573f3a399b4a27fef55c95b7d75c0751d01518f31ebc9bc42a9992babe",
+        "originalCensus": "outputs/G08_R3_Physical_20261003/20261004_024355_404_session/BridgeColliders.json",
+        "originalCensusSha256": "431a901e738f5a46a5cc662676966e3dd6c4336397a5b55e5ff153c675d004bc",
+        "additionalCensus": "outputs/G08_R3_Physical_20261003/20261004_032515_874_session/BridgeColliders.json",
+        "additionalCensusSha256": "e269e03ca8263c8a9ea8f708952bb00bbd4e6861350410e37dbea97fc65996e3",
+        "failure": "Distinct sharp bend on bridge -12227348 folds inner ribbon triangles; not the previously repaired duplicate-endpoint cause."
+      },
+      "previousFocusedFixture": {
+        "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_031216_526_bridge_ownership/Receipt.json",
+        "checks": 54,
+        "verdict": "PASS",
+        "verifierVersion": "generated-bridge-repeated-samples-5",
+        "editorMvid": "4a9a257f-4931-42b5-a786-0031753c4118",
+        "editorAssemblySha256": "ca87dd8c222a6623052f8b7e145df86af7a5f2bcd01f8c175435634fa7273ab0",
+        "scope": "Earlier 54-case pass on unchanged runtime source; expanded two-world fixture supersedes the current fixture verdict."
+      },
+      "history": [
+        {
+          "utc": "2026-10-04T03:57:11.4686157Z",
+          "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_035711_463_bridge_ownership/Receipt.json",
+          "checks": 75,
+          "verdict": "FAIL",
+          "bridgeSourceSha256": "f95575944b852b8cf47ef2e131b589b3f68c4ab11226b482d5b9f79ff9ef699a",
+          "runtimeMvid": "920b79ea-8e0e-443c-8c08-a6c243a1984a",
+          "scope": "Retained two-world sharp-bend reproduction; superseded focused verdict, not erased."
+        },
+        {
+          "utc": "2026-10-04T04:27:58.2596554Z",
+          "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_042758_256_bridge_ownership/Receipt.json",
+          "checks": 119,
+          "verdict": "PASS",
+          "runtimeMvid": "c13d0c75-d977-430f-8549-042002fb98c5",
+          "runtimeAssemblySha256": "2436b1ccc3eccfc767502acc03e27cac0069b5a6cc99f5fce22248daca5ad980",
+          "scope": "Prior 119-case fixture retained; runtime builder changed for terrain replay repair."
+        }
+      ],
+      "collisionGeometryVersion": "buffered_road_union_v2",
+      "bufferedRepair": {
+        "fixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_042758_256_bridge_ownership/Receipt.json",
+        "checks": 119,
+        "verdict": "PASS",
+        "retainedAttempts": [
+          {
+            "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042130_118_bridge_ownership/Receipt.json",
+            "exists": true
+          },
+          {
+            "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042253_043_bridge_ownership/Receipt.json",
+            "exists": true
+          },
+          {
+            "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042413_095_bridge_ownership/Receipt.json",
+            "exists": true
+          },
+          {
+            "path": "outputs/G08_EnvironmentCohesion_20261003/20261004_042545_470_bridge_ownership/Receipt.json",
+            "exists": true
+          }
+        ],
+        "gradeHeightErrors": [
+          {
+            "name": "sharp bend 0 fitted",
+            "maximumCenterlineHeightError": 2.682209e-7
+          },
+          {
+            "name": "sharp bend 0 support",
+            "maximumCenterlineHeightError": 2.83122063e-7
+          },
+          {
+            "name": "sharp bend 1 fitted",
+            "maximumCenterlineHeightError": 2.682209e-7
+          },
+          {
+            "name": "sharp bend 1 support",
+            "maximumCenterlineHeightError": 2.83122063e-7
+          },
+          {
+            "name": "sharp bend 2 fitted",
+            "maximumCenterlineHeightError": 2.682209e-7
+          },
+          {
+            "name": "sharp bend 2 support",
+            "maximumCenterlineHeightError": 2.83122063e-7
+          },
+          {
+            "name": "sharp bend 3 fitted",
+            "maximumCenterlineHeightError": 0.0000292956829
+          },
+          {
+            "name": "sharp bend 3 support",
+            "maximumCenterlineHeightError": 0.00006957352
+          }
+        ],
+        "pairedClearance": [
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999514
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009952545
+          }
+        ],
+        "runtimeVerified": false
+      },
+      "runtimeCollisionTopBottomFacesVerified": true,
+      "runtimeCollisionTopBottomFacesEvidenceValidity": "Historical preceding-build witness; collision source unchanged. No new face census computation implied by height comparison.",
+      "validity": "Historical 119-check scope; superseded by the expanded current fixture with four reproduced failures."
+    }
+  ],
+  "latestFootprintRepairStop": {
+    "utc": "2026-10-04T05:56:14.009Z",
+    "status": "INCOMPLETE_REPAIR_LOOP_STOPPED",
+    "report": "Docs/G08_EnvironmentCohesion_FootprintDiagnosis_2026-10-04.md",
+    "defect": "EC06-D07",
+    "originalReproduction": "outputs/G08_EnvironmentCohesion_20261003/20261004_053506_263_bridge_ownership/Receipt.json",
+    "attempts": [
+      {
+        "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_053853_845_bridge_ownership/Receipt.json",
+        "sha256": "682f8f11c7cc62b48a4f8bd85a82e0a980c6f10d6a323cabf371cb51b75d100d",
+        "verdict": "PASS",
+        "checks": 126,
+        "failures": [],
+        "runtimeMvid": "f96fa151-f83e-4fb6-9aa5-f35b888dde81",
+        "editorMvid": "294a728c-831e-4d79-b5ea-2c7b55626533",
+        "runtimeAssemblySha256": "2c514a58249316e2eb91fb611f447dad97f3b48a3fc14d457ead9920fc88db6b",
+        "editorAssemblySha256": "63539ceef19370b507a8b460bce69f4bdcb050ae303a2795fb7a1c16ac09a40f",
+        "bridgeSourceSha256": "b9f87e6f038dba153a61df460ba5bfb4a1b3e6138c6f1b25e868ea1c980844de",
+        "recordedGeometry": [
+          {
+            "name": "recorded buffered footprint fitted",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 4770,
+            "maximumSlope": 26.1468067,
+            "maximumRaySlope": 26.1420326,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false
+          },
+          {
+            "name": "recorded buffered footprint support",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 5494,
+            "maximumSlope": 26.1458836,
+            "maximumRaySlope": 26.1417675,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false
+          }
+        ],
+        "supportClearance": [
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999514
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009952545
+          }
+        ]
+      },
+      {
+        "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_054323_672_bridge_ownership/Receipt.json",
+        "sha256": "799d5abafb5001c6533e0fc002e13f414ed5b89462843f0bedd22a694e53ceaf",
+        "verdict": "FAIL",
+        "checks": 126,
+        "failures": [
+          {
+            "name": "recorded buffered footprint fitted top faces obey the recorded production capsule slope",
+            "verdict": "FAIL"
+          },
+          {
+            "name": "recorded buffered footprint support top faces obey the recorded production capsule slope",
+            "verdict": "FAIL"
+          }
+        ],
+        "runtimeMvid": "dee05eca-ae34-4627-817e-b50adf10959d",
+        "editorMvid": "f3080c83-0bca-4638-925d-f7690dd6d1dc",
+        "runtimeAssemblySha256": "dc8fb91442b31019b72cb2ae632f67d2d0cfc36d32d63f914d6c827033363cc9",
+        "editorAssemblySha256": "4db739a449b9d54e8d9e4d2a20711db210461ab9851849f23b33849be2483cff",
+        "bridgeSourceSha256": "1806cdc74bc83ddfcf6659f0a37f952d254e95d3c9929de70c44b167e55c34e5",
+        "recordedGeometry": [
+          {
+            "name": "recorded buffered footprint fitted",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 4188,
+            "maximumSlope": 89.97318,
+            "maximumRaySlope": 26.1420326,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false,
+            "constructionMilliseconds": 588.1885,
+            "cookingMilliseconds": 3.1091
+          },
+          {
+            "name": "recorded buffered footprint support",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 4958,
+            "maximumSlope": 89.9449539,
+            "maximumRaySlope": 33.8305168,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false,
+            "constructionMilliseconds": 797.1811,
+            "cookingMilliseconds": 3.3169
+          }
+        ],
+        "supportClearance": [
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009999752
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": -0.009952545
+          }
+        ]
+      },
+      {
+        "receipt": "outputs/G08_EnvironmentCohesion_20261003/20261004_054647_812_bridge_ownership/Receipt.json",
+        "sha256": "3198d006817c458aad427ffd69adbd3fa947a15bb1c3de6a5e513be47b799a14",
+        "verdict": "FAIL",
+        "checks": 126,
+        "failures": [
+          {
+            "name": "sharp bend 0 support stays below fitted tread across shared width",
+            "verdict": "FAIL"
+          },
+          {
+            "name": "sharp bend 1 support stays below fitted tread across shared width",
+            "verdict": "FAIL"
+          },
+          {
+            "name": "sharp bend 2 support stays below fitted tread across shared width",
+            "verdict": "FAIL"
+          },
+          {
+            "name": "sharp bend 3 support stays below fitted tread across shared width",
+            "verdict": "FAIL"
+          }
+        ],
+        "runtimeMvid": "48ef6010-44af-47e5-824e-3fe901662bcd",
+        "editorMvid": "f3080c83-0bca-4638-925d-f7690dd6d1dc",
+        "runtimeAssemblySha256": "b547d100a9674212c88050b5bad9a40bd0ebc62c11af5af64c55ae442a0e356b",
+        "editorAssemblySha256": "4db739a449b9d54e8d9e4d2a20711db210461ab9851849f23b33849be2483cff",
+        "bridgeSourceSha256": "707fc7518de47dc9ccbf70ba0363cadc0fb9ac8f3ac339c97bd19450b6323cab",
+        "recordedGeometry": [
+          {
+            "name": "recorded buffered footprint fitted",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 184,
+            "maximumSlope": 26.1415825,
+            "maximumRaySlope": 26.1415825,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false,
+            "constructionMilliseconds": 3.3223000000000003,
+            "cookingMilliseconds": 0.2093
+          },
+          {
+            "name": "recorded buffered footprint support",
+            "roadSamples": 23,
+            "anchors": true,
+            "vertices": 184,
+            "maximumSlope": 26.1415977,
+            "maximumRaySlope": 26.1415977,
+            "misses": 0,
+            "steep": 0,
+            "slopeLimit": 58,
+            "matchesCaptured": false,
+            "constructionMilliseconds": 3.1217,
+            "cookingMilliseconds": 0.1642
+          }
+        ],
+        "supportClearance": [
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": 0.0242249966
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": 0.0242249966
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": 0.09911728
+          },
+          {
+            "name": "paired sharp bend support clearance",
+            "maximumSupportAboveDeck": 0.0242347717
+          }
+        ]
+      }
+    ],
+    "retirement": "outputs/G08_EnvironmentCohesion_20261003/20261004_grade_candidate_retirement/Retirement.json",
+    "currentFixture": "outputs/G08_EnvironmentCohesion_20261003/20261004_055250_795_bridge_ownership/Receipt.json",
+    "successfulCandidatePublishedToPlay": false,
+    "nextDecision": "Review a shared collision height field across fitted and wider support surfaces before any new repair loop; continue independent library/reference work."
+  },
+  "latestReferenceReview": {
+    "evidence": "outputs/G08_EnvironmentCohesion_20261003/20261004_expanded_reference_review.json",
+    "imagesReconciled": 18,
+    "inspectedAcrossReviews": 18,
+    "families": 12,
+    "currentTurnInspected": 11,
+    "status": "REFERENCE_BOARD_REVIEW_ONLY",
+    "runtimeVerified": false
+  },
+  "latestStreamedSitesPriority": {
+    "recordedUtc": "2026-10-04T10:58:21.433Z",
+    "status": "FOUNDATION_IMPLEMENTED_EDITOR_CONTRACTS_PASS_RUNTIME_OPEN",
+    "scope": [
+      "settlements",
+      "hostile areas",
+      "POIs",
+      "chunk sharing",
+      "large multi-chunk sites",
+      "rivers"
+    ],
+    "report": "Docs/G08_EnvironmentCohesion_StreamedSites_2026-10-04.md",
+    "sourceEvidence": "outputs/YourQuest_Tandem_20261004/environment-source-boundary.json",
+    "coordination": {
+      "chatTitle": "Integrate generated assets and races",
+      "threadId": "01a1017d-09aa-7170-a2e8-b8c4e6052ad1",
+      "confirmedByHuman": true,
+      "editorRelease": true,
+      "preserveHumanPlaySession": true,
+      "editorReleaseEvidence": "outputs/YourQuest_Tandem_20261004/asset-lane-handoff.md",
+      "editorOwner": "environment root"
+    },
+    "findings": [
+      {
+        "id": "EC10-S01",
+        "owner": "existing semantic authority",
+        "finding": "V2 member footprint missing from semantic reservation projection and intersection query",
+        "currentRepairStatus": "FOUNDATION_SOURCE_IMPLEMENTED_DETACHED_CONTRACTS_ONLY_GAMEPLAY_OPEN"
+      },
+      {
+        "id": "EC10-S02",
+        "owner": "existing streamer and materializer",
+        "finding": "No direct accepted member-to-owner demand in inspected scheduler; site construction remains owner-only",
+        "currentRepairStatus": "FOUNDATION_SOURCE_IMPLEMENTED_DETACHED_CONTRACTS_ONLY_GAMEPLAY_OPEN"
+      },
+      {
+        "id": "EC10-S03",
+        "owner": "existing site materializer",
+        "finding": "Accepted member loops build access connectors rather than required physical sectors",
+        "currentRepairStatus": "SHRINE_SOURCE_APPROVED_RUNTIME_TRAVEL_OPEN",
+        "currentRepairEvidence": "outputs/YourQuest_Tandem_20261004/environment-site-sector-integration.json"
+      },
+      {
+        "id": "EC10-S04",
+        "owner": "existing streamer and compiled site loader",
+        "finding": "Pending terrain lease retention exists; complete shared site lifecycle still requires a focused witness",
+        "currentRepairStatus": "FOUNDATION_SOURCE_IMPLEMENTED_DETACHED_CONTRACTS_ONLY_GAMEPLAY_OPEN"
+      },
+      {
+        "id": "EC09-S01",
+        "owner": "existing V2 planning and semantic authorities",
+        "finding": "Ordinary boundary anchors differ from fixture-only multi-band POIs; canonical frontier site expansion remains required"
+      }
+    ],
+    "nextGate": "Preserve human Play; asset lane first idle Editor import and review; explicit release before environment source edits and Unity operations.",
+    "remaining": "Implement and verify physical streamed sites, accepted member projection, owner demand/retention, member sectors, bounded canonical frontier expansion and river cohesion. All existing acceptance verdicts remain unchanged.",
+    "stagedCandidate": {
+      "status": "UNAPPLIED_CANDIDATE_NOT_COMPILED",
+      "receipt": "outputs/YourQuest_Tandem_20261004/member-footprint-candidate/Receipt.json",
+      "numericalReview": "outputs/YourQuest_Tandem_20261004/member-footprint-candidate/NumericalReview.json",
+      "baselineSha256": "8732bf9f8339390997d36e5d20eedb85bdfb77063707df428a731995ed36f4e3",
+      "candidateSha256": "7ca1ecf9ba1d94419552174894c340b027d86e6e9be080d0735dc9356f2ca7ba",
+      "numericalFootprints": 362,
+      "cellsCompared": 17738,
+      "scope": "C# is not compiled or executed. No accepted V2 validation, opening-envelope rebuild, cell projection, save replay, owner scheduling, Unity materialization, runtime or performance evidence. Large-coordinate float precision remains a separate requirement.",
+      "sourceModified": false
+    },
+    "stagedSiteIndexCandidate": {
+      "status": "UNAPPLIED_CANDIDATE_NOT_COMPILED",
+      "receipt": "outputs/YourQuest_Tandem_20261004/site-index-candidate/Receipt.json",
+      "baselineSha256": "45e6f490616026f2a6a34aa8a769e091232c8f394ca287b81d3dde51e5c0388b",
+      "candidateSha256": "69cc66a6635f019e60640c690d886bfa9165be116f178efa9ce75d992eb765b6",
+      "indexLimits": {
+        "maximumIndexedCells": 4096,
+        "maximumIndexedCellsPerFootprint": 64,
+        "overflowPolicy": "Exact intersection fallback; accepted sites and footprints are never truncated."
+      },
+      "scope": "No C# compile/execution, query cost or production integration evidence. Streamer dispatch, retention, readiness and compiled-site distance rules still need the coherent repair and native witnesses.",
+      "sourceModified": false,
+      "reviewCorrections": [
+        {
+          "previousCandidateSha256": "24db776da2f30fecc2590d304514836d4d61868fe087a542fd08af452fcbb79d",
+          "reason": "Require exact canonical cell size; a tolerance can misclassify far-coordinate footprint membership."
+        }
+      ]
+    },
+    "lifecycleReview": {
+      "status": "SOURCE_INSPECTION_ONLY",
+      "report": "Docs/G08_EnvironmentCohesion_StreamedSites_2026-10-04.md",
+      "requiredConsumers": [
+        "queue trimming and content demand",
+        "member deadline propagation",
+        "resource admission and eviction",
+        "nonrecursive member readiness",
+        "chunk activation and compiled-site distance retirement",
+        "configuration epoch and expiring demand"
+      ]
+    },
+    "blockedAudit": {
+      "status": "BLOCKED_PENDING_EDITOR_HANDOFF",
+      "recordedUtc": "2026-10-04T11:22:20.753Z",
+      "minimumConsecutiveGoalTurns": 3,
+      "liveProcess": {
+        "id": 41868,
+        "name": "Unity",
+        "confirmedLive": true,
+        "responding": true,
+        "playing": true,
+        "heartbeatUtc": "2026-10-04T11:21:35.9688711Z",
+        "worldSeed": "1ebc8706"
+      },
+      "blocker": "The human Play session remains active; the asset lane retains the first idle Editor import/review interval and has not explicitly released it.",
+      "priorTurnClassification": "Progress in staged code and source review plus a verified wait on Unity PID 41868; no production integration or runtime acceptance.",
+      "safeWorkCompleted": [
+        "disjoint ownership and source boundary report",
+        "unapplied accepted-member footprint correction",
+        "independent numerical footprint review",
+        "unapplied bounded membership lookup and patch review",
+        "full owner lifecycle consumer trace",
+        "located official river-linked site references with image limitations retained"
+      ],
+      "dependentWork": [
+        "apply coherent semantic and owner-demand/retention repair",
+        "fresh native C# compile and focused fixtures",
+        "physical member-sector materialization",
+        "canonical frontier site expansion",
+        "production river/site traversal and reconstruction",
+        "affected final publication/streaming/performance evidence"
+      ],
+      "resumeCondition": "Human Play ends; queued asset intake/review completes; asset lane explicitly releases the Editor in asset-lane-handoff.md; revalidate source hashes before applying candidates.",
+      "goalScopeReduced": false,
+      "productionSourceModified": false,
+      "legacyR2UserAcceptedPassPreserved": true,
+      "architectureAgentStopped": true
+    },
+    "appliedFoundation": {
+      "receipt": "outputs/YourQuest_Tandem_20261004/environment-site-foundation-integration.json",
+      "recordedUtc": "2026-10-04T16:52:06.108Z",
+      "sharedSiteFixture": {
+        "path": "outputs/YourQuest_Tandem_20261004/shared-site-footprint-verification/20261004_164918_911.json",
+        "utc": "2026-10-04T16:49:18.9118310Z",
+        "checks": 56,
+        "failures": 0,
+        "evidence": "DETACHED_EDITOR_CONTRACT_NOT_GAMEPLAY_ACCEPTANCE"
+      },
+      "semanticRegression": {
+        "path": "Logs/YQSemanticWorldAuthorityTests.md",
+        "utc": "2026-10-04T16:51:17.8896322Z",
+        "contracts": 6,
+        "failures": 0,
+        "evidence": "DETACHED_EDITOR_SEMANTIC_CONTRACT"
+      },
+      "remaining": [
+        "actual production physical member sectors; version-six approved reuse work is recorded separately and does not close runtime acceptance",
+        "canonical ordinary frontier site expansion beyond opening/beta anchors",
+        "PlaySafe opposite-order visits, retirement, construction cancellation and replay",
+        "bounded active payload and final content/streaming performance",
+        "full river banks/confluences/terminal/frontier/visual acceptance; stopped bridge defect",
+        "all EC01-EC15 and primary plus three varied production-world acceptance"
+      ]
+    }
+  },
+  "latestSectorLayoutPriority": {
+    "recordedUtc": "2026-10-04T21:07:04.349Z",
+    "status": "SHRINE_SOURCE_APPROVED_RUNTIME_TRAVEL_OPEN",
+    "batchLog": "outputs/YourQuest_Tandem_20261004/shrine-resume-qualification-20261004_210512.log",
+    "batchObservation": "outputs/YourQuest_Tandem_20261004/shrine-resume-qualification-20261004_210512-observation.json",
+    "batchNativeExitCode": 0,
+    "batchTerminationEvidence": "ACTUAL_NATIVE_EXIT_CODE_ZERO_AFTER_MATCHED_COMPLETE_RECEIPTS",
+    "evidence": "DETACHED_EDITOR_CONTRACTS_NOT_GAMEPLAY_ACCEPTANCE",
+    "sectorFixture": "outputs/YourQuest_Tandem_20261004/site-sector-layout-verification/20261004_210534_572.json",
+    "sectorChecks": 59,
+    "sampledGeometryCases": 64,
+    "sharedFixture": "outputs/YourQuest_Tandem_20261004/shared-site-footprint-verification/20261004_210534_780.json",
+    "sharedChecks": 64,
+    "frontierBasicFixture": "outputs/YourQuest_Tandem_20261004/frontier-continuation-verification/20261004_210533_925.json",
+    "frontierBasicChecks": 210,
+    "frontierEvidence": "DETACHED_FRONTIER_PLANNING_RECORD_AND_ADMISSION_CONTRACTS_NOT_LIVE_GENERATION_PUBLICATION_OR_GAMEPLAY",
+    "coldProviderReplayFixture": "outputs/YourQuest_Tandem_20261004/cold-provider-replay-verification/20261004_210533_047.json",
+    "coldProviderReplayChecks": 16,
+    "coldProviderReplayEvidence": "DETACHED_EDITOR_ASYNC_RESOURCES_AND_PROVIDER_REPLAY_NOT_WORLD_ADMISSION_OR_SPAWNING",
+    "coldProviderCatalogTicks": 1,
+    "coldProviderManifestTicks": 5,
+    "coldProviderManifestKey": "YQWorldSites/qualified_viking_home/YQRuntimeSemanticSite",
+    "approvedCatalogAssetSha256": "4b2fe4e1cb68829d037ff31e586ca251faff056ffbc5bcbf218f2ad3a4e4af0b",
+    "approvedManifestAssetSha256": "2758965858217fcb1b9cdf19733c02760fafaed1487277af06fb8f8682bac27a",
+    "generalFixture": "Logs/YQSemanticWorldAuthorityTests.md",
+    "generalUtc": "2026-10-04T21:05:35.9843554Z",
+    "generalChecks": 6,
+    "doorlessFixture": "Docs/Doorless_Foundation_Contract_Receipt.json",
+    "doorlessChecks": 7,
+    "doorlessUtc": "2026-10-04T21:05:30.5391559Z",
+    "totalFocusedChecks": 362,
+    "actualSpawningVerified": false,
+    "humanPlaytestReady": false,
+    "checkpointSourceHashes": {
+      "Assets/Assets/Scripts/Generated/Editor/YQCandidateInteriorBuilderV2.cs": "9e8642458a3a794346e785c4da1db429a269960c926caf50997811e6456c4bcf",
+      "Assets/Assets/Scripts/Generated/Editor/YQFrontierSpawnRuntimeVerification.cs": "5b7379416deb7e82986f5f59b40c50adfeb2ba1a512ba70f36c87e9efbbcbc8e",
+      "Assets/Assets/Scripts/Generated/Editor/YQDoorlessFoundationVerification.cs": "2e5d3a17fce679743550f11f26a6f6585131767b3061780e1e89de309abcdb62",
+      "Assets/Assets/Scripts/Tutorial/YQInvestorCombat.cs": "eca97902dfa757f678544ed101b7b37dcb253efab463b62791d15faae12403cf"
+    },
+    "qualifiedPoi": {
+      "kitId": "qualified_nordic_shrine",
+      "evidence": "DETACHED_PHYSICAL_SOURCE_QUALIFICATION_NOT_WORLD_SPAWNING",
+      "sourceGuid": "8d3c0163ee1326f4a95151d660deb6b9",
+      "sourceInstances": 22,
+      "foundationContacts": 96,
+      "terrainCases": "flat and plus/minus 0.5 percent at four headings, repeated after saved prefab reload",
+      "functions": [
+        "CulturalFocus",
+        "Transition",
+        "Reward",
+        "Circulation",
+        "Storage"
+      ],
+      "artifacts": {
+        "prefab": {
+          "path": "Assets/Assets/GeneratedAssets/WorldAssemblies/NordicVillage/QualifiedShrine/yq_nordic_shrine.prefab",
+          "sha256": "806c7d8a664ec4cf81fd062133166307851b715d15218000c7f97c333304a67d"
+        },
+        "runtimeManifest": {
+          "path": "Assets/Assets/Resources/YQWorldSites/qualified_nordic_shrine/YQRuntimeSemanticSite.asset",
+          "sha256": "195dca7e5232b509e6d1fcc264ae17b51561cf68706dbf637877feb6d34cbbeb"
+        },
+        "sourceManifest": {
+          "path": "Assets/Assets/GeneratedAssets/WorldAssemblies/SemanticProfiles/qualified_nordic_shrine/YQ_qualified_nordic_shrine_ReviewedSemanticSite.asset",
+          "sha256": "58f40f356f9a6a3d2c635e894598048453e9af8729f777e013ba5a11bd169974"
+        },
+        "report": {
+          "path": "Logs/YQQualifiedNordicShrinePublication.txt",
+          "sha256": "2a73ac81ff0a1fcb3bb2bc7c845015ac402bde6a0fe9453220077d34f76faac0"
+        }
+      }
+    },
+    "runtimeMvid": "866523fe-cb35-48f3-a47c-05967045e8c4",
+    "editorMvid": "d3b8a828-cad5-412e-8d43-1754b499f3c5",
+    "sourceHashes": {
+      "YQSemanticWorldAuthority.cs": "cbb39e69baffc7c3c351d864f594a67231cb3d6c0233ab7ae4c83f8475707f7d",
+      "YQSpatialMaterializationV2.cs": "1d70a61811514e8637e59a5fde97a88368f378778e11f4c582a936757f7bb360",
+      "YQSpatialBlueprintV2Validation.cs": "f222272a925691713b9dc54d05671f1900754ac78c28ce854079022a28747b09",
+      "YQPlayerFollowingSemanticChunkStreamer.cs": "3f0c3cb1322c421b4478255c64949fb54e4913c209de5a9bf87fb3a9de521049",
+      "YQRuntimeWorldSiteCatalog.cs": "85312561bb9f256c8954c2f602f7132476e2fba813953b658d8a221dd6adc502",
+      "YQGeneratedWorldPopulation.cs": "f1cdb01105dc3444adce68f98c921f1ce82db0cc588242fa191b712a51a39222",
+      "Editor/YQSemanticWorldAuthorityTests.cs": "276351bdacb59d457328d9b7bf7ec12af0dd4909d02be3e3567200927104a23a",
+      "YQProceduralSettlementLayout.cs": "dbd1a62660d38c238974e38fb46fa180adf6482e19cbc9315b9b4c93738f5a8d",
+      "YQContinuousWorldFeatureAuthority.cs": "007e93774452b7958960df9f7d229bff8fbe4f0fac2b383f16eaec30e4748cfb",
+      "YQGeneratedWorldRuntimeBuilder.cs": "d0e97f2840c72380b9afc6a63ef6d722c1357d048f54ace606e7f110a7d65c94",
+      "YQWorldGenerationV2Contracts.cs": "1d6d47fedaa9c43e0cbe76f5b20ec470f844331ed2547022f515b28e53fa72cb",
+      "YQSpatialContinuationV2Validation.cs": "4bc61a25ee333bffbef802bed82ded9815ce2a0e41cd952b31fafc84be3de536",
+      "YQWorldGenerationService.cs": "488f019ef6dc1f0b56e38f9a613185d209a4a04310c5e67ebd72b0c4756daa79",
+      "YQContinuousWorldCellAuthority.cs": "2edcc79d7bc803645e83566c6c002136d0ee662a754d0efd60c53d9977910bc4",
+      "../Data/State/YQStateFoundation.cs": "7d0e061a8e931c15bdf547a4be634d4533ca1e1c9c43182727b01e0d995fe81e",
+      "../Data/State/World State/WorldStateManager.cs": "0e4afca63d8a61afda73f418d67161695f7078b839aabcd0d3ad1ba1d5b76b0e",
+      "../Tutorial/YQProfileSaveSystem.cs": "4d08a9a98e0e7dc2badeade207dbf618fd45583d74cef397fde12a1e4861f148"
+    },
+    "runtimeAssemblySha256": "c1a2f2690d30b62540168502b109f86c282a12ab7333a397599dec350040cf60",
+    "editorAssemblySha256": "2a1f199120584806e4256b3d5ced1f2a5c4de42fa4078ce8502aa4db5cf304b3",
+    "implemented": [
+      "explicit derived reusable sector seed and layout version six; committed versions one through five retain geometry",
+      "approved completeness, signature, foundation and external entrance prerequisites for authored and streamed units",
+      "deterministic bounded approved source reuse into every accepted member; conservative footprint/apron checks",
+      "length-prefixed stable sector instance IDs; approved source identity retained for grounding and binding contracts",
+      "separate door and storage IDs for each reused placement; central identities retained",
+      "saved reusable layouts restore the approved source selection before expanding persistent sector instance IDs",
+      "physical saved sector coordinates and radii must match each immutable accepted reservation; a copied signature cannot authorize changed geometry",
+      "accepted site-only renderer publication, actual member readiness and shared-owner activation within existing limits",
+      "nullable parent-bound continuation contract, canonical hashing and exact optional terrain-pad/access-route context; no new sites published",
+      "versioned bounded unaccepted frontier opportunities with rarity, suitability and seed-priority spacing; legacy policy unchanged",
+      "staged LLM frontier briefs through existing scheduler/proposal boundary; typed save-coordinate serialization preserves null physical and unused semantic payloads",
+      "accepted-only prepared and semantic site/route/pad union with actual checksum identity; staged records invisible",
+      "physical preflight repeats dry reserves, earthwork, shoulder slopes, accepted-network connection, route grade and water crossing rejection against base and final union",
+      "immutable local terrain pad index; accepted water keeps priority; finite frontier access spurs do not emit terminal rays",
+      "cached reviewed functions, exact committed source selection/geometry and physical instance budget gates; no synchronous manifest loading during projection",
+      "normal state identity/reference validation includes accepted continuation site and NPC parents, global collisions and unchanged nullable replay",
+      "intentional interrupted loads retire through the existing bounded loader before retry; terminal content failures do not reopen automatically",
+      "provider epochs reject stale queued work and cleanup; detached successful loads clear their pending-content quarantine marker",
+      "exact loaded provider kit/composition/region query for scoped population admission",
+      "existing population owner has a scoped per-location adapter: exact accepted state/current prepared geometry/provider gates, scoped NPC selection and provider-owned staging",
+      "continuation population strict mode rejects capsules, actor/reward scatter and unsupported POI population",
+      "exact saved continuation source/layout/seed/binding replay through the existing compiled provider; continuation fallback and reselection denied",
+      "one scoped population adapter advanced by existing streamer budget after real collider activation; renderer/member readiness requires completed saved cast",
+      "provider-owned opaque actor context checks exact registration, content root, epoch, kit, seed and current saved location",
+      "population readiness resets on content retirement; renderer membership recached once when actors publish",
+      "derived semantic graph refresh preserves durable overlay list, revision and schema",
+      "detached continuous projection staging shares the captured origin heightfield and retains semantic/overlay/resolver ownership without Terrain recapture",
+      "bounded live streamer halo connects engine-owned staged candidates to existing builder/LLM service and paired profile publication; no live transaction exercised",
+      "version-three unaccepted opportunity policy removes the finite origin-continent shortlist filter; actual dry terrain, water, route, provider and publication acceptance stay mandatory",
+      "compiler-produced detached parent admits actual settlement, hostile, POI and rare multi-cell candidates beyond the finite continent envelope; canonical-region and repeat-order bodies preserved",
+      "accepted startup asynchronously warms the existing canonical catalog and exact saved reviewed manifests before immutable projection admission; stale work cannot cache providers",
+      "accepted continuation sites replay committed kit/seed/layout through preflight before base synthetic binding and reselection; final cooperative yield repeats active build ownership before binding commit",
+      "detached cold replay boundary checks stale callback ownership, exact allow-list lookup, current/version-four binding replay, absent/duplicate/unapproved kit rejection and cache preservation",
+      "real Editor ticks complete canonical catalog and exact approved home manifest Resources requests; committed three-sector provider replay and 171-source-instance budget pass shared validator after actual save serialization",
+      "existing pure terrain/network preflight rejects impossible reserves before a model request; its context remains transient and the typed proposal must preserve the complete engine reservation fingerprint before reuse",
+      "final terrain/provider/compiler/publication gates remain mandatory; moving numeric work earlier does not establish its indivisible frame cost",
+      "streamer retains the existing bounded halo, two substantive proposals and 15-second cadence; skipped reserves and busy/unavailable/cancelled inference do not spend proposals before typed provenance/reservation admission",
+      "rare candidate policy reserves two cardinal member sectors inside the existing 192m envelope with unique external frontages",
+      "construction token stages an immutable compiled handoff with exact active/base/prior/body/epoch guards; post-pointer install performs no provider/numeric compilation",
+      "derived graph stages with private per-call cell memo and no live pointer, global cell cache or resolver publication; durable overlay identity is retained",
+      "append refresh excludes complete pad/route transition influences from origin/resident/pending/active terrain and materialized content",
+      "affected completed/in-flight pure samplers retire; unrelated samplers, live roots, presentation caches and content/terrain epochs remain intact",
+      "paired append preserves exact existing accepted location references used by providers after complete body comparison",
+      "frontier worker waits for asynchronous Resources requests; nested cancellation drains every parent even when child cleanup throws",
+      "actual source hierarchy cost counted for every clone; missing cost and 1100-instance overflow rejected",
+      "three real approved prefab clones per qualified home family verified under disposable inactive Editor roots",
+      "connected entrance frontages with finite-segment obstacle checks and bounded right-angle alternatives",
+      "per-assembly runtime envelope validation while preserving the existing eight-cell and 1100-source-instance budgets",
+      "physical assembly terrain coverage union without intervening empty-space demand",
+      "existing compiled loader placement/grounding/door and storage pipeline; existing materializer draws the computed streets",
+      "existing central content retained when committed geometry or review/fit/cost prevents new sector assembly"
+    ],
+    "reviewedAssemblyCoverage": [
+      {
+        "kit": "qualified_viking_home",
+        "path": "Assets/Assets/Resources/YQWorldSites/qualified_viking_home/YQRuntimeSemanticSite.asset",
+        "usable": true,
+        "completeSourceAssemblies": 1,
+        "sectorEligibleDistinctAssemblies": 1,
+        "topology": "authored_zones",
+        "threeSectorDistinctAssemblyCapacity": false,
+        "limitation": ""
+      },
+      {
+        "kit": "qualified_occupied_homestead",
+        "path": "Assets/Assets/Resources/YQWorldSites/qualified_occupied_homestead/YQRuntimeSemanticSite.asset",
+        "usable": true,
+        "completeSourceAssemblies": 1,
+        "sectorEligibleDistinctAssemblies": 1,
+        "topology": "authored_zones",
+        "threeSectorDistinctAssemblyCapacity": false,
+        "limitation": ""
+      }
+    ],
+    "compatibility": "No accepted V2 hash/schema migration or DOT/registry-builder edits. New project-owned shrine source and manifests append one qualified canonical catalog entry; native sources and the repaired wrapper GUID remain preserved. Normal Continue loaded the existing selected profile; its accepted revision4/commitdd3b9ca096d34e23a43145b31dff494d remained unchanged after the owned diagnostic abort. Existing committed layouts are not relocated.",
+    "productionGap": "Early terrain influence ownership, final publication guards, specific interaction priority and doorless grounding pass focused contracts. The imported threshold/altar/chest shrine now qualifies CulturalFocus/Transition/Reward with actual measured contacts, traversable access and the existing chest binder; one reusable assembly enters the canonical catalog. This is source qualification, not an actual POI spawn or paired frontier append. Normal Continue released the original accepted world after successful terrain restore, but distant settlements/hostiles were deferred and none were observed at the stationary saved location. The Goddess was the only dialogue actor; a corrected compiled witness now requires canonical population identity and a loaded parent site. Its fresh runtime behavior, a bounded disposable-profile site itinerary, physical actors, live construction/save/revisit, broader provider families, base terrain member prepass, rivers and final visual/performance acceptance remain open. Actual local narration/NPC requests timed out; no successful new model response is claimed. The first runtime batch was explicitly aborted as a limited stationary diagnostic, exit-1, not a spawning PASS.",
+    "retainedFailures": [
+      "202723 native exit zero masked nine failed inactive interaction assertions; original failure receipts remain retained. Inactive parent lookup and exact run-local aggregate exit accounting repaired; 203750 all suites and aggregate pass",
+      "202416 shrine publisher and 203501 raw contact diagnostic rejected gate footing before outputs; 204623 exposed a walking limit inconsistent with the real motor; 205428 passed physical gates then rejected a connection1.2m outside the allowed1m envelope. Exact partial hash/GUID/rejection/source-lineage guards authorized its surgical repair. Final210512 qualifies the source and all contracts; prior rejections remain retained",
+      "initial clear frontage lacked an alternative around a short central street; fixed by bounded two-segment connectors",
+      "catalog fixture incorrectly sent authored-zone manifests through the streaming adapter; corrected without changing those assets",
+      "sector capability initially read the separate streaming path list on authored zones; corrected to consume their existing approved zone frontage",
+      "191914 and 192111 batches compiled but the new arbitrary-world candidate positives failed before the factory; retained receipts isolated finite continent shortlist exclusion. Versioned v3 distant candidate repair passed in 192842; accepted geography and physical admission were not weakened"
+    ],
+    "remaining": [
+      "finish base-world terrain prepass member footprint union without modifying accepted geometry",
+      "committed central layout extensions through the existing construction/publication transaction",
+      "sector activation/cancellation/reconstruction and real PlaySafe opposite-order visits",
+      "ordinary frontier settlements, hostile sites and POIs; wider approved regional physical families",
+      "verify live streamer opportunity selection, staged construction, paired publication and protected append refresh in production",
+      "positive complete continuation admission, protected reload/cache warmup, save faults and final route/pad union runtime witnesses",
+      "verify saved provider replay and per-content-lifetime population readiness in actual gameplay; prove activation and renderer membership",
+      "physical interrupted quarantine cleanup/re-entry and actual unload/revisit witnesses; independent per-sector retirement",
+      "final content performance and full river/crossing/visual acceptance",
+      "all EC01-EC15 and primary plus three varied production worlds"
+    ]
+  }
+}

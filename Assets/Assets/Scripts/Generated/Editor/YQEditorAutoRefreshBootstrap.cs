@@ -30,6 +30,12 @@ internal static class YQEditorAutoRefreshBootstrap
     private const string FocusedR1PublicationMarker = "Temp/YQ_R1_PUBLICATION_FOCUSED.request";
     // note: Dispatch the existing R1-plus-unload witness without requiring the visible Unity menu.
     private const string FocusedR1UnloadRevisitMarker = "Temp/YQ_R1_UNLOAD_REVISIT_FOCUSED.request";
+    // note: R3 owns a distinct diagnostic request; it never dispatches the R1/R2 acceptance suite.
+    private const string PhysicalR3Marker = "Temp/YQ_G08_R3_PHYSICAL.request";
+    private const string EnvironmentBindingMarker = "Temp/YQ_ENVIRONMENT_BINDING_CONTRACT.request";
+    private const string AssetLibraryEvidenceMarker = "Temp/YQ_ASSET_LIBRARY_EVIDENCE.request";
+    private const string HydrologySegmentMarker = "Temp/YQ_HYDROLOGY_SEGMENT_CONTRACT.request";
+    private const string BridgeOwnershipMarker = "Temp/YQ_BRIDGE_OWNERSHIP_CONTRACT.request";
     private const string OrdinaryContinueMarker = "Temp/YQ_STARTUP_CONTINUE.request";
     // note: This marker selects the fixed beta profile through the real title flow for unattended baseline verification.
     private const string BetaFixtureStartMarker = "Temp/YQ_BETA_FIXTURE_START.request";
@@ -56,6 +62,8 @@ internal static class YQEditorAutoRefreshBootstrap
     private const string AssetContractLibraryReviewMarker = "Temp/YQ_ASSET_CONTRACT_LIBRARY_REVIEW.request";
     private const string FocusedLibraryCurationMarker = "Temp/YQ_FOCUSED_LIBRARY_CURATION.request";
     private const string StreamedSiteOwnerAuditMarker = "Temp/YQ_STREAMED_SITE_OWNER_AUDIT.request";
+    // note: Explicit assisted visits share the existing save barrier and wait for the selected profile's generation owners to become idle.
+    private const string RemoteSiteVisitMarker = "Temp/YQ_REMOTE_SITE_VISIT.request";
     private const string LandscapeReviewMarker = "Temp/YQ_LANDSCAPE_REVIEW.request";
     private const string TerrainCohesionPreviewMarker = "Temp/YQ_TERRAIN_COHESION_PREVIEW.request";
     private const string BlueprintHashVerificationMarker = "Temp/YQ_BLUEPRINT_HASH_VERIFY.request";
@@ -428,7 +436,29 @@ internal static class YQEditorAutoRefreshBootstrap
             YQProductionBaselineRegression.RunProductionRegression();
         }
 
+        if (File.Exists(RemoteSiteVisitMarker) && EditorApplication.isPlaying &&
+            YourQuestTutorialAutoBootstrap.GameplayPresentationReleased &&
+            YQAssetContractLibraryReview.CanBeginRemoteSiteProbe)
+        {
+            // note: The first line retains the profile guard; an optional accepted-site ID bounds a focused regression visit without changing the original all-site request.
+            string[] request = File.ReadAllLines(RemoteSiteVisitMarker);
+            if (request.Length > 0 && request[0].Trim() == YQProfileSaveSystem.Instance?.ActiveProfileId)
+            {
+                string requestedSiteId = request.Length > 1 ? request[1].Trim() : null;
+                DeleteMarker(RemoteSiteVisitMarker);
+                YQAssetContractLibraryReview.BeginRemoteSiteProbeForSite(requestedSiteId);
+            }
+        }
+
         // note: Render only currently loaded production geometry without moving the player or changing streaming demand.
+        if (File.Exists(PhysicalR3Marker) && EditorApplication.isPlaying &&
+            YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+        {
+            string command = File.ReadAllText(PhysicalR3Marker);
+            DeleteMarker(PhysicalR3Marker);
+            YQG08R3PhysicalItineraryVerification.Dispatch(command);
+        }
+
         if (File.Exists(LandscapeReviewMarker) && EditorApplication.isPlaying && YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
         {
             DeleteMarker(LandscapeReviewMarker);
@@ -491,6 +521,34 @@ internal static class YQEditorAutoRefreshBootstrap
             // note: Consume the bounded contract request in Edit Mode so catalog order and binding compatibility are tested without mutating the live runtime.
             DeleteMarker(WorldGenerationV2ContractMarker);
             YQWorldGenerationV2ContractTests.RunFromMenu();
+        }
+
+        if (File.Exists(EnvironmentBindingMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: A focused Edit-only fixture checks catalog/query order without starting the broader world or runtime suites.
+            DeleteMarker(EnvironmentBindingMarker);
+            YQEnvironmentBindingVerification.Run();
+        }
+
+        if (File.Exists(AssetLibraryEvidenceMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: Documentary contracts run on disposable Edit Mode objects without scanning or publishing production assets.
+            DeleteMarker(AssetLibraryEvidenceMarker);
+            YQAssetLibraryEvidenceVerification.Run();
+        }
+
+        if (File.Exists(BridgeOwnershipMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: This explicit request tests disposable collision ownership through the existing integrity routine, never a production profile.
+            DeleteMarker(BridgeOwnershipMarker);
+            YQEnvironmentBridgeVerification.Run();
+        }
+
+        if (File.Exists(HydrologySegmentMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: Bounded numeric ribbon cases use the existing materializer; no scene, profile, palette or topology is published.
+            DeleteMarker(HydrologySegmentMarker);
+            YQEnvironmentHydrologyVerification.Run();
         }
 
         if (File.Exists(BlueprintHashVerificationMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)

@@ -11,7 +11,7 @@ public sealed class YQProceduralSettlementLayoutRecord
     [Newtonsoft.Json.JsonConverter(typeof(Vector3JsonConverter))]
     public Vector3 origin;
     public float radius;
-    // note: Legacy records keep shared grading; new layouts persist parcel elevations instead of resampling them after reload.
+    // note: Legacy earthworks retain their saved algorithms; version three grades only parcel and street ownership.
     public int earthworkVersion;
     public List<float> parcelGroundHeights = new List<float>();
     public List<YQProceduralCellPlacement> cells = new List<YQProceduralCellPlacement>();
@@ -200,8 +200,11 @@ public static class YQProceduralSettlementLayout
     public static void EnableNewWorld(GeneratedWorldPlanRecord plan)
     {
         // note: Called only on newly generated model/fallback output, never on save load. Generated JSON cannot supply geometry authority.
-        if (plan?.settlements == null) return;
-        foreach (var settlement in plan.settlements)
+        if (plan == null) return;
+        // note: Strip any supplied geometry only on fresh generation output, including worlds without settlements.
+        if (plan.encampments != null)
+            foreach (var encampment in plan.encampments) if (encampment != null) encampment.proceduralLayout = null;
+        foreach (var settlement in plan.settlements ?? new List<GeneratedSettlementRecord>())
         {
             if (settlement == null) continue;
             settlement.proceduralLayout = null;
@@ -239,6 +242,9 @@ public static class YQProceduralSettlementLayout
     private static IEnumerable<YQProceduralSettlementLayoutRecord> EnumerateCommittedLayouts(GeneratedWorldPlanRecord plan)
     {
         foreach (var owner in EnumerateSettlementOwners(plan)) if (owner.proceduralLayout != null) yield return owner.proceduralLayout;
+        // note: Base hostile geometry shares the existing world document; continued hostile geometry remains on its accepted continuation record.
+        if (plan?.encampments != null)
+            foreach (var owner in plan.encampments) if (owner?.proceduralLayout != null) yield return owner.proceduralLayout;
         var continuation = plan?.spatialPlanV2?.acceptedContinuation;
         if (continuation?.state == YQSpatialContinuationStateV2.Accepted && continuation.locations != null)
             foreach (var location in continuation.locations)
@@ -300,6 +306,27 @@ public static class YQProceduralSettlementLayout
                     ", requestedBlocks=" + settlement.proceduralBlockTarget + ", availableFittedBlocks=" + value.cells.Count +
                     ". Additional compatible functional cells are required for the requested scale.");
         }
+    }
+
+    public static YQProceduralSettlementLayoutRecord FindCommittedLayout(string seed)
+        => FindCommittedLayout(WorldStateManager.Instance?.State?.generatedWorldPlan, seed);
+
+    internal static YQProceduralSettlementLayoutRecord FindCommittedLayout(GeneratedWorldPlanRecord plan, string seed)
+    {
+        // note: Exact saved selection identity is resolved before source selection, without changing settlement demand ownership.
+        if (string.IsNullOrWhiteSpace(seed)) return null;
+        foreach (var layout in EnumerateCommittedLayouts(plan))
+            if (string.Equals(layout.seed, seed, StringComparison.Ordinal)) return layout;
+        return null;
+    }
+
+    public static bool Commit(GeneratedEncampmentRecord encampment, string seed)
+    {
+        // note: Construction publishes only a successfully prepared base layout; an existing accepted record is never replaced.
+        var value = Get(seed);
+        if (encampment == null || value == null || encampment.proceduralLayout != null || !ValidateRecord(value, out _)) return false;
+        encampment.proceduralLayout = value;
+        return true;
     }
 
     public static bool TryResolve(YQReviewedSemanticSiteManifest manifest, HashSet<string> selected, string seed,
@@ -504,7 +531,8 @@ public static class YQProceduralSettlementLayout
         var members = new List<YQSiteMemberFootprintV2>(site.MemberFootprint);
         members.Sort((a, b) => { int order = (a?.reservedRadius ?? 0f).CompareTo(b?.reservedRadius ?? 0f);
             return order != 0 ? order : string.CompareOrdinal(a?.memberId, b?.memberId); });
-        var layout = new YQProceduralSettlementLayoutRecord { seed = seed, version = reusable ? 6 : 5, earthworkVersion = 1,
+        // note: Stamp bounded earthworks only on new sector proposals; accepted layouts above are reused without migration.
+        var layout = new YQProceduralSettlementLayoutRecord { seed = seed, version = reusable ? 6 : 5, earthworkVersion = 3,
             sectorFootprintSignature = SectorFootprintSignature(site) };
         var sectorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { site.siteId };
         var memberEntries = new List<Vector3>();
@@ -877,7 +905,7 @@ public static class YQProceduralSettlementLayout
                 else sectorMap.Add(sector.id, sector);
         }
         // note: Reject unsupported or partially serialized earthwork profiles at the save boundary, before runtime terrain mutation.
-        if (record.earthworkVersion < 0 || record.earthworkVersion > 2 || record.parcelGroundHeights == null ||
+        if (record.earthworkVersion < 0 || record.earthworkVersion > 3 || record.parcelGroundHeights == null ||
             (record.earthworkVersion == 0 && record.parcelGroundHeights.Count != 0) ||
             (record.parcelGroundHeights.Count != 0 && record.parcelGroundHeights.Count != record.cells.Count))
             return false;

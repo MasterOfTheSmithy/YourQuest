@@ -342,6 +342,35 @@ public static class YQSemanticWorldAuthorityTests
             var opposite = Clone(continuation); opposite.locations.Reverse(); foreach (var location in opposite.locations) location.anchor.memberFootprint.Reverse();
             Check("location and member enumeration does not change checksum", YQSpatialContinuationHasherV2.ComputeContentHash(opposite) == hash);
             Check("actual world serializer round-trip preserves checksum", YQSpatialContinuationHasherV2.ComputeContentHash(Clone(continuation)) == hash);
+            // note: New base-hostile storage must preserve the old absent-field shape and continuation checksum contract.
+            Check("old hostile JSON retains null optional layout", Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedEncampmentRecord>(
+                "{\"encampmentId\":\"old-hostile\",\"deterministicSeed\":\"old-seed\"}", settings).proceduralLayout == null);
+            var hostileLocation = Location("hostile-hash-compatibility", 6000f);
+            hostileLocation.anchor.memberFootprint.Clear();
+            hostileLocation.anchor.kind = YQSiteKindV2.HostileSite;
+            hostileLocation.settlement = null;
+            hostileLocation.encampment = new GeneratedEncampmentRecord { encampmentId = hostileLocation.anchor.sourceSemanticId,
+                regionId = hostileLocation.anchor.parentRegionId, deterministicSeed = "old-hostile-seed" };
+            var legacyToken = JObject.Parse(JsonUtility.ToJson(hostileLocation));
+            legacyToken.Remove("contentHash"); legacyToken.Remove("validatedContentHash"); legacyToken.Remove("validationErrors");
+            legacyToken.Remove("physicalContext");
+            ((JObject)legacyToken["encampment"]).Remove("proceduralLayout");
+            var hashMethod = typeof(YQSpatialContinuationHasherV2).GetMethod("Hash",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            string oldShapeHash = (string)hashMethod.Invoke(null, new object[] { legacyToken });
+            Check("absent hostile layout preserves pre-extension checksum shape", oldShapeHash ==
+                YQSpatialContinuationHasherV2.ComputeLocationContentHash(hostileLocation));
+            Check("null hostile layout round-trip preserves checksum", oldShapeHash ==
+                YQSpatialContinuationHasherV2.ComputeLocationContentHash(Clone(hostileLocation)));
+            hostileLocation.encampment.proceduralLayout = new YQProceduralSettlementLayoutRecord();
+            var dualLayout = Clone(continuation); dualLayout.locations = new List<GeneratedSpatialContinuationLocationV2Record> { hostileLocation };
+            Check("continued hostile rejects a competing base layout", YQSpatialContinuationValidatorV2.ValidateBasic(parent, dualLayout).errors.Any(
+                error => error.Contains("compositionLayout only")));
+            var untrusted = JObject.Parse("{\"encampments\":[{\"encampmentId\":\"model-hostile\",\"proceduralLayout\":{\"version\":99}}]}");
+            var stripAuthority = typeof(YQWorldGenerationService).GetMethod("RemoveGeneratedRuntimeAuthority",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            stripAuthority.Invoke(null, new object[] { untrusted });
+            Check("model output cannot supply hostile geometry authority", untrusted["encampments"][0]["proceduralLayout"] == null);
             parent.acceptedContinuation = continuation;
             Check("nullable extension leaves historical base and member hash unchanged", baseHash == YQSpatialBlueprintHasherV2.ComputeContentHashReadOnly(parent) &&
                 memberHash == YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(parent));
@@ -469,6 +498,7 @@ public static class YQSemanticWorldAuthorityTests
             Check("corrupt accepted identity cannot reuse a claimed cache fingerprint", !(bool)identityMethod.Invoke(null, identityArgs));
             RunFrontierBriefAndPhysicalContracts(Check, continuation.locations[0]);
             RunFrontierPhysicalPlanningContracts(Check, physicalSamples);
+            RunReviewedResidentSurfaceContracts(Check);
             RunPairedProfileRecoveryContracts(Check);
             RunFrontierPublicationOwnershipContracts(Check);
             RunFrontierRefreshOwnershipContracts(Check);
@@ -512,6 +542,265 @@ public static class YQSemanticWorldAuthorityTests
         }, Newtonsoft.Json.Formatting.Indented));
         Debug.Log("[YQFrontierContinuationContracts] " + checks.Count + " checks; failures=" + failures);
         return failures;
+    }
+
+    private static void RunReviewedResidentSurfaceContracts(Action<string, bool> check)
+    {
+        // note: Real detached colliders exercise the production floor projection after independent cell grounding; no saved cast, approved asset or profile is created or altered.
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var cache = typeof(YQCompiledWorldSiteInstance).GetMethod("CacheReviewedResidentSurfaceDatum", flags);
+        var maximum = typeof(YQCompiledWorldSiteInstance).GetMethod("MaximumResidentSurfaceHeight", flags);
+        var project = typeof(YQCompiledWorldSiteInstance).GetMethod("TryProjectToSurface", flags);
+        if (cache == null || maximum == null || project == null)
+            throw new InvalidOperationException("Reviewed resident surface runtime helpers are unavailable.");
+        const string signature = "detached-reviewed-resident-source";
+        const float rootHeight = 44.41067f, cellHeight = 44.20422f, floorHeight = 48.70422f, datumLocalHeight = 3.6795058f;
+        var root = new GameObject("DetachedReviewedResidentSurface") { hideFlags = HideFlags.HideAndDontSave };
+        GameObject foreign = null;
+        try
+        {
+            // note: Keep the fixture away from authored scene geometry while retaining the failing runtime's vertical coordinates.
+            root.transform.position = new Vector3(24000f, rootHeight, -24000f);
+            var provider = root.AddComponent<YQCompiledWorldSiteInstance>();
+            typeof(YQCompiledWorldSiteInstance).GetField("settlementId", flags).SetValue(provider, "detached-reviewed-resident-surface");
+            var content = new GameObject("CompiledSiteContent"); content.transform.SetParent(root.transform, false);
+            var cell = new GameObject("CompiledZone__detached-reviewed-home"); cell.transform.SetParent(content.transform, false);
+            cell.transform.localPosition = new Vector3(0f, cellHeight - rootHeight, 0f);
+            var support = new GameObject("ReviewedLanding"); support.transform.SetParent(cell.transform, false);
+            support.transform.localPosition = new Vector3(0f, datumLocalHeight, 0f);
+            BoxCollider Box(string name, Transform parent, float localTop, Vector3 size)
+            {
+                var value = new GameObject(name); value.transform.SetParent(parent, false);
+                value.transform.localPosition = new Vector3(0f, localTop - size.y * .5f, 0f);
+                var collider = value.AddComponent<BoxCollider>(); collider.size = size; return collider;
+            }
+            var floor = Box("ReviewedInteriorFloor", cell.transform, floorHeight - cellHeight, new Vector3(8f, .1f, 8f));
+            var roof = Box("UnlabelledUpperShell", cell.transform, 53f - cellHeight, new Vector3(8f, .1f, 8f));
+            var obstruction = Box("BlockingFurniture", cell.transform, floorHeight - cellHeight + 1.7f, new Vector3(.8f, 1.6f, .8f));
+            obstruction.enabled = false;
+            Vector3 candidate = new Vector3(root.transform.position.x, 54f, root.transform.position.z);
+            YQReviewedCellFunctionContractV2 Approved() => new YQReviewedCellFunctionContractV2 {
+                cellId = "detached-reviewed-home", sourceSignature = signature, reviewState = YQSemanticSiteReviewState.Approved,
+                doorBindings = new List<YQCellDoorBindingV2> { new YQCellDoorBindingV2 {
+                    reviewState = YQSemanticSiteReviewState.Approved,
+                    terrainApproach = new YQTerrainApproachContractV2 { reviewState = YQSemanticSiteReviewState.Approved,
+                        authoredRouteVerified = true, supportPath = "ReviewedLanding",
+                        localStart = new Vector3(0f, datumLocalHeight, 0f), walkingSurfaceAboveTerrain = .12f } } } };
+            void Cache(YQReviewedCellFunctionContractV2 contract, string expected = signature) =>
+                cache.Invoke(provider, new object[] { cell.transform, contract, expected });
+            float Maximum(Vector3 probe) => (float)maximum.Invoke(provider, new object[] { floor.transform, probe });
+            bool Project(Vector3 probe, out Vector3 position)
+            {
+                // note: Fixture transform/collider changes must enter Physics before the real nonallocating ray and capsule queries.
+                Physics.SyncTransforms();
+                object[] args = { probe, null, null };
+                bool success = (bool)project.Invoke(provider, args); position = (Vector3)args[1]; return success;
+            }
+            check("legacy resident guard rejects a raised floor without reviewed evidence", !Project(candidate, out _) &&
+                Mathf.Abs(Maximum(candidate) - (rootHeight + 1.25f)) < .001f);
+            Cache(Approved());
+            check("reviewed resident band uses the live cell approach datum", Mathf.Abs(Maximum(candidate) -
+                (cellHeight + datumLocalHeight + 1.25f)) < .001f);
+            check("actual ray projection accepts the reviewed raised floor beneath a high shell", Project(candidate, out var projected) &&
+                Mathf.Abs(projected.y - floorHeight) < .001f);
+            check("resident candidate height remains an independent ceiling", !Project(new Vector3(candidate.x, 46f, candidate.z), out _) &&
+                Mathf.Abs(Maximum(new Vector3(candidate.x, 46f, candidate.z)) - 47.25f) < .001f);
+
+            floor.enabled = false;
+            check("an unlabelled roof above the reviewed band cannot become a resident floor", !Project(candidate, out _));
+            roof.name = "ReviewedRoofShell";
+            roof.transform.localPosition = new Vector3(0f, 49f - cellHeight - .05f, 0f);
+            check("roof semantic exclusion still rejects a roof inside the permitted height band", !Project(candidate, out _));
+            roof.name = "UnlabelledUpperShell";
+            roof.transform.localPosition = new Vector3(0f, 53f - cellHeight - .05f, 0f);
+            floor.enabled = true;
+            obstruction.enabled = true;
+            check("reviewed floor datum does not bypass the standing clearance capsule", !Project(candidate, out _));
+            obstruction.enabled = false;
+
+            foreign = new GameObject("DetachedForeignResidentSurface") { hideFlags = HideFlags.HideAndDontSave };
+            foreign.transform.position = new Vector3(candidate.x + 16f, 45f - .05f, candidate.z);
+            foreign.AddComponent<BoxCollider>().size = new Vector3(8f, .1f, 8f);
+            check("foreign support inside the legacy height cap is rejected by actual ray projection",
+                !Project(new Vector3(candidate.x + 16f, candidate.y, candidate.z), out _));
+
+            var multiple = Approved();
+            var higher = Approved().doorBindings[0]; higher.terrainApproach.localStart.y += 4f;
+            multiple.doorBindings.Insert(0, higher); Cache(multiple);
+            check("multiple reviewed approaches retain the lowest approved ceiling datum", Mathf.Abs(Maximum(candidate) -
+                (cellHeight + datumLocalHeight + 1.25f)) < .001f && Project(candidate, out projected) && Mathf.Abs(projected.y - floorHeight) < .001f);
+
+            RunResidentJointSearchContracts(check, provider, floor);
+
+            // note: Replacing cached evidence with invalid evidence must restore the old guard, rather than retain a previously admitted raised band.
+            void RejectedContract(string name, Action<YQReviewedCellFunctionContractV2> change, string expected = signature)
+            {
+                Cache(Approved()); var rejected = Approved(); change(rejected); Cache(rejected, expected);
+                check(name, Mathf.Abs(Maximum(candidate) - (rootHeight + 1.25f)) < .001f && !Project(candidate, out _));
+            }
+            RejectedContract("stale reviewed source cannot retain a raised resident band", contract => contract.sourceSignature = "stale-source");
+            RejectedContract("empty matching source signatures cannot authorize a resident band", contract => contract.sourceSignature = string.Empty, string.Empty);
+            RejectedContract("pending cell review cannot authorize a resident band", contract => contract.reviewState = YQSemanticSiteReviewState.Pending);
+            RejectedContract("pending door review cannot authorize a resident band", contract => contract.doorBindings[0].reviewState = YQSemanticSiteReviewState.Pending);
+            RejectedContract("pending approach review cannot authorize a resident band", contract => contract.doorBindings[0].terrainApproach.reviewState = YQSemanticSiteReviewState.Pending);
+            RejectedContract("unverified authored approach cannot authorize a resident band", contract => contract.doorBindings[0].terrainApproach.authoredRouteVerified = false);
+            RejectedContract("missing unique support path cannot authorize a resident band", contract => contract.doorBindings[0].terrainApproach.supportPath = "AbsentLanding");
+            RejectedContract("nonfinite reviewed datum cannot authorize a resident band", contract => contract.doorBindings[0].terrainApproach.localStart.x = float.NaN);
+            RejectedContract("excessive reviewed walking offset cannot authorize a resident band", contract => contract.doorBindings[0].terrainApproach.walkingSurfaceAboveTerrain = .151f);
+            Cache(Approved()); Cache(null);
+            check("missing contract clears a previously cached raised resident band", Mathf.Abs(Maximum(candidate) - (rootHeight + 1.25f)) < .001f && !Project(candidate, out _));
+            var duplicateSupport = new GameObject("ReviewedLanding"); duplicateSupport.transform.SetParent(cell.transform, false);
+            Cache(Approved());
+            check("ambiguous support paths cannot authorize a resident band", Mathf.Abs(Maximum(candidate) - (rootHeight + 1.25f)) < .001f && !Project(candidate, out _));
+            UnityEngine.Object.DestroyImmediate(duplicateSupport);
+
+            Cache(Approved()); cell.transform.position += Vector3.up * 2f;
+            check("cached local datum follows subsequent live cell grounding", Mathf.Abs(Maximum(candidate + Vector3.up * 2f) -
+                (cellHeight + datumLocalHeight + 3.25f)) < .001f && Project(candidate + Vector3.up * 2f, out projected) &&
+                Mathf.Abs(projected.y - (floorHeight + 2f)) < .001f);
+            floor.enabled = false;
+            check("disabled floor colliders cannot supply resident support", !Project(candidate + Vector3.up * 2f, out _));
+            floor.enabled = true; cell.SetActive(false);
+            check("inactive cell colliders cannot supply resident support", !Project(candidate + Vector3.up * 2f, out _));
+        }
+        finally
+        {
+            if (foreign != null) UnityEngine.Object.DestroyImmediate(foreign);
+            UnityEngine.Object.DestroyImmediate(root);
+            Physics.SyncTransforms();
+        }
+    }
+
+    private static void RunResidentJointSearchContracts(Action<string, bool> check, YQCompiledWorldSiteInstance provider, BoxCollider floor)
+    {
+        // note: Use the production role search and spacing predicate on detached Physics geometry; the saved seeds do not make this box a production-home acceptance witness.
+        const System.Reflection.BindingFlags instanceFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        const System.Reflection.BindingFlags staticFlags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var legacy = typeof(YQCompiledWorldSiteInstance).GetMethod("TryResolveRolePosition", instanceFlags);
+        var joint = typeof(YQCompiledWorldSiteInstance).GetMethod("TryResolveRolePositionWithOccupancy", instanceFlags);
+        var separated = typeof(YQGeneratedWorldPopulation).GetMethod("IsResidentPositionSeparated", staticFlags);
+        var manifestField = typeof(YQCompiledWorldSiteInstance).GetField("manifest", instanceFlags);
+        var instancesField = typeof(YQCompiledWorldSiteInstance).GetField("Instances", staticFlags);
+        if (legacy == null || joint == null || separated == null || manifestField == null || instancesField == null)
+            throw new InvalidOperationException("Resident joint-search runtime helpers are unavailable.");
+        var instances = (Dictionary<string, YQCompiledWorldSiteInstance>)instancesField.GetValue(null);
+        string siteId = (string)typeof(YQCompiledWorldSiteInstance).GetField("settlementId", instanceFlags).GetValue(provider);
+        bool hadPreviousInstance = instances.TryGetValue(siteId, out var previousInstance);
+        object previousManifest = manifestField.GetValue(provider);
+        Vector3 previousSize = floor.size;
+        bool previousEnabled = floor.enabled;
+        var manifest = ScriptableObject.CreateInstance<YQReviewedSemanticSiteManifest>();
+        manifest.hideFlags = HideFlags.HideAndDontSave;
+        GameObject foreignGround = null;
+        try
+        {
+            var zone = new YQReviewedSemanticZoneRecord {
+                stableId = "detached-reviewed-home", localBoundsCenter = new Vector3(0f, 54f - provider.transform.position.y, 0f),
+                localBoundsSize = new Vector3(8f, 8f, 3.2f), semanticTags = new List<string> { "residential", "market", "service", "civic" } };
+            manifest.Configure("detached-resident-joint-search", "detached", 1, new[] { zone }, true);
+            manifestField.SetValue(provider, manifest);
+            instances[siteId] = provider;
+            floor.size = new Vector3(8f, .1f, 3.2f);
+            Physics.SyncTransforms();
+            const string seed = "detached-resident-joint-search";
+            var npc = new GeneratedNpcPlanRecord { npcId = "detached-joint-search-npc", role = "merchant", archetype = "resident" };
+            string manifestBefore = JsonUtility.ToJson(manifest), npcBefore = JsonUtility.ToJson(npc);
+            bool Search(IReadOnlyList<Vector3> occupied, out Vector3 position)
+            {
+                object[] args = { "merchant resident", seed, 2, null, null, occupied };
+                bool success = (bool)joint.Invoke(provider, args); position = (Vector3)args[3]; return success;
+            }
+            bool IsSeparated(Vector3 candidate, IReadOnlyList<Vector3> occupied) =>
+                (bool)separated.Invoke(null, new object[] { candidate, occupied });
+            object[] legacyArgs = { "merchant resident", seed, 2, null, null };
+            bool legacySuccess = (bool)legacy.Invoke(provider, legacyArgs);
+            Vector3 first = (Vector3)legacyArgs[3];
+            var empty = new List<Vector3>();
+            check("null and empty occupancy preserve the legacy first supported role point", legacySuccess &&
+                Search(null, out var nullPosition) && nullPosition.Equals(first) && Search(empty, out var emptyPosition) && emptyPosition.Equals(first));
+            check("both public resident overloads preserve the legacy first point", legacySuccess &&
+                YQCompiledWorldSiteInstance.TryResolveResidentPosition(siteId, npc, seed, 2, out var oldPublic) && oldPublic.Equals(first) &&
+                YQCompiledWorldSiteInstance.TryResolveResidentPosition(siteId, npc, seed, 2, null, out var newPublic) && newPublic.Equals(first));
+            var occupied = new List<Vector3> { first, first + Vector3.up * 100f };
+            Vector3[] occupiedBefore = occupied.ToArray();
+            bool advanced = Search(occupied, out var second);
+            check("joint search advances past an occupied point on the same narrow reviewed floor", legacySuccess && advanced &&
+                !second.Equals(first) && IsSeparated(second, occupied) && Mathf.Abs(second.y - floor.bounds.max.y) < .001f &&
+                Mathf.Abs(second.x - floor.bounds.center.x) <= floor.bounds.extents.x && Mathf.Abs(second.z - floor.bounds.center.z) <= floor.bounds.extents.z);
+            check("occupied public resident query uses the same joint support search", advanced &&
+                YQCompiledWorldSiteInstance.TryResolveResidentPosition(siteId, npc, seed, 2, occupied, out var publicOccupied) && publicOccupied.Equals(second));
+            var reversed = new List<Vector3>(occupied); reversed.Reverse();
+            check("joint search repeats deterministically and ignores occupancy enumeration order", advanced &&
+                Search(occupied, out var repeated) && repeated.Equals(second) && Search(reversed, out var reversePosition) && reversePosition.Equals(second));
+            check("resident spacing accepts null and empty occupancy", IsSeparated(Vector3.zero, null) && IsSeparated(Vector3.zero, empty));
+            var atOrigin = new[] { Vector3.zero };
+            check("resident spacing rejects distances below 2.4 metres", !IsSeparated(new Vector3(2.399f, 0f, 0f), atOrigin));
+            check("resident spacing accepts exact 2.4 metre equality", IsSeparated(new Vector3(2.4f, 0f, 0f), atOrigin));
+            check("resident spacing ignores vertical distance", !IsSeparated(new Vector3(0f, 100f, 0f), atOrigin) &&
+                IsSeparated(new Vector3(2.4f, -100f, 0f), atOrigin));
+
+            // note: Cover the entire narrow floor, not only the first sampled point; exhaustion must remain a failure with no arbitrary nearby-ground substitute.
+            var full = new List<Vector3>();
+            for (int x = -4; x <= 4; x += 2) full.Add(provider.transform.position + new Vector3(x, -100f, 0f));
+            Vector3[] fullBefore = full.ToArray();
+            check("an occupied floor exhausts the bounded joint search without a fallback", legacySuccess && !Search(full, out _));
+            foreignGround = new GameObject("DetachedForeignJointSearchGround") { hideFlags = HideFlags.HideAndDontSave };
+            foreignGround.transform.position = new Vector3(provider.transform.position.x, 44.95f, provider.transform.position.z);
+            foreignGround.AddComponent<BoxCollider>().size = new Vector3(16f, .1f, 16f);
+            floor.enabled = false; Physics.SyncTransforms();
+            check("a missing reviewed floor cannot fall back to foreign ground", !Search(null, out _));
+            floor.enabled = true;
+            UnityEngine.Object.DestroyImmediate(foreignGround); foreignGround = null;
+            Physics.SyncTransforms();
+            check("joint queries preserve their input positions, NPC and manifest", occupied.SequenceEqual(occupiedBefore) &&
+                full.SequenceEqual(fullBefore) && empty.Count == 0 && JsonUtility.ToJson(npc) == npcBefore && JsonUtility.ToJson(manifest) == manifestBefore);
+
+            // note: These are the six reported accepted NPC seed strings and roles, on a synthetic full-footprint box with no authored walls or furniture.
+            zone.localBoundsSize = new Vector3(13.41845f, 8.46019f, 7.17951f);
+            floor.size = new Vector3(zone.localBoundsSize.x, .1f, zone.localBoundsSize.z);
+            Physics.SyncTransforms();
+            string[] suffixes = { "67dff71c", "67dff71d", "67dff71e", "67dff71f", "67dff720", "67dff721" };
+            string[] roles = { "council_elder", "reef_keeper", "merchant", "guard", "healer", "scout" };
+            string[] archetypes = { "notable", "resident", "resident", "guard", "resident", "resident" };
+            const string npcPrefix = "settlement_frontier_52a5a37ee195fbdbdb096acc04d14f453532edc451442150e9786302b0e49a4b_npc_";
+            var residents = new List<GeneratedNpcPlanRecord>();
+            for (int index = 0; index < suffixes.Length; index++) residents.Add(new GeneratedNpcPlanRecord {
+                npcId = npcPrefix + suffixes[index], role = roles[index], archetype = archetypes[index] });
+            string residentsBefore = Newtonsoft.Json.JsonConvert.SerializeObject(residents);
+            manifestBefore = JsonUtility.ToJson(manifest);
+            bool PlaceSix(List<Vector3> positions)
+            {
+                for (int index = 0; index < residents.Count; index++)
+                {
+                    var resident = residents[index];
+                    Vector3[] before = positions.ToArray();
+                    if (!YQCompiledWorldSiteInstance.TryResolveResidentPosition(siteId, resident,
+                        "622eff02|resident_position|" + resident.npcId, index, positions, out var position) ||
+                        !positions.SequenceEqual(before) || !IsSeparated(position, positions) ||
+                        Mathf.Abs(position.y - floor.bounds.max.y) > .001f ||
+                        Mathf.Abs(position.x - floor.bounds.center.x) > floor.bounds.extents.x ||
+                        Mathf.Abs(position.z - floor.bounds.center.z) > floor.bounds.extents.z) return false;
+                    positions.Add(position);
+                }
+                return true;
+            }
+            var six = new List<Vector3>(); var sixRepeated = new List<Vector3>();
+            bool sixPlaced = PlaceSix(six), sixReplayed = PlaceSix(sixRepeated);
+            check("six saved resident seeds fit the synthetic full-footprint floor with unchanged spacing", sixPlaced && six.Count == 6);
+            check("six saved resident seeds repeat exactly on the synthetic floor", sixPlaced && sixReplayed && six.SequenceEqual(sixRepeated));
+            check("six-seed projection leaves detached canonical NPC and manifest inputs unchanged",
+                Newtonsoft.Json.JsonConvert.SerializeObject(residents) == residentsBefore && JsonUtility.ToJson(manifest) == manifestBefore);
+        }
+        finally
+        {
+            // note: Restore only this detached provider registration and fixture geometry, even when a reflected assertion throws.
+            if (hadPreviousInstance) instances[siteId] = previousInstance; else instances.Remove(siteId);
+            manifestField.SetValue(provider, previousManifest);
+            floor.size = previousSize; floor.enabled = previousEnabled;
+            if (foreignGround != null) UnityEngine.Object.DestroyImmediate(foreignGround);
+            UnityEngine.Object.DestroyImmediate(manifest);
+            Physics.SyncTransforms();
+        }
     }
 
     private static void RunPairedProfileRecoveryContracts(Action<string, bool> check)
@@ -826,6 +1115,7 @@ public static class YQSemanticWorldAuthorityTests
         var union = (YQPreparedSpatialMaterializationV2)append.Invoke(acceptedNetwork, new object[] {
             Array.Empty<YQSpatialMaterializationSiteV2>(), projectedRoutes.ToArray(), projectedPoints.ToArray(), projectedPads.ToArray(), "numeric-union", 1L });
         RunFrontierTerrainInfluenceContracts(check, viable, context, union);
+        RunFrontierRootedReplayContracts(check, plan, measured, acceptedNetwork, union);
         var initialAuthority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, acceptedNetwork, measured, true });
         var finalAuthority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, union, measured, true });
         var runtimeAuthority = (YQContinuousWorldCellAuthority)authorityConstructor.Invoke(new object[] { seed, null, null, null, 128f, union, null, true });
@@ -862,6 +1152,149 @@ public static class YQSemanticWorldAuthorityTests
         try { issue.Invoke(null, new object[] { new WorldState(), "", new GeneratedSpatialContinuationV2Record(), new object() }); }
         catch (System.Reflection.TargetInvocationException exception) { forgedRejected = exception.InnerException is InvalidOperationException; }
         check("a foreign issuer cannot create a construction admission token", forgedRejected);
+    }
+
+    private static void RunFrontierRootedReplayContracts(Action<string, bool> check, GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationLocationV2Record physicalParent, YQPreparedSpatialMaterializationV2 opening,
+        YQPreparedSpatialMaterializationV2 parentUnion)
+    {
+        // note: Exercise the production replay helpers and connection predicate over the admitted numeric fixture. This does not bypass or certify asset-bound provider/compiler acceptance.
+        const System.Reflection.BindingFlags staticFlags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        const System.Reflection.BindingFlags instanceFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var replayOrder = typeof(YQSpatialMaterializationCompilerV2).GetMethod("GetContinuationReplayOrder", staticFlags);
+        var canonicalize = typeof(YQSpatialMaterializationCompilerV2).GetMethod("CanonicalizeContinuationProjection", staticFlags);
+        var connected = typeof(YQContinuousWorldCellAuthority).GetMethod("HasAcceptedRouteConnection", staticFlags);
+        var append = typeof(YQPreparedSpatialMaterializationV2).GetMethod("WithAcceptedContinuation", instanceFlags);
+        var startField = typeof(YQSpatialMaterializationRouteV2).GetField("pointStart", instanceFlags);
+        var countField = typeof(YQSpatialMaterializationRouteV2).GetField("pointCount", instanceFlags);
+        var settings = new Newtonsoft.Json.JsonSerializerSettings { Converters = {
+            new Vector2JsonConverter(), new Vector3JsonConverter(), new QuaternionJsonConverter() } };
+        string Body(object value) => Newtonsoft.Json.JsonConvert.SerializeObject(value, settings);
+        T Clone<T>(T value) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Body(value), settings);
+        bool Connected(YQPreparedSpatialMaterializationV2 network, Vector3 point, float width) =>
+            (bool)connected.Invoke(null, new object[] { network, point, width });
+        Vector3 Position(YQBlueprintPointV2 point) => new Vector3(point.x, point.normalizedElevation, point.z);
+        List<GeneratedSpatialContinuationLocationV2Record> Ordered(List<GeneratedSpatialContinuationLocationV2Record> input) =>
+            (List<GeneratedSpatialContinuationLocationV2Record>)replayOrder.Invoke(null, new object[] { input });
+
+        var parent = Clone(physicalParent);
+        string previousParentId = parent.anchor.siteId;
+        parent.anchor.siteId = "z-numeric-rooted-parent";
+        parent.anchor.sourceSemanticId = "numeric-rooted-parent-semantic";
+        parent.revision = 1;
+        foreach (var pad in parent.physicalContext.terrainPads)
+            if (pad.sectorId == previousParentId) pad.sectorId = parent.anchor.siteId;
+        foreach (var route in parent.physicalContext.routes) route.toSiteId = parent.anchor.siteId;
+        check("rooted replay parent retains actual numeric terrain admission", YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(
+            plan, opening, parent, out _, out _));
+
+        // note: Select an actual interior parent-road point that demonstrably cannot connect directly to the opening network.
+        Vector3 joint = default;
+        float jointWidth = 0f;
+        foreach (var route in parent.physicalContext.routes)
+        {
+            foreach (var point in route.controlPoints.Skip(1))
+                if (!Connected(opening, Position(point), route.width) && Connected(parentUnion, Position(point), route.width))
+                { joint = Position(point); jointWidth = route.width; break; }
+            if (jointWidth > 0f) break;
+        }
+        check("rooted replay fixture includes a frontier-only parent connection", jointWidth > 0f);
+        if (jointWidth <= 0f) throw new InvalidOperationException("Numeric parent contains no connection outside the opening road tolerance.");
+        YQRouteCorridorV2 Segment(string id, Vector3 first, Vector3 last) => new YQRouteCorridorV2 {
+            routeId = id, parentRegionId = parent.anchor.parentRegionId, width = jointWidth,
+            shoulderWidth = 12f, maximumGradeDegrees = 28f, routeClass = YQRouteClassV2.Trail,
+            controlPoints = new List<YQBlueprintPointV2> {
+                new YQBlueprintPointV2 { x = first.x, z = first.z, normalizedElevation = first.y, width = jointWidth },
+                new YQBlueprintPointV2 { x = last.x, z = last.z, normalizedElevation = last.y, width = jointWidth } } };
+        var child = new GeneratedSpatialContinuationLocationV2Record { contentId = "numeric-dependent-child", revision = 2,
+            anchor = new YQSiteAnchorV2 { siteId = "a-numeric-dependent-child", sourceSemanticId = "numeric-dependent-child-semantic",
+                parentRegionId = parent.anchor.parentRegionId, x = joint.x + 96f, z = joint.z, reservedRadius = 24f },
+            physicalContext = new GeneratedSpatialContinuationPhysicalContextV2Record() };
+        child.physicalContext.routes.Add(Segment("z-child-route", joint, joint + new Vector3(96f, 0f, 0f)));
+        child.physicalContext.routes.Add(Segment("a-child-route", joint, joint + new Vector3(64f, 0f, -32f)));
+        var envelope = new GeneratedSpatialContinuationV2Record { revision = 2,
+            locations = new List<GeneratedSpatialContinuationLocationV2Record> { child, parent } };
+        foreach (var location in envelope.locations)
+            location.contentHash = location.validatedContentHash = YQSpatialContinuationHasherV2.ComputeLocationContentHash(location);
+        string originalBody = Body(envelope);
+        string originalHash = YQSpatialContinuationHasherV2.ComputeContentHash(envelope);
+        var ordered = Ordered(envelope.locations);
+        check("production replay proves revision-one parent before lexically earlier child", ordered.Count == 2 &&
+            ReferenceEquals(ordered[0], parent) && ReferenceEquals(ordered[1], child) && Body(envelope) == originalBody);
+        check("child connection fails against opening but succeeds against proved parent prefix",
+            !Connected(opening, joint, jointWidth) && Connected(parentUnion, joint, jointWidth));
+        float elevationDirection = joint.y > .5f ? -1f : 1f;
+        check("rooted connection preserves the existing half-metre elevation tolerance",
+            Connected(parentUnion, joint + Vector3.up * (elevationDirection * .49f / YQGeneratedWorldTerrain.TerrainHeight), jointWidth) &&
+            !Connected(parentUnion, joint + Vector3.up * (elevationDirection * .51f / YQGeneratedWorldTerrain.TerrainHeight), jointWidth));
+
+        YQPreparedSpatialMaterializationV2 Projection(List<GeneratedSpatialContinuationLocationV2Record> input)
+        {
+            var sites = new List<YQSpatialMaterializationSiteV2>();
+            var routes = new List<YQSpatialMaterializationRouteV2>();
+            var points = new List<YQSpatialMaterializationRoutePointV2>();
+            foreach (var location in input)
+            {
+                sites.Add(new YQSpatialMaterializationSiteV2 { siteId = location.anchor.siteId,
+                    sourceSemanticId = location.anchor.sourceSemanticId, parentRegionId = location.anchor.parentRegionId,
+                    x = location.anchor.x, z = location.anchor.z, reservedRadius = location.anchor.reservedRadius });
+                foreach (var source in location.physicalContext.routes.AsEnumerable().Reverse())
+                {
+                    object route = new YQSpatialMaterializationRouteV2 { routeId = source.routeId,
+                        continuationOwnerSiteId = location.anchor.siteId, parentRegionId = source.parentRegionId,
+                        width = source.width, shoulderWidth = source.shoulderWidth, maximumGradeDegrees = source.maximumGradeDegrees,
+                        permittedBoundaryContinuation = false };
+                    startField.SetValue(route, points.Count); countField.SetValue(route, source.controlPoints.Count);
+                    routes.Add((YQSpatialMaterializationRouteV2)route);
+                    foreach (var point in source.controlPoints) points.Add(new YQSpatialMaterializationRoutePointV2 {
+                        x = point.x, z = point.z, surfaceElevationNormalized = point.normalizedElevation, width = source.width });
+                }
+            }
+            points = (List<YQSpatialMaterializationRoutePointV2>)canonicalize.Invoke(null, new object[] { sites, routes, points });
+            return (YQPreparedSpatialMaterializationV2)append.Invoke(opening, new object[] { sites.ToArray(), routes.ToArray(), points.ToArray(),
+                Array.Empty<YQSpatialMaterializationContinuationPadV2>(), "numeric-rooted-order-only", 2L });
+        }
+        string ProjectionBody(YQPreparedSpatialMaterializationV2 projection) => Body(new {
+            sites = Enumerable.Range(0, projection.SiteCount).Select(projection.GetSite).ToArray(),
+            routes = Enumerable.Range(0, projection.RouteCount).Select(index => new {
+                route = projection.GetRoute(index), points = Enumerable.Range(0, projection.GetRoutePointCount(index))
+                    .Select(point => projection.GetRoutePoint(index, point)).ToArray() }).ToArray() });
+        var projection = Projection(ordered);
+        var expectedRoutes = envelope.locations.OrderBy(location => location.anchor.siteId, StringComparer.Ordinal)
+            .SelectMany(location => location.physicalContext.routes.OrderBy(route => route.routeId, StringComparer.Ordinal)).ToArray();
+        bool exactRanges = projection.GetSite(opening.SiteCount).siteId == child.anchor.siteId &&
+            projection.GetSite(opening.SiteCount + 1).siteId == parent.anchor.siteId;
+        for (int route = 0; route < expectedRoutes.Length; route++)
+        {
+            var expected = expectedRoutes[route]; int index = opening.RouteCount + route;
+            exactRanges &= projection.GetRoute(index).routeId == expected.routeId && projection.GetRoutePointCount(index) == expected.controlPoints.Count;
+            for (int point = 0; point < expected.controlPoints.Count; point++)
+            {
+                var actual = projection.GetRoutePoint(index, point); var source = expected.controlPoints[point];
+                exactRanges &= actual.x == source.x && actual.z == source.z && actual.surfaceElevationNormalized == source.normalizedElevation && actual.width == expected.width;
+            }
+        }
+        check("production canonicalization preserves owner route ordering and every parallel point", exactRanges);
+        var reversed = Clone(envelope); reversed.locations.Reverse();
+        check("reversed saved enumeration preserves content hash and exact canonical projection",
+            YQSpatialContinuationHasherV2.ComputeContentHash(reversed) == originalHash &&
+            ProjectionBody(Projection(Ordered(reversed.locations))) == ProjectionBody(projection) && Body(envelope) == originalBody);
+        check("canonical projection is independent of incoming derived list order",
+            ProjectionBody(Projection(envelope.locations)) == ProjectionBody(projection));
+
+        // note: A self-road or two mutually touching roads must not become its own rooted prefix; use the same numeric predicate called before compiler append.
+        Vector3 isolatedA = joint + new Vector3(8192f, 0f, 8192f), isolatedB = isolatedA + new Vector3(32f, 0f, 0f);
+        var self = Clone(child); self.anchor.siteId = "a-isolated-self"; self.anchor.sourceSemanticId = "isolated-self";
+        self.physicalContext.routes = new List<YQRouteCorridorV2> { Segment("isolated-self-road", isolatedA, isolatedB) };
+        check("unrooted self-road fails the actual pre-append network predicate", !Connected(opening, isolatedA, jointWidth) &&
+            Connected(Projection(new List<GeneratedSpatialContinuationLocationV2Record> { self }), isolatedA, jointWidth));
+        var cycleOther = Clone(self); cycleOther.anchor.siteId = "z-isolated-cycle"; cycleOther.anchor.sourceSemanticId = "isolated-cycle";
+        cycleOther.revision = 1; cycleOther.physicalContext.routes = new List<YQRouteCorridorV2> { Segment("isolated-cycle-road", isolatedB, isolatedA) };
+        var cycleOrder = Ordered(new List<GeneratedSpatialContinuationLocationV2Record> { self, cycleOther });
+        check("mutual unrooted cycle cannot supply its first replay entry's connection",
+            Connected(Projection(new List<GeneratedSpatialContinuationLocationV2Record> { self }), isolatedB, jointWidth) &&
+            Connected(Projection(new List<GeneratedSpatialContinuationLocationV2Record> { cycleOther }), isolatedA, jointWidth) &&
+            !Connected(opening, Position(cycleOrder[0].physicalContext.routes[0].controlPoints[0]), jointWidth));
     }
 
     private static void RunFrontierTerrainInfluenceContracts(Action<string, bool> check,

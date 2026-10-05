@@ -3430,6 +3430,12 @@ public static class YQContinuousWorldFeatureMaterializer
         }
         // note: The exact continuation provider stays hidden until replay and all mandatory streets pass the current saved-context checks.
         if (continuationSite) root.SetActive(true);
+        else if (encampment != null && ReferenceEquals(WorldStateManager.Instance?.State?.generatedWorldPlan, plan))
+        {
+            // note: Deferred base sites publish saved geometry only after every required connector succeeds; continued sites keep compositionLayout exclusively.
+            string preparedSeed = root.GetComponent<YQCompiledWorldSiteInstance>()?.PreparedLayout?.seed;
+            YQProceduralSettlementLayout.Commit(encampment, preparedSeed);
+        }
         completed?.Invoke(materializedObjects);
     }
 
@@ -3556,6 +3562,9 @@ public static class YQContinuousWorldFeatureMaterializer
         if (settlement?.proceduralLayout != null &&
             !string.IsNullOrWhiteSpace(settlement.proceduralLayout.seed))
             return settlement.proceduralLayout.seed;
+        // note: Base hostile sectors replay their committed source selection and parcel elevations, just like inhabited sites.
+        if (!string.IsNullOrWhiteSpace(encampment?.proceduralLayout?.seed))
+            return encampment.proceduralLayout.seed;
         // note: Fresh generated settlements commit their engine-owned seed before streaming; legacy records remain on their original deterministic selection.
         if (!string.IsNullOrWhiteSpace(settlement?.deterministicSeed))
             return settlement.deterministicSeed;

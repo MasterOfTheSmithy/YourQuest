@@ -48,7 +48,8 @@ public static class YQProceduralSettlementLayoutVerification
             var grade = typeof(YQGeneratedWorldRuntimeBuilder).GetMethod("GradeTerrainPad",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static, null,
                 new[] { typeof(Terrain), typeof(Vector3), typeof(float), typeof(float), typeof(float),
-                    typeof(YQProceduralSettlementLayoutRecord), typeof(float) }, null);
+                    typeof(YQProceduralSettlementLayoutRecord), typeof(float), typeof(YQSpatialBlueprintTerrainSamplerV2) }, null);
+            Require(grade != null, "The production parcel grading overload is missing.");
             // note: Oblique footprints exercise real rotated terrain sampling rather than only axis-aligned quarter turns.
             foreach (float heading in new[] { 0f, 15f, 37f, 90f, 123f, 180f, 270f })
             {
@@ -56,12 +57,12 @@ public static class YQProceduralSettlementLayoutVerification
                 for (int z = 0; z < 129; z++)
                     for (int x = 0; x < 129; x++) source[z, x] = .25f + x * .1f / 40f;
                 data.SetHeights(0, 0, source);
-                var layout = new YQProceduralSettlementLayoutRecord { earthworkVersion = 1 };
+                var layout = new YQProceduralSettlementLayoutRecord { earthworkVersion = 3 };
                 layout.cells.Add(new YQProceduralCellPlacement { boundsCenter = new Vector3(-20f, 0f, 0f), boundsSize = Vector3.one * 4f });
                 layout.cells.Add(new YQProceduralCellPlacement { boundsCenter = new Vector3(20f, 0f, 0f), boundsSize = Vector3.one * 4f });
                 layout.streets.Add(new YQProceduralStreet { start = new Vector3(-20f, 0f, 0f), end = new Vector3(20f, 0f, 0f), width = 4f });
                 Func<bool> apply = () => (bool)grade.Invoke(null, new object[] { terrain, Vector3.zero, 35f, 50f,
-                    float.NegativeInfinity, layout, heading });
+                    float.NegativeInfinity, layout, heading, null });
                 Require(apply(), "Parcel grading rejected valid terrain.");
                 data.SyncHeightmap();
                 Require(layout.parcelGroundHeights.Count == 2, "Successful grading did not retain elevations.");
@@ -89,7 +90,7 @@ public static class YQProceduralSettlementLayoutVerification
                 float before = data.GetHeights(64, 64, 1, 1)[0, 0];
                 Require(!apply() && data.GetHeights(64, 64, 1, 1)[0, 0] == before, "Invalid profile changed terrain.");
                 // note: Saved elevations must not bypass missing-ground rejection at a parcel's actual rotated position.
-                layout.earthworkVersion = 1;
+                layout.earthworkVersion = 3;
                 int holeX = Mathf.FloorToInt(first.x + 64f), holeZ = Mathf.FloorToInt(first.z + 64f);
                 data.SetHoles(holeX, holeZ, new bool[,] { { false } });
                 Require(!apply() && data.GetHeights(64, 64, 1, 1)[0, 0] == before, "Terrain hole accepted or changed terrain.");
@@ -115,6 +116,157 @@ public static class YQProceduralSettlementLayoutVerification
             UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
             UnityEngine.Object.DestroyImmediate(data);
         }
+    }
+
+    [MenuItem("Tools/YourQuest/Testing/Verify Sector Terrain Prepass")]
+    public static void VerifySectorTerrainPrepass()
+    {
+        // note: Execute the shared production prepass on a real heightmap; synthetic site records are never published to a profile.
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+        var data = new TerrainData { heightmapResolution = 257, size = new Vector3(1024f, 100f, 1024f) };
+        var pendingField = typeof(YQProceduralSettlementLayout).GetField("pending",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var pending = (Dictionary<string, YQProceduralSettlementLayoutRecord>)pendingField.GetValue(null);
+        var pendingBefore = new Dictionary<string, YQProceduralSettlementLayoutRecord>(pending);
+        var report = new System.Text.StringBuilder("# Sector terrain prepass verification\n\nEvidence: DETACHED_EDITOR_TERRAIN_NOT_PRODUCTION_TRAVEL\n");
+        report.AppendLine("UTC: " + DateTime.UtcNow.ToString("O"));
+        report.AppendLine("Runtime assembly MVID: " + typeof(YQGeneratedWorldRuntimeBuilder).Module.ModuleVersionId);
+        report.AppendLine("Editor assembly MVID: " + typeof(YQProceduralSettlementLayoutVerification).Module.ModuleVersionId);
+        try
+        {
+            var terrainObject = Terrain.CreateTerrainGameObject(data);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(terrainObject, scene);
+            terrainObject.transform.position = new Vector3(-512f, 12f, -512f);
+            var terrain = terrainObject.GetComponent<Terrain>();
+            var grade = typeof(YQGeneratedWorldRuntimeBuilder).GetMethod("TryGradePreparedCompositionTerrain",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            Require(grade != null, "The production composition prepass is missing.");
+            foreach (float heading in new[] { 0f, 37f, 90f, 123f })
+            {
+                object boxed = new YQSpatialMaterializationSiteV2 { siteId = "sector-terrain-owner", sourceSemanticId = "sector-terrain-semantic",
+                    reservedRadius = 72f, headingDegrees = heading };
+                typeof(YQSpatialMaterializationSiteV2).GetField("memberFootprint",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(boxed,
+                    new[] { new YQSiteMemberFootprintV2 { memberId = "east", x = 384f, reservedRadius = 32f, sectorIndex = 1 },
+                        new YQSiteMemberFootprintV2 { memberId = "west", x = -384f, reservedRadius = 32f, sectorIndex = 2 } });
+                var site = (YQSpatialMaterializationSiteV2)boxed;
+                var cells = new List<YQProceduralSettlementLayout.Cell>();
+                foreach (string id in new[] { "assembly-a", "assembly-b", "assembly-c" })
+                    cells.Add(new YQProceduralSettlementLayout.Cell { id = id, center = new Vector3(0f, 3f, 0f),
+                        size = new Vector3(12f, 6f, 10f), entrance = new Vector3(0f, 0f, 5f), outward = Vector3.forward });
+                string seed = YQProceduralSettlementLayout.BuildSectorSeed("sector-terrain-fixture", site);
+                Require(YQProceduralSettlementLayout.TryBuildSectors(cells, seed, site, out var layout, out string failure), failure);
+                Require(layout.earthworkVersion == 3 && layout.radius > site.reservedRadius, "New sector earthwork policy was not selected.");
+                pending[seed] = layout;
+                var constructor = typeof(YQPreparedSpatialMaterializationV2).GetConstructors(
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)[0];
+                var prepared = (YQPreparedSpatialMaterializationV2)constructor.Invoke(new object[] {
+                    Array.Empty<YQSpatialMaterializationRegionV2>(), new[] { site }, Array.Empty<YQSpatialMaterializationWaterV2>(),
+                    Array.Empty<YQSpatialMaterializationWaterPointV2>(), Array.Empty<YQSpatialMaterializationRouteV2>(), Array.Empty<YQSpatialMaterializationRoutePointV2>(),
+                    Array.Empty<YQSpatialMaterializationCrossingV2>(), new Dictionary<string, int>(),
+                    new Dictionary<string, int> { [site.sourceSemanticId] = 0 }, new Dictionary<string, int> { [site.siteId] = 0 }, null, "", 0L, null });
+                var source = new float[257, 257];
+                for (int z = 0; z < 257; z++)
+                    for (int x = 0; x < 257; x++) source[z, x] = .25f + x * 4f * .01f / 100f;
+                data.SetHeights(0, 0, source);
+                bool Apply(YQSpatialBlueprintTerrainSamplerV2 sampler = null) => (bool)grade.Invoke(null, new object[] {
+                    prepared, site.sourceSemanticId, seed, terrain, Vector3.zero, layout.radius + 3f, layout.radius + 54f,
+                    float.NegativeInfinity, heading, sampler });
+                Require(Apply(), "The production prepass rejected a valid 416m union within individual accepted reserves.");
+                data.SyncHeightmap();
+                Require(layout.parcelGroundHeights.Count == layout.cells.Count, "The prepass did not retain parcel elevations.");
+                for (int i = 0; i < layout.cells.Count; i++)
+                {
+                    Vector3 point = Quaternion.Euler(0f, heading, 0f) * (layout.cells[i].boundsCenter - layout.origin);
+                    Require(Mathf.Abs(terrain.SampleHeight(point) + 12f - layout.parcelGroundHeights[i]) < .025f, "A sector foundation misses its saved plane.");
+                }
+                Require(Mathf.Abs(data.GetHeights(128, 178, 1, 1)[0, 0] - source[178, 128]) < .0001f,
+                    "The prepass graded the unowned gap inside the aggregate circle.");
+                // note: Replay the saved profile against different relief through the same production prepass.
+                string serialized = Newtonsoft.Json.JsonConvert.SerializeObject(layout);
+                layout = Newtonsoft.Json.JsonConvert.DeserializeObject<YQProceduralSettlementLayoutRecord>(serialized);
+                pending[seed] = layout;
+                float saved = layout.parcelGroundHeights[0];
+                for (int z = 0; z < 257; z++) for (int x = 0; x < 257; x++) source[z, x] += .005f;
+                data.SetHeights(0, 0, source);
+                Require(Apply(), "Saved sector earthworks failed to replay.");
+                data.SyncHeightmap();
+                Vector3 foundation = Quaternion.Euler(0f, heading, 0f) * (layout.cells[0].boundsCenter - layout.origin);
+                Require(Mathf.Abs(terrain.SampleHeight(foundation) + 12f - saved) < .025f, "Saved sector elevation drifted.");
+                // note: Persist on the existing base hostile owner, then discard transient caches and resolve from a serialized world document.
+                var hostile = new GeneratedEncampmentRecord { encampmentId = "base-hostile-fixture", deterministicSeed = "original-hostile-seed" };
+                Require(!YQProceduralSettlementLayout.Commit(hostile, "missing-candidate") && hostile.proceduralLayout == null,
+                    "Failed construction published a hostile layout.");
+                Require(YQProceduralSettlementLayout.Commit(hostile, seed), "Successful hostile layout was not committed.");
+                var savedPlan = new GeneratedWorldPlanRecord { encampments = new List<GeneratedEncampmentRecord> { hostile } };
+                savedPlan = Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedWorldPlanRecord>(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(savedPlan));
+                pending.Remove(seed);
+                var lookup = typeof(YQProceduralSettlementLayout).GetMethod("FindCommittedLayout",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static, null,
+                    new[] { typeof(GeneratedWorldPlanRecord), typeof(string) }, null);
+                var restored = (YQProceduralSettlementLayoutRecord)lookup.Invoke(null, new object[] { savedPlan, seed });
+                Require(restored != null && Newtonsoft.Json.JsonConvert.SerializeObject(restored) == serialized,
+                    "Cache-free hostile replay changed selection, geometry or parcel elevations.");
+                pending[seed] = layout;
+                Require(!YQProceduralSettlementLayout.Commit(hostile, seed) && ReferenceEquals(hostile.proceduralLayout, layout),
+                    "A committed hostile layout was overwritten.");
+                // note: A route under a foundation must reject before any terrain or persisted elevation mutation.
+                data.SetHeights(0, 0, source);
+                var protectedFoundation = CreateRouteSampler(foundation - Vector3.forward * 12f, foundation + Vector3.forward * 12f);
+                Require(!Apply(protectedFoundation), "A protected corridor underneath a foundation was accepted.");
+                Require(Mathf.Abs(data.GetHeights(128, 128, 1, 1)[0, 0] - source[128, 128]) < .0001f &&
+                    Newtonsoft.Json.JsonConvert.SerializeObject(layout) == serialized, "Rejected prepass changed terrain or accepted elevations.");
+                layout.sectors[1].radius += 1f;
+                Require(!Apply(), "The production prepass accepted a changed member reservation.");
+                report.AppendLine("- PASS heading " + heading + ": member union, real foundations, untouched gap, saved replay, corridor and changed-reserve rejection.");
+            }
+            VerifyParcelTerrainWrites();
+            report.AppendLine("\nPASS. Production travel, asset appearance and streaming performance remain separate acceptance paths.");
+        }
+        catch (Exception exception) { report.AppendLine("\nFAIL: " + exception); throw; }
+        finally
+        {
+            pending.Clear(); foreach (var pair in pendingBefore) pending[pair.Key] = pair.Value;
+            UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
+            UnityEngine.Object.DestroyImmediate(data);
+            Directory.CreateDirectory("outputs/G08_Environment_Repair_20261005");
+            File.WriteAllText("outputs/G08_Environment_Repair_20261005/SectorTerrainPrepass.md", report.ToString());
+        }
+    }
+
+    private static YQSpatialBlueprintTerrainSamplerV2 CreateRouteSampler(Vector3 start, Vector3 end)
+    {
+        // note: Build only detached numeric sampler arrays; this fixture never accepts an invented world artifact or route.
+        var constructor = typeof(YQSpatialBlueprintTerrainSamplerV2).GetConstructors(
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)[0];
+        var parameters = constructor.GetParameters();
+        var arguments = new object[parameters.Length];
+        object Record(Type type, params (string name, object value)[] values)
+        {
+            object record = Activator.CreateInstance(type);
+            foreach (var value in values) type.GetField(value.name).SetValue(record, value.value);
+            return record;
+        }
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            Type element = parameters[i].ParameterType.GetElementType();
+            if (parameters[i].Name == "routes")
+            {
+                Array routes = Array.CreateInstance(element, 1);
+                routes.SetValue(Record(element, ("width", 4f), ("shoulderWidth", 2f), ("pointStart", 0), ("pointCount", 2)), 0);
+                arguments[i] = routes;
+            }
+            else if (parameters[i].Name == "routePoints")
+            {
+                Array points = Array.CreateInstance(element, 2);
+                points.SetValue(Record(element, ("x", start.x), ("z", start.z), ("elevation", .3f)), 0);
+                points.SetValue(Record(element, ("x", end.x), ("z", end.z), ("elevation", .3f)), 1);
+                arguments[i] = points;
+            }
+            else arguments[i] = Array.CreateInstance(element, 0);
+        }
+        return (YQSpatialBlueprintTerrainSamplerV2)constructor.Invoke(arguments);
     }
 
     public static void VerifyEldwealdBuildingGrounding()
@@ -1160,6 +1312,9 @@ public static class YQProceduralSettlementLayoutVerification
                 })) return;
             if (RunRequest("Temp/YQFoundationContactSolver.request", "Logs/YQFoundationContactSolver.txt",
                     VerifyFoundationContactSolver)) return;
+            // note: Run only the current terrain-prepass regression without reopening waived legacy world gates.
+            if (RunRequest("Temp/YQSectorTerrainPrepass.request", "outputs/G08_Environment_Repair_20261005/SectorTerrainPrepassFailure.txt",
+                    VerifySectorTerrainPrepass)) return;
             if (RunRequest("Temp/YQParcelTerrainWrites.request", "Logs/YQParcelTerrainWritesFailure.txt",
                     VerifyParcelTerrainWrites)) return;
             if (RunRequest("Temp/YQStreetConnectedHomeReview.request", "Logs/YQStreetConnectedHomeReviewFailure.txt",

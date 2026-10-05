@@ -1445,6 +1445,8 @@ public class GeneratedEncampmentRecord
 {
     // note: Semantic requests influence approved cell selection, never direct prefab identities or placement authority.
     public List<string> cellRoleIntents = new List<string>();
+    // note: Optional base-site geometry is committed only after construction succeeds; old saves retain null and continuation sites use compositionLayout.
+    public YQProceduralSettlementLayoutRecord proceduralLayout;
     public string encampmentId;
     public string regionId;
     public string displayName;
