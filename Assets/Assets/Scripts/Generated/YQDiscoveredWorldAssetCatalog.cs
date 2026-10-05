@@ -133,6 +133,101 @@ public enum YQMaterialCompatibilityState
     VerifiedUrpAdapter = 6
 }
 
+// note: Documentary states are independent of technical eligibility; missing serialized values remain unknown.
+public enum YQAssetLibrarySubjectKind
+{
+    Unknown = 0,
+    Asset = 1,
+    Package = 2,
+    CatalogBinding = 3
+}
+
+public enum YQAssetLibraryApprovalState
+{
+    Unknown = 0,
+    Approved = 1,
+    ReviewOnly = 2,
+    Held = 3,
+    Withdrawn = 4
+}
+
+public enum YQAssetLibraryDeliveryPermission
+{
+    Unknown = 0,
+    Allowed = 1,
+    Denied = 2
+}
+
+public enum YQAssetLibraryConsumerEvidenceLevel
+{
+    Unknown = 0,
+    StaticReference = 1,
+    EditorFixture = 2,
+    OrdinaryRuntime = 3
+}
+
+[Serializable]
+public sealed class YQAssetLibraryConsumerEvidenceRecord
+{
+    public const int SupportedContractVersion = 1;
+
+    public int contractVersion;
+    public string consumerId;
+    public string consumerSourcePath;
+    public string consumerSourceSha256;
+    public string bindingKey;
+    public string registryGuid;
+    public string resolvedAssetPath;
+    public string semanticRole;
+    public string paletteOrPoolId;
+    public YQAssetLibraryConsumerEvidenceLevel evidenceLevel;
+    public string evidenceRef;
+    public string evidenceSha256;
+    public string recordedUtc;
+    public string reason;
+}
+
+[Serializable]
+public sealed class YQAssetLibraryEvidenceRecord
+{
+    public const int SupportedContractVersion = 1;
+
+    // note: Each exact subject/scope/revision fact retains its own ID; supersession links do not erase historical reviews.
+    public int contractVersion;
+    public string evidenceId;
+    public YQAssetLibrarySubjectKind subjectKind;
+    public string subjectStableId;
+    public string subjectSourceGuid;
+    public string subjectSourceAssetKey;
+    public string familyId;
+    public string packageId;
+    public string packageVersion;
+    public string sourceVersionId;
+    public string payloadSha256;
+    public string approvedMemberListSha256;
+    public List<string> provenanceEvidenceRefs = new List<string>();
+    public List<string> licenseEvidenceRefs = new List<string>();
+    public YQAssetLibraryApprovalState approvalState;
+    public string approvalScope;
+    public YQAssetLibraryDeliveryPermission deliveryPermission;
+    public string evidenceRef;
+    public string evidenceSha256;
+    public string recordedUtc;
+    public List<string> supersedesEvidenceIds = new List<string>();
+    public List<string> supersedesVersionIds = new List<string>();
+    public List<YQAssetLibraryConsumerEvidenceRecord> consumerEvidence = new List<YQAssetLibraryConsumerEvidenceRecord>();
+
+    public void EnsureCollections()
+    {
+        // note: Normalization repairs collection shape only; it never infers approval, version support, or consumption.
+        provenanceEvidenceRefs ??= new List<string>();
+        licenseEvidenceRefs ??= new List<string>();
+        supersedesEvidenceIds ??= new List<string>();
+        supersedesVersionIds ??= new List<string>();
+        consumerEvidence ??= new List<YQAssetLibraryConsumerEvidenceRecord>();
+    }
+}
+
 [Serializable]
 public sealed class YQAssetKitManifest
 {
@@ -155,6 +250,7 @@ public sealed class YQAssetKitManifest
     public List<string> compatibleAccentKitIds = new List<string>();
     public List<string> forbiddenKitIds = new List<string>();
     public List<string> validationIssues = new List<string>();
+    public List<string> libraryEvidenceIds = new List<string>();
 
     // note: The V2 style contract is additive; version zero leaves every existing catalog record on the legacy descriptive-tag path.
     public YQKitStyleContractV2 styleV2 =
@@ -168,6 +264,7 @@ public sealed class YQAssetKitManifest
         compatibleAccentKitIds ??= new List<string>();
         forbiddenKitIds ??= new List<string>();
         validationIssues ??= new List<string>();
+        libraryEvidenceIds ??= new List<string>();
         styleV2 ??= new YQKitStyleContractV2();
         styleV2.EnsureCollections();
     }
@@ -213,6 +310,7 @@ public sealed class YQSpatialAssetRecord
     public List<string> dressingSocketCandidates = new List<string>();
     public List<string> semanticTags = new List<string>();
     public List<string> validationIssues = new List<string>();
+    public List<string> libraryEvidenceIds = new List<string>();
 
     // note: Reviewed V2 spatial intelligence lives beside legacy inference so raw discovery remains useful evidence without becoming placement authority.
     public YQAssetCurationContractV2 curationV2 =
@@ -225,6 +323,7 @@ public sealed class YQSpatialAssetRecord
         dressingSocketCandidates ??= new List<string>();
         semanticTags ??= new List<string>();
         validationIssues ??= new List<string>();
+        libraryEvidenceIds ??= new List<string>();
         curationV2 ??= new YQAssetCurationContractV2();
         curationV2.EnsureCollections();
     }
@@ -243,9 +342,11 @@ public sealed class YQMaterialAssetRecord
     public string compatibilityStrategy;
     public bool releaseEligible;
     public List<string> validationIssues = new List<string>();
+    public List<string> libraryEvidenceIds = new List<string>();
 
     public void EnsureCollections()
     {
         validationIssues ??= new List<string>();
+        libraryEvidenceIds ??= new List<string>();
     }
 }

@@ -4583,10 +4583,18 @@ public static class YQWorldAssetIntakeBuilder
     private static bool _allAssetScanRequestPolling;
     private static double _nextAllAssetScanPollTime;
 
-    [Serializable]
-    private sealed class GenerationInventoryAsset
+    internal enum GenerationInventoryReviewPolicyScope
     {
+        LegacyWorldKit = 0,
+        LibraryCoverage = 1
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryAsset
+    {
+        public string stableAssetId;
         public string sourceGuid;
+        public string sourceAssetKey;
         public string assetPath;
         public string assetType;
         public string assetFamily;
@@ -4605,12 +4613,31 @@ public static class YQWorldAssetIntakeBuilder
         public string technicalValidationStatus;
         public string reviewDisposition;
         public string reviewPolicyVersion;
+        public GenerationInventoryReviewPolicyScope reviewPolicyScope;
+        public List<string> libraryEvidenceIds = new List<string>();
+        public string librarySourceId;
+        public string sourceVersionId;
+        public string baselineSourceVersionId;
+        public string declaredSourceSha256;
+        public string installedSourceSha256;
+        public string declaredSourceKind;
+        public string sourceAvailability;
+        public List<string> sourceAliases = new List<string>();
+        public List<string> sourceDeclarationRefs = new List<string>();
     }
 
     [Serializable]
-    private sealed class GenerationInventoryDocument
+    internal sealed class GenerationInventoryKitEvidenceLinks
     {
-        public string schemaVersion = "yq_world_generation_asset_inventory_v5";
+        public string kitId;
+        public List<string> libraryEvidenceIds = new List<string>();
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryDocument
+    {
+        public string schemaVersion = "yq_world_generation_asset_inventory_v7";
+        public int libraryContractVersion = YQAssetLibraryEvidenceRecord.SupportedContractVersion;
         public string generatedUtc;
         public string scanScope;
         public string intakeCatalog;
@@ -4619,10 +4646,21 @@ public static class YQWorldAssetIntakeBuilder
         public List<string> approvedRoots = new List<string>();
         public List<GenerationInventoryAsset> assets = new List<GenerationInventoryAsset>();
         public GenerationInventoryCounts counts = new GenerationInventoryCounts();
+        public List<YQAssetLibraryEvidenceRecord> libraryEvidence = new List<YQAssetLibraryEvidenceRecord>();
+        public List<GenerationInventoryKitEvidenceLinks> kitEvidenceLinks = new List<GenerationInventoryKitEvidenceLinks>();
+        public int libraryCoverageVersion;
+        public GenerationInventoryCounts legacyCounts;
+        public List<string> libraryObservationRoots = new List<string>();
+        public List<GenerationInventorySourceSnapshot> sourceSnapshots = new List<GenerationInventorySourceSnapshot>();
+        public List<GenerationInventorySourceVersion> sourceVersions = new List<GenerationInventorySourceVersion>();
+        public List<GenerationInventoryDomainBinding> domainBindings = new List<GenerationInventoryDomainBinding>();
+        public List<GenerationInventoryCoverageConflict> coverageConflicts = new List<GenerationInventoryCoverageConflict>();
+        public List<GenerationInventoryRootObservation> rootObservations = new List<GenerationInventoryRootObservation>();
+        public string currentIntakeCatalogSnapshotId;
     }
 
     [Serializable]
-    private sealed class GenerationInventoryCounts
+    internal sealed class GenerationInventoryCounts
     {
         public int total;
         public int prefabs;
@@ -4635,6 +4673,87 @@ public static class YQWorldAssetIntakeBuilder
         public int representedVariants;
         public int notApplicable;
     }
+
+    // note: Coverage DTOs account for sources and existing consumers; they are not selectable registry or approval records.
+    [Serializable]
+    internal sealed class GenerationInventorySourceSnapshot
+    {
+        public string path, sha256, identityBasis;
+        public long bytes;
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventorySourceRelation
+    {
+        public string relationId, sourceId, sourceVersionId, installedSourceVersionId, declaredPath, declaredSha256, role, joinState, joinMethod;
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventorySourceVersion
+    {
+        public string sourceId, sourceVersionId, sha256, identityBasis;
+        public List<string> declarationRefs = new List<string>();
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryDomainBinding
+    {
+        public string bindingId, bindingSnapshotId, domain, assetId, bindingKey, registryGuid, resolvedAssetPath;
+        public string family, category, kind, species, moduleSlot, compatibilityId, eligibilityReason, catalogEvidenceRef;
+        public bool? domainEligible;
+        public List<GenerationInventorySourceRelation> sources = new List<GenerationInventorySourceRelation>();
+        public List<YQAssetLibraryConsumerEvidenceRecord> consumerEvidence = new List<YQAssetLibraryConsumerEvidenceRecord>();
+        public GenerationInventoryCurrentIntakeContract currentIntakeContract;
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryCurrentIntakeContract
+    {
+        // note: These are nullable observations of canonical intake, independent of historical review and art approval.
+        public int contractVersion;
+        public string catalogSnapshotId, intakeRecordSha256, sourceGuid, sourceAssetKey, semanticRole, technicalPredicateVersion;
+        public int? dispositionValue, curationContractVersion;
+        public string dispositionName;
+        public bool? releaseEligible, spatialMetadataAuthored;
+        public List<string> libraryEvidenceIds = new List<string>();
+        public List<string> curationEvidenceIds = new List<string>();
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryCoverageConflict
+    {
+        public string kind, subject, reason;
+    }
+
+    [Serializable]
+    internal sealed class GenerationInventoryRootObservation
+    {
+        public string root, availability, metadataSha256;
+        public int files;
+        public bool complete;
+    }
+
+    internal sealed class LibraryCoverageInputs
+    {
+        public GenerationInventoryDocument master;
+        public string currentIntakeCatalogSnapshotId;
+        public List<GenerationInventoryAsset> sources = new List<GenerationInventoryAsset>();
+        public List<GenerationInventoryDomainBinding> bindings = new List<GenerationInventoryDomainBinding>();
+        public List<YQAssetLibraryEvidenceRecord> evidence = new List<YQAssetLibraryEvidenceRecord>();
+        public List<GenerationInventorySourceSnapshot> snapshots = new List<GenerationInventorySourceSnapshot>();
+        public List<GenerationInventoryCoverageConflict> conflicts = new List<GenerationInventoryCoverageConflict>();
+        public List<GenerationInventoryRootObservation> observations = new List<GenerationInventoryRootObservation>();
+        public List<string> roots = new List<string>();
+    }
+
+    internal static readonly string[] DefaultLibraryObservationRoots =
+    {
+        "Assets/ADG_Textures", "Assets/BefourStudios", "Assets/Forst", "Assets/GabrielAguiarProductions",
+        "Assets/Grass And Flowers Pack 1", "Assets/HIVEMIND", "Assets/HumbleBundleResources",
+        "Assets/Magic Pig Games (Infinity PBR)", "Assets/Tom's Terrain Tools", "Assets/YughuesFreeBushes2018",
+        "Assets/YourQuest DOT Creatures", "Assets/YourQuest DOT Equipment", "Assets/Assets/Art", "Assets/Assets/Terrain",
+        "Assets/Assets/GeneratedAssets", "Assets/Assets/Resources", "SourceAssets/DOT"
+    };
 
     [InitializeOnLoadMethod]
     private static void ScheduleMissingBenchmarkScan()
@@ -5476,7 +5595,7 @@ public static class YQWorldAssetIntakeBuilder
                 spatialAssets,
                 materials);
 
-            SaveCatalog(
+            YQWorldAssetIntakeCatalog savedCatalog = SaveCatalog(
                 scanScope,
                 kits,
                 spatialAssets,
@@ -5498,7 +5617,8 @@ public static class YQWorldAssetIntakeBuilder
                     kits,
                     spatialAssets,
                     materials,
-                    sourceAssets);
+                    sourceAssets,
+                    savedCatalog.LibraryEvidence);
             }
 
             Debug.Log(
@@ -6926,7 +7046,7 @@ public static class YQWorldAssetIntakeBuilder
         refreshed.curationV2 = authored.curationV2;
     }
 
-    private static void SaveCatalog(
+    private static YQWorldAssetIntakeCatalog SaveCatalog(
         string scanScope,
         List<YQAssetKitManifest> kits,
         List<YQSpatialAssetRecord> spatialAssets,
@@ -6965,6 +7085,7 @@ public static class YQWorldAssetIntakeBuilder
         // note: Some headless Unity imports serialize a newly created intake asset with a blank script field; restore the known class GUID before the next load.
         EnsureCatalogScriptReference(
             outputCatalogPath);
+        return catalog;
     }
 
     private static void EnsureCatalogScriptReference(string catalogPath)
@@ -7012,12 +7133,40 @@ public static class YQWorldAssetIntakeBuilder
         List<YQAssetKitManifest> kits,
         List<YQSpatialAssetRecord> spatialAssets,
         List<YQMaterialAssetRecord> materials,
-        List<GenerationInventoryAsset> sourceAssets)
+        List<GenerationInventoryAsset> sourceAssets,
+        IReadOnlyList<YQAssetLibraryEvidenceRecord> libraryEvidence)
+    {
+        // note: The pure projection is shared with documentary fixtures; asset publication remains in this existing editor boundary.
+        GenerationInventoryDocument document = BuildGenerationInventoryDocument(roots, kits, spatialAssets,
+            materials, sourceAssets, libraryEvidence, DateTime.UtcNow.ToString("O"));
+        // note: Once coverage is explicitly published, later legacy scans retain its documentary rows and consumer history.
+        if (File.Exists(GenerationInventoryPath))
+        {
+            GenerationInventoryDocument previous = Newtonsoft.Json.JsonConvert.DeserializeObject<GenerationInventoryDocument>(
+                File.ReadAllText(GenerationInventoryPath));
+            if (previous != null && previous.libraryCoverageVersion > 0)
+                document = MergeGenerationInventoryCoverage(document, new LibraryCoverageInputs { master = previous });
+        }
+        EnsureFolderPath(Path.GetDirectoryName(GenerationInventoryPath));
+        string fullPath = Path.GetFullPath(GenerationInventoryPath);
+        File.WriteAllText(fullPath,
+            Newtonsoft.Json.JsonConvert.SerializeObject(document, Newtonsoft.Json.Formatting.Indented));
+        AssetDatabase.ImportAsset(GenerationInventoryPath, ImportAssetOptions.ForceUpdate);
+    }
+
+    internal static GenerationInventoryDocument BuildGenerationInventoryDocument(
+        List<string> roots,
+        List<YQAssetKitManifest> kits,
+        List<YQSpatialAssetRecord> spatialAssets,
+        List<YQMaterialAssetRecord> materials,
+        List<GenerationInventoryAsset> sourceAssets,
+        IReadOnlyList<YQAssetLibraryEvidenceRecord> libraryEvidence,
+        string generatedUtc)
     {
         GenerationInventoryDocument document =
             new GenerationInventoryDocument
             {
-                generatedUtc = DateTime.UtcNow.ToString("O"),
+                generatedUtc = generatedUtc,
                 scanScope = "approved_discovery_roots_typed_intake_snapshot",
                 intakeCatalog = IntakeCatalogPath,
                 approvedRoots = roots != null
@@ -7033,7 +7182,14 @@ public static class YQWorldAssetIntakeBuilder
             {
                 YQAssetKitManifest kit = kits[index];
                 if (kit != null && !string.IsNullOrWhiteSpace(kit.kitId))
+                {
                     kitRoots[kit.kitId] = kit.sourceRoot ?? string.Empty;
+                    document.kitEvidenceLinks.Add(new GenerationInventoryKitEvidenceLinks
+                    {
+                        kitId = kit.kitId,
+                        libraryEvidenceIds = CopySortedEvidenceIds(kit.libraryEvidenceIds)
+                    });
+                }
             }
         }
 
@@ -7050,7 +7206,9 @@ public static class YQWorldAssetIntakeBuilder
                 document.assets.Add(
                     new GenerationInventoryAsset
                     {
+                        stableAssetId = record.stableAssetId,
                         sourceGuid = record.sourceGuid,
+                        sourceAssetKey = record.sourceAssetKey,
                         assetPath = NormalizePath(record.assetPath),
                         assetType = "prefab",
                         assetFamily = record.kitId,
@@ -7065,7 +7223,8 @@ public static class YQWorldAssetIntakeBuilder
                         classificationStatus = record.spatialMetadataAuthored && !string.IsNullOrWhiteSpace(record.semanticRole) ? "reviewed" : "inferred_pending_review",
                         placementContextStatus = record.spatialMetadataAuthored ? "reviewed" : "pending",
                         paletteAssignmentStatus = ready ? "assigned" : "pending",
-                        technicalValidationStatus = ResolveInventoryPrefabTechnicalStatus(record)
+                        technicalValidationStatus = ResolveInventoryPrefabTechnicalStatus(record),
+                        libraryEvidenceIds = CopySortedEvidenceIds(record.libraryEvidenceIds)
                     });
             }
         }
@@ -7082,6 +7241,7 @@ public static class YQWorldAssetIntakeBuilder
                 document.assets.Add(
                     new GenerationInventoryAsset
                     {
+                        stableAssetId = record.stableAssetId,
                         sourceGuid = record.sourceGuid,
                         assetPath = NormalizePath(record.assetPath),
                         assetType = "material",
@@ -7097,7 +7257,8 @@ public static class YQWorldAssetIntakeBuilder
                         classificationStatus = "material_dependency",
                         placementContextStatus = "not_applicable",
                         paletteAssignmentStatus = compatible ? "inherited_from_prefab" : "pending",
-                        technicalValidationStatus = compatible ? "compatible_urp" : "review_or_repair"
+                        technicalValidationStatus = compatible ? "compatible_urp" : "review_or_repair",
+                        libraryEvidenceIds = CopySortedEvidenceIds(record.libraryEvidenceIds)
                     });
             }
         }
@@ -7115,7 +7276,8 @@ public static class YQWorldAssetIntakeBuilder
                 GenerationInventoryAsset source = sourceAssets[index];
                 if (source != null && !string.IsNullOrWhiteSpace(source.assetPath) &&
                     accountedPaths.Add(source.assetPath))
-                    document.assets.Add(source);
+                    document.assets.Add(Newtonsoft.Json.JsonConvert.DeserializeObject<GenerationInventoryAsset>(
+                        Newtonsoft.Json.JsonConvert.SerializeObject(source)));
             }
         }
 
@@ -7139,6 +7301,9 @@ public static class YQWorldAssetIntakeBuilder
             GenerationInventoryAsset asset = document.assets[index];
             if (asset.assetType != "source_model")
                 continue;
+            // note: Documentary coverage does not acquire representation authority from matching file names.
+            if (asset.reviewPolicyScope != GenerationInventoryReviewPolicyScope.LegacyWorldKit)
+                continue;
             string key = BuildPrefabVariantKey(asset);
             if (!prefabByFamilyAndStem.TryGetValue(key, out string authoredPrefab) ||
                 string.IsNullOrEmpty(authoredPrefab))
@@ -7155,8 +7320,14 @@ public static class YQWorldAssetIntakeBuilder
         // note: Convert every unresolved workflow state into an auditable terminal exclusion so the canonical inventory never leaves a candidate in limbo.
         ApplyTerminalReviewPolicy(document);
 
-        document.assets.Sort(
-            (left, right) => string.Compare(left.assetPath, right.assetPath, StringComparison.OrdinalIgnoreCase));
+        document.assets.Sort((left, right) =>
+        {
+            int pathOrder = string.Compare(left.assetPath, right.assetPath, StringComparison.OrdinalIgnoreCase);
+            if (pathOrder != 0) return pathOrder;
+            int guidOrder = string.Compare(left.sourceGuid, right.sourceGuid, StringComparison.Ordinal);
+            return guidOrder != 0 ? guidOrder : string.Compare(left.stableAssetId, right.stableAssetId, StringComparison.Ordinal);
+        });
+        CopyDocumentaryExportEvidence(document, libraryEvidence);
 
         // note: Derive all summary counts from emitted records, so a root overlap or skipped subasset cannot silently inflate eligibility.
         for (int index = 0; index < document.assets.Count; index++)
@@ -7175,17 +7346,1139 @@ public static class YQWorldAssetIntakeBuilder
             else document.counts.pendingReview++;
         }
 
-        EnsureFolderPath(
-            Path.GetDirectoryName(GenerationInventoryPath));
+        // note: Current intake facts are a separate documentary binding, never replacements for the asset review tuple.
+        List<Newtonsoft.Json.Linq.JObject> intakeRows = new List<Newtonsoft.Json.Linq.JObject>();
+        foreach (YQSpatialAssetRecord record in spatialAssets ?? new List<YQSpatialAssetRecord>())
+        {
+            if (record == null || string.IsNullOrWhiteSpace(record.assetPath)) continue;
+            intakeRows.Add(new Newtonsoft.Json.Linq.JObject
+            {
+                ["stableAssetId"] = record.stableAssetId, ["sourceGuid"] = record.sourceGuid,
+                ["sourceAssetKey"] = record.sourceAssetKey, ["assetPath"] = record.assetPath,
+                ["kitId"] = record.kitId, ["semanticRole"] = record.semanticRole,
+                ["disposition"] = (int)record.disposition, ["releaseEligible"] = record.releaseEligible,
+                ["spatialMetadataAuthored"] = record.spatialMetadataAuthored,
+                ["curationV2"] = record.curationV2 == null ? null :
+                    new Newtonsoft.Json.Linq.JObject { ["contractVersion"] = record.curationV2.contractVersion },
+                ["libraryEvidenceIds"] = new Newtonsoft.Json.Linq.JArray(record.libraryEvidenceIds ?? new List<string>())
+            });
+        }
+        List<string> orderedRows = new List<string>();
+        foreach (Newtonsoft.Json.Linq.JObject row in intakeRows)
+            orderedRows.Add(row.ToString(Newtonsoft.Json.Formatting.None));
+        orderedRows.Sort(StringComparer.Ordinal);
+        string projectionHash = LibraryHashText(string.Join("\n", orderedRows));
+        LibraryCoverageInputs currentIntake = new LibraryCoverageInputs
+        {
+            currentIntakeCatalogSnapshotId = "typed-intake-projection:" + IntakeCatalogPath + "@sha256:" + projectionHash
+        };
+        currentIntake.snapshots.Add(new GenerationInventorySourceSnapshot { path = IntakeCatalogPath, sha256 = projectionHash,
+            identityBasis = "typed_intake_curation_projection_v1_not_serialized_catalog_bytes" });
+        currentIntake.bindings.AddRange(BuildLibraryCurrentIntakeBindings(intakeRows, currentIntake.currentIntakeCatalogSnapshotId));
+        return MergeGenerationInventoryCoverage(document, currentIntake);
+    }
 
-        string fullPath =
-            Path.GetFullPath(GenerationInventoryPath);
-        File.WriteAllText(
-            fullPath,
-            Newtonsoft.Json.JsonConvert.SerializeObject(document, Newtonsoft.Json.Formatting.Indented));
-        AssetDatabase.ImportAsset(
-            GenerationInventoryPath,
-            ImportAssetOptions.ForceUpdate);
+    private static List<string> CopySortedEvidenceIds(List<string> ids)
+    {
+        List<string> copy = ids != null ? new List<string>(ids) : new List<string>();
+        copy.Sort(StringComparer.Ordinal);
+        return copy;
+    }
+
+    private static void CopyDocumentaryExportEvidence(GenerationInventoryDocument document,
+        IReadOnlyList<YQAssetLibraryEvidenceRecord> libraryEvidence)
+    {
+        // note: Normalize and sort copies only; exported documentary states never alter the authored intake or imply admission.
+        if (libraryEvidence != null)
+            for (int i = 0; i < libraryEvidence.Count; i++)
+            {
+                YQAssetLibraryEvidenceRecord source = libraryEvidence[i];
+                if (source == null)
+                {
+                    document.libraryEvidence.Add(null);
+                    continue;
+                }
+                YQAssetLibraryEvidenceRecord copy = Newtonsoft.Json.JsonConvert.DeserializeObject<YQAssetLibraryEvidenceRecord>(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(source));
+                copy.EnsureCollections();
+                copy.provenanceEvidenceRefs.Sort(StringComparer.Ordinal);
+                copy.licenseEvidenceRefs.Sort(StringComparer.Ordinal);
+                copy.supersedesEvidenceIds.Sort(StringComparer.Ordinal);
+                copy.supersedesVersionIds.Sort(StringComparer.Ordinal);
+                copy.consumerEvidence.Sort((left, right) => StringComparer.Ordinal.Compare(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(left), Newtonsoft.Json.JsonConvert.SerializeObject(right)));
+                document.libraryEvidence.Add(copy);
+            }
+        document.libraryEvidence.Sort((left, right) =>
+        {
+            int idOrder = string.Compare(left?.evidenceId, right?.evidenceId, StringComparison.Ordinal);
+            return idOrder != 0 ? idOrder : StringComparer.Ordinal.Compare(
+                Newtonsoft.Json.JsonConvert.SerializeObject(left), Newtonsoft.Json.JsonConvert.SerializeObject(right));
+        });
+        document.kitEvidenceLinks.Sort((left, right) => StringComparer.Ordinal.Compare(left.kitId, right.kitId));
+        for (int i = 0; i < document.assets.Count; i++)
+            document.assets[i].libraryEvidenceIds = CopySortedEvidenceIds(document.assets[i].libraryEvidenceIds);
+    }
+
+    private const string DotIndexPath = "Assets/Assets/GeneratedAssets/DOT Generated Assets/Catalogs/DOT_ASSET_INDEX.json";
+    private const string DotLayoutPath = "Assets/Assets/GeneratedAssets/DOT Generated Assets/Catalogs/DOT_ASSET_LAYOUT.json";
+    private const string EquipmentCatalogPath = "Assets/Assets/Resources/Player/YQDotEquipmentCatalog.asset";
+    private const string CreatureCatalogPath = "Assets/Assets/Resources/Player/YQDotCreatureCatalog.asset";
+    private const string ArtTrackerPath = "Docs/ArtDirection_Production_Tracker.md";
+
+    private sealed class LibraryTextReader
+    {
+        internal readonly string root;
+        internal readonly Dictionary<string, string> texts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        internal readonly List<GenerationInventorySourceSnapshot> snapshots = new List<GenerationInventorySourceSnapshot>();
+        private readonly Dictionary<string, (long bytes, long ticks)> stamps = new Dictionary<string, (long, long)>(StringComparer.OrdinalIgnoreCase);
+
+        internal LibraryTextReader(string projectRoot) { root = Path.GetFullPath(projectRoot).TrimEnd(Path.DirectorySeparatorChar); }
+
+        internal string Full(string relative)
+        {
+            string full = Path.GetFullPath(Path.Combine(root, relative));
+            if (!full.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Library input escapes the project: " + relative);
+            return full;
+        }
+
+        internal string Read(string relative)
+        {
+            relative = NormalizePath(relative);
+            if (texts.TryGetValue(relative, out string cached)) return cached;
+            string full = Full(relative);
+            FileInfo before = new FileInfo(full);
+            long length = before.Length, ticks = before.LastWriteTimeUtc.Ticks;
+            if (length > 128L * 1024L * 1024L) throw new InvalidDataException("Text input exceeds bounded reader limit: " + relative);
+            byte[] bytes = File.ReadAllBytes(full);
+            FileInfo after = new FileInfo(full);
+            if (after.Length != length || after.LastWriteTimeUtc.Ticks != ticks || bytes.LongLength != length)
+                throw new InvalidDataException("Library input changed while reading: " + relative);
+            string text = System.Text.Encoding.UTF8.GetString(bytes).TrimStart('\uFEFF');
+            texts.Add(relative, text);
+            stamps.Add(relative, (length, ticks));
+            snapshots.Add(new GenerationInventorySourceSnapshot { path = relative, bytes = length,
+                sha256 = LibraryHash(bytes), identityBasis = "actual_text_bytes_not_binary_payload_verification" });
+            return text;
+        }
+
+        internal string Guid(string relative)
+        {
+            string meta = Full(relative + ".meta");
+            if (!File.Exists(meta)) return null;
+            FileInfo before = new FileInfo(meta);
+            long bytes = before.Length, ticks = before.LastWriteTimeUtc.Ticks;
+            // note: ModelImporter metadata can exceed a megabyte; Unity's GUID lives in its header, independent of importer payload size.
+            byte[] prefix = new byte[4096];
+            int read;
+            using (FileStream stream = File.OpenRead(meta)) read = stream.Read(prefix, 0, prefix.Length);
+            string text = System.Text.Encoding.UTF8.GetString(prefix, 0, read).TrimStart('\uFEFF');
+            FileInfo after = new FileInfo(meta);
+            if (after.Length != bytes || after.LastWriteTimeUtc.Ticks != ticks)
+                throw new InvalidDataException("Source metadata changed: " + relative);
+            stamps[NormalizePath(relative + ".meta")] = (bytes, ticks);
+            Match match = Regex.Match(text, @"(?m)^guid: ([a-fA-F0-9]{32})\r?$");
+            if (!match.Success) throw new InvalidDataException("Metadata GUID is absent from the bounded header: " + relative);
+            return match.Groups[1].Value.ToLowerInvariant();
+        }
+
+        internal string Hash(string relative)
+        {
+            Read(relative);
+            return snapshots.Find(snapshot => string.Equals(snapshot.path, NormalizePath(relative), StringComparison.OrdinalIgnoreCase)).sha256;
+        }
+
+        internal void VerifyStable()
+        {
+            foreach (KeyValuePair<string, (long bytes, long ticks)> pair in stamps)
+            {
+                FileInfo current = new FileInfo(Full(pair.Key));
+                if (current.Length != pair.Value.bytes || current.LastWriteTimeUtc.Ticks != pair.Value.ticks)
+                    throw new InvalidDataException("Library input changed before projection: " + pair.Key);
+            }
+        }
+    }
+
+    internal static string LibraryHash(byte[] bytes)
+    {
+        using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create())
+            return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", string.Empty).ToLowerInvariant();
+    }
+
+    private static string LibraryHashText(string text) => LibraryHash(System.Text.Encoding.UTF8.GetBytes(text ?? string.Empty));
+    private static string LibrarySourceId(string guid, string path) => !string.IsNullOrWhiteSpace(guid)
+        ? "guid:" + guid.ToLowerInvariant() : "path:" + LibraryHashText(NormalizePath(path));
+    private static string LibraryVersionId(string sourceId, string sha) => string.IsNullOrWhiteSpace(sha) ? null : sourceId + "@sha256:" + sha.ToLowerInvariant();
+    private static T LibraryCopy<T>(T value) => Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Newtonsoft.Json.JsonConvert.SerializeObject(value));
+
+    internal static GenerationInventoryDocument BuildLibraryCoverageCandidate(string projectRoot,
+        IEnumerable<string> observationRoots = null, int maximumFilesPerRoot = 100000)
+    {
+        LibraryCoverageInputs inputs = ReadLibraryCoverageInputs(projectRoot, observationRoots, maximumFilesPerRoot);
+        return MergeGenerationInventoryCoverage(inputs.master, inputs);
+    }
+
+    internal static LibraryCoverageInputs ReadLibraryCoverageInputs(string projectRoot,
+        IEnumerable<string> observationRoots = null, int maximumFilesPerRoot = 100000)
+    {
+        // note: Read current canonical text and metadata only; no AssetDatabase, prefab loading, binary hashing, or report authority.
+        if (maximumFilesPerRoot < 1) throw new ArgumentOutOfRangeException(nameof(maximumFilesPerRoot));
+        LibraryTextReader reader = new LibraryTextReader(projectRoot);
+        LibraryCoverageInputs inputs = new LibraryCoverageInputs();
+        inputs.master = Newtonsoft.Json.JsonConvert.DeserializeObject<GenerationInventoryDocument>(reader.Read(GenerationInventoryPath));
+        Newtonsoft.Json.Linq.JObject index = Newtonsoft.Json.Linq.JObject.Parse(reader.Read(DotIndexPath));
+        Newtonsoft.Json.Linq.JObject layout = Newtonsoft.Json.Linq.JObject.Parse(reader.Read(DotLayoutPath));
+        if ((string)index["schema"] != "yourquest.dot-asset-index.v1" || (string)layout["schema"] != "yourquest.dot-asset-layout.v1")
+            throw new InvalidDataException("Unsupported DOT source schema.");
+        foreach (Newtonsoft.Json.Linq.JObject row in (Newtonsoft.Json.Linq.JArray)index["files"])
+        {
+            GenerationInventoryAsset source = LibrarySource((string)row["guid"], (string)row["path"],
+                "Assets/Assets/GeneratedAssets/DOT Generated Assets", (string)row["category"], null);
+            source.installedSourceSha256 = (string)row["sha256"];
+            source.sourceVersionId = LibraryVersionId(source.librarySourceId, source.installedSourceSha256);
+            source.sourceAvailability = "declared";
+            source.sourceDeclarationRefs.Add(DotIndexPath + "#" + source.assetPath);
+            inputs.sources.Add(source);
+        }
+        foreach (Newtonsoft.Json.Linq.JObject row in (Newtonsoft.Json.Linq.JArray)layout["files"])
+        {
+            GenerationInventoryAsset source = LibrarySource((string)row["guid"], (string)row["path"],
+                "Assets/Assets/GeneratedAssets/DOT Generated Assets", (string)row["pack"], (string)row["kind"]);
+            source.declaredSourceSha256 = (string)row["sha256"];
+            source.installedSourceSha256 = (string)row["installedSha256"] ?? (string)row["sha256"];
+            source.baselineSourceVersionId = LibraryVersionId(source.librarySourceId, source.declaredSourceSha256);
+            source.sourceVersionId = LibraryVersionId(source.librarySourceId, source.installedSourceSha256);
+            source.sourceAvailability = "declared";
+            source.sourceDeclarationRefs.Add(DotLayoutPath + "#" + source.assetPath);
+            if (row["origin"] != null) source.sourceAliases.Add((string)row["origin"]);
+            foreach (Newtonsoft.Json.Linq.JToken alias in (Newtonsoft.Json.Linq.JArray)row["aliases"] ?? new Newtonsoft.Json.Linq.JArray())
+                source.sourceAliases.Add((string)alias);
+            inputs.sources.Add(source);
+        }
+        ObserveLibraryRoots(reader, inputs, observationRoots ?? DefaultLibraryObservationRoots, maximumFilesPerRoot);
+        BuildLibraryDomainBindings(reader, inputs, layout);
+        ReadLibraryProvenance(reader, inputs, layout);
+        ReadLibraryTrackerFacts(reader, inputs);
+        reader.VerifyStable();
+        inputs.snapshots.AddRange(reader.snapshots);
+        return inputs;
+    }
+
+    private static GenerationInventoryAsset LibrarySource(string guid, string path, string root, string family, string kind)
+    {
+        string extension = Path.GetExtension(path ?? string.Empty).ToLowerInvariant();
+        string id = LibrarySourceId(guid, path);
+        return new GenerationInventoryAsset
+        {
+            stableAssetId = !string.IsNullOrWhiteSpace(guid) ? "source_" + guid : "source_" + LibraryHashText(NormalizePath(path)),
+            librarySourceId = id, sourceGuid = guid, assetPath = NormalizePath(path), sourceRoot = root, assetFamily = family,
+            assetType = extension == ".prefab" ? "prefab" : extension == ".mat" ? "material" :
+                extension == ".fbx" || extension == ".obj" || extension == ".blend" || extension == ".gltf" || extension == ".glb" ? "source_model" :
+                extension == ".unity" ? "authored_scene" : "source_dependency",
+            declaredSourceKind = kind, sourceAvailability = "observed", registryState = "library_source_accounting_only",
+            runtimeEligible = false, finalState = "pending_library_source_review",
+            finalStateReason = "Documentary source accounting; world placement and independent consumer eligibility are unassessed.",
+            intakeDisposition = "not_in_world_spatial_intake", classificationStatus = "unknown", placementContextStatus = "unknown",
+            paletteAssignmentStatus = "unknown", technicalValidationStatus = "not_assessed_independently",
+            reviewDisposition = "unknown", reviewPolicyVersion = "library-coverage-v1",
+            reviewPolicyScope = GenerationInventoryReviewPolicyScope.LibraryCoverage, technicalIssues = new List<string>()
+        };
+    }
+
+    private static void ObserveLibraryRoots(LibraryTextReader reader, LibraryCoverageInputs inputs,
+        IEnumerable<string> roots, int maximumFiles)
+    {
+        List<string> configured = new List<string>();
+        foreach (string root in roots)
+            if (!configured.Contains(NormalizePath(root))) configured.Add(NormalizePath(root));
+        configured.Sort(StringComparer.Ordinal);
+        inputs.roots.AddRange(configured);
+        foreach (string root in configured)
+        {
+            GenerationInventoryRootObservation observation = new GenerationInventoryRootObservation { root = root, availability = "missing" };
+            inputs.observations.Add(observation);
+            string fullRoot = reader.Full(root);
+            if (!Directory.Exists(fullRoot)) continue;
+            observation.availability = "present";
+            observation.complete = true;
+            Stack<string> directories = new Stack<string>();
+            directories.Push(fullRoot);
+            List<string> metadata = new List<string>();
+            while (directories.Count > 0 && observation.complete)
+            {
+                string directory = directories.Pop();
+                string[] entries = Directory.GetFileSystemEntries(directory);
+                Array.Sort(entries, StringComparer.Ordinal);
+                foreach (string full in entries)
+                {
+                    FileAttributes attributes = File.GetAttributes(full);
+                    string path = full.Substring(reader.root.Length + 1).Replace('\\', '/');
+                    if ((attributes & FileAttributes.ReparsePoint) != 0)
+                    {
+                        observation.complete = false;
+                        inputs.conflicts.Add(new GenerationInventoryCoverageConflict { kind = "skipped_link", subject = path, reason = "Explicit roots do not authorize traversal outside the project." });
+                        continue;
+                    }
+                    if ((attributes & FileAttributes.Directory) != 0) { directories.Push(full); continue; }
+                    if (path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (observation.files == maximumFiles)
+                    {
+                        observation.complete = false;
+                        inputs.conflicts.Add(new GenerationInventoryCoverageConflict { kind = "root_cap", subject = root, reason = "Metadata enumeration cap reached." });
+                        break;
+                    }
+                    string guid = reader.Guid(path);
+                    FileInfo info = new FileInfo(full);
+                    observation.files++;
+                    metadata.Add(path + "|" + guid + "|" + info.Length + "|" + info.LastWriteTimeUtc.Ticks);
+                    inputs.sources.Add(LibrarySource(guid, path, root, root, null));
+                    inputs.sources[inputs.sources.Count - 1].sourceDeclarationRefs.Add(root + "#metadata-observation");
+                }
+            }
+            metadata.Sort(StringComparer.Ordinal);
+            observation.metadataSha256 = LibraryHashText(string.Join("\n", metadata));
+            inputs.snapshots.Add(new GenerationInventorySourceSnapshot { path = root, sha256 = observation.metadataSha256,
+                identityBasis = "path_guid_size_mtime_metadata_only_no_binary_payload_hash", bytes = 0 });
+        }
+    }
+
+    private static List<Newtonsoft.Json.Linq.JObject> ReadLibraryYamlRows(string text, string section, string recordKey)
+    {
+        // note: This bounded parser reads the inspected Unity catalog shape, including folded quoted scalars and source arrays.
+        List<Newtonsoft.Json.Linq.JObject> rows = new List<Newtonsoft.Json.Linq.JObject>();
+        string[] lines = text.Replace("\r", string.Empty).Split('\n');
+        bool inSection = false;
+        Newtonsoft.Json.Linq.JObject row = null;
+        string key = null, scalar = null;
+        Action flush = () =>
+        {
+            if (row != null && key != null && scalar != null) row[key] = LibraryYamlScalar(scalar);
+            scalar = null;
+        };
+        foreach (string line in lines)
+        {
+            if (!inSection) { if (line == "  " + section + ":") inSection = true; continue; }
+            Match start = Regex.Match(line, "^  - " + Regex.Escape(recordKey) + @":\s*(.*)$");
+            if (start.Success)
+            {
+                flush();
+                row = new Newtonsoft.Json.Linq.JObject(); rows.Add(row); key = recordKey; scalar = start.Groups[1].Value;
+                continue;
+            }
+            if (Regex.IsMatch(line, @"^  [A-Za-z_][A-Za-z0-9_]*:")) { flush(); break; }
+            if (row == null) continue;
+            Match field = Regex.Match(line, @"^    ([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$");
+            if (field.Success)
+            {
+                flush(); key = field.Groups[1].Value; scalar = field.Groups[2].Value;
+                if (scalar.Length == 0 && (key == "sourcePaths" || key == "sourceHashes" || key == "libraryEvidenceIds")) { row[key] = new Newtonsoft.Json.Linq.JArray(); scalar = null; }
+                continue;
+            }
+            if (line.StartsWith("    - ", StringComparison.Ordinal) && row[key] is Newtonsoft.Json.Linq.JArray array)
+            { array.Add(LibraryYamlScalar(line.Substring(6))); continue; }
+            if (line.StartsWith("      ", StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(line))
+            {
+                if (scalar != null) scalar += " " + line.Trim();
+                else if (row[key] is Newtonsoft.Json.Linq.JArray current && current.Count > 0)
+                    current[current.Count - 1] = (string)current[current.Count - 1] + " " + line.Trim();
+            }
+        }
+        flush();
+        return rows;
+    }
+
+    private static string LibraryYamlScalar(string value)
+    {
+        value = value.Trim();
+        if (value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
+            return value.Substring(1, value.Length - 2).Replace("''", "'");
+        if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal))
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<string>(value);
+        return value;
+    }
+
+    internal static List<GenerationInventoryDomainBinding> BuildLibraryCurrentIntakeBindings(
+        IEnumerable<Newtonsoft.Json.Linq.JObject> rows, string catalogSnapshotId,
+        IReadOnlyDictionary<string, string> registryGuids = null)
+    {
+        // note: Project literal nullable facts; missing fields and technical curation never acquire art approval.
+        List<GenerationInventoryDomainBinding> bindings = new List<GenerationInventoryDomainBinding>();
+        foreach (Newtonsoft.Json.Linq.JObject row in rows)
+        {
+            string path = NormalizePath((string)row["assetPath"]), guid = (string)row["sourceGuid"];
+            GenerationInventoryCurrentIntakeContract contract = new GenerationInventoryCurrentIntakeContract
+            {
+                contractVersion = 1, catalogSnapshotId = catalogSnapshotId, sourceGuid = guid,
+                sourceAssetKey = (string)row["sourceAssetKey"], semanticRole = (string)row["semanticRole"],
+                dispositionValue = LibraryIntakeInt(row["disposition"]),
+                releaseEligible = LibraryIntakeBool(row["releaseEligible"]),
+                spatialMetadataAuthored = LibraryIntakeBool(row["spatialMetadataAuthored"]),
+                technicalPredicateVersion = "IsGenerationReadySpatialAsset:v1",
+                libraryEvidenceIds = LibrarySortedStrings(row["libraryEvidenceIds"] is Newtonsoft.Json.Linq.JArray ids
+                    ? ids.ToObject<List<string>>() : null)
+            };
+            Newtonsoft.Json.Linq.JToken curation = row["curationV2"];
+            if (curation is Newtonsoft.Json.Linq.JObject structured)
+                contract.curationContractVersion = LibraryIntakeInt(structured["contractVersion"]);
+            else if (curation?.Type == Newtonsoft.Json.Linq.JTokenType.String)
+            {
+                Match version = Regex.Match((string)curation, @"(?:^|\s)contractVersion:\s*(-?\d+)(?:\s|$)");
+                if (version.Success) contract.curationContractVersion = int.Parse(version.Groups[1].Value,
+                    System.Globalization.CultureInfo.InvariantCulture);
+            }
+            if (contract.dispositionValue.HasValue)
+                contract.dispositionName = ((YQAssetIntakeDisposition)contract.dispositionValue.Value).ToString();
+            // note: Hash this named projection only; the exact catalog byte identity is carried separately.
+            Newtonsoft.Json.Linq.JObject projection = new Newtonsoft.Json.Linq.JObject
+            {
+                ["hashContract"] = "intake_curation_projection_v1", ["stableAssetId"] = row["stableAssetId"],
+                ["sourceGuid"] = guid, ["sourceAssetKey"] = contract.sourceAssetKey, ["assetPath"] = path,
+                ["kitId"] = row["kitId"], ["semanticRole"] = contract.semanticRole,
+                ["disposition"] = contract.dispositionValue, ["releaseEligible"] = contract.releaseEligible,
+                ["spatialMetadataAuthored"] = contract.spatialMetadataAuthored,
+                ["curationContractVersion"] = contract.curationContractVersion,
+                ["libraryEvidenceIds"] = row["libraryEvidenceIds"] == null ? null :
+                    Newtonsoft.Json.Linq.JArray.FromObject(contract.libraryEvidenceIds)
+            };
+            contract.intakeRecordSha256 = LibraryHashText(projection.ToString(Newtonsoft.Json.Formatting.None));
+            bool? eligible = null;
+            if (!string.IsNullOrWhiteSpace(path) &&
+                (!YQRuntimeWorldAssetRegistryBuilder.IsUsefulPrefabPath(path) || YQWorldAssetCatalog.IsRuntimeQuarantinedPath(path) ||
+                 contract.releaseEligible == false || contract.spatialMetadataAuthored == false ||
+                 (contract.dispositionValue.HasValue && contract.dispositionValue != (int)YQAssetIntakeDisposition.Candidate) ||
+                 (contract.curationContractVersion.HasValue && contract.curationContractVersion != YQAssetCurationContractV2.SupportedContractVersion)))
+                eligible = false;
+            else if (!string.IsNullOrWhiteSpace(path) && contract.releaseEligible.HasValue && contract.spatialMetadataAuthored.HasValue &&
+                     contract.dispositionValue.HasValue && contract.curationContractVersion.HasValue)
+                eligible = YQRuntimeWorldAssetRegistryBuilder.IsGenerationReadySpatialAsset(new YQSpatialAssetRecord
+                {
+                    assetPath = path, releaseEligible = contract.releaseEligible.Value,
+                    spatialMetadataAuthored = contract.spatialMetadataAuthored.Value,
+                    disposition = (YQAssetIntakeDisposition)contract.dispositionValue.Value,
+                    curationV2 = new YQAssetCurationContractV2 { contractVersion = contract.curationContractVersion.Value }
+                });
+            string registryGuid = null;
+            registryGuids?.TryGetValue(path ?? string.Empty, out registryGuid);
+            GenerationInventoryDomainBinding binding = new GenerationInventoryDomainBinding
+            {
+                bindingId = "world-intake:" + LibrarySourceId(guid, path), domain = "world_intake",
+                assetId = (string)row["stableAssetId"], bindingKey = path, family = (string)row["kitId"],
+                category = contract.semanticRole, kind = "spatial_asset", registryGuid = registryGuid,
+                domainEligible = eligible, currentIntakeContract = contract,
+                catalogEvidenceRef = IntakeCatalogPath + "#spatialAssets/" + (guid ?? string.Empty),
+                eligibilityReason = "Current canonical intake technical predicate only; independent art approval and ordinary runtime use are not inferred."
+            };
+            AddLibraryRelation(binding, path, null, "current_intake_source");
+            bindings.Add(binding);
+        }
+        return bindings;
+    }
+
+    private static int? LibraryIntakeInt(Newtonsoft.Json.Linq.JToken token)
+    {
+        if (token == null || token.Type == Newtonsoft.Json.Linq.JTokenType.Null) return null;
+        return int.TryParse((string)token, System.Globalization.NumberStyles.Integer,
+            System.Globalization.CultureInfo.InvariantCulture, out int value) ? value : (int?)null;
+    }
+
+    private static bool? LibraryIntakeBool(Newtonsoft.Json.Linq.JToken token)
+    {
+        if (token == null || token.Type == Newtonsoft.Json.Linq.JTokenType.Null) return null;
+        if (token.Type == Newtonsoft.Json.Linq.JTokenType.Boolean) return (bool)token;
+        string value = (string)token;
+        return value == "1" || value == "true" ? true : value == "0" || value == "false" ? false : (bool?)null;
+    }
+
+    private static void BuildLibraryDomainBindings(LibraryTextReader reader, LibraryCoverageInputs inputs, Newtonsoft.Json.Linq.JObject layout)
+    {
+        // note: Join wrappers by metadata GUID, retaining ambiguity rather than selecting a same-name file.
+        Dictionary<string, HashSet<string>> pathsByGuid = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, Newtonsoft.Json.Linq.JObject> layoutByPath = new Dictionary<string, Newtonsoft.Json.Linq.JObject>(StringComparer.OrdinalIgnoreCase);
+        foreach (GenerationInventoryAsset source in inputs.sources)
+        {
+            if (string.IsNullOrWhiteSpace(source.sourceGuid)) continue;
+            if (!pathsByGuid.TryGetValue(source.sourceGuid, out HashSet<string> paths))
+                pathsByGuid.Add(source.sourceGuid, paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            paths.Add(source.assetPath);
+        }
+        foreach (Newtonsoft.Json.Linq.JObject row in (Newtonsoft.Json.Linq.JArray)layout["files"])
+            layoutByPath[(string)row["path"]] = row;
+        Dictionary<string, string> registryGuids = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        string shards = reader.Full("Assets/Assets/Resources/YQWorldAssetShards");
+        string[] shardFiles = Directory.GetFiles(shards, "YQWorldAssets_*.asset");
+        Array.Sort(shardFiles, StringComparer.Ordinal);
+        List<string> registryFiles = new List<string>(shardFiles);
+        registryFiles.Insert(0, reader.Full("Assets/Assets/Resources/YQRuntimeWorldAssetRegistry.asset"));
+        foreach (string full in registryFiles)
+        {
+            string relative = full.Substring(reader.root.Length + 1).Replace('\\', '/');
+            foreach (Newtonsoft.Json.Linq.JObject row in ReadLibraryYamlRows(reader.Read(relative), "entries", "assetPath"))
+            {
+                Match guid = Regex.Match((string)row["prefab"] ?? string.Empty, @"\bguid: ([a-fA-F0-9]{32})\b");
+                if (!guid.Success) continue;
+                string key = (string)row["assetPath"];
+                if (registryGuids.TryGetValue(key, out string previous) && previous != guid.Groups[1].Value)
+                    inputs.conflicts.Add(new GenerationInventoryCoverageConflict { kind = "registry_key_conflict", subject = key, reason = "Multiple prefab GUIDs own the preserved key." });
+                else registryGuids[key] = guid.Groups[1].Value.ToLowerInvariant();
+            }
+        }
+        string pools = reader.Read("Assets/Assets/Resources/GeneratedRpgContentLibrary.asset");
+        string poolsHash = reader.Hash("Assets/Assets/Resources/GeneratedRpgContentLibrary.asset");
+        string creatureConsumerHash = reader.Hash("Assets/Assets/Scripts/Generated/YQDotCreatureCatalog.cs");
+        foreach (string catalog in new[] { EquipmentCatalogPath, CreatureCatalogPath })
+        {
+            bool equipment = catalog == EquipmentCatalogPath;
+            string catalogHash = reader.Hash(catalog);
+            foreach (Newtonsoft.Json.Linq.JObject row in ReadLibraryYamlRows(reader.Read(catalog), "entries", "assetId"))
+            {
+                GenerationInventoryDomainBinding binding = new GenerationInventoryDomainBinding
+                {
+                    domain = equipment ? "equipment" : "creature", assetId = (string)row["assetId"], bindingKey = (string)row["prefabPath"],
+                    family = (string)row["family"], category = (string)row["category"], kind = (string)row["kind"], species = (string)row["species"],
+                    moduleSlot = (string)row["moduleSlot"], compatibilityId = (string)row["compatibilityId"],
+                    domainEligible = equipment ? (string)row["generationEligible"] == "1" ? true : (string)row["generationEligible"] == "0" ? false : (bool?)null : null,
+                    eligibilityReason = equipment ? (string)row["eligibilityReason"] : "No universal eligibility flag is declared by this catalog.",
+                    catalogEvidenceRef = catalog
+                };
+                binding.bindingId = "dot-" + binding.domain + ":" + binding.assetId;
+                if (string.IsNullOrWhiteSpace(binding.assetId)) throw new InvalidDataException("Domain entry has no stable assetId: " + catalog);
+                registryGuids.TryGetValue(binding.bindingKey ?? string.Empty, out binding.registryGuid);
+                string physical = null;
+                if (!string.IsNullOrWhiteSpace(binding.registryGuid) && pathsByGuid.TryGetValue(binding.registryGuid, out HashSet<string> physicalPaths))
+                {
+                    if (physicalPaths.Count == 1) foreach (string path in physicalPaths) physical = path;
+                    else inputs.conflicts.Add(new GenerationInventoryCoverageConflict { kind = "binding_guid_ambiguous", subject = binding.bindingId,
+                        reason = "The registry GUID is declared at multiple source paths; no physical wrapper was selected." });
+                }
+                binding.resolvedAssetPath = physical;
+                if (equipment)
+                {
+                    AddLibraryRelation(binding, (string)row["sourcePath"], (string)row["sourceSha256"], "declared_primary_source");
+                    AddLibraryRelation(binding, (string)row["partsSourcePath"], null, "declared_parts_source");
+                    AddEquipmentLodRelations(binding, row, layoutByPath);
+                }
+                else
+                {
+                    Newtonsoft.Json.Linq.JArray paths = row["sourcePaths"] as Newtonsoft.Json.Linq.JArray ?? new Newtonsoft.Json.Linq.JArray();
+                    Newtonsoft.Json.Linq.JArray hashes = row["sourceHashes"] as Newtonsoft.Json.Linq.JArray ?? new Newtonsoft.Json.Linq.JArray();
+                    if (paths.Count != hashes.Count) throw new InvalidDataException("Creature source/hash arity mismatch: " + binding.assetId);
+                    for (int i = 0; i < paths.Count; i++) AddLibraryRelation(binding, (string)paths[i], (string)hashes[i], i == 0 ? "declared_primary_source" : "declared_additional_source");
+                }
+                string pool = equipment ? LibraryEquipmentPool(binding) : null;
+                bool present = pool != null && LibraryPoolContains(pools, pool, binding.bindingKey);
+                binding.consumerEvidence.Add(new YQAssetLibraryConsumerEvidenceRecord
+                {
+                    contractVersion = 1, consumerId = equipment ? "production_item_visual_pool" : "declared_creature_selector",
+                    consumerSourcePath = equipment ? "Assets/Assets/Resources/GeneratedRpgContentLibrary.asset" : "Assets/Assets/Scripts/Generated/YQDotCreatureCatalog.cs",
+                    bindingKey = binding.bindingKey, registryGuid = binding.registryGuid, resolvedAssetPath = physical,
+                    paletteOrPoolId = pool, semanticRole = equipment ? binding.family : binding.kind,
+                    evidenceLevel = equipment && !present ? YQAssetLibraryConsumerEvidenceLevel.Unknown : YQAssetLibraryConsumerEvidenceLevel.StaticReference,
+                    evidenceRef = catalog + "#" + binding.assetId,
+                    reason = equipment ? "Pool reference present=" + present + "; domain eligibility is copied separately; runtime use unverified." :
+                        "Declared kind/species/module interface only; runtime use and general generation eligibility unverified."
+                });
+                binding.consumerEvidence[0].consumerSourceSha256 = equipment ? poolsHash : creatureConsumerHash;
+                binding.consumerEvidence[0].evidenceSha256 = catalogHash;
+                inputs.bindings.Add(binding);
+            }
+        }
+        // note: Existing material adapters remain explicit original-to-runtime relations; observation does not regenerate materials.
+        foreach (Newtonsoft.Json.Linq.JObject row in ReadLibraryYamlRows(reader.Read(IntakeCatalogPath), "materials", "stableAssetId"))
+        {
+            string adapter = (string)row["runtimeMaterialPath"], original = (string)row["assetPath"];
+            if (string.IsNullOrWhiteSpace(adapter) || string.Equals(adapter, original, StringComparison.OrdinalIgnoreCase)) continue;
+            GenerationInventoryDomainBinding binding = new GenerationInventoryDomainBinding
+            {
+                domain = "material_adapter", assetId = (string)row["stableAssetId"], bindingId = "material-adapter:" + (string)row["stableAssetId"],
+                bindingKey = adapter, resolvedAssetPath = adapter, registryGuid = reader.Guid(adapter), catalogEvidenceRef = IntakeCatalogPath,
+                domainEligible = (string)row["releaseEligible"] == "1" ? true : (string)row["releaseEligible"] == "0" ? false : (bool?)null,
+                eligibilityReason = "Existing material compatibility flag and adapter strategy: " + (string)row["compatibilityStrategy"]
+            };
+            AddLibraryRelation(binding, original, null, "declared_material_source");
+            AddLibraryRelation(binding, adapter, null, "declared_runtime_material_adapter");
+            binding.consumerEvidence.Add(new YQAssetLibraryConsumerEvidenceRecord { contractVersion = 1,
+                consumerId = "existing_material_adapter", consumerSourcePath = IntakeCatalogPath,
+                consumerSourceSha256 = reader.Hash(IntakeCatalogPath), bindingKey = adapter, registryGuid = binding.registryGuid,
+                resolvedAssetPath = adapter, evidenceRef = IntakeCatalogPath + "#materials/" + binding.assetId,
+                evidenceSha256 = reader.Hash(IntakeCatalogPath), evidenceLevel = YQAssetLibraryConsumerEvidenceLevel.StaticReference,
+                reason = "Literal intake adapter reference only; owning-prefab use and visual acceptance unverified." });
+            inputs.bindings.Add(binding);
+        }
+        // note: World intake and serialized transport remain separate observations of their existing owners.
+        string intakeHash = reader.Hash(IntakeCatalogPath);
+        inputs.currentIntakeCatalogSnapshotId = "serialized-intake:" + IntakeCatalogPath + "@sha256:" + intakeHash;
+        List<GenerationInventoryDomainBinding> current = BuildLibraryCurrentIntakeBindings(
+            ReadLibraryYamlRows(reader.Read(IntakeCatalogPath), "spatialAssets", "stableAssetId"),
+            inputs.currentIntakeCatalogSnapshotId, registryGuids);
+        string paletteSource = "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs";
+        string paletteHash = reader.Hash(paletteSource);
+        foreach (GenerationInventoryDomainBinding binding in current)
+            binding.consumerEvidence.Add(new YQAssetLibraryConsumerEvidenceRecord
+            {
+                contractVersion = 1, consumerId = "canonical_world_intake_gate", consumerSourcePath = paletteSource,
+                consumerSourceSha256 = paletteHash, bindingKey = binding.bindingKey, registryGuid = binding.registryGuid,
+                semanticRole = binding.category, evidenceLevel = YQAssetLibraryConsumerEvidenceLevel.StaticReference,
+                evidenceRef = binding.catalogEvidenceRef, evidenceSha256 = intakeHash,
+                reason = "The existing palette gate reads canonical intake flags. This is not a palette selection, art approval or ordinary runtime-use witness."
+            });
+        ReadLibraryIntakeCurationEvidence(reader, inputs, current);
+        inputs.bindings.AddRange(current);
+    }
+
+    private static void ReadLibraryIntakeCurationEvidence(LibraryTextReader reader, LibraryCoverageInputs inputs,
+        List<GenerationInventoryDomainBinding> current)
+    {
+        const string directory = "outputs/Asset_Contracts_20261002/Curation_20261003_003444/";
+        const string reviewPath = directory + "Review.txt", beforePath = directory + "Intake_Before.asset";
+        const string authorPath = "Assets/Assets/Scripts/Generated/Editor/YQFocusedConstructionLibraryCuration.cs";
+        if (!File.Exists(reader.Full(reviewPath)) || !File.Exists(reader.Full(beforePath))) return;
+        // note: Receipt facts link only exact named members with the same backed-up intake GUID; CURATED is technical evidence.
+        var before = ReadLibraryYamlRows(reader.Read(beforePath), "spatialAssets", "stableAssetId");
+        string reviewHash = reader.Hash(reviewPath);
+        reader.Read(authorPath);
+        string[] lines = reader.Read(reviewPath).Replace("\r", string.Empty).Split('\n');
+        for (int index = 0; index < lines.Length; index++)
+        {
+            string[] fields = lines[index].Split('|');
+            if (fields.Length < 3 || fields[0] != "CURATED") continue;
+            string path = NormalizePath(fields[2]);
+            var prior = before.Find(row => string.Equals((string)row["assetPath"], path, StringComparison.Ordinal));
+            if (prior == null || string.IsNullOrWhiteSpace((string)prior["sourceGuid"])) continue;
+            foreach (GenerationInventoryDomainBinding binding in current)
+            {
+                if (!string.Equals(binding.bindingKey, path, StringComparison.Ordinal) ||
+                    !string.Equals(binding.currentIntakeContract.sourceGuid, (string)prior["sourceGuid"], StringComparison.OrdinalIgnoreCase))
+                    continue;
+                string id = "intake-curation:" + LibraryHashText(reviewHash + "|" + path + "|" + (string)prior["sourceGuid"] + "|" + index);
+                binding.currentIntakeContract.curationEvidenceIds.Add(id);
+                inputs.evidence.Add(new YQAssetLibraryEvidenceRecord
+                {
+                    contractVersion = 1, evidenceId = id, subjectKind = YQAssetLibrarySubjectKind.Asset,
+                    subjectStableId = (string)prior["stableAssetId"], subjectSourceGuid = (string)prior["sourceGuid"],
+                    subjectSourceAssetKey = (string)prior["sourceAssetKey"], familyId = (string)prior["kitId"],
+                    approvalState = YQAssetLibraryApprovalState.Unknown, deliveryPermission = YQAssetLibraryDeliveryPermission.Unknown,
+                    approvalScope = "technical_spatial_curation:" + fields[1],
+                    evidenceRef = reviewPath + "#line=" + (index + 1), evidenceSha256 = reviewHash,
+                    provenanceEvidenceRefs = new List<string>
+                    {
+                        beforePath + "#spatialAssets/" + (string)prior["sourceGuid"], authorPath + "#Run"
+                    }
+                });
+            }
+        }
+    }
+
+    private static void AddLibraryRelation(GenerationInventoryDomainBinding binding, string path, string hash, string role)
+    {
+        if (!string.IsNullOrWhiteSpace(path)) binding.sources.Add(new GenerationInventorySourceRelation { declaredPath = NormalizePath(path), declaredSha256 = hash, role = role });
+    }
+
+    internal static void AddEquipmentLodRelations(GenerationInventoryDomainBinding binding, Newtonsoft.Json.Linq.JObject catalogRow,
+        Dictionary<string, Newtonsoft.Json.Linq.JObject> layoutByPath)
+    {
+        string json = (string)catalogRow["sourceContractJson"];
+        if (string.IsNullOrWhiteSpace(json)) return;
+        Newtonsoft.Json.Linq.JObject contract = Newtonsoft.Json.Linq.JObject.Parse(json);
+        // note: Parts-only and revised entries can retain another version's contract; anchor its root to an exact export hash and declared alias.
+        HashSet<string> roots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (string declared in new[] { (string)catalogRow["sourcePath"], (string)catalogRow["partsSourcePath"] })
+        {
+            if (!layoutByPath.TryGetValue(declared ?? string.Empty, out Newtonsoft.Json.Linq.JObject row)) continue;
+            List<string> aliases = new List<string> { (string)row["origin"], (string)row["path"] };
+            foreach (Newtonsoft.Json.Linq.JToken alias in (Newtonsoft.Json.Linq.JArray)row["aliases"] ?? new Newtonsoft.Json.Linq.JArray()) aliases.Add((string)alias);
+            aliases.Sort(StringComparer.Ordinal);
+            bool anchored = false;
+            foreach (string exportRole in new[] { "main", "parts", "lod1", "lod2" })
+            {
+                string path = (string)contract["exports"]?[exportRole]?["path"];
+                string hash = (string)contract["exports"]?[exportRole]?["sha256"];
+                if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(hash) ||
+                    (!string.Equals(hash, (string)row["sha256"], StringComparison.OrdinalIgnoreCase) &&
+                     !string.Equals(hash, (string)row["installedSha256"], StringComparison.OrdinalIgnoreCase))) continue;
+                path = NormalizePath(path);
+                foreach (string alias in aliases)
+                {
+                    string normalized = NormalizePath(alias);
+                    if (normalized != null && normalized.EndsWith("/" + path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        roots.Add(normalized.Substring(0, normalized.Length - path.Length));
+                        anchored = true;
+                        break;
+                    }
+                }
+                if (anchored) break;
+            }
+        }
+        string packRoot = roots.Count == 1 ? new List<string>(roots)[0] : null;
+        foreach (string role in new[] { "lod1", "lod2", "parts" })
+        {
+            string path = NormalizePath((string)contract["exports"]?[role]?["path"]);
+            if (!string.IsNullOrWhiteSpace(path)) AddLibraryRelation(binding, packRoot != null ? packRoot + path : path,
+                (string)contract["exports"]?[role]?["sha256"], packRoot != null ? "declared_" + role : "unresolved_relative_" + role);
+        }
+    }
+
+    private static string LibraryEquipmentPool(GenerationInventoryDomainBinding binding)
+    {
+        if (binding.category == "Weapons" || binding.category == "Special_Weapons" || binding.category == "weapon_assembly") return binding.family == "arrow" ? null : "weaponPrefabKeys";
+        if (binding.family == "shield") return "offhandPrefabKeys";
+        if (binding.category == "Consumables") return "consumablePrefabKeys";
+        if (binding.family == "ring") return "ringPrefabKeys";
+        if (binding.family == "amulet") return "necklacePrefabKeys";
+        return binding.category == "Accessories" ? "trinketPrefabKeys" : null;
+    }
+
+    private static bool LibraryPoolContains(string text, string pool, string key)
+    {
+        Match block = Regex.Match(text, "(?ms)^  " + Regex.Escape(pool) + @":\s*\r?\n(?<values>(?:  - .*\r?\n(?:    [^\r\n]*\r?\n)*)*)");
+        if (!block.Success) return false;
+        string folded = Regex.Replace(block.Groups["values"].Value, @"\r?\n    ", " ");
+        foreach (string line in folded.Split('\n'))
+            if (line.StartsWith("  - ", StringComparison.Ordinal) && string.Equals(LibraryYamlScalar(line.Substring(4)), key, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    private static void ReadLibraryProvenanceMembers(LibraryCoverageInputs inputs, string documentPath, string documentHash,
+        Newtonsoft.Json.Linq.JToken token)
+    {
+        // note: Only exact declared payload hashes link source members; a family name never extends license or art approval scope.
+        if (token is Newtonsoft.Json.Linq.JObject record && record["sha256"]?.Type == Newtonsoft.Json.Linq.JTokenType.String)
+        {
+            string hash = (string)record["sha256"];
+            if (Regex.IsMatch(hash ?? string.Empty, "^[a-fA-F0-9]{64}$"))
+            {
+                HashSet<string> linked = new HashSet<string>(StringComparer.Ordinal);
+                foreach (GenerationInventoryAsset source in inputs.sources)
+                {
+                    if (!string.Equals(hash, source.declaredSourceSha256, StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(hash, source.installedSourceSha256, StringComparison.OrdinalIgnoreCase)) continue;
+                    string id = "provenance-member:" + LibraryHashText(documentHash + "|" + token.Path + "|" + source.librarySourceId);
+                    source.libraryEvidenceIds.Add(id);
+                    if (!linked.Add(id)) continue;
+                    YQAssetLibraryEvidenceRecord evidence = new YQAssetLibraryEvidenceRecord
+                    {
+                        contractVersion = 1, evidenceId = id, subjectKind = YQAssetLibrarySubjectKind.Asset,
+                        subjectStableId = source.librarySourceId, subjectSourceGuid = source.sourceGuid,
+                        sourceVersionId = LibraryVersionId(source.librarySourceId, hash), payloadSha256 = hash.ToLowerInvariant(),
+                        evidenceRef = documentPath + "#" + token.Path, evidenceSha256 = documentHash,
+                        approvalScope = "declared_provenance_member_hash_only"
+                    };
+                    evidence.provenanceEvidenceRefs.Add(evidence.evidenceRef);
+                    if (record["source_url"]?.Type == Newtonsoft.Json.Linq.JTokenType.String)
+                        evidence.provenanceEvidenceRefs.Add((string)record["source_url"]);
+                    if (record["license_url"]?.Type == Newtonsoft.Json.Linq.JTokenType.String)
+                        evidence.licenseEvidenceRefs.Add((string)record["license_url"]);
+                    if (record["primary_license_evidence_urls"] is Newtonsoft.Json.Linq.JArray urls)
+                        foreach (Newtonsoft.Json.Linq.JToken url in urls) evidence.licenseEvidenceRefs.Add((string)url);
+                    inputs.evidence.Add(evidence);
+                }
+            }
+        }
+        if (token is Newtonsoft.Json.Linq.JContainer container)
+            foreach (Newtonsoft.Json.Linq.JToken child in container.Children())
+                ReadLibraryProvenanceMembers(inputs, documentPath, documentHash, child);
+    }
+
+    internal static GenerationInventoryDocument MergeGenerationInventoryCoverage(GenerationInventoryDocument baseline,
+        LibraryCoverageInputs inputs)
+    {
+        // note: Merge copies into the existing master shape. Legacy classification, technical admission and registry keys remain owned by intake.
+        if (baseline == null || inputs == null) throw new ArgumentNullException(baseline == null ? nameof(baseline) : nameof(inputs));
+        GenerationInventoryDocument result = LibraryCopy(baseline);
+        result.assets ??= new List<GenerationInventoryAsset>();
+        result.libraryEvidence ??= new List<YQAssetLibraryEvidenceRecord>();
+        result.kitEvidenceLinks ??= new List<GenerationInventoryKitEvidenceLinks>();
+        result.sourceVersions ??= new List<GenerationInventorySourceVersion>();
+        result.sourceSnapshots ??= new List<GenerationInventorySourceSnapshot>();
+        result.domainBindings ??= new List<GenerationInventoryDomainBinding>();
+        result.coverageConflicts ??= new List<GenerationInventoryCoverageConflict>();
+        result.rootObservations ??= new List<GenerationInventoryRootObservation>();
+        result.libraryObservationRoots ??= new List<string>();
+        result.schemaVersion = "yq_world_generation_asset_inventory_v7";
+        result.libraryCoverageVersion = 1;
+        result.libraryContractVersion = YQAssetLibraryEvidenceRecord.SupportedContractVersion;
+
+        List<GenerationInventoryAsset> observations = LibraryCopy(inputs.sources) ?? new List<GenerationInventoryAsset>();
+        GenerationInventoryDocument previous = inputs.master;
+        result.currentIntakeCatalogSnapshotId = inputs.currentIntakeCatalogSnapshotId ??
+            result.currentIntakeCatalogSnapshotId ?? previous?.currentIntakeCatalogSnapshotId;
+        if (previous != null && !ReferenceEquals(previous, baseline))
+        {
+            // note: A later legacy scan carries documentary rows/history even when its approved roots omit their source families.
+            Dictionary<string, List<GenerationInventoryAsset>> currentIdentity = new Dictionary<string, List<GenerationInventoryAsset>>(StringComparer.Ordinal);
+            foreach (GenerationInventoryAsset current in result.assets)
+                IndexLibrarySource(currentIdentity, LibrarySourceId(current.sourceGuid, current.assetPath), current);
+            foreach (GenerationInventoryAsset source in previous.assets ?? new List<GenerationInventoryAsset>())
+            {
+                // note: A current intake rescan records changed eligibility in bindings while retaining accepted historical tuples.
+                if (source.reviewPolicyScope == GenerationInventoryReviewPolicyScope.LegacyWorldKit)
+                {
+                    GenerationInventoryAsset historical = null;
+                    if (currentIdentity.TryGetValue(LibrarySourceId(source.sourceGuid, source.assetPath), out List<GenerationInventoryAsset> historicalRows))
+                        historical = historicalRows.Find(row => string.Equals(row.assetPath, source.assetPath, StringComparison.Ordinal) &&
+                            string.Equals(row.sourceGuid, source.sourceGuid, StringComparison.OrdinalIgnoreCase));
+                    if (historical == null)
+                    {
+                        historical = LibraryCopy(source);
+                        result.assets.Add(historical);
+                        IndexLibrarySource(currentIdentity, LibrarySourceId(source.sourceGuid, source.assetPath), historical);
+                    }
+                    else RestoreHistoricalInventoryTuple(historical, source);
+                }
+                if (currentIdentity.TryGetValue(LibrarySourceId(source.sourceGuid, source.assetPath), out List<GenerationInventoryAsset> currentRows))
+                    foreach (GenerationInventoryAsset current in currentRows)
+                    {
+                        MergeLibrarySourceMetadata(current, source, result.coverageConflicts);
+                        if (source.reviewPolicyScope == GenerationInventoryReviewPolicyScope.LibraryCoverage && current.registryState == "source_asset_only")
+                            RestoreLibraryCoverageClassification(current, source);
+                    }
+                if (source.reviewPolicyScope == GenerationInventoryReviewPolicyScope.LibraryCoverage) observations.Add(LibraryCopy(source));
+            }
+            result.libraryEvidence.AddRange(LibraryCopy(previous.libraryEvidence) ?? new List<YQAssetLibraryEvidenceRecord>());
+            result.kitEvidenceLinks.AddRange(LibraryCopy(previous.kitEvidenceLinks) ?? new List<GenerationInventoryKitEvidenceLinks>());
+            result.sourceVersions.AddRange(LibraryCopy(previous.sourceVersions) ?? new List<GenerationInventorySourceVersion>());
+            result.sourceSnapshots.AddRange(LibraryCopy(previous.sourceSnapshots) ?? new List<GenerationInventorySourceSnapshot>());
+            result.domainBindings.AddRange(LibraryCopy(previous.domainBindings) ?? new List<GenerationInventoryDomainBinding>());
+            result.coverageConflicts.AddRange(LibraryCopy(previous.coverageConflicts) ?? new List<GenerationInventoryCoverageConflict>());
+            result.rootObservations.AddRange(LibraryCopy(previous.rootObservations) ?? new List<GenerationInventoryRootObservation>());
+            result.libraryObservationRoots.AddRange(previous.libraryObservationRoots ?? new List<string>());
+        }
+        result.libraryEvidence.AddRange(LibraryCopy(inputs.evidence) ?? new List<YQAssetLibraryEvidenceRecord>());
+        result.sourceSnapshots.AddRange(LibraryCopy(inputs.snapshots) ?? new List<GenerationInventorySourceSnapshot>());
+        result.coverageConflicts.AddRange(LibraryCopy(inputs.conflicts) ?? new List<GenerationInventoryCoverageConflict>());
+        result.rootObservations.AddRange(LibraryCopy(inputs.observations) ?? new List<GenerationInventoryRootObservation>());
+        result.libraryObservationRoots.AddRange(inputs.roots ?? new List<string>());
+
+        Dictionary<string, List<GenerationInventoryAsset>> byGuid = new Dictionary<string, List<GenerationInventoryAsset>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<GenerationInventoryAsset>> byPath = new Dictionary<string, List<GenerationInventoryAsset>>(StringComparer.OrdinalIgnoreCase);
+        foreach (GenerationInventoryAsset asset in result.assets)
+        {
+            asset.librarySourceId ??= LibrarySourceId(asset.sourceGuid, asset.assetPath);
+            IndexLibrarySource(byGuid, asset.sourceGuid, asset);
+            IndexLibrarySource(byPath, NormalizePath(asset.assetPath), asset);
+        }
+        if (observations.Exists(source => source == null || string.IsNullOrWhiteSpace(source.assetPath)))
+            throw new InvalidDataException("Source observation has no path.");
+        observations.Sort((a, b) =>
+        {
+            int identity = StringComparer.Ordinal.Compare(LibrarySourceId(a.sourceGuid, a.assetPath), LibrarySourceId(b.sourceGuid, b.assetPath));
+            if (identity != 0) return identity;
+            int authority = LibraryObservationStrength(b).CompareTo(LibraryObservationStrength(a));
+            if (authority != 0) return authority;
+            int path = StringComparer.Ordinal.Compare(a.assetPath, b.assetPath);
+            return path != 0 ? path : StringComparer.Ordinal.Compare(a.installedSourceSha256, b.installedSourceSha256);
+        });
+        foreach (GenerationInventoryAsset observation in observations)
+        {
+            if (observation == null || string.IsNullOrWhiteSpace(observation.assetPath)) throw new InvalidDataException("Source observation has no path.");
+            observation.librarySourceId = LibrarySourceId(observation.sourceGuid, observation.assetPath);
+            List<GenerationInventoryAsset> matches = null;
+            if (!string.IsNullOrWhiteSpace(observation.sourceGuid)) byGuid.TryGetValue(observation.sourceGuid, out matches);
+            if (matches == null && byPath.TryGetValue(NormalizePath(observation.assetPath), out List<GenerationInventoryAsset> pathMatches))
+            {
+                matches = pathMatches.FindAll(asset => string.IsNullOrWhiteSpace(observation.sourceGuid) ||
+                    string.IsNullOrWhiteSpace(asset.sourceGuid) || string.Equals(asset.sourceGuid, observation.sourceGuid, StringComparison.OrdinalIgnoreCase));
+                if (matches.Count == 0) result.coverageConflicts.Add(new GenerationInventoryCoverageConflict { kind = "path_guid_conflict",
+                    subject = observation.assetPath, reason = "Different GUIDs declare the same physical path; both identities are retained." });
+                if (matches.Count != 1 && string.IsNullOrWhiteSpace(observation.sourceGuid)) matches = null;
+            }
+            if (matches == null || matches.Count == 0)
+            {
+                GenerationInventoryAsset added = LibraryCopy(observation);
+                added.reviewPolicyScope = GenerationInventoryReviewPolicyScope.LibraryCoverage;
+                added.runtimeEligible = false;
+                result.assets.Add(added);
+                IndexLibrarySource(byGuid, added.sourceGuid, added);
+                IndexLibrarySource(byPath, NormalizePath(added.assetPath), added);
+                matches = new List<GenerationInventoryAsset> { added };
+            }
+            foreach (GenerationInventoryAsset target in matches) MergeLibrarySourceMetadata(target, observation, result.coverageConflicts);
+            AddLibraryVersion(result.sourceVersions, observation, observation.declaredSourceSha256, "supplied_baseline_hash_not_current_binary_verified");
+            AddLibraryVersion(result.sourceVersions, observation, observation.installedSourceSha256, "supplied_installed_hash_not_current_binary_verified");
+        }
+
+        // note: Source relations use exact path/alias and optional declared hash; identical hashes alone do not identify independent files.
+        Dictionary<string, List<GenerationInventoryAsset>> byAlias = new Dictionary<string, List<GenerationInventoryAsset>>(StringComparer.OrdinalIgnoreCase);
+        foreach (GenerationInventoryAsset asset in result.assets)
+        {
+            IndexLibrarySource(byAlias, NormalizePath(asset.assetPath), asset);
+            foreach (string alias in asset.sourceAliases ?? new List<string>()) IndexLibrarySource(byAlias, NormalizePath(alias), asset);
+        }
+        foreach (GenerationInventoryDomainBinding binding in LibraryCopy(inputs.bindings) ?? new List<GenerationInventoryDomainBinding>())
+        {
+            binding.sources ??= new List<GenerationInventorySourceRelation>();
+            binding.consumerEvidence ??= new List<YQAssetLibraryConsumerEvidenceRecord>();
+            foreach (GenerationInventorySourceRelation relation in binding.sources)
+            {
+                relation.relationId = binding.bindingId + ":source:" + LibraryHashText(relation.role + "|" + NormalizePath(relation.declaredPath) + "|" + relation.declaredSha256);
+                relation.joinState = "unknown_source_identity";
+                relation.joinMethod = "none";
+                if (!byAlias.TryGetValue(NormalizePath(relation.declaredPath), out List<GenerationInventoryAsset> possible)) continue;
+                Dictionary<string, GenerationInventoryAsset> identities = new Dictionary<string, GenerationInventoryAsset>(StringComparer.Ordinal);
+                foreach (GenerationInventoryAsset source in possible)
+                {
+                    // note: World intake joins require both its literal GUID and current path, never a same-name alias.
+                    if (binding.domain == "world_intake" &&
+                        (string.IsNullOrWhiteSpace(binding.currentIntakeContract?.sourceGuid) ||
+                         !string.Equals(source.sourceGuid, binding.currentIntakeContract.sourceGuid, StringComparison.OrdinalIgnoreCase) ||
+                         !string.Equals(NormalizePath(source.assetPath), NormalizePath(relation.declaredPath), StringComparison.Ordinal)))
+                        continue;
+                    if (string.IsNullOrWhiteSpace(relation.declaredSha256) ||
+                        string.Equals(relation.declaredSha256, source.declaredSourceSha256, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(relation.declaredSha256, source.installedSourceSha256, StringComparison.OrdinalIgnoreCase)) identities[source.librarySourceId] = source;
+                }
+                if (identities.Count != 1)
+                {
+                    relation.joinState = identities.Count == 0 ? "declared_hash_mismatch_or_unknown" : "ambiguous_source_identity";
+                    result.coverageConflicts.Add(new GenerationInventoryCoverageConflict { kind = relation.joinState, subject = relation.relationId,
+                        reason = "The exact path/alias and declared hash do not identify one canonical source; no filename inference is used." });
+                    continue;
+                }
+                foreach (GenerationInventoryAsset source in identities.Values)
+                {
+                    relation.sourceId = source.librarySourceId;
+                    relation.sourceVersionId = !string.IsNullOrWhiteSpace(relation.declaredSha256)
+                        ? LibraryVersionId(source.librarySourceId, relation.declaredSha256) : source.sourceVersionId;
+                    relation.installedSourceVersionId = source.sourceVersionId;
+                    relation.joinState = "joined_declared_source";
+                    relation.joinMethod = !string.IsNullOrWhiteSpace(relation.declaredSha256) ? "exact_path_or_layout_alias_and_declared_hash" : "exact_path_or_layout_alias_only";
+                }
+            }
+            if (binding.domain == "world_intake")
+            {
+                GenerationInventorySourceRelation source = binding.sources.Find(row => row.role == "current_intake_source");
+                bool joined = source?.joinState == "joined_declared_source";
+                binding.resolvedAssetPath = joined ? source.declaredPath : null;
+                if (!joined) binding.domainEligible = null;
+                else source.joinMethod = "exact_intake_guid_and_path";
+                if (binding.registryGuid != null &&
+                    !string.Equals(binding.registryGuid, binding.currentIntakeContract?.sourceGuid, StringComparison.OrdinalIgnoreCase))
+                    result.coverageConflicts.Add(new GenerationInventoryCoverageConflict { kind = "world_intake_registry_guid_mismatch",
+                        subject = binding.bindingId, reason = "Serialized transport and current intake declare different GUIDs; technical eligibility is not runtime resolution." });
+            }
+            binding.sources = LibraryDistinctSorted(binding.sources);
+            binding.consumerEvidence = LibraryDistinctSorted(binding.consumerEvidence);
+            if (binding.currentIntakeContract != null)
+            {
+                binding.currentIntakeContract.libraryEvidenceIds = LibrarySortedStrings(binding.currentIntakeContract.libraryEvidenceIds);
+                binding.currentIntakeContract.curationEvidenceIds = LibrarySortedStrings(binding.currentIntakeContract.curationEvidenceIds);
+            }
+            // note: Excluding the snapshot's own ID makes repeat projection idempotent.
+            binding.bindingSnapshotId = null;
+            binding.bindingSnapshotId = binding.bindingId + "@sha256:" + LibraryHashText(Newtonsoft.Json.JsonConvert.SerializeObject(binding));
+            result.domainBindings.Add(binding);
+        }
+        NormalizeLibraryCoverage(result);
+        result.legacyCounts = CountLibraryAssets(result.assets.FindAll(asset => asset.reviewPolicyScope == GenerationInventoryReviewPolicyScope.LegacyWorldKit));
+        result.counts = CountLibraryAssets(result.assets);
+        return result;
+    }
+
+    private static int LibraryObservationStrength(GenerationInventoryAsset source) =>
+        !string.IsNullOrWhiteSpace(source.declaredSourceKind) ? 3 : !string.IsNullOrWhiteSpace(source.installedSourceSha256) ? 2 : 1;
+
+    private static void IndexLibrarySource(Dictionary<string, List<GenerationInventoryAsset>> index, string key, GenerationInventoryAsset source)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return;
+        if (!index.TryGetValue(key, out List<GenerationInventoryAsset> records)) index.Add(key, records = new List<GenerationInventoryAsset>());
+        if (!records.Contains(source)) records.Add(source);
+    }
+
+    private static void RestoreHistoricalInventoryTuple(GenerationInventoryAsset current, GenerationInventoryAsset previous)
+    {
+        // note: Documentary rescans must not turn later curation into a rewrite of the protected 22-field historical projection.
+        current.stableAssetId = previous.stableAssetId; current.sourceGuid = previous.sourceGuid;
+        current.sourceAssetKey = previous.sourceAssetKey; current.assetPath = previous.assetPath;
+        current.assetType = previous.assetType; current.assetFamily = previous.assetFamily; current.sourceRoot = previous.sourceRoot;
+        current.registryState = previous.registryState; current.slotTag = previous.slotTag; current.runtimeEligible = previous.runtimeEligible;
+        current.finalState = previous.finalState; current.finalStateReason = previous.finalStateReason;
+        current.representedByAssetPath = previous.representedByAssetPath; current.intakeDisposition = previous.intakeDisposition;
+        current.technicalIssues = previous.technicalIssues == null ? null : new List<string>(previous.technicalIssues);
+        current.classificationStatus = previous.classificationStatus; current.placementContextStatus = previous.placementContextStatus;
+        current.paletteAssignmentStatus = previous.paletteAssignmentStatus; current.technicalValidationStatus = previous.technicalValidationStatus;
+        current.reviewDisposition = previous.reviewDisposition; current.reviewPolicyVersion = previous.reviewPolicyVersion;
+        current.reviewPolicyScope = previous.reviewPolicyScope;
+    }
+
+    private static void RestoreLibraryCoverageClassification(GenerationInventoryAsset current, GenerationInventoryAsset previous)
+    {
+        // note: A source-only rescan cannot reclassify previously documented unknown coverage using the old terminal kit policy.
+        current.reviewPolicyScope = GenerationInventoryReviewPolicyScope.LibraryCoverage;
+        current.registryState = previous.registryState;
+        current.finalState = previous.finalState;
+        current.finalStateReason = previous.finalStateReason;
+        current.representedByAssetPath = previous.representedByAssetPath;
+        current.intakeDisposition = previous.intakeDisposition;
+        current.classificationStatus = previous.classificationStatus;
+        current.placementContextStatus = previous.placementContextStatus;
+        current.paletteAssignmentStatus = previous.paletteAssignmentStatus;
+        current.technicalValidationStatus = previous.technicalValidationStatus;
+        current.reviewDisposition = previous.reviewDisposition;
+        current.reviewPolicyVersion = previous.reviewPolicyVersion;
+    }
+
+    private static void MergeLibrarySourceMetadata(GenerationInventoryAsset target, GenerationInventoryAsset source,
+        List<GenerationInventoryCoverageConflict> conflicts)
+    {
+        // note: Historical path, GUID, stable ID, review tuple and runtime eligibility are never overwritten by observations.
+        target.librarySourceId ??= LibrarySourceId(target.sourceGuid, target.assetPath);
+        target.libraryEvidenceIds ??= new List<string>();
+        target.sourceAliases ??= new List<string>();
+        target.sourceDeclarationRefs ??= new List<string>();
+        target.libraryEvidenceIds.AddRange(source.libraryEvidenceIds ?? new List<string>());
+        target.sourceAliases.AddRange(source.sourceAliases ?? new List<string>());
+        if (!string.Equals(target.assetPath, source.assetPath, StringComparison.OrdinalIgnoreCase)) target.sourceAliases.Add(source.assetPath);
+        target.sourceDeclarationRefs.AddRange(source.sourceDeclarationRefs ?? new List<string>());
+        if (!string.IsNullOrWhiteSpace(target.installedSourceSha256) && !string.IsNullOrWhiteSpace(source.installedSourceSha256) &&
+            !string.Equals(target.installedSourceSha256, source.installedSourceSha256, StringComparison.OrdinalIgnoreCase))
+            conflicts.Add(new GenerationInventoryCoverageConflict { kind = "source_version_declarations_differ", subject = target.librarySourceId,
+                reason = "Multiple installed payload declarations exist; version history is retained and no binary verification is inferred." });
+        target.declaredSourceSha256 ??= source.declaredSourceSha256;
+        target.installedSourceSha256 ??= source.installedSourceSha256;
+        target.baselineSourceVersionId ??= source.baselineSourceVersionId;
+        target.sourceVersionId ??= source.sourceVersionId;
+        target.declaredSourceKind ??= source.declaredSourceKind;
+        if (source.sourceAvailability == "observed" || string.IsNullOrWhiteSpace(target.sourceAvailability)) target.sourceAvailability = source.sourceAvailability;
+    }
+
+    private static void AddLibraryVersion(List<GenerationInventorySourceVersion> versions, GenerationInventoryAsset source, string hash, string basis)
+    {
+        if (string.IsNullOrWhiteSpace(hash)) return;
+        versions.Add(new GenerationInventorySourceVersion { sourceId = source.librarySourceId,
+            sourceVersionId = LibraryVersionId(source.librarySourceId, hash), sha256 = hash.ToLowerInvariant(), identityBasis = basis,
+            declarationRefs = LibrarySortedStrings(source.sourceDeclarationRefs) });
+    }
+
+    private static List<string> LibrarySortedStrings(IEnumerable<string> values)
+    {
+        SortedSet<string> unique = new SortedSet<string>(StringComparer.Ordinal);
+        if (values != null) foreach (string value in values) if (!string.IsNullOrWhiteSpace(value)) unique.Add(value);
+        return new List<string>(unique);
+    }
+
+    private static List<T> LibraryDistinctSorted<T>(IEnumerable<T> values)
+    {
+        SortedDictionary<string, T> unique = new SortedDictionary<string, T>(StringComparer.Ordinal);
+        if (values != null) foreach (T value in values) unique[Newtonsoft.Json.JsonConvert.SerializeObject(value)] = value;
+        return new List<T>(unique.Values);
+    }
+
+    private static void NormalizeLibraryCoverage(GenerationInventoryDocument document)
+    {
+        document.libraryObservationRoots = LibrarySortedStrings(document.libraryObservationRoots);
+        document.sourceSnapshots = LibraryDistinctSorted(document.sourceSnapshots);
+        SortedDictionary<string, GenerationInventorySourceVersion> versions = new SortedDictionary<string, GenerationInventorySourceVersion>(StringComparer.Ordinal);
+        foreach (GenerationInventorySourceVersion version in document.sourceVersions)
+        {
+            if (!versions.TryGetValue(version.sourceVersionId, out GenerationInventorySourceVersion existing))
+            {
+                existing = LibraryCopy(version);
+                existing.identityBasis = "supplied_payload_hash_not_current_binary_verified";
+                existing.declarationRefs ??= new List<string>();
+                versions.Add(version.sourceVersionId, existing);
+            }
+            existing.declarationRefs.AddRange(version.declarationRefs ?? new List<string>());
+        }
+        document.sourceVersions = new List<GenerationInventorySourceVersion>(versions.Values);
+        foreach (GenerationInventorySourceVersion version in document.sourceVersions) version.declarationRefs = LibrarySortedStrings(version.declarationRefs);
+        document.rootObservations = LibraryDistinctSorted(document.rootObservations);
+        document.coverageConflicts = LibraryDistinctSorted(document.coverageConflicts);
+        foreach (GenerationInventoryAsset asset in document.assets)
+        {
+            asset.libraryEvidenceIds = LibrarySortedStrings(asset.libraryEvidenceIds);
+            asset.sourceAliases = LibrarySortedStrings(asset.sourceAliases);
+            asset.sourceDeclarationRefs = LibrarySortedStrings(asset.sourceDeclarationRefs);
+        }
+        document.assets.Sort((a, b) =>
+        {
+            int path = StringComparer.OrdinalIgnoreCase.Compare(a.assetPath, b.assetPath);
+            if (path != 0) return path;
+            int guid = StringComparer.Ordinal.Compare(a.sourceGuid, b.sourceGuid);
+            return guid != 0 ? guid : StringComparer.Ordinal.Compare(a.stableAssetId, b.stableAssetId);
+        });
+        foreach (GenerationInventoryDomainBinding binding in document.domainBindings)
+        { binding.sources = LibraryDistinctSorted(binding.sources); binding.consumerEvidence = LibraryDistinctSorted(binding.consumerEvidence); }
+        document.domainBindings = LibraryDistinctSorted(document.domainBindings);
+        List<YQAssetLibraryEvidenceRecord> evidence = document.libraryEvidence;
+        document.libraryEvidence = new List<YQAssetLibraryEvidenceRecord>();
+        CopyDocumentaryExportEvidence(document, evidence);
+        document.libraryEvidence = LibraryDistinctSorted(document.libraryEvidence);
+        document.kitEvidenceLinks = LibraryDistinctSorted(document.kitEvidenceLinks);
+    }
+
+    private static GenerationInventoryCounts CountLibraryAssets(IEnumerable<GenerationInventoryAsset> assets)
+    {
+        GenerationInventoryCounts counts = new GenerationInventoryCounts();
+        foreach (GenerationInventoryAsset asset in assets)
+        {
+            counts.total++;
+            if (asset.assetType == "prefab") counts.prefabs++; else if (asset.assetType == "material") counts.materials++; else counts.sourceAssets++;
+            string state = asset.finalState ?? string.Empty;
+            if (state == "generation_ready") counts.generationReady++;
+            else if (state.StartsWith("quarantined_", StringComparison.Ordinal)) counts.quarantined++;
+            else if (state.StartsWith("intentionally_excluded_", StringComparison.Ordinal)) counts.intentionallyExcluded++;
+            else if (state == "duplicate_variant_represented_by_prefab") counts.representedVariants++;
+            else if (state == "not_applicable_independent_generation_asset") counts.notApplicable++;
+            else counts.pendingReview++;
+        }
+        return counts;
+    }
+
+    private static void ReadLibraryProvenance(LibraryTextReader reader, LibraryCoverageInputs inputs, Newtonsoft.Json.Linq.JObject layout)
+    {
+        foreach (Newtonsoft.Json.Linq.JObject row in (Newtonsoft.Json.Linq.JArray)layout["files"])
+        {
+            string path = (string)row["path"], kind = (string)row["kind"] ?? string.Empty;
+            bool license = Path.GetFileName(path).IndexOf("license", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!kind.Contains("Provenance") && !license) continue;
+            string text = reader.Read(path), actualHash = reader.Hash(path);
+            string declaredHash = (string)row["installedSha256"] ?? (string)row["sha256"];
+            if (!string.Equals(actualHash, declaredHash, StringComparison.OrdinalIgnoreCase))
+                inputs.conflicts.Add(new GenerationInventoryCoverageConflict { kind = "provenance_hash_mismatch", subject = path, reason = "Actual text differs from the supplied layout hash." });
+            YQAssetLibraryEvidenceRecord evidence = new YQAssetLibraryEvidenceRecord
+            {
+                contractVersion = 1, evidenceId = "source-document:" + LibraryHashText(path + "|" + actualHash),
+                subjectKind = YQAssetLibrarySubjectKind.Asset, subjectSourceGuid = (string)row["guid"],
+                subjectStableId = LibrarySourceId((string)row["guid"], path), familyId = (string)row["pack"],
+                sourceVersionId = LibraryVersionId(LibrarySourceId((string)row["guid"], path), actualHash),
+                evidenceRef = path, evidenceSha256 = actualHash, approvalScope = "documentary_source_only"
+            };
+            if (license) evidence.licenseEvidenceRefs.Add(path); else evidence.provenanceEvidenceRefs.Add(path);
+            inputs.evidence.Add(evidence);
+            foreach (GenerationInventoryAsset source in inputs.sources)
+                if (string.Equals(source.assetPath, path, StringComparison.OrdinalIgnoreCase)) source.libraryEvidenceIds.Add(evidence.evidenceId);
+            if (Path.GetExtension(path).Equals(".json", StringComparison.OrdinalIgnoreCase))
+                ReadLibraryProvenanceMembers(inputs, path, actualHash, Newtonsoft.Json.Linq.JToken.Parse(text));
+        }
+    }
+
+    private static void ReadLibraryTrackerFacts(LibraryTextReader reader, LibraryCoverageInputs inputs)
+    {
+        string text = reader.Read(ArtTrackerPath), hash = reader.Hash(ArtTrackerPath);
+        string[] lines = text.Replace("\r", string.Empty).Split('\n');
+        foreach (string filename in new[] { "YourQuest_Fairy_v4_REVIEW_ONLY_UNAPPROVED_2026-10-03.zip",
+            "YourQuest_Avian_V6_REVIEW_ONLY_UNAPPROVED_2026-10-03.zip", "YourQuest_Kitsune_AdultBase_v12_Runtime.zip", "YourQuest_Kitsune_AdultBase_v12_Editable_Modules.zip" })
+        {
+            int line = Array.FindIndex(lines, value => value.Contains(filename));
+            if (line < 0) throw new InvalidDataException("Named tracker fact is missing: " + filename);
+            int header = line;
+            while (header >= 0 && !lines[header].StartsWith("**", StringComparison.Ordinal)) header--;
+            string heading = header >= 0 ? lines[header] : string.Empty;
+            Match payload = Regex.Match(lines[line], @"(?:SHA-256|sha256)[ `]*([a-fA-F0-9]{64})", RegexOptions.IgnoreCase);
+            bool withdrawn = heading.Contains("Withdrawn from delivery"), held = heading.Contains("HELD");
+            if (!payload.Success || (!withdrawn && !held)) throw new InvalidDataException("Unknown exact tracker state or payload: " + filename);
+            inputs.evidence.Add(new YQAssetLibraryEvidenceRecord
+            {
+                contractVersion = 1, evidenceId = "tracker-package:" + LibraryHashText(filename + "|" + payload.Groups[1].Value + "|" + hash),
+                subjectKind = YQAssetLibrarySubjectKind.Package, subjectStableId = "package:" + filename,
+                packageId = filename, packageVersion = filename.Contains("v12") ? "v12" : filename.Contains("Fairy_v4") ? "v4" : "V6",
+                payloadSha256 = payload.Groups[1].Value.ToLowerInvariant(), sourceVersionId = "package:sha256:" + payload.Groups[1].Value.ToLowerInvariant(),
+                approvalState = withdrawn ? YQAssetLibraryApprovalState.Withdrawn : YQAssetLibraryApprovalState.Held,
+                approvalScope = "delivery", deliveryPermission = YQAssetLibraryDeliveryPermission.Denied,
+                evidenceRef = ArtTrackerPath + "#lines=" + (header + 1) + "-" + (line + 1), evidenceSha256 = hash
+            });
+        }
     }
 
     private static void ApplyTerminalReviewPolicy(GenerationInventoryDocument document)
@@ -7203,6 +8496,10 @@ public static class YQWorldAssetIntakeBuilder
         {
             GenerationInventoryAsset asset = document.assets[index];
             if (asset == null)
+                continue;
+
+            // note: The historical world-kit policy cannot turn newly catalogued documentary unknowns into approvals or exclusions.
+            if (asset.reviewPolicyScope != GenerationInventoryReviewPolicyScope.LegacyWorldKit)
                 continue;
 
             asset.reviewPolicyVersion = document.reviewPolicyVersion;
@@ -7280,6 +8577,7 @@ public static class YQWorldAssetIntakeBuilder
         // note: The file extension establishes only independent generation candidacy, never physical placement context for an unreviewed model.
         return new GenerationInventoryAsset
         {
+            stableAssetId = string.IsNullOrWhiteSpace(guid) ? string.Empty : "source_" + guid,
             sourceGuid = guid,
             assetPath = path,
             assetType = potentialPrefab ? "prefab" : potentialMaterial ? "material" :

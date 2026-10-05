@@ -1362,6 +1362,740 @@ public static class YQCandidateInteriorBuilderV2
         VerifyGradedJoistedPlacement(true, false);
     }
 
+    private const string ShrineKit = "qualified_nordic_shrine";
+    private const string ShrineCell = "yq_nordic_shrine_assembly";
+    private const string ShrinePrefabPath = "Assets/Assets/GeneratedAssets/WorldAssemblies/NordicVillage/QualifiedShrine/yq_nordic_shrine.prefab";
+    private const string ShrineRuntimePath = "Assets/Assets/Resources/YQWorldSites/qualified_nordic_shrine/YQRuntimeSemanticSite.asset";
+    private const string ShrineSourcePath = "Assets/Assets/GeneratedAssets/WorldAssemblies/SemanticProfiles/qualified_nordic_shrine/YQ_qualified_nordic_shrine_ReviewedSemanticSite.asset";
+    private const string ShrineCatalogPath = "Assets/Assets/Resources/YQRuntimeWorldSiteCatalog.asset";
+    private const string ShrinePartialSha256 = "4F8EA050FD167FC0EC95C052C52DBB003EEB5DE8A2B3A0935FC35534D0A114B2";
+    private const string ShrinePartialGuid = "8d3c0163ee1326f4a95151d660deb6b9";
+    private const string ShrinePartialReceipt = "Logs/YQQualifiedNordicShrineRejected_20261004_205447_379_3ce5afcb.txt";
+    private const string ShrinePartialReceiptSha256 = "5E8222CE9D67076D171487325E27B7E5457CB2938ACA553AF7EF1372A40C524E";
+
+    [MenuItem("Tools/YourQuest/AAA World Generation/V2/Publish Qualified Nordic Shrine")]
+    public static void PublishQualifiedNordicShrine()
+    {
+        PublishQualifiedNordicShrineCore(false);
+    }
+
+    [MenuItem("Tools/YourQuest/AAA World Generation/V2/Resume Qualified Nordic Shrine")]
+    public static void ResumeQualifiedNordicShrine()
+    {
+        // note: Explicit repair owns only the pinned never-admitted partial source from the retained native rejection; unknown or released assets cannot enter this path.
+        PublishQualifiedNordicShrineCore(true);
+    }
+
+    private static void PublishQualifiedNordicShrineCore(bool resumePartial)
+    {
+        // note: This explicit publisher measures one new project-owned assembly; imported sources, existing reviews and persistent gameplay state remain outside its ownership.
+        RequireShrineEditorIsolation();
+        var catalog = AssetDatabase.LoadAssetAtPath<YQRuntimeWorldSiteCatalog>(ShrineCatalogPath);
+        if (catalog == null) throw new InvalidOperationException("The canonical runtime site catalog is missing.");
+        if (!resumePartial && (File.Exists(ShrinePrefabPath) || File.Exists(ShrineRuntimePath) || File.Exists(ShrineSourcePath) || catalog.FindByKitId(ShrineKit) != null))
+            throw new InvalidOperationException("Shrine output already exists; review it explicitly instead of replacing its assets or catalog identity.");
+        string altarPath = "Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Altar.prefab";
+        string approachPath = Viking + "SM_StrongholdWallBase_FloorPiece.prefab";
+        string chestPath = Viking + "SM_WoodenCurveChest_Closed.prefab";
+        string[] sources = { altarPath, approachPath, chestPath };
+        string[] initialHashes = new string[sources.Length];
+        for (int index = 0; index < sources.Length; index++) initialHashes[index] = AssetDatabase.GetAssetDependencyHash(sources[index]).ToString();
+        if (resumePartial) RequireShrinePartialRepair(catalog, sources, initialHashes);
+        var scene = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+        YQReviewedSemanticSiteManifest manifest = null;
+        var report = new StringBuilder("# Nordic shrine source qualification\n\nEvidence: detached Editor geometry and provider qualification; no production gameplay, loading, population or save publication proof.\n\n");
+        if (resumePartial) report.AppendLine("Explicit partial repair: original SHA256=" + ShrinePartialSha256 + ", preserved GUID=" + ShrinePartialGuid + ", retained rejection=" + ShrinePartialReceipt);
+        for (int index = 0; index < sources.Length; index++) report.AppendLine("Input source: " + sources[index] + " dependencyHash=" + initialHashes[index]);
+        try
+        {
+            GameObject root;
+            if (resumePartial)
+            {
+                root = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(ShrinePrefabPath), scene);
+                // note: Unpack only the disposable outer wrapper so it can be saved back as the same regular prefab; imported nested source connections remain intact.
+                PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
+            }
+            else
+            {
+                root = new GameObject("YQ_NordicShrine");
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, scene);
+            }
+            Transform altar = resumePartial ? RequirePath(root.transform, "Altar") : ShrineInstantiate(altarPath, "Altar", root.transform, new Vector3(0f, 0f, 4f));
+            Transform approach = resumePartial ? RequirePath(root.transform, "Approach") : ShrineInstantiate(approachPath, "Approach", root.transform, Vector3.zero);
+            Transform chest = resumePartial ? RequirePath(root.transform, "RewardChest") : ShrineInstantiate(chestPath, "RewardChest", root.transform, new Vector3(2.3f, 0f, 2.8f));
+            // note: The native threshold's coarse box omits its lowest planks; only this new clone receives exact visible mesh collision, preserving the imported prefab.
+            var approachColliders = approach.GetComponentsInChildren<Collider>(true);
+            if (approachColliders.Length != 1 || (!resumePartial && !(approachColliders[0] is BoxCollider))) throw new InvalidOperationException("Unexpected native threshold collider contract.");
+            MeshFilter approachMesh = null;
+            foreach (var filter in approach.GetComponentsInChildren<MeshFilter>(true))
+                if (filter.name.EndsWith("LOD0", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (approachMesh != null) throw new InvalidOperationException("Threshold has ambiguous LOD0 geometry.");
+                    approachMesh = filter;
+                }
+            if (approachMesh == null || approachMesh.sharedMesh == null || approachMesh.GetComponent<Renderer>() == null)
+                throw new InvalidOperationException("Threshold has no exact visible LOD0 mesh.");
+            MeshCollider approachSurface;
+            if (resumePartial)
+            {
+                approachSurface = approachColliders[0] as MeshCollider;
+                if (approachSurface == null || approachSurface.convex || approachSurface.sharedMesh != approachMesh.sharedMesh)
+                    throw new InvalidOperationException("Pinned partial lost its exact native threshold collision.");
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(approachColliders[0]);
+                approachSurface = approachMesh.gameObject.AddComponent<MeshCollider>();
+                approachSurface.sharedMesh = approachMesh.sharedMesh;
+                approachSurface.convex = false;
+            }
+            Physics.SyncTransforms();
+            if (!resumePartial)
+            {
+                Bounds initialApproach = ShrineSolidBounds(approach, root.transform);
+                approach.localPosition -= new Vector3(initialApproach.center.x, 0f, initialApproach.center.z);
+                Physics.SyncTransforms();
+                foreach (Transform item in new[] { altar, approach, chest })
+                {
+                    Bounds solid = ShrineSolidBounds(item, root.transform);
+                    item.localPosition += Vector3.up * (-.06f - solid.min.y);
+                }
+            }
+            Physics.SyncTransforms();
+            Bounds approachBounds = ShrineSolidBounds(approach, root.transform);
+            Bounds altarBounds = ShrineSolidBounds(altar, root.transform);
+            Bounds chestBounds = ShrineSolidBounds(chest, root.transform);
+            var socketsRoot = resumePartial ? RequirePath(root.transform, "ShrineSockets") : new GameObject("ShrineSockets").transform;
+            if (!resumePartial) socketsRoot.SetParent(root.transform, false);
+            var sockets = new List<YQAssetSocketRecordV2>
+            {
+                ShrineSocket(socketsRoot, "StreetConnection", YQAssetSocketKindV2.Connection, new Vector3(approachBounds.center.x, 0f, approachBounds.min.z - .9f), Quaternion.Euler(0f, 180f, 0f), resumePartial),
+                ShrineSocket(socketsRoot, "Entrance", YQAssetSocketKindV2.Entrance, new Vector3(approachBounds.center.x, 0f, approachBounds.min.z - .9f), Quaternion.identity, resumePartial),
+                ShrineSocket(socketsRoot, "Exit", YQAssetSocketKindV2.Exit, new Vector3(approachBounds.center.x, 0f, approachBounds.max.z + .9f), Quaternion.identity, resumePartial),
+                ShrineSocket(socketsRoot, "AltarAccess", YQAssetSocketKindV2.Interaction, new Vector3(altarBounds.center.x, 0f, altarBounds.min.z - .7f), Quaternion.identity, resumePartial),
+                ShrineSocket(socketsRoot, "RewardAccess", YQAssetSocketKindV2.Interaction, new Vector3(chestBounds.center.x, 0f, chestBounds.min.z - .7f), Quaternion.identity, resumePartial)
+            };
+            var contacts = new List<YQFoundationTerrainContact>();
+            foreach (Transform item in new[] { altar, approach, chest }) ShrineCaptureContacts(item, root.transform, contacts, report);
+            if (contacts.Count == 0 || contacts.Count > 256) throw new InvalidOperationException("Shrine has no bounded measured foundation contacts.");
+            ShrineVerifyAccess(root.transform, scene, sockets, report);
+            Bounds visible = VisibleBoundsInFrame(root.transform, root.transform);
+            Transform street = RequirePath(root.transform, "ShrineSockets/StreetConnection");
+            Vector3 streetPosition = root.transform.InverseTransformPoint(street.position);
+            Vector3 streetOutward = root.transform.InverseTransformDirection(street.forward);
+            bool externalConnection = YQProceduralSettlementLayout.IsExternalConnection(visible.center, visible.size, streetPosition, streetOutward);
+            report.AppendLine("Pre-save external connection prerequisite: bounds=" + ShrineFormatBounds(visible) + ", socket=" + ShrineFormatVector(streetPosition) +
+                ", outward=" + ShrineFormatVector(streetOutward) + ", eligible=" + externalConnection);
+            if (!externalConnection) throw new InvalidOperationException("Measured shrine connection is outside the existing external-portal envelope; no prefab saved.");
+            int instanceCount = root.GetComponentsInChildren<Transform>(true).Length;
+            if (!ShrineFinite(visible.center) || !ShrineFinite(visible.size) || visible.size.x <= 0f || visible.size.y <= 0f || visible.size.z <= 0f ||
+                visible.size.x > 24f || visible.size.z > 24f || visible.size.y > 16f || instanceCount <= 0 || instanceCount * 8 > 1100)
+                throw new InvalidOperationException("Shrine exceeds the existing bounded reusable-sector geometry or source-instance budget.");
+            var contract = new YQReviewedCellFunctionContractV2
+            {
+                cellId = ShrineCell, sourceSignature = "detached-geometry-review", reviewState = YQSemanticSiteReviewState.Approved,
+                independentAssembly = new YQIndependentAssemblyContract
+                {
+                    reviewState = YQSemanticSiteReviewState.Approved, sourceSignature = "detached-geometry-review",
+                    completeStructuralDependencies = true, foundationVerified = true, terrainContactVersion = 1,
+                    terrainContacts = contacts, externalConnectionPaths = new List<string> { "ShrineSockets/StreetConnection" }
+                }
+            };
+            ShrineVerifyTerrain(root.transform, scene, contract, sockets, report);
+            RequireShrineEditorIsolation();
+            for (int index = 0; index < sources.Length; index++)
+                if (initialHashes[index] != AssetDatabase.GetAssetDependencyHash(sources[index]).ToString())
+                    throw new InvalidOperationException("Imported shrine source changed during qualification: " + sources[index]);
+            // note: Save only the new wrapper after geometry checks; its exact dependency signature then binds the measured contacts, sockets and real chest provider.
+            if (resumePartial) RequireShrinePartialRepair(catalog, sources, initialHashes);
+            else if (File.Exists(ShrinePrefabPath)) throw new InvalidOperationException("Unknown shrine source appeared during qualification; it cannot be overwritten.");
+            Directory.CreateDirectory(Path.GetDirectoryName(ShrinePrefabPath));
+            AssetDatabase.Refresh();
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, ShrinePrefabPath);
+            if (prefab == null) throw new InvalidOperationException("Could not save the new shrine wrapper.");
+            if (resumePartial && AssetDatabase.AssetPathToGUID(ShrinePrefabPath) != ShrinePartialGuid)
+                throw new InvalidOperationException("Explicit partial repair did not preserve the shrine GUID.");
+            string signature = AssetDatabase.GetAssetDependencyHash(ShrinePrefabPath).ToString();
+            report.AppendLine("Saved source: GUID=" + AssetDatabase.AssetPathToGUID(ShrinePrefabPath) + ", SHA256=" + ShrineFileSha256(ShrinePrefabPath) + ", dependencyHash=" + signature);
+            contract.sourceSignature = signature;
+            contract.independentAssembly.sourceSignature = signature;
+            contract.reviewNote = "Actual Nordic altar, native Viking floor threshold and chest: measured support contacts, four headings at three terrain grades, supported walking/capsule transition and native reward binding. Open forecourt, no lockpickable gateway. Detached source qualification only.";
+            // note: Re-open the saved source and repeat its physical checks, so serialization of nested prefab overrides cannot inherit an earlier in-memory success.
+            var savedCopy = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+            try
+            {
+                Bounds savedBounds = VisibleBoundsInFrame(savedCopy.transform, savedCopy.transform);
+                if (savedCopy.GetComponentsInChildren<Transform>(true).Length != instanceCount ||
+                    (savedBounds.center - visible.center).sqrMagnitude > .0001f || (savedBounds.size - visible.size).sqrMagnitude > .0001f)
+                    throw new InvalidOperationException("Saved shrine changed measured geometry or hierarchy cost.");
+                var savedApproach = RequirePath(savedCopy.transform, "Approach").GetComponentsInChildren<Collider>(true);
+                if (savedApproach.Length != 1 || !(savedApproach[0] is MeshCollider savedSurface) || savedSurface.sharedMesh != approachSurface.sharedMesh || savedSurface.convex)
+                    throw new InvalidOperationException("Saved shrine lost its actual threshold surface collision.");
+                var savedContacts = new List<YQFoundationTerrainContact>();
+                Physics.SyncTransforms();
+                foreach (string name in new[] { "Altar", "Approach", "RewardChest" })
+                    ShrineCaptureContacts(RequirePath(savedCopy.transform, name), savedCopy.transform, savedContacts, new StringBuilder());
+                if (savedContacts.Count != contacts.Count) throw new InvalidOperationException("Saved shrine changed measured contact coverage.");
+                for (int index = 0; index < contacts.Count; index++)
+                    if (savedContacts[index].supportPath != contacts[index].supportPath || (savedContacts[index].localBottom - contacts[index].localBottom).sqrMagnitude > .0001f)
+                        throw new InvalidOperationException("Saved shrine changed a measured foundation contact.");
+                ShrineVerifyTerrain(savedCopy.transform, scene, contract, sockets, report);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(savedCopy); }
+            var chestBox = chest.GetComponent<BoxCollider>();
+            if (chestBox == null || chest.GetComponentsInChildren<Collider>(true).Length != 1) throw new InvalidOperationException("Reward source is not one native chest box.");
+            var originalChest = PrefabUtility.GetCorrespondingObjectFromOriginalSource(chest.gameObject);
+            string chestGuid = AssetDatabase.AssetPathToGUID(chestPath);
+            if (originalChest == null || AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(originalChest)) != chestGuid)
+                throw new InvalidOperationException("Reward chest lost its imported prefab identity.");
+            var loot = new YQCellLootBindingV2
+            {
+                bindingId = "shrine_reward", targetPath = "RewardChest", sourceSignature = signature, sourcePrefabGuid = chestGuid,
+                reviewState = YQSemanticSiteReviewState.Approved, purpose = YQCellLootPurposeV2.EncounterCache, containerType = YQContainerType.Chest,
+                sourceLocalPosition = chest.localPosition, sourceLocalRotation = chest.localRotation, sourceLocalScale = chest.localScale,
+                colliderCenter = chestBox.center, colliderSize = chestBox.size, accessSocket = sockets[4]
+            };
+            contract.lootBindings.Add(loot);
+            ShrineVerifyLoot(prefab, scene, loot, signature, report);
+            contract.curation = new YQAssetCurationContractV2
+            {
+                contractVersion = YQAssetCurationContractV2.SupportedContractVersion,
+                primaryRole = YQAssetRoleV2.SiteAssembly, primaryFunction = YQAssetFunctionV2.CulturalFocus,
+                secondaryFunctions = new List<YQAssetFunctionV2> { YQAssetFunctionV2.Transition, YQAssetFunctionV2.Reward, YQAssetFunctionV2.Circulation, YQAssetFunctionV2.Storage },
+                environments = new List<YQAssetEnvironmentV2> { YQAssetEnvironmentV2.Exterior },
+                affordances = new List<YQAssetAffordanceV2> { YQAssetAffordanceV2.QuestAnchor, YQAssetAffordanceV2.Entrance, YQAssetAffordanceV2.Exit, YQAssetAffordanceV2.RewardAnchor, YQAssetAffordanceV2.Storage, YQAssetAffordanceV2.TraversableSurface },
+                familyId = ShrineKit, variantGroupId = ShrineCell, supportMode = YQAssetSupportModeV2.Foundation,
+                preserveAuthoredScale = true, minimumEmbedDepth = 0f, maximumEmbedDepth = .15f, maximumSupportRelief = .04f, sockets = sockets
+            };
+            var zone = new YQReviewedSemanticZoneRecord
+            {
+                stableId = ShrineCell, displayName = "Nordic altar shrine assembly", prefab = prefab,
+                authoredSourceOrigin = Vector3.zero, localBoundsCenter = visible.center, localBoundsSize = visible.size,
+                sourceInstanceCount = instanceCount, authoredDressingCount = 3,
+                semanticTags = new List<string> { "poi", "shrine", "cultural", "transition", "reward", "circulation", "medieval", "viking" },
+                connectionSocketPaths = new List<string> { "ShrineSockets/StreetConnection" },
+                cellContractsV2 = new List<YQReviewedCellFunctionContractV2> { contract }
+            };
+            manifest = ScriptableObject.CreateInstance<YQReviewedSemanticSiteManifest>();
+            manifest.ConfigureCandidate(ShrineKit, "medieval_viking_village", signature, YQSemanticExtractionTopology.LandmarkCampus, null, instanceCount, new[] { zone });
+            manifest.MarkReleaseEligible();
+            var functions = new List<YQAssetFunctionV2> { YQAssetFunctionV2.CulturalFocus, YQAssetFunctionV2.Transition, YQAssetFunctionV2.Reward, YQAssetFunctionV2.Circulation, YQAssetFunctionV2.Storage };
+            if (!YQSiteFunctionContractsV2.TryValidate(manifest, new[] { ShrineCell }, functions, YQWorldStructureUsagePolicy.ExteriorShellsOnly, out string failure))
+                throw new InvalidOperationException("Measured shrine function admission failed: " + failure);
+            int assemblyCount = YQProceduralSettlementLayout.CountReviewedSectorAssemblies(manifest);
+            report.AppendLine("Measured function admission=True; reviewed reusable assembly count=" + assemblyCount + "; saved external connection=" + YQProceduralSettlementLayout.HasUsableExternalConnection(zone));
+            if (assemblyCount != 1) throw new InvalidOperationException("Measured shrine independent assembly admission failed: count=" + assemblyCount);
+            var metadata = YQRuntimeWorldSiteSpatialMetadataCompiler.Analyze(manifest, null, true);
+            if (!metadata.SpatiallyValidated || !metadata.SeamlessPlacementEligible || metadata.ActiveCellCount != 1 || metadata.ActiveInstanceCount != instanceCount)
+                throw new InvalidOperationException("Measured shrine spatial admission failed: " + metadata.ValidationFailure);
+            RequireShrineEditorIsolation();
+            if (catalog != AssetDatabase.LoadAssetAtPath<YQRuntimeWorldSiteCatalog>(ShrineCatalogPath) || catalog.FindByKitId(ShrineKit) != null ||
+                signature != AssetDatabase.GetAssetDependencyHash(ShrinePrefabPath).ToString())
+                throw new InvalidOperationException("Shrine publication ownership or source changed before catalog admission.");
+            // note: Append to the current canonical catalog without reselection, registry rebuild or replacement of any existing entry.
+            var records = new List<YQRuntimeWorldSiteRecord>(catalog.Sites);
+            records.Add(new YQRuntimeWorldSiteRecord
+            {
+                kitId = ShrineKit, semanticStyleKey = "medieval_viking_village", siteKind = YQAuthoredSiteKind.Landmark,
+                topology = YQSemanticExtractionTopology.LandmarkCampus, presentationMode = YQWorldSitePresentationMode.SeamlessExterior,
+                structureUsagePolicy = YQWorldStructureUsagePolicy.ExteriorShellsOnly, maximumEnterableStructures = 0,
+                semanticTags = new List<string>(zone.semanticTags), reviewedFunctionsV2 = functions,
+                runtimeManifestResourceKey = "YQWorldSites/" + ShrineKit + "/YQRuntimeSemanticSite",
+                spatialMetadataVersion = YQRuntimeWorldSiteSpatialMetadataCompiler.MetadataVersion,
+                spatiallyValidated = metadata.SpatiallyValidated, seamlessPlacementEligible = metadata.SeamlessPlacementEligible,
+                authoredFootprintCenter = metadata.FootprintCenter, authoredFootprintSize = metadata.FootprintSize,
+                authoredFoundationY = metadata.FoundationY, authoredFootprintRadius = metadata.FootprintRadius,
+                activeCellCount = metadata.ActiveCellCount, activeInstanceCount = metadata.ActiveInstanceCount, spatialSignature = metadata.Signature
+            });
+            Directory.CreateDirectory(Path.GetDirectoryName(ShrineRuntimePath));
+            AssetDatabase.Refresh();
+            AssetDatabase.CreateAsset(manifest, ShrineRuntimePath);
+            SaveQualifiedSourceManifest(manifest);
+            catalog.Configure(records);
+            EditorUtility.SetDirty(catalog);
+            AssetDatabase.SaveAssets();
+            report.AppendLine("Admitted functions: CulturalFocus, Transition, Reward, Circulation, Storage; no habitation, service, encounter or enterable building claim.");
+            report.AppendLine("Measured source instances=" + instanceCount + "; eight-placement upper bound=" + instanceCount * 8 + "/1100; contacts=" + contacts.Count + "; signature=" + signature);
+            for (int index = 0; index < sources.Length; index++) report.AppendLine("Imported source preserved: " + sources[index] + " hash=" + initialHashes[index]);
+            Directory.CreateDirectory("Logs");
+            File.WriteAllText("Logs/YQQualifiedNordicShrinePublication.txt", report.ToString());
+            Debug.Log("Published measured Nordic shrine through the canonical catalog. Detached source qualification only; production visible flow remains to verify.");
+        }
+        catch (Exception exception)
+        {
+            // note: A rejected capture must retain its actual geometry evidence without publishing a manifest or masking the original failure.
+            report.AppendLine("\nREJECTED: " + exception);
+            report.AppendLine("Output state at rejection: prefab=" + File.Exists(ShrinePrefabPath) + ", runtimeManifest=" + File.Exists(ShrineRuntimePath) +
+                ", reviewedSource=" + File.Exists(ShrineSourcePath) + ", catalogKitPresent=" + (catalog.FindByKitId(ShrineKit) != null));
+            try
+            {
+                Directory.CreateDirectory("Logs");
+                string rejectedPath = "Logs/YQQualifiedNordicShrineRejected_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + "_" + Guid.NewGuid().ToString("N").Substring(0, 8) + ".txt";
+                File.WriteAllText(rejectedPath, report.ToString());
+                Debug.LogError("Nordic shrine rejected; measured evidence retained at " + rejectedPath);
+            }
+            catch (Exception reportFailure) { Debug.LogError("Could not retain rejected shrine evidence: " + reportFailure); }
+            throw;
+        }
+        finally
+        {
+            UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
+            if (manifest != null && !AssetDatabase.Contains(manifest)) UnityEngine.Object.DestroyImmediate(manifest);
+        }
+    }
+
+    private static void RequireShrineEditorIsolation()
+    {
+        // note: Native provider Awake can inspect canonical state; qualification is allowed only with no live player/world owner and no active Editor transition.
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating ||
+            WorldStateManager.Instance != null || PlayerStateManager.Instance != null)
+            throw new InvalidOperationException("Shrine qualification requires idle Edit Mode without active world/player managers.");
+    }
+
+    private static Transform ShrineInstantiate(string path, string name, Transform parent, Vector3 position)
+    {
+        var source = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        if (source == null) throw new InvalidOperationException("Missing real shrine source: " + path);
+        var item = (GameObject)PrefabUtility.InstantiatePrefab(source, parent);
+        item.name = name;
+        item.transform.localPosition = position;
+        item.transform.localRotation = Quaternion.identity;
+        item.transform.localScale = Vector3.one;
+        if (item.GetComponentInChildren<Renderer>(true) == null || item.GetComponentsInChildren<Collider>(true).Length == 0)
+            throw new InvalidOperationException("Shrine source has no visible solid geometry: " + path);
+        return item.transform;
+    }
+
+    private static Bounds ShrineSolidBounds(Transform item, Transform frame)
+    {
+        // note: Bounds limit the measurement grid; support approval below comes from actual collider hits rather than these bounding-box corners.
+        Bounds result = default;
+        bool found = false;
+        foreach (var solid in item.GetComponentsInChildren<Collider>(true))
+        {
+            if (!solid.enabled || solid.isTrigger || !solid.gameObject.activeInHierarchy) throw new InvalidOperationException("Shrine has inactive or nonsolid structural geometry.");
+            Bounds bounds = solid.bounds;
+            for (int index = 0; index < 8; index++)
+            {
+                Vector3 point = frame.InverseTransformPoint(bounds.center + Vector3.Scale(bounds.extents, new Vector3((index & 1) == 0 ? -1f : 1f, (index & 2) == 0 ? -1f : 1f, (index & 4) == 0 ? -1f : 1f)));
+                if (!found) { result = new Bounds(point, Vector3.zero); found = true; } else result.Encapsulate(point);
+            }
+        }
+        if (!found || !ShrineFinite(result.size)) throw new InvalidOperationException("Shrine has no finite solid bounds.");
+        return result;
+    }
+
+    private static YQAssetSocketRecordV2 ShrineSocket(Transform parent, string name, YQAssetSocketKindV2 kind, Vector3 position, Quaternion rotation, bool reuseExisting = false)
+    {
+        // note: The pinned partial repair reuses its exact socket objects; only their reviewed poses can change, keeping serialized hierarchy identity intact.
+        var socket = reuseExisting ? RequirePath(parent, name) : new GameObject(name).transform;
+        if (!reuseExisting) socket.SetParent(parent, false);
+        socket.localPosition = position;
+        socket.localRotation = rotation;
+        return new YQAssetSocketRecordV2 { socketId = ShrineCell + ":" + name, kind = kind, transformPath = "ShrineSockets/" + name, localPosition = position, localRotation = rotation, clearanceSize = new Vector3(.8f, 1.8f, .8f), compatibilityKey = "shrine_" + name };
+    }
+
+    private static void RequireShrinePartialRepair(YQRuntimeWorldSiteCatalog catalog, string[] sources, string[] sourceHashes)
+    {
+        // note: A retained exact native rejection and exact never-admitted asset are the entire overwrite authority; this cannot become a general resume, migration or asset replacement path.
+        RequireShrineEditorIsolation();
+        if (catalog == null || catalog != AssetDatabase.LoadAssetAtPath<YQRuntimeWorldSiteCatalog>(ShrineCatalogPath) ||
+            File.Exists(ShrineRuntimePath) || File.Exists(ShrineRuntimePath + ".meta") || File.Exists(ShrineSourcePath) || File.Exists(ShrineSourcePath + ".meta") ||
+            catalog.FindByKitId(ShrineKit) != null || !File.Exists(ShrinePrefabPath) || !File.Exists(ShrinePrefabPath + ".meta") ||
+            AssetDatabase.AssetPathToGUID(ShrinePrefabPath) != ShrinePartialGuid || ShrineFileSha256(ShrinePrefabPath) != ShrinePartialSha256 ||
+            !File.Exists(ShrinePartialReceipt) || ShrineFileSha256(ShrinePartialReceipt) != ShrinePartialReceiptSha256)
+            throw new InvalidOperationException("Explicit shrine resume does not match the exact retained never-admitted partial source/rejection, or a published output already exists.");
+        string receipt = File.ReadAllText(ShrinePartialReceipt);
+        if (!receipt.Contains("Measured shrine function or independent assembly admission failed: ") ||
+            !receipt.Contains("Output state at rejection: prefab=True, runtimeManifest=False, reviewedSource=False, catalogKitPresent=False"))
+            throw new InvalidOperationException("Retained shrine rejection does not describe the authorized partial publication boundary.");
+        var partial = AssetDatabase.LoadAssetAtPath<GameObject>(ShrinePrefabPath);
+        if (partial == null || partial.GetComponentInChildren<YQLockpickableLoot>(true) != null || partial.GetComponentInChildren<YQLockpickableDoor>(true) != null)
+            throw new InvalidOperationException("Pinned shrine partial has unexpected runtime provider ownership.");
+        string[] names = { "Altar", "Approach", "RewardChest" };
+        string[] expectedGuids = { "abc00000000009126285138971862751", "abc00000000011439259407385411771", "abc00000000013195712083664174406" };
+        string[] expectedHashes = { "3c7cb8342b421227385616f5435fab54", "1a730f16a359fdcaa245694c91c958f0", "276a0188d2b738aee37e12dd54c7e46d" };
+        if (sources == null || sourceHashes == null || sources.Length != names.Length || sourceHashes.Length != names.Length)
+            throw new InvalidOperationException("Shrine resume has incomplete source lineage.");
+        for (int index = 0; index < names.Length; index++)
+        {
+            var original = PrefabUtility.GetCorrespondingObjectFromOriginalSource(RequirePath(partial.transform, names[index]).gameObject);
+            if (original == null || AssetDatabase.GetAssetPath(original) != sources[index] || AssetDatabase.AssetPathToGUID(sources[index]) != expectedGuids[index] ||
+                sourceHashes[index] != expectedHashes[index] || AssetDatabase.GetAssetDependencyHash(sources[index]).ToString() != expectedHashes[index] ||
+                !receipt.Contains("Input source: " + sources[index] + " dependencyHash=" + expectedHashes[index]))
+                throw new InvalidOperationException("Pinned shrine partial imported source/GUID/dependency lineage changed: " + names[index]);
+        }
+    }
+
+    private static string ShrineFileSha256(string path)
+    {
+        using (var stream = File.OpenRead(path))
+        using (var digest = System.Security.Cryptography.SHA256.Create())
+            return BitConverter.ToString(digest.ComputeHash(stream)).Replace("-", string.Empty);
+    }
+
+    private static void ShrineCaptureContacts(Transform item, Transform frame, List<YQFoundationTerrainContact> destination, StringBuilder report)
+    {
+        // note: Upward rays capture actual solid footings of the altar, native threshold and chest; renderer bounds cannot supply synthetic support points.
+        Bounds solid = ShrineSolidBounds(item, frame);
+        Bounds visible = VisibleBoundsInFrame(item, frame);
+        report.AppendLine("\nCapture " + item.name + ": solid=" + ShrineFormatBounds(solid) + "; visible=" + ShrineFormatBounds(visible));
+        if (Mathf.Abs(visible.min.y - solid.min.y) > .1f) throw new InvalidOperationException("Rendered shrine footing disagrees with its collision: " + item.name);
+        var hits = new List<YQFoundationTerrainContact>();
+        var rawSamples = new List<ShrineSupportSample>();
+        int nx = Mathf.Clamp(Mathf.CeilToInt(solid.size.x / .08f), 2, 128);
+        int nz = Mathf.Clamp(Mathf.CeilToInt(solid.size.z / .08f), 2, 128);
+        int colliderIndex = 0;
+        foreach (var collider in item.GetComponentsInChildren<Collider>(true))
+        {
+            for (int x = 0; x < nx; x++)
+                for (int z = 0; z < nz; z++)
+                {
+                    Vector3 start = new Vector3(Mathf.Lerp(solid.min.x, solid.max.x, (x + .5f) / nx), solid.min.y - .4f, Mathf.Lerp(solid.min.z, solid.max.z, (z + .5f) / nz));
+                    if (collider.Raycast(new Ray(frame.TransformPoint(start), frame.up), out RaycastHit hit, solid.size.y + .8f))
+                    {
+                        Vector3 bottom = frame.InverseTransformPoint(hit.point);
+                        var contact = new YQFoundationTerrainContact { supportPath = ShrineRelativePath(frame, collider.transform), localBottom = bottom, minimumEmbedDepth = 0f, maximumEmbedDepth = .15f };
+                        rawSamples.Add(new ShrineSupportSample { contact = contact, gridX = x, gridZ = z, colliderIndex = colliderIndex, normalUpDot = Vector3.Dot(frame.up, hit.normal) });
+                        if (Mathf.Abs(bottom.y - solid.min.y) <= .025f)
+                            hits.Add(contact);
+                    }
+                }
+            colliderIndex++;
+        }
+        // note: Diagnostics retain every first underside hit and independently connected lower envelopes; neither their broader capture band nor a suggested correction grants support approval.
+        ShrineReportSupportEvidence(item.name, rawSamples, nx, nz, report);
+        if (hits.Count < 4) throw new InvalidOperationException("Insufficient actual ground contact hits: " + item.name);
+        Bounds footing = new Bounds(hits[0].localBottom, Vector3.zero);
+        foreach (var hit in hits) footing.Encapsulate(hit.localBottom);
+        report.AppendLine("Current admission band: |bottomY-solid.minY|<=0.025m; hits=" + hits.Count + "; footprint=" + ShrineFormatBounds(footing) +
+            "; required span X=" + ShrineFormat(solid.size.x * .5f) + "m, Z=" + ShrineFormat(solid.size.z * .35f) + "m.");
+        if (footing.size.x < solid.size.x * .5f || footing.size.z < solid.size.z * .35f)
+            throw new InvalidOperationException("Measured shrine support does not span its real footings: " + item.name);
+        int retained = Mathf.Min(32, hits.Count);
+        for (int index = 0; index < retained; index++) destination.Add(hits[index * (hits.Count - 1) / (retained - 1)]);
+        report.AppendLine("Measured " + item.name + ": underside hits=" + hits.Count + ", retained contacts=" + retained + ", footing span=" + footing.size);
+    }
+
+    private sealed class ShrineSupportSample
+    {
+        public YQFoundationTerrainContact contact;
+        public int gridX, gridZ, colliderIndex;
+        public float normalUpDot;
+    }
+
+    private static void ShrineReportSupportEvidence(string itemName, List<ShrineSupportSample> rawSamples, int nx, int nz, StringBuilder report)
+    {
+        // note: Report exact measured points before rejection. The nominal range is the unchanged 0..0.15m contract, not the runtime compatibility tolerance.
+        report.AppendLine("Raw underside capture: grid=" + nx + "x" + nz + ", hits=" + rawSamples.Count + ". Points are assembly-local; normalUpDot<0 faces the upward ray.");
+        if (rawSamples.Count == 0) return;
+        Bounds rawBounds = new Bounds(rawSamples[0].contact.localBottom, Vector3.zero);
+        var heights = new List<float>(rawSamples.Count);
+        foreach (var sample in rawSamples)
+        {
+            Vector3 point = sample.contact.localBottom;
+            rawBounds.Encapsulate(point);
+            heights.Add(point.y);
+        }
+        heights.Sort();
+        report.AppendLine("Raw hit bounds=" + ShrineFormatBounds(rawBounds) + "; Y min/Q25/median/Q75/max=" +
+            ShrineFormat(heights[0]) + "/" + ShrineFormat(heights[(heights.Count - 1) / 4]) + "/" + ShrineFormat(heights[(heights.Count - 1) / 2]) + "/" +
+            ShrineFormat(heights[(heights.Count - 1) * 3 / 4]) + "/" + ShrineFormat(heights[heights.Count - 1]));
+        // note: A common rigid translation cannot put points separated by more than the nominal embed range into flat soil. Connected grid components expose rear/front piers independently.
+        float lowerCeiling = rawBounds.min.y + .15f;
+        var lowerIndices = new Dictionary<int, int>();
+        int gridStride = nx * nz;
+        for (int index = 0; index < rawSamples.Count; index++)
+        {
+            var sample = rawSamples[index];
+            if (sample.contact.localBottom.y <= lowerCeiling)
+                lowerIndices.Add(sample.colliderIndex * gridStride + sample.gridX * nz + sample.gridZ, index);
+        }
+        var visited = new HashSet<int>();
+        var allLower = new List<YQFoundationTerrainContact>();
+        int componentId = 0;
+        foreach (var pair in lowerIndices)
+        {
+            if (!visited.Add(pair.Value)) continue;
+            var queue = new Queue<int>();
+            var component = new List<YQFoundationTerrainContact>();
+            queue.Enqueue(pair.Value);
+            while (queue.Count > 0)
+            {
+                var sample = rawSamples[queue.Dequeue()];
+                component.Add(sample.contact);
+                allLower.Add(sample.contact);
+                foreach (int direction in new[] { 0, 1, 2, 3 })
+                {
+                    int x = sample.gridX + (direction == 0 ? -1 : direction == 1 ? 1 : 0);
+                    int z = sample.gridZ + (direction == 2 ? -1 : direction == 3 ? 1 : 0);
+                    if (x < 0 || x >= nx || z < 0 || z >= nz) continue;
+                    int key = sample.colliderIndex * gridStride + x * nz + z;
+                    if (lowerIndices.TryGetValue(key, out int neighbor) && visited.Add(neighbor)) queue.Enqueue(neighbor);
+                }
+            }
+            Bounds bounds = new Bounds(component[0].localBottom, Vector3.zero);
+            foreach (var contact in component) bounds.Encapsulate(contact.localBottom);
+            ShrineNominalSupportInterval(component, 0f, 0f, out float minimumDelta, out float maximumDelta);
+            report.AppendLine("Lower-envelope component " + itemName + ":" + componentId++ + " path=" + component[0].supportPath + ", count=" + component.Count +
+                ", bounds=" + ShrineFormatBounds(bounds) + ", flat-soil rigid delta interval=[" + ShrineFormat(minimumDelta) + "," + ShrineFormat(maximumDelta) +
+                "]m; feasible=" + (minimumDelta <= maximumDelta));
+        }
+        report.AppendLine("Diagnostic lower-envelope ceiling=" + ShrineFormat(lowerCeiling) + "m (raw minimum+unchanged0.15m nominal range); components=" + componentId + "; points=" + allLower.Count + ". This identifies candidate supports only, not complete foundation approval.");
+        foreach (float grade in new[] { 0f, -.005f, .005f })
+            for (int heading = 0; heading < 4; heading++)
+            {
+                ShrineNominalSupportInterval(allLower, grade, heading * 90f, out float minimumDelta, out float maximumDelta);
+                report.AppendLine("Analytic measured lower-envelope nominal interval: grade=" + ShrineFormat(grade) + ", heading=" + heading * 90 +
+                    ", rigid delta=[" + ShrineFormat(minimumDelta) + "," + ShrineFormat(maximumDelta) + "]m, feasible=" + (minimumDelta <= maximumDelta) +
+                    ", currentDelta0Fits=" + (minimumDelta <= 0f && maximumDelta >= 0f) + ". Not an actual TerrainData or placement proof.");
+            }
+        foreach (var sample in rawSamples)
+            report.AppendLine("RAW path=" + sample.contact.supportPath + ", collider=" + sample.colliderIndex + ", grid=" + sample.gridX + "," + sample.gridZ +
+                ", point=" + ShrineFormatVector(sample.contact.localBottom) + ", normalUpDot=" + ShrineFormat(sample.normalUpDot));
+    }
+
+    private static void ShrineNominalSupportInterval(List<YQFoundationTerrainContact> contacts, float grade, float heading, out float minimumDelta, out float maximumDelta)
+    {
+        // note: This diagnostic computes every measured point's exact nominal soil/embed interval, without moving source geometry or using runtime tolerance.
+        minimumDelta = float.NegativeInfinity;
+        maximumDelta = float.PositiveInfinity;
+        Quaternion rotation = Quaternion.Euler(0f, heading, 0f);
+        foreach (var contact in contacts)
+        {
+            float soil = grade * (rotation * contact.localBottom).x;
+            minimumDelta = Mathf.Max(minimumDelta, soil - contact.localBottom.y - contact.maximumEmbedDepth);
+            maximumDelta = Mathf.Min(maximumDelta, soil - contact.localBottom.y - contact.minimumEmbedDepth);
+        }
+    }
+
+    private static string ShrineFormat(float value) => value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+    private static string ShrineFormatVector(Vector3 point) => "(" + ShrineFormat(point.x) + "," + ShrineFormat(point.y) + "," + ShrineFormat(point.z) + ")";
+    private static string ShrineFormatBounds(Bounds bounds) => "min=" + ShrineFormatVector(bounds.min) + ", max=" + ShrineFormatVector(bounds.max) + ", size=" + ShrineFormatVector(bounds.size);
+
+    private static string ShrineRelativePath(Transform root, Transform item)
+    {
+        string path = item.name;
+        for (Transform parent = item.parent; parent != root; parent = parent.parent)
+        {
+            if (parent == null) throw new InvalidOperationException("Support escaped shrine root.");
+            path = parent.name + "/" + path;
+        }
+        if (!YQCellDoorBindingsV2.TryResolveUniquePath(root, path, out Transform resolved) || resolved != item)
+            throw new InvalidOperationException("Shrine support path is ambiguous: " + path);
+        return path;
+    }
+
+    private static void ShrineVerifyAccess(Transform root, UnityEngine.SceneManagement.Scene scene, List<YQAssetSocketRecordV2> sockets, StringBuilder report, Terrain terrain = null)
+    {
+        // note: Follow the actual native threshold top, including its bounded steps; a capsule held at soil level would misclassify the real low walking surface as an obstacle.
+        var probeObject = new GameObject("DetachedShrineAccessProbe");
+        UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(probeObject, scene);
+        var capsule = probeObject.AddComponent<CapsuleCollider>();
+        capsule.height = 1.8f; capsule.radius = .4f; capsule.isTrigger = true;
+        try
+        {
+            Collider[] solids = root.GetComponentsInChildren<Collider>(true);
+            Transform approach = RequirePath(root, "Approach");
+            Bounds approachBounds = ShrineSolidBounds(approach, root);
+            float rayStartY = ShrineSolidBounds(root, root).max.y + 1f;
+            float minimumWalkingHeight = float.PositiveInfinity, maximumWalkingHeight = float.NegativeInfinity, maximumMeasuredStep = 0f;
+            int transitionSupportSamples = 0;
+            if (sockets[1].localPosition.z >= approachBounds.min.z || sockets[2].localPosition.z <= approachBounds.max.z)
+                throw new InvalidOperationException("Shrine entrance and exit do not lie on opposite sides of the native threshold.");
+            for (int index = 0; index < sockets.Count; index++)
+            {
+                Transform socket = RequirePath(root, sockets[index].transformPath);
+                if ((socket.position - root.TransformPoint(sockets[index].localPosition)).sqrMagnitude > .0001f)
+                    throw new InvalidOperationException("Shrine socket pose is stale.");
+                Vector3 from = index <= 2 ? sockets[0].localPosition : sockets[2].localPosition;
+                Vector3 to = sockets[index].localPosition;
+                int steps = Mathf.Max(1, Mathf.CeilToInt(Vector3.Distance(from, to) / .2f));
+                float previousHeight = 0f;
+                Vector3 previousPoint = from;
+                for (int step = 0; step <= steps; step++)
+                {
+                    Vector3 point = Vector3.Lerp(from, to, (float)step / steps);
+                    float walkingHeight = float.NegativeInfinity;
+                    bool thresholdSupported = false;
+                    foreach (Vector3 offset in new[] { Vector3.zero, Vector3.left * .4f, Vector3.right * .4f, Vector3.forward * .4f, Vector3.back * .4f })
+                    {
+                        float supportHeight = ShrineSampleWalkingSurface(root, solids, approach, point + offset, rayStartY, terrain, report, out bool onThreshold);
+                        walkingHeight = Mathf.Max(walkingHeight, supportHeight);
+                        thresholdSupported |= onThreshold;
+                    }
+                    minimumWalkingHeight = Mathf.Min(minimumWalkingHeight, walkingHeight);
+                    maximumWalkingHeight = Mathf.Max(maximumWalkingHeight, walkingHeight);
+                    if (index == 2 && thresholdSupported) transitionSupportSamples++;
+                    if (step > 0)
+                    {
+                        float rise = Mathf.Abs(walkingHeight - previousHeight);
+                        maximumMeasuredStep = Mathf.Max(maximumMeasuredStep, rise);
+                        // note: The reviewed step bound is below the authoritative motor's minimum 0.52m stepOffset; clearance must also exist before a rising step.
+                        if (rise > .30f) throw new InvalidOperationException("Shrine walking transition exceeds the measured 0.30m step bound.");
+                        if (walkingHeight > previousHeight)
+                            ShrineRequireCapsuleClear(capsule, root.TransformPoint(new Vector3(previousPoint.x, walkingHeight + .93f, previousPoint.z)), root.rotation, solids, sockets[index].transformPath);
+                    }
+                    Vector3 center = root.TransformPoint(new Vector3(point.x, walkingHeight + .93f, point.z));
+                    ShrineRequireCapsuleClear(capsule, center, root.rotation, solids, sockets[index].transformPath);
+                    report.AppendLine("WALK_CAPSULE path=" + sockets[index].transformPath + ", step=" + step + ", point=" + ShrineFormatVector(point) +
+                        ", supportedHeight=" + ShrineFormat(walkingHeight) + ", previousHeight=" + ShrineFormat(previousHeight) + ", heightChange=" +
+                        ShrineFormat(step > 0 ? walkingHeight - previousHeight : 0f) + ", thresholdSupport=" + thresholdSupported + "; capsule and rising-step clearance verified.");
+                    previousHeight = walkingHeight;
+                    previousPoint = point;
+                }
+            }
+            if (transitionSupportSamples < 2) throw new InvalidOperationException("Shrine entrance-to-exit path does not cross a real supported native threshold surface.");
+            ShrineVerifyInteractionRay(root, sockets[3], RequirePath(root, "Altar"), solids);
+            ShrineVerifyInteractionRay(root, sockets[4], RequirePath(root, "RewardChest"), solids);
+            report.AppendLine("Measured 0.8m-wide/1.8m-high capsule transition across actual native threshold: supported path samples=" + transitionSupportSamples +
+                ", walking height range=[" + ShrineFormat(minimumWalkingHeight) + "," + ShrineFormat(maximumWalkingHeight) + "]m, max step=" + ShrineFormat(maximumMeasuredStep) +
+                "m; qualification slope<=58deg and step<=0.30m; altar/chest paths clear and interaction rays hit their real colliders.");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(probeObject); }
+    }
+
+    private static float ShrineSampleWalkingSurface(Transform root, Collider[] solids, Transform approach, Vector3 point, float rayStartY, Terrain terrain, StringBuilder report, out bool onThreshold)
+    {
+        // note: Prefer real published test terrain outside the source. Inside the source, use exact downward collider hits instead of renderer height or a fabricated floor.
+        float surface = 0f;
+        if (terrain != null)
+        {
+            Vector3 world = root.TransformPoint(new Vector3(point.x, 0f, point.z));
+            if (!YQTerrainApproachV2.TrySampleTerrain(terrain, world, out float soil)) throw new InvalidOperationException("Shrine walking path has no actual test terrain support.");
+            surface = root.InverseTransformPoint(new Vector3(world.x, soil, world.z)).y;
+        }
+        var ray = new Ray(root.TransformPoint(new Vector3(point.x, rayStartY, point.z)), -root.up);
+        onThreshold = false;
+        float soilHeight = surface;
+        float selectedNormalUpDot = 1f;
+        Collider selectedCollider = null;
+        foreach (Collider solid in solids)
+            if (solid.Raycast(ray, out RaycastHit hit, rayStartY + 2f))
+            {
+                float height = root.InverseTransformPoint(hit.point).y;
+                if (height <= surface) continue;
+                selectedNormalUpDot = Vector3.Dot(hit.normal, root.up);
+                selectedCollider = solid;
+                surface = height;
+                onThreshold = solid.transform == approach || solid.transform.IsChildOf(approach);
+                report.AppendLine("WALK_RAY probe=" + ShrineFormatVector(point) + ", path=" + ShrineRelativePath(root, solid.transform) +
+                    ", hit=" + ShrineFormatVector(root.InverseTransformPoint(hit.point)) + ", normal=" + ShrineFormatVector(root.InverseTransformDirection(hit.normal)) +
+                    ", normalUpDot=" + ShrineFormat(selectedNormalUpDot) + ", angle=" + ShrineFormat(Mathf.Acos(Mathf.Clamp(selectedNormalUpDot, -1f, 1f)) * Mathf.Rad2Deg) +
+                    ", triangle=" + hit.triangleIndex + ", soilHeight=" + ShrineFormat(soilHeight) + ", sourceRise=" + ShrineFormat(height - soilHeight));
+            }
+        // note: Match YQInvestorPlayerMotor.Awake's actual 58-degree slope floor. A face above that limit is not excused by a small height change; it would need separately proved step bridging.
+        if (selectedCollider != null && selectedNormalUpDot < Mathf.Cos(58f * Mathf.Deg2Rad))
+            throw new InvalidOperationException("Shrine walking support exceeds the authoritative motor's 58-degree slope: " + selectedCollider.name +
+                " point=" + ShrineFormatVector(point) + " normalUpDot=" + ShrineFormat(selectedNormalUpDot) + " sourceRise=" + ShrineFormat(surface - soilHeight));
+        if (onThreshold && surface - soilHeight > .30f)
+            throw new InvalidOperationException("Shrine native threshold exceeds the reviewed 0.30m rise above real walking soil.");
+        return surface;
+    }
+
+    private static void ShrineRequireCapsuleClear(CapsuleCollider capsule, Vector3 center, Quaternion rotation, Collider[] solids, string path)
+    {
+        foreach (Collider solid in solids)
+            if (Physics.ComputePenetration(capsule, center, rotation, solid, solid.transform.position, solid.transform.rotation, out _, out float distance) && distance > .001f)
+                throw new InvalidOperationException("Shrine player capsule or access is obstructed: " + path + " by " + solid.name +
+                    " center=" + ShrineFormatVector(center) + " penetration=" + ShrineFormat(distance));
+    }
+
+    private static void ShrineVerifyInteractionRay(Transform root, YQAssetSocketRecordV2 socket, Transform target, Collider[] solids)
+    {
+        Bounds bounds = ShrineSolidBounds(target, root);
+        Vector3 eye = root.TransformPoint(socket.localPosition + Vector3.up * 1.45f);
+        Vector3 toward = root.TransformPoint(bounds.center) - eye;
+        var ray = new Ray(eye, toward.normalized);
+        Collider first = null;
+        float nearest = toward.magnitude + .1f;
+        foreach (var collider in solids)
+            if (collider.Raycast(ray, out RaycastHit hit, nearest)) { nearest = hit.distance; first = collider; }
+        if (first == null || (first.transform != target && !first.transform.IsChildOf(target)) || nearest > 2.5f)
+            throw new InvalidOperationException("Shrine interaction does not reach its real provider: " + target.name);
+    }
+
+    private static void ShrineVerifyTerrain(Transform root, UnityEngine.SceneManagement.Scene scene, YQReviewedCellFunctionContractV2 contract, List<YQAssetSocketRecordV2> sockets, StringBuilder report)
+    {
+        // note: Strict source qualification checks actual TerrainData at four headings and three grades, independently of the runtime validator's compatibility burial tolerance.
+        var data = new TerrainData { heightmapResolution = 129, size = new Vector3(128f, 20f, 128f) };
+        GameObject ground = null;
+        try
+        {
+            ground = Terrain.CreateTerrainGameObject(data);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(ground, scene);
+            ground.transform.position = new Vector3(-64f, 0f, -64f);
+            var terrain = ground.GetComponent<Terrain>();
+            foreach (float grade in new[] { 0f, -.005f, .005f })
+            {
+                var heights = new float[129, 129];
+                for (int z = 0; z < 129; z++) for (int x = 0; x < 129; x++) heights[z, x] = (6f + grade * (x - 64f - 12f)) / 20f;
+                data.SetHeights(0, 0, heights);
+                for (int heading = 0; heading < 4; heading++)
+                {
+                    root.SetPositionAndRotation(new Vector3(12f, 6f, -9f), Quaternion.Euler(0f, heading * 90f, 0f));
+                    Physics.SyncTransforms();
+                    foreach (var contact in contract.independentAssembly.terrainContacts)
+                    {
+                        Vector3 bottom = root.TransformPoint(contact.localBottom);
+                        if (!YQTerrainApproachV2.TrySampleTerrain(terrain, bottom, out float soil) || soil - bottom.y < -.005f || soil - bottom.y > .155f)
+                            throw new InvalidOperationException("Measured shrine footing is unsupported or overburied: " + contact.supportPath);
+                    }
+                    if (!YQFoundationTerrainContacts.TryValidate(root, terrain, contract, 0f, out string failure)) throw new InvalidOperationException(failure);
+                    foreach (var socket in sockets)
+                        if (!YQTerrainApproachV2.TrySampleTerrain(terrain, root.TransformPoint(socket.localPosition), out float soil) || Mathf.Abs(soil - root.TransformPoint(socket.localPosition).y) > .04f)
+                            throw new InvalidOperationException("Shrine standing socket has no supported near-level terrain.");
+                    ShrineVerifyAccess(root, scene, sockets, report, terrain);
+                    report.AppendLine("Measured terrain contacts and access: grade=" + grade + ", heading=" + heading * 90 + ".");
+                }
+            }
+        }
+        finally
+        {
+            root.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            if (ground != null) UnityEngine.Object.DestroyImmediate(ground);
+            UnityEngine.Object.DestroyImmediate(data);
+            Physics.SyncTransforms();
+        }
+    }
+
+    private static void ShrineVerifyLoot(GameObject prefab, UnityEngine.SceneManagement.Scene scene, YQCellLootBindingV2 loot, string signature, StringBuilder report)
+    {
+        // note: Real provider setup runs only on disposable inactive copies; no gameplay opening, reward generation, canonical manager or save call is exercised.
+        for (int heading = 0; heading < 4; heading++)
+        {
+            RequireShrineEditorIsolation();
+            var staging = new GameObject("DetachedInactiveShrineProvider");
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(staging, scene);
+            staging.SetActive(false);
+            try
+            {
+                var copy = (GameObject)PrefabUtility.InstantiatePrefab(prefab, staging.transform);
+                copy.transform.SetPositionAndRotation(new Vector3(17f, 6f, -11f), Quaternion.Euler(0f, heading * 90f, 0f));
+                string location = "detached-shrine-review-" + heading;
+                if (!YQCellLootBindingsV2.TryBind(copy.transform, loot, signature, location, ShrineCell, "Detached shrine reward", "detached-review-region", 1, out string failure) ||
+                    !YQCellLootBindingsV2.TryBind(copy.transform, loot, signature, location, ShrineCell, "Detached shrine reward", "detached-review-region", 1, out failure))
+                    throw new InvalidOperationException("Real shrine reward binder failed: " + failure);
+                Transform target = RequirePath(copy.transform, loot.targetPath);
+                var provider = target.GetComponent<YQLockpickableLoot>();
+                provider.SendMessage("Awake", SendMessageOptions.RequireReceiver);
+                var box = target.GetComponent<BoxCollider>();
+                var container = target.GetComponent<YQWorldContainer>();
+                if (!provider.PreservesReviewedCollider || box == null || box.center != loot.colliderCenter || box.size != loot.colliderSize ||
+                    target.GetComponentsInChildren<Collider>(true).Length != 1 || copy.GetComponentsInChildren<YQLockpickableLoot>(true).Length != 1 ||
+                    container == null || container.siteId != location || provider.persistentLootId != YQCellLootBindingsV2.BuildLootId(location, ShrineCell, loot.bindingId))
+                    throw new InvalidOperationException("Shrine reward setup lost collision or canonical slot ownership.");
+                if (YQCellLootBindingsV2.TryBind(copy.transform, loot, "stale-source", location, ShrineCell, "Detached reward", "detached-review-region", 1, out _) ||
+                    YQCellLootBindingsV2.TryBind(copy.transform, loot, signature, "different-location", ShrineCell, "Detached reward", "detached-review-region", 1, out _))
+                    throw new InvalidOperationException("Shrine reward admitted stale source or conflicting ownership.");
+                report.AppendLine("Actual chest binder, repeat binding, native collider preservation and stale/conflicting owner rejection: heading=" + heading * 90 + ".");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(staging); }
+        }
+    }
+
+    private static bool ShrineFinite(Vector3 value) => !float.IsNaN(value.x) && !float.IsInfinity(value.x) && !float.IsNaN(value.y) && !float.IsInfinity(value.y) && !float.IsNaN(value.z) && !float.IsInfinity(value.z);
+
     public static void PublishQualifiedHomeLibrary()
     {
         // note: Publish only the existing measured home after its real geometry, providers and current terrain writer pass; donor candidate approvals stay untouched.

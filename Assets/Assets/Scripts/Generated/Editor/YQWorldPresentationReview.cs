@@ -173,6 +173,8 @@ public static class YQWorldPresentationReview
                     " missingTerrain=" + missing + " buried=" + buried + " floating=" + floating +
                     " minSeparation=" + minimum + " maxSeparation=" + maximum);
                 AppendMaterialEvidence(filter.GetComponent<Renderer>(), report);
+                if (selection.Key.EndsWith("river", StringComparison.Ordinal))
+                    AppendRiverBankProfile(filter, streamer, report);
             }
             foreach (string key in new[] { "origin_river", "origin_path", "continuation_river", "continuation_path" })
                 if (!selected.ContainsKey(key)) report.AppendLine(key + " NOT VERIFIED: no currently loaded surface");
@@ -181,6 +183,34 @@ public static class YQWorldPresentationReview
         finally { UnityEngine.Object.DestroyImmediate(host); }
         File.WriteAllText("outputs/World_Readiness_20261002/" + prefix + ".md", report.ToString());
         Debug.Log("[YQWorldPresentationReview] Landscape capture " + prefix);
+    }
+
+    private static void AppendRiverBankProfile(MeshFilter filter, YQPlayerFollowingSemanticChunkStreamer streamer, StringBuilder report)
+    {
+        // note: Surface contact alone misses raised canal walls; measure the actual loaded heightfield across both banks without changing player or terrain.
+        Vector3[] vertices = filter.sharedMesh.vertices;
+        if (vertices.Length < 2) return;
+        int pair = Mathf.Clamp((vertices.Length / 4) * 2, 0, vertices.Length - 2);
+        Vector3 left = filter.transform.TransformPoint(vertices[pair]);
+        Vector3 right = filter.transform.TransformPoint(vertices[pair + 1]);
+        Vector3 centre = (left + right) * .5f;
+        Vector3 across = right - left; across.y = 0f; across.Normalize();
+        var plan = WorldStateManager.Instance?.State?.generatedWorldPlan;
+        YQPreparedSpatialMaterializationV2 prepared = null;
+        if (plan != null) YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out _);
+        report.AppendLine("  bankProfile centre=" + centre + " across=" + across + " width=" + Vector3.Distance(left, right));
+        float previous = float.NaN;
+        for (int offset = -128; offset <= 128; offset += 2)
+        {
+            Vector3 point = centre + across * offset;
+            Terrain terrain = ResolveReviewTerrain(point, streamer);
+            if (terrain == null) { report.AppendLine("  bank offset=" + offset + " missingTerrain"); previous = float.NaN; continue; }
+            float height = YQGeneratedWorldTerrain.SampleWorldHeight(terrain, point);
+            float step = float.IsNaN(previous) ? 0f : height - previous;
+            float accepted = prepared != null ? prepared.SampleTerrain(point.x, point.z).elevationNormalized * terrain.terrainData.size.y + terrain.transform.position.y : float.NaN;
+            report.AppendLine("  bank offset=" + offset + " height=" + height + " delta2m=" + step + " accepted=" + accepted + " terrain=" + terrain.name);
+            previous = height;
+        }
     }
 
     [UnityEditor.MenuItem("YourQuest/Verification/Capture Live Streamed Water Appearance")]

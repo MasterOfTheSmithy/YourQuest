@@ -19,6 +19,7 @@ public static class YQDotAssetLayout
     private const string GroupRequest = "Assets/Assets/EditorBuildRequests/GroupDotCreatureTypes.request";
     private static Dictionary<string, string> _paths;
     private static Dictionary<string, string> _origins;
+    private static Dictionary<string, (string original, string installed)> _revisions;
     private static double _next;
 
     static YQDotAssetLayout() { EditorApplication.update += Tick; }
@@ -39,6 +40,16 @@ public static class YQDotAssetLayout
         return normalized.StartsWith(Relative(originalRoot) + "/", StringComparison.Ordinal);
     }
 
+    // note: Corrective deliveries retain the original package manifest; only an exact declared baseline may resolve to its reviewed installed hash.
+    internal static string ResolveSourceHash(string path, string declaredHash)
+    {
+        string resolved = Resolve(path);
+        return _revisions.TryGetValue(resolved, out var revision) && revision.original == declaredHash ? revision.installed : declaredHash;
+    }
+
+    // note: Explicit source migrations replace the alias table without rebuilding prefab bindings or changing accepted runtime keys.
+    internal static void ReloadSourcePaths() { _paths = null; _origins = null; }
+
     private static string Relative(string path)
     {
         string full = Path.GetFullPath(path);
@@ -52,6 +63,7 @@ public static class YQDotAssetLayout
         if (_paths != null) return;
         _paths = new Dictionary<string, string>(StringComparer.Ordinal);
         _origins = new Dictionary<string, string>(StringComparer.Ordinal);
+        _revisions = new Dictionary<string, (string original, string installed)>(StringComparer.Ordinal);
         if (!File.Exists(Manifest)) return;
         foreach (JObject row in (JArray)JObject.Parse(File.ReadAllText(Manifest))["files"])
         {
@@ -59,6 +71,7 @@ public static class YQDotAssetLayout
             Confine(destination);
             _paths.Add(origin, destination);
             _origins.Add(destination, origin);
+            if (!string.IsNullOrEmpty((string)row["installedSha256"])) _revisions.Add(destination, ((string)row["sha256"], (string)row["installedSha256"]));
             foreach (string alias in row["aliases"].Values<string>()) _paths.Add(alias, destination);
         }
     }

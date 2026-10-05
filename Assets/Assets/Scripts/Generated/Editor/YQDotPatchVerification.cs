@@ -14,9 +14,12 @@ using UnityEngine.SceneManagement;
 public static class YQDotPatchVerification
 {
     private const string Output = "outputs/DOT_Integration_20261003/Patches";
-    internal static void Run(YQDotCreatureCatalog creatures, YQDotEquipmentCatalog equipment)
+    internal static void Run(YQDotCreatureCatalog creatures, YQDotEquipmentCatalog equipment, bool wildlifeOnly = false, string output = Output)
     {
         var checks = new List<string>(); int sampledFrames = 0;
+        // note: Corrective wildlife releases reuse the existing evaluated-skin/travel fixtures without repeating unrelated crafting and race checks.
+        if (!wildlifeOnly)
+        {
         string root = YQDotEquipmentIntake.CraftingRoot;
         var correction = JObject.Parse(File.ReadAllText(YQDotAssetLayout.Resolve(root + "/Patches/1.0.1/CHANGED_FILES_PATCH_MANIFEST.json")));
         foreach (JObject mapping in (JArray)correction["corrected_visual_mappings"])
@@ -35,7 +38,8 @@ public static class YQDotPatchVerification
                 Require(equipment.TryGetAsset((string)visual["visual_id"], out var entry) && entry.materialKey == (string)visual["material_key"], (string)visual["visual_id"] + ": resolved example matches installed catalog", checks);
         }
         Require(equipment.craftingReleaseVersion == "1.0.1" && equipment.craftingSchemaVersion == "1.0.0", "Metadata release updated; structured schema preserved", checks);
-        var animals = creatures.entries.Where(e => (e.kind == "wildlife" || e.species == "satyr") && e.motionProfile != null && e.motionProfile.IsValid).ToArray();
+        }
+        var animals = creatures.entries.Where(e => (e.kind == "wildlife" || (!wildlifeOnly && e.species == "satyr")) && e.motionProfile != null && e.motionProfile.IsValid).ToArray();
         Require(animals.Any(e => e.species == "deer" && Mathf.Abs(e.authoredWalkSpeed - .270493663f) < .000001f), "Repaired stag speed and complete approved travel curves", checks);
         foreach (var deer in animals)
         {
@@ -105,13 +109,13 @@ public static class YQDotPatchVerification
             if (baked != null) UnityEngine.Object.DestroyImmediate(baked);
             EditorSceneManager.ClosePreviewScene(scene);
         }
-        YQDotCreaturePreview.RenderEntries(new[] { deer }, Output + "/StagPreview", true, new[] { "DotIdle", "DotStart", "DotWalk", "DotStop" });
+        YQDotCreaturePreview.RenderEntries(new[] { deer }, output + "/StagPreview", true, new[] { "DotIdle", "DotStart", "DotWalk", "DotStop" });
         }
-        VerifyCoverage(equipment, checks);
+        if (!wildlifeOnly) VerifyCoverage(equipment, checks);
         var satyrs = animals.Where(e => e.species == "satyr").ToArray();
-        if (satyrs.Length > 0) YQDotCreaturePreview.RenderEntries(satyrs, Output + "/SatyrPreview", false, new[] { "DotIdle", "DotWalk", "DotGreet" });
-        File.WriteAllText(Output + "/focused-verification.json", JsonConvert.SerializeObject(new {
-            status = "PASS", utc = DateTime.UtcNow, correctedMappings = 16, correctedExamples = examples.Count, sampledSkinFrames = sampledFrames, renderedWildlifePoses = animals.Sum(e => e.sourcePaths.Length * 4), animals = animals.Select(e => new { e.species, e.authoredWalkSpeed, forward = new[] { e.motionProfile.localForward.x, e.motionProfile.localForward.y, e.motionProfile.localForward.z } }),
+        if (satyrs.Length > 0) YQDotCreaturePreview.RenderEntries(satyrs, output + "/SatyrPreview", false, new[] { "DotIdle", "DotWalk", "DotGreet" });
+        File.WriteAllText(output + "/focused-verification.json", JsonConvert.SerializeObject(new {
+            status = "PASS", utc = DateTime.UtcNow, wildlifeOnly, sampledSkinFrames = sampledFrames, renderedWildlifePoses = animals.Sum(e => e.sourcePaths.Length * 4), animals = animals.Select(e => new { e.species, e.authoredWalkSpeed, forward = new[] { e.motionProfile.localForward.x, e.motionProfile.localForward.y, e.motionProfile.localForward.z } }),
             checks, evidence = "Fresh Unity Editor skin/bone/clip-curve references at all LODs, evaluated full-phase frames, sampled travel at three frame rates and material-label fixtures. Ordinary ground contact/physics/gameplay remains unverified."
         }, Formatting.Indented));
     }

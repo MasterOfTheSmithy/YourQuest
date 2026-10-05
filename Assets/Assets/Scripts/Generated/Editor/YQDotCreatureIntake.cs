@@ -170,6 +170,9 @@ public static class YQDotCreatureIntake
 
         jobs.AddRange(ReadOrcJobs());
         if (File.Exists(YQDotAssetLayout.Resolve(SatyrRoot + "/kit_manifest.json"))) jobs.AddRange(ReadSatyrJobs());
+        if (File.Exists(YQDotAvianIntake.InstalledContent)) jobs.AddRange(YQDotAvianIntake.ReadJobs());
+        if (File.Exists(YQDotRaceBaseIntake.InstalledContent)) jobs.AddRange(YQDotRaceBaseIntake.ReadJobs());
+        if (File.Exists(YQDotCatIntake.InstalledContent)) jobs.AddRange(YQDotCatIntake.ReadJobs());
         SetPrefabPaths(jobs);
         return jobs.OrderBy(j => j.assetId, StringComparer.Ordinal).ToList();
     }
@@ -297,7 +300,7 @@ public static class YQDotCreatureIntake
                 throw new InvalidDataException("Missing or out-of-root declared creature: " + path);
             string relocated = YQDotAssetLayout.Resolve(path);
             if (!File.Exists(relocated)) throw new InvalidDataException("Missing declared creature: " + relocated);
-            paths.Add(relocated); hashes.Add((string)file["sha256"]);
+            paths.Add(relocated); hashes.Add(YQDotAssetLayout.ResolveSourceHash(relocated, (string)file["sha256"]));
         }
         if (paths.Count == 0) throw new InvalidDataException("Empty creature exports: " + id);
         jobs.Add(new YQDotCreatureEntry { assetId = id, kind = kind, species = species, category = category, bodyForm = body,
@@ -331,13 +334,23 @@ public static class YQDotCreatureIntake
                 if (source == null) { AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport); source = AssetDatabase.LoadAssetAtPath<GameObject>(path); }
                 if (source == null) throw new InvalidDataException("GLB did not import: " + path);
                 GameObject model = UnityEngine.Object.Instantiate(source); SceneManager.MoveGameObjectToScene(model, scene); model.transform.SetParent(root.transform, false); model.name = "LOD" + index;
+                // note: Part banks are authoring layouts. A declared module shell exposes exactly its selected node and retains the original shared bind-space rig.
+                if (job.sourceRendererNames.Length > 0)
+                {
+                    if (job.sourceRendererNames.Length != job.sourcePaths.Length || string.IsNullOrEmpty(job.moduleSlot)) throw new InvalidDataException("Renderer selection requires a declared module at every LOD.");
+                    var selectedNode = model.GetComponentsInChildren<Transform>(true).Single(t => t.name == job.sourceRendererNames[index]);
+                    var selectedRenderers = new HashSet<Renderer>(selectedNode.GetComponentsInChildren<Renderer>(true));
+                    if (selectedRenderers.Count == 0) throw new InvalidDataException("Selected module has no renderer: " + job.assetId);
+                    foreach (var renderer in model.GetComponentsInChildren<Renderer>(true)) if (!selectedRenderers.Contains(renderer)) UnityEngine.Object.DestroyImmediate(renderer);
+                }
                 if (job.motionProfile != null && job.motionProfile.IsValid)
                 {
                     // note: Measure the imported skeleton's body-to-head direction in wrapper space instead of assuming an exporter/engine forward axis.
                     var bones = model.GetComponentsInChildren<Transform>(true);
-                    var head = bones.Single(t => t.name == (job.species == "satyr" ? "toe3-3.L" : "head")); var spine = bones.Single(t => t.name == (job.species == "satyr" ? "foot.L" : "spine"));
+                    bool jawFacing = job.species == "avian" || job.species == "dwarf" || job.species == "kitsune";
+                    var head = bones.Single(t => t.name == (job.species == "satyr" ? "toe3-3.L" : jawFacing ? "jaw" : "head")); var spine = bones.Single(t => t.name == (job.species == "satyr" ? "foot.L" : jawFacing ? "head" : "spine"));
                     Vector3 forward = root.transform.InverseTransformVector(head.position - spine.position); forward.y = 0f;
-                    if (forward.sqrMagnitude < .01f) throw new InvalidDataException("Cannot verify imported animal forward: " + path);
+                    if (forward.sqrMagnitude < (jawFacing ? .0001f : .01f)) throw new InvalidDataException("Cannot verify imported creature forward: " + path);
                     forward.Normalize();
                     if (index > 0 && Vector3.Dot(job.motionProfile.localForward, forward) < .999f) throw new InvalidDataException("Animal LOD forward axes disagree: " + path);
                     job.motionProfile.localForward = forward;
@@ -347,9 +360,12 @@ public static class YQDotCreatureIntake
                 foreach (Renderer renderer in renderers)
                     foreach (Material material in renderer.sharedMaterials)
                         if (material == null || material.shader == null || !material.shader.isSupported || material.shader.name.Contains("InternalError")) throw new InvalidDataException("Unsupported creature material: " + path);
-                if (string.IsNullOrEmpty(job.moduleSlot)) ConfigureAnimation(model, path, job.prefabPath.Replace(".prefab", "_LOD" + index + ".controller"), job.motionProfile != null && job.motionProfile.IsValid);
+                if (job.species == "cat") YQDotCatVerification.Configure(model, path, job.prefabPath.Replace(".prefab", "_LOD" + index + ".controller"));
+                else if (string.IsNullOrEmpty(job.moduleSlot)) ConfigureAnimation(model, path, job.prefabPath.Replace(".prefab", "_LOD" + index + ".controller"), job.motionProfile != null && job.motionProfile.IsValid, YQDotRaceBaseIntake.IsNewRace(job.species));
                 else foreach (Animator animator in model.GetComponentsInChildren<Animator>(true)) UnityEngine.Object.DestroyImmediate(animator);
-                lods.Add(new LOD(index == job.sourcePaths.Length - 1 ? .01f : index == 0 ? .55f : index == 1 ? .22f : .08f, renderers));
+                // note: The Avian pilot's coarse LOD2 is distant-only; keep it below nine percent screen height rather than the older generic creature threshold.
+                float threshold = YQDotRaceBaseIntake.IsNewRace(job.species) ? new[] { .45f, .25f, .11f, .015f }[index] : job.species == "avian" ? index == 0 ? .28f : index == 1 ? .09f : .015f : index == job.sourcePaths.Length - 1 ? .01f : index == 0 ? .55f : index == 1 ? .22f : .08f;
+                lods.Add(new LOD(threshold, renderers));
             }
             if (lods.Count > 1) { var group = root.AddComponent<LODGroup>(); group.SetLODs(lods.ToArray()); group.RecalculateBounds(); }
             if (PrefabUtility.SaveAsPrefabAsset(root, job.prefabPath) == null) throw new InvalidOperationException("Creature prefab publication failed.");
@@ -357,9 +373,11 @@ public static class YQDotCreatureIntake
         finally { if (root != null) UnityEngine.Object.DestroyImmediate(root); EditorSceneManager.ClosePreviewScene(scene); }
     }
 
-    private static void ConfigureAnimation(GameObject model, string sourcePath, string controllerPath, bool sampledGait = false)
+    private static void ConfigureAnimation(GameObject model, string sourcePath, string controllerPath, bool sampledGait = false, bool normalizeTimeline = false)
     {
         AnimationClip[] clips = AssetDatabase.LoadAllAssetsAtPath(sourcePath).OfType<AnimationClip>().Where(c => !c.name.StartsWith("__preview__", StringComparison.Ordinal)).ToArray();
+        // note: These exports begin at frame one. Owned copies start at zero so Animator durations match the supplied displacement recipe, retaining every skeletal and morph curve.
+        if (normalizeTimeline) clips = clips.Select(c => YQDotRaceBaseVerification.NormalizeClip(c, controllerPath)).ToArray();
         AnimationClip idle = clips.FirstOrDefault(c => c.name.IndexOf("idle", StringComparison.OrdinalIgnoreCase) >= 0);
         AnimationClip walk = clips.FirstOrDefault(c => c.name.IndexOf("walk_loop", StringComparison.OrdinalIgnoreCase) >= 0 || c.name.IndexOf("locomotion_loop", StringComparison.OrdinalIgnoreCase) >= 0);
         if (idle == null || walk == null) throw new InvalidDataException("Missing own idle/locomotion clips: " + sourcePath);
@@ -398,6 +416,7 @@ public static class YQDotCreatureIntake
         animator.runtimeAnimatorController = controller; animator.applyRootMotion = false; animator.enabled = true;
         // note: The repaired stag's existing wander owner advances the explicit sampled phase; automatic blend transitions would apply a different travel/contact contract.
         if (sampledGait) foreach (var state in machine.states) state.state.transitions = Array.Empty<AnimatorStateTransition>();
+        if (normalizeTimeline) YQDotRaceBaseVerification.ExpandBounds(model, clips);
         EditorUtility.SetDirty(controller);
     }
 
@@ -487,8 +506,8 @@ public static class YQDotCreatureIntake
                             catalog.TryAttachModules(actor, body.prefabPath, new[] { module.assetId }, out _, out _) ||
                             catalog.TryValidateModules(body.prefabPath, new[] { module.assetId, module.assetId }, out _))
                             throw new InvalidOperationException("Exact-fit replacement admission failed: " + module.assetId);
-                        var other = catalog.entries.First(e => e.species == module.species && e.kind == "race" && e.compatibilityId != module.compatibilityId);
-                        if (catalog.TryValidateModules(other.prefabPath, new[] { module.assetId }, out _)) throw new InvalidOperationException("Cross-body orc module was accepted.");
+                        var other = catalog.entries.FirstOrDefault(e => e.species == module.species && e.kind == "race" && e.compatibilityId != module.compatibilityId);
+                        if (other != null && catalog.TryValidateModules(other.prefabPath, new[] { module.assetId }, out _)) throw new InvalidOperationException("Cross-body module was accepted.");
                         replacementChecks++; continue;
                     }
                     if (!catalog.TryAttachModules(actor, body.prefabPath, new[] { module.assetId }, out var attachment, out string reason))
@@ -552,6 +571,19 @@ public static class YQDotCreatureIntake
 
     internal static void BuildRepairedStag()
     { BuildRepairedWildlife(new[] { "deer" }); }
+
+    internal static void BuildApprovedAvianEntries(List<YQDotCreatureEntry> jobs, string output)
+    { BuildApprovedNpcEntries(jobs, output); }
+
+    internal static void BuildApprovedNpcEntries(List<YQDotCreatureEntry> jobs, string output)
+    {
+        if (_jobs != null || EditorApplication.isPlayingOrWillChangePlaymode || !YQRuntimeWorldAssetRegistry.Instance.UsesLazyResourceShards) throw new InvalidOperationException("Avian intake requires idle Edit Mode and the existing lazy registry.");
+        // note: Only the new species is built; historical runtime keys, user-relocated prefab folders and every prior catalog entry remain intact.
+        foreach (var job in jobs) job.prefabPath = PrefabRoot + (job.kind == "wildlife" ? "/Wildlife/" : "/NPCs/") + job.species + "/" + job.assetId + ".prefab";
+        _jobs = jobs;
+        try { foreach (var job in jobs) Build(job); Publish(); foreach (string species in jobs.Select(j => j.species).Distinct()) VerifyEntries(species, output + "/" + (species == "avian" ? "binding-verification" : species + "-binding-verification") + ".json"); }
+        finally { _jobs = null; }
+    }
 
     internal static void BuildRepairedWildlife(string[] species)
     {

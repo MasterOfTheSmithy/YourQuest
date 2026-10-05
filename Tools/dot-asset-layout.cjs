@@ -175,7 +175,9 @@ function verify() {
     if (row.retiredUnreferencedFolder) continue;
     if (!fs.existsSync(row.path) || !fs.existsSync(row.path + '.meta')) { failures.push(`Missing: ${row.path}`); continue; }
     if (guid(row.path + '.meta') !== row.guid || hash(fs.readFileSync(row.path + '.meta')) !== row.metaSha256) failures.push(`Sidecar changed: ${row.path}`);
-    if (row.sha256 && hash(fs.readFileSync(row.path)) !== row.sha256) failures.push(`Payload changed: ${row.path}`);
+    // note: Explicit corrective deliveries retain the original intake hash and declare the reviewed installed revision separately.
+    const installedHash = row.installedSha256 || row.sha256;
+    if (installedHash && hash(fs.readFileSync(row.path)) !== installedHash) failures.push(`Payload changed: ${row.path}`);
   }
   let catalogMetadataChecks = 0;
   for (const [name, current] of [['creature', 'YQDotCreatureCatalog'], ['equipment', 'YQDotEquipmentCatalog']]) {
@@ -210,18 +212,24 @@ function verify() {
 function cleanup() {
   // note: Cleanup is authorized only after both preservation checks pass and a serialized GUID-reference scan finds no users of the old empty folders.
   if (readJson(`${output}/editor-verification.json`).status !== 'PASS' || readJson(`${output}/file-verification.json`).status !== 'PASS') throw Error('Successful editor and payload verification are required before cleanup.');
-  const references = fs.readFileSync(`${output}/folder-guid-references.txt`, 'utf8').trim();
-  if (references) throw Error('Original folder GUIDs remain referenced; retain their metadata.');
   const manifest = readJson(manifestPath);
+  const previous = fs.existsSync(`${output}/cleanup.json`) ? readJson(`${output}/cleanup.json`) : null;
   const archive = `${root}/Documentation/Source Folder Metadata`;
   confined(archive);
-  if (walk(archive).some(file => !file.endsWith('.meta'))) throw Error('Source folder archive is not empty of assets.');
-  const expectedPrefix = path.resolve(project, root) + path.sep;
-  if (!path.resolve(archive).startsWith(expectedPrefix)) throw Error('Invalid cleanup target.');
-  fs.rmSync(archive, {recursive: true});
-  if (fs.existsSync(archive + '.meta')) fs.unlinkSync(archive + '.meta');
-  for (const row of manifest.directories) row.retiredUnreferencedFolder = true;
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  if (fs.existsSync(archive)) {
+    const references = fs.readFileSync(`${output}/folder-guid-references.txt`, 'utf8').trim();
+    if (references) throw Error('Original folder GUIDs remain referenced; retain their metadata.');
+    if (walk(archive).some(file => !file.endsWith('.meta'))) throw Error('Source folder archive is not empty of assets.');
+    const expectedPrefix = path.resolve(project, root) + path.sep;
+    if (!path.resolve(archive).startsWith(expectedPrefix)) throw Error('Invalid cleanup target.');
+    fs.rmSync(archive, {recursive: true});
+    if (fs.existsSync(archive + '.meta')) fs.unlinkSync(archive + '.meta');
+    for (const row of manifest.directories) row.retiredUnreferencedFolder = true;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  } else {
+    // note: Later taxonomy adjustments create new temporary snapshots; reuse the completed retirement receipt only when every old folder is already recorded as retired.
+    if (previous?.status !== 'PASS' || !manifest.directories.every(row => row.retiredUnreferencedFolder)) throw Error('Missing verified source-folder retirement evidence.');
+  }
   const removed = [];
   for (const file of fs.readdirSync(output)) {
     if (/^(executed-.*\.request(?:\.meta)?|.*-catalog-before\.asset|protected-files\.json|plan\.json|folder-guids\.txt|folder-guid-references\.txt)$/.test(file)) {
@@ -242,7 +250,7 @@ function cleanup() {
     if (!path.resolve(failed).startsWith(path.resolve(project, output) + path.sep)) throw Error('Invalid failed-layout target.');
     fs.rmSync(failed, {recursive: true});
   }
-  const result = {status: 'PASS', utc: new Date().toISOString(), retiredUnreferencedFolders: manifest.directories.length, removedTemporaryFiles: removed, sourceAssetsDeleted: 0, folderGuidReferenceScan: 'No serialized references found'};
+  const result = {status: 'PASS', utc: new Date().toISOString(), retiredUnreferencedFolders: manifest.directories.length, removedTemporaryFiles: [...new Set([...(previous?.removedTemporaryFiles ?? []), ...removed])], sourceAssetsDeleted: 0, folderGuidReferenceScan: 'No serialized references found'};
   fs.writeFileSync(`${output}/cleanup.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify(result, null, 2));
 }
