@@ -35,6 +35,13 @@ public static class YQStreamedRepairVerification
             var world = JsonConvert.DeserializeObject<WorldState>(File.ReadAllText(Path.Combine(root, "world_state.json")), settings);
             var player = JsonConvert.DeserializeObject<PlayerState>(File.ReadAllText(Path.Combine(root, "player_state.json")), settings);
             var plan = world.generatedWorldPlan;
+            // note: Travel can trigger progression inference; its frozen snapshot must copy Unity position values without recursive property serialization.
+            player.logicalPosition = new Vector3(123f, 45f, -678f);
+            player.renderOrigin = new Vector3(512f, 0f, 1024f);
+            var frozenPlayer = (PlayerState)typeof(ProgressionThinkCycle).GetMethod("FreezePlayerState", flags).Invoke(null, new object[] { player });
+            Check("progression inference freezes independent player position data without recursion",
+                !ReferenceEquals(player, frozenPlayer) && frozenPlayer.playerId == player.playerId &&
+                frozenPlayer.logicalPosition == player.logicalPosition && frozenPlayer.renderOrigin == player.renderOrigin);
             var contextHash = typeof(YQWorldGenerationService).GetMethod("BuildFrontierSemanticContextHash", flags);
             var factions = new List<string>();
             foreach (var faction in plan.factions) if (faction != null) factions.Add(faction.factionId);
@@ -87,6 +94,12 @@ public static class YQStreamedRepairVerification
                         YQRuntimeWorldAssetRegistry.Instance.ResolvePrefab(generated.prefabKey) != null) compatible++;
                 }
                 Check("approved relocated equipment produces real weapons for eight actor seeds", compatible == 8);
+                var actor = equipmentFixture.AddComponent<EntityInfo>(); actor.entityId = "repair-equipment-actor";
+                var visual = equipmentFixture.AddComponent<YQGeneratedActorEquipment>();
+                var existingVisual = new GameObject("Equipped__weapon__accepted"); existingVisual.transform.SetParent(equipmentFixture.transform, false);
+                typeof(YQGeneratedActorEquipment).GetMethod("OnEnable", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(visual, null);
+                Check("actor activation recovers existing visual ownership without duplicating gear",
+                    ((System.Collections.IList)typeof(YQGeneratedActorEquipment).GetField("_visuals", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(visual)).Count == 1);
             }
             finally { UnityEngine.Object.DestroyImmediate(equipmentFixture); }
             var familyVocabulary = (string[])typeof(YQWorldGenerationService).GetMethod("BuildFrontierMonsterFamilyVocabulary", flags).Invoke(null, null);

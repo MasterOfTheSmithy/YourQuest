@@ -12,6 +12,16 @@ public sealed class YQGeneratedActorEquipment : MonoBehaviour
     private float _nextRefresh;
     private readonly List<GameObject> _visuals = new List<GameObject>();
 
+    private void OnEnable()
+    {
+        // note: Domain reload and streamed activation restore presentation references from the actor, without duplicating gear or rerolling items.
+        _entityId = GetComponent<EntityInfo>()?.entityId;
+        _shownRevision = -1;
+        _visuals.Clear();
+        foreach (Transform node in GetComponentsInChildren<Transform>(true))
+            if (node.name.StartsWith("Equipped__", StringComparison.Ordinal)) _visuals.Add(node.gameObject);
+    }
+
     public static void Bind(EntityInfo actor, string regionId, string siteId, bool armed)
     {
         if (actor == null || string.IsNullOrWhiteSpace(actor.entityId) || FindHand(actor.gameObject, false) == null) return;

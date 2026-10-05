@@ -7,6 +7,17 @@ using UnityEngine;
 
 public class ProgressionThinkCycle : MonoBehaviour
 {
+    // note: The bounded proposal freezes canonical player data using the same Unity value converters as profile storage.
+    private static readonly JsonSerializerSettings PlayerSnapshotJsonSettings = new JsonSerializerSettings
+    {
+        Converters = { new Vector3JsonConverter(), new Vector2JsonConverter(), new QuaternionJsonConverter() }
+    };
+
+    private static PlayerState FreezePlayerState(PlayerState state)
+    {
+        return JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(state, PlayerSnapshotJsonSettings), PlayerSnapshotJsonSettings);
+    }
+
     [Header("Config")]
     public ProgressionBalanceConfig balance;
 
@@ -244,7 +255,7 @@ public class ProgressionThinkCycle : MonoBehaviour
         if (bounded)
         {
             // note: The existing math/cooldown admission above remains authoritative for whether to ask for an offer.
-            PlayerState frozen = JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(psm.state));
+            PlayerState frozen = FreezePlayerState(psm.state);
             YQLlmRequest binding = new YQLlmRequest { debugTag = "ProgressionDecision", category = LLMGenerationCategory.Progression };
             activeRepair = LLMClient.Instance.CreateRepairEpisode(binding, "progression:" + window.fingerprint, 40d);
             SubmitProgressionRepair(psm.state, frozen, acc, window, situation, prompt, prompt, activeRepair, null);
