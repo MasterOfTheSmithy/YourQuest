@@ -79,12 +79,149 @@ public sealed class GeneratedSpatialWorldPlanV2Record
     public List<string> validationErrors = new List<string>();
     public YQSpatialBlueprintV2 blueprint = new YQSpatialBlueprintV2();
 
+    // note: Accepted frontier data has its own parent-bound checksum; absent data preserves the original opening artifact and old saves.
+    [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+    public GeneratedSpatialContinuationV2Record acceptedContinuation;
+
     public void EnsureCollections()
     {
         validationErrors ??= new List<string>();
         blueprint ??= new YQSpatialBlueprintV2();
         blueprint.EnsureCollections();
     }
+}
+
+public enum YQSpatialContinuationStateV2
+{
+    None = 0,
+    Staged = 1,
+    Accepted = 2,
+    Rejected = 3
+}
+
+public enum YQSpatialContinuationSourceV2
+{
+    None = 0,
+    LlmProposal = 1,
+    ExplicitFallback = 2
+}
+
+public enum YQSpatialContinuationProofKindV2
+{
+    None = 0,
+    ContentProposal = 1,
+    ProviderComposition = 2,
+    TerrainConformance = 3,
+    AccessAndHydrology = 4,
+    PopulationAndInteractions = 5
+}
+
+public enum YQSpatialContinuationProofOutcomeV2
+{
+    Unverified = 0,
+    Passed = 1,
+    Rejected = 2
+}
+
+[Serializable]
+public sealed class GeneratedSpatialContinuationV2Record
+{
+    public const string SupportedSchemaVersion = "spatial_continuation_v2_1";
+    public const string SupportedGenerationVersion = "spatial_continuation_generation_1";
+    public const string SupportedValidationVersion = "spatial_continuation_basic_gate_1";
+    public const string SupportedHashAlgorithm = "sha256_canonical_unity_fields_v1";
+
+    public string schemaVersion = SupportedSchemaVersion;
+    public string generationVersion = SupportedGenerationVersion;
+    public string validationVersion = SupportedValidationVersion;
+    public string hashAlgorithm = SupportedHashAlgorithm;
+    public string worldSeed;
+    public string parentSpatialContentHash;
+    public string parentMemberFootprintHash;
+    public long revision;
+    public YQSpatialContinuationStateV2 state = YQSpatialContinuationStateV2.Staged;
+    public string contentHash;
+    public string validatedContentHash;
+    public List<string> validationErrors = new List<string>();
+    // note: These mutable serialization containers are immutable by contract after owner acceptance and are rechecked against their content hashes.
+    public List<GeneratedSpatialContinuationLocationV2Record> locations =
+        new List<GeneratedSpatialContinuationLocationV2Record>();
+}
+
+[Serializable]
+public sealed class GeneratedSpatialContinuationLocationV2Record
+{
+    public const string SupportedSchemaVersion = "spatial_continuation_location_v2_1";
+
+    public string schemaVersion = SupportedSchemaVersion;
+    public string contentId;
+    public int blockX;
+    public int blockZ;
+    public string deterministicSeed;
+    public long revision;
+    public YQSpatialContinuationSourceV2 source;
+    public string sourceContentId;
+    public string sourceContentHash;
+    public YQSpatialContinuationStateV2 state = YQSpatialContinuationStateV2.Staged;
+    public string contentHash;
+    public string validatedContentHash;
+    public List<string> validationErrors = new List<string>();
+
+    // note: The anchor is the sole site-position/member-footprint authority; semantic reservations and owner-cell projections are derived later.
+    public YQSiteAnchorV2 anchor;
+    public List<GeneratedSemanticEntranceRecord> entrances = new List<GeneratedSemanticEntranceRecord>();
+    public GeneratedSettlementRecord settlement;
+    public GeneratedEncampmentRecord encampment;
+    public GeneratedPointOfInterestRecord pointOfInterest;
+    public List<GeneratedNpcPlanRecord> population = new List<GeneratedNpcPlanRecord>();
+
+    // note: Settlement/camp payloads retain their existing binding fields; only POIs lack those fields and use this shared binding slot.
+    public string poiRuntimeSiteKitId;
+    public string poiRuntimeSiteBindingVersion;
+    public string compositionSeed;
+    public string compositionGeometrySignature;
+    public List<string> selectedSourceCellIds = new List<string>();
+    // note: Settlement layouts remain on settlement.proceduralLayout; this slot retains exact geometry for payloads that have no existing layout owner.
+    public YQProceduralSettlementLayoutRecord compositionLayout;
+    [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+    public GeneratedSpatialContinuationPhysicalContextV2Record physicalContext;
+    public List<GeneratedSpatialContinuationProofV2Record> proofClaims =
+        new List<GeneratedSpatialContinuationProofV2Record>();
+}
+
+[Serializable]
+public sealed class GeneratedSpatialContinuationPhysicalContextV2Record
+{
+    public const string SupportedVersion = "frontier_physical_context_v1";
+    public string version = SupportedVersion;
+    // note: Coordinates and reserve radii remain on the anchor; pads carry only the engine-approved elevation and shoulder for each exact sector identity.
+    public List<GeneratedSpatialContinuationTerrainPadV2Record> terrainPads =
+        new List<GeneratedSpatialContinuationTerrainPadV2Record>();
+    public List<YQRouteCorridorV2> routes = new List<YQRouteCorridorV2>();
+}
+
+[Serializable]
+public sealed class GeneratedSpatialContinuationTerrainPadV2Record
+{
+    public string sectorId;
+    public float elevationNormalized;
+    public float shoulderWidth = 24f;
+}
+
+[Serializable]
+public sealed class GeneratedSpatialContinuationProofV2Record
+{
+    public const string SupportedSchemaVersion = "spatial_continuation_proof_v2_1";
+
+    public string schemaVersion = SupportedSchemaVersion;
+    public YQSpatialContinuationProofKindV2 kind;
+    public YQSpatialContinuationProofOutcomeV2 outcome;
+    public string subjectSiteId;
+    public string subjectPayloadHash;
+    public string ownerValidationVersion;
+    public string evidenceId;
+    public string evidenceHash;
+    // note: A persisted proof is a claim for the responsible owner to verify; structural/hash validation never authorizes promotion or publication.
 }
 
 public static class YQSpatialPlanVersionRouter

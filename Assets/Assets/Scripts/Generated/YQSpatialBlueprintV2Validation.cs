@@ -359,6 +359,22 @@ public static class YQSpatialBlueprintValidatorV2
             if (site != null)
                 site.EnsureCollections();
 
+            // note: Persisted sector geometry must pass the same finite-coordinate boundary before semantic projection or indexing can consume it.
+            if (site != null)
+            {
+                HashSet<string> memberIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (int memberIndex = 0; memberIndex < site.memberFootprint.Count; memberIndex++)
+                {
+                    YQSiteMemberFootprintV2 member = site.memberFootprint[memberIndex];
+                    if (member == null || string.IsNullOrWhiteSpace(member.memberId) ||
+                        !memberIds.Add(member.memberId) || member.sectorIndex < 0 ||
+                        !IsPointInBounds(member.x, member.z, halfExtent) ||
+                        !IsPositiveFinite(member.reservedRadius) || member.reservedRadius > blueprint.worldSize)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidSite,
+                            id + "/member:" + (member?.memberId ?? "<null>"));
+                }
+            }
+
             if (site == null ||
                 string.IsNullOrWhiteSpace(id) ||
                 duplicate ||
@@ -800,6 +816,37 @@ public static class YQSpatialBlueprintValidatorV2
 
 public static class YQSpatialBlueprintHasherV2
 {
+    public static string ComputeMemberFootprintHashReadOnly(GeneratedSpatialWorldPlanV2Record record)
+    {
+        // note: Versioned derived projections cover sectors separately, preserving existing accepted V2 content hashes and saves.
+        bool hasMembers = false;
+        if (record?.blueprint?.sites != null)
+            for (int index = 0; index < record.blueprint.sites.Count && !hasMembers; index++)
+                hasMembers = record.blueprint.sites[index]?.memberFootprint?.Count > 0;
+        if (!hasMembers)
+            return string.Empty;
+        StableHashWriter writer = new StableHashWriter();
+        List<YQSiteAnchorV2> sites = SortById(record?.blueprint?.sites, site => site?.siteId ?? string.Empty);
+        for (int siteIndex = 0; siteIndex < sites.Count; siteIndex++)
+        {
+            YQSiteAnchorV2 site = sites[siteIndex];
+            if (site.memberFootprint == null || site.memberFootprint.Count == 0)
+                continue;
+            Append(writer, site.siteId);
+            List<YQSiteMemberFootprintV2> members = SortById(site.memberFootprint, member => member?.memberId ?? string.Empty);
+            for (int index = 0; index < members.Count; index++)
+            {
+                YQSiteMemberFootprintV2 member = members[index];
+                Append(writer, member.memberId);
+                Append(writer, member.x);
+                Append(writer, member.z);
+                Append(writer, member.reservedRadius);
+                Append(writer, member.sectorIndex);
+            }
+        }
+        return writer.ToHashString();
+    }
+
     public static string ComputeContentHash(
         GeneratedSpatialWorldPlanV2Record record)
     {

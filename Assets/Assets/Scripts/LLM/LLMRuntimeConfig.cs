@@ -43,6 +43,9 @@ public sealed class LLMGenerationProfile
     public LLMGenerationCategory category = LLMGenerationCategory.Default;
     // note: An empty override preserves the configured single-model backend; Ollama roles resolve independently for each request.
     public string ollamaModel = string.Empty;
+    // note: Runtime-default roles can select the server that best fits them without changing the legacy backend of explicit assets.
+    [JsonIgnore] public bool useBackendOverride;
+    [JsonIgnore] public YQLlmBackend backendOverride = YQLlmBackend.Ollama;
     [Range(64, 6800)] public int maxOutputTokens = 512;
     [Range(0.05f, 1.5f)] public float temperature = 0.7f;
     [Range(0.05f, 1f)] public float topP = 0.8f;
@@ -151,21 +154,27 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     {
         LLMRuntimeConfig config = CreateInstance<LLMRuntimeConfig>();
         config.generationProfiles = CreateDefaultProfiles();
-        // note: The installed local models were screened per domain; explicit configuration assets retain their backend and sampling choices.
+        // note: Keep the qualified Goddess lane on Ollama while routing canonical records to the configured Qwen3.5 llama.cpp model.
         config.backend = YQLlmBackend.Ollama;
         config.enableBoundedRepair = true;
-        config.GetProfile(LLMGenerationCategory.OriginGeneration).ollamaModel = "zzz-tip-i2v-helper:latest";
-        config.GetProfile(LLMGenerationCategory.WorldGeneration).ollamaModel = "yourquest-qwen3-4b:latest";
-        config.GetProfile(LLMGenerationCategory.Progression).ollamaModel = "hf.co/mradermacher/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking-GGUF:Q4_K_M";
-        config.GetProfile(LLMGenerationCategory.Dialogue).ollamaModel = "my-qwen2.5:latest";
+        SetBackendOverride(config, LLMGenerationCategory.Default, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.OriginGeneration, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.WorldGeneration, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.NpcPopulation, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.QuestGeneration, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.StructuredState, YQLlmBackend.LlamaCpp);
+        SetBackendOverride(config, LLMGenerationCategory.Progression, YQLlmBackend.LlamaCpp);
+        config.GetProfile(LLMGenerationCategory.Dialogue).ollamaModel = "hf.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF:Q4_K_M";
         config.GetProfile(LLMGenerationCategory.DialogueVerification).ollamaModel = "yourquest-qwen3-4b:latest";
         config.GetProfile(LLMGenerationCategory.GoddessCommentary).ollamaModel = "smaller-test:latest";
+        // note: Short, temporary summaries use the installed fast tier; persistent state remains on the control model.
+        config.GetProfile(LLMGenerationCategory.Summarization).ollamaModel = "small-test:latest";
         // note: Fourteen source-bound offline scenarios qualified this CPU route; a literal contract pin prevents settings or protocol changes from self-qualifying.
         config.goddessSpeechPlanModelDigest = "1dcf59c4b2d0b233363c689818a1c48dfd65e5c96f1594ba57f6d851e84f869e";
         config.goddessSpeechPlanCpuOnly = true;
         config.goddessSpeechPlanQualified = true;
         config.goddessSpeechPlanContractHash = "fc41a9fe0f20549846357088c4f41d8c5c1d06e14f53dbe12bf643950a29cc64";
-        config.GetProfile(LLMGenerationCategory.GoddessVerification).ollamaModel = "hf.co/mradermacher/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking-GGUF:Q4_K_M";
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).ollamaModel = "yourquest-qwen3-4b:latest";
         // note: Expanded semantic checks did not qualify a verifier; keep activation gated.
         config.dialogueVerifierQualified = false;
         config.dialogueVerifierModelDigest = string.Empty;
@@ -189,6 +198,20 @@ public sealed class LLMRuntimeConfig : ScriptableObject
             return GetProfile(LLMGenerationCategory.StructuredState);
 
         return DefaultProfile(category);
+    }
+
+    public YQLlmBackend GetBackend(LLMGenerationCategory category)
+    {
+        LLMGenerationProfile profile = GetProfile(category);
+        return profile != null && profile.useBackendOverride ? profile.backendOverride : backend;
+    }
+
+    private static void SetBackendOverride(LLMRuntimeConfig config, LLMGenerationCategory category, YQLlmBackend selectedBackend)
+    {
+        // note: Keep model ownership in the existing category profile while selecting only its request transport.
+        LLMGenerationProfile profile = config.GetProfile(category);
+        profile.useBackendOverride = true;
+        profile.backendOverride = selectedBackend;
     }
 
     public string BuildBaseUrl()
@@ -261,8 +284,9 @@ public sealed class LLMRuntimeConfig : ScriptableObject
                 profile.temperature = 0.36f;
                 profile.topP = 0.84f;
                 profile.preferJson = true;
-                // note: Direct structured output is faster and more reliable than spending a small local model's budget on hidden reasoning tokens.
-                profile.reasoningMode = false;
+                // note: Reserve thinking mode for the control model's larger, cross-region world plan; validators still own acceptance.
+                profile.directMode = false;
+                profile.reasoningMode = true;
                 profile.repeatPenalty = 1.05f;
                 break;
             case LLMGenerationCategory.NpcPopulation:
@@ -276,6 +300,7 @@ public sealed class LLMRuntimeConfig : ScriptableObject
                 profile.temperature = 0.55f;
                 profile.topP = 0.84f;
                 profile.preferJson = true;
+                profile.directMode = false;
                 profile.reasoningMode = true;
                 break;
             case LLMGenerationCategory.Progression:

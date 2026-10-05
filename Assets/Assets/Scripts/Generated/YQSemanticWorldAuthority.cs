@@ -14,6 +14,13 @@ public static class YQSemanticWorldAuthority
     public const string GenerationVersion = "analytic_macro_e_v1";
     public const string CoordinateSpec = "signed_cell_128m_centered_origin_minus_512";
     public const string HashAlgorithmVersion = "fnv1a32_utf16_v1";
+    public const string SiteFootprintProjectionVersion = "accepted_member_footprint_union_v1";
+    public const string ContinuationProjectionVersion = "accepted_continuation_projection_v1";
+    // note: Version four sets a practical small-site cadence and spaces rare multi-sector settlements without rerolling accepted locations.
+    public const string FrontierOpportunityVersion = "frontier_sites_v4";
+    internal const string FrontierCandidateReservationVersion = "frontier_candidate_reserves_v2";
+    public const int FrontierOpportunitySpanCells = 8;
+    public const int FrontierOpportunityHaloRadius = 1;
     public const int CellSizeMeters = 128;
     public const int QueryNeighborhoodRadiusCells = 2;
     public const int OpeningEnvelopeRadiusCells = 4;
@@ -22,6 +29,14 @@ public static class YQSemanticWorldAuthority
     private const int RegionSpanCells = 8;
     private const int BasinSpanCells = 16;
     private const int HugePoiSpacingCells = 30;
+    private const int LargeSettlementSpacingCells = 30;
+    private const float FrontierOpportunityPresenceChance = 0.52f;
+    private const float FrontierHostileDangerThreshold = 0.54f;
+    private const float FrontierSmallSettlementCivilizationThreshold = 0.50f;
+    private const float FrontierLargeSettlementChance = 0.10f;
+    // note: A failed physical candidate may move within its 1,024m deterministic opportunity block while keeping its original identity.
+    internal const float FrontierPhysicalRecoveryDistance = 768f;
+    internal const float FrontierTerrainRecoveryDistance = 320f;
     private const int ContinentCount = 4;
     private const float SyntheticWorldCellRadius = 4096f;
     private const int RuntimeCellCoreCacheCapacity = 512;
@@ -47,7 +62,7 @@ public static class YQSemanticWorldAuthority
 
         plan.EnsureCollections();
         string seed = SafeSeed(plan);
-        string sourceFingerprint = BuildSourceFingerprint(plan);
+        string sourceFingerprint = BuildSourceFingerprint(plan, out YQPreparedSpatialMaterializationV2 acceptedPrepared);
         GeneratedSemanticWorldAuthorityRecord current = plan.semanticAuthority;
         int envelopeDiameter = OpeningEnvelopeRadiusCells * 2 + 1;
         int expectedEnvelope = envelopeDiameter * envelopeDiameter;
@@ -71,6 +86,96 @@ public static class YQSemanticWorldAuthority
             return current;
         }
 
+        GeneratedSemanticWorldAuthorityRecord authority = BuildAuthority(plan, seed, sourceFingerprint,
+            current, acceptedPrepared, plan.spatialPlanV2?.acceptedContinuation, false);
+        plan.semanticAuthority = authority;
+        return authority;
+    }
+
+    internal static bool TryPrepareContinuationAuthority(GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationV2Record stagedEnvelope, YQPreparedSpatialMaterializationV2 immutablePrepared,
+        out GeneratedSemanticWorldAuthorityRecord detachedAuthority, out string failure)
+    {
+        detachedAuthority = null;
+        failure = "Continuation graph staging requires accepted parent data and its compiler-prepared extension projection.";
+        var parent = plan?.spatialPlanV2;
+        if (parent == null || stagedEnvelope?.state != YQSpatialContinuationStateV2.Accepted || immutablePrepared == null ||
+            plan.spatialPlan?.regions == null || plan.regions == null || plan.settlements == null ||
+            plan.encampments == null || plan.pointsOfInterest == null || parent.blueprint?.sites == null ||
+            parent.blueprint.routes == null || parent.blueprint.hydrology == null ||
+            !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
+            !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure)) return false;
+        var basic = YQSpatialContinuationValidatorV2.ValidateBasic(parent, stagedEnvelope);
+        if (!basic.IsStructurallyValid) { failure = basic.errors[0]; return false; }
+        string stagedHash = stagedEnvelope.contentHash;
+        long stagedRevision = stagedEnvelope.revision;
+        string expectedPreparedFingerprint = stagedEnvelope.schemaVersion + "|" +
+            stagedRevision.ToString(CultureInfo.InvariantCulture) + "|" + stagedHash;
+        if (immutablePrepared.ContinuationFingerprint != expectedPreparedFingerprint ||
+            immutablePrepared.ContinuationRevision != stagedRevision ||
+            immutablePrepared.SiteCount != parent.blueprint.sites.Count + stagedEnvelope.locations.Count)
+        {
+            failure = "Staged continuation does not match the supplied immutable projection identity.";
+            return false;
+        }
+        foreach (var location in stagedEnvelope.locations)
+            if (!immutablePrepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out var site) ||
+                !ContinuationProjectionMatches(location.anchor, site))
+            {
+                failure = "Staged continuation does not match its compiler-prepared central/member geometry.";
+                return false;
+            }
+
+        var current = plan.semanticAuthority;
+        var overlays = current?.featureOverlays;
+        long overlayRevision = current != null ? current.featureOverlayRevision : 0;
+        string overlaySchema = current?.overlaySchemaVersion;
+        string fingerprint = BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared);
+        // note: Staging uses the same derivation as Ensure with a private cell memo; neither accepted pointers nor runtime query caches are published here.
+        var staged = BuildAuthority(plan, SafeSeed(plan), fingerprint, current, immutablePrepared, stagedEnvelope, true);
+        if (!ReferenceEquals(plan.spatialPlanV2, parent) || !ReferenceEquals(plan.semanticAuthority, current) ||
+            current != null && (!ReferenceEquals(current.featureOverlays, overlays) ||
+                current.featureOverlayRevision != overlayRevision || current.overlaySchemaVersion != overlaySchema) ||
+            stagedEnvelope.revision != stagedRevision || stagedEnvelope.contentHash != stagedHash ||
+            !YQSpatialContinuationValidatorV2.ValidateBasic(parent, stagedEnvelope).IsStructurallyValid ||
+            BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared) != fingerprint)
+        {
+            failure = "Accepted graph inputs or durable overlays changed while continuation authority was staging.";
+            return false;
+        }
+        detachedAuthority = staged;
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool ContinuationProjectionMatches(YQSiteAnchorV2 anchor, YQSpatialMaterializationSiteV2 site)
+    {
+        // note: This verifies the caller's projection binding; physical approval still belongs to the compiler and terrain/provider owners.
+        if (anchor.siteId != site.siteId || anchor.sourceSemanticId != site.sourceSemanticId || anchor.parentRegionId != site.parentRegionId ||
+            anchor.kind != site.kind || anchor.placementMode != site.placementMode || anchor.x != site.x || anchor.z != site.z ||
+            anchor.reservedRadius != site.reservedRadius || Mathf.Repeat(anchor.preferredHeadingDegrees, 360f) != site.headingDegrees ||
+            anchor.maximumSlopeDegrees != site.maximumSlopeDegrees || !site.terrainReserveReady ||
+            anchor.requiredFunctions.Count != site.RequiredFunctions.Count || anchor.memberFootprint.Count != site.MemberFootprint.Count)
+            return false;
+        for (int index = 0; index < anchor.requiredFunctions.Count; index++)
+            if (anchor.requiredFunctions[index] != site.RequiredFunctions[index]) return false;
+        foreach (var member in anchor.memberFootprint)
+        {
+            bool found = false;
+            foreach (var projected in site.MemberFootprint)
+                if (projected != null && member.memberId == projected.memberId && member.x == projected.x && member.z == projected.z &&
+                    member.reservedRadius == projected.reservedRadius && member.sectorIndex == projected.sectorIndex)
+                { found = true; break; }
+            if (!found) return false;
+        }
+        return true;
+    }
+
+    private static GeneratedSemanticWorldAuthorityRecord BuildAuthority(GeneratedWorldPlanRecord plan,
+        string seed, string sourceFingerprint, GeneratedSemanticWorldAuthorityRecord current,
+        YQPreparedSpatialMaterializationV2 acceptedPrepared, GeneratedSpatialContinuationV2Record continuation,
+        bool detached)
+    {
         // note: Build the accepted graph before deriving cells so sites reserve footprints before routes or edge contracts are published.
         GeneratedSemanticWorldAuthorityRecord authority = new GeneratedSemanticWorldAuthorityRecord
         {
@@ -89,15 +194,23 @@ public static class YQSemanticWorldAuthority
             syntheticFeaturePolicy = "seeded_spacing_geography_access_bounded",
             betaDeferredFeatureKinds = new List<string> { "giant_city", "giant_dungeon", "global_political_simulation" }
         };
+        // note: Rebuilding derived spatial facts must retain the save's durable mutation overlays and their publication revision.
+        if (current != null)
+        {
+            authority.featureOverlays = current.featureOverlays;
+            authority.featureOverlayRevision = current.featureOverlayRevision;
+            authority.overlaySchemaVersion = current.overlaySchemaVersion;
+        }
         // note: Capture persisted names and layout bindings before site adaptation so accepted presentation choices survive semantic migration.
-        BuildAcceptedOverrides(plan, authority);
-        BuildAcceptedGraph(plan, authority);
+        BuildAcceptedOverrides(plan, authority, acceptedPrepared, continuation);
+        BuildAcceptedGraph(plan, authority, acceptedPrepared, continuation, detached);
+        var detachedCells = detached ? new Dictionary<long, GeneratedSemanticCellPlanRecord>() : null;
         for (int z = -OpeningEnvelopeRadiusCells; z <= OpeningEnvelopeRadiusCells; z++)
         for (int x = -OpeningEnvelopeRadiusCells; x <= OpeningEnvelopeRadiusCells; x++)
         {
             // note: Cell four, four is the logical origin cell for the authored -512 metre terrain.
             Vector2Int coordinate = new Vector2Int(4 + x, 4 + z);
-            authority.openingEnvelope.Add(BuildCellWithEdges(plan, authority, coordinate));
+            authority.openingEnvelope.Add(BuildCellWithEdges(plan, authority, coordinate, detachedCells));
         }
         authority.meaningfulFacts.Add(new GeneratedSemanticWorldFactRecord
         {
@@ -129,7 +242,6 @@ public static class YQSemanticWorldAuthority
         // note: Normalize the newly compiled graph through the same path used by older saves before any cell projection is published.
         NormalizeSiteOwnership(authority);
         SortAuthority(authority);
-        plan.semanticAuthority = authority;
         return authority;
     }
 
@@ -196,6 +308,439 @@ public static class YQSemanticWorldAuthority
         return site != null && string.Equals(site.siteId, siteId, StringComparison.Ordinal);
     }
 
+    public static bool TryGetUnacceptedContinuationOpportunity(GeneratedWorldPlanRecord plan,
+        int blockX, int blockZ, out GeneratedSemanticSiteReservationRecord candidate, out string failure)
+    {
+        candidate = null;
+        failure = "Frontier opportunity requires an accepted V2 parent and representable signed block coordinates.";
+        if (string.IsNullOrWhiteSpace(plan?.worldSeed) || !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
+            !IsRepresentableOpportunityBlock(blockX, blockZ))
+            return false;
+        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out failure))
+            return false;
+        if (!TryBuildContinuationOpportunity(plan.worldSeed, blockX, blockZ, out var proposed, out uint priority))
+        {
+            failure = "Frontier opportunity rejected its seeded rarity or geographic suitability.";
+            return false;
+        }
+
+        // note: Compare raw suitable opportunities in a fixed halo; accepted query order and runtime random streams never affect the winner.
+        for (int dz = -FrontierOpportunityHaloRadius; dz <= FrontierOpportunityHaloRadius; dz++)
+        for (int dx = -FrontierOpportunityHaloRadius; dx <= FrontierOpportunityHaloRadius; dx++)
+        {
+            if (dx == 0 && dz == 0)
+                continue;
+            int neighbourX = blockX + dx;
+            int neighbourZ = blockZ + dz;
+            if (!IsRepresentableOpportunityBlock(neighbourX, neighbourZ) ||
+                !TryBuildContinuationOpportunity(plan.worldSeed, neighbourX, neighbourZ, out var neighbour, out uint neighbourPriority))
+                continue;
+            bool higherPriority = neighbourPriority < priority || neighbourPriority == priority &&
+                (neighbourX < blockX || neighbourX == blockX && neighbourZ < blockZ);
+            if (higherPriority && OpportunityRectanglesOverlap(proposed, neighbour, 64f))
+            {
+                failure = "Frontier opportunity was suppressed by a higher-priority seeded neighbour.";
+                return false;
+            }
+        }
+
+        GeneratedSpatialContinuationV2Record accepted = plan.spatialPlanV2.acceptedContinuation;
+        if (!string.IsNullOrEmpty(prepared.ContinuationFingerprint) && accepted?.locations != null)
+            foreach (GeneratedSpatialContinuationLocationV2Record location in accepted.locations)
+                if (location.blockX == blockX && location.blockZ == blockZ)
+                {
+                    failure = "Frontier opportunity block already owns an accepted continuation location.";
+                    return false;
+                }
+        float opportunityRadius = Mathf.Max(proposed.minimumExclusionRadius, proposed.expansionRadius);
+        // note: Long-distance settlement spacing is reserved only for the engine-owned multi-sector candidate form.
+        bool largeSettlementOpportunity = string.Equals(proposed.structuralIntent,
+            FrontierOpportunityVersion + "_large_settlement", StringComparison.Ordinal);
+        for (int index = 0; index < prepared.SiteCount; index++)
+        {
+            YQSpatialMaterializationSiteV2 site = prepared.GetSite(index);
+            if (largeSettlementOpportunity && IsWithinLargeSettlementSpacing(proposed.worldX, proposed.worldZ, site))
+            {
+                failure = "Large settlement opportunity was suppressed by an existing large settlement spacing reserve.";
+                return false;
+            }
+            if (string.Equals(site.siteId, proposed.siteId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(site.sourceSemanticId, proposed.siteId, StringComparison.OrdinalIgnoreCase) ||
+                RectanglesOverlap(proposed.worldX, proposed.worldZ, opportunityRadius, site.x, site.z, site.reservedRadius + 18f))
+            {
+                failure = "Frontier opportunity intersects an accepted central reservation or identity.";
+                return false;
+            }
+            foreach (YQSiteMemberFootprintV2 member in site.MemberFootprint)
+                if (member != null && RectanglesOverlap(proposed.worldX, proposed.worldZ, opportunityRadius,
+                        member.x, member.z, member.reservedRadius + 18f))
+                {
+                    failure = "Frontier opportunity intersects an accepted member reservation.";
+                    return false;
+                }
+        }
+        candidate = proposed;
+        failure = string.Empty;
+        return true;
+    }
+
+    internal static bool TryBuildFrontierLocationCandidate(GeneratedWorldPlanRecord plan,
+        int blockX, int blockZ, string canonicalRegionId,
+        out GeneratedSpatialContinuationLocationV2Record candidate, out string failure)
+    {
+        candidate = null;
+        failure = "Frontier candidate requires one existing styled canonical region.";
+        if (string.IsNullOrWhiteSpace(canonicalRegionId) || plan?.regions == null) return false;
+        GeneratedRegionRecord region = null;
+        foreach (var existing in plan.regions)
+        {
+            if (existing == null || !string.Equals(existing.regionId, canonicalRegionId, StringComparison.OrdinalIgnoreCase)) continue;
+            if (region != null) return false;
+            region = existing;
+        }
+        if (region == null || string.IsNullOrWhiteSpace(region.assetStyleKey)) return false;
+        if (!TryGetUnacceptedContinuationOpportunity(plan, blockX, blockZ, out var opportunity, out failure) ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out failure)) return false;
+        if (!prepared.TryGetRegion(region.regionId, out _))
+        {
+            failure = "Frontier candidate region is absent from the accepted canonical spatial owner.";
+            return false;
+        }
+        if (opportunity.accepted || opportunity.entrances == null || opportunity.entrances.Count != 1 ||
+            opportunity.entrances[0] == null || opportunity.footprintRadius <= 0f ||
+            float.IsNaN(opportunity.footprintRadius) || float.IsInfinity(opportunity.footprintRadius))
+        {
+            failure = "Frontier opportunity no longer carries its supported unaccepted central geometry.";
+            return false;
+        }
+
+        YQSiteKindV2 kind;
+        string semanticPrefix;
+        float maximumSlope;
+        List<YQAssetFunctionV2> functions;
+        if (opportunity.siteKind == "settlement")
+        {
+            kind = YQSiteKindV2.Settlement;
+            semanticPrefix = "settlement:frontier:";
+            maximumSlope = 7f;
+            functions = new List<YQAssetFunctionV2> { YQAssetFunctionV2.Habitation, YQAssetFunctionV2.Circulation, YQAssetFunctionV2.Service };
+        }
+        else if (opportunity.siteKind == "hostile_site")
+        {
+            kind = YQSiteKindV2.HostileSite;
+            semanticPrefix = "encampment:frontier:";
+            maximumSlope = 13f;
+            functions = new List<YQAssetFunctionV2> { YQAssetFunctionV2.Encounter, YQAssetFunctionV2.Reward, YQAssetFunctionV2.Security };
+        }
+        else if (opportunity.siteKind == "landmark")
+        {
+            kind = YQSiteKindV2.PointOfInterest;
+            semanticPrefix = "poi:frontier:";
+            maximumSlope = 11f;
+            functions = new List<YQAssetFunctionV2> { YQAssetFunctionV2.CulturalFocus, YQAssetFunctionV2.Transition, YQAssetFunctionV2.Reward };
+        }
+        else
+        {
+            failure = "Frontier opportunity kind has no supported typed location brief.";
+            return false;
+        }
+
+        // note: Full world/policy/block identity is independent of traversal, region-selection order and all runtime random streams.
+        string seed = plan.worldSeed + "|" + FrontierOpportunityVersion + "|" + FrontierCandidateReservationVersion + "|" +
+            blockX.ToString(CultureInfo.InvariantCulture) + "|" + blockZ.ToString(CultureInfo.InvariantCulture);
+        string identity = YQStateContract.Sha256Hex(seed);
+        string siteId = "site:frontier:" + identity;
+        string semanticId = semanticPrefix + identity;
+        string contentId = "content:frontier:" + identity;
+        if (prepared.IsAcceptedFeatureIdentity(siteId) || prepared.TryGetSiteBySemanticId(semanticId, out _) ||
+            FrontierCandidateContentExists(plan.spatialPlanV2.acceptedContinuation, contentId))
+        {
+            failure = "Frontier candidate identity already belongs to accepted content.";
+            return false;
+        }
+
+        // note: These are engine reservations before semantic or physical acceptance; the model receives no geometry-authority fields to replace them.
+        var anchor = new YQSiteAnchorV2 {
+            siteId = siteId, sourceSemanticId = semanticId, parentRegionId = region.regionId, kind = kind,
+            placementMode = YQSitePlacementModeV2.RouteFrontage, x = opportunity.worldX, z = opportunity.worldZ,
+            preferredHeadingDegrees = opportunity.entrances[0].headingDegrees, reservedRadius = opportunity.footprintRadius,
+            terrainSearchRadius = opportunity.expansionRadius, maximumSlopeDegrees = maximumSlope,
+            minimumRouteAccess = .24f, minimumWaterAccess = 0f, requiresTerrainConformance = true,
+            requiredFunctions = functions, tags = new List<string> { FrontierOpportunityVersion, FrontierCandidateReservationVersion }
+        };
+        var proposed = new GeneratedSpatialContinuationLocationV2Record {
+            contentId = contentId, blockX = blockX, blockZ = blockZ, deterministicSeed = seed,
+            state = YQSpatialContinuationStateV2.Staged, source = YQSpatialContinuationSourceV2.None, revision = 0, anchor = anchor
+        };
+        bool multipleSectors = opportunity.structuralIntent == FrontierOpportunityVersion + "_large_settlement";
+        if (multipleSectors)
+        {
+            // note: Rare opportunities reserve two cardinal members inside the existing 192m exclusion envelope; pads, roads and reviewed providers still require independent owner acceptance.
+            anchor.memberFootprint.Add(new YQSiteMemberFootprintV2 {
+                memberId = siteId + "|sector|1", x = anchor.x - 128f, z = anchor.z, reservedRadius = 64f, sectorIndex = 1
+            });
+            anchor.memberFootprint.Add(new YQSiteMemberFootprintV2 {
+                memberId = siteId + "|sector|2", x = anchor.x + 128f, z = anchor.z, reservedRadius = 64f, sectorIndex = 2
+            });
+            // note: A central Z frontage and the two outer X frontages map uniquely to their reserve even when central/member circles touch.
+            float centralHeading = Hash01(seed + "|central_frontage") < .5f ? 0f : 180f;
+            AddFrontierCandidateEntrance(proposed, siteId, anchor.x, anchor.z, anchor.reservedRadius, centralHeading);
+            foreach (var member in anchor.memberFootprint)
+                AddFrontierCandidateEntrance(proposed, member.memberId, member.x, member.z, member.reservedRadius,
+                    member.sectorIndex == 1 ? 270f : 90f);
+        }
+        else
+        {
+            AddFrontierCandidateEntrance(proposed, siteId, anchor.x, anchor.z, anchor.reservedRadius, anchor.preferredHeadingDegrees);
+        }
+        if (!FrontierCandidateGeometryIsRepresentable(proposed, opportunity.expansionRadius))
+        {
+            failure = "Frontier candidate cannot retain unique on-rim frontages within its bounded opportunity envelope.";
+            return false;
+        }
+        candidate = proposed;
+        failure = string.Empty;
+        return true;
+    }
+
+    internal static bool TryOffsetFrontierCandidateWithinOpportunityBlock(
+        GeneratedWorldPlanRecord plan, YQPreparedSpatialMaterializationV2 prepared,
+        GeneratedSpatialContinuationLocationV2Record candidate, float offsetX, float offsetZ)
+    {
+        // note: Physical recovery may shift only an untouched staged clone inside its original deterministic opportunity block; IDs, macro type, and region ownership stay fixed.
+        var anchor = candidate?.anchor;
+        if (plan == null || string.IsNullOrWhiteSpace(plan.worldSeed) || prepared == null || anchor == null ||
+            candidate.state != YQSpatialContinuationStateV2.Staged ||
+            candidate.source != YQSpatialContinuationSourceV2.None || candidate.revision != 0 ||
+            candidate.physicalContext != null || candidate.settlement != null || candidate.encampment != null ||
+            candidate.pointOfInterest != null || candidate.proofClaims == null || candidate.proofClaims.Count != 0 ||
+            candidate.validationErrors == null || candidate.validationErrors.Count != 0 ||
+            anchor.memberFootprint == null || anchor.memberFootprint.Count > 7 || candidate.entrances == null ||
+            candidate.entrances.Count == 0 || candidate.entrances.Count > 16 ||
+            float.IsNaN(offsetX) || float.IsInfinity(offsetX) || float.IsNaN(offsetZ) || float.IsInfinity(offsetZ) ||
+            !FrontierFinite(anchor.x) || !FrontierFinite(anchor.z) ||
+            !FrontierFinite(anchor.reservedRadius) || anchor.reservedRadius <= 0f ||
+            !FrontierFinite(anchor.terrainSearchRadius) || anchor.terrainSearchRadius <= 0f ||
+            offsetX * offsetX + offsetZ * offsetZ > FrontierPhysicalRecoveryDistance * FrontierPhysicalRecoveryDistance + .01f)
+            return false;
+
+        foreach (var member in anchor.memberFootprint)
+            if (member == null || !FrontierFinite(member.x) || !FrontierFinite(member.z)) return false;
+        foreach (var entrance in candidate.entrances)
+            if (entrance == null || !FrontierFinite(entrance.worldX) || !FrontierFinite(entrance.worldZ)) return false;
+
+        float nextX = anchor.x + offsetX, nextZ = anchor.z + offsetZ;
+        int sourceBlockX = Mathf.FloorToInt((anchor.x - WorldGridOrigin) /
+            (CellSizeMeters * (float)FrontierOpportunitySpanCells));
+        int sourceBlockZ = Mathf.FloorToInt((anchor.z - WorldGridOrigin) /
+            (CellSizeMeters * (float)FrontierOpportunitySpanCells));
+        int nextBlockX = Mathf.FloorToInt((nextX - WorldGridOrigin) /
+            (CellSizeMeters * (float)FrontierOpportunitySpanCells));
+        int nextBlockZ = Mathf.FloorToInt((nextZ - WorldGridOrigin) /
+            (CellSizeMeters * (float)FrontierOpportunitySpanCells));
+        if (sourceBlockX != candidate.blockX || sourceBlockZ != candidate.blockZ ||
+            nextBlockX != candidate.blockX || nextBlockZ != candidate.blockZ ||
+            Mathf.Abs(nextX) + anchor.terrainSearchRadius > 1048576f ||
+            Mathf.Abs(nextZ) + anchor.terrainSearchRadius > 1048576f ||
+            !FrontierCandidateGeometryIsRepresentable(candidate, anchor.terrainSearchRadius) ||
+            !FrontierCandidateDestinationMatchesReservation(plan, prepared, candidate, nextX, nextZ))
+            return false;
+
+        anchor.x = nextX;
+        anchor.z = nextZ;
+        foreach (var member in anchor.memberFootprint)
+        {
+            member.x += offsetX;
+            member.z += offsetZ;
+        }
+        foreach (var entrance in candidate.entrances)
+        {
+            entrance.worldX += offsetX;
+            entrance.worldZ += offsetZ;
+        }
+        return true;
+    }
+
+    private static bool FrontierCandidateDestinationMatchesReservation(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 prepared, GeneratedSpatialContinuationLocationV2Record candidate,
+        float worldX, float worldZ)
+    {
+        // note: Keep deterministic macro suitability and the nearest accepted region consistent with the original opportunity after recovery.
+        if (plan?.regions == null || prepared == null || candidate?.anchor == null ||
+            !FrontierFinite(worldX) || !FrontierFinite(worldZ)) return false;
+        SampleMacroFields(plan.worldSeed, worldX, worldZ, out _, out float ruggedness, out _, out _,
+            out _, out _, out float wetland, out float civilization, out float danger, out _);
+        float access = Mathf.Clamp01(civilization * .7f + (1f - ruggedness) * .3f);
+        if (ruggedness > .82f || wetland > .78f || access < .24f) return false;
+        YQSiteKindV2 destinationKind = danger > FrontierHostileDangerThreshold ? YQSiteKindV2.HostileSite :
+            civilization > FrontierSmallSettlementCivilizationThreshold ? YQSiteKindV2.Settlement : YQSiteKindV2.PointOfInterest;
+        if (destinationKind != candidate.anchor.kind) return false;
+
+        string nearestRegionId = null;
+        float nearestDistance = float.PositiveInfinity;
+        foreach (GeneratedRegionRecord region in plan.regions)
+        {
+            if (region == null || !prepared.TryGetRegion(region.regionId, out var physicalRegion)) continue;
+            float dx = physicalRegion.centerX - worldX, dz = physicalRegion.centerZ - worldZ;
+            float distance = dx * dx + dz * dz;
+            if (distance < nearestDistance || distance == nearestDistance && nearestRegionId != null &&
+                string.CompareOrdinal(region.regionId, nearestRegionId) < 0)
+            {
+                nearestDistance = distance;
+                nearestRegionId = region.regionId;
+            }
+        }
+        return string.Equals(nearestRegionId, candidate.anchor.parentRegionId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool FrontierFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+
+    internal static bool IsFrontierCandidateWithinLargeSettlementSpacing(
+        YQPreparedSpatialMaterializationV2 prepared, GeneratedSpatialContinuationLocationV2Record candidate)
+    {
+        // note: Retain the existing 30-cell spacing when a physically viable nearby placement is selected for a rare multi-sector town.
+        if (prepared == null || candidate?.anchor == null) return false;
+        if (candidate.anchor.kind != YQSiteKindV2.Settlement || candidate.anchor.memberFootprint == null ||
+            candidate.anchor.memberFootprint.Count == 0) return true;
+        for (int index = 0; index < prepared.SiteCount; index++)
+            if (IsWithinLargeSettlementSpacing(candidate.anchor.x, candidate.anchor.z, prepared.GetSite(index))) return false;
+        return true;
+    }
+
+    private static bool FrontierCandidateContentExists(GeneratedSpatialContinuationV2Record continuation, string contentId)
+    {
+        if (continuation?.state == YQSpatialContinuationStateV2.Accepted && continuation.locations != null)
+            foreach (var location in continuation.locations)
+                if (location?.state == YQSpatialContinuationStateV2.Accepted &&
+                    string.Equals(location.contentId, contentId, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    }
+
+    private static bool FrontierCandidateGeometryIsRepresentable(GeneratedSpatialContinuationLocationV2Record candidate, float envelopeRadius)
+    {
+        var anchor = candidate.anchor;
+        if (float.IsNaN(envelopeRadius) || float.IsInfinity(envelopeRadius) || envelopeRadius < anchor.reservedRadius ||
+            Math.Abs(anchor.x) + envelopeRadius > 1048576f || Math.Abs(anchor.z) + envelopeRadius > 1048576f)
+            return false;
+        foreach (var member in anchor.memberFootprint)
+            if (Mathf.Abs(member.x - anchor.x) + member.reservedRadius > envelopeRadius ||
+                Mathf.Abs(member.z - anchor.z) + member.reservedRadius > envelopeRadius) return false;
+        foreach (var entrance in candidate.entrances)
+        {
+            // note: Repeat only scalar geometry ownership here; dry ground, routes, slope and provider fit remain separate acceptance gates.
+            int matches = 0;
+            float radiusError = float.PositiveInfinity;
+            for (int index = -1; index < anchor.memberFootprint.Count; index++)
+            {
+                var member = index < 0 ? null : anchor.memberFootprint[index];
+                float x = member != null ? member.x : anchor.x, z = member != null ? member.z : anchor.z;
+                float radius = member != null ? member.reservedRadius : anchor.reservedRadius;
+                float distance = Vector2.Distance(new Vector2(entrance.worldX, entrance.worldZ), new Vector2(x, z));
+                if (distance <= radius + .001f) { matches++; radiusError = Mathf.Abs(distance - radius); }
+            }
+            if (matches != 1 || radiusError > .001f) return false;
+        }
+        return true;
+    }
+
+    private static void AddFrontierCandidateEntrance(GeneratedSpatialContinuationLocationV2Record candidate,
+        string sectorId, float x, float z, float radius, float heading)
+    {
+        // note: An empty route identity requests the existing planner's deterministic route binding; this frontage makes no physical-access claim.
+        float radians = heading * Mathf.Deg2Rad;
+        candidate.entrances.Add(new GeneratedSemanticEntranceRecord {
+            entranceId = sectorId + "|entrance|0", worldX = x + Mathf.Sin(radians) * radius,
+            worldZ = z + Mathf.Cos(radians) * radius, headingDegrees = heading, permittedRouteId = string.Empty
+        });
+    }
+
+    private static bool IsRepresentableOpportunityBlock(int blockX, int blockZ)
+    {
+        // note: Keep the full conservative footprint away from signed cell overflow before converting the seeded block to integer cells.
+        long x = (long)blockX * FrontierOpportunitySpanCells;
+        long z = (long)blockZ * FrontierOpportunitySpanCells;
+        return x >= (long)int.MinValue + 4 && x + FrontierOpportunitySpanCells <= (long)int.MaxValue - 4 &&
+               z >= (long)int.MinValue + 4 && z + FrontierOpportunitySpanCells <= (long)int.MaxValue - 4;
+    }
+
+    private static bool TryBuildContinuationOpportunity(string worldSeed, int blockX, int blockZ,
+        out GeneratedSemanticSiteReservationRecord candidate, out uint priority)
+    {
+        candidate = null;
+        string seed = worldSeed + "|" + FrontierOpportunityVersion + "|" +
+            blockX.ToString(CultureInfo.InvariantCulture) + "|" + blockZ.ToString(CultureInfo.InvariantCulture);
+        priority = AppendHash(2166136261u, seed + "|priority");
+        if (!IsRepresentableOpportunityBlock(blockX, blockZ) || Hash01(seed + "|presence") >= FrontierOpportunityPresenceChance)
+            return false;
+        int cellX = blockX * FrontierOpportunitySpanCells + Mathf.RoundToInt((0.18f + Hash01(seed + "|x") * 0.64f) * 7f);
+        int cellZ = blockZ * FrontierOpportunitySpanCells + Mathf.RoundToInt((0.18f + Hash01(seed + "|z") * 0.64f) * 7f);
+        float x = WorldGridOrigin + cellX * (float)CellSizeMeters + CellSizeMeters * 0.5f;
+        float z = WorldGridOrigin + cellZ * (float)CellSizeMeters + CellSizeMeters * 0.5f;
+        if (Math.Floor(((double)x - WorldGridOrigin) / CellSizeMeters) != cellX ||
+            Math.Floor(((double)z - WorldGridOrigin) / CellSizeMeters) != cellZ)
+            return false;
+        SampleMacroFields(worldSeed, x, z, out _, out float ruggedness, out _, out _,
+            out _, out _, out float wetland, out float civilization, out float danger, out _);
+        // note: The origin-centered continent label is diagnostic here, not dry-ground authority. Actual continuous terrain/water, routes and providers must accept every proposed site later.
+        ResolveContinent(worldSeed, x, z, out string continentId, out _);
+        float access = Mathf.Clamp01(civilization * 0.7f + (1f - ruggedness) * 0.3f);
+        if (ruggedness > 0.82f || wetland > 0.78f || access < 0.24f)
+            return false;
+        string kind = danger > FrontierHostileDangerThreshold ? "hostile_site" :
+            civilization > FrontierSmallSettlementCivilizationThreshold ? "settlement" : "landmark";
+        float radius = kind == "settlement" ? 64f : kind == "hostile_site" ? 48f : 36f;
+        bool multiCellOpportunity = kind == "settlement" && Hash01(seed + "|large_settlement") < FrontierLargeSettlementChance;
+        string siteId = "site:opportunity:" + FrontierOpportunityVersion + ":" +
+            blockX.ToString(CultureInfo.InvariantCulture) + ":" + blockZ.ToString(CultureInfo.InvariantCulture);
+        string structuralIntent = multiCellOpportunity ? FrontierOpportunityVersion + "_large_settlement" :
+            kind == "settlement" ? FrontierOpportunityVersion + "_small_settlement" : FrontierOpportunityVersion + "_site_opportunity";
+        string regionId = "region:" + continentId + ":" + FloorDiv(cellX, RegionSpanCells) + ":" + FloorDiv(cellZ, RegionSpanCells);
+        candidate = CreateSite(siteId, regionId, kind,
+            structuralIntent,
+            x, z, radius, Hash01(seed + "|heading") * 360f, false, FrontierOpportunityVersion + "_opportunity");
+        candidate.immutable = false;
+        // note: Only the candidate factory assigns the existing canonical parent region; this unaccepted reserve owns no continent or persistent feature.
+        candidate.expansionRadius = multiCellOpportunity ? 192f : candidate.expansionRadius;
+        candidate.culturalIntent = "seeded_suitable_frontier_opportunity";
+        candidate.accessScore = access;
+        candidate.accessConstraint = "minimum_access_score:0.24";
+        return true;
+    }
+
+    private static bool OpportunityRectanglesOverlap(GeneratedSemanticSiteReservationRecord first,
+        GeneratedSemanticSiteReservationRecord second, float clearance) =>
+        RectanglesOverlap(first.worldX, first.worldZ, Mathf.Max(first.minimumExclusionRadius, first.expansionRadius) + clearance,
+            second.worldX, second.worldZ, Mathf.Max(second.minimumExclusionRadius, second.expansionRadius));
+
+    private static bool IsWithinLargeSettlementSpacing(float worldX, float worldZ, YQSpatialMaterializationSiteV2 site)
+    {
+        // note: Only multi-sector or wide accepted settlements reserve the long-distance town spacing envelope.
+        if (site.kind != YQSiteKindV2.Settlement ||
+            site.reservedRadius < 96f && (site.MemberFootprint == null || site.MemberFootprint.Count == 0))
+            return false;
+        float spacing = LargeSettlementSpacingCells * CellSizeMeters;
+        float dx = worldX - site.x;
+        float dz = worldZ - site.z;
+        float required = spacing + site.reservedRadius;
+        if (dx * dx + dz * dz < required * required)
+            return true;
+        if (site.MemberFootprint != null)
+            foreach (YQSiteMemberFootprintV2 member in site.MemberFootprint)
+            {
+                if (member == null)
+                    continue;
+                dx = worldX - member.x;
+                dz = worldZ - member.z;
+                required = spacing + member.reservedRadius;
+                if (dx * dx + dz * dz < required * required)
+                    return true;
+            }
+        return false;
+    }
+
+    private static bool RectanglesOverlap(float firstX, float firstZ, float firstRadius, float secondX, float secondZ, float secondRadius) =>
+        Mathf.Abs(firstX - secondX) <= firstRadius + secondRadius && Mathf.Abs(firstZ - secondZ) <= firstRadius + secondRadius;
+
     public static List<GeneratedSemanticSiteReservationRecord> GetSitesForCell(
         GeneratedWorldPlanRecord plan,
         Vector2Int coordinate)
@@ -207,7 +752,8 @@ public static class YQSemanticWorldAuthority
     private static List<GeneratedSemanticSiteReservationRecord> GetSitesForCell(
         GeneratedSemanticWorldAuthorityRecord authority,
         GeneratedWorldPlanRecord plan,
-        Vector2Int coordinate)
+        Vector2Int coordinate,
+        bool acceptedV2Projection = false)
     {
         List<GeneratedSemanticSiteReservationRecord> result = new List<GeneratedSemanticSiteReservationRecord>();
         for (int index = 0; index < authority.siteReservations.Count; index++)
@@ -217,7 +763,7 @@ public static class YQSemanticWorldAuthority
                 result.Add(site);
         }
         // note: Canonical V2 cells are closed over persisted site identities; lazy synthetic POIs remain only for non-canonical compatibility callers.
-        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        if (!acceptedV2Projection && !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
             int blockX = FloorDiv(coordinate.x, HugePoiSpacingCells);
             int blockZ = FloorDiv(coordinate.y, HugePoiSpacingCells);
@@ -248,7 +794,8 @@ public static class YQSemanticWorldAuthority
     private static List<GeneratedSemanticWaterNetworkRecord> GetWaterForCell(
         GeneratedSemanticWorldAuthorityRecord authority,
         GeneratedWorldPlanRecord plan,
-        Vector2Int coordinate)
+        Vector2Int coordinate,
+        bool acceptedV2Projection = false)
     {
         List<GeneratedSemanticWaterNetworkRecord> result = new List<GeneratedSemanticWaterNetworkRecord>();
         for (int index = 0; index < authority.waterNetworks.Count; index++)
@@ -259,7 +806,7 @@ public static class YQSemanticWorldAuthority
         }
 
         // note: Canonical V2 water is closed over accepted hydrology; legacy basin candidates remain available only to compatibility callers.
-        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+        if (!acceptedV2Projection && !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
             // note: Basin candidates are bounded by a nine-block halo and use one stable basin identity across every intersected cell.
             int blockX = FloorDiv(coordinate.x, BasinSpanCells);
@@ -278,11 +825,36 @@ public static class YQSemanticWorldAuthority
 
     public static string BuildSourceFingerprint(GeneratedWorldPlanRecord plan)
     {
+        return BuildSourceFingerprint(plan, out _);
+    }
+
+    private static string BuildSourceFingerprint(GeneratedWorldPlanRecord plan,
+        out YQPreparedSpatialMaterializationV2 acceptedPrepared)
+    {
+        acceptedPrepared = null;
+        if (plan?.spatialPlanV2?.acceptedContinuation?.state == YQSpatialContinuationStateV2.Accepted)
+            YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out acceptedPrepared, out _);
+        return BuildSourceFingerprint(plan, plan?.spatialPlanV2?.acceptedContinuation, acceptedPrepared);
+    }
+
+    private static string BuildSourceFingerprint(GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationV2Record continuation, YQPreparedSpatialMaterializationV2 acceptedPrepared)
+    {
         if (plan == null)
             return string.Empty;
         StringBuilder builder = new StringBuilder(SafeSeed(plan));
         builder.Append('|').Append(plan.schemaVersion ?? string.Empty);
         builder.Append('|').Append(plan.spatialPlanV2?.contentHash ?? string.Empty);
+        // note: Rebuild only the derived semantic projection of accepted multi-sector worlds; their V2 artifact, anchors and layout bindings remain unchanged.
+        if (HasAcceptedMemberFootprints(plan))
+            builder.Append('|').Append(SiteFootprintProjectionVersion).Append('|')
+                .Append(YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(plan.spatialPlanV2));
+        if (continuation?.state == YQSpatialContinuationStateV2.Accepted)
+        {
+            // note: Ordinary queries supply their resolved owner; atomic staging supplies its detached prepared projection without reading or changing global caches.
+            builder.Append('|').Append(ContinuationProjectionVersion).Append('|')
+                .Append(acceptedPrepared != null ? acceptedPrepared.ContinuationFingerprint : "unavailable");
+        }
         // note: Preserve the persisted V1 source ordering as an explicit accepted-layout input; query order itself remains independent.
         AppendIds(builder, plan.regions, region => region?.regionId + ":" + region?.terrainProfile + ":" + region?.climateProfile);
         AppendIds(builder, plan.settlements, settlement => settlement?.settlementId + ":" + settlement?.kind + ":" + settlement?.displayName + ":" + settlement?.runtimeSiteKitId + ":" + settlement?.runtimeSiteBindingVersion + ":" + LayoutSignature(settlement?.proceduralLayout));
@@ -362,10 +934,11 @@ public static class YQSemanticWorldAuthority
     private static GeneratedSemanticCellPlanRecord BuildCellWithEdges(
         GeneratedWorldPlanRecord plan,
         GeneratedSemanticWorldAuthorityRecord authority,
-        Vector2Int coordinate)
+        Vector2Int coordinate,
+        Dictionary<long, GeneratedSemanticCellPlanRecord> detachedCells = null)
     {
         // note: Clone the requested core before adding edge contracts so cached neighbors stay immutable.
-        GeneratedSemanticCellPlanRecord cell = CloneCellCore(GetOrBuildCellCore(plan, authority, coordinate));
+        GeneratedSemanticCellPlanRecord cell = CloneCellCore(GetOrBuildCellCore(plan, authority, coordinate, detachedCells));
         string[] edges = { "west", "east", "south", "north" };
         for (int index = 0; index < edges.Length; index++)
         {
@@ -374,7 +947,7 @@ public static class YQSemanticWorldAuthority
             else if (edges[index] == "east") neighbour.x++;
             else if (edges[index] == "south") neighbour.y--;
             else neighbour.y++;
-            GeneratedSemanticCellPlanRecord other = GetOrBuildCellCore(plan, authority, neighbour);
+            GeneratedSemanticCellPlanRecord other = GetOrBuildCellCore(plan, authority, neighbour, detachedCells);
             cell.edgeContracts.Add(BuildBoundary(cell, other, coordinate, edges[index]));
         }
         cell.semanticHash = ComputeCellHash(cell);
@@ -384,8 +957,20 @@ public static class YQSemanticWorldAuthority
     private static GeneratedSemanticCellPlanRecord GetOrBuildCellCore(
         GeneratedWorldPlanRecord plan,
         GeneratedSemanticWorldAuthorityRecord authority,
-        Vector2Int coordinate)
+        Vector2Int coordinate,
+        Dictionary<long, GeneratedSemanticCellPlanRecord> detachedCells = null)
     {
+        long key = ((long)coordinate.x << 32) | (uint)coordinate.y;
+        if (detachedCells != null)
+        {
+            // note: An unpublished graph cannot evict or become the current runtime authority's cache owner.
+            if (!detachedCells.TryGetValue(key, out var stagedCell))
+            {
+                stagedCell = BuildCellCore(plan, authority, coordinate, plan.spatialPlan);
+                detachedCells[key] = stagedCell;
+            }
+            return stagedCell;
+        }
         if (!ReferenceEquals(s_runtimeCellCoreCacheAuthority, authority))
         {
             // note: Accepted authority identity is the cache lifetime boundary; replacing a world cannot reuse another world's derived cells.
@@ -394,7 +979,6 @@ public static class YQSemanticWorldAuthority
             s_runtimeCellCoreCacheOrder.Clear();
         }
 
-        long key = ((long)coordinate.x << 32) | (uint)coordinate.y;
         if (s_runtimeCellCoreCache.TryGetValue(key, out GeneratedSemanticCellPlanRecord cached))
             return cached;
 
@@ -475,7 +1059,8 @@ public static class YQSemanticWorldAuthority
     private static GeneratedSemanticCellPlanRecord BuildCellCore(
         GeneratedWorldPlanRecord plan,
         GeneratedSemanticWorldAuthorityRecord authority,
-        Vector2Int coordinate)
+        Vector2Int coordinate,
+        GeneratedSpatialWorldPlanRecord readOnlySpatialPlan = null)
     {
         float centreX = WorldGridOrigin + coordinate.x * CellSizeMeters + CellSizeMeters * 0.5f;
         float centreZ = WorldGridOrigin + coordinate.y * CellSizeMeters + CellSizeMeters * 0.5f;
@@ -483,7 +1068,7 @@ public static class YQSemanticWorldAuthority
             out float temperature, out float moisture, out float forest, out float grassland, out float wetland,
             out float civilization, out float danger, out float culture);
         ResolveContinent(authority.worldSeed, centreX, centreZ, out string continentId, out float continentMask);
-        string ownerRegionId = ResolveRegion(plan, authority.worldSeed, coordinate, centreX, centreZ, continentId);
+        string ownerRegionId = ResolveRegion(plan, authority.worldSeed, coordinate, centreX, centreZ, continentId, readOnlySpatialPlan);
         string landform = ruggedness > 0.68f ? "ridge_system" : wetland > 0.47f ? "wetland_basin" :
             elevation < 0.32f ? "valley_plain" : "rolling_upland";
         GeneratedSemanticCellPlanRecord cell = new GeneratedSemanticCellPlanRecord
@@ -518,7 +1103,7 @@ public static class YQSemanticWorldAuthority
             if (continentMask > 0.2f)
                 cell.featureIds.Add("macro:connected_landmass");
         }
-        List<GeneratedSemanticSiteReservationRecord> sites = GetSitesForCell(authority, plan, coordinate);
+        List<GeneratedSemanticSiteReservationRecord> sites = GetSitesForCell(authority, plan, coordinate, readOnlySpatialPlan != null);
         for (int index = 0; index < sites.Count; index++)
             AddSortedId(cell.siteIds, sites[index]?.siteId);
         for (int index = 0; index < authority.routeGraph.Count; index++)
@@ -527,7 +1112,7 @@ public static class YQSemanticWorldAuthority
             if (route != null && PolylineIntersectsCell(route.points, coordinate, 4f))
                 AddSortedId(cell.routeIds, route.routeId);
         }
-        List<GeneratedSemanticWaterNetworkRecord> waters = GetWaterForCell(authority, plan, coordinate);
+        List<GeneratedSemanticWaterNetworkRecord> waters = GetWaterForCell(authority, plan, coordinate, readOnlySpatialPlan != null);
         for (int index = 0; index < waters.Count; index++)
             AddSortedId(cell.waterIds, waters[index]?.waterId);
         if (cell.routeIds.Count > 0)
@@ -571,11 +1156,15 @@ public static class YQSemanticWorldAuthority
 
     private static void BuildAcceptedGraph(
         GeneratedWorldPlanRecord plan,
-        GeneratedSemanticWorldAuthorityRecord authority)
+        GeneratedSemanticWorldAuthorityRecord authority,
+        YQPreparedSpatialMaterializationV2 acceptedPrepared = null,
+        GeneratedSpatialContinuationV2Record continuation = null,
+        bool readOnly = false)
     {
-        bool acceptedV2 = YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _);
+        // note: Detached staging was already validated against its supplied V2 projection and cannot enter compatibility generation if a live pointer changes.
+        bool acceptedV2 = readOnly || YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _);
         if (acceptedV2)
-            BuildV2Graph(plan, authority);
+            BuildV2Graph(plan, authority, acceptedPrepared, continuation, readOnly);
         else
             BuildV1Graph(plan, authority);
         SortAuthority(authority);
@@ -583,7 +1172,9 @@ public static class YQSemanticWorldAuthority
 
     private static void BuildAcceptedOverrides(
         GeneratedWorldPlanRecord plan,
-        GeneratedSemanticWorldAuthorityRecord authority)
+        GeneratedSemanticWorldAuthorityRecord authority,
+        YQPreparedSpatialMaterializationV2 acceptedPrepared = null,
+        GeneratedSpatialContinuationV2Record continuation = null)
     {
         authority.acceptedOverrides.Clear();
         if (plan == null)
@@ -640,6 +1231,19 @@ public static class YQSemanticWorldAuthority
                 string.Empty,
                 "persisted_generated_poi");
         }
+        if (string.IsNullOrEmpty(acceptedPrepared?.ContinuationFingerprint))
+            return;
+        // note: Persisted typed payloads supply presentation metadata only after the prepared owner has admitted their actual physical context.
+        foreach (GeneratedSpatialContinuationLocationV2Record location in (continuation ?? plan.spatialPlanV2.acceptedContinuation).locations)
+        {
+            if (!acceptedPrepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out _))
+                continue;
+            AddAcceptedOverride(authority, location.anchor.sourceSemanticId,
+                location.settlement?.displayName ?? location.encampment?.displayName ?? location.pointOfInterest?.displayName,
+                location.settlement?.runtimeSiteKitId ?? location.encampment?.runtimeSiteKitId ?? location.poiRuntimeSiteKitId,
+                location.settlement?.runtimeSiteBindingVersion ?? location.encampment?.runtimeSiteBindingVersion ?? location.poiRuntimeSiteBindingVersion,
+                location.compositionGeometrySignature, "persisted_spatial_continuation_v2");
+        }
     }
 
     private static void AddAcceptedOverride(
@@ -693,6 +1297,60 @@ public static class YQSemanticWorldAuthority
                 return;
             }
         }
+    }
+
+    private static bool HasAcceptedMemberFootprints(GeneratedWorldPlanRecord plan)
+    {
+        GeneratedSpatialWorldPlanV2Record artifact = plan?.spatialPlanV2;
+        if (artifact == null ||
+            artifact.acceptanceState != GeneratedSpatialPlanAcceptanceState.Accepted ||
+            artifact.blueprint?.sites == null)
+            return false;
+        for (int index = 0; index < artifact.blueprint.sites.Count; index++)
+        {
+            YQSiteAnchorV2 site = artifact.blueprint.sites[index];
+            if (site?.memberFootprint != null && site.memberFootprint.Count > 0)
+                return true;
+        }
+        return false;
+    }
+
+    private static void AddAcceptedMemberFootprintCells(
+        YQSiteAnchorV2 acceptedSite,
+        GeneratedSemanticSiteReservationRecord reservation)
+    {
+        AddAcceptedMemberFootprintCells(acceptedSite?.memberFootprint, reservation);
+    }
+
+    private static void AddAcceptedMemberFootprintCells(
+        IReadOnlyList<YQSiteMemberFootprintV2> members,
+        GeneratedSemanticSiteReservationRecord reservation,
+        bool includeCentral = false)
+    {
+        if (!includeCentral && (members == null || members.Count == 0))
+            return;
+
+        // note: Recover the union of already accepted sectors; do not enlarge the central reserve or fill wilderness between separated members.
+        HashSet<string> cells = new HashSet<string>(reservation.memberCellIds, StringComparer.Ordinal);
+        for (int memberIndex = includeCentral ? -1 : 0; memberIndex < (members?.Count ?? 0); memberIndex++)
+        {
+            YQSiteMemberFootprintV2 member = memberIndex < 0 ? null : members[memberIndex];
+            if (memberIndex >= 0 && member == null)
+                continue;
+            float x = member != null ? member.x : reservation.worldX;
+            float z = member != null ? member.z : reservation.worldZ;
+            float radius = member != null ? member.reservedRadius : reservation.footprintRadius;
+            // note: Closed minimum bounds match SiteIntersectsCell at exact shared borders, including negative coordinates.
+            int minimumX = Mathf.CeilToInt((x - radius - WorldGridOrigin) / CellSizeMeters) - 1;
+            int maximumX = Mathf.FloorToInt((x + radius - WorldGridOrigin) / CellSizeMeters);
+            int minimumZ = Mathf.CeilToInt((z - radius - WorldGridOrigin) / CellSizeMeters) - 1;
+            int maximumZ = Mathf.FloorToInt((z + radius - WorldGridOrigin) / CellSizeMeters);
+            for (int cellZ = minimumZ; cellZ <= maximumZ; cellZ++)
+            for (int cellX = minimumX; cellX <= maximumX; cellX++)
+                cells.Add(BuildCellId(new Vector2Int(cellX, cellZ)));
+        }
+        reservation.memberCellIds = new List<string>(cells);
+        reservation.memberCellIds.Sort(StringComparer.Ordinal);
     }
 
     private static string LayoutSignature(YQProceduralSettlementLayoutRecord layout)
@@ -760,12 +1418,16 @@ public static class YQSemanticWorldAuthority
         }
     }
 
-    private static void BuildV2Graph(GeneratedWorldPlanRecord plan, GeneratedSemanticWorldAuthorityRecord authority)
+    private static void BuildV2Graph(GeneratedWorldPlanRecord plan, GeneratedSemanticWorldAuthorityRecord authority,
+        YQPreparedSpatialMaterializationV2 acceptedPrepared = null,
+        GeneratedSpatialContinuationV2Record continuation = null,
+        bool readOnly = false)
     {
         YQSpatialBlueprintV2 blueprint = plan.spatialPlanV2?.blueprint;
         if (blueprint == null)
             return;
-        blueprint.EnsureCollections();
+        // note: Detached publication staging reads the already accepted blueprint without normalizing or changing its saved collections.
+        if (!readOnly) blueprint.EnsureCollections();
         for (int index = 0; index < blueprint.sites.Count; index++)
         {
             YQSiteAnchorV2 site = blueprint.sites[index];
@@ -775,7 +1437,33 @@ public static class YQSemanticWorldAuthority
                 site.siteId, site.parentRegionId, site.kind.ToString(), site.kind.ToString(), site.x, site.z,
                 Mathf.Max(12f, site.reservedRadius), site.preferredHeadingDegrees, true, "accepted_spatial_v2");
             ApplyAcceptedSiteMetadata(authority, reservation, site.sourceSemanticId, site.siteId);
+            AddAcceptedMemberFootprintCells(site, reservation);
             authority.siteReservations.Add(reservation);
+        }
+        if (!string.IsNullOrEmpty(acceptedPrepared?.ContinuationFingerprint))
+        {
+            // note: Derive one reservation from each immutable accepted anchor; members add query cells without inventing another physical owner.
+            foreach (GeneratedSpatialContinuationLocationV2Record location in (continuation ?? plan.spatialPlanV2.acceptedContinuation).locations)
+            {
+                if (!acceptedPrepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out var site))
+                    continue;
+                GeneratedSemanticSiteReservationRecord reservation = CreateSite(site.siteId, site.parentRegionId,
+                    site.kind.ToString(), site.kind.ToString(), site.x, site.z, site.reservedRadius, site.headingDegrees,
+                    true, "accepted_spatial_continuation_v2");
+                ApplyAcceptedSiteMetadata(authority, reservation, site.sourceSemanticId, site.siteId);
+                AddAcceptedMemberFootprintCells(site.MemberFootprint, reservation, true);
+                reservation.accessScore = site.routeAccess;
+                reservation.accessConstraint = "accepted_continuation_access";
+                reservation.entrances.Clear();
+                foreach (GeneratedSemanticEntranceRecord entrance in location.entrances)
+                    reservation.entrances.Add(new GeneratedSemanticEntranceRecord {
+                        entranceId = entrance.entranceId, worldX = entrance.worldX, worldZ = entrance.worldZ,
+                        headingDegrees = entrance.headingDegrees, permittedRouteId = entrance.permittedRouteId
+                    });
+                if (!string.IsNullOrWhiteSpace(site.frontageRouteId))
+                    reservation.routeIds.Add(site.frontageRouteId);
+                authority.siteReservations.Add(reservation);
+            }
         }
         for (int index = 0; index < blueprint.routes.Count; index++)
         {
@@ -798,7 +1486,7 @@ public static class YQSemanticWorldAuthority
                 YQBlueprintPointV2 point = route.controlPoints[pointIndex];
                 semantic.points.Add(new GeneratedSemanticRoutePointRecord { worldX = point.x, worldZ = point.z, cost = pointIndex });
             }
-            for (int crossingIndex = 0; crossingIndex < route.crossings.Count; crossingIndex++)
+            for (int crossingIndex = 0; crossingIndex < (route.crossings?.Count ?? 0); crossingIndex++)
             {
                 YQRouteCrossingV2 crossing = route.crossings[crossingIndex];
                 semantic.crossings.Add(new GeneratedSemanticRouteCrossingRecord
@@ -840,6 +1528,24 @@ public static class YQSemanticWorldAuthority
             }
             authority.waterNetworks.Add(water);
         }
+        if (!string.IsNullOrEmpty(acceptedPrepared?.ContinuationFingerprint))
+            for (int routeIndex = blueprint.routes.Count; routeIndex < acceptedPrepared.RouteCount; routeIndex++)
+            {
+                YQSpatialMaterializationRouteV2 route = acceptedPrepared.GetRoute(routeIndex);
+                var semantic = new GeneratedSemanticRouteGraphRecord {
+                    routeId = route.routeId,
+                    parentRouteId = string.IsNullOrWhiteSpace(route.sourceSemanticRouteId) ? route.routeId : route.sourceSemanticRouteId,
+                    ownerRegionId = route.parentRegionId, fromSiteId = route.fromSiteId, toSiteId = route.toSiteId,
+                    routeClass = route.routeClass.ToString(), accepted = true, permittedBoundaryContinuation = false
+                };
+                // note: New access spurs reuse approved ordered control points and remain finite in both semantic and physical queries.
+                for (int pointIndex = 0; pointIndex < acceptedPrepared.GetRoutePointCount(routeIndex); pointIndex++)
+                {
+                    YQSpatialMaterializationRoutePointV2 point = acceptedPrepared.GetRoutePoint(routeIndex, pointIndex);
+                    semantic.points.Add(new GeneratedSemanticRoutePointRecord { worldX = point.x, worldZ = point.z, cost = pointIndex });
+                }
+                authority.routeGraph.Add(semantic);
+            }
         // note: Convert accepted route crossings into water-owned crossing records so bridge/f​​ord consumers share the same persistent water identity.
         AttachRouteCrossingsToWater(authority);
         for (int routeIndex = 0; routeIndex < authority.routeGraph.Count; routeIndex++)
@@ -1116,9 +1822,10 @@ public static class YQSemanticWorldAuthority
         }
     }
 
-    private static string ResolveRegion(GeneratedWorldPlanRecord plan, string seed, Vector2Int coordinate, float x, float z, string continentId)
+    private static string ResolveRegion(GeneratedWorldPlanRecord plan, string seed, Vector2Int coordinate, float x, float z, string continentId,
+        GeneratedSpatialWorldPlanRecord readOnlySpatialPlan = null)
     {
-        GeneratedSpatialWorldPlanRecord spatial = YQGeneratedWorldSpatialPlanner.GetSpatialPlan(plan);
+        GeneratedSpatialWorldPlanRecord spatial = readOnlySpatialPlan ?? YQGeneratedWorldSpatialPlanner.GetSpatialPlan(plan);
         float best = float.PositiveInfinity;
         string bestId = string.Empty;
         for (int index = 0; index < spatial.regions.Count; index++)
@@ -1163,6 +1870,11 @@ public static class YQSemanticWorldAuthority
     private static bool SiteIntersectsCell(GeneratedSemanticSiteReservationRecord site, Vector2Int coordinate)
     {
         if (site == null) return false;
+        // note: Accepted member sectors share the central site's identity while retaining their own separated footprint cells.
+        if ((string.Equals(site.provenance, "accepted_spatial_v2", StringComparison.Ordinal) ||
+             string.Equals(site.provenance, "accepted_spatial_continuation_v2", StringComparison.Ordinal)) &&
+            site.memberCellIds != null && site.memberCellIds.Contains(BuildCellId(coordinate)))
+            return true;
         float minX = WorldGridOrigin + coordinate.x * CellSizeMeters;
         float minZ = WorldGridOrigin + coordinate.y * CellSizeMeters;
         return site.worldX + site.footprintRadius >= minX && site.worldX - site.footprintRadius <= minX + CellSizeMeters &&

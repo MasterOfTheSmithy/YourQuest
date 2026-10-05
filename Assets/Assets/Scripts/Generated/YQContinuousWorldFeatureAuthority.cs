@@ -48,6 +48,98 @@ public static class YQContinuousWorldFeatureAuthority
         public YQHydrologyKindV2 hydrologyKind;
     }
 
+    internal readonly struct FrontierRouteConnection
+    {
+        internal readonly string identity;
+        internal readonly Vector3 point;
+        internal readonly float distance;
+        internal readonly uint priority;
+
+        internal FrontierRouteConnection(string identity, Vector3 point, float distance, uint priority)
+        { this.identity = identity; this.point = point; this.distance = distance; this.priority = priority; }
+    }
+
+    internal static bool TryCollectFrontierRouteConnections(YQPreparedSpatialMaterializationV2 prepared,
+        float x, float z, string seed, List<FrontierRouteConnection> connections, out string failure)
+    {
+        // note: Planning projects onto real finite roads and their permitted terminal rays; a bounded nearest set is independent of accepted-list traversal order.
+        const int maximumConnections = 4;
+        const int maximumSegmentChecks = 32768;
+        const float maximumDistance = 1536f;
+        failure = string.Empty;
+        if (connections == null || prepared == null)
+        { failure = "frontier network projection lacks an immutable prepared context"; return false; }
+        connections.Clear();
+        long checks = prepared.RouteCount * 2L;
+        for (int index = 0; index < prepared.RouteCount; index++)
+        {
+            checks += prepared.GetRoutePointCount(index);
+            if (checks > maximumSegmentChecks)
+            { failure = "frontier network projection exceeds 32768 accepted segment checks"; return false; }
+        }
+        Vector2 target = new Vector2(x, z);
+        for (int index = 0; index < prepared.RouteCount; index++)
+        {
+            var route = prepared.GetRoute(index);
+            int count = prepared.GetRoutePointCount(index);
+            for (int segment = 0; segment + 1 < count; segment++)
+            {
+                var first = prepared.GetRoutePoint(index, segment);
+                var second = prepared.GetRoutePoint(index, segment + 1);
+                Vector2 start = new Vector2(first.x, first.z);
+                Vector2 delta = new Vector2(second.x - first.x, second.z - first.z);
+                if (delta.sqrMagnitude < .0001f) continue;
+                float t = Mathf.Clamp01(Vector2.Dot(target - start, delta) / delta.sqrMagnitude);
+                Vector2 position = start + delta * t;
+                Add(route.routeId + "|segment:" + segment.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    position, Mathf.Lerp(first.surfaceElevationNormalized, second.surfaceElevationNormalized, t));
+            }
+            if (!route.permittedBoundaryContinuation || count < 2) continue;
+            for (int end = 0; end < 2; end++)
+            {
+                var terminal = prepared.GetRoutePoint(index, end == 0 ? 0 : count - 1);
+                var adjacent = prepared.GetRoutePoint(index, end == 0 ? 1 : count - 2);
+                Vector2 start = new Vector2(terminal.x, terminal.z);
+                Vector2 delta = start - new Vector2(adjacent.x, adjacent.z);
+                float length = delta.magnitude;
+                if (length < .01f) continue;
+                Vector2 direction = delta / length;
+                if (!TryGetOutwardBoundaryDistance(start.x, start.y, direction, out _)) continue;
+                float along = Mathf.Clamp(Vector2.Dot(target - start, direction), 0f, AcceptedContinuationMaxDistance);
+                Add(route.routeId + "|terminal:" + end.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    start + direction * along,
+                    terminal.surfaceElevationNormalized + along * (terminal.surfaceElevationNormalized - adjacent.surfaceElevationNormalized) / length);
+            }
+        }
+        if (connections.Count == 0)
+        { failure = "frontier frontage has no real accepted road within 1536 metres"; return false; }
+        return true;
+
+        void Add(string identity, Vector2 position, float elevation)
+        {
+            float distance = Vector2.Distance(target, position);
+            if (distance > maximumDistance || float.IsNaN(distance) || float.IsInfinity(distance) ||
+                float.IsNaN(elevation) || float.IsInfinity(elevation) || elevation < 0f || elevation > 1f ||
+                Mathf.Abs(position.x) > 1048576f || Mathf.Abs(position.y) > 1048576f) return;
+            uint priority = 2166136261u;
+            string input = seed + "|frontier_physical_context_v1|network|" + identity;
+            foreach (char character in input) priority = unchecked((priority ^ character) * 16777619u);
+            var connection = new FrontierRouteConnection(identity, new Vector3(position.x, elevation, position.y), distance, priority);
+            int insertion = 0;
+            while (insertion < connections.Count && Compare(connections[insertion], connection) <= 0) insertion++;
+            if (insertion >= maximumConnections) return;
+            connections.Insert(insertion, connection);
+            if (connections.Count > maximumConnections) connections.RemoveAt(maximumConnections);
+        }
+        int Compare(FrontierRouteConnection first, FrontierRouteConnection second)
+        {
+            int order = first.distance.CompareTo(second.distance);
+            if (order != 0) return order;
+            order = first.priority.CompareTo(second.priority);
+            return order != 0 ? order : string.CompareOrdinal(first.identity, second.identity);
+        }
+    }
+
     public static void PopulatePortals(
         GeneratedSemanticChunkRecord record,
         Vector2Int coordinate,
@@ -683,6 +775,8 @@ public static class YQContinuousWorldFeatureAuthority
         for (int routeIndex = 0; routeIndex < prepared.RouteCount; routeIndex++)
         {
             YQSpatialMaterializationRouteV2 route = prepared.GetRoute(routeIndex);
+            // note: Finite accepted frontier spurs connect to the network without inventing outward terminal roads.
+            if (!route.permittedBoundaryContinuation) continue;
             int pointCount = prepared.GetRoutePointCount(routeIndex);
             if (pointCount < 2)
                 continue;
@@ -725,6 +819,135 @@ public static class YQContinuousWorldFeatureAuthority
             }
         }
         return found;
+    }
+
+    internal static bool TryValidateAcceptedDryRouteSegment(YQPreparedSpatialMaterializationV2 prepared,
+        Vector2 first, Vector2 second, float clearance, out string failure)
+    {
+        // note: Exact segment clearance prevents a thin accepted channel from disappearing between the sixteen-metre conformance probes.
+        failure = string.Empty;
+        if (prepared == null) { failure = "frontier dry route lacks an accepted water context"; return false; }
+        for (int index = 0; index < prepared.WaterCount; index++)
+        {
+            var water = prepared.GetWater(index);
+            int count = prepared.GetWaterPointCount(index);
+            if (count > 0 && (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline) &&
+                !Clear(prepared.GetWaterAreaCenter(index), prepared.GetWaterAreaCenter(index), Mathf.Max(16f, water.nominalWidth), out failure)) return false;
+            if (count == 1)
+            {
+                var point = prepared.GetWaterPoint(index, 0);
+                if (!Clear(new Vector2(point.x, point.z), new Vector2(point.x, point.z), Mathf.Max(water.nominalWidth, point.width), out failure)) return false;
+            }
+            for (int point = 0; point + 1 < count; point++)
+            {
+                var a = prepared.GetWaterPoint(index, point); var b = prepared.GetWaterPoint(index, point + 1);
+                if (!Clear(new Vector2(a.x, a.z), new Vector2(b.x, b.z), Mathf.Max(water.nominalWidth, Mathf.Max(a.width, b.width)), out failure)) return false;
+            }
+            if (count < 2 || water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland ||
+                water.kind == YQHydrologyKindV2.Coastline || !string.IsNullOrWhiteSpace(water.sinkHydrologyId)) continue;
+            for (int end = 0; end < 2; end++)
+            {
+                var terminal = prepared.GetWaterPoint(index, end == 0 ? 0 : count - 1);
+                var adjacent = prepared.GetWaterPoint(index, end == 0 ? 1 : count - 2);
+                Vector2 start = new Vector2(terminal.x, terminal.z);
+                Vector2 direction = (start - new Vector2(adjacent.x, adjacent.z)).normalized;
+                if (!TryGetOutwardBoundaryDistance(start.x, start.y, direction, out _)) continue;
+                if (!Clear(start, start + direction * AcceptedContinuationMaxDistance, Mathf.Max(water.nominalWidth, terminal.width), out failure)) return false;
+            }
+
+            bool Clear(Vector2 start, Vector2 end, float width, out string reason)
+            {
+                double bank = Math.Sqrt(FrontierSegmentDistanceSquared(first, second, start, end)) - Mathf.Max(1f, width) * .5f;
+                if (double.IsNaN(bank) || bank < clearance)
+                { reason = "frontier route requires an unsupported accepted-water crossing or dry bank: " + water.hydrologyId; return false; }
+                reason = string.Empty;
+                return true;
+            }
+        }
+        return true;
+    }
+
+    private static double FrontierSegmentDistanceSquared(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    {
+        double abX = (double)b.x - a.x, abZ = (double)b.y - a.y;
+        double cdX = (double)d.x - c.x, cdZ = (double)d.y - c.y;
+        double offsetX = (double)c.x - a.x, offsetZ = (double)c.y - a.y;
+        double denominator = abX * cdZ - abZ * cdX;
+        if (Math.Abs(denominator) > .00000001d)
+        {
+            double t = (offsetX * cdZ - offsetZ * cdX) / denominator;
+            double u = (offsetX * abZ - offsetZ * abX) / denominator;
+            if (t >= 0d && t <= 1d && u >= 0d && u <= 1d) return 0d;
+        }
+        return Math.Min(Math.Min(FrontierPointSegmentDistanceSquared(a, c, d), FrontierPointSegmentDistanceSquared(b, c, d)),
+            Math.Min(FrontierPointSegmentDistanceSquared(c, a, b), FrontierPointSegmentDistanceSquared(d, a, b)));
+    }
+
+    private static double FrontierPointSegmentDistanceSquared(Vector2 point, Vector2 first, Vector2 second)
+    {
+        double dx = (double)second.x - first.x, dz = (double)second.y - first.y;
+        double px = (double)point.x - first.x, pz = (double)point.y - first.y;
+        double denominator = dx * dx + dz * dz;
+        double t = denominator > .00000001d ? Math.Max(0d, Math.Min(1d, (px * dx + pz * dz) / denominator)) : 0d;
+        px -= dx * t; pz -= dz * t;
+        return px * px + pz * pz;
+    }
+
+    internal static bool TryMeasureAcceptedWaterDistance(YQPreparedSpatialMaterializationV2 prepared,
+        float worldX, float worldZ, out string waterId, out float bankDistance, out bool insideWater)
+    {
+        waterId = string.Empty; bankDistance = float.PositiveInfinity; insideWater = false;
+        if (prepared == null) return false;
+        Vector2 sample = new Vector2(worldX, worldZ);
+        string nearestId = string.Empty;
+        float nearest = float.PositiveInfinity;
+        bool wet = false;
+        // note: Measure the same finite channels and boundary-approved terminal rays that carve terrain, without generating cell records or searching Unity objects.
+        for (int index = 0; index < prepared.WaterCount; index++)
+        {
+            var water = prepared.GetWater(index);
+            int count = prepared.GetWaterPointCount(index);
+            if (count > 0 && (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline))
+            {
+                // note: Use the existing area-water reserve as well as its boundary spans; a site's dry circle cannot be admitted inside an accepted basin.
+                Vector2 center = prepared.GetWaterAreaCenter(index);
+                Measure(Vector2.Distance(sample, center), Mathf.Max(16f, water.nominalWidth), water.hydrologyId);
+            }
+            if (count == 1)
+            {
+                var point = prepared.GetWaterPoint(index, 0);
+                Measure(Vector2.Distance(sample, new Vector2(point.x, point.z)), Mathf.Max(water.nominalWidth, point.width), water.hydrologyId);
+            }
+            for (int point = 0; point + 1 < count; point++)
+            {
+                var first = prepared.GetWaterPoint(index, point); var second = prepared.GetWaterPoint(index, point + 1);
+                Vector2 start = new Vector2(first.x, first.z), delta = new Vector2(second.x - first.x, second.z - first.z);
+                float t = delta.sqrMagnitude > .0001f ? Mathf.Clamp01(Vector2.Dot(sample - start, delta) / delta.sqrMagnitude) : 0f;
+                Measure(Vector2.Distance(sample, start + delta * t), Mathf.Max(water.nominalWidth, Mathf.Max(first.width, second.width)), water.hydrologyId);
+            }
+            if (count < 2 || water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland ||
+                water.kind == YQHydrologyKindV2.Coastline || !string.IsNullOrWhiteSpace(water.sinkHydrologyId)) continue;
+            for (int end = 0; end < 2; end++)
+            {
+                var terminal = prepared.GetWaterPoint(index, end == 0 ? 0 : count - 1);
+                var adjacent = prepared.GetWaterPoint(index, end == 0 ? 1 : count - 2);
+                Vector2 start = new Vector2(terminal.x, terminal.z);
+                Vector2 direction = new Vector2(terminal.x - adjacent.x, terminal.z - adjacent.z).normalized;
+                if (!TryGetOutwardBoundaryDistance(start.x, start.y, direction, out _)) continue;
+                float along = Mathf.Clamp(Vector2.Dot(sample - start, direction), 0f, AcceptedContinuationMaxDistance);
+                Measure(Vector2.Distance(sample, start + direction * along), Mathf.Max(water.nominalWidth, terminal.width), water.hydrologyId);
+            }
+        }
+        waterId = nearestId; bankDistance = nearest; insideWater = wet;
+        return !float.IsPositiveInfinity(nearest);
+
+        void Measure(float distance, float width, string id)
+        {
+            float bank = distance - Mathf.Max(1f, width) * .5f;
+            wet |= bank <= 0f;
+            if (bank < nearest || bank == nearest && string.CompareOrdinal(id, nearestId) < 0)
+            { nearest = bank; nearestId = id; }
+        }
     }
 
     internal static bool TryGetAcceptedWaterContinuation(
@@ -797,6 +1020,8 @@ public static class YQContinuousWorldFeatureAuthority
         for (int routeIndex = 0; routeIndex < prepared.RouteCount; routeIndex++)
         {
             YQSpatialMaterializationRouteV2 route = prepared.GetRoute(routeIndex);
+            // note: Preserve opening boundary continuation while keeping published frontier access corridors finite.
+            if (!route.permittedBoundaryContinuation) continue;
             int pointCount = prepared.GetRoutePointCount(routeIndex);
             if (pointCount < 2)
                 continue;
@@ -1162,25 +1387,37 @@ public static class YQContinuousWorldFeatureAuthority
         float worldZ,
         float normalizedHeight,
         float terrainHeight,
-        out float modifiedHeight)
+        out float modifiedHeight,
+        bool wetOnly = false)
     {
-        modifiedHeight = normalizedHeight;
+        var envelope = new AcceptedWaterTerrainEnvelope();
+        AccumulateAcceptedFiniteWater(prepared, selectedWaterIndex, worldX, worldZ, terrainHeight, wetOnly, ref envelope);
+        modifiedHeight = envelope.Project(normalizedHeight);
+        return envelope.Influenced;
+    }
+
+    private static void AccumulateAcceptedFiniteWater(YQPreparedSpatialMaterializationV2 prepared,
+        int selectedWaterIndex, float worldX, float worldZ, float terrainHeight, bool wetOnly,
+        ref AcceptedWaterTerrainEnvelope envelope)
+    {
         if (prepared == null)
-            return false;
-        float result = normalizedHeight;
-        bool influenced = false;
+            return;
         int firstWaterIndex = selectedWaterIndex >= 0 ? selectedWaterIndex : 0;
         int lastWaterIndex = selectedWaterIndex >= 0 ? selectedWaterIndex + 1 : prepared.WaterCount;
         for (int waterIndex = firstWaterIndex; waterIndex < lastWaterIndex; waterIndex++)
         {
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
+            // note: Area water already has its canonical basin; a linear river carve must not flatten that basin a second time.
+            if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline)
+                continue;
+            float nearestClearance = float.PositiveInfinity, nearestDistance = 0f, nearestWidth = 0f, nearestSurface = 0f;
             for (int pointIndex = 0; pointIndex + 1 < prepared.GetWaterPointCount(waterIndex); pointIndex++)
             {
                 YQSpatialMaterializationWaterPointV2 first = prepared.GetWaterPoint(waterIndex, pointIndex);
                 YQSpatialMaterializationWaterPointV2 second = prepared.GetWaterPoint(waterIndex, pointIndex + 1);
                 // note: Reject samples outside a conservative segment AABB before running closest-point math across thousands of accepted river segments.
                 float maximumSegmentWidth = Mathf.Max(water.nominalWidth, Mathf.Max(first.width, second.width));
-                float influenceRadius = Mathf.Max(1f, maximumSegmentWidth * 0.5f) * 2f + AcceptedWaterBankPadding;
+                float influenceRadius = Mathf.Max(1f, maximumSegmentWidth * 0.5f) + AcceptedWaterBankPadding + AcceptedTerrainTransitionDistance;
                 if (worldX < Mathf.Min(first.x, second.x) - influenceRadius ||
                     worldX > Mathf.Max(first.x, second.x) + influenceRadius ||
                     worldZ < Mathf.Min(first.z, second.z) - influenceRadius ||
@@ -1192,19 +1429,19 @@ public static class YQContinuousWorldFeatureAuthority
                 Vector2 nearest = start + segment * t;
                 float distance = Vector2.Distance(new Vector2(worldX, worldZ), nearest);
                 float halfWidth = Mathf.Max(1f, Mathf.Max(water.nominalWidth, Mathf.Lerp(first.width, second.width, t)) * 0.5f);
-                if (distance >= halfWidth * 2f + AcceptedWaterBankPadding)
+                if (distance >= halfWidth + AcceptedWaterBankPadding + AcceptedTerrainTransitionDistance)
                     continue;
-                influenced = true;
-                // note: Keep accepted finite-water carving in normalized space so the contract cannot over-carve from mixed units.
-                // note: Evaluate every candidate from the same original base height, then take the minimum so overlap order cannot compound or change the carve.
-                float blendedNormalized = SampleAcceptedWaterCarve(normalizedHeight, terrainHeight,
-                    Mathf.Lerp(first.waterSurfaceNormalized, second.waterSurfaceNormalized, t),
-                    water.nominalDepth, halfWidth, distance);
-                result = Mathf.Min(result, blendedNormalized);
+                bool isCore = distance <= halfWidth + AcceptedWaterBankPadding + 2f;
+                if (wetOnly && !isCore) continue;
+                float clearance = distance - halfWidth;
+                float surface = Mathf.Lerp(first.waterSurfaceNormalized, second.waterSurfaceNormalized, t);
+                // note: Each accepted water contributes its nearest footprint once; segment count must not bias an overlapping bank's influence.
+                if (clearance > nearestClearance || (clearance == nearestClearance && surface >= nearestSurface)) continue;
+                nearestClearance = clearance; nearestDistance = distance; nearestWidth = halfWidth; nearestSurface = surface;
             }
+            if (!float.IsPositiveInfinity(nearestClearance))
+                envelope.Add(terrainHeight, nearestSurface, water.nominalDepth, nearestWidth, nearestDistance);
         }
-        modifiedHeight = Mathf.Clamp01(result);
-        return influenced;
     }
 
     internal static bool TryApplyAcceptedWaterTerminalModifiers(
@@ -1215,12 +1452,45 @@ public static class YQContinuousWorldFeatureAuthority
         float terrainHeight,
         out float modifiedHeight)
     {
+        return TryApplyAcceptedWaterTerminalProfile(prepared, worldX, worldZ, normalizedHeight, terrainHeight, out modifiedHeight, false);
+    }
+
+    internal static bool TryApplyAcceptedWaterCoreModifiers(YQPreparedSpatialMaterializationV2 prepared,
+        float worldX, float worldZ, float originalHeight, float terrainHeight, out float modifiedHeight)
+    {
+        // note: Wet cores own the accepted channel datum before any wider dry terrain transition is considered.
+        bool finite = TryApplyAcceptedWaterModifier(prepared, -1, worldX, worldZ, originalHeight, terrainHeight, out float first, true);
+        bool terminal = TryApplyAcceptedWaterTerminalProfile(prepared, worldX, worldZ, originalHeight, terrainHeight, out float second, true);
+        modifiedHeight = finite && terminal ? Mathf.Min(first, second) : finite ? first : second;
+        return finite || terminal;
+    }
+
+    internal static bool TryApplyAcceptedWaterTerrainModifiers(YQPreparedSpatialMaterializationV2 prepared,
+        float worldX, float worldZ, float originalHeight, float terrainHeight, out float modifiedHeight, bool includeFinite = true)
+    {
+        // note: Finite rivers and terminal continuations share one terrain envelope; independently taking their lower bank caused a cliff immediately outside the higher wet core.
+        var envelope = new AcceptedWaterTerrainEnvelope();
+        if (includeFinite) AccumulateAcceptedFiniteWater(prepared, -1, worldX, worldZ, terrainHeight, false, ref envelope);
+        AccumulateAcceptedTerminalWater(prepared, worldX, worldZ, terrainHeight, false, ref envelope);
+        modifiedHeight = envelope.Project(originalHeight);
+        return envelope.Influenced;
+    }
+
+    private static bool TryApplyAcceptedWaterTerminalProfile(YQPreparedSpatialMaterializationV2 prepared,
+        float worldX, float worldZ, float normalizedHeight, float terrainHeight, out float modifiedHeight, bool wetOnly)
+    {
+        var envelope = new AcceptedWaterTerrainEnvelope();
+        AccumulateAcceptedTerminalWater(prepared, worldX, worldZ, terrainHeight, wetOnly, ref envelope);
+        modifiedHeight = envelope.Project(normalizedHeight);
+        return envelope.Influenced;
+    }
+
+    private static void AccumulateAcceptedTerminalWater(YQPreparedSpatialMaterializationV2 prepared,
+        float worldX, float worldZ, float terrainHeight, bool wetOnly, ref AcceptedWaterTerrainEnvelope envelope)
+    {
         // note: Free-flowing accepted endpoints share one bounded world-space ray evaluator; lakes, wetlands, coastlines, and sink-linked rivers stop at their accepted area/receiver.
-        modifiedHeight = normalizedHeight;
         if (prepared == null)
-            return false;
-        float result = normalizedHeight;
-        bool influenced = false;
+            return;
         for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
         {
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
@@ -1245,24 +1515,71 @@ public static class YQContinuousWorldFeatureAuthority
                     continue;
                 float distance = Mathf.Abs(direction.x * offset.y - direction.y * offset.x);
                 float halfWidth = Mathf.Max(1f, Mathf.Max(water.nominalWidth, endpoint.width) * 0.5f);
-                if (distance >= halfWidth * 2f + AcceptedWaterBankPadding)
+                if (distance >= halfWidth + AcceptedWaterBankPadding + AcceptedTerrainTransitionDistance)
                     continue;
+                bool isCore = distance <= halfWidth + AcceptedWaterBankPadding + 2f;
+                if (wetOnly && !isCore) continue;
                 float segmentLength = Mathf.Max(0.001f, Vector2.Distance(new Vector2(endpoint.x, endpoint.z), new Vector2(adjacent.x, adjacent.z)));
                 float slope = (endpoint.waterSurfaceNormalized - adjacent.waterSurfaceNormalized) / segmentLength;
                 // note: Keep terminal candidates order-independent by comparing each one against the original unmodified sample.
-                result = Mathf.Min(result, SampleAcceptedWaterCarve(normalizedHeight, terrainHeight,
+                envelope.Add(terrainHeight,
                     Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along),
-                    water.nominalDepth, halfWidth, distance));
-                influenced = true;
+                    water.nominalDepth, halfWidth, distance);
             }
         }
-        modifiedHeight = Mathf.Clamp01(result);
-        return influenced;
+    }
+
+    internal struct AcceptedWaterTerrainEnvelope
+    {
+        private bool wet;
+        private float wetHeight;
+        private double weightSum, lowerSum, upperSum;
+        internal bool Influenced => wet || weightSum > 0d;
+        internal bool HasWetCore => wet;
+
+        internal void Add(float terrainHeight, float surface, float depth, float halfWidth, float distance)
+        {
+            float clearance = distance - halfWidth - AcceptedWaterBankPadding - 2f;
+            if (clearance <= 0f)
+            {
+                float bed = SampleAcceptedWaterBed(terrainHeight, surface, depth, halfWidth, distance);
+                wetHeight = wet ? Mathf.Min(wetHeight, bed) : bed;
+                wet = true;
+                return;
+            }
+            if (clearance >= AcceptedTerrainTransitionDistance - 2f) return;
+            // note: Project into a distance-weighted interval, rather than blending successive height edits. The projection is idempotent and approaches each wet bank continuously, even beside a lower river.
+            double weight = 1d / (clearance * clearance * clearance * clearance);
+            float bank = surface + .2f / Mathf.Max(1f, terrainHeight);
+            float allowance = clearance * .45f / Mathf.Max(1f, terrainHeight);
+            weightSum += weight;
+            lowerSum += weight * (bank - allowance);
+            upperSum += weight * (bank + allowance);
+        }
+
+        internal float Project(float original)
+        {
+            if (wet) return Mathf.Clamp01(wetHeight);
+            return weightSum > 0d ? Mathf.Clamp01(Mathf.Clamp(original, (float)(lowerSum / weightSum), (float)(upperSum / weightSum))) : original;
+        }
     }
 
     // note: Support the complete rendered width plus a heightmap-cell diagonal so interpolation cannot leave terrain crests inside the water ribbon.
     private const float AcceptedWaterBankPadding = YQGeneratedWorldTerrain.WorldSize /
         (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+
+    // note: This is a terrain transition envelope, not a larger road or water footprint. Accepted dimensions and semantic masks stay unchanged.
+    internal const float AcceptedTerrainTransitionDistance = 384f;
+
+    internal static float SampleAcceptedRouteGrade(float originalHeight, float routeHeight,
+        float terrainHeight, float halfWidth, float shoulderWidth, float distance)
+    {
+        // note: Cut and fill share one idempotent grade profile in the accepted sampler, continuation, and restored origin terrain.
+        float core = Mathf.Max(1f, halfWidth + shoulderWidth);
+        if (distance >= core + AcceptedTerrainTransitionDistance) return originalHeight;
+        float allowance = Mathf.Max(0f, distance - core) * 0.65f / Mathf.Max(1f, terrainHeight);
+        return Mathf.Clamp(originalHeight, routeHeight - allowance, routeHeight + allowance);
+    }
 
     internal static float SampleAcceptedWaterCarve(float originalHeight, float terrainHeight,
         float surfaceNormalized, float depth, float halfWidth, float distance)
@@ -1270,18 +1587,23 @@ public static class YQContinuousWorldFeatureAuthority
         float wetRadius = halfWidth + AcceptedWaterBankPadding;
         // note: The bed stays submerged across the entire wet footprint; only the dry shoulder blends with the original mountain/hill height.
         float bed = SampleAcceptedWaterBed(terrainHeight, surfaceNormalized, depth, halfWidth, distance);
-        float blend = 1f - Mathf.SmoothStep(0f, 1f,
-            Mathf.InverseLerp(wetRadius, halfWidth * 2f + AcceptedWaterBankPadding, distance));
-        return Mathf.Clamp01(Mathf.Min(originalHeight, Mathf.Lerp(originalHeight, bed, blend)));
+        if (distance >= wetRadius + AcceptedTerrainTransitionDistance) return originalHeight;
+        // note: A bounded natural bank grade replaces the narrow cut/fill blend that made levees and trenches. Reapplying it cannot deepen a restored channel.
+        float allowance = Mathf.Max(0f, distance - wetRadius - 2f) * 0.45f / Mathf.Max(1f, terrainHeight);
+        return Mathf.Clamp01(Mathf.Clamp(originalHeight, bed - allowance, bed + allowance));
     }
 
     internal static float SampleAcceptedWaterBed(float terrainHeight, float surfaceNormalized,
         float depth, float halfWidth, float distance)
     {
         // note: Origin and continuation terrain share the submerged cross-section; terrain resolution padding protects the actual rendered banks.
-        float crossSection = Mathf.Clamp01(distance / Mathf.Max(0.1f, halfWidth + AcceptedWaterBankPadding));
-        return surfaceNormalized - Mathf.Max(0.1f, depth) *
-            (1f - 0.8f * crossSection * crossSection) / Mathf.Max(1f, terrainHeight);
+        float crossSection = Mathf.Clamp01(distance / Mathf.Max(0.1f, halfWidth));
+        // note: Preserve full centre depth, shallow rendered edges, and dry-bank support beyond heightmap interpolation padding.
+        float shoreDepth = Mathf.Min(0.12f, Mathf.Max(0.1f, depth));
+        float wetBed = -Mathf.Lerp(Mathf.Max(0.1f, depth), shoreDepth, crossSection * crossSection);
+        float bankBlend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(
+            halfWidth + AcceptedWaterBankPadding, halfWidth + AcceptedWaterBankPadding + 2f, distance));
+        return surfaceNormalized + Mathf.Lerp(wetBed, 0.2f, bankBlend) / Mathf.Max(1f, terrainHeight);
     }
 
     public static bool TryGetRiverPoints(
@@ -1706,7 +2028,8 @@ public static class YQContinuousWorldFeatureMaterializer
                 float total = 0f;
                 for (int layer = 0; layer < layerCount; layer++)
                 {
-                    float value = bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland;
+                    // note: A road layer cannot become the default grassland layer across an entire continuation tile.
+                    float value = bindings[layer] < 0 ? 0f : bindings[layer] == 0 ? forest : bindings[layer] == 1 ? grassland : wetland;
                     maps[z, x, layer] = value;
                     total += value;
                 }
@@ -1756,7 +2079,8 @@ public static class YQContinuousWorldFeatureMaterializer
         for (int layer = 0; layer < layers.Length; layer++)
         {
             string name = layers[layer] != null ? (layers[layer].name ?? string.Empty).ToLowerInvariant() : string.Empty;
-            bindings[layer] = name.Contains("wet") || name.Contains("marsh") || name.Contains("swamp") ? 2 :
+            bindings[layer] = name.EndsWith("_livedpath", StringComparison.Ordinal) ? -1 :
+                name.Contains("wet") || name.Contains("marsh") || name.Contains("swamp") ? 2 :
                 name.Contains("forest") || name.Contains("wood") || name.Contains("moss") ? 0 : 1;
         }
 
@@ -2043,6 +2367,26 @@ public static class YQContinuousWorldFeatureMaterializer
             }
         }
 
+        // note: Finish site grounding before road sampling so foundations cannot bury this cell's published access paths.
+        int siteObjects = 0;
+        List<string> materializedSiteIds = new List<string>();
+        yield return BuildAcceptedSiteRoutine(
+            parent,
+            terrain,
+            plan,
+            chunk,
+            palette,
+            registry,
+            new Vector2Int(chunk.chunkX, chunk.chunkZ),
+            cellSize,
+            (count, ids) =>
+            {
+                siteObjects = count;
+                materializedSiteIds = ids ?? new List<string>();
+            },
+            preparedWater);
+        built += siteObjects;
+
         // note: Resolve owner-cell decks before extracting road ribbons so both presentations use the same accepted route interval.
         List<AcceptedCrossingSpan> crossingSpans = new List<AcceptedCrossingSpan>();
         yield return PrepareAcceptedCrossingSpansRoutine(preparedWater, terrain, cellCoordinate, cellSize, crossingSpans, substageTelemetry);
@@ -2098,25 +2442,6 @@ public static class YQContinuousWorldFeatureMaterializer
             completed?.Invoke(-1);
             yield break;
         }
-
-        int siteObjects = 0;
-        List<string> materializedSiteIds = new List<string>();
-        yield return BuildAcceptedSiteRoutine(
-            parent,
-            terrain,
-            plan,
-            chunk,
-            palette,
-            registry,
-            new Vector2Int(chunk.chunkX, chunk.chunkZ),
-            cellSize,
-            (count, ids) =>
-            {
-                siteObjects = count;
-                materializedSiteIds = ids ?? new List<string>();
-            },
-            preparedWater);
-        built += siteObjects;
 
         // note: Site owners are checked independently so a road or water object cannot mask a missing accepted settlement, cave, hostile site, or POI.
         if (acceptedSiteDemand && siteObjects <= 0 && !HasExistingAcceptedSiteOwner(preparedWater, cellCoordinate, cellSize))
@@ -2316,12 +2641,47 @@ public static class YQContinuousWorldFeatureMaterializer
             return false;
         List<int> routeIndices = new List<int>();
         YQContinuousWorldFeatureAuthority.GetAcceptedRouteIndicesForCell(prepared, coordinate, cellSize, routeIndices);
-        if (routeIndices.Count > 0)
-            return true;
+        // note: The index includes shoulders and seam margins. Physical mesh demand uses the accepted paved footprint, preserving the wider semantic reservations.
+        foreach (int routeIndex in routeIndices)
+        {
+            var route = prepared.GetRoute(routeIndex);
+            int first = 0, last = prepared.GetRoutePointCount(routeIndex) - 2;
+            if (prepared.TryGetRouteSegmentRangeForCell(routeIndex, coordinate, cellSize, out int indexedFirst, out int indexedLast))
+            { first = indexedFirst; last = indexedLast; }
+            for (int index = first; index <= last; index++)
+            {
+                var a = prepared.GetRoutePoint(routeIndex, index);
+                var b = prepared.GetRoutePoint(routeIndex, index + 1);
+                if (RoadFootprintIntersectsCell(new Vector2(a.x, a.z), new Vector2(b.x, b.z), route.width, coordinate, cellSize))
+                    return true;
+            }
+        }
         List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation> continuations =
             new List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation>();
         YQContinuousWorldFeatureAuthority.GetAcceptedRouteContinuations(prepared, coordinate, cellSize, 6f, continuations);
-        return continuations.Count > 0;
+        foreach (var continuation in continuations)
+            if (RoadFootprintIntersectsCell(continuation.origin,
+                continuation.origin + continuation.direction * YQContinuousWorldFeatureAuthority.AcceptedContinuationMaxDistance,
+                continuation.width, coordinate, cellSize))
+                return true;
+        return false;
+    }
+
+    private static bool RoadFootprintIntersectsCell(Vector2 first, Vector2 second, float width, Vector2Int coordinate, float cellSize)
+    {
+        // note: Four separating axes test the actual ribbon rectangle against the cell, including diagonal corner cases that padded bounds over-admit.
+        Vector2 delta = second - first;
+        float length = delta.magnitude;
+        if (length < 0.001f || width <= 0f) return false;
+        Vector2 direction = delta / length, side = new Vector2(-direction.y, direction.x);
+        float halfCell = cellSize * 0.5f, halfWidth = width * 0.5f;
+        Vector2 cellCenter = new Vector2(WorldGridOrigin + coordinate.x * cellSize + halfCell,
+            WorldGridOrigin + coordinate.y * cellSize + halfCell);
+        Vector2 distance = (first + second) * 0.5f - cellCenter;
+        return Mathf.Abs(distance.x) < halfCell + Mathf.Abs(delta.x) * 0.5f + Mathf.Abs(side.x) * halfWidth &&
+            Mathf.Abs(distance.y) < halfCell + Mathf.Abs(delta.y) * 0.5f + Mathf.Abs(side.y) * halfWidth &&
+            Mathf.Abs(Vector2.Dot(distance, direction)) < length * 0.5f + halfCell * (Mathf.Abs(direction.x) + Mathf.Abs(direction.y)) &&
+            Mathf.Abs(Vector2.Dot(distance, side)) < halfWidth + halfCell * (Mathf.Abs(side.x) + Mathf.Abs(side.y));
     }
 
     private static bool HasAcceptedWaterDemand(
@@ -2487,6 +2847,15 @@ public static class YQContinuousWorldFeatureMaterializer
             if (owner != coordinate)
                 continue;
 
+            // note: Only opening anchors retain the historical recovery paths; a continued site must replay its exact persisted reviewed provider.
+            bool continuationSite = !IsBaseAcceptedSite(plan, site);
+            if (continuationSite && !TryResolveAcceptedContinuationSiteContext(plan, site,
+                    out _, out _, out string continuationFailure))
+            {
+                Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED CONTINUATION REJECTED " + site.siteId + ": " + continuationFailure);
+                continue;
+            }
+
             string existingSiteLocationId = string.Empty;
             if (YQCompiledWorldSiteInstance.HasSite(site.sourceSemanticId))
                 existingSiteLocationId = site.sourceSemanticId;
@@ -2500,6 +2869,19 @@ public static class YQContinuousWorldFeatureMaterializer
                 yield return YQCompiledWorldSiteInstance.EnsureSiteLoadedRoutine(
                     existingSiteLocationId,
                     ready => existingSiteLoaded = ready);
+                if (continuationSite)
+                {
+                    // note: Registration or load success alone cannot admit a provider bound to a different saved kit, composition or region.
+                    existingSiteLoaded = existingSiteLoaded &&
+                        TryGetAcceptedContinuationLoadedProvider(plan, site, out _, out _);
+                    if (existingSiteLoaded)
+                    {
+                        built++;
+                        materializedSiteIds.Add(site.siteId);
+                    }
+                    else Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED CONTINUATION PROVIDER REJECTED " + site.siteId);
+                    continue;
+                }
                 if (existingSiteLoaded)
                 {
                     built++;
@@ -2538,6 +2920,13 @@ public static class YQContinuousWorldFeatureMaterializer
             {
                 built += reviewedSiteCount;
                 materializedSiteIds.Add(site.siteId);
+                continue;
+            }
+
+            if (continuationSite)
+            {
+                // note: A missing or rejected committed provider is a publication failure, never permission to substitute a palette shell or scatter site.
+                Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED CONTINUATION PHYSICAL MATERIALIZATION MISSING " + site.siteId);
                 continue;
             }
 
@@ -2690,7 +3079,25 @@ public static class YQContinuousWorldFeatureMaterializer
         GeneratedRegionRecord region = FindPlanRegion(plan, site.parentRegionId);
         bool bindingChanged;
 
-        if (IsAcceptedCaveSite(site))
+        bool continuationSite = !IsBaseAcceptedSite(plan, site);
+        GeneratedSpatialContinuationLocationV2Record continuationLocation = null;
+        YQPreparedSpatialMaterializationV2 continuationPrepared = null;
+        if (continuationSite)
+        {
+            // note: Continued sites consume their saved binding and layout through the compiled owner; ordinary selection cannot revise accepted content during streaming.
+            if (!TryResolveAcceptedContinuationSiteContext(plan, site, out continuationLocation,
+                    out continuationPrepared, out string continuationFailure))
+            {
+                Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED CONTINUATION REPLAY REJECTED " + site.siteId + ": " + continuationFailure);
+                yield break;
+            }
+            settlement = continuationLocation.settlement;
+            encampment = continuationLocation.encampment;
+            locationId = continuationLocation.anchor.sourceSemanticId;
+            reviewedSite = YQCompiledWorldSiteBindingService.GetCachedSiteRecord(ContinuationKitId(continuationLocation));
+        }
+
+        if (!continuationSite && IsAcceptedCaveSite(site))
         {
             // note: The beta cave is a real authored module chain derived from the accepted cave anchor; it is not a marker or a readiness-only placeholder.
             int caveObjects = 0;
@@ -2708,7 +3115,7 @@ public static class YQContinuousWorldFeatureMaterializer
             }
         }
 
-        if (site.kind == YQSiteKindV2.Settlement && settlement != null &&
+        if (!continuationSite && site.kind == YQSiteKindV2.Settlement && settlement != null &&
             YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
                 plan,
                 settlement,
@@ -2722,7 +3129,7 @@ public static class YQContinuousWorldFeatureMaterializer
             locationId = settlement.settlementId;
             semanticTags = YQCompiledWorldSiteBindingService.BuildSettlementSemanticSliceTags(settlement);
         }
-        else if (site.kind == YQSiteKindV2.HostileSite && encampment != null &&
+        else if (!continuationSite && site.kind == YQSiteKindV2.HostileSite && encampment != null &&
                  YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
                      plan,
                      encampment,
@@ -2736,7 +3143,7 @@ public static class YQContinuousWorldFeatureMaterializer
             locationId = encampment.encampmentId;
             semanticTags = YQCompiledWorldSiteBindingService.BuildEncampmentSemanticSliceTags(encampment);
         }
-        else if (IsAcceptedCaveSite(site))
+        else if (!continuationSite && IsAcceptedCaveSite(site))
         {
             reviewedSite = FindReviewedSiteForFunctions(
                 YQAuthoredSiteKind.Dungeon,
@@ -2749,7 +3156,7 @@ public static class YQContinuousWorldFeatureMaterializer
                 site.siteId, palette?.styleKey, region?.assetStyleRationale);
         }
 
-        if (reviewedSite == null && site.kind == YQSiteKindV2.Settlement)
+        if (!continuationSite && reviewedSite == null && site.kind == YQSiteKindV2.Settlement)
         {
             // note: The deterministic beta settlement has no narrative record by design; its accepted V2 functions still select a reviewed service-capable site.
             reviewedSite = FindReviewedSiteForFunctions(
@@ -2764,7 +3171,7 @@ public static class YQContinuousWorldFeatureMaterializer
                 site.siteId, palette?.styleKey, region?.assetStyleRationale);
             semanticTags = new[] { "poi", "civic", "residential", "service", "circulation" };
         }
-        else if (reviewedSite == null && site.kind == YQSiteKindV2.HostileSite)
+        else if (!continuationSite && reviewedSite == null && site.kind == YQSiteKindV2.HostileSite)
         {
             // note: The beta hostile fixture remains data-driven through the reviewed camp/dungeon catalog rather than a generic marker prefab.
             reviewedSite = FindReviewedSiteForFunctions(
@@ -2778,7 +3185,7 @@ public static class YQContinuousWorldFeatureMaterializer
                 site.siteId, palette?.styleKey, region?.assetStyleRationale);
             semanticTags = new[] { "poi", "perimeter", "circulation", "encounter", "reward" };
         }
-        else if (reviewedSite == null && site.kind == YQSiteKindV2.PointOfInterest)
+        else if (!continuationSite && reviewedSite == null && site.kind == YQSiteKindV2.PointOfInterest)
         {
             // note: Landmark/resource fixtures use a reviewed landmark composition with an actual approachable footprint.
             reviewedSite = FindReviewedSiteForFunctions(
@@ -2811,6 +3218,10 @@ public static class YQContinuousWorldFeatureMaterializer
         if (reviewedSite == null || string.IsNullOrWhiteSpace(reviewedSite.runtimeManifestResourceKey))
             yield break;
 
+        string selectionSeed = ResolveAcceptedSiteSelectionSeed(plan, site, settlement, encampment);
+        if (continuationSite && (string.IsNullOrWhiteSpace(selectionSeed) || selectionSeed != continuationLocation.compositionSeed))
+            yield break;
+
         GameObject root = new GameObject("ContinuousReviewedSite_" + SafeSiteName(site.siteId));
         root.transform.SetParent(parent, false);
         root.transform.SetPositionAndRotation(
@@ -2822,14 +3233,14 @@ public static class YQContinuousWorldFeatureMaterializer
         root.SetActive(false);
 
         bool materialized = false;
-        yield return YQCompiledWorldSiteInstance.MaterializeSemanticSliceNowRoutine(
-            root.transform,
-            locationId,
-            reviewedSite,
-            semanticTags,
-            ResolveAcceptedSiteSelectionSeed(plan, site, settlement, encampment),
-            success => materialized = success);
-        if (!materialized)
+        if (continuationSite)
+            yield return YQCompiledWorldSiteInstance.MaterializeAcceptedContinuationRoutine(
+                root.transform, plan, continuationLocation, continuationPrepared, success => materialized = success);
+        else
+            yield return YQCompiledWorldSiteInstance.MaterializeSemanticSliceNowRoutine(
+                root.transform, locationId, reviewedSite, semanticTags, selectionSeed, success => materialized = success);
+        if (!materialized || continuationSite && !ContinuationReplayStillCurrent(
+                plan, site, continuationLocation, continuationPrepared, selectionSeed, root))
         {
             UnityEngine.Object.Destroy(root);
             Debug.LogWarning(
@@ -2838,14 +3249,14 @@ public static class YQContinuousWorldFeatureMaterializer
         }
 
         // note: The site loader stages CompiledSiteContent under this root while the enclosing chunk is hidden; publish the site root's own activeSelf state before the chunk lifecycle pass exposes it.
-        root.SetActive(true);
+        if (!continuationSite) root.SetActive(true);
 
         // note: Overlay identity is the accepted V2 site ID even when the reviewed provider is keyed by its source semantic record.
         YQStreamedFeatureOverlayTarget overlayTarget = root.GetComponent<YQStreamedFeatureOverlayTarget>() ??
             root.AddComponent<YQStreamedFeatureOverlayTarget>();
         overlayTarget.featureId = site.siteId;
         overlayTarget.objectId = root.name;
-        if (site.kind == YQSiteKindV2.Settlement &&
+        if (!continuationSite && site.kind == YQSiteKindV2.Settlement &&
             (HasSiteTag(site, "beta:settlement") || HasSiteTag(site, "beta_fixture_settlement")))
         {
             // note: Bind the beta settlement's supported player service to the accepted site identity so purchases survive site streaming and save reloads.
@@ -2853,7 +3264,7 @@ public static class YQContinuousWorldFeatureMaterializer
                 root.AddComponent<YQGeneratedSettlementService>();
             service.Configure(site.siteId, plan.worldSeed);
         }
-        if (site.kind == YQSiteKindV2.HostileSite &&
+        if (!continuationSite && site.kind == YQSiteKindV2.HostileSite &&
             (HasSiteTag(site, "beta:hostile") || HasSiteTag(site, "beta_fixture_hostile")))
         {
             // note: V2 beta hostile fixtures do not have a narrative encampment record, so attach the existing proximity-gated combat owner to the accepted site root.
@@ -2885,7 +3296,31 @@ public static class YQContinuousWorldFeatureMaterializer
 
         int materializedObjects = 1;
         bool connectorFailure = false;
-        if (site.MemberFootprint.Count > 0)
+        var sectorLayout = root.GetComponent<YQCompiledWorldSiteInstance>()?.PreparedLayout;
+        if (sectorLayout != null && sectorLayout.version >= 5)
+        {
+            // note: Draw the same accepted-sector frontages used by rigid-cell placement; central-to-member-centre ribbons would run through the new buildings.
+            Material accessMaterial = FindMaterial(registry, "ground", "mud", "path") ?? BuildFallbackRoadMaterial();
+            RegisterCellResource(root.transform, accessMaterial);
+            for (int streetIndex = 0; streetIndex < sectorLayout.streets.Count; streetIndex++)
+            {
+                var street = sectorLayout.streets[streetIndex];
+                int objects = BuildSampledSiteConnector(root.transform, "SectorStreet_" + streetIndex, terrain,
+                    root.transform.TransformPoint(street.start), root.transform.TransformPoint(street.end), street.width, accessMaterial);
+                if (objects <= 0) { connectorFailure = true; break; }
+                materializedObjects += objects;
+                yield return null;
+                // note: Streets remain under the inactive root; repeat full saved-payload validation once immediately before publication.
+                if (continuationSite && (root == null || WorldStateManager.Instance?.State?.generatedWorldPlan != plan))
+                { connectorFailure = true; break; }
+            }
+        }
+        else if (continuationSite && site.MemberFootprint.Count > 0)
+        {
+            // note: Committed continuation sectors cannot be recovered with centre-to-centre ribbons when their saved frontage layout is unavailable.
+            connectorFailure = true;
+        }
+        else if (site.MemberFootprint.Count > 0)
         {
             // note: Member sectors share the reviewed root's identity; only their physical access ribbons are added, avoiding duplicate site-wide providers.
             Material accessMaterial = FindMaterial(registry, "ground", "mud", "path") ?? BuildFallbackRoadMaterial();
@@ -2914,14 +3349,124 @@ public static class YQContinuousWorldFeatureMaterializer
                 materializedObjects += connectorObjects;
             }
         }
-        if (connectorFailure)
+        if (connectorFailure || continuationSite && !ContinuationReplayStillCurrent(
+                plan, site, continuationLocation, continuationPrepared, selectionSeed, root))
         {
             // note: Do not publish a reviewed site root whose mandatory member sector cannot be reached by physical geometry.
             UnityEngine.Object.Destroy(root);
             completed?.Invoke(0);
             yield break;
         }
+        // note: The exact continuation provider stays hidden until replay and all mandatory streets pass the current saved-context checks.
+        if (continuationSite) root.SetActive(true);
         completed?.Invoke(materializedObjects);
+    }
+
+    private static bool IsBaseAcceptedSite(GeneratedWorldPlanRecord plan, YQSpatialMaterializationSiteV2 site)
+    {
+        var anchors = plan?.spatialPlanV2?.blueprint?.sites;
+        if (anchors != null)
+            foreach (var anchor in anchors)
+                if (anchor != null && string.Equals(anchor.siteId, site.siteId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(anchor.sourceSemanticId, site.sourceSemanticId, StringComparison.OrdinalIgnoreCase))
+                    return true;
+        return false;
+    }
+
+    private static string ContinuationKitId(GeneratedSpatialContinuationLocationV2Record location) =>
+        location?.settlement?.runtimeSiteKitId ?? location?.encampment?.runtimeSiteKitId ?? location?.poiRuntimeSiteKitId;
+
+    private static bool TryResolveAcceptedContinuationSiteContext(GeneratedWorldPlanRecord plan,
+        YQSpatialMaterializationSiteV2 site, out GeneratedSpatialContinuationLocationV2Record location,
+        out YQPreparedSpatialMaterializationV2 prepared, out string failure)
+    {
+        location = null;
+        prepared = null;
+        failure = "Continued site has no unique persisted accepted identity.";
+        var extension = plan?.spatialPlanV2?.acceptedContinuation;
+        if (extension?.state != YQSpatialContinuationStateV2.Accepted || extension.locations == null)
+            return false;
+        foreach (var candidate in extension.locations)
+        {
+            var anchor = candidate?.anchor;
+            if (anchor == null || !string.Equals(anchor.siteId, site.siteId, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(anchor.sourceSemanticId, site.sourceSemanticId, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (location != null) return false;
+            location = candidate;
+        }
+        // note: The compiled owner repeats checksums, binding policy, source functions and exact saved layout; proof claims alone never qualify this lookup.
+        if (location == null || !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure) ||
+            !YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationReplay(plan, location, prepared, out var currentSite, out failure))
+            return false;
+        if (!ContinuationPreparedSiteMatches(site, currentSite))
+        {
+            failure = "Continued site no longer matches its current immutable spatial projection.";
+            return false;
+        }
+        return true;
+    }
+
+    private static bool ContinuationPreparedSiteMatches(YQSpatialMaterializationSiteV2 site, YQSpatialMaterializationSiteV2 current)
+    {
+        // note: Identity plus central/member geometry binds this stream request to the actual measured projection rather than an ID-only claim.
+        if (!string.Equals(site.siteId, current.siteId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(site.sourceSemanticId, current.sourceSemanticId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(site.parentRegionId, current.parentRegionId, StringComparison.OrdinalIgnoreCase) ||
+            site.kind != current.kind || site.placementMode != current.placementMode || site.x != current.x || site.z != current.z ||
+            site.headingDegrees != current.headingDegrees || site.reservedRadius != current.reservedRadius ||
+            site.maximumSlopeDegrees != current.maximumSlopeDegrees || !site.terrainReserveReady || !current.terrainReserveReady ||
+            site.surfaceElevationNormalized != current.surfaceElevationNormalized || site.frontageRouteId != current.frontageRouteId ||
+            site.frontageX != current.frontageX || site.frontageZ != current.frontageZ || site.routeAccess != current.routeAccess ||
+            site.RequiredFunctions.Count != current.RequiredFunctions.Count || site.MemberFootprint.Count != current.MemberFootprint.Count ||
+            site.Tags.Count != current.Tags.Count)
+            return false;
+        for (int index = 0; index < site.RequiredFunctions.Count; index++)
+            if (site.RequiredFunctions[index] != current.RequiredFunctions[index]) return false;
+        for (int index = 0; index < site.Tags.Count; index++)
+            if (site.Tags[index] != current.Tags[index]) return false;
+        foreach (var member in site.MemberFootprint)
+        {
+            if (member == null) return false;
+            bool found = false;
+            foreach (var other in current.MemberFootprint)
+                if (other != null && member.memberId == other.memberId && member.x == other.x && member.z == other.z &&
+                    member.reservedRadius == other.reservedRadius && member.sectorIndex == other.sectorIndex)
+                { found = true; break; }
+            if (!found) return false;
+        }
+        return true;
+    }
+
+    private static bool ContinuationReplayStillCurrent(GeneratedWorldPlanRecord plan, YQSpatialMaterializationSiteV2 site,
+        GeneratedSpatialContinuationLocationV2Record location, YQPreparedSpatialMaterializationV2 prepared,
+        string selectionSeed, GameObject root)
+    {
+        if (root == null || !TryResolveAcceptedContinuationSiteContext(plan, site, out var currentLocation,
+                out var currentPrepared, out _) || !ReferenceEquals(location, currentLocation) ||
+            !ReferenceEquals(prepared, currentPrepared) || selectionSeed != currentLocation.compositionSeed)
+            return false;
+        var provider = root.GetComponent<YQCompiledWorldSiteInstance>();
+        var savedLayout = location.settlement?.proceduralLayout ?? location.compositionLayout;
+        return provider != null && provider.IsContinuationGeometryLoaded && savedLayout != null && ReferenceEquals(provider.PreparedLayout, savedLayout) &&
+            string.Equals(provider.CanonicalRegionId, site.parentRegionId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetAcceptedContinuationLoadedProvider(GeneratedWorldPlanRecord plan, YQSpatialMaterializationSiteV2 site,
+        out YQCompiledWorldSiteInstance provider, out string failure)
+    {
+        provider = null;
+        if (!TryResolveAcceptedContinuationSiteContext(plan, site, out var location, out _, out failure)) return false;
+        var savedLayout = location.settlement?.proceduralLayout ?? location.compositionLayout;
+        if (!YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(location.anchor.sourceSemanticId,
+                ContinuationKitId(location), location.compositionSeed, out provider) || savedLayout == null ||
+            !ReferenceEquals(provider.PreparedLayout, savedLayout) ||
+            !string.Equals(provider.CanonicalRegionId, site.parentRegionId, StringComparison.OrdinalIgnoreCase))
+        {
+            failure = "Loaded continuation provider does not match its committed kit, seed, layout or region.";
+            return false;
+        }
+        return true;
     }
 
     private static string ResolveAcceptedSiteSelectionSeed(
@@ -2930,6 +3475,12 @@ public static class YQContinuousWorldFeatureMaterializer
         GeneratedSettlementRecord settlement,
         GeneratedEncampmentRecord encampment)
     {
+        if (!IsBaseAcceptedSite(plan, site))
+        {
+            // note: Missing/stale continuation identity has no legacy seed fallback; the accepted composition seed is the only replay authority.
+            return TryResolveAcceptedContinuationSiteContext(plan, site, out var continuation, out _, out _)
+                ? continuation.compositionSeed : string.Empty;
+        }
         // note: Reuse the persisted procedural layout identity when available so streamed settlement sectors consume the exact accepted cell selection and street plan.
         if (settlement?.proceduralLayout != null &&
             !string.IsNullOrWhiteSpace(settlement.proceduralLayout.seed))
@@ -3979,7 +4530,8 @@ public static class YQContinuousWorldFeatureMaterializer
                     Mathf.Max(8f, water.nominalWidth * 0.5f),
                     WorldGridOrigin + coordinate.x * cellSize, WorldGridOrigin + (coordinate.x + 1f) * cellSize,
                     WorldGridOrigin + coordinate.y * cellSize, WorldGridOrigin + (coordinate.y + 1f) * cellSize,
-                    baseY, height, 0f, spanBreaks, ref hasPreviousSpan, ref previousSpanEnd);
+                    // note: An internal bend near a cell edge must not become a full-cell extrapolated branch. Accepted terminal continuation is emitted separately below.
+                    baseY, height, 0f, spanBreaks, ref hasPreviousSpan, ref previousSpanEnd, false);
             }
             CompleteAcceptedRibbonFeature(points, pointWidths, spanBreaks, before, water.nominalWidth);
             // note: Preserve accepted control-point width variation, not just one nominal width for the entire river identity.
@@ -4452,6 +5004,9 @@ public static class YQContinuousWorldFeatureMaterializer
     {
         if (points == null || points.Count < 2 || parent == null || material == null)
             return null;
+        // note: Grounded roads need samples across their width as well as along the route; water retains its accepted level.
+        if (!water && contactTerrain != null)
+            return BuildGroundedRoadRibbon(parent, name, points, width, material, contactTerrain, widths);
         if (!water && contactTerrain != null)
         {
             // note: Match the heightfield's two-metre detail rather than bridging terrain undulations with eight-metre route triangles.
@@ -4566,6 +5121,90 @@ public static class YQContinuousWorldFeatureMaterializer
         return root;
     }
 
+    private static GameObject BuildGroundedRoadRibbon(Transform parent, string name, List<Vector3> points,
+        float width, Material material, Terrain terrain, IReadOnlyList<float> widths)
+    {
+        // note: Clip each tessellated triangle to its terrain owner instead of retaining ungrounded vertices beyond a cell edge.
+        var vertices = new List<Vector3>();
+        var uvs = new List<Vector2>();
+        var normals = new List<Vector3>();
+        var triangles = new List<int>();
+        Vector3 origin = terrain.GetPosition(), size = terrain.terrainData.size;
+        var polygon = new List<Vector3>(7);
+        var clipped = new List<Vector3>(7);
+        void Emit(Vector3 a, Vector3 b, Vector3 c)
+        {
+            polygon.Clear(); polygon.Add(a); polygon.Add(b); polygon.Add(c);
+            for (int edge = 0; edge < 4; edge++)
+            {
+                clipped.Clear();
+                float Distance(Vector3 point) => edge == 0 ? point.x - origin.x : edge == 1 ? origin.x + size.x - point.x :
+                    edge == 2 ? point.z - origin.z : origin.z + size.z - point.z;
+                for (int i = 0; i < polygon.Count; i++)
+                {
+                    Vector3 current = polygon[i], previous = polygon[(i + polygon.Count - 1) % polygon.Count];
+                    float cd = Distance(current), pd = Distance(previous);
+                    if ((cd >= 0f) != (pd >= 0f)) clipped.Add(Vector3.Lerp(previous, current, pd / (pd - cd)));
+                    if (cd >= 0f) clipped.Add(current);
+                }
+                var swap = polygon; polygon = clipped; clipped = swap;
+            }
+            if (polygon.Count < 3) return;
+            int start = vertices.Count;
+            foreach (Vector3 point in polygon)
+            {
+                Vector2 xz = new Vector2(Mathf.Clamp(point.x, origin.x, origin.x + size.x),
+                    Mathf.Clamp(point.z, origin.z, origin.z + size.z));
+                if (!YQGeneratedWorldEnvironment.TrySampleLivedPathSurface(terrain, xz, out Vector3 grounded, out _)) return;
+                vertices.Add(parent.InverseTransformPoint(grounded));
+                uvs.Add(xz * 0.25f);
+                // note: Clipped triangles have separate vertices. Use the terrain's continuous normals instead of introducing a lighting seam on every triangle.
+                Vector3 normal = terrain.terrainData.GetInterpolatedNormal((xz.x - origin.x) / size.x, (xz.y - origin.z) / size.z);
+                normals.Add(parent.InverseTransformDirection(terrain.transform.TransformDirection(normal)).normalized);
+            }
+            for (int i = 1; i + 1 < polygon.Count; i++)
+            { triangles.Add(start); triangles.Add(start + i); triangles.Add(start + i + 1); }
+        }
+        for (int segment = 0; segment + 1 < points.Count; segment++)
+        {
+            Vector3 a = points[segment], b = points[segment + 1];
+            if (!IsFinitePoint(a) || !IsFinitePoint(b)) return null;
+            Vector3 direction = new Vector3(b.x - a.x, 0f, b.z - a.z);
+            if (direction.sqrMagnitude < 0.0001f) continue;
+            Vector3 side = Vector3.Cross(Vector3.up, direction.normalized);
+            float aw = widths != null ? widths[segment] : width, bw = widths != null ? widths[segment + 1] : width;
+            int rows = Mathf.Max(1, Mathf.CeilToInt(direction.magnitude));
+            int columns = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(aw, bw)), 2, 64);
+            Vector3 Point(float along, float across) => Vector3.Lerp(a, b, along) + side * Mathf.Lerp(aw, bw, along) * (across - 0.5f);
+            for (int row = 0; row < rows; row++)
+            for (int column = 0; column < columns; column++)
+            {
+                Vector3 al = Point(row / (float)rows, column / (float)columns);
+                Vector3 ar = Point(row / (float)rows, (column + 1f) / columns);
+                Vector3 bl = Point((row + 1f) / rows, column / (float)columns);
+                Vector3 br = Point((row + 1f) / rows, (column + 1f) / columns);
+                Emit(al, bl, ar); Emit(ar, bl, br);
+            }
+        }
+        if (triangles.Count == 0) return null;
+        var mesh = new Mesh { name = name + "_Mesh", indexFormat = vertices.Count > 65535 ?
+            UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16 };
+        mesh.SetVertices(vertices); mesh.SetUVs(0, uvs); mesh.SetTriangles(triangles, 0);
+        mesh.SetNormals(normals);
+        // note: Authored ground materials contain normal maps, which require valid tangents on the generated ribbon.
+        mesh.RecalculateBounds(); mesh.RecalculateTangents();
+        var root = new GameObject(name);
+        root.transform.SetParent(parent, false);
+        root.AddComponent<YQContinuousWorldOwnedResources>().Register(mesh);
+        root.AddComponent<MeshFilter>().sharedMesh = mesh;
+        var renderer = root.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = material;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = true;
+        root.AddComponent<MeshCollider>().sharedMesh = mesh;
+        return root;
+    }
+
     private static bool IsFinitePoint(Vector3 point)
     {
         return !float.IsNaN(point.x) && !float.IsInfinity(point.x) &&
@@ -4600,6 +5239,37 @@ public static class YQContinuousWorldFeatureMaterializer
     private static Material FindPaletteMaterial(GeneratedRegionAssetPaletteRecord palette, YQRuntimeWorldAssetRegistry registry, string slot, string seed)
     {
         GeneratedAssetReferenceRecord reference = YQWorldAssetCatalog.PickAssetForSlot(palette, slot, seed);
+        // note: Missing path meshes may borrow opaque ground surfaces from the same accepted palette, never foliage cards or mixed rock/foliage atlases. Selection retains the catalog's stable weighted rule.
+        if (reference == null && slot == YQWorldAssetCatalog.SlotPath && palette != null && registry != null)
+        {
+            var surfaces = new GeneratedRegionAssetPaletteRecord();
+            foreach (var candidate in palette.terrainMaterials)
+            {
+                if (candidate == null) continue;
+                string identity = ((candidate.assetPath ?? string.Empty) + " " + (candidate.assetKey ?? string.Empty)).ToLowerInvariant();
+                if (identity.Contains("foliage") || identity.Contains("atlas") || identity.Contains("leaves") || identity.Contains("grass")) continue;
+                if (!identity.Contains("ground") && !identity.Contains("mud") && !identity.Contains("dirt") && !identity.Contains("soil") && !identity.Contains("stone") && !identity.Contains("path")) continue;
+                Material candidateMaterial = registry.ResolveMaterial(candidate.assetPath);
+                if (candidateMaterial == null || candidateMaterial.mainTexture == null || candidateMaterial.renderQueue >= 2450 ||
+                    (candidateMaterial.HasProperty("_AlphaClip") && candidateMaterial.GetFloat("_AlphaClip") > .5f)) continue;
+                surfaces.terrainMaterials.Add(candidate);
+            }
+            reference = YQWorldAssetCatalog.PickAssetForSlot(surfaces, YQWorldAssetCatalog.SlotTerrain, seed + "|surface");
+        }
+        // note: Material references resolve through the canonical lazy registry, including preferred URP paths, before prefab-entry lookup.
+        Material source = reference != null ? registry.ResolveMaterial(reference.assetPath) : null;
+        Renderer sourceRenderer = null;
+        if (source == null && reference != null)
+        {
+            GameObject sourcePrefab = registry.ResolvePrefab(reference.assetPath);
+            sourceRenderer = sourcePrefab != null ? sourcePrefab.GetComponentInChildren<Renderer>(true) : null;
+            source = sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
+        }
+        if (source != null)
+        {
+            source = YQRuntimeUrpMaterialRepair.ResolveGeneratedSurfaceMaterial(source, sourceRenderer);
+            if (source != null) return new Material(source) { hideFlags = HideFlags.DontSave };
+        }
         return reference != null ? FindMaterial(registry, reference.assetPath) : FindMaterial(registry, "ground", "mud", "path");
     }
 
@@ -4682,9 +5352,11 @@ public static class YQContinuousWorldFeatureMaterializer
                 continue;
             Material material = entry.material;
             Renderer sourceRenderer = null;
-            if (material == null && entry.prefab != null)
+            GameObject prefab = material == null ? registry.ResolvePrefab(entry.assetPath) : null;
+            if (material == null && prefab != null)
             {
-                sourceRenderer = entry.prefab.GetComponentInChildren<Renderer>(true);
+                // note: Root entries and lazy shards need their canonical prefab resolver before extracting the authored surface.
+                sourceRenderer = prefab.GetComponentInChildren<Renderer>(true);
                 material = sourceRenderer != null ? sourceRenderer.sharedMaterial : null;
             }
             // note: Keep the imported textures when adapting a vendor surface to URP; the source asset and cached shared adaptation are never owned by this cell.

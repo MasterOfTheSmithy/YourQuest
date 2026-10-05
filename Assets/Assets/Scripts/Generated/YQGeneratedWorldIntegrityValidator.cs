@@ -1277,11 +1277,22 @@ public static class YQGeneratedWorldIntegrityValidator
     private static void ValidateWalkableSurface(Renderer renderer, Report report)
     {
         GameObject surface = renderer.gameObject;
-        // note: A generated bridge separates render-only arch meshes from its fitted walk-surface collider; never synthesize a second collider through the stonework.
-        if (surface.GetComponentInParent<YQGeneratedRiverBridge>() != null &&
-            surface.name == "StoneBridgeDeck")
+        // note: Every generated deck variant is presentation over the fitted mesh; adding level block colliders changes its accepted sloped walk plane.
+        YQGeneratedRiverBridge bridge = surface.GetComponentInParent<YQGeneratedRiverBridge>();
+        if (bridge != null && surface.transform.parent == bridge.transform &&
+            (surface.name == "StoneBridgeDeck" || surface.name == "WoodBridgeDeck" ||
+             surface.name == "DisheveledBridgeDeck" || surface.name == "RepairedBridgeDeck"))
         {
-            report.validColliders++;
+            // note: Presentation may borrow only this bridge's enabled fitted collision owner, never certify a missing deck by its name alone.
+            Transform walkSurface = bridge.transform.Find("StoneBridgeWalkSurface");
+            MeshCollider fitted = walkSurface != null ? walkSurface.GetComponent<MeshCollider>() : null;
+            if (fitted != null && fitted.enabled && !fitted.isTrigger && fitted.sharedMesh != null)
+                report.validColliders++;
+            else
+            {
+                report.missingColliders++;
+                Debug.LogError("[WORLDGEN ERROR] Generated bridge presentation has no enabled fitted walk surface. Object=" + HierarchyPath(surface.transform));
+            }
             return;
         }
         // note: Generated terrain overlays declare their physical owner explicitly; continuous route probes still test that terrain and all actual obstacles.
@@ -1466,6 +1477,10 @@ public static class YQGeneratedWorldIntegrityValidator
 
     private static bool IsWalkableSurface(GameObject gameObject)
     {
+        // note: The builder deliberately disables its visual rail posts. The broad bridge-name fallback must not reactivate them as floors.
+        if (gameObject.name == "BridgeRailPost" && gameObject.transform.parent != null &&
+            gameObject.transform.parent.GetComponent<YQGeneratedRiverBridge>() != null)
+            return false;
         string name = gameObject.name.ToLowerInvariant();
         return ContainsAny(
             name,

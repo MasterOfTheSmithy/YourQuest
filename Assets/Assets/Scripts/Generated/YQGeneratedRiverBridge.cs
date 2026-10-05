@@ -14,6 +14,7 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
     private const float WalkSurfaceBottomOffset = WalkSurfaceTopOffset - WalkSurfaceThickness;
     private const float WalkSurfaceSupportTopInset = 0.01f;
     private const float WalkSurfaceSupportThickness = 0.5f;
+    private const string CollisionCorridorGeometryVersion = "buffered_road_union_v2";
     private readonly List<Mesh> meshes = new List<Mesh>();
     private readonly List<Material> materials = new List<Material>();
     private static readonly int BaseColorShaderId = Shader.PropertyToID("_BaseColor");
@@ -92,39 +93,19 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
             RecordBuildSubstage(substageTelemetry, "bridgeCollisionDeck", stageStarted);
             yield return null;
 
-            // note: Preserve per-segment hidden support at curved seams while spreading collider creation across the same bounded work lane.
-            float supportSliceStartedAt = Time.realtimeSinceStartup;
-            for (int segment = 0; segment < road.Count - 1; segment++)
+            // note: One continuous shoulder follows the same shared road vertices. Tilted segment boxes exposed steep end caps at joints and lifted the capsule off its intended plane.
+            stageStarted = Time.realtimeSinceStartup;
+            Mesh supportCollision = BuildSupportSurfaceMesh(road, width);
+            RecordBuildSubstage(substageTelemetry, "bridgeSupportMesh", stageStarted);
+            if (supportCollision != null)
             {
                 stageStarted = Time.realtimeSinceStartup;
-                Vector3 a = road[segment];
-                Vector3 b = road[segment + 1];
-                Vector3 delta = b - a;
-                Vector3 flat = new Vector3(delta.x, 0f, delta.z);
-                float length = flat.magnitude;
-                if (length >= 0.05f)
-                {
-                    float segmentLength = delta.magnitude;
-                    Vector3 segmentForward = delta / segmentLength;
-                    Vector3 segmentSide = new Vector3(-flat.z, 0f, flat.x) / length;
-                    // note: Match each hidden support's top plane to the accepted sloped deck so its retained depth cannot form a raised entry lip.
-                    Vector3 deckNormal = Vector3.Cross(segmentSide, segmentForward).normalized;
-                    GameObject support = new GameObject("StoneBridgeWalkSurface");
-                    support.transform.SetParent(root.transform, false);
-                    // note: Keep the support just beneath the mesh top so the mesh remains the authoritative walk plane at seams.
-                    support.transform.position = Vector3.Lerp(a, b, 0.5f) + Vector3.up * (WalkSurfaceTopOffset - WalkSurfaceSupportTopInset) - deckNormal * (WalkSurfaceSupportThickness * 0.5f);
-                    support.transform.rotation = Quaternion.LookRotation(segmentForward, deckNormal);
-                    BoxCollider box = support.AddComponent<BoxCollider>();
-                    // note: Give the hidden support a narrow safety shoulder so the certified capsule remains supported at bank-turn corners without widening the visible deck.
-                    float supportLength = (length + 0.18f) * (segmentLength / length);
-                    box.size = new Vector3(width + 2f, WalkSurfaceSupportThickness, supportLength);
-                }
+                GameObject support = new GameObject("StoneBridgeWalkSurface");
+                support.transform.SetParent(root.transform, false);
+                support.AddComponent<MeshCollider>().sharedMesh = supportCollision;
+                owner.meshes.Add(supportCollision);
                 RecordBuildSubstage(substageTelemetry, "bridgeSupportCollider", stageStarted);
-                if (Time.realtimeSinceStartup - supportSliceStartedAt >= CooperativeSliceSeconds)
-                {
-                    yield return null;
-                    supportSliceStartedAt = Time.realtimeSinceStartup;
-                }
+                yield return null;
             }
         }
     }
@@ -389,13 +370,34 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
 
     private static Mesh BuildWalkSurfaceMesh(IReadOnlyList<Vector3> road, float width)
     {
+        return BuildExtrudedRoadMesh(road, width, WalkSurfaceTopOffset, WalkSurfaceBottomOffset, false, "YQ_StoneBridgeWalkSurface");
+    }
+
+    private static Mesh BuildSupportSurfaceMesh(IReadOnlyList<Vector3> road, float width)
+    {
+        // note: Retain the existing one-metre shoulder and half-metre depth without creating independent internal faces or extending past bank contacts.
+        float top = WalkSurfaceTopOffset - WalkSurfaceSupportTopInset;
+        return BuildExtrudedRoadMesh(road, width + 2f, top, top - WalkSurfaceSupportThickness, true, "YQ_ContinuousBridgeSupport");
+    }
+
+    private static Mesh BuildExtrudedRoadMesh(IReadOnlyList<Vector3> road, float width, float topOffset, float bottomOffset, bool capEnds, string meshName)
+    {
+        // note: Sampling may repeat a bank endpoint. Remove only redundant derived collision samples (within 0.1 mm) so a zero-length tangent cannot fold the terminal strip; accepted road data and visual assemblies remain untouched.
+        var collisionRoad = new List<Vector3>(road.Count);
+        for (int index = 0; index < road.Count; index++)
+        {
+            Vector3 point = road[index];
+            if (collisionRoad.Count == 0 || (point - collisionRoad[collisionRoad.Count - 1]).sqrMagnitude > .00000001f)
+                collisionRoad.Add(point);
+        }
+        road = collisionRoad;
         // note: Carry the thin walk surface through both bank samples so the certified road never loses support at the bridge-to-bank seam.
         int first = 0;
         int last = road.Count - 1;
         int count = last - first + 1;
         if (count < 2) return null;
         var vertices = new Vector3[count * 4];
-        var triangles = new int[(count - 1) * 24];
+        var triangles = new int[(count - 1) * 24 + (capEnds ? 12 : 0)];
         float halfWidth = Mathf.Max(1.2f, width * .5f);
         for (int i = 0; i < count; i++)
         {
@@ -406,8 +408,8 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
             tangent.Normalize();
             Vector3 side = new Vector3(-tangent.z, 0f, tangent.x);
             Vector3 center = road[source];
-            Vector3 top = center + Vector3.up * WalkSurfaceTopOffset;
-            Vector3 bottom = center + Vector3.up * WalkSurfaceBottomOffset;
+            Vector3 top = center + Vector3.up * topOffset;
+            Vector3 bottom = center + Vector3.up * bottomOffset;
             int v = i * 4;
             vertices[v] = top - side * halfWidth;
             vertices[v + 1] = top + side * halfWidth;
@@ -417,21 +419,331 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
         for (int i = 0; i < count - 1; i++)
         {
             int a = i * 4, b = (i + 1) * 4, t = i * 24;
-            triangles[t] = a; triangles[t + 1] = b; triangles[t + 2] = a + 1;
-            triangles[t + 3] = a + 1; triangles[t + 4] = b; triangles[t + 5] = b + 1;
-            triangles[t + 6] = a + 2; triangles[t + 7] = a + 3; triangles[t + 8] = b + 2;
-            triangles[t + 9] = a + 3; triangles[t + 10] = b + 3; triangles[t + 11] = b + 2;
-            triangles[t + 12] = a; triangles[t + 13] = a + 2; triangles[t + 14] = b;
-            triangles[t + 15] = b; triangles[t + 16] = a + 2; triangles[t + 17] = b + 2;
-            triangles[t + 18] = a + 1; triangles[t + 19] = b + 1; triangles[t + 20] = a + 3;
-            triangles[t + 21] = a + 3; triangles[t + 22] = b + 1; triangles[t + 23] = b + 3;
+            // note: MeshCollider faces are one-sided: wind the top upward, bottom downward and sides outward so physics cannot admit the underside as the road tread.
+            triangles[t] = a; triangles[t + 1] = a + 1; triangles[t + 2] = b;
+            triangles[t + 3] = a + 1; triangles[t + 4] = b + 1; triangles[t + 5] = b;
+            triangles[t + 6] = a + 2; triangles[t + 7] = b + 2; triangles[t + 8] = a + 3;
+            triangles[t + 9] = a + 3; triangles[t + 10] = b + 2; triangles[t + 11] = b + 3;
+            triangles[t + 12] = a; triangles[t + 13] = b; triangles[t + 14] = a + 2;
+            triangles[t + 15] = b; triangles[t + 16] = b + 2; triangles[t + 17] = a + 2;
+            triangles[t + 18] = a + 1; triangles[t + 19] = a + 3; triangles[t + 20] = b + 1;
+            triangles[t + 21] = a + 3; triangles[t + 22] = b + 3; triangles[t + 23] = b + 1;
         }
-        var mesh = new Mesh { name = "YQ_StoneBridgeWalkSurface" };
+        if (capEnds)
+        {
+            // note: Close only the two terminal banks. Interior cross-sections stay shared, with no sloping cap available as a false tread.
+            int t = (count - 1) * 24;
+            int end = (count - 1) * 4;
+            triangles[t] = 0; triangles[t + 1] = 2; triangles[t + 2] = 1;
+            triangles[t + 3] = 1; triangles[t + 4] = 2; triangles[t + 5] = 3;
+            triangles[t + 6] = end; triangles[t + 7] = end + 1; triangles[t + 8] = end + 2;
+            triangles[t + 9] = end + 1; triangles[t + 10] = end + 3; triangles[t + 11] = end + 2;
+        }
+        // note: A short sharp turn can fold a bisector strip despite correct winding. Rebuild its full-width footprint, rather than flipping inward triangles or narrowing the accepted corridor.
+        for (int segment = 0; segment < count - 1; segment++)
+        {
+            int offset = segment * 24;
+            for (int face = 0; face < 6; face += 3)
+                if (Vector3.Cross(vertices[triangles[offset + face + 1]] - vertices[triangles[offset + face]],
+                    vertices[triangles[offset + face + 2]] - vertices[triangles[offset + face]]).y <= 0f)
+                    return BuildBufferedCollisionMesh(road, halfWidth, topOffset, bottomOffset, capEnds, meshName);
+        }
+        var mesh = new Mesh { name = meshName };
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         return mesh;
+    }
+
+    private struct CorridorEdge
+    {
+        public Vector2 a, b;
+        public int first, second, count;
+    }
+
+    private static double CorridorCross(Vector2 a, Vector2 b)
+    {
+        return (double)a.x * b.y - (double)a.y * b.x;
+    }
+
+    private static Mesh BuildBufferedCollisionMesh(IReadOnlyList<Vector3> road, float halfWidth,
+        float topOffset, float bottomOffset, bool capEnds, string meshName)
+    {
+        // note: Work in a small local numeric frame. Segment rectangles and outer bevels preserve width and original bank endpoints; their union has no internal collision caps or overlapping top faces.
+        Vector2 origin = new Vector2(road[0].x, road[0].z);
+        var centers = new Vector2[road.Count];
+        var sides = new Vector2[road.Count - 1];
+        var polygons = new List<Vector2[]>();
+        for (int index = 0; index < road.Count; index++) centers[index] = new Vector2(road[index].x, road[index].z) - origin;
+        for (int index = 0; index < sides.Length; index++)
+        {
+            Vector2 delta = centers[index + 1] - centers[index];
+            if (delta.sqrMagnitude < .00000001f) throw new InvalidOperationException("Bridge collision has a vertical-only road segment.");
+            Vector2 direction = delta.normalized;
+            Vector2 side = sides[index] = new Vector2(-direction.y, direction.x) * halfWidth;
+            polygons.Add(new[] { centers[index] - side, centers[index + 1] - side, centers[index + 1] + side, centers[index] + side });
+            if (index == 0) continue;
+            double turn = CorridorCross(centers[index] - centers[index - 1], delta);
+            if (Math.Abs(turn) < .00000001d) continue;
+            float sign = turn > 0d ? -1f : 1f;
+            var bevel = new[] { centers[index], centers[index] + sides[index - 1] * sign, centers[index] + side * sign };
+            if (CorridorCross(bevel[1] - bevel[0], bevel[2] - bevel[0]) < 0d) Array.Reverse(bevel);
+            polygons.Add(bevel);
+        }
+        List<Vector2> boundary = ResolveCorridorBoundary(polygons);
+        var points = new List<Vector2>(boundary);
+        var topVertices = new List<Vector3>();
+        foreach (Vector2 point in points)
+            topVertices.Add(new Vector3(origin.x + point.x, SampleCorridorHeight(point, centers, road) + topOffset, origin.y + point.y));
+        List<int> surface = TriangulateCorridorBoundary(boundary);
+        // note: Insert every accepted centreline sample into the surface triangulation, including bank-edge samples, so triangulation cannot flatten away an accepted grade or introduce cracks at a shared edge.
+        for (int index = 0; index < centers.Length; index++)
+            InsertCorridorPoint(centers[index], road[index] + Vector3.up * topOffset, points, topVertices, ref surface);
+        InsertCorridorGradeEdges(centers, road, topOffset, origin, points, topVertices, ref surface);
+        var edges = new Dictionary<long, CorridorEdge>();
+        for (int index = 0; index < surface.Count; index += 3)
+            for (int edge = 0; edge < 3; edge++)
+            {
+                int a = surface[index + edge], b = surface[index + (edge + 1) % 3];
+                long key = ((long)Math.Min(a, b) << 32) | (uint)Math.Max(a, b);
+                if (edges.TryGetValue(key, out CorridorEdge existing))
+                {
+                    if (existing.count != 1 || existing.first != b || existing.second != a)
+                        throw new InvalidOperationException("Bridge collision triangulation has an overlapping or non-manifold edge.");
+                    existing.count = 2; edges[key] = existing;
+                }
+                else edges.Add(key, new CorridorEdge { first = a, second = b, count = 1 });
+            }
+        int vertexCount = topVertices.Count;
+        var vertices = new Vector3[vertexCount * 2];
+        for (int index = 0; index < vertexCount; index++)
+        {
+            vertices[index] = topVertices[index];
+            vertices[index + vertexCount] = topVertices[index] - Vector3.up * (topOffset - bottomOffset);
+        }
+        var top = new List<int>(surface.Count); var bottom = new List<int>(surface.Count); var walls = new List<int>();
+        for (int index = 0; index < surface.Count; index += 3)
+        {
+            int a = surface[index], b = surface[index + 1], c = surface[index + 2];
+            top.Add(a); top.Add(c); top.Add(b);
+            bottom.Add(a + vertexCount); bottom.Add(b + vertexCount); bottom.Add(c + vertexCount);
+        }
+        Vector2 firstDirection = (centers[1] - centers[0]).normalized;
+        Vector2 lastDirection = (centers[centers.Length - 1] - centers[centers.Length - 2]).normalized;
+        var orderedEdges = new List<long>(edges.Keys);
+        orderedEdges.Sort();
+        foreach (long key in orderedEdges)
+        {
+            CorridorEdge edge = edges[key];
+            if (edge.count != 1) continue;
+            int a = edge.first, b = edge.second;
+            if (!capEnds && (OnCorridorBank(points[a], points[b], centers[0], firstDirection) ||
+                OnCorridorBank(points[a], points[b], centers[centers.Length - 1], lastDirection))) continue;
+            walls.Add(a); walls.Add(b); walls.Add(a + vertexCount);
+            walls.Add(b); walls.Add(b + vertexCount); walls.Add(a + vertexCount);
+        }
+        var mesh = new Mesh { name = meshName, subMeshCount = 3 };
+        mesh.vertices = vertices;
+        mesh.SetTriangles(top, 0); mesh.SetTriangles(bottom, 1); mesh.SetTriangles(walls, 2);
+        mesh.RecalculateNormals(); mesh.RecalculateBounds();
+        return mesh;
+    }
+
+    private static bool OnCorridorBank(Vector2 a, Vector2 b, Vector2 center, Vector2 direction)
+    {
+        return Mathf.Abs(Vector2.Dot(a - center, direction)) < .0001f && Mathf.Abs(Vector2.Dot(b - center, direction)) < .0001f;
+    }
+
+    private static float SampleCorridorHeight(Vector2 point, Vector2[] centers, IReadOnlyList<Vector3> road)
+    {
+        float nearest = float.PositiveInfinity, height = road[0].y;
+        for (int index = 0; index < centers.Length - 1; index++)
+        {
+            Vector2 delta = centers[index + 1] - centers[index];
+            float t = Mathf.Clamp01(Vector2.Dot(point - centers[index], delta) / delta.sqrMagnitude);
+            float distance = (point - centers[index] - delta * t).sqrMagnitude;
+            if (distance < nearest) { nearest = distance; height = Mathf.Lerp(road[index].y, road[index + 1].y, t); }
+        }
+        return height;
+    }
+
+    private static List<Vector2> ResolveCorridorBoundary(List<Vector2[]> polygons)
+    {
+        // note: Split footprint edges at intersections, retain only union boundary pieces, and stitch their existing orientation. Ambiguous/disconnected/hole boundaries fail explicitly instead of manufacturing a convex hull over the water.
+        var pieces = new List<CorridorEdge>();
+        for (int owner = 0; owner < polygons.Count; owner++)
+        for (int edge = 0; edge < polygons[owner].Length; edge++)
+        {
+            Vector2 a = polygons[owner][edge], b = polygons[owner][(edge + 1) % polygons[owner].Length], delta = b - a;
+            var cuts = new List<float> { 0f, 1f };
+            for (int other = 0; other < polygons.Count; other++)
+            {
+                if (other == owner) continue;
+                for (int i = 0; i < polygons[other].Length; i++)
+                {
+                    Vector2 c = polygons[other][i], d = polygons[other][(i + 1) % polygons[other].Length], otherDelta = d - c;
+                    double denominator = CorridorCross(delta, otherDelta);
+                    if (Math.Abs(denominator) > .00000001d)
+                    {
+                        double t = CorridorCross(c - a, otherDelta) / denominator;
+                        double u = CorridorCross(c - a, delta) / denominator;
+                        if (t > 0d && t < 1d && u >= -.000001d && u <= 1.000001d) cuts.Add((float)t);
+                    }
+                    else if (Math.Abs(CorridorCross(c - a, delta)) < .00001d * delta.magnitude)
+                    {
+                        float t = Vector2.Dot(c - a, delta) / delta.sqrMagnitude;
+                        float u = Vector2.Dot(d - a, delta) / delta.sqrMagnitude;
+                        if (t > 0f && t < 1f) cuts.Add(t);
+                        if (u > 0f && u < 1f) cuts.Add(u);
+                    }
+                }
+            }
+            cuts.Sort();
+            for (int i = 1; i < cuts.Count; i++)
+            {
+                Vector2 start = a + delta * cuts[i - 1], end = a + delta * cuts[i];
+                if ((end - start).sqrMagnitude < .0000000001f) continue;
+                Vector2 midpoint = (start + end) * .5f;
+                bool hidden = false;
+                for (int other = 0; other < polygons.Count && !hidden; other++)
+                    if (other != owner) hidden = CoveredCorridorEdge(midpoint, delta, polygons[other], other < owner);
+                if (!hidden) pieces.Add(new CorridorEdge { a = start, b = end });
+            }
+        }
+        if (pieces.Count < 3) throw new InvalidOperationException("Bridge collision footprint has no closed boundary.");
+        var boundary = new List<Vector2>();
+        CorridorEdge current = pieces[0]; pieces.RemoveAt(0); boundary.Add(current.a);
+        Vector2 endpoint = current.b;
+        while ((endpoint - boundary[0]).sqrMagnitude > .00000001f)
+        {
+            boundary.Add(endpoint);
+            int next = -1; float nearest = .00000001f;
+            for (int index = 0; index < pieces.Count; index++)
+            {
+                float distance = (pieces[index].a - endpoint).sqrMagnitude;
+                if (distance <= nearest) { nearest = distance; next = index; }
+            }
+            if (next < 0) throw new InvalidOperationException("Bridge collision union boundary is disconnected.");
+            endpoint = pieces[next].b; pieces.RemoveAt(next);
+        }
+        if (pieces.Count != 0) throw new InvalidOperationException("Bridge collision footprint has multiple boundary loops.");
+        for (int index = boundary.Count - 1; index >= 0 && boundary.Count > 3; index--)
+        {
+            Vector2 a = boundary[(index + boundary.Count - 1) % boundary.Count], b = boundary[index], c = boundary[(index + 1) % boundary.Count];
+            if (Math.Abs(CorridorCross(b - a, c - b)) <= .00001d * ((b - a).magnitude + (c - b).magnitude) && Vector2.Dot(b - a, c - b) >= 0f)
+                boundary.RemoveAt(index);
+        }
+        return boundary;
+    }
+
+    private static bool CoveredCorridorEdge(Vector2 point, Vector2 direction, Vector2[] polygon, bool preferOther)
+    {
+        bool boundary = false, hiddenBoundary = false;
+        for (int index = 0; index < polygon.Length; index++)
+        {
+            Vector2 a = polygon[index], delta = polygon[(index + 1) % polygon.Length] - a;
+            double side = CorridorCross(delta, point - a), epsilon = .00001d * delta.magnitude;
+            if (side < -epsilon) return false;
+            if (Math.Abs(side) <= epsilon)
+            {
+                boundary = true;
+                hiddenBoundary |= Vector2.Dot(direction, delta) < 0f || preferOther;
+            }
+        }
+        return !boundary || hiddenBoundary;
+    }
+
+    private static bool InsideCorridorTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    {
+        // note: Float-derived bank intersections have distance error, not a fixed area error. Use the same ten-micrometre edge-distance tolerance for containment and shared-edge insertion.
+        return CorridorCross(b - a, p - a) >= -.00001d * (b - a).magnitude &&
+            CorridorCross(c - b, p - b) >= -.00001d * (c - b).magnitude &&
+            CorridorCross(a - c, p - c) >= -.00001d * (a - c).magnitude;
+    }
+
+    private static List<int> TriangulateCorridorBoundary(List<Vector2> points)
+    {
+        var remaining = new List<int>(); var triangles = new List<int>();
+        for (int index = 0; index < points.Count; index++) remaining.Add(index);
+        while (remaining.Count > 3)
+        {
+            bool clipped = false;
+            for (int index = 0; index < remaining.Count; index++)
+            {
+                int a = remaining[(index + remaining.Count - 1) % remaining.Count], b = remaining[index], c = remaining[(index + 1) % remaining.Count];
+                if (CorridorCross(points[b] - points[a], points[c] - points[b]) <= .00000001d) continue;
+                bool occupied = false;
+                foreach (int candidate in remaining)
+                    if (candidate != a && candidate != b && candidate != c && InsideCorridorTriangle(points[candidate], points[a], points[b], points[c])) { occupied = true; break; }
+                if (occupied) continue;
+                triangles.Add(a); triangles.Add(b); triangles.Add(c); remaining.RemoveAt(index); clipped = true; break;
+            }
+            if (!clipped) throw new InvalidOperationException("Bridge collision boundary cannot be triangulated without overlap.");
+        }
+        triangles.AddRange(remaining);
+        return triangles;
+    }
+
+    private static void InsertCorridorPoint(Vector2 point, Vector3 position, List<Vector2> points, List<Vector3> vertices, ref List<int> triangles)
+    {
+        for (int index = 0; index < points.Count; index++)
+            if ((points[index] - point).sqrMagnitude < .00000001f) { points[index] = point; vertices[index] = position; return; }
+        int added = points.Count;
+        points.Add(point); vertices.Add(position);
+        var split = new List<int>(); bool inserted = false;
+        for (int index = 0; index < triangles.Count; index += 3)
+        {
+            int a = triangles[index], b = triangles[index + 1], c = triangles[index + 2];
+            if (!InsideCorridorTriangle(point, points[a], points[b], points[c])) { split.Add(a); split.Add(b); split.Add(c); continue; }
+            inserted = true;
+            for (int edge = 0; edge < 3; edge++)
+            {
+                int from = triangles[index + edge], to = triangles[index + (edge + 1) % 3];
+                if (CorridorCross(points[to] - points[from], point - points[from]) <= .00001d * (points[to] - points[from]).magnitude) continue;
+                split.Add(from); split.Add(to); split.Add(added);
+            }
+        }
+        if (!inserted) throw new InvalidOperationException("Accepted bridge centreline sample " + point.ToString("F7") + " lies outside its collision corridor.");
+        triangles = split;
+    }
+
+    private static void InsertCorridorGradeEdges(Vector2[] centers, IReadOnlyList<Vector3> road, float topOffset,
+        Vector2 origin, List<Vector2> points, List<Vector3> vertices, ref List<int> triangles)
+    {
+        // note: Retaining isolated height anchors is insufficient: a triangle can cut across a bend and change the tread between them. Split every crossed triangulation edge along each original road segment, retaining its interpolated grade as a continuous constrained edge chain.
+        for (int segment = 0; segment < centers.Length - 1; segment++)
+            InsertCorridorConstrainedEdge(centers[segment], centers[segment + 1], road[segment].y,
+                road[segment + 1].y, topOffset, origin, points, vertices, ref triangles);
+    }
+
+    private static void InsertCorridorConstrainedEdge(Vector2 a, Vector2 b, float firstHeight,
+        float lastHeight, float topOffset, Vector2 origin, List<Vector2> points,
+        List<Vector3> vertices, ref List<int> triangles)
+    {
+        // note: Preserve the existing deterministic centerline edge splitting and height interpolation.
+        Vector2 direction = b - a;
+        var cuts = new List<float>();
+        for (int index = 0; index < triangles.Count; index += 3)
+        for (int edge = 0; edge < 3; edge++)
+        {
+            Vector2 c = points[triangles[index + edge]], delta = points[triangles[index + (edge + 1) % 3]] - c;
+            double denominator = CorridorCross(direction, delta);
+            if (Math.Abs(denominator) < .00000001d) continue;
+            double t = CorridorCross(c - a, delta) / denominator;
+            double u = CorridorCross(c - a, direction) / denominator;
+            if (t > 0d && t < 1d && u >= -.000001d && u <= 1.000001d) cuts.Add((float)t);
+        }
+        cuts.Sort();
+        float previous = -1f;
+        foreach (float t in cuts)
+        {
+            if (previous >= 0f && (t - previous) * direction.magnitude < .0001f) continue;
+            Vector2 point = a + direction * t;
+            Vector3 position = new Vector3(origin.x + point.x, Mathf.Lerp(firstHeight, lastHeight, t) + topOffset, origin.y + point.y);
+            InsertCorridorPoint(point, position, points, vertices, ref triangles);
+            previous = t;
+        }
     }
 
     private static float[] MeasureDeckProfile(Transform source, Renderer[] renderers, float centerX, float minZ, float span, float deckDatum, out float deckMinZ, out float deckSpan)

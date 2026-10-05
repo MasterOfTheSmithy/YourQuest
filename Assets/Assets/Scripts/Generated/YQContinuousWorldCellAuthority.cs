@@ -73,6 +73,13 @@ public sealed class YQContinuousWorldCellAuthority
     private const float InwardDerivativeSample = 4f;
     // note: Limit the authored-to-continuation collar to a walkable grade so a noisy four-metre edge sample cannot become a kilometre-scale Hermite overshoot.
     private const float MaximumCollarGradeDegrees = 28f;
+    // note: Frontier planning is a bounded dry-ground proposal policy; it does not replace crossing acceptance or publish generated content.
+    private const int FrontierPlanningSampleBudget = 8192;
+    private const float FrontierPadShoulder = 24f;
+    private const float FrontierOpeningCollarRadius = 1152f;
+    private const float FrontierRouteWidth = 6f;
+    private const float FrontierRouteShoulder = 12f;
+    private const float FrontierMaximumEarthwork = 12f;
     private static readonly string[] OrderedBiomeIds = { "forest", "grassland", "wetland" };
 
     private readonly string worldSeed;
@@ -82,6 +89,50 @@ public sealed class YQContinuousWorldCellAuthority
     private readonly Terrain originTerrain;
     private readonly YQGeneratedWorldTerrain.V2HeightSampler originSampler;
     private readonly YQPreparedSpatialMaterializationV2 acceptedMaterialization;
+    private readonly bool pureAcceptedProjection;
+    private readonly ContinuationPad[] continuationPads;
+    private readonly Dictionary<Vector2Int, ContinuationPad[]> continuationPadIndex;
+    private readonly ContinuationRoute[] candidateRoutes;
+    private readonly HashSet<string> candidateRouteIds;
+    private readonly int[] continuationRouteProjectionOrder;
+    private readonly struct ContinuationPad
+    {
+        internal readonly float x, z, radius, elevation, shoulder;
+        internal ContinuationPad(float x, float z, float radius, float elevation, float shoulder)
+        { this.x = x; this.z = z; this.radius = radius; this.elevation = elevation; this.shoulder = shoulder; }
+    }
+    private sealed class ContinuationRoute
+    {
+        internal string id;
+        internal float width, shoulder, maximumGrade;
+        internal Vector3[] points;
+    }
+    private readonly struct FrontierSector
+    {
+        internal readonly string id;
+        internal readonly float x, z, radius;
+        internal FrontierSector(string id, float x, float z, float radius)
+        { this.id = id; this.x = x; this.z = z; this.radius = radius; }
+    }
+    private readonly struct FrontierFrontage
+    {
+        internal readonly FrontierSector sector;
+        internal readonly GeneratedSemanticEntranceRecord entrance;
+        internal readonly string routeId;
+        internal FrontierFrontage(FrontierSector sector, GeneratedSemanticEntranceRecord entrance, string routeId)
+        { this.sector = sector; this.entrance = entrance; this.routeId = routeId; }
+    }
+    private sealed class FrontierPlanningBudget
+    {
+        internal int remaining = FrontierPlanningSampleBudget;
+        internal bool exhausted;
+        internal bool TryConsume()
+        {
+            if (remaining-- > 0) return true;
+            exhausted = true;
+            return false;
+        }
+    }
     private readonly AcceptedRouteBounds[] acceptedRouteBounds;
     private readonly float originMinX;
     private readonly float originMaxX;
@@ -115,20 +166,84 @@ public sealed class YQContinuousWorldCellAuthority
         YQGeneratedWorldTerrain.V2HeightSampler sampler,
         GeneratedWorldPlanRecord plan = null,
         float streamedCellSize = 128f)
+        : this(seed, terrain, sampler, plan, streamedCellSize, null, null, false)
+    { }
+
+    private YQContinuousWorldCellAuthority(string seed, Terrain terrain,
+        YQGeneratedWorldTerrain.V2HeightSampler sampler, GeneratedWorldPlanRecord plan, float streamedCellSize,
+        YQPreparedSpatialMaterializationV2 preparedOverride, GeneratedSpatialContinuationLocationV2Record candidate, bool pureProjection)
+        : this(seed, terrain, sampler, plan, streamedCellSize, preparedOverride, candidate, pureProjection, null)
+    { }
+
+    internal YQContinuousWorldCellAuthority WithAcceptedMaterialization(YQPreparedSpatialMaterializationV2 prepared)
     {
-        worldSeed = string.IsNullOrWhiteSpace(seed) ? "yourquest_default_world" : seed.Trim();
-        semanticPlan = plan;
-        if (semanticPlan != null)
+        // note: Stage a prepared continuation against the same captured origin without publishing semantic state or recapturing Unity terrain.
+        if (prepared == null) throw new ArgumentNullException(nameof(prepared));
+        return new YQContinuousWorldCellAuthority(worldSeed, originTerrain, originSampler, semanticPlan,
+            cellSize, prepared, null, pureAcceptedProjection, this);
+    }
+
+    private YQContinuousWorldCellAuthority(string seed, Terrain terrain,
+        YQGeneratedWorldTerrain.V2HeightSampler sampler, GeneratedWorldPlanRecord plan, float streamedCellSize,
+        YQPreparedSpatialMaterializationV2 preparedOverride, GeneratedSpatialContinuationLocationV2Record candidate,
+        bool pureProjection, YQContinuousWorldCellAuthority capturedAuthority)
+    {
+        pureAcceptedProjection = pureProjection;
+        worldSeed = capturedAuthority != null ? capturedAuthority.worldSeed
+            : string.IsNullOrWhiteSpace(seed) ? "yourquest_default_world" : seed.Trim();
+        semanticPlan = capturedAuthority != null ? capturedAuthority.semanticPlan : plan;
+        // note: Detached staging must not rebuild the live semantic graph or replace the canonical resolver cache.
+        if (capturedAuthority == null && semanticPlan != null)
             YQSemanticWorldAuthority.Ensure(semanticPlan);
-        seedHash = StableHash(worldSeed + "|continuous-world-cell|v1");
-        originTerrain = terrain;
-        originSampler = sampler;
-        cellSize = Mathf.Max(32f, streamedCellSize);
-        if (plan != null)
+        seedHash = capturedAuthority != null ? capturedAuthority.seedHash : StableHash(worldSeed + "|continuous-world-cell|v1");
+        originTerrain = capturedAuthority != null ? capturedAuthority.originTerrain : terrain;
+        originSampler = capturedAuthority != null ? capturedAuthority.originSampler : sampler;
+        cellSize = capturedAuthority != null ? capturedAuthority.cellSize : Mathf.Max(32f, streamedCellSize);
+        if (preparedOverride != null) acceptedMaterialization = preparedOverride;
+        else if (capturedAuthority == null && plan != null)
         {
             YQPreparedSpatialMaterializationV2 prepared = null;
             YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out _);
             acceptedMaterialization = prepared;
+        }
+        // note: Worker height sampling reads copied pad values; it never observes mutable save records during a tile build.
+        var pads = new List<ContinuationPad>();
+        if (candidate != null) CopyPads(candidate, pads);
+        if (acceptedMaterialization != null)
+            for (int i = 0; i < acceptedMaterialization.ContinuationPadCount; i++)
+            {
+                var pad = acceptedMaterialization.GetContinuationPad(i);
+                if (candidate != null && pad.ownerSiteId == candidate.anchor.siteId) continue;
+                pads.Add(new ContinuationPad(pad.x, pad.z, pad.reservedRadius, pad.elevationNormalized, pad.shoulderWidth));
+            }
+        pads.Sort((a, b) => { int order = a.x.CompareTo(b.x); if (order != 0) return order;
+            order = a.z.CompareTo(b.z); if (order != 0) return order; return a.elevation.CompareTo(b.elevation); });
+        continuationPads = pads.ToArray();
+        continuationPadIndex = BuildContinuationPadIndex(continuationPads);
+        candidateRoutes = CopyRoutes(candidate?.physicalContext);
+        if (candidateRoutes.Length > 0)
+        {
+            // note: Merge copied candidate roads into the compiler's canonical order once; final-union duplicates occupy the same logical slot rather than grading twice.
+            candidateRouteIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var route in candidateRoutes) candidateRouteIds.Add(route.id);
+            var routeOrder = new List<int>((acceptedMaterialization?.RouteCount ?? 0) + candidateRoutes.Length);
+            int nextCandidate = 0;
+            if (acceptedMaterialization != null)
+                for (int index = 0; index < acceptedMaterialization.RouteCount; index++)
+                {
+                    var route = acceptedMaterialization.GetRoute(index);
+                    if (!string.IsNullOrEmpty(route.continuationOwnerSiteId))
+                        while (nextCandidate < candidateRoutes.Length)
+                        {
+                            int order = string.CompareOrdinal(candidate.anchor.siteId, route.continuationOwnerSiteId);
+                            if (order == 0) order = string.CompareOrdinal(candidateRoutes[nextCandidate].id, route.routeId);
+                            if (order > 0) break;
+                            routeOrder.Add(-nextCandidate - 1); nextCandidate++;
+                        }
+                    if (!candidateRouteIds.Contains(route.routeId)) routeOrder.Add(index);
+                }
+            while (nextCandidate < candidateRoutes.Length) { routeOrder.Add(-nextCandidate - 1); nextCandidate++; }
+            continuationRouteProjectionOrder = routeOrder.ToArray();
         }
         if (acceptedMaterialization != null && acceptedMaterialization.RouteCount > 0)
         {
@@ -149,7 +264,7 @@ public sealed class YQContinuousWorldCellAuthority
                     maximumZ = Mathf.Max(maximumZ, point.z);
                 }
                 YQSpatialMaterializationRouteV2 route = acceptedMaterialization.GetRoute(routeIndex);
-                float padding = Mathf.Max(2f, route.width * 0.5f + route.shoulderWidth);
+                float padding = Mathf.Max(2f, route.width * 0.5f + route.shoulderWidth) + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance;
                 acceptedRouteBounds[routeIndex] = new AcceptedRouteBounds(
                     minimumX, maximumX, minimumZ, maximumZ, padding);
             }
@@ -180,30 +295,48 @@ public sealed class YQContinuousWorldCellAuthority
         }
         hasAcceptedWaterBounds = !float.IsInfinity(waterMinX);
         // note: Include the shared heightmap-diagonal bank support used by the channel carve.
-        float waterMargin = Mathf.Max(1f, maximumWaterInfluence) +
+        float waterMargin = Mathf.Max(1f, maximumWaterInfluence) + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance +
             YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
         acceptedWaterMinX = waterMinX - waterMargin;
         acceptedWaterMaxX = waterMaxX + waterMargin;
         acceptedWaterMinZ = waterMinZ - waterMargin;
         acceptedWaterMaxZ = waterMaxZ + waterMargin;
-        Vector3 origin = terrain != null ? terrain.GetPosition() : new Vector3(-512f, 0f, -512f);
-        Vector3 size = terrain != null && terrain.terrainData != null
-            ? terrain.terrainData.size
-            : new Vector3(1024f, YQGeneratedWorldTerrain.TerrainHeight, 1024f);
-        originMinX = origin.x;
-        originMaxX = origin.x + size.x;
-        originMinZ = origin.z;
-        originMaxZ = origin.z + size.z;
-        originY = origin.y;
-        originHeight = Mathf.Max(1f, size.y);
-        if (terrain != null && terrain.terrainData != null)
+        if (capturedAuthority != null)
         {
-            originHeightResolution = terrain.terrainData.heightmapResolution;
-            originHeightSamples = terrain.terrainData.GetHeights(0, 0, originHeightResolution, originHeightResolution);
+            // note: The original snapshot remains immutable and shared by old workers and the staged replacement authority.
+            originMinX = capturedAuthority.originMinX;
+            originMaxX = capturedAuthority.originMaxX;
+            originMinZ = capturedAuthority.originMinZ;
+            originMaxZ = capturedAuthority.originMaxZ;
+            originY = capturedAuthority.originY;
+            originHeight = capturedAuthority.originHeight;
+            originHeightResolution = capturedAuthority.originHeightResolution;
+            originHeightSamples = capturedAuthority.originHeightSamples;
+            macroOffset = capturedAuthority.macroOffset;
+            ridgeOffset = capturedAuthority.ridgeOffset;
+            biomeOffset = capturedAuthority.biomeOffset;
         }
-        macroOffset = Offset(seedHash, 0x31A7C9D1u);
-        ridgeOffset = Offset(seedHash, 0x90B5F1E3u);
-        biomeOffset = Offset(seedHash, 0xE42C7789u);
+        else
+        {
+            Vector3 origin = terrain != null ? terrain.GetPosition() : new Vector3(-512f, 0f, -512f);
+            Vector3 size = terrain != null && terrain.terrainData != null
+                ? terrain.terrainData.size
+                : new Vector3(1024f, YQGeneratedWorldTerrain.TerrainHeight, 1024f);
+            originMinX = origin.x;
+            originMaxX = origin.x + size.x;
+            originMinZ = origin.z;
+            originMaxZ = origin.z + size.z;
+            originY = origin.y;
+            originHeight = Mathf.Max(1f, size.y);
+            if (terrain != null && terrain.terrainData != null)
+            {
+                originHeightResolution = terrain.terrainData.heightmapResolution;
+                originHeightSamples = terrain.terrainData.GetHeights(0, 0, originHeightResolution, originHeightResolution);
+            }
+            macroOffset = Offset(seedHash, 0x31A7C9D1u);
+            ridgeOffset = Offset(seedHash, 0x90B5F1E3u);
+            biomeOffset = Offset(seedHash, 0xE42C7789u);
+        }
     }
 
     public float SampleHeightNormalized(float worldX, float worldZ)
@@ -369,42 +502,663 @@ public sealed class YQContinuousWorldCellAuthority
     private float ApplyContinuationFeatureModifier(float worldX, float worldZ, float normalizedHeight)
     {
         // note: V2 finite waterways are already present in the accepted sampler; only terminal continuation needs an additional carve.
-        if (originSampler != null)
+        if (originSampler != null || pureAcceptedProjection)
         {
+            normalizedHeight = ApplyContinuationPads(worldX, worldZ, normalizedHeight);
             // note: Continuation terrain and accepted route ribbons must share the same grade, otherwise the authored path can float above or disappear below the streamed heightfield.
-            normalizedHeight = ApplyAcceptedRouteModifier(worldX, worldZ, normalizedHeight);
+            normalizedHeight = ApplyContinuationRouteModifier(worldX, worldZ, normalizedHeight);
             if (acceptedMaterialization == null)
                 return YQContinuousWorldFeatureAuthority.ApplyTerrainModifiers(
                     worldSeed, worldX, worldZ, normalizedHeight, originHeight);
-            float acceptedHeight = normalizedHeight;
+            // note: Resolve finite and continued banks together so a lower dry shoulder cannot take over abruptly at a higher channel's wet edge.
             bool insideFiniteWaterEnvelope = hasAcceptedWaterBounds &&
                 worldX >= acceptedWaterMinX && worldX <= acceptedWaterMaxX &&
                 worldZ >= acceptedWaterMinZ && worldZ <= acceptedWaterMaxZ;
-            bool acceptedInfluence = insideFiniteWaterEnvelope &&
-                YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterModifier(
-                    acceptedMaterialization,
-                    worldX,
-                    worldZ,
-                    acceptedHeight,
-                    originHeight,
-                    out acceptedHeight);
-            float terminalHeight = normalizedHeight;
-            acceptedInfluence |= YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerminalModifiers(
-                acceptedMaterialization,
-                worldX,
-                worldZ,
-                terminalHeight,
-                originHeight,
-                out terminalHeight);
-            if (!acceptedInfluence)
-            {
-                // note: An accepted semantic plan owns the complete baseline; do not resurrect the legacy synthetic river outside its accepted feature graph.
-                return normalizedHeight;
-            }
-            // note: Accepted finite and terminal hydrology are compared from one immutable base so overlapping features remain order-independent.
-            return Mathf.Min(acceptedHeight, terminalHeight);
+            return YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(acceptedMaterialization,
+                worldX, worldZ, normalizedHeight, originHeight, out float waterHeight, insideFiniteWaterEnvelope) ? waterHeight : normalizedHeight;
         }
         return ApplyFeatureModifier(worldX, worldZ, normalizedHeight);
+    }
+
+    private static void CopyPads(GeneratedSpatialContinuationLocationV2Record location, List<ContinuationPad> result)
+    {
+        if (location?.anchor == null || location.physicalContext?.terrainPads == null) return;
+        foreach (var pad in location.physicalContext.terrainPads)
+        {
+            if (pad == null) continue;
+            var anchor = location.anchor;
+            if (pad.sectorId == anchor.siteId)
+                result.Add(new ContinuationPad(anchor.x, anchor.z, anchor.reservedRadius, pad.elevationNormalized, pad.shoulderWidth));
+            else if (anchor.memberFootprint != null)
+                foreach (var member in anchor.memberFootprint)
+                    if (member != null && member.memberId == pad.sectorId)
+                        result.Add(new ContinuationPad(member.x, member.z, member.reservedRadius, pad.elevationNormalized, pad.shoulderWidth));
+        }
+    }
+
+    private static ContinuationRoute[] CopyRoutes(GeneratedSpatialContinuationPhysicalContextV2Record context)
+    {
+        if (context?.routes == null) return Array.Empty<ContinuationRoute>();
+        var result = new List<ContinuationRoute>();
+        foreach (var route in context.routes)
+        {
+            var points = new Vector3[route.controlPoints.Count];
+            for (int i = 0; i < points.Length; i++)
+            { var point = route.controlPoints[i]; points[i] = new Vector3(point.x, point.normalizedElevation, point.z); }
+            result.Add(new ContinuationRoute { id = route.routeId, width = route.width, shoulder = route.shoulderWidth,
+                maximumGrade = route.maximumGradeDegrees, points = points });
+        }
+        result.Sort((first, second) => string.CompareOrdinal(first.id, second.id));
+        return result.ToArray();
+    }
+
+    private float ApplyContinuationPads(float x, float z, float height)
+    {
+        float winningMask = 0f, elevation = height;
+        var coordinate = new Vector2Int(Mathf.FloorToInt((x + 512f) / 128f), Mathf.FloorToInt((z + 512f) / 128f));
+        if (!continuationPadIndex.TryGetValue(coordinate, out var localPads)) return height;
+        foreach (var pad in localPads)
+        {
+            float distance = Vector2.Distance(new Vector2(x, z), new Vector2(pad.x, pad.z));
+            float mask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((distance - pad.radius) / pad.shoulder));
+            if (mask > winningMask) { winningMask = mask; elevation = Mathf.Lerp(height, pad.elevation, mask); }
+        }
+        return elevation;
+    }
+
+    private static Dictionary<Vector2Int, ContinuationPad[]> BuildContinuationPadIndex(ContinuationPad[] pads)
+    {
+        // note: Heightmap workers visit only local immutable reserves rather than scanning every accepted frontier sector for each vertex.
+        var building = new Dictionary<Vector2Int, List<ContinuationPad>>();
+        foreach (var pad in pads)
+        {
+            float extent = pad.radius + pad.shoulder;
+            int minX = Mathf.FloorToInt((pad.x - extent + 512f) / 128f), maxX = Mathf.FloorToInt((pad.x + extent + 512f) / 128f);
+            int minZ = Mathf.FloorToInt((pad.z - extent + 512f) / 128f), maxZ = Mathf.FloorToInt((pad.z + extent + 512f) / 128f);
+            for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++)
+            {
+                var key = new Vector2Int(x, z);
+                if (!building.TryGetValue(key, out var local)) building.Add(key, local = new List<ContinuationPad>());
+                local.Add(pad);
+            }
+        }
+        var result = new Dictionary<Vector2Int, ContinuationPad[]>(building.Count);
+        foreach (var pair in building) result.Add(pair.Key, pair.Value.ToArray());
+        return result;
+    }
+
+    private float ApplyContinuationRouteModifier(float x, float z, float height)
+    {
+        if (candidateRoutes.Length == 0) return ApplyAcceptedRouteModifier(x, z, height);
+        // note: Every route grades the same original post-pad height. Strictly stronger changes win in the exact runtime order, including equal-change ties.
+        float bestChange = 0f, result = height;
+        foreach (int projection in continuationRouteProjectionOrder)
+        {
+            float grade;
+            if (projection >= 0) grade = SampleAcceptedRouteModifier(projection, x, z, height);
+            else
+            {
+                var route = candidateRoutes[-projection - 1];
+                MeasureRoute(route.points, x, z, out float distance, out Vector3 nearest);
+                grade = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(height, nearest.y,
+                    originHeight, route.width * .5f, route.shoulder, distance);
+            }
+            if (Mathf.Abs(grade - height) > bestChange) { bestChange = Mathf.Abs(grade - height); result = grade; }
+        }
+        return result;
+    }
+
+    private static void MeasureRoute(Vector3[] points, float x, float z, out float distance, out Vector3 nearest)
+    {
+        distance = float.PositiveInfinity; nearest = default;
+        Vector2 sample = new Vector2(x, z);
+        for (int i = 0; i + 1 < points.Length; i++)
+        {
+            Vector2 start = new Vector2(points[i].x, points[i].z), delta = new Vector2(points[i + 1].x - points[i].x, points[i + 1].z - points[i].z);
+            float t = delta.sqrMagnitude > .0001f ? Mathf.Clamp01(Vector2.Dot(sample - start, delta) / delta.sqrMagnitude) : 0f;
+            float candidate = Vector2.Distance(sample, start + t * delta);
+            if (candidate < distance) { distance = candidate; nearest = Vector3.Lerp(points[i], points[i + 1], t); }
+        }
+    }
+
+    public static bool TryBuildFrontierPhysicalContext(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 basePrepared, GeneratedSpatialContinuationLocationV2Record locationCandidate,
+        out GeneratedSpatialContinuationPhysicalContextV2Record physicalContext, out string failure)
+    {
+        physicalContext = null;
+        failure = "frontier physical planning requires a staged candidate and a current accepted prepared context";
+        var artifact = plan?.spatialPlanV2;
+        var sourceAnchor = locationCandidate?.anchor;
+        if (artifact == null || basePrepared == null || sourceAnchor == null ||
+            locationCandidate.state != YQSpatialContinuationStateV2.Staged || string.IsNullOrWhiteSpace(plan.worldSeed) ||
+            artifact.worldSeed != plan.worldSeed || artifact.acceptanceState != GeneratedSpatialPlanAcceptanceState.Accepted ||
+            string.IsNullOrWhiteSpace(artifact.contentHash) || artifact.contentHash != artifact.validatedContentHash ||
+            string.IsNullOrWhiteSpace(locationCandidate.deterministicSeed)) return false;
+        string worldSeedSnapshot = plan.worldSeed, parentHashSnapshot = artifact.contentHash;
+        string candidateSeedSnapshot = locationCandidate.deterministicSeed;
+        long candidateRevisionSnapshot = locationCandidate.revision;
+        if (!TrySnapshotFrontierGeometry(sourceAnchor, locationCandidate.entrances,
+                out var anchor, out var sectors, out var entrances, out failure)) return false;
+        if (!basePrepared.TryGetRegion(anchor.parentRegionId, out _))
+        { failure = "frontier physical candidate has no existing canonical prepared region"; return false; }
+        if (basePrepared.TryGetSiteBySiteId(anchor.siteId, out _) || basePrepared.TryGetSiteBySemanticId(anchor.sourceSemanticId, out _))
+        { failure = "frontier physical candidate already has an accepted site or semantic identity"; return false; }
+        foreach (var sector in sectors)
+        {
+            if (Mathf.Max(Mathf.Abs(sector.x), Mathf.Abs(sector.z)) - sector.radius - FrontierPadShoulder <= FrontierOpeningCollarRadius)
+            { failure = "frontier physical sector intersects opening/collar terrain: " + sector.id; return false; }
+            if (FrontierSegmentIntersectsAcceptedReserve(basePrepared, new Vector2(sector.x, sector.z),
+                    new Vector2(sector.x, sector.z), sector.radius, out string otherId))
+            { failure = "frontier physical sector overlaps another accepted owner: " + sector.id + " / " + otherId; return false; }
+        }
+        string planningSeed = worldSeedSnapshot + "|" + candidateSeedSnapshot + "|frontier_physical_context_v1";
+        if (!TryMapFrontierFrontages(basePrepared, anchor, sectors, entrances, out var frontages, out failure)) return false;
+
+        // note: Candidate records are never changed; transient geometry snapshots and copied scalar context feed the same pure sampler used by acceptance.
+        var budget = new FrontierPlanningBudget();
+        var unmodified = new YQContinuousWorldCellAuthority(worldSeedSnapshot, null, null, null, 128f, basePrepared, null, true);
+        var context = new GeneratedSpatialContinuationPhysicalContextV2Record();
+        foreach (var sector in sectors)
+        {
+            if (!TrySampleFrontierPlanningHeight(unmodified, sector.x, sector.z, budget, out float elevation, out failure) ||
+                !TryCheckFrontierDryReserve(basePrepared, sector.x, sector.z, sector.radius + 2f, budget, out failure)) return false;
+            for (int point = 0; point < 8; point++)
+            {
+                float angle = point * Mathf.PI * .25f;
+                float x = sector.x + Mathf.Cos(angle) * sector.radius;
+                float z = sector.z + Mathf.Sin(angle) * sector.radius;
+                if (!TrySampleFrontierPlanningHeight(unmodified, x, z, budget, out float existing, out failure)) return false;
+                if (Mathf.Abs(existing - elevation) * unmodified.originHeight > FrontierMaximumEarthwork)
+                { failure = "frontier sector exceeds twelve metres of reserve earthwork: " + sector.id; return false; }
+            }
+            context.terrainPads.Add(new GeneratedSpatialContinuationTerrainPadV2Record
+            { sectorId = sector.id, elevationNormalized = elevation, shoulderWidth = FrontierPadShoulder });
+        }
+        var measuredCandidate = new GeneratedSpatialContinuationLocationV2Record { anchor = anchor, entrances = entrances, physicalContext = context };
+        var padOnly = new YQContinuousWorldCellAuthority(worldSeedSnapshot, null, null, null, 128f, basePrepared, measuredCandidate, true);
+        int acceptedPointCount = 0, conformanceSamples = 0;
+        var connections = new List<YQContinuousWorldFeatureAuthority.FrontierRouteConnection>(4);
+        foreach (var frontage in frontages)
+        {
+            if (!YQContinuousWorldFeatureAuthority.TryCollectFrontierRouteConnections(basePrepared,
+                    frontage.entrance.worldX, frontage.entrance.worldZ, planningSeed + "|" + frontage.entrance.entranceId,
+                    connections, out failure)) return false;
+            YQRouteCorridorV2 selected = null;
+            int selectedSamples = 0;
+            string lastRejection = "no bounded dry route connects this frontage";
+            uint detourOrder = StableHash(planningSeed + "|detour|" + frontage.entrance.entranceId);
+            foreach (var connection in connections)
+            {
+                for (int variant = 0; variant < 7; variant++)
+                {
+                    int pair = (variant + 1) / 2;
+                    float offset = variant == 0 ? 0f : pair == 1 ? 64f : pair == 2 ? 128f : 256f;
+                    bool negative = (variant & 1) == 0;
+                    if ((detourOrder & 1u) != 0u) negative = !negative;
+                    if (variant > 0 && negative) offset = -offset;
+                    if (TryBuildFrontierRoute(basePrepared, padOnly, frontage, connection.point, offset, budget,
+                            256 - acceptedPointCount, 512 - conformanceSamples, out selected, out selectedSamples, out lastRejection)) break;
+                    if (budget.exhausted)
+                    { failure = "frontier physical planning exhausted 8192 exploratory samples at " + frontage.entrance.entranceId; return false; }
+                }
+                if (selected != null) break;
+            }
+            if (selected == null)
+            { failure = "frontier frontage rejected: " + frontage.entrance.entranceId + ": " + lastRejection; return false; }
+            selected.parentRegionId = anchor.parentRegionId;
+            selected.toSiteId = anchor.siteId;
+            selected.routeClass = anchor.kind == YQSiteKindV2.Settlement ? YQRouteClassV2.SecondaryRoad : YQRouteClassV2.Trail;
+            context.routes.Add(selected);
+            acceptedPointCount += selected.controlPoints.Count;
+            conformanceSamples += selectedSamples;
+        }
+        if (!YQSpatialContinuationValidatorV2.ValidatePhysicalContextOnly(measuredCandidate).IsStructurallyValid)
+        { failure = "frontier planner produced unsupported physical context geometry"; return false; }
+        if (!TryMeasureAcceptedContinuationSite(plan, basePrepared, measuredCandidate, out var measured, out failure)) return false;
+        if (measured.routeAccess < anchor.minimumRouteAccess || measured.waterAccess < anchor.minimumWaterAccess)
+        { failure = "frontier physical context does not meet the candidate's declared access scores"; return false; }
+        if (plan.worldSeed != worldSeedSnapshot || plan.spatialPlanV2 != artifact || artifact.worldSeed != worldSeedSnapshot ||
+            artifact.contentHash != parentHashSnapshot || artifact.validatedContentHash != parentHashSnapshot ||
+            artifact.acceptanceState != GeneratedSpatialPlanAcceptanceState.Accepted || locationCandidate.state != YQSpatialContinuationStateV2.Staged ||
+            locationCandidate.deterministicSeed != candidateSeedSnapshot || locationCandidate.revision != candidateRevisionSnapshot ||
+            locationCandidate.anchor != sourceAnchor || !FrontierGeometryMatches(sourceAnchor, anchor, locationCandidate.entrances, entrances))
+        { failure = "frontier candidate or parent changed during pure physical planning"; return false; }
+        physicalContext = context;
+        failure = string.Empty;
+        return true;
+    }
+
+    internal static bool TryGetFrontierOpeningCollarRecoveryDistance(
+        GeneratedSpatialContinuationLocationV2Record candidate, Vector2 direction, out float distance)
+    {
+        // note: Derive the minimum rigid shift that clears every reserved sector from the same collar enforced by physical preflight.
+        distance = 0f;
+        var anchor = candidate?.anchor;
+        if (anchor == null || anchor.memberFootprint == null || anchor.memberFootprint.Count > 7 ||
+            !FrontierFinite(direction.x) || !FrontierFinite(direction.y) ||
+            Mathf.Abs(direction.x) + Mathf.Abs(direction.y) != 1f) return false;
+        for (int index = -1; index < anchor.memberFootprint.Count; index++)
+        {
+            var member = index < 0 ? null : anchor.memberFootprint[index];
+            float x = member == null ? anchor.x : member.x;
+            float z = member == null ? anchor.z : member.z;
+            float radius = member == null ? anchor.reservedRadius : member.reservedRadius;
+            if (!FrontierFinite(x) || !FrontierFinite(z) || !FrontierFinite(radius) || radius <= 0f) return false;
+            float along = direction.x != 0f ? x : z;
+            float across = direction.x != 0f ? z : x;
+            if (Mathf.Max(Mathf.Abs(along), Mathf.Abs(across)) - radius - FrontierPadShoulder > FrontierOpeningCollarRadius)
+                continue;
+            float required = FrontierOpeningCollarRadius + FrontierPadShoulder + radius + 1f -
+                (direction.x != 0f ? direction.x * x : direction.y * z);
+            if (!FrontierFinite(required) || required <= 0f) return false;
+            distance = Mathf.Max(distance, required);
+        }
+        return distance > 0f && distance <= YQSemanticWorldAuthority.FrontierPhysicalRecoveryDistance;
+    }
+
+    private static bool TrySnapshotFrontierGeometry(YQSiteAnchorV2 source, List<GeneratedSemanticEntranceRecord> sourceEntrances,
+        out YQSiteAnchorV2 anchor, out List<FrontierSector> sectors, out List<GeneratedSemanticEntranceRecord> entrances, out string failure)
+    {
+        anchor = null; sectors = new List<FrontierSector>(8); entrances = new List<GeneratedSemanticEntranceRecord>(16);
+        failure = "frontier candidate has an invalid bounded anchor or entrance contract";
+        if (string.IsNullOrWhiteSpace(source.siteId) || string.IsNullOrWhiteSpace(source.sourceSemanticId) ||
+            string.IsNullOrWhiteSpace(source.parentRegionId) ||
+            source.kind != YQSiteKindV2.Settlement && source.kind != YQSiteKindV2.HostileSite && source.kind != YQSiteKindV2.PointOfInterest ||
+            !IsFrontierCoordinate(source.x, source.z) || !FrontierFinite(source.reservedRadius) || source.reservedRadius <= 0f || source.reservedRadius > 256f ||
+            !FrontierFinite(source.maximumSlopeDegrees) || source.maximumSlopeDegrees < 0f || source.maximumSlopeDegrees > 90f ||
+            !FrontierFinite(source.minimumRouteAccess) || source.minimumRouteAccess < 0f || source.minimumRouteAccess > 1f ||
+            !FrontierFinite(source.minimumWaterAccess) || source.minimumWaterAccess < 0f || source.minimumWaterAccess > 1f ||
+            source.memberFootprint == null || source.memberFootprint.Count > 7 || sourceEntrances == null || sourceEntrances.Count == 0 || sourceEntrances.Count > 16)
+            return false;
+        anchor = new YQSiteAnchorV2 { siteId = source.siteId, sourceSemanticId = source.sourceSemanticId,
+            parentRegionId = source.parentRegionId, kind = source.kind, x = source.x, z = source.z,
+            reservedRadius = source.reservedRadius, maximumSlopeDegrees = source.maximumSlopeDegrees,
+            minimumRouteAccess = source.minimumRouteAccess, minimumWaterAccess = source.minimumWaterAccess,
+            requiresTerrainConformance = source.requiresTerrainConformance };
+        var sectorIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { source.siteId };
+        sectors.Add(new FrontierSector(source.siteId, source.x, source.z, source.reservedRadius));
+        foreach (var member in source.memberFootprint)
+        {
+            if (member == null || string.IsNullOrWhiteSpace(member.memberId) || !sectorIds.Add(member.memberId) ||
+                !IsFrontierCoordinate(member.x, member.z) || !FrontierFinite(member.reservedRadius) ||
+                member.reservedRadius <= 0f || member.reservedRadius > 256f || member.sectorIndex < 0)
+            { failure = "frontier candidate has an invalid or duplicate physical member sector"; return false; }
+            anchor.memberFootprint.Add(new YQSiteMemberFootprintV2 { memberId = member.memberId,
+                x = member.x, z = member.z, reservedRadius = member.reservedRadius, sectorIndex = member.sectorIndex });
+            sectors.Add(new FrontierSector(member.memberId, member.x, member.z, member.reservedRadius));
+        }
+        var entranceIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entrance in sourceEntrances)
+        {
+            if (entrance == null || string.IsNullOrWhiteSpace(entrance.entranceId) || !entranceIds.Add(entrance.entranceId) ||
+                !IsFrontierCoordinate(entrance.worldX, entrance.worldZ) || !FrontierFinite(entrance.headingDegrees)) return false;
+            entrances.Add(new GeneratedSemanticEntranceRecord { entranceId = entrance.entranceId,
+                worldX = entrance.worldX, worldZ = entrance.worldZ, headingDegrees = entrance.headingDegrees,
+                permittedRouteId = entrance.permittedRouteId });
+        }
+        sectors.Sort((a, b) => string.CompareOrdinal(a.id, b.id));
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool TryMapFrontierFrontages(YQPreparedSpatialMaterializationV2 prepared, YQSiteAnchorV2 anchor,
+        List<FrontierSector> sectors, List<GeneratedSemanticEntranceRecord> entrances,
+        out List<FrontierFrontage> frontages, out string failure, bool excludeAcceptedRoutes = true)
+    {
+        // note: The existing scalar entrance contract has no sector ID; only unique containment can establish a physical frontage without inventing geometry.
+        frontages = new List<FrontierFrontage>(entrances.Count);
+        var covered = new HashSet<string>(StringComparer.Ordinal);
+        var routeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (excludeAcceptedRoutes)
+            for (int index = 0; index < prepared.RouteCount; index++) routeIds.Add(prepared.GetRoute(index).routeId);
+        foreach (var entrance in entrances)
+        {
+            FrontierSector sector = default; int matches = 0;
+            foreach (var possible in sectors)
+                if (Vector2.Distance(new Vector2(entrance.worldX, entrance.worldZ), new Vector2(possible.x, possible.z)) <= possible.radius + .001f)
+                { sector = possible; matches++; }
+            if (matches != 1)
+            { failure = "frontier entrance lacks a unique central/member reserve: " + entrance.entranceId; return false; }
+            string routeId = entrance.permittedRouteId;
+            if (string.IsNullOrWhiteSpace(routeId))
+                routeId = "route:frontier:v1:" + FrontierIdentityPart(anchor.siteId) + FrontierIdentityPart(sector.id) + FrontierIdentityPart(entrance.entranceId);
+            if (!routeIds.Add(routeId))
+            { failure = "frontier entrance route ID collides with another proposed or accepted route: " + routeId; return false; }
+            covered.Add(sector.id);
+            frontages.Add(new FrontierFrontage(sector, entrance, routeId));
+        }
+        foreach (var sector in sectors)
+            if (!covered.Contains(sector.id))
+            { failure = "frontier physical member has no explicit connected entrance frontage: " + sector.id; return false; }
+        frontages.Sort((a, b) => { int order = string.CompareOrdinal(a.sector.id, b.sector.id);
+            return order != 0 ? order : string.CompareOrdinal(a.entrance.entranceId, b.entrance.entranceId); });
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool TryBuildFrontierRoute(YQPreparedSpatialMaterializationV2 prepared, YQContinuousWorldCellAuthority padOnly,
+        FrontierFrontage frontage, Vector3 network, float detour, FrontierPlanningBudget budget,
+        int remainingPoints, int remainingConformanceSamples, out YQRouteCorridorV2 route, out int samples, out string failure)
+    {
+        route = null; samples = 0; failure = string.Empty;
+        Vector2 start = new Vector2(network.x, network.z), end = new Vector2(frontage.entrance.worldX, frontage.entrance.worldZ);
+        Vector2 direction = end - start;
+        if (direction.magnitude < .01f)
+        { failure = "frontier frontage is degenerate with its accepted network projection"; return false; }
+        // note: The final approach follows the entrance's outward heading, so a route cannot meet its coordinate through the rear of the opening.
+        float heading = Mathf.Repeat(frontage.entrance.headingDegrees, 360f) * Mathf.Deg2Rad;
+        Vector2 approach = end + new Vector2(Mathf.Sin(heading), Mathf.Cos(heading)) * 16f;
+        Vector2 approachDirection = approach - start;
+        var bends = new List<Vector2>(4) { start };
+        if (detour != 0f) bends.Add((start + approach) * .5f + new Vector2(-approachDirection.y, approachDirection.x).normalized * detour);
+        if (Vector2.Distance(bends[bends.Count - 1], approach) >= .01f) bends.Add(approach);
+        bends.Add(end);
+        var points = new List<YQBlueprintPointV2>(64)
+        { new YQBlueprintPointV2 { x = network.x, z = network.z, normalizedElevation = network.y, width = FrontierRouteWidth } };
+        for (int bend = 0; bend + 1 < bends.Count; bend++)
+        {
+            Vector2 first = bends[bend], second = bends[bend + 1];
+            if (FrontierSegmentIntersectsAcceptedReserve(prepared, first, second, FrontierRouteWidth * .5f + FrontierRouteShoulder, out string otherId))
+            { failure = "frontier route intrudes on another accepted reserve: " + otherId; return false; }
+            if (!budget.TryConsume()) { failure = "frontier physical planning exhausted 8192 exploratory samples"; return false; }
+            if (!YQContinuousWorldFeatureAuthority.TryValidateAcceptedDryRouteSegment(prepared, first, second,
+                    FrontierRouteWidth * .5f + 2f, out failure)) return false;
+            int steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(first, second) / 32f));
+            if (points.Count + steps > 64 || points.Count + steps > remainingPoints)
+            { failure = "frontier route exceeds its 64-point or shared 256-point budget"; return false; }
+            for (int step = 1; step <= steps; step++)
+            {
+                Vector2 point = step == steps ? second : Vector2.Lerp(first, second, step / (float)steps);
+                if (!TrySampleFrontierPlanningHeight(padOnly, point.x, point.y, budget, out float elevation, out failure)) return false;
+                points.Add(new YQBlueprintPointV2 { x = point.x, z = point.y, normalizedElevation = elevation, width = FrontierRouteWidth });
+            }
+        }
+        for (int index = 0; index + 1 < points.Count; index++)
+        {
+            var first = points[index]; var second = points[index + 1];
+            Vector2 a = new Vector2(first.x, first.z), b = new Vector2(second.x, second.z), delta = b - a;
+            float length = delta.magnitude;
+            if (length < .01f || Mathf.Atan(Mathf.Abs(second.normalizedElevation - first.normalizedElevation) * padOnly.originHeight / length) * Mathf.Rad2Deg > MaximumCollarGradeDegrees)
+            { failure = "frontier route exceeds twenty-eight degrees of longitudinal grade"; return false; }
+            int steps = Mathf.CeilToInt(length / 16f);
+            samples += steps + 1;
+            if (samples > remainingConformanceSamples)
+            { failure = "frontier routes exceed 512 shared conformance samples"; return false; }
+            Vector2 perpendicular = new Vector2(-delta.y, delta.x) / length;
+            for (int step = 0; step <= steps; step++)
+            {
+                float t = step / (float)steps;
+                Vector2 point = Vector2.Lerp(a, b, t);
+                float elevation = Mathf.Lerp(first.normalizedElevation, second.normalizedElevation, t);
+                if (!TrySampleFrontierPlanningHeight(padOnly, point.x, point.y, budget, out float existing, out failure) ||
+                    !TryCheckFrontierDryReserve(prepared, point.x, point.y, FrontierRouteWidth * .5f + 2f, budget, out failure)) return false;
+                if (Mathf.Abs(existing - elevation) * padOnly.originHeight > FrontierMaximumEarthwork)
+                { failure = "frontier route exceeds twelve metres of earthwork"; return false; }
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector2 near = point + perpendicular * side * (FrontierRouteWidth * .5f + FrontierRouteShoulder * .5f - 2f);
+                    Vector2 far = point + perpendicular * side * (FrontierRouteWidth * .5f + FrontierRouteShoulder * .5f + 2f);
+                    if (!TrySampleFrontierPlanningHeight(padOnly, near.x, near.y, budget, out float nearHeight, out failure) ||
+                        !TrySampleFrontierPlanningHeight(padOnly, far.x, far.y, budget, out float farHeight, out failure)) return false;
+                    nearHeight = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(nearHeight, elevation, padOnly.originHeight,
+                        FrontierRouteWidth * .5f, FrontierRouteShoulder, FrontierRouteWidth * .5f + FrontierRouteShoulder * .5f - 2f);
+                    farHeight = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(farHeight, elevation, padOnly.originHeight,
+                        FrontierRouteWidth * .5f, FrontierRouteShoulder, FrontierRouteWidth * .5f + FrontierRouteShoulder * .5f + 2f);
+                    if (Mathf.Atan(Mathf.Abs(farHeight - nearHeight) * padOnly.originHeight / 4f) * Mathf.Rad2Deg > MaximumCollarGradeDegrees)
+                    { failure = "frontier route has an impassable terrain shoulder"; return false; }
+                }
+            }
+        }
+        route = new YQRouteCorridorV2 { routeId = frontage.routeId, width = FrontierRouteWidth,
+            shoulderWidth = FrontierRouteShoulder, maximumGradeDegrees = MaximumCollarGradeDegrees, controlPoints = points,
+            tags = new List<string> { "frontier_physical_context_v1", "sector:" + frontage.sector.id, "entrance:" + frontage.entrance.entranceId } };
+        return true;
+    }
+
+    private static bool TrySampleFrontierPlanningHeight(YQContinuousWorldCellAuthority authority, float x, float z,
+        FrontierPlanningBudget budget, out float height, out string failure)
+    {
+        height = 0f; failure = string.Empty;
+        if (!IsFrontierCoordinate(x, z) || Mathf.Max(Mathf.Abs(x), Mathf.Abs(z)) <= 1152f)
+        { failure = "frontier route leaves signed coordinate bounds or intersects opening/collar terrain"; return false; }
+        if (!budget.TryConsume()) { failure = "frontier physical planning exhausted 8192 exploratory samples"; return false; }
+        height = authority.SampleHeightNormalizedOffMainThread(x, z);
+        if (!FrontierFinite(height) || height < 0f || height > 1f)
+        { failure = "frontier pure terrain sample is not finite and normalized"; return false; }
+        return true;
+    }
+
+    private static bool TryCheckFrontierDryReserve(YQPreparedSpatialMaterializationV2 prepared, float x, float z,
+        float clearance, FrontierPlanningBudget budget, out string failure)
+    {
+        if (!budget.TryConsume()) { failure = "frontier physical planning exhausted 8192 exploratory samples"; return false; }
+        YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(prepared, x, z, out string waterId, out float bank, out bool wet);
+        if (wet || float.IsNaN(bank) || bank < clearance)
+        { failure = "frontier physical route/reserve needs an unsupported accepted-water crossing or dry bank: " + waterId; return false; }
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool FrontierSegmentIntersectsAcceptedReserve(YQPreparedSpatialMaterializationV2 prepared,
+        Vector2 first, Vector2 second, float padding, out string siteId, string ownSiteId = null)
+    {
+        for (int index = 0; index < prepared.SiteCount; index++)
+        {
+            var site = prepared.GetSite(index);
+            if (string.Equals(site.siteId, ownSiteId, StringComparison.OrdinalIgnoreCase)) continue;
+            for (int member = -1; member < site.MemberFootprint.Count; member++)
+            {
+                var sector = member < 0 ? null : site.MemberFootprint[member];
+                if (member >= 0 && sector == null) continue;
+                float x = sector != null ? sector.x : site.x, z = sector != null ? sector.z : site.z;
+                float radius = (sector != null ? sector.reservedRadius : site.reservedRadius) + padding + 18f;
+                double begin = 0d, end = 1d;
+                if (FrontierClipAxis(first.x, second.x - first.x, x - radius, x + radius, ref begin, ref end) &&
+                    FrontierClipAxis(first.y, second.y - first.y, z - radius, z + radius, ref begin, ref end))
+                { siteId = site.siteId; return true; }
+            }
+        }
+        siteId = string.Empty;
+        return false;
+    }
+
+    private static bool FrontierClipAxis(double start, double delta, double minimum, double maximum, ref double begin, ref double end)
+    {
+        if (Math.Abs(delta) < .000001d) return start >= minimum && start <= maximum;
+        double first = (minimum - start) / delta, second = (maximum - start) / delta;
+        if (first > second) { double swap = first; first = second; second = swap; }
+        begin = Math.Max(begin, first); end = Math.Min(end, second);
+        return begin <= end;
+    }
+
+    private static bool FrontierGeometryMatches(YQSiteAnchorV2 source, YQSiteAnchorV2 snapshot,
+        List<GeneratedSemanticEntranceRecord> sourceEntrances, List<GeneratedSemanticEntranceRecord> entrances)
+    {
+        if (source.siteId != snapshot.siteId || source.sourceSemanticId != snapshot.sourceSemanticId || source.parentRegionId != snapshot.parentRegionId ||
+            source.kind != snapshot.kind || source.x != snapshot.x || source.z != snapshot.z || source.reservedRadius != snapshot.reservedRadius ||
+            source.maximumSlopeDegrees != snapshot.maximumSlopeDegrees || source.minimumRouteAccess != snapshot.minimumRouteAccess ||
+            source.minimumWaterAccess != snapshot.minimumWaterAccess || source.requiresTerrainConformance != snapshot.requiresTerrainConformance ||
+            source.memberFootprint == null || source.memberFootprint.Count != snapshot.memberFootprint.Count ||
+            sourceEntrances == null || sourceEntrances.Count != entrances.Count) return false;
+        for (int index = 0; index < snapshot.memberFootprint.Count; index++)
+        {
+            var a = source.memberFootprint[index]; var b = snapshot.memberFootprint[index];
+            if (a == null || a.memberId != b.memberId || a.x != b.x || a.z != b.z || a.reservedRadius != b.reservedRadius || a.sectorIndex != b.sectorIndex) return false;
+        }
+        for (int index = 0; index < entrances.Count; index++)
+        {
+            var a = sourceEntrances[index]; var b = entrances[index];
+            if (a == null || a.entranceId != b.entranceId || a.worldX != b.worldX || a.worldZ != b.worldZ ||
+                a.headingDegrees != b.headingDegrees || a.permittedRouteId != b.permittedRouteId) return false;
+        }
+        return true;
+    }
+
+    private static bool IsFrontierCoordinate(float x, float z)
+    {
+        if (!FrontierFinite(x) || !FrontierFinite(z) || Math.Abs(x) > 1048576f || Math.Abs(z) > 1048576f) return false;
+        double cellX = Math.Floor(((double)x - WorldGridOrigin) / 128d), cellZ = Math.Floor(((double)z - WorldGridOrigin) / 128d);
+        return cellX >= int.MinValue && cellX <= int.MaxValue && cellZ >= int.MinValue && cellZ <= int.MaxValue;
+    }
+    private static bool FrontierFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+    private static string FrontierIdentityPart(string identity) => identity.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + identity + "|";
+
+    private static bool TryValidateFrontierRouteFrontages(GeneratedSpatialContinuationPhysicalContextV2Record context,
+        List<FrontierFrontage> frontages, out string failure)
+    {
+        // note: Replay validates endpoint geometry and the actual final approach, never planner tags or stored proof claims.
+        var supportedEntrances = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var route in context.routes)
+        {
+            var endpoint = route.controlPoints[route.controlPoints.Count - 1];
+            var adjacent = route.controlPoints[route.controlPoints.Count - 2];
+            Vector2 approach = new Vector2(adjacent.x - endpoint.x, adjacent.z - endpoint.z);
+            FrontierFrontage match = default; int matches = 0;
+            foreach (var frontage in frontages)
+            {
+                var entrance = frontage.entrance;
+                if (!string.IsNullOrWhiteSpace(entrance.permittedRouteId) &&
+                    !string.Equals(entrance.permittedRouteId, route.routeId, StringComparison.Ordinal)) continue;
+                if (Mathf.Abs(endpoint.x - entrance.worldX) > .001f || Mathf.Abs(endpoint.z - entrance.worldZ) > .001f || approach.magnitude < .01f) continue;
+                float heading = Mathf.Repeat(entrance.headingDegrees, 360f) * Mathf.Deg2Rad;
+                if (Vector2.Dot(approach.normalized, new Vector2(Mathf.Sin(heading), Mathf.Cos(heading))) < Mathf.Cos(5f * Mathf.Deg2Rad)) continue;
+                match = frontage; matches++;
+            }
+            if (matches != 1 || !supportedEntrances.Add(match.entrance.entranceId))
+            { failure = "frontier route must end at one exact, route-matched, heading-aligned entrance: " + route.routeId; return false; }
+        }
+        if (supportedEntrances.Count != frontages.Count)
+        { failure = "frontier physical context does not connect every explicit central/member frontage"; return false; }
+        failure = string.Empty;
+        return true;
+    }
+
+    public static bool TryMeasureAcceptedContinuationSite(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 basePrepared, GeneratedSpatialContinuationLocationV2Record location,
+        out YQSpatialContinuationSiteSampleV2 sample, out string failure)
+    {
+        sample = default; failure = "frontier physical context is incomplete";
+        if (plan == null || basePrepared == null || location?.anchor == null ||
+            !YQSpatialContinuationValidatorV2.ValidatePhysicalContextOnly(location).IsStructurallyValid ||
+            location.physicalContext == null) return false;
+        var anchor = location.anchor;
+        if (!TrySnapshotFrontierGeometry(anchor, location.entrances, out _, out var sectors, out var entrances, out failure) ||
+            !TryMapFrontierFrontages(basePrepared, anchor, sectors, entrances, out var frontages, out failure, false) ||
+            !TryValidateFrontierRouteFrontages(location.physicalContext, frontages, out failure)) return false;
+        // note: This compiler preflight deliberately bypasses semantic Ensure/resolver recursion and Unity terrain; only immutable base projection and candidate scalars enter its sampling authority.
+        var authority = new YQContinuousWorldCellAuthority(plan.worldSeed, null, null, null, 128f, basePrepared, location, true);
+        var candidatePads = new List<ContinuationPad>(); CopyPads(location, candidatePads);
+        if (candidatePads.Count == 0 && anchor.requiresTerrainConformance) return false;
+        float maximumSlope = 0f;
+        foreach (var pad in candidatePads)
+        {
+            if (FrontierSegmentIntersectsAcceptedReserve(basePrepared, new Vector2(pad.x, pad.z), new Vector2(pad.x, pad.z),
+                    pad.radius, out string otherSiteId, anchor.siteId))
+            { failure = "frontier reserve overlaps another accepted central/member owner: " + otherSiteId; return false; }
+            if (Mathf.Max(Mathf.Abs(pad.x), Mathf.Abs(pad.z)) - pad.radius - pad.shoulder <= 1152f)
+            { failure = "frontier reserve intersects the opening terrain or its collar"; return false; }
+            YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(basePrepared, pad.x, pad.z, out _, out float reserveBank, out bool reserveWet);
+            if (reserveWet || reserveBank < pad.radius + 2f)
+            { failure = "frontier physical sector lacks a complete dry reserve"; return false; }
+            // note: A flat reserve cannot hide an extreme earthwork or impassable shoulder outside its sampled building floor.
+            if (Mathf.Abs(authority.SampleContinuationBaseNormalized(pad.x, pad.z, null) - pad.elevation) * authority.originHeight > 12f)
+            { failure = "frontier reserve exceeds the bounded earthwork contract"; return false; }
+            for (int edge = 0; edge < 8; edge++)
+            {
+                float angle = edge * Mathf.PI * .25f;
+                float x = pad.x + Mathf.Cos(angle) * (pad.radius + pad.shoulder * .5f);
+                float z = pad.z + Mathf.Sin(angle) * (pad.radius + pad.shoulder * .5f);
+                float dx = (authority.SampleHeightNormalizedOffMainThread(x + 2f, z) - authority.SampleHeightNormalizedOffMainThread(x - 2f, z)) * authority.originHeight / 4f;
+                float dz = (authority.SampleHeightNormalizedOffMainThread(x, z + 2f) - authority.SampleHeightNormalizedOffMainThread(x, z - 2f)) * authority.originHeight / 4f;
+                if (Mathf.Atan(Mathf.Sqrt(dx * dx + dz * dz)) * Mathf.Rad2Deg > MaximumCollarGradeDegrees)
+                { failure = "frontier reserve has an impassable terrain shoulder"; return false; }
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                float angle = (i - 1) * Mathf.PI * .25f;
+                float x = pad.x + (i == 0 ? 0f : Mathf.Cos(angle) * pad.radius);
+                float z = pad.z + (i == 0 ? 0f : Mathf.Sin(angle) * pad.radius);
+                float height = authority.SampleHeightNormalizedOffMainThread(x, z);
+                if (Mathf.Abs(height - pad.elevation) * authority.originHeight > .5f)
+                { failure = "frontier reserve cannot retain its approved elevation under route/water conformance"; return false; }
+                float dx = (authority.SampleHeightNormalizedOffMainThread(x + 2f, z) - authority.SampleHeightNormalizedOffMainThread(x - 2f, z)) * authority.originHeight / 4f;
+                float dz = (authority.SampleHeightNormalizedOffMainThread(x, z + 2f) - authority.SampleHeightNormalizedOffMainThread(x, z - 2f)) * authority.originHeight / 4f;
+                maximumSlope = Mathf.Max(maximumSlope, Mathf.Atan(Mathf.Sqrt(dx * dx + dz * dz)) * Mathf.Rad2Deg);
+                YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(basePrepared, x, z, out _, out float bank, out bool wet);
+                if (wet || bank < 2f) { failure = "frontier reserve intersects accepted water or its dry bank"; return false; }
+            }
+        }
+        if (maximumSlope > anchor.maximumSlopeDegrees)
+        { failure = "frontier reserve exceeds its slope contract"; return false; }
+        float routeDistance = float.PositiveInfinity; Vector3 frontage = default; string routeId = string.Empty;
+        int routeSamples = 0;
+        foreach (var route in authority.candidateRoutes)
+        {
+            if (!HasAcceptedRouteConnection(basePrepared, route.points[0], route.width))
+            { failure = "frontier access route lacks an accepted network connection"; return false; }
+            for (int i = 0; i + 1 < route.points.Length; i++)
+            {
+                Vector3 a = route.points[i], b = route.points[i + 1];
+                if (FrontierSegmentIntersectsAcceptedReserve(basePrepared, new Vector2(a.x, a.z), new Vector2(b.x, b.z),
+                        route.width * .5f + route.shoulder, out string otherSiteId, anchor.siteId))
+                { failure = "frontier route intrudes on another accepted central/member reserve: " + otherSiteId; return false; }
+                if (!YQContinuousWorldFeatureAuthority.TryValidateAcceptedDryRouteSegment(basePrepared,
+                        new Vector2(a.x, a.z), new Vector2(b.x, b.z), route.width * .5f + 2f, out failure)) return false;
+                float length = Vector2.Distance(new Vector2(a.x, a.z), new Vector2(b.x, b.z));
+                if (length < .01f || Mathf.Atan(Mathf.Abs(b.y - a.y) * authority.originHeight / length) * Mathf.Rad2Deg > route.maximumGrade)
+                { failure = "frontier access route exceeds its grade contract"; return false; }
+                int steps = Mathf.CeilToInt(length / 16f);
+                routeSamples += steps + 1;
+                if (routeSamples > 512) { failure = "frontier access route exceeds bounded conformance sampling"; return false; }
+                for (int step = 0; step <= steps; step++)
+                {
+                    Vector3 point = Vector3.Lerp(a, b, step / (float)steps);
+                    if (Mathf.Max(Mathf.Abs(point.x), Mathf.Abs(point.z)) <= 1152f)
+                    { failure = "frontier access route intersects unsampled opening/collar terrain"; return false; }
+                    YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(basePrepared, point.x, point.z, out _, out float bank, out bool wet);
+                    if (wet || bank < route.width * .5f + 2f)
+                    { failure = "frontier access route requires an unsupported water crossing"; return false; }
+                    if (Mathf.Abs(authority.SampleHeightNormalizedOffMainThread(point.x, point.z) - point.y) * authority.originHeight > .5f)
+                    { failure = "frontier access route does not conform to its approved terrain"; return false; }
+                }
+            }
+            MeasureRoute(route.points, anchor.x, anchor.z, out float distance, out Vector3 nearest);
+            if (distance < routeDistance) { routeDistance = distance; frontage = nearest; routeId = route.id; }
+        }
+        float access = float.IsPositiveInfinity(routeDistance) ? 0f : Mathf.Clamp01(1f - Mathf.Max(0f, routeDistance - anchor.reservedRadius) / 128f);
+        YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(basePrepared, anchor.x, anchor.z,
+            out string waterId, out float waterDistance, out bool centerWet);
+        float waterAccess = float.IsPositiveInfinity(waterDistance) ? 0f : Mathf.Clamp01(1f - Mathf.Max(0f, waterDistance) / 512f);
+        var terrain = new YQSpatialTerrainSampleV2 { elevationNormalized = authority.SampleHeightNormalizedOffMainThread(anchor.x, anchor.z),
+            siteReserveMask = authority.continuationPads.Length > 0 ? 1f : 0f, routeMask = access, waterMask = centerWet ? 1f : 0f, waterFeatureIndex = -1 };
+        sample = new YQSpatialContinuationSiteSampleV2(terrain, maximumSlope, routeId, frontage.x, frontage.z,
+            routeDistance, access, waterId, waterDistance, waterAccess, centerWet);
+        failure = string.Empty; return true;
+    }
+
+    private static bool HasAcceptedRouteConnection(YQPreparedSpatialMaterializationV2 prepared, Vector3 endpoint, float width)
+    {
+        for (int i = 0; i < prepared.RouteCount; i++)
+        {
+            var route = prepared.GetRoute(i);
+            var points = new Vector3[prepared.GetRoutePointCount(i)];
+            for (int j = 0; j < points.Length; j++) { var point = prepared.GetRoutePoint(i, j); points[j] = new Vector3(point.x, point.surfaceElevationNormalized, point.z); }
+            MeasureRoute(points, endpoint.x, endpoint.z, out float distance, out Vector3 nearest);
+            if (distance <= (width + route.width) * .5f + 2f && Mathf.Abs(nearest.y - endpoint.y) * YQGeneratedWorldTerrain.TerrainHeight <= .5f) return true;
+        }
+        var rays = new List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation>();
+        var coordinate = new Vector2Int(Mathf.FloorToInt((endpoint.x + 512f) / 128f), Mathf.FloorToInt((endpoint.z + 512f) / 128f));
+        YQContinuousWorldFeatureAuthority.GetAcceptedRouteContinuations(prepared, coordinate, 128f, width * .5f + 2f, rays);
+        foreach (var ray in rays)
+        {
+            Vector2 delta = new Vector2(endpoint.x, endpoint.z) - ray.origin;
+            float along = Vector2.Dot(delta, ray.direction);
+            float perpendicular = (delta - ray.direction * along).magnitude;
+            if (along >= 0f && along <= YQContinuousWorldFeatureAuthority.AcceptedContinuationMaxDistance &&
+                perpendicular <= (width + ray.width) * .5f + 2f &&
+                Mathf.Abs(endpoint.y - (ray.elevation + along * ray.elevationSlope)) * YQGeneratedWorldTerrain.TerrainHeight <= .5f) return true;
+        }
+        return false;
     }
 
     private float ApplyAcceptedRouteModifier(
@@ -417,57 +1171,53 @@ public sealed class YQContinuousWorldCellAuthority
 
         float bestMask = 0f;
         float bestElevation = normalizedHeight;
-        Vector2 sample = new Vector2(worldX, worldZ);
         for (int routeIndex = 0; routeIndex < acceptedMaterialization.RouteCount; routeIndex++)
         {
             YQSpatialMaterializationRouteV2 route = acceptedMaterialization.GetRoute(routeIndex);
-            // note: The envelope is conservative, so this only removes impossible route candidates and cannot change the winning accepted segment.
-            if (acceptedRouteBounds != null && routeIndex < acceptedRouteBounds.Length)
-            {
-                AcceptedRouteBounds bounds = acceptedRouteBounds[routeIndex];
-                if (sample.x < bounds.minX - bounds.padding || sample.x > bounds.maxX + bounds.padding ||
-                    sample.y < bounds.minZ - bounds.padding || sample.y > bounds.maxZ + bounds.padding)
-                    continue;
-            }
-            int pointCount = acceptedMaterialization.GetRoutePointCount(routeIndex);
-            if (pointCount < 2)
-                continue;
-
-            float routeDistance = float.MaxValue;
-            float routeElevation = normalizedHeight;
-            for (int pointIndex = 0; pointIndex + 1 < pointCount; pointIndex++)
-            {
-                YQSpatialMaterializationRoutePointV2 first =
-                    acceptedMaterialization.GetRoutePoint(routeIndex, pointIndex);
-                YQSpatialMaterializationRoutePointV2 second =
-                    acceptedMaterialization.GetRoutePoint(routeIndex, pointIndex + 1);
-                Vector2 start = new Vector2(first.x, first.z);
-                Vector2 delta = new Vector2(second.x - first.x, second.z - first.z);
-                float denominator = delta.sqrMagnitude;
-                float t = denominator > 0.0001f
-                    ? Mathf.Clamp01(Vector2.Dot(sample - start, delta) / denominator)
-                    : 0f;
-                Vector2 nearest = start + delta * t;
-                float distance = Vector2.Distance(sample, nearest);
-                if (distance >= routeDistance)
-                    continue;
-                routeDistance = distance;
-                routeElevation = Mathf.Lerp(
-                    first.surfaceElevationNormalized,
-                    second.surfaceElevationNormalized,
-                    t);
-            }
-
-            float radius = Mathf.Max(2f, route.width * 0.5f + route.shoulderWidth);
-            float mask = 1f - Mathf.SmoothStep(0f, 1f, routeDistance / radius);
+            if (pureAcceptedProjection && candidateRouteIds != null && candidateRouteIds.Contains(route.routeId)) continue;
+            float candidate = SampleAcceptedRouteModifier(routeIndex, worldX, worldZ, normalizedHeight);
+            float mask = Mathf.Abs(candidate - normalizedHeight);
             if (mask > bestMask)
             {
                 bestMask = mask;
-                bestElevation = routeElevation;
+                bestElevation = candidate;
             }
         }
 
-        return Mathf.Lerp(normalizedHeight, bestElevation, bestMask * 0.96f);
+        return bestElevation;
+    }
+
+    private float SampleAcceptedRouteModifier(int routeIndex, float worldX, float worldZ, float originalHeight)
+    {
+        // note: Runtime and pure candidate projection share the same finite-road calculation and conservative envelope.
+        Vector2 sample = new Vector2(worldX, worldZ);
+        if (acceptedRouteBounds != null && routeIndex < acceptedRouteBounds.Length)
+        {
+            AcceptedRouteBounds bounds = acceptedRouteBounds[routeIndex];
+            if (sample.x < bounds.minX - bounds.padding || sample.x > bounds.maxX + bounds.padding ||
+                sample.y < bounds.minZ - bounds.padding || sample.y > bounds.maxZ + bounds.padding)
+                return originalHeight;
+        }
+        int pointCount = acceptedMaterialization.GetRoutePointCount(routeIndex);
+        if (pointCount < 2) return originalHeight;
+        float routeDistance = float.MaxValue, routeElevation = originalHeight;
+        for (int pointIndex = 0; pointIndex + 1 < pointCount; pointIndex++)
+        {
+            var first = acceptedMaterialization.GetRoutePoint(routeIndex, pointIndex);
+            var second = acceptedMaterialization.GetRoutePoint(routeIndex, pointIndex + 1);
+            Vector2 start = new Vector2(first.x, first.z);
+            Vector2 delta = new Vector2(second.x - first.x, second.z - first.z);
+            float denominator = delta.sqrMagnitude;
+            float t = denominator > .0001f ? Mathf.Clamp01(Vector2.Dot(sample - start, delta) / denominator) : 0f;
+            Vector2 nearest = start + delta * t;
+            float distance = Vector2.Distance(sample, nearest);
+            if (distance >= routeDistance) continue;
+            routeDistance = distance;
+            routeElevation = Mathf.Lerp(first.surfaceElevationNormalized, second.surfaceElevationNormalized, t);
+        }
+        var route = acceptedMaterialization.GetRoute(routeIndex);
+        return YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(originalHeight,
+            routeElevation, originHeight, route.width * .5f, route.shoulderWidth, routeDistance);
     }
 
     public List<float> SampleBiomeWeights(float worldX, float worldZ)
@@ -835,24 +1585,9 @@ public sealed class YQContinuousWorldCellAuthority
         // note: Accepted finite and terminal waterways are evaluated from global coordinates with no exploration-grown cell cache.
         if (acceptedMaterialization != null && acceptedMaterialization.WaterCount > 0)
         {
-            float acceptedHeight = normalizedHeight;
-            YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterModifier(
-                acceptedMaterialization,
-                worldX,
-                worldZ,
-                acceptedHeight,
-                originHeight,
-                out acceptedHeight);
-            float terminalHeight = normalizedHeight;
-            YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerminalModifiers(
-                acceptedMaterialization,
-                worldX,
-                worldZ,
-                terminalHeight,
-                originHeight,
-                out terminalHeight);
-            // note: Finite and terminal candidates both start from the unmodified sample; the lower result is the shared order-independent carve.
-            return Mathf.Min(acceptedHeight, terminalHeight);
+            // note: The compatibility sampler shares the same order-independent terrain envelope as the active V2 continuation path.
+            return YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(acceptedMaterialization,
+                worldX, worldZ, normalizedHeight, originHeight, out float waterHeight) ? waterHeight : normalizedHeight;
         }
         // note: Legacy synthetic hydrology remains the deterministic fallback when no accepted water sample owns this coordinate.
         return YQContinuousWorldFeatureAuthority.ApplyTerrainModifiers(

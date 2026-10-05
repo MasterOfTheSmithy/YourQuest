@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public enum YQWorldMaterializationPath
@@ -149,6 +150,471 @@ public static class YQWorldGenerationArchitecture
 [DisallowMultipleComponent]
 public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 {
+    private static readonly object FrontierConstructionIssuer = new object();
+    private static readonly JsonSerializerSettings FrontierConstructionJsonSettings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.None,
+        TypeNameHandling = TypeNameHandling.None,
+        Converters = { new Vector2JsonConverter(), new Vector3JsonConverter(), new QuaternionJsonConverter() }
+    };
+
+    public sealed class FrontierConstructionAcceptance
+    {
+        private readonly WorldState world;
+        private readonly GeneratedWorldPlanRecord plan;
+        private readonly GeneratedSpatialWorldPlanV2Record parent;
+        private readonly int epoch;
+        private readonly string parentHash;
+        private readonly string priorFingerprint;
+        private readonly string acceptedJson;
+        private readonly string worldId;
+        private readonly string profileId;
+
+        private FrontierConstructionAcceptance(WorldState owner, string previousFingerprint,
+            GeneratedSpatialContinuationV2Record continuation)
+        {
+            // note: Only the construction owner can issue this immutable admission token; caller-owned claims cannot authorize a save.
+            world = owner;
+            plan = owner.generatedWorldPlan;
+            parent = plan.spatialPlanV2;
+            epoch = YQServiceLifecycle.RequestEpoch;
+            parentHash = parent.contentHash;
+            priorFingerprint = previousFingerprint;
+            worldId = owner.worldIdentity?.worldId;
+            profileId = owner.worldIdentity?.ownerProfileId;
+            acceptedJson = JsonConvert.SerializeObject(continuation, FrontierConstructionJsonSettings);
+        }
+
+        internal static FrontierConstructionAcceptance Issue(WorldState owner, string previousFingerprint,
+            GeneratedSpatialContinuationV2Record continuation, object issuer)
+        {
+            // note: C# does not grant the containing class access to a nested private constructor; the private issuer still restricts issuance to this owner.
+            if (!ReferenceEquals(issuer, FrontierConstructionIssuer))
+                throw new InvalidOperationException("Frontier admission requires the construction owner.");
+            return new FrontierConstructionAcceptance(owner, previousFingerprint, continuation);
+        }
+
+        internal bool TryValidateForPublication(WorldState owner,
+            out GeneratedSpatialContinuationV2Record continuation, out string failure)
+        {
+            // note: Persistence and projection staging share the same construction-owned compiler and population admission.
+            return TryPrepareForPublication(owner, out continuation, out _, out failure);
+        }
+
+        internal bool TryPrepareForPublication(WorldState owner,
+            out GeneratedSpatialContinuationV2Record continuation,
+            out YQPreparedSpatialMaterializationV2 immutablePrepared, out string failure)
+        {
+            continuation = null;
+            immutablePrepared = null;
+            if (!TryValidatePublicationOwner(owner, out failure)) return false;
+            try
+            {
+                var accepted = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings);
+                var detachedParent = JsonConvert.DeserializeObject<GeneratedSpatialWorldPlanV2Record>(
+                    JsonConvert.SerializeObject(parent, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
+                detachedParent.acceptedContinuation = accepted;
+                // note: Repeat actual final-union numeric and approved provider gates rather than trusting the recorded proof claims.
+                if (!YQSpatialMaterializationCompilerV2.TryPrepareCandidate(plan, detachedParent, out var prepared, out failure)) return false;
+                foreach (var location in accepted.locations)
+                    if (!YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, location,
+                            YQRuntimeWorldAssetRegistry.Instance, out failure)) return false;
+                // note: Provider inspection cannot authorize a projection if its captured owner changed during admission.
+                if (!TryValidatePublicationOwner(owner, out failure)) return false;
+                if (!string.Equals(JsonConvert.SerializeObject(accepted, FrontierConstructionJsonSettings), acceptedJson, StringComparison.Ordinal))
+                {
+                    failure = "Frontier admission changed the construction owner's immutable accepted body.";
+                    return false;
+                }
+                continuation = accepted;
+                immutablePrepared = prepared;
+                failure = string.Empty;
+                return true;
+            }
+            catch (Exception exception)
+            {
+                failure = "Frontier construction snapshot is unreadable: " + exception.Message;
+                return false;
+            }
+        }
+
+        private bool TryValidatePublicationOwner(WorldState owner, out string failure)
+        {
+            failure = "Frontier construction belongs to a stale world, parent artifact or request epoch.";
+            var manager = WorldStateManager.Instance;
+            if (manager == null || !manager.isActiveAndEnabled || !ReferenceEquals(manager.State, owner) ||
+                !ReferenceEquals(owner, world) || !ReferenceEquals(owner?.generatedWorldPlan, plan) ||
+                !ReferenceEquals(plan?.spatialPlanV2, parent) || !YQServiceLifecycle.IsCurrent(epoch) ||
+                owner.worldIdentity?.worldId != worldId || owner.worldIdentity?.ownerProfileId != profileId ||
+                parent.contentHash != parentHash) return false;
+            if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure) ||
+                !YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out _, out string currentFingerprint, out failure))
+                return false;
+            if (!string.Equals(currentFingerprint, priorFingerprint, StringComparison.Ordinal))
+            {
+                failure = "Frontier construction's prior accepted continuation changed before publication.";
+                return false;
+            }
+            failure = string.Empty;
+            return true;
+        }
+    }
+
+    private bool frontierConstructionInFlight;
+
+    internal delegate bool FrontierTerrainOwnershipScreen(IReadOnlyList<Rect> influences, out string failure);
+
+    internal static Rect ContinuationPadTerrainInfluence(float x, float z, float radius, float shoulderWidth)
+    {
+        // note: Early numeric screening and final immutable projection refresh use the same complete pad envelope.
+        float margin = radius + shoulderWidth;
+        return Rect.MinMaxRect(x - margin, z - margin, x + margin, z + margin);
+    }
+
+    internal static Rect ContinuationRouteTerrainInfluence(float ax, float az, float bx, float bz,
+        float width, float shoulderWidth)
+    {
+        // note: Finite frontage routes also modify the broad terrain transition beyond their visible shoulder.
+        float margin = Mathf.Max(2f, width * 0.5f + shoulderWidth) +
+            YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance;
+        return Rect.MinMaxRect(Mathf.Min(ax, bx) - margin, Mathf.Min(az, bz) - margin,
+            Mathf.Max(ax, bx) + margin, Mathf.Max(az, bz) + margin);
+    }
+
+    internal static bool TryBuildFrontierTerrainInfluences(GeneratedSpatialContinuationLocationV2Record candidate,
+        GeneratedSpatialContinuationPhysicalContextV2Record physicalContext,
+        out IReadOnlyList<Rect> influences, out string failure)
+    {
+        influences = null;
+        failure = "Frontier terrain screening requires a complete numeric physical context.";
+        var anchor = candidate?.anchor;
+        if (anchor == null || physicalContext == null || string.IsNullOrWhiteSpace(anchor.siteId) ||
+            float.IsNaN(anchor.x) || float.IsInfinity(anchor.x) || float.IsNaN(anchor.z) || float.IsInfinity(anchor.z) ||
+            float.IsNaN(anchor.reservedRadius) || float.IsInfinity(anchor.reservedRadius) || anchor.reservedRadius <= 0f)
+            return false;
+        // note: Validate detached inputs without attaching context to the untouched engine proposal or issuing acceptance.
+        var shape = YQSpatialContinuationValidatorV2.ValidatePhysicalContextOnly(
+            new GeneratedSpatialContinuationLocationV2Record { anchor = anchor, physicalContext = physicalContext });
+        if (!shape.IsStructurallyValid) { failure = string.Join("; ", shape.errors); return false; }
+        var bounds = new List<Rect>(physicalContext.terrainPads.Count + 256);
+        foreach (var pad in physicalContext.terrainPads)
+        {
+            float x = anchor.x, z = anchor.z, radius = anchor.reservedRadius;
+            if (!string.Equals(pad.sectorId, anchor.siteId, StringComparison.Ordinal))
+            {
+                YQSiteMemberFootprintV2 matching = null;
+                foreach (var member in anchor.memberFootprint)
+                    if (string.Equals(member.memberId, pad.sectorId, StringComparison.Ordinal)) { matching = member; break; }
+                if (matching == null) { failure = "Frontier terrain pad has no exact canonical sector."; return false; }
+                x = matching.x; z = matching.z; radius = matching.reservedRadius;
+            }
+            bounds.Add(ContinuationPadTerrainInfluence(x, z, radius, pad.shoulderWidth));
+        }
+        foreach (var route in physicalContext.routes)
+            for (int point = 1; point < route.controlPoints.Count; point++)
+            {
+                var a = route.controlPoints[point - 1]; var b = route.controlPoints[point];
+                bounds.Add(ContinuationRouteTerrainInfluence(a.x, a.z, b.x, b.z, route.width, route.shoulderWidth));
+            }
+        if (bounds.Count == 0) { failure = "Frontier terrain screening contains no numeric influences."; return false; }
+        influences = bounds.AsReadOnly();
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool TryScreenFrontierTerrainInfluences(GeneratedSpatialContinuationLocationV2Record candidate,
+        GeneratedSpatialContinuationPhysicalContextV2Record physicalContext,
+        FrontierTerrainOwnershipScreen screen, out string failure)
+    {
+        if (!TryBuildFrontierTerrainInfluences(candidate, physicalContext, out var influences, out failure)) return false;
+        return screen == null || screen(influences, out failure);
+    }
+
+    private static string BuildFrontierReservationFingerprint(GeneratedSpatialContinuationLocationV2Record candidate)
+    {
+        if (candidate == null) return null;
+        // note: Semantic prose/population may change after inference; every engine-owned reservation field must retain its exact preflight identity.
+        return JsonConvert.SerializeObject(new { candidate.schemaVersion, candidate.contentId, candidate.blockX, candidate.blockZ,
+            candidate.deterministicSeed, candidate.anchor, candidate.entrances }, FrontierConstructionJsonSettings);
+    }
+
+    private static bool IsRetryableFrontierPlacementFailure(string failure)
+    {
+        // note: Retry only physical suitability failures; invalid ownership, unsupported contracts and exhausted budgets remain fail-closed.
+        if (string.IsNullOrWhiteSpace(failure) || failure.IndexOf("exhausted 8192", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("changed during", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("unsupported physical context", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("requires a staged candidate", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("no existing canonical prepared region", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("already has an accepted site or semantic identity", StringComparison.OrdinalIgnoreCase) >= 0)
+            return false;
+        return failure.IndexOf("opening/collar", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("opening terrain or its collar", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("terrain shoulder", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("earthwork", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("approved elevation", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("terrain", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("dry reserve", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("accepted water", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("accepted owner", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("accepted reserve", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("route", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("frontage", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            failure.IndexOf("slope", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool TryBuildFrontierPhysicalPlacement(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 prepared, GeneratedSpatialContinuationLocationV2Record original,
+        Func<bool> ownerIsCurrent, out GeneratedSpatialContinuationLocationV2Record selected,
+        out GeneratedSpatialContinuationPhysicalContextV2Record physicalContext, out string failure)
+    {
+        // note: Deterministically search viable in-block positions before spending an LLM request; collar recovery uses the exact reserved-footprint clearance.
+        selected = original;
+        physicalContext = null;
+        failure = "Frontier physical placement owner changed.";
+        if (original?.anchor == null || ownerIsCurrent == null || !ownerIsCurrent()) return false;
+        if (YQContinuousWorldCellAuthority.TryBuildFrontierPhysicalContext(plan, prepared, original,
+                out physicalContext, out failure) && ownerIsCurrent()) return true;
+        if (!ownerIsCurrent()) { failure = "Frontier physical placement owner changed."; return false; }
+        if (!IsRetryableFrontierPlacementFailure(failure)) return false;
+
+        string initialFailure = failure;
+        string lastFailure = failure;
+        float recoveryDistance = YQSemanticWorldAuthority.FrontierTerrainRecoveryDistance;
+        Vector2 outward = Mathf.Abs(original.anchor.x) >= Mathf.Abs(original.anchor.z)
+            ? new Vector2(original.anchor.x < 0f ? -1f : 1f, 0f)
+            : new Vector2(0f, original.anchor.z < 0f ? -1f : 1f);
+        Vector2 perpendicular = new Vector2(-outward.y, outward.x);
+        Vector2[] directions = { outward, perpendicular, -outward, -perpendicular };
+        float[] recoveryDistances = new float[directions.Length];
+        bool recoveringOpeningCollar = initialFailure.IndexOf("opening/collar terrain", StringComparison.OrdinalIgnoreCase) >= 0;
+        for (int index = 0; index < directions.Length; index++)
+            recoveryDistances[index] = recoveringOpeningCollar
+                ? (YQContinuousWorldCellAuthority.TryGetFrontierOpeningCollarRecoveryDistance(original, directions[index], out float distance)
+                    ? distance : 0f)
+                : recoveryDistance;
+        bool[] triedDirection = new bool[directions.Length];
+        int attempted = 0;
+        for (int attempt = 0; attempt < directions.Length; attempt++)
+        {
+            if (!ownerIsCurrent()) { failure = "Frontier physical placement owner changed."; return false; }
+            int index = -1;
+            for (int candidateIndex = 0; candidateIndex < directions.Length; candidateIndex++)
+                if (!triedDirection[candidateIndex] && recoveryDistances[candidateIndex] > 0f &&
+                    (index < 0 || recoveryDistances[candidateIndex] < recoveryDistances[index])) index = candidateIndex;
+            if (index < 0) break;
+            triedDirection[index] = true;
+            try
+            {
+                var clone = JsonConvert.DeserializeObject<GeneratedSpatialContinuationLocationV2Record>(
+                    JsonConvert.SerializeObject(original, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
+                Vector2 offset = directions[index] * recoveryDistances[index];
+                if (!YQSemanticWorldAuthority.TryOffsetFrontierCandidateWithinOpportunityBlock(plan, prepared, clone, offset.x, offset.y) ||
+                    !YQSemanticWorldAuthority.IsFrontierCandidateWithinLargeSettlementSpacing(prepared, clone)) continue;
+                attempted++;
+                if (YQContinuousWorldCellAuthority.TryBuildFrontierPhysicalContext(plan, prepared, clone,
+                        out physicalContext, out failure) && ownerIsCurrent())
+                {
+                    selected = clone;
+                    return true;
+                }
+                if (!ownerIsCurrent()) { failure = "Frontier physical placement owner changed."; return false; }
+                lastFailure = failure;
+                physicalContext = null;
+                if (!IsRetryableFrontierPlacementFailure(failure)) break;
+            }
+            catch (Exception exception)
+            {
+                physicalContext = null;
+                failure = "Frontier physical recovery snapshot failed: " + exception.Message;
+                return false;
+            }
+        }
+        physicalContext = null;
+        failure = "Frontier physical placement rejected the canonical candidate and " + attempted +
+            " bounded same-opportunity retries. Initial: " + initialFailure + " Last: " + lastFailure;
+        return false;
+    }
+
+    public IEnumerator PrepareFrontierConstructionRoutine(WorldState world,
+        GeneratedSpatialContinuationLocationV2Record engineCandidate,
+        Action<FrontierConstructionAcceptance, string> completed)
+    {
+        // note: Preserve the existing public construction boundary; only the streamer consumes the scoped proposal-admission signal.
+        return PrepareFrontierConstructionWithAdmissionRoutine(world, engineCandidate, completed, null);
+    }
+
+    internal IEnumerator PrepareFrontierConstructionWithAdmissionRoutine(WorldState world,
+        GeneratedSpatialContinuationLocationV2Record engineCandidate,
+        Action<FrontierConstructionAcceptance, string> completed, Action proposalPrepared,
+        FrontierTerrainOwnershipScreen terrainOwnershipScreen = null)
+    {
+        // note: Background construction stages through the existing generation/materialization owners. Nothing enters the live world before paired publication.
+        var plan = world?.generatedWorldPlan;
+        var parent = plan?.spatialPlanV2;
+        if (frontierConstructionInFlight || world == null || !ReferenceEquals(WorldStateManager.Instance?.State, world) ||
+            IsInitialGenerationGameplayLocked || !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _) ||
+            !YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out var previous,
+                out string previousFingerprint, out _) ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out _))
+        { completed?.Invoke(null, "Frontier construction requires the idle active accepted world."); yield break; }
+
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        string parentHash = parent.contentHash;
+        string worldId = world.worldIdentity?.worldId;
+        string profileId = world.worldIdentity?.ownerProfileId;
+        // note: Coroutine waits use constant-time ownership stamps; complete mutable checksums are repeated at the construction/publication boundary.
+        var previousReference = parent.acceptedContinuation;
+        long previousRevision = previousReference?.revision ?? 0;
+        string previousHash = previousReference?.contentHash;
+        bool Current() => this != null && isActiveAndEnabled && YQServiceLifecycle.IsCurrent(epoch) &&
+            ReferenceEquals(WorldStateManager.Instance?.State, world) && ReferenceEquals(world.generatedWorldPlan, plan) &&
+            world.worldIdentity?.worldId == worldId && world.worldIdentity?.ownerProfileId == profileId &&
+            ReferenceEquals(plan.spatialPlanV2, parent) && parent.contentHash == parentHash &&
+            ReferenceEquals(parent.acceptedContinuation, previousReference) &&
+            (previousReference?.revision ?? 0) == previousRevision && previousReference?.contentHash == previousHash;
+        frontierConstructionInFlight = true;
+        long requestId = 0;
+        bool briefFinished = false;
+        var ownedLayouts = new Dictionary<string, YQProceduralSettlementLayoutRecord>(StringComparer.Ordinal);
+        try
+        {
+            var service = YQWorldGenerationService.Instance;
+            GeneratedSpatialContinuationLocationV2Record staged = null;
+            string failure = string.Empty;
+            // note: Reject impossible terrain/network reserves before owning a model request. The untouched candidate remains unchanged and this transient result is not acceptance.
+            if (!Current() || !TryBuildFrontierPhysicalPlacement(plan, prepared, engineCandidate, Current,
+                    out var selectedCandidate, out var physicalContext, out failure) || !Current())
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier physical preflight owner changed."); yield break; }
+            engineCandidate = selectedCandidate;
+            string reservationFingerprint = BuildFrontierReservationFingerprint(engineCandidate);
+            // note: Reject terrain/content already owned by this streamer before inference; final publication repeats the same guard after all waits.
+            if (!TryScreenFrontierTerrainInfluences(engineCandidate, physicalContext, terrainOwnershipScreen, out failure) || !Current())
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier terrain screening owner changed."); yield break; }
+            if (service == null || !service.TryRequestFrontierLocationBrief(world, engineCandidate,
+                    (value, reason) => { staged = value; failure = reason; briefFinished = true; }, out requestId))
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier generation service is unavailable."); yield break; }
+            float deadline = Time.realtimeSinceStartup + 180f;
+            while (!briefFinished && Current() && Time.realtimeSinceStartup < deadline) yield return null;
+            if (!briefFinished || !Current() || staged == null)
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier brief timed out or its owner changed."); yield break; }
+            // note: Retain the actual prepared proposal provenance before adding engine-owned physical decisions.
+            string proposalHash = staged.sourceContentHash;
+            if (staged.state != YQSpatialContinuationStateV2.Staged || staged.source != YQSpatialContinuationSourceV2.LlmProposal ||
+                string.IsNullOrWhiteSpace(proposalHash) || staged.contentHash != YQSpatialContinuationHasherV2.ComputeLocationContentHash(staged))
+            { completed?.Invoke(null, "Frontier proposal changed after typed preparation."); yield break; }
+            // note: Reuse the numeric context only for the exact engine snapshot merged by the typed proposal boundary; later terrain/compiler/publication gates still repeat.
+            if (!string.Equals(reservationFingerprint, BuildFrontierReservationFingerprint(staged), StringComparison.Ordinal))
+            { completed?.Invoke(null, "Frontier proposal changed its preflight engine reservation."); yield break; }
+            // note: Busy/unavailable/cancelled inference has not produced usable content and must not exhaust the streamer's finite substantive attempt allowance.
+            proposalPrepared?.Invoke();
+            staged.physicalContext = physicalContext;
+            var region = FindRegion(plan, staged.anchor.parentRegionId);
+            var palette = FindPalette(plan, region);
+            if (region == null || palette == null)
+            { completed?.Invoke(null, "Frontier site has no canonical region palette."); yield break; }
+            var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            bool composed = false;
+            for (int attempt = 0; attempt < 16 && Current(); attempt++)
+            {
+                YQRuntimeWorldSiteRecord record;
+                bool selected = staged.settlement != null
+                    ? YQCompiledWorldSiteBindingService.TryResolveSettlementSite(plan, staged.settlement, region, palette, out record, out _, excluded, false)
+                    : staged.encampment != null
+                    ? YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(plan, staged.encampment, region, palette, out record, out _, excluded, false)
+                    : YQCompiledWorldSiteBindingService.TryResolveContinuationPoiSite(plan, staged, region, palette, out record, excluded);
+                if (!selected) { failure = "No eligible reviewed provider satisfies the frontier location."; break; }
+                string[] tags = staged.settlement != null ? YQCompiledWorldSiteBindingService.BuildSettlementSemanticSliceTags(staged.settlement)
+                    : staged.encampment != null ? YQCompiledWorldSiteBindingService.BuildEncampmentSemanticSliceTags(staged.encampment)
+                    : staged.anchor.tags.ToArray();
+                string seed = YQProceduralSettlementLayout.SeedPrefix + staged.deterministicSeed;
+                var anchor = staged.anchor;
+                var footprint = new YQSpatialMaterializationSiteV2 { siteId = anchor.siteId, sourceSemanticId = anchor.sourceSemanticId,
+                    parentRegionId = anchor.parentRegionId, x = anchor.x, z = anchor.z,
+                    headingDegrees = Mathf.Repeat(anchor.preferredHeadingDegrees, 360f), reservedRadius = anchor.reservedRadius,
+                    memberFootprint = anchor.memberFootprint.ToArray(), requiredFunctions = anchor.requiredFunctions.ToArray() };
+                bool resolved = false;
+                YQSemanticSiteCompositionV2 composition = default;
+                yield return YQCompiledWorldSiteInstance.ResolveSemanticCompositionV2Routine(record, tags, seed,
+                    (success, radius, value, reason) => { resolved = success; composition = value; failure = reason; },
+                    anchor.requiredFunctions, acceptedSectorSite: footprint);
+                if (!Current()) break;
+                var layout = resolved ? YQProceduralSettlementLayout.Get(composition.selectionSeed) : null;
+                if (layout != null) ownedLayouts[composition.selectionSeed] = layout;
+                if (!resolved || layout == null) { excluded.Add(record.kitId); continue; }
+                staged.compositionSeed = composition.selectionSeed;
+                staged.compositionGeometrySignature = composition.compositionSignature;
+                staged.selectedSourceCellIds = new List<string>(composition.selectedIds);
+                if (staged.settlement != null)
+                {
+                    staged.settlement.runtimeSiteKitId = record.kitId;
+                    staged.settlement.runtimeSiteSemanticStyle = record.semanticStyleKey;
+                    staged.settlement.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                    staged.settlement.proceduralLayout = layout;
+                }
+                else if (staged.encampment != null)
+                {
+                    staged.encampment.runtimeSiteKitId = record.kitId;
+                    staged.encampment.runtimeSiteSemanticStyle = record.semanticStyleKey;
+                    staged.encampment.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                    staged.compositionLayout = layout;
+                }
+                else
+                {
+                    staged.poiRuntimeSiteKitId = record.kitId;
+                    staged.poiRuntimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                    staged.compositionLayout = layout;
+                }
+                if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(staged, out failure))
+                { excluded.Add(record.kitId); continue; }
+                composed = true;
+                break;
+            }
+            if (!composed || !Current())
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier construction owner changed."); yield break; }
+            if (!YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, staged,
+                    YQRuntimeWorldAssetRegistry.Instance, out failure) ||
+                !YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, prepared, staged, out _, out failure))
+            { completed?.Invoke(null, failure); yield break; }
+            var accepted = previous == null ? new GeneratedSpatialContinuationV2Record {
+                worldSeed = plan.worldSeed, parentSpatialContentHash = parentHash,
+                parentMemberFootprintHash = YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(parent)
+            } : JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(
+                JsonConvert.SerializeObject(previous, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
+            accepted.revision = checked((previous?.revision ?? 0) + 1);
+            staged.revision = accepted.revision;
+            staged.state = YQSpatialContinuationStateV2.Accepted;
+            staged.contentHash = staged.validatedContentHash = string.Empty;
+            staged.proofClaims.Clear();
+            string payloadHash = YQSpatialContinuationHasherV2.ComputeLocationPayloadHash(staged);
+            // note: These receipts describe gates executed above; publication independently repeats their owning validators on the complete candidate union.
+            for (int kind = 1; kind <= 5; kind++)
+                staged.proofClaims.Add(new GeneratedSpatialContinuationProofV2Record {
+                    kind = (YQSpatialContinuationProofKindV2)kind, outcome = YQSpatialContinuationProofOutcomeV2.Passed,
+                    subjectSiteId = staged.anchor.siteId, subjectPayloadHash = payloadHash,
+                    ownerValidationVersion = "frontier_construction_owner_v1",
+                    evidenceId = staged.contentId + ":" + kind,
+                    evidenceHash = kind == 1 ? proposalHash : YQStateContract.Sha256Hex(payloadHash + "|" + kind)
+                });
+            staged.contentHash = staged.validatedContentHash = YQSpatialContinuationHasherV2.ComputeLocationContentHash(staged);
+            accepted.locations.Add(staged);
+            accepted.state = YQSpatialContinuationStateV2.Accepted;
+            accepted.contentHash = accepted.validatedContentHash = YQSpatialContinuationHasherV2.ComputeContentHash(accepted);
+            var token = FrontierConstructionAcceptance.Issue(world, previousFingerprint, accepted, FrontierConstructionIssuer);
+            if (!Current() || !token.TryValidateForPublication(world, out _, out failure))
+            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier construction owner changed."); yield break; }
+            completed?.Invoke(token, string.Empty);
+        }
+        finally
+        {
+            // note: Cancellation retires only this owned inference request and releases the builder's single construction slot.
+            if (!briefFinished && requestId > 0 && LLMClient.Instance != null)
+                LLMClient.Instance.CancelRequest(requestId, "Frontier construction retired.");
+            foreach (var layout in ownedLayouts) YQProceduralSettlementLayout.DiscardPending(layout.Key, layout.Value);
+            frontierConstructionInFlight = false;
+        }
+    }
+
     private const float MaximumAsyncInstantiateIntegrationMilliseconds = 2f;
 
     private static bool _initialGenerationLifecycleLocked;
@@ -1772,6 +2238,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 TouchInitialGenerationWatchdog();
             }
 
+            // note: A restored snapshot already contains finalized road grades. Solving again from those modified heights shifts accepted terrain on every Continue.
+
             YQStartupLoadingScreen.SetGenerationWorkStage(
                 "Painting the terrain",
                 5,
@@ -2599,6 +3067,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 yield break;
             }
             YQSpatialMaterializationSiteV2 anchor = prepared.GetSite(index);
+            var continued = FindAcceptedContinuationLocation(plan, anchor);
+            if (continued != null)
+            {
+                // note: Saved frontier payloads replay their committed provider/seed/layout; base synthetic fallback and kit reselection cannot inspect them.
+                if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationReplay(plan, continued, prepared, out _, out failure) ||
+                    !YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, continued,
+                        YQRuntimeWorldAssetRegistry.Instance, out failure))
+                {
+                    completed?.Invoke(false, "Accepted continuation replay preflight failed: " + failure);
+                    yield break;
+                }
+                _resolvedSemanticCompositionSeedsV2[anchor.sourceSemanticId] = continued.compositionSeed;
+                yield return null;
+                continue;
+            }
             if (anchor.kind != YQSiteKindV2.Settlement &&
                 anchor.kind != YQSiteKindV2.HostileSite)
                 continue;
@@ -2769,15 +3252,20 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     // note: Commit only the validated kit metadata; semantic identity, quests, seed and accepted spatial reservation stay unchanged.
                     if (settlementOwner != null)
                     {
+                        // note: Revalidation preserves a valid saved binding's version when its stable kit has not changed.
+                        string committedVersion = YQCompiledWorldSiteBindingService.VersionForCommittedKit(
+                            settlementOwner.runtimeSiteKitId, settlementOwner.runtimeSiteBindingVersion, acceptedRecord.kitId);
                         settlementOwner.runtimeSiteKitId = acceptedRecord.kitId;
                         settlementOwner.runtimeSiteSemanticStyle = acceptedRecord.semanticStyleKey;
-                        settlementOwner.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                        settlementOwner.runtimeSiteBindingVersion = committedVersion;
                     }
                     else
                     {
+                        string committedVersion = YQCompiledWorldSiteBindingService.VersionForCommittedKit(
+                            encampmentOwner.runtimeSiteKitId, encampmentOwner.runtimeSiteBindingVersion, acceptedRecord.kitId);
                         encampmentOwner.runtimeSiteKitId = acceptedRecord.kitId;
                         encampmentOwner.runtimeSiteSemanticStyle = acceptedRecord.semanticStyleKey;
-                        encampmentOwner.runtimeSiteBindingVersion = YQCompiledWorldSiteBindingService.BindingVersion;
+                        encampmentOwner.runtimeSiteBindingVersion = committedVersion;
                     }
                     Debug.Log("[YQGeneratedWorldRuntimeBuilder] VALIDATED CELL KIT ALTERNATIVE: " +
                         displayName + ": " + initialRecord.kitId + " -> " + acceptedRecord.kitId);
@@ -2785,10 +3273,28 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
             yield return null;
         }
+        // note: The final cooperative site yield may outlive its profile/plan; staged binding setters still require their original active build owner.
+        if (!IsCurrentBuildContext(world, plan))
+        {
+            completed?.Invoke(false, "The active world changed before cell preflight bindings committed.");
+            yield break;
+        }
         // note: The complete V2 preflight succeeded, so later terrain grading and streaming may now consume the validated replacement bindings.
         foreach (Action accept in acceptedBindings)
             accept();
         completed?.Invoke(true, string.Empty);
+    }
+
+    private static GeneratedSpatialContinuationLocationV2Record FindAcceptedContinuationLocation(
+        GeneratedWorldPlanRecord plan, YQSpatialMaterializationSiteV2 site)
+    {
+        var continuation = plan?.spatialPlanV2?.acceptedContinuation;
+        if (continuation?.state != YQSpatialContinuationStateV2.Accepted || continuation.locations == null) return null;
+        foreach (var location in continuation.locations)
+            if (location?.state == YQSpatialContinuationStateV2.Accepted && location.anchor != null &&
+                string.Equals(location.anchor.siteId, site.siteId, StringComparison.Ordinal) &&
+                string.Equals(location.anchor.sourceSemanticId, site.sourceSemanticId, StringComparison.Ordinal)) return location;
+        return null;
     }
 
     private IEnumerator PrepareSpatialAuthorityRoutine(
@@ -2838,6 +3344,20 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             // note: Separate validation and immutable projection across frames so Continue never receives both costs in one loading-screen frame.
             yield return null;
             TouchInitialGenerationWatchdog();
+
+            bool continuationProvidersReady = false;
+            string continuationProviderFailure = string.Empty;
+            // note: The continuation compiler is a cache-only admission boundary; cold Continue first loads exact saved approved providers asynchronously.
+            yield return YQCompiledWorldSiteInstance.WarmAcceptedContinuationProvidersRoutine(plan,
+                () => IsCurrentWorldPlanReference(world, plan) && ReferenceEquals(plan.spatialPlanV2, previousArtifact),
+                (success, reason) => { continuationProvidersReady = success; continuationProviderFailure = reason; });
+            TouchInitialGenerationWatchdog();
+            if (!continuationProvidersReady)
+            {
+                Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Accepted continuation provider warmup failed: " + continuationProviderFailure);
+                completed?.Invoke(false);
+                yield break;
+            }
 
             string preparationFailure = string.Empty;
             if (IsCurrentWorldPlanReference(world, plan) &&
@@ -7756,7 +8276,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         resolutionFailure = failure;
                     },
                     acceptedSite.RequiredFunctions,
-                    unavailable => variantIndependentFailure = unavailable);
+                    unavailable => variantIndependentFailure = unavailable,
+                    acceptedSite);
 
             if (!resolved)
             {
@@ -7768,7 +8289,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 yield return null;
                 continue;
             }
-            if (!materialization.TryValidateFootprint(locationId, radius, out lastFailure))
+            if (!TryValidatePreparedCompositionFootprint(materialization, locationId,
+                    composition.selectionSeed, radius, out lastFailure))
             {
                 yield return null;
                 continue;
@@ -7786,7 +8308,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
 
             // note: Prepass and later streaming consume the exact same accepted variant seed, so terrain support can never be graded for one district and then receive another.
-            _resolvedSemanticCompositionSeedsV2[locationId] = candidateSeed;
+            _resolvedSemanticCompositionSeedsV2[locationId] = composition.selectionSeed;
             completed?.Invoke(true, radius, string.Empty);
             yield break;
         }
@@ -7797,6 +8319,22 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             !string.IsNullOrWhiteSpace(lastFailure)
                 ? lastFailure
                 : "no distinct valid semantic composition was available.");
+    }
+
+    internal static bool TryValidatePreparedCompositionFootprint(
+        YQPreparedSpatialMaterializationV2 materialization, string locationId,
+        string seed, float radius, out string failure)
+    {
+        // note: A member layout consumes its individual accepted reserves; its enclosing radius includes unowned space between sectors.
+        var layout = YQProceduralSettlementLayout.Get(seed);
+        if (layout != null && layout.version >= 5)
+        {
+            failure = "Sector composition has no accepted owner.";
+            return materialization != null && materialization.TryGetSiteBySemanticId(locationId, out var site) &&
+                YQProceduralSettlementLayout.TryValidateAcceptedSectorFootprint(layout, site, out failure);
+        }
+        failure = "Composition has no accepted materialization context.";
+        return materialization != null && materialization.TryValidateFootprint(locationId, radius, out failure);
     }
 
     private string ResolveSemanticCompositionSeedV2(

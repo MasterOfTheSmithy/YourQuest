@@ -305,6 +305,8 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         float waterBed = 0f;
         float bankSupportMask = 0f;
         float waterTerrainBlendMask = 0f;
+        bool waterTerrainCore = false;
+        var riverEnvelope = new YQContinuousWorldFeatureAuthority.AcceptedWaterTerrainEnvelope();
 
         for (int index = 0; index < waters.Length; index++)
         {
@@ -394,12 +396,22 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                     ridgeCutTransition);
             }
             float shorelineMask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(radius + bankPadding, radius + bankPadding + shorelineTransition, distance));
-            if (shorelineMask > waterTerrainBlendMask || (shorelineMask >= .999f && bed < waterBed))
+            if (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall)
+            {
+                // note: Finite and streamed rivers use the identical cut/fill bank profile; keep the wet mask above independent of this wider dry terrain transition.
+                riverEnvelope.Add(ApproximateTerrainHeightMetres, featureSurface, depth, radius, distance);
+                continue;
+            }
+            bool featureCore = distance <= radius + bankPadding + 2f;
+            if ((featureCore && !waterTerrainCore) || (featureCore == waterTerrainCore &&
+                (shorelineMask > waterTerrainBlendMask || (shorelineMask >= .999f && bed < waterBed))))
             {
                 // note: Keep the winning water bed paired with its blend mask when rivers and receiving bodies overlap.
                 waterTerrainBlendMask = shorelineMask;
                 waterBed = bed;
+                waterTerrainCore = featureCore;
             }
+            if (waterTerrainCore && !featureCore) continue;
             height = Mathf.Lerp(
                 height,
                 // note: Cut or fill to the accepted channel datum so the water cannot bridge an unrelated depression.
@@ -407,8 +419,17 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 shorelineMask);
         }
 
+        if (riverEnvelope.Influenced && (!waterTerrainCore || riverEnvelope.HasWetCore))
+        {
+            // note: One projection joins river banks continuously; a dry river shoulder cannot replace an accepted lake's wet basin.
+            height = riverEnvelope.Project(height);
+            waterBed = height;
+            waterTerrainBlendMask = 1f;
+        }
+
         float routeMask = 0f;
         float routeElevation = height;
+        float strongestRouteCorrection = 0f;
         for (int index = 0; index < routes.Length; index++)
         {
             PreparedRoute route = routes[index];
@@ -426,13 +447,20 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 out _);
             float radius = route.width * 0.5f + route.shoulderWidth;
             float mask = FalloffMask(distance, Mathf.Max(1f, radius), 1.9f);
+            float grade = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(height, elevation,
+                ApproximateTerrainHeightMetres, route.width * .5f, route.shoulderWidth, distance);
+            float correction = Mathf.Abs(grade - height);
+            if (correction > strongestRouteCorrection)
+            {
+                strongestRouteCorrection = correction;
+                routeElevation = grade;
+            }
             if (mask > routeMask)
             {
                 routeMask = mask;
-                routeElevation = elevation;
             }
         }
-        height = Mathf.Lerp(height, routeElevation, routeMask * 0.72f);
+        height = routeElevation;
 
         float reserveMask = 0f;
         float reserveElevation = height;

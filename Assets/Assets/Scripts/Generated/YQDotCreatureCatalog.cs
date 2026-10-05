@@ -8,6 +8,7 @@ public sealed class YQDotCreatureEntry
     public string assetId, kind, species, category, bodyForm, compatibilityId, moduleSlot, prefabPath;
     public string[] sourcePaths = Array.Empty<string>();
     public string[] sourceHashes = Array.Empty<string>();
+    public string[] sourceRendererNames = Array.Empty<string>();
     public float authoredWalkSpeed;
     public bool requiresSlotReplacement;
     public YQDotMotionProfile motionProfile;
@@ -72,10 +73,16 @@ public sealed class YQDotCreatureCatalog : ScriptableObject
                 case "lizardman": case "lizardmen": return "lizardmen";
                 case "orc": case "orcs": case "orcish": return "orc";
                 case "satyr": case "satyrs": return "satyr";
+                case "avian": case "avians": return "avian";
+                // note: Newly delivered bases enter the existing semantic binder without changing prior species pools.
+                case "dwarf": case "dwarves": case "dwarven": return "dwarf";
+                case "kitsune": return "kitsune";
+                case "bramblekin": return "bramblekin";
                 case "cairnback": case "thornweaver": case "sporewarden": case "maw": return token;
                 // note: An explicit DOT qualifier selects the new mimic shell without changing established generic mimic bindings.
                 case "mimic": if (Array.IndexOf(tokens, "dot") >= 0) return "mimic"; break;
                 case "rabbit": case "rabbits": return "rabbit";
+                case "cat": case "cats": return "cat";
                 case "horse": case "horses": return "horse";
                 case "cow": case "cows": return "cow";
                 case "deer": case "stag": case "stags": return "deer";

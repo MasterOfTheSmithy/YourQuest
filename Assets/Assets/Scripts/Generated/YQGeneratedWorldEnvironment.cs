@@ -919,27 +919,6 @@ public static class YQGeneratedWorldEnvironment
         TerrainData data = terrain.terrainData;
         Vector3 origin = terrain.transform.position, size = data.size;
         int resolution = data.heightmapResolution;
-        var riverIndices = new List<int>();
-        var riverBounds = new List<Bounds>();
-        for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
-        {
-            var water = prepared.GetWater(waterIndex);
-            if (water.kind != YQHydrologyKindV2.River && water.kind != YQHydrologyKindV2.Waterfall) continue;
-            int count = prepared.GetWaterPointCount(waterIndex);
-            if (count < 2) continue;
-            var first = prepared.GetWaterPoint(waterIndex, 0);
-            Bounds bounds = new Bounds(new Vector3(first.x, 0f, first.z), Vector3.zero);
-            float maximumWidth = water.nominalWidth;
-            for (int index = 1; index < count; index++)
-            {
-                var point = prepared.GetWaterPoint(waterIndex, index);
-                bounds.Encapsulate(new Vector3(point.x, 0f, point.z));
-                maximumWidth = Mathf.Max(maximumWidth, point.width);
-            }
-            bounds.Expand(new Vector3(maximumWidth * 2f + 8f, 2f, maximumWidth * 2f + 8f));
-            riverIndices.Add(waterIndex);
-            riverBounds.Add(bounds);
-        }
         int changedSamples = 0;
         const int rows = 8;
         float sliceStarted = Time.realtimeSinceStartup;
@@ -954,16 +933,11 @@ public static class YQGeneratedWorldEnvironment
                 for (int x = 0; x < resolution; x++)
                 {
                     float worldX = origin.x + x * size.x / (resolution - 1f);
-                    float original = strip[z, x], carved = original;
-                    for (int river = 0; river < riverIndices.Count; river++)
-                    {
-                        Bounds bounds = riverBounds[river];
-                        if (worldX < bounds.min.x || worldX > bounds.max.x || worldZ < bounds.min.z || worldZ > bounds.max.z) continue;
-                        YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterModifierForFeature(prepared, riverIndices[river],
-                            worldX, worldZ, original, size.y, out float candidate);
-                        carved = Mathf.Min(carved, candidate);
-                    }
-                    if (original - carved <= 0.00001f) continue;
+                    float original = strip[z, x];
+                    // note: Restore the shared finite/continued terrain envelope, including smooth overlapping dry banks, before publishing the original terrain.
+                    if (!YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(prepared,
+                        worldX, worldZ, original, size.y, out float carved)) continue;
+                    if (Mathf.Abs(original - carved) <= 0.00001f) continue;
                     strip[z, x] = carved;
                     changed = true;
                     changedSamples++;
@@ -1146,7 +1120,7 @@ public static class YQGeneratedWorldEnvironment
             float outerWidth =
                 path.halfWidth +
                 path.shoulderWidth +
-                rasterPadding + 3f;
+                rasterPadding + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance;
             float minimumWorldX =
                 Mathf.Min(path.start.x, path.end.x) -
                 Mathf.Abs(path.curveAmplitude) -
@@ -1232,7 +1206,7 @@ public static class YQGeneratedWorldEnvironment
                             out float pathDistance) ||
                         pathDistance >=
                             path.halfWidth +
-                            path.shoulderWidth + rasterPadding)
+                            path.shoulderWidth + rasterPadding + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance)
                     {
                         continue;
                     }
@@ -1265,7 +1239,7 @@ public static class YQGeneratedWorldEnvironment
                             terrainStepRise;
                     }
 
-                    if (macroWater.preparedV2 != null)
+                    if (macroWater.preparedV2 != null && pathDistance <= path.halfWidth + path.shoulderWidth + rasterPadding)
                     {
                         YQSpatialTerrainSampleV2 waterSample =
                             macroWater.preparedV2.SampleTerrain(
@@ -1283,7 +1257,7 @@ public static class YQGeneratedWorldEnvironment
 
                         // note: V2 roads crossing accepted hydrology grade to the compiled water surface rather than consulting legacy ellipse basins.
                     }
-                    else for (int basinIndex = 0;
+                    else if (macroWater.preparedV2 == null) for (int basinIndex = 0;
                               basinIndex < macroWater.count;
                               basinIndex++)
                     {
@@ -1313,6 +1287,15 @@ public static class YQGeneratedWorldEnvironment
                         Mathf.Clamp01(
                             (targetWorldHeight - terrainPosition.y) /
                             Mathf.Max(0.001f, terrainSize.y));
+                    // note: Keep road dimensions intact while grading the surrounding terrain with the same bounded cut/fill profile used by continuation cells.
+                    if (pathDistance > path.halfWidth + rasterPadding)
+                    {
+                        targetNormalized = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(
+                            heights[z, x], targetNormalized, terrainSize.y, path.halfWidth,
+                            path.shoulderWidth + rasterPadding, pathDistance);
+                        if (Mathf.Abs(targetNormalized - heights[z, x]) < .0000001f) continue;
+                        centerBlend = 0.998f;
+                    }
                     float strength = centerBlend / Mathf.Max(.0001f, 1f - centerBlend);
                     roadTargets[z, x] += targetNormalized * strength;
                     roadStrengths[z, x] += strength;
@@ -2824,10 +2807,10 @@ public static class YQGeneratedWorldEnvironment
                 Vector2 p=span.points[i];
                 float terrainY = terrain.SampleHeight(new Vector3(p.x, 0f, p.y)) + terrain.transform.position.y;
                 var waterSample = prepared.SampleTerrain(p.x, p.y);
-                // note: Crossing decks sit above the carved bed at the accepted water datum, while bank contacts keep their finished terrain height.
-                float deckY = terrainY + .18f;
-                if (waterSample.waterFeatureIndex >= 0 && waterSample.waterMask > .18f)
-                    deckY = terrain.transform.position.y + waterSample.waterSurfaceNormalized * data.size.y + .32f;
+                // note: Water clearance is a lower bound, not permission to drop the deck below its finished road profile at a wet-mask transition.
+                float deckY = ResolveRiverCrossingDeckElevation(terrainY,
+                    terrain.transform.position.y + waterSample.waterSurfaceNormalized * data.size.y,
+                    waterSample.waterFeatureIndex >= 0 && waterSample.waterMask > .18f);
                 road.Add(new Vector3(p.x, deckY, p.y));
                 if ((i & 15) == 15 && Time.realtimeSinceStartup - roadSliceStartedAt >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
                 {
@@ -2875,6 +2858,13 @@ public static class YQGeneratedWorldEnvironment
         }
         if(carved>0) { data.SetHeights(0,0,heights); Physics.SyncTransforms(); }
         Debug.Log("[WORLDGEN BRIDGES] Authored stone spans="+spans.Count+", channel samples restored="+carved);
+    }
+
+    internal static float ResolveRiverCrossingDeckElevation(float terrainY, float waterSurfaceY, bool wet)
+    {
+        // note: The pre-carve finished road remains the crossing grade authority; the accepted water datum may raise its deck but never create a downward discontinuity.
+        float roadHeight = terrainY + .18f;
+        return wet ? Mathf.Max(roadHeight, waterSurfaceY + .32f) : roadHeight;
     }
 
     internal static bool TryResolveLivedPathEdgePair(
@@ -7994,6 +7984,8 @@ public static class YQGeneratedWorldEnvironment
 
         if (detailPrototypes.Count > 0)
         {
+            // note: Origin and streamed grass use the same instance-count interpretation of their accepted density maps.
+            data.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
             data.SetDetailResolution(
                 TerrainDetailResolution,
                 TerrainDetailPatchResolution);
@@ -8303,14 +8295,15 @@ public static class YQGeneratedWorldEnvironment
     private static DetailPrototype CreateTerrainDetailPrototype(
         Texture2D texture)
     {
-        // note: Existing vegetation art supplies the billboard texture; runtime code only describes a batched Terrain detail contract.
+        // note: This approved grass sheet draws blades in its bottom third; compensate height so their visible height matches the intended grass dimensions.
+        float visibleHeightScale = texture != null && texture.name == "T_Grass_01_BaseColor_Alpha" ? 3f : 1f;
         return new DetailPrototype
         {
             prototypeTexture = texture,
             minWidth = 0.42f,
             maxWidth = 1.05f,
-            minHeight = 0.35f,
-            maxHeight = 0.95f,
+            minHeight = 0.35f * visibleHeightScale,
+            maxHeight = 0.95f * visibleHeightScale,
             noiseSpread = 0.19f,
             healthyColor = new Color(0.72f, 0.82f, 0.64f, 1f),
             dryColor = new Color(0.54f, 0.48f, 0.35f, 1f),
@@ -8329,9 +8322,12 @@ public static class YQGeneratedWorldEnvironment
 
     internal static bool EnsureStreamedDetailResolution(TerrainData data)
     {
+        // note: The payload contains actual grass instance counts; coverage mode interprets those small integers as nearly empty coverage.
+        bool modeChanged = data.detailScatterMode != DetailScatterMode.InstanceCountMode;
+        if (modeChanged) data.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
         // note: A preempted painter resumes on the same TerrainData; preserve an already matching grid instead of clearing its payload and rebuilding native detail resources.
         if (data.detailResolution == 64 && data.detailResolutionPerPatch == 16)
-            return false;
+            return modeChanged;
         data.SetDetailResolution(64, 16);
         return true;
     }
@@ -11151,444 +11147,460 @@ public static class YQGeneratedWorldEnvironment
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         // note: Async clones and cooperative material repair span frames. Keep each unfinished plant hidden until grounding and every LOD material are ready.
-        GameObject preparationRoot = new GameObject("Ecology_Preparing");
-        preparationRoot.transform.SetParent(root.transform, false);
+        // note: Unpublished clones are outside the visible chunk hierarchy; the iterator owns and cancels this transient staging area.
+        GameObject preparationRoot = new GameObject("Ecology_Preparing") { hideFlags = HideFlags.DontSave };
+        preparationRoot.transform.SetPositionAndRotation(root.transform.position, root.transform.rotation);
+        preparationRoot.transform.localScale = root.transform.lossyScale;
         preparationRoot.SetActive(false);
-
-        bool vegetationSlot =
-            string.Equals(
-                slot,
-                YQWorldAssetCatalog.SlotVegetation,
-                StringComparison.OrdinalIgnoreCase);
-        int clusterSize =
-            treesOnly
-                ? 4
-                : vegetationSlot
-                ? 6
-                : 3;
-        // note: Keep the ordinary canopy search bounded, then reserve a second deterministic band for sparse cells whose accepted masks leave only a few valid habitat samples.
-        int standardAttempts =
-            targetCount *
-            (treesOnly ? 7 : 4);
-        int attempts =
-            treesOnly
-                ? standardAttempts * 2
-                : standardAttempts;
-        // note: Required low vegetation previously sampled only four cluster centers, then retried those same rejected centers. Extend only an empty streamed layer into a bounded deterministic band, retaining every habitat and clearance rule.
-        bool requiredLowVegetation = placementBounds.HasValue && vegetationSlot && !treesOnly &&
-            (string.Equals(layerLabel, "Understory", StringComparison.Ordinal) || string.Equals(layerLabel, "Shrubs", StringComparison.Ordinal));
-        if (requiredLowVegetation)
-            attempts += 64;
-
-        // note: Shared path and water projections are already prepared by the chunk owner; scatter keeps one aggregate budget instead of inserting a frame break before every small lookup.
-        List<GeneratedAssetReferenceRecord> scatterReferences =
-            BuildSmallScatterReferences(
-                palette,
-                slot,
-                treesOnly);
-
-        List<LivedPathSegment> livedPaths =
-            sharedLivedPaths ??
-            BuildLivedPathNetwork(plan, terrain);
-
-        // note: Reuse the chunk-level water projection when available; standalone scatter callers still build their own deterministic projection.
-        MacroWaterSet macroWater = sharedMacroWater ?? BuildMacroWaterSet(terrain, plan);
-
-        if (scatterReferences.Count == 0)
+        AsyncInstantiateOperation<GameObject> pendingInstantiation = null;
+        try
         {
-            UnityEngine.Object.Destroy(root);
-            completed?.Invoke(0);
-            yield break;
-        }
 
-        float frameStartedAt = Time.realtimeSinceStartup;
-        const float scatterWorkSliceSeconds = 0.004f;
-        HashSet<string> measuredScatterPaths = new HashSet<string>(
-            StringComparer.OrdinalIgnoreCase);
+            bool vegetationSlot =
+                string.Equals(
+                    slot,
+                    YQWorldAssetCatalog.SlotVegetation,
+                    StringComparison.OrdinalIgnoreCase);
+            int clusterSize =
+                treesOnly
+                    ? 4
+                    : vegetationSlot
+                    ? 6
+                    : 3;
+            // note: Keep the ordinary canopy search bounded, then reserve a second deterministic band for sparse cells whose accepted masks leave only a few valid habitat samples.
+            int standardAttempts =
+                targetCount *
+                (treesOnly ? 7 : 4);
+            int attempts =
+                treesOnly
+                    ? standardAttempts * 2
+                    : standardAttempts;
+            // note: Required low vegetation previously sampled only four cluster centers, then retried those same rejected centers. Extend only an empty streamed layer into a bounded deterministic band, retaining every habitat and clearance rule.
+            bool requiredLowVegetation = placementBounds.HasValue && vegetationSlot && !treesOnly &&
+                (string.Equals(layerLabel, "Understory", StringComparison.Ordinal) || string.Equals(layerLabel, "Shrubs", StringComparison.Ordinal));
+            if (requiredLowVegetation)
+                attempts += 64;
 
-        for (int attempt = 0;
-             attempt < attempts &&
-             spawned < targetCount;
-            attempt++)
-        {
-            // note: Existing successful layers keep exactly their original placements; the additional search ends as soon as a previously empty required layer has a valid physical instance.
-            if (requiredLowVegetation && attempt >= standardAttempts && spawned > 0)
-                break;
+            // note: Shared path and water projections are already prepared by the chunk owner; scatter keeps one aggregate budget instead of inserting a frame break before every small lookup.
+            List<GeneratedAssetReferenceRecord> scatterReferences =
+                BuildSmallScatterReferences(
+                    palette,
+                    slot,
+                    treesOnly);
+
+            List<LivedPathSegment> livedPaths =
+                sharedLivedPaths ??
+                BuildLivedPathNetwork(plan, terrain);
+
+            // note: Reuse the chunk-level water projection when available; standalone scatter callers still build their own deterministic projection.
+            MacroWaterSet macroWater = sharedMacroWater ?? BuildMacroWaterSet(terrain, plan);
+
             if (scatterReferences.Count == 0)
-                break;
-
-            if (Time.realtimeSinceStartup - frameStartedAt >= scatterWorkSliceSeconds)
             {
-                // note: Rejected candidates consume the same frame budget as accepted ones, preventing sparse or incompatible palettes from spinning through hundreds of checks in one loading frame.
-                yield return null;
-                frameStartedAt = Time.realtimeSinceStartup;
+                UnityEngine.Object.Destroy(root);
+                completed?.Invoke(0);
+                yield break;
             }
 
-            string seed =
-                plan.worldSeed +
-                "|scatter|" +
-                (string.IsNullOrWhiteSpace(seedScope) ? region.regionId : seedScope) +
-                "|" +
-                slot +
-                "|" +
-                attempt;
-            int clusterIndex =
-                attempt /
-                clusterSize;
-            string clusterSeed =
-                plan.worldSeed +
-                "|scatter_cluster|" +
-                (string.IsNullOrWhiteSpace(seedScope) ? region.regionId : seedScope) +
-                "|" +
-                slot +
-                "|" +
-                clusterIndex;
+            float frameStartedAt = Time.realtimeSinceStartup;
+            const float scatterWorkSliceSeconds = 0.004f;
+            HashSet<string> measuredScatterPaths = new HashSet<string>(
+                StringComparer.OrdinalIgnoreCase);
 
-            if (!TryResolveWildernessPosition(
-                    terrain,
-                    plan,
-                    regionCenter,
-                    clusterSeed,
-                    minimumRadius,
-                    maximumRadius,
-                    settlementClearRadius,
-                    originClearRadius,
-                    encampmentClearRadius,
-                    out Vector3 clusterCenter,
-                    macroWater))
+            for (int attempt = 0;
+                 attempt < attempts &&
+                 spawned < targetCount;
+                attempt++)
             {
-                continue;
-            }
+                // note: Existing successful layers keep exactly their original placements; the additional search ends as soon as a previously empty required layer has a valid physical instance.
+                if (requiredLowVegetation && attempt >= standardAttempts && spawned > 0)
+                    break;
+                if (scatterReferences.Count == 0)
+                    break;
 
-            // note: Region dressing grows in deterministic groves and rock outcrops instead of isolated uniform noise, preserving palette identity while filling traversal space coherently.
-            Vector3 position =
-                clusterCenter +
-                ResolveRadialOffset(
-                    seed + "|cluster_member",
-                    vegetationSlot ? 1.5f : 0.8f,
-                    vegetationSlot ? 11f : 6f);
-
-            // note: Chunk-scoped scatter is clipped to its deterministic rectangle before any prefab is cloned, preventing cross-boundary duplicates and visible seams.
-            if (placementBounds.HasValue)
-            {
-                Bounds bounds = placementBounds.Value;
-                if (position.x < bounds.min.x || position.x >= bounds.max.x ||
-                    position.z < bounds.min.z || position.z >= bounds.max.z)
-                    continue;
-            }
-
-            if (!IsWildernessPositionAllowed(
-                    terrain,
-                    plan,
-                    position,
-                    settlementClearRadius,
-                    originClearRadius,
-                    encampmentClearRadius,
-                    macroWater))
-            {
-                continue;
-            }
-
-            if (macroWater.preparedV2 != null)
-            {
-                YQSpatialEcologySampleV2 ecology =
-                    macroWater.preparedV2.SampleEcologyContext(
-                        position.x,
-                        position.z);
-                if (vegetationSlot)
+                if (Time.realtimeSinceStartup - frameStartedAt >= scatterWorkSliceSeconds)
                 {
-                    if (!IsPreparedVegetationPositionAllowed(
-                            ecology.terrain,
-                            !treesOnly))
-                    {
-                        continue;
-                    }
+                    // note: Rejected candidates consume the same frame budget as accepted ones, preventing sparse or incompatible palettes from spinning through hundreds of checks in one loading frame.
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
 
-                    float habitatAffinity = treesOnly
-                        ? ecology.tileProfile.ForestDensity
-                        : Mathf.Max(
-                            ecology.tileProfile.ForestDensity,
-                            ecology.tileProfile.Moisture * 0.86f);
-                    habitatAffinity -=
-                        ecology.civilizationDensity *
-                        (treesOnly ? 0.1f : 0.035f);
-                    float habitatScore =
-                        habitatAffinity * 0.62f +
-                        Deterministic01(
-                            clusterSeed + "|v2_habitat") * 0.38f;
-                    float minimumHabitatScore = treesOnly ? 0.34f : 0.25f;
-                    // note: A canopy-applicable cell may still have sparse local forest affinity after route, water, and site masks are applied; the fallback remains outside those physical exclusions.
-                    if (treesOnly &&
-                        attempt >= standardAttempts &&
-                        minimumHabitatScore > 0.05f)
-                    {
-                        minimumHabitatScore = 0.05f;
-                    }
-                    if (habitatScore < minimumHabitatScore)
-                        continue;
+                string seed =
+                    plan.worldSeed +
+                    "|scatter|" +
+                    (string.IsNullOrWhiteSpace(seedScope) ? region.regionId : seedScope) +
+                    "|" +
+                    slot +
+                    "|" +
+                    attempt;
+                int clusterIndex =
+                    attempt /
+                    clusterSize;
+                string clusterSeed =
+                    plan.worldSeed +
+                    "|scatter_cluster|" +
+                    (string.IsNullOrWhiteSpace(seedScope) ? region.regionId : seedScope) +
+                    "|" +
+                    slot +
+                    "|" +
+                    clusterIndex;
 
-                    // note: Visible prefab foliage now forms deterministic habitat clusters from the same semantic ecology and construction masks as Terrain-native vegetation.
+                if (!TryResolveWildernessPosition(
+                        terrain,
+                        plan,
+                        regionCenter,
+                        clusterSeed,
+                        minimumRadius,
+                        maximumRadius,
+                        settlementClearRadius,
+                        originClearRadius,
+                        encampmentClearRadius,
+                        out Vector3 clusterCenter,
+                        macroWater))
+                {
+                    continue;
+                }
+
+                // note: Region dressing grows in deterministic groves and rock outcrops instead of isolated uniform noise, preserving palette identity while filling traversal space coherently.
+                Vector3 position =
+                    clusterCenter +
+                    ResolveRadialOffset(
+                        seed + "|cluster_member",
+                        vegetationSlot ? 1.5f : 0.8f,
+                        vegetationSlot ? 11f : 6f);
+
+                // note: Chunk-scoped scatter is clipped to its deterministic rectangle before any prefab is cloned, preventing cross-boundary duplicates and visible seams.
+                if (placementBounds.HasValue)
+                {
+                    Bounds bounds = placementBounds.Value;
+                    if (position.x < bounds.min.x || position.x >= bounds.max.x ||
+                        position.z < bounds.min.z || position.z >= bounds.max.z)
+                        continue;
+                }
+
+                if (!IsWildernessPositionAllowed(
+                        terrain,
+                        plan,
+                        position,
+                        settlementClearRadius,
+                        originClearRadius,
+                        encampmentClearRadius,
+                        macroWater))
+                {
+                    continue;
+                }
+
+                if (macroWater.preparedV2 != null)
+                {
+                    YQSpatialEcologySampleV2 ecology =
+                        macroWater.preparedV2.SampleEcologyContext(
+                            position.x,
+                            position.z);
+                    if (vegetationSlot)
+                    {
+                        if (!IsPreparedVegetationPositionAllowed(
+                                ecology.terrain,
+                                !treesOnly))
+                        {
+                            continue;
+                        }
+
+                        float habitatAffinity = treesOnly
+                            ? ecology.tileProfile.ForestDensity
+                            : Mathf.Max(
+                                ecology.tileProfile.ForestDensity,
+                                ecology.tileProfile.Moisture * 0.86f);
+                        habitatAffinity -=
+                            ecology.civilizationDensity *
+                            (treesOnly ? 0.1f : 0.035f);
+                        float habitatScore =
+                            habitatAffinity * 0.62f +
+                            Deterministic01(
+                                clusterSeed + "|v2_habitat") * 0.38f;
+                        float minimumHabitatScore = treesOnly ? 0.34f : 0.25f;
+                        // note: A canopy-applicable cell may still have sparse local forest affinity after route, water, and site masks are applied; the fallback remains outside those physical exclusions.
+                        if (treesOnly &&
+                            attempt >= standardAttempts &&
+                            minimumHabitatScore > 0.05f)
+                        {
+                            minimumHabitatScore = 0.05f;
+                        }
+                        if (habitatScore < minimumHabitatScore)
+                            continue;
+
+                        // note: Visible prefab foliage now forms deterministic habitat clusters from the same semantic ecology and construction masks as Terrain-native vegetation.
+                    }
+                    else
+                    {
+                        if (!IsPreparedRockPositionAllowed(ecology.terrain))
+                            continue;
+                        float geologicalScore =
+                            ecology.tileProfile.Ruggedness * 0.54f +
+                            ecology.tileProfile.MountainAffinity * 0.28f +
+                            Deterministic01(
+                                clusterSeed + "|v2_geology") * 0.18f;
+                        if (geologicalScore < 0.26f)
+                            continue;
+
+                        // note: V2 rock clusters follow geological affinity while exact route, site, shoreline, and cave-mouth masks remain obstruction-free.
+                    }
+                }
+
+                float pathPadding = treesOnly
+                    ? 7.5f
+                    : vegetationSlot
+                        ? 1.4f
+                        : 3.2f;
+                if (IsNearLivedPath(
+                        livedPaths,
+                        position,
+                        pathPadding))
+                {
+                    // note: Trees frame paths at sightline distance, ground cover stays off the tread, and solid rocks cannot become random locomotion barriers.
+                    continue;
+                }
+
+                // note: Canopy diversity advances from the deterministic attempt index, not the number already spawned. A rejected position or prefab must not keep retrying the same tree family and starve the remaining approved silhouettes.
+                GeneratedAssetReferenceRecord reference =
+                    treesOnly
+                        ? scatterReferences[attempt % scatterReferences.Count]
+                        : PickWeightedReference(
+                            scatterReferences,
+                            clusterSeed + "|palette");
+
+                if (reference == null)
+                    continue;
+
+                /*
+                 * Mountain/backdrop assets are never ordinary scatter.
+                 */
+                if (IsLargeTerrainFeatureReference(
+                        reference))
+                {
+                    continue;
+                }
+
+                GameObject prefab =
+                    registry.ResolvePrefab(
+                        reference.assetPath);
+
+                if (prefab == null)
+                    continue;
+
+                // note: Vegetation can be authored with a large canopy; fit it to the mature-tree budget after instantiation instead of discarding the ecological family before it is audited.
+                if (!vegetationSlot &&
+                    IsOversizedSmallScatterPrefab(
+                        prefab,
+                        slot,
+                        reference))
+                {
+                    continue;
+                }
+
+                position.y =
+                    YQGeneratedWorldTerrain
+                        .SampleWorldHeight(
+                            terrain,
+                            position);
+
+                GameObject instance;
+                if (synchronousInstantiation)
+                {
+                    // note: Explicit synchronous callers retain their existing clone contract; streamed chunks select the async branch below to keep imported hierarchy work off the frame boundary.
+                    instance = UnityEngine.Object.Instantiate(prefab, preparationRoot.transform);
+                    yield return null;
                 }
                 else
                 {
-                    if (!IsPreparedRockPositionAllowed(ecology.terrain))
-                        continue;
-                    float geologicalScore =
-                        ecology.tileProfile.Ruggedness * 0.54f +
-                        ecology.tileProfile.MountainAffinity * 0.28f +
-                        Deterministic01(
-                            clusterSeed + "|v2_geology") * 0.18f;
-                    if (geologicalScore < 0.26f)
-                        continue;
-
-                    // note: V2 rock clusters follow geological affinity while exact route, site, shoreline, and cave-mouth masks remain obstruction-free.
+                    AsyncInstantiateOperation<GameObject> operation =
+                        UnityEngine.Object.InstantiateAsync(
+                            prefab,
+                            preparationRoot.transform);
+                    pendingInstantiation = operation;
+                    // note: Nearby streamed ecology must compete at normal async priority so camera-visible cells do not wait behind unrelated background work.
+                    operation.priority = 0;
+                    // note: Origin dressing retains cooperative async loading for its larger authored set while this branch keeps the player-facing chunk responsive.
+                    yield return operation;
+                    instance =
+                        operation.Result != null && operation.Result.Length > 0
+                            ? operation.Result[0]
+                            : null;
+                    pendingInstantiation = null;
                 }
-            }
 
-            float pathPadding = treesOnly
-                ? 7.5f
-                : vegetationSlot
-                    ? 1.4f
-                    : 3.2f;
-            if (IsNearLivedPath(
-                    livedPaths,
-                    position,
-                    pathPadding))
-            {
-                // note: Trees frame paths at sightline distance, ground cover stays off the tread, and solid rocks cannot become random locomotion barriers.
-                continue;
-            }
+                if (instance == null)
+                    continue;
 
-            // note: Canopy diversity advances from the deterministic attempt index, not the number already spawned. A rejected position or prefab must not keep retrying the same tree family and starve the remaining approved silhouettes.
-            GeneratedAssetReferenceRecord reference =
-                treesOnly
-                    ? scatterReferences[attempt % scatterReferences.Count]
-                    : PickWeightedReference(
-                        scatterReferences,
-                        clusterSeed + "|palette");
+                instance.name =
+                    "Wilderness_" +
+                    SafeName(slot) +
+                    "_" +
+                    spawned +
+                    "__" +
+                    prefab.name;
 
-            if (reference == null)
-                continue;
+                position.y =
+                    YQGeneratedWorldTerrain
+                        .SampleWorldHeight(
+                            terrain,
+                            position);
 
-            /*
-             * Mountain/backdrop assets are never ordinary scatter.
-             */
-            if (IsLargeTerrainFeatureReference(
-                    reference))
-            {
-                continue;
-            }
+                instance.transform.position = position;
 
-            GameObject prefab =
-                registry.ResolvePrefab(
-                    reference.assetPath);
+                instance.transform.rotation =
+                    Quaternion.Euler(
+                        0f,
+                        Deterministic01(
+                            seed +
+                            "|yaw") *
+                        360f,
+                        0f);
 
-            if (prefab == null)
-                continue;
+                float scale =
+                    Mathf.Lerp(
+                        Mathf.Max(
+                            0.01f,
+                            reference.scaleMin),
+                        Mathf.Max(
+                            reference.scaleMin,
+                            reference.scaleMax),
+                        Deterministic01(
+                            seed +
+                            "|scale"));
 
-            // note: Vegetation can be authored with a large canopy; fit it to the mature-tree budget after instantiation instead of discarding the ecological family before it is audited.
-            if (!vegetationSlot &&
-                IsOversizedSmallScatterPrefab(
+                // note: Pre-fit imported vegetation so the final measured canopy remains inside the traversal-safe presentation envelope.
+                scale = ResolveAuditedScatterScale(
                     prefab,
                     slot,
-                    reference))
-            {
-                continue;
-            }
+                    reference,
+                    scale);
 
-            position.y =
-                YQGeneratedWorldTerrain
-                    .SampleWorldHeight(
-                        terrain,
-                        position);
+                // note: Deterministic wilderness variation multiplies the imported prefab's authored root scale instead of erasing its unit conversion.
+                instance.transform.localScale *= scale;
 
-            GameObject instance;
-            if (synchronousInstantiation)
-            {
-                // note: Explicit synchronous callers retain their existing clone contract; streamed chunks select the async branch below to keep imported hierarchy work off the frame boundary.
-                instance = UnityEngine.Object.Instantiate(prefab, preparationRoot.transform);
-                yield return null;
-            }
-            else
-            {
-                AsyncInstantiateOperation<GameObject> operation =
-                    UnityEngine.Object.InstantiateAsync(
-                        prefab,
-                        preparationRoot.transform);
-                // note: Nearby streamed ecology must compete at normal async priority so camera-visible cells do not wait behind unrelated background work.
-                operation.priority = 0;
-                // note: Origin dressing retains cooperative async loading for its larger authored set while this branch keeps the player-facing chunk responsive.
-                yield return operation;
-                instance =
-                    operation.Result != null && operation.Result.Length > 0
-                        ? operation.Result[0]
-                        : null;
-            }
-
-            if (instance == null)
-                continue;
-
-            instance.name =
-                "Wilderness_" +
-                SafeName(slot) +
-                "_" +
-                spawned +
-                "__" +
-                prefab.name;
-
-            position.y =
-                YQGeneratedWorldTerrain
-                    .SampleWorldHeight(
-                        terrain,
-                        position);
-
-            instance.transform.position = position;
-
-            instance.transform.rotation =
-                Quaternion.Euler(
-                    0f,
-                    Deterministic01(
-                        seed +
-                        "|yaw") *
-                    360f,
-                    0f);
-
-            float scale =
-                Mathf.Lerp(
-                    Mathf.Max(
-                        0.01f,
-                        reference.scaleMin),
-                    Mathf.Max(
-                        reference.scaleMin,
-                        reference.scaleMax),
-                    Deterministic01(
-                        seed +
-                        "|scale"));
-
-            // note: Pre-fit imported vegetation so the final measured canopy remains inside the traversal-safe presentation envelope.
-            scale = ResolveAuditedScatterScale(
-                prefab,
-                slot,
-                reference,
-                scale);
-
-            // note: Deterministic wilderness variation multiplies the imported prefab's authored root scale instead of erasing its unit conversion.
-            instance.transform.localScale *= scale;
-
-            // note: Re-measure instantiated hierarchies because imported child renderers may expose bounds that are unavailable on the prefab asset.
-            FitInstantiatedScatterToBudget(
-                instance,
-                slot,
-                reference);
-
-            bool auditInstantiatedBounds =
-                string.IsNullOrWhiteSpace(reference.assetPath) ||
-                measuredScatterPaths.Add(reference.assetPath);
-            if (auditInstantiatedBounds &&
-                IsOversizedSmallScatterPrefab(
+                // note: Re-measure instantiated hierarchies because imported child renderers may expose bounds that are unavailable on the prefab asset.
+                FitInstantiatedScatterToBudget(
                     instance,
                     slot,
-                    reference,
-                    false))
-            {
-                // note: Some prefab assets report incomplete bounds until instantiated; quarantine the measured offender immediately so loading never clones and repairs the same unusable hierarchy again.
-                if (TryGetWildernessBounds(instance, out Bounds rejectedBounds))
-                {
-                    LogOversizedWildernessRejection(
-                        "vegetation/scenery asset",
+                    reference);
+
+                bool auditInstantiatedBounds =
+                    string.IsNullOrWhiteSpace(reference.assetPath) ||
+                    measuredScatterPaths.Add(reference.assetPath);
+                if (auditInstantiatedBounds &&
+                    IsOversizedSmallScatterPrefab(
                         instance,
-                        Mathf.Max(rejectedBounds.size.x, rejectedBounds.size.z),
-                        rejectedBounds.size.y);
+                        slot,
+                        reference,
+                        false))
+                {
+                    // note: Some prefab assets report incomplete bounds until instantiated; quarantine the measured offender immediately so loading never clones and repairs the same unusable hierarchy again.
+                    if (TryGetWildernessBounds(instance, out Bounds rejectedBounds))
+                    {
+                        LogOversizedWildernessRejection(
+                            "vegetation/scenery asset",
+                            instance,
+                            Mathf.Max(rejectedBounds.size.x, rejectedBounds.size.z),
+                            rejectedBounds.size.y);
+                    }
+
+                    RemoveScatterReferenceByAssetPath(
+                        scatterReferences,
+                        reference.assetPath);
+                    instance.SetActive(false);
+                    UnityEngine.Object.Destroy(instance);
+                    continue;
                 }
 
-                RemoveScatterReferenceByAssetPath(
-                    scatterReferences,
-                    reference.assetPath);
-                instance.SetActive(false);
-                UnityEngine.Object.Destroy(instance);
-                continue;
-            }
-
-            registry.ApplyMaterialOverrides(
-                reference.assetPath,
-                instance,
-                synchronousInstantiation);
-
-            PrepareWildernessInstance(
-                instance);
-
-            // note: Bound the complete placement, bounds, material, and activation batch together; avoid four unconditional frame breaks per object while still yielding after a measurable slice.
-            if (Time.realtimeSinceStartup - frameStartedAt >= scatterWorkSliceSeconds)
-            {
-                yield return null;
-                frameStartedAt = Time.realtimeSinceStartup;
-            }
-
-            if (!synchronousInstantiation &&
-                YQRuntimeUrpMaterialRepair.NeedsMaterialRepair(instance))
-            {
-                // note: Only unsupported or incomplete streamed hierarchies pay the cooperative repair cost; valid curated ecology skips the expensive full traversal.
-                yield return YQRuntimeUrpMaterialRepair
-                    .RepairMaterialHierarchyRoutine(
-                        instance,
-                        null);
-            }
-
-            if (!FinalizeSmallWildernessInstance(
+                registry.ApplyMaterialOverrides(
+                    reference.assetPath,
                     instance,
-                    terrain,
-                    slot,
-                    reference))
-            {
-                instance.SetActive(
-                    false);
+                    synchronousInstantiation);
 
-                UnityEngine.Object.Destroy(
+                PrepareWildernessInstance(
                     instance);
 
-                continue;
+                // note: Bound the complete placement, bounds, material, and activation batch together; avoid four unconditional frame breaks per object while still yielding after a measurable slice.
+                if (Time.realtimeSinceStartup - frameStartedAt >= scatterWorkSliceSeconds)
+                {
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
+
+                if (!synchronousInstantiation &&
+                    YQRuntimeUrpMaterialRepair.NeedsMaterialRepair(instance))
+                {
+                    // note: Only unsupported or incomplete streamed hierarchies pay the cooperative repair cost; valid curated ecology skips the expensive full traversal.
+                    yield return YQRuntimeUrpMaterialRepair
+                        .RepairMaterialHierarchyRoutine(
+                            instance,
+                            null);
+                }
+
+                if (!FinalizeSmallWildernessInstance(
+                        instance,
+                        terrain,
+                        slot,
+                        reference))
+                {
+                    instance.SetActive(
+                        false);
+
+                    UnityEngine.Object.Destroy(
+                        instance);
+
+                    continue;
+                }
+
+                // note: Reparenting is the single publication edge; preserves prefab active state, world placement, and authored renderer settings.
+                instance.transform.SetParent(root.transform, true);
+                spawned++;
+                if (spawned == 1)
+                {
+                    // note: Let the streamer publish its already-defined minimum ecology receipt as soon as this layer has one finalized object; keep placing to the original deterministic target afterward.
+                    requiredMinimumCompleted?.Invoke(spawned);
+                }
+                if (treesOnly && !string.IsNullOrWhiteSpace(reference.assetPath))
+                    spawnedTreeFamilies.Add(reference.assetPath);
+
+                // note: Wilderness dressing shares the strict loading budget; even a vegetation-heavy region cannot instantiate its complete scatter set on one presentation frame.
+                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                {
+                    yield return null;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
             }
 
-            // note: Reparenting is the single publication edge; preserves prefab active state, world placement, and authored renderer settings.
-            instance.transform.SetParent(root.transform, true);
-            spawned++;
-            if (spawned == 1)
+            if (treesOnly &&
+                YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
+                ShouldSpawnVisibleTrees(palette) &&
+                targetCount >= 4 &&
+                spawnedTreeFamilies.Count < 4)
             {
-                // note: Let the streamer publish its already-defined minimum ecology receipt as soon as this layer has one finalized object; keep placing to the original deterministic target afterward.
-                requiredMinimumCompleted?.Invoke(spawned);
+                // note: Sparse accepted masks must not erase a valid chunk; report limited silhouette variety while preserving the required ecology receipt when at least one approved tree published.
+                Debug.LogWarning(
+                    "[YQGeneratedWorldEnvironment] CANOPY DIVERSITY INSUFFICIENT " +
+                    region.regionId + " variants=" + spawnedTreeFamilies.Count +
+                    " spawned=" + spawned +
+                    " candidates=" + scatterReferences.Count);
             }
-            if (treesOnly && !string.IsNullOrWhiteSpace(reference.assetPath))
-                spawnedTreeFamilies.Add(reference.assetPath);
 
-            // note: Wilderness dressing shares the strict loading budget; even a vegetation-heavy region cannot instantiate its complete scatter set on one presentation frame.
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (requiredLowVegetation && spawned == 0)
             {
-                yield return null;
-                frameStartedAt = Time.realtimeSinceStartup;
+                // note: Exhaustion remains an explicit publication failure; no habitat requirement is waived to release the cell.
+                Debug.LogError("[YQGeneratedWorldEnvironment] REQUIRED SCATTER EXHAUSTED layer=" + layerLabel +
+                    " seed=" + seedScope + " attempts=" + attempts + " candidates=" + scatterReferences.Count);
             }
+            completed?.Invoke(spawned);
         }
-
-        if (treesOnly &&
-            YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) &&
-            ShouldSpawnVisibleTrees(palette) &&
-            targetCount >= 4 &&
-            spawnedTreeFamilies.Count < 4)
+        finally
         {
-            // note: Sparse accepted masks must not erase a valid chunk; report limited silhouette variety while preserving the required ecology receipt when at least one approved tree published.
-            Debug.LogWarning(
-                "[YQGeneratedWorldEnvironment] CANOPY DIVERSITY INSUFFICIENT " +
-                region.regionId + " variants=" + spawnedTreeFamilies.Count +
-                " spawned=" + spawned +
-                " candidates=" + scatterReferences.Count);
+            // note: Owner replacement, unload, failure and completion all release unpublished clones without touching published ecology.
+            if (pendingInstantiation != null && !pendingInstantiation.isDone)
+                pendingInstantiation.Cancel();
+            if (preparationRoot != null)
+                UnityEngine.Object.Destroy(preparationRoot);
         }
-
-        if (requiredLowVegetation && spawned == 0)
-        {
-            // note: Exhaustion remains an explicit publication failure; no habitat requirement is waived to release the cell.
-            Debug.LogError("[YQGeneratedWorldEnvironment] REQUIRED SCATTER EXHAUSTED layer=" + layerLabel +
-                " seed=" + seedScope + " attempts=" + attempts + " candidates=" + scatterReferences.Count);
-        }
-        completed?.Invoke(spawned);
     }
 
     private static void RemoveScatterReferenceByAssetPath(

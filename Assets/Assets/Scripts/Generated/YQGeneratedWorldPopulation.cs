@@ -12,6 +12,8 @@ public static class YQGeneratedWorldPopulation
     private const string EncampmentRootName =
         "Generated_Encampments";
 
+    private const string ContinuationPopulationRootPrefix = "Generated_ContinuationPopulation__";
+
     // ============================================================
     // PUBLIC BUILD
     // ============================================================
@@ -318,6 +320,299 @@ public static class YQGeneratedWorldPopulation
         completed?.Invoke(true);
     }
 
+    // note: This adapter consumes an already published location and loaded provider; it never accepts, saves, or prepares frontier content.
+    public static IEnumerator BuildContinuationLocationRoutine(
+        Transform locationRoot,
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationLocationV2Record location,
+        YQPreparedSpatialMaterializationV2 prepared,
+        YQRuntimeWorldAssetRegistry registry,
+        Action<bool, string> completed,
+        YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext = null)
+    {
+        WorldState world = WorldStateManager.Instance?.State;
+        GeneratedSpatialWorldPlanV2Record artifact = plan?.spatialPlanV2;
+        GeneratedSpatialContinuationV2Record continuation = artifact?.acceptedContinuation;
+        if (locationRoot == null || terrain == null || registry == null || world == null ||
+            !ReferenceEquals(world.generatedWorldPlan, plan) || continuation == null ||
+            continuation.state != YQSpatialContinuationStateV2.Accepted || location == null ||
+            location.state != YQSpatialContinuationStateV2.Accepted || continuation.locations == null ||
+            !continuation.locations.Contains(location))
+        {
+            completed?.Invoke(false, "Continuation population requires the exact active persisted accepted location.");
+            yield break;
+        }
+
+        YQSpatialContinuationBasicValidationResultV2 validation = YQSpatialContinuationValidatorV2.ValidateBasic(artifact);
+        if (!validation.IsStructurallyValid)
+        {
+            completed?.Invoke(false, "Continuation population rejected its saved contract: " + validation.errors[0]);
+            yield break;
+        }
+        YQIdentityValidationResult references = YQStateReferenceValidator.Validate(null, world);
+        if (!references.IsValid)
+        {
+            completed?.Invoke(false, "Continuation population rejected its canonical state references: " + references.failures[0]);
+            yield break;
+        }
+        string envelopeHash = continuation.contentHash;
+        long envelopeRevision = continuation.revision;
+        string locationHash = location.contentHash;
+        long locationRevision = location.revision;
+        if (!TryCheckContinuationPopulationContext(locationRoot, plan, world, artifact, continuation, location,
+                prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, null, stagingContext, out var provider, out string failure))
+        {
+            completed?.Invoke(false, failure);
+            yield break;
+        }
+        if (provider.transform.Find("CompiledSiteContent") != locationRoot)
+        {
+            completed?.Invoke(false, "Continuation population requires the provider's exact published content root.");
+            yield break;
+        }
+        if (!TryValidateContinuationPopulationInputs(plan, world, location, registry,
+                out int expectedLivingNpcs, out GeneratedRegionRecord region, out GeneratedRegionAssetPaletteRecord palette, out failure))
+        {
+            completed?.Invoke(false, failure);
+            yield break;
+        }
+
+        string marker = ContinuationPopulationRootPrefix + locationHash;
+        for (int index = 0; index < locationRoot.childCount; index++)
+        {
+            Transform child = locationRoot.GetChild(index);
+            if (!child.name.StartsWith(ContinuationPopulationRootPrefix, StringComparison.Ordinal))
+                continue;
+            // note: The marker belongs to this provider content lifetime; a concurrent or superseded run cannot add a second cast.
+            bool sameCompletedPopulation = child.name == marker && child.gameObject.activeSelf;
+            completed?.Invoke(sameCompletedPopulation, sameCompletedPopulation ? string.Empty :
+                "Continuation population is already staging or belongs to a different accepted revision.");
+            yield break;
+        }
+
+        GameObject staging = new GameObject(marker);
+        staging.SetActive(false);
+        staging.transform.SetParent(locationRoot, false);
+        bool published = false;
+        bool reported = false;
+        var work = new Stack<IEnumerator>();
+        int createdLivingNpcs = 0;
+        work.Push(location.settlement != null
+            ? BuildSettlementResidentsForSettlementRoutine(staging.transform, terrain, plan, world, registry,
+                location.settlement, count => createdLivingNpcs = count, location.population, true)
+            : BuildEncampmentRoutine(staging.transform, terrain, plan, world, location.encampment, region, palette,
+                registry, (named, generic, rewards) => createdLivingNpcs = named, location.population, true, stagingContext));
+        try
+        {
+            // note: Flatten nested work so every cooperative boundary rechecks the exact saved payload, projection and provider owner.
+            while (work.Count > 0)
+            {
+                if (!TryCheckContinuationPopulationContext(locationRoot, plan, world, artifact, continuation, location,
+                        prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure))
+                    break;
+                IEnumerator step = work.Peek();
+                bool moved = false;
+                object yielded = null;
+                try
+                {
+                    moved = step.MoveNext();
+                    if (moved)
+                        yielded = step.Current;
+                }
+                catch (Exception exception)
+                {
+                    failure = "Continuation population materialization failed: " + exception.Message;
+                    break;
+                }
+                if (!moved)
+                {
+                    work.Pop();
+                    (step as IDisposable)?.Dispose();
+                }
+                else if (yielded is IEnumerator nested)
+                    work.Push(nested);
+                else
+                    yield return yielded;
+            }
+            if (string.IsNullOrEmpty(failure) && createdLivingNpcs != expectedLivingNpcs)
+                failure = "Continuation population did not materialize every living canonical NPC.";
+            if (string.IsNullOrEmpty(failure) &&
+                !YQSpatialContinuationValidatorV2.ValidateBasic(artifact).IsStructurallyValid)
+                failure = "Continuation acceptance changed while its population was staging.";
+            if (string.IsNullOrEmpty(failure) &&
+                !TryCheckContinuationPopulationContext(locationRoot, plan, world, artifact, continuation, location,
+                    prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure))
+                published = false;
+            else if (string.IsNullOrEmpty(failure))
+            {
+                if (stagingContext != null)
+                {
+                    // note: Newly created actors join the provider's cached renderer publication before any visible frame.
+                    var stagedRenderers = staging.GetComponentsInChildren<Renderer>(true);
+                    foreach (var renderer in stagedRenderers) if (renderer != null) renderer.enabled = false;
+                }
+                // note: Ordinary provider retirement owns this child; actors become visible only after the scoped cast is complete.
+                staging.SetActive(true);
+                published = true;
+            }
+            reported = true;
+            completed?.Invoke(published, failure);
+        }
+        finally
+        {
+            while (work.Count > 0)
+                (work.Pop() as IDisposable)?.Dispose();
+            if (!published && staging != null)
+            {
+                staging.SetActive(false);
+                UnityEngine.Object.Destroy(staging);
+            }
+            if (!reported)
+                completed?.Invoke(false, "Continuation population was cancelled before publication.");
+        }
+    }
+
+    private static bool TryCheckContinuationPopulationContext(
+        Transform content, GeneratedWorldPlanRecord plan, WorldState world, GeneratedSpatialWorldPlanV2Record artifact,
+        GeneratedSpatialContinuationV2Record continuation, GeneratedSpatialContinuationLocationV2Record location,
+        YQPreparedSpatialMaterializationV2 prepared, string envelopeHash, long envelopeRevision,
+        string locationHash, long locationRevision, YQCompiledWorldSiteInstance expectedProvider,
+        YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext,
+        out YQCompiledWorldSiteInstance provider, out string failure)
+    {
+        provider = null;
+        failure = "Continuation population context became stale or lacks its accepted loaded provider.";
+        if (content == null || world == null || plan == null || artifact == null || continuation == null || location?.anchor == null ||
+            prepared == null || WorldStateManager.Instance?.State != world ||
+            !ReferenceEquals(world.generatedWorldPlan, plan) || !ReferenceEquals(plan.spatialPlanV2, artifact) ||
+            !ReferenceEquals(artifact.acceptedContinuation, continuation) ||
+            continuation.state != YQSpatialContinuationStateV2.Accepted || continuation.revision != envelopeRevision ||
+            continuation.contentHash != envelopeHash || continuation.validatedContentHash != envelopeHash ||
+            continuation.locations == null || !continuation.locations.Contains(location) ||
+            location.state != YQSpatialContinuationStateV2.Accepted || location.revision != locationRevision ||
+            location.contentHash != locationHash || location.validatedContentHash != locationHash ||
+            !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var currentPrepared, out _) ||
+            !ReferenceEquals(prepared, currentPrepared) ||
+            !prepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out var site) ||
+            !ContinuationPreparedSiteMatches(location.anchor, site))
+            return false;
+        string kitId = location.settlement != null ? location.settlement.runtimeSiteKitId :
+            location.encampment != null ? location.encampment.runtimeSiteKitId : location.poiRuntimeSiteKitId;
+        // note: Pending actors use a provider-issued context after real collider activation; ordinary callers still require complete publication.
+        bool providerReady = stagingContext != null ? stagingContext.TryGetOwner(content, out provider) :
+            YQCompiledWorldSiteInstance.TryGetLoadedPopulationContext(location.anchor.sourceSemanticId, kitId, location.compositionSeed, out provider);
+        if (providerReady && stagingContext != null)
+            providerReady = YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(location.anchor.sourceSemanticId,
+                kitId, location.compositionSeed, out var boundProvider) && boundProvider == provider;
+        if (!providerReady ||
+            expectedProvider != null && provider != expectedProvider || content.parent != provider.transform ||
+            content.name != "CompiledSiteContent" ||
+            !string.Equals(provider.CanonicalRegionId, location.anchor.parentRegionId, StringComparison.OrdinalIgnoreCase))
+            return false;
+        failure = string.Empty;
+        return true;
+    }
+
+    private static bool ContinuationPreparedSiteMatches(YQSiteAnchorV2 anchor, YQSpatialMaterializationSiteV2 site)
+    {
+        // note: A hash-valid proof claim cannot substitute for the owner's current immutable spatial projection.
+        if (anchor == null || anchor.requiredFunctions == null || anchor.memberFootprint == null ||
+            !string.Equals(anchor.siteId, site.siteId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(anchor.sourceSemanticId, site.sourceSemanticId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(anchor.parentRegionId, site.parentRegionId, StringComparison.OrdinalIgnoreCase) ||
+            anchor.kind != site.kind || anchor.placementMode != site.placementMode || anchor.x != site.x || anchor.z != site.z ||
+            anchor.reservedRadius != site.reservedRadius || anchor.maximumSlopeDegrees != site.maximumSlopeDegrees ||
+            Mathf.Repeat(anchor.preferredHeadingDegrees, 360f) != site.headingDegrees || !site.terrainReserveReady ||
+            anchor.requiredFunctions.Count != site.RequiredFunctions.Count || anchor.memberFootprint.Count != site.MemberFootprint.Count)
+            return false;
+        for (int index = 0; index < anchor.requiredFunctions.Count; index++)
+            if (anchor.requiredFunctions[index] != site.RequiredFunctions[index])
+                return false;
+        foreach (YQSiteMemberFootprintV2 member in anchor.memberFootprint)
+        {
+            if (member == null)
+                return false;
+            bool found = false;
+            foreach (YQSiteMemberFootprintV2 preparedMember in site.MemberFootprint)
+                if (preparedMember != null && member.memberId == preparedMember.memberId && member.x == preparedMember.x &&
+                    member.z == preparedMember.z && member.reservedRadius == preparedMember.reservedRadius && member.sectorIndex == preparedMember.sectorIndex)
+                {
+                    found = true;
+                    break;
+                }
+            if (!found)
+                return false;
+        }
+        return true;
+    }
+
+    public static bool TryValidateContinuationPopulationBindings(GeneratedWorldPlanRecord plan, WorldState world,
+        GeneratedSpatialContinuationLocationV2Record location, YQRuntimeWorldAssetRegistry registry, out string failure)
+    {
+        // note: Construction checks the same supported actor bindings as the live population owner, without spawning or changing NPC state.
+        if (location?.pointOfInterest != null)
+        {
+            failure = "POI continuation has unsupported population.";
+            if (plan == null || world == null || location.anchor == null || location.population == null || location.population.Count != 0) return false;
+            failure = string.Empty;
+            return true;
+        }
+        return TryValidateContinuationPopulationInputs(plan, world, location, registry, out _, out _, out _, out failure);
+    }
+
+    private static bool TryValidateContinuationPopulationInputs(GeneratedWorldPlanRecord plan, WorldState world,
+        GeneratedSpatialContinuationLocationV2Record location, YQRuntimeWorldAssetRegistry registry,
+        out int expectedLivingNpcs, out GeneratedRegionRecord region, out GeneratedRegionAssetPaletteRecord palette, out string failure)
+    {
+        expectedLivingNpcs = 0;
+        region = null;
+        palette = null;
+        failure = "Continuation population requires complete canonical inputs.";
+        if (plan == null || world?.npcs == null || location?.anchor == null || location.population == null || registry == null)
+            return false;
+        region = FindRegion(plan, location.anchor.parentRegionId);
+        palette = region != null ? FindPalette(plan, region) : null;
+        failure = "The current population owner supports continuation settlements and encampments; POI population is unsupported.";
+        if (location.pointOfInterest != null || location.settlement == null && location.encampment == null)
+            return false;
+        if (location.encampment != null && (region == null || palette == null))
+        {
+            failure = "Continuation encampment requires its canonical region and asset palette in the active plan.";
+            return false;
+        }
+        // note: Preserve dead/removed NPCs and the existing one-commander camp contract without modifying base plan collections.
+        foreach (GeneratedNpcPlanRecord npc in location.population)
+        {
+            if (npc == null || string.IsNullOrWhiteSpace(npc.npcId))
+            {
+                failure = "Continuation population contains a missing canonical NPC identity.";
+                return false;
+            }
+            if (plan.generatedNpcs != null && plan.generatedNpcs.Exists(record => record != null &&
+                    string.Equals(record.npcId, npc.npcId, StringComparison.OrdinalIgnoreCase)))
+            {
+                failure = "Continuation NPC identity shadows the base population: " + npc.npcId;
+                return false;
+            }
+            if (!ShouldMaterializeNpc(world, npc.npcId, false))
+                continue;
+            if (location.settlement != null && (npc.hostile ||
+                    !TryResolveResidentPrefab(registry, npc, plan.worldSeed + "|resident_position|" + npc.npcId, out _)) ||
+                location.encampment != null && (!npc.hostile || expectedLivingNpcs > 0 ||
+                    !TryResolveHostilePrefab(registry, location.encampment, npc,
+                        plan.worldSeed + "|encampment_leader|" + npc.npcId, out _, out _)))
+            {
+                failure = "Continuation NPC has unsupported population binding, visual, or commander multiplicity: " + npc.npcId;
+                return false;
+            }
+            expectedLivingNpcs++;
+        }
+        failure = string.Empty;
+        return true;
+    }
+
     // ============================================================
     // SETTLEMENT RESIDENTS
     // ============================================================
@@ -443,7 +738,9 @@ public static class YQGeneratedWorldPopulation
         WorldState world,
         YQRuntimeWorldAssetRegistry registry,
         GeneratedSettlementRecord settlement,
-        Action<int> completed)
+        Action<int> completed,
+        IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null,
+        bool requireCompiledSite = false)
     {
         if (settlement == null)
         {
@@ -451,7 +748,9 @@ public static class YQGeneratedWorldPopulation
             yield break;
         }
 
-        settlement.EnsureCollections();
+        // note: Accepted continuation payloads are read-only; the ordinary base path retains its existing collection repair.
+        if (!requireCompiledSite)
+            settlement.EnsureCollections();
         Vector3 center = YQGeneratedWorldLayout.GetSettlementAnchor(
             plan,
             settlement,
@@ -461,7 +760,8 @@ public static class YQGeneratedWorldPopulation
         settlementPopulation.transform.SetParent(parent, false);
         List<GeneratedNpcPlanRecord> residents = FindSettlementNpcs(
             plan,
-            settlement.settlementId);
+            settlement.settlementId,
+            scopedPopulation);
         List<Vector3> occupiedResidentPositions = new List<Vector3>();
         int total = 0;
 
@@ -469,7 +769,7 @@ public static class YQGeneratedWorldPopulation
         {
             GeneratedNpcPlanRecord npcRecord = residents[index];
             if (npcRecord == null || npcRecord.hostile ||
-                !ShouldMaterializeNpc(world, npcRecord.npcId))
+                !ShouldMaterializeNpc(world, npcRecord.npcId, !requireCompiledSite))
             {
                 continue;
             }
@@ -485,6 +785,8 @@ public static class YQGeneratedWorldPopulation
                     out Vector3 position);
             if (!usesCompiledSite)
             {
+                if (requireCompiledSite)
+                    throw new InvalidOperationException("No loaded provider surface for continuation resident " + npcRecord.npcId);
                 position = ResolveResidentPosition(
                     plan,
                     settlement,
@@ -515,7 +817,8 @@ public static class YQGeneratedWorldPopulation
                 seed,
                 index,
                 registry,
-                usesCompiledSite);
+                usesCompiledSite,
+                requireCompiledSite);
             if (!residentCreated)
                 throw new InvalidOperationException("Resident creation failed for canonical NPC " + npcRecord.npcId);
             total++;
@@ -584,13 +887,14 @@ public static class YQGeneratedWorldPopulation
     private static List<GeneratedNpcPlanRecord>
         FindSettlementNpcs(
             GeneratedWorldPlanRecord plan,
-            string settlementId)
+            string settlementId,
+            IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null)
     {
         List<GeneratedNpcPlanRecord> result =
             new List<GeneratedNpcPlanRecord>();
 
-        if (plan == null ||
-            plan.generatedNpcs == null ||
+        IReadOnlyList<GeneratedNpcPlanRecord> population = scopedPopulation ?? plan?.generatedNpcs;
+        if (population == null ||
             string.IsNullOrWhiteSpace(
                 settlementId))
         {
@@ -598,11 +902,11 @@ public static class YQGeneratedWorldPopulation
         }
 
         for (int i = 0;
-             i < plan.generatedNpcs.Count;
+             i < population.Count;
              i++)
         {
             GeneratedNpcPlanRecord npc =
-                plan.generatedNpcs[i];
+                population[i];
 
             if (npc == null ||
                 npc.hostile)
@@ -728,6 +1032,17 @@ public static class YQGeneratedWorldPopulation
         return false;
     }
 
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    // note: Temporary developer residents reuse production visual/identity binding without altering accepted planning or seeds.
+    public static bool DevelopmentCreateResident(Transform parent, GeneratedNpcPlanRecord record, Vector3 position, string seed)
+    {
+        var registry = YQRuntimeWorldAssetRegistry.Instance;
+        if (parent == null || parent.gameObject.activeInHierarchy || record == null ||
+            !TryResolveResidentPrefab(registry, record, seed, out _)) return false;
+        return CreateResident(parent, null, null, record, position, seed, 0, registry, true, true);
+    }
+#endif
+
     private static bool CreateResident(
         Transform parent,
         Terrain terrain,
@@ -737,7 +1052,8 @@ public static class YQGeneratedWorldPopulation
         string seed,
         int residentIndex,
         YQRuntimeWorldAssetRegistry registry,
-        bool usesReviewedSurface)
+        bool usesReviewedSurface,
+        bool requireApprovedVisual = false)
     {
         if (npcRecord == null)
             return false;
@@ -750,7 +1066,8 @@ public static class YQGeneratedWorldPopulation
                 position,
                 seed,
                 registry,
-                usesReviewedSurface);
+                usesReviewedSurface,
+                requireApprovedVisual);
 
         if (npc == null)
             return false;
@@ -858,7 +1175,8 @@ public static class YQGeneratedWorldPopulation
         Vector3 position,
         string seed,
         YQRuntimeWorldAssetRegistry registry,
-        bool usesReviewedSurface)
+        bool usesReviewedSurface,
+        bool requireApprovedVisual = false)
     {
         if (TryResolveResidentPrefab(
                 registry,
@@ -937,6 +1255,8 @@ public static class YQGeneratedWorldPopulation
             record.displayName +
             "'. Using emergency capsule placeholder.");
 
+        // note: Explicit developer template selection fails closed when its approved visual cannot instantiate; production fallback behavior stays unchanged.
+        if (requireApprovedVisual) return null;
         GameObject fallback =
             GameObject.CreatePrimitive(
                 PrimitiveType.Capsule);
@@ -1381,7 +1701,10 @@ public static class YQGeneratedWorldPopulation
         GeneratedRegionRecord region,
         GeneratedRegionAssetPaletteRecord palette,
         YQRuntimeWorldAssetRegistry registry,
-        Action<int, int, int> completed)
+        Action<int, int, int> completed,
+        IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null,
+        bool requireCompiledSite = false,
+        YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext = null)
     {
         int namedHostiles =
             0;
@@ -1417,7 +1740,14 @@ public static class YQGeneratedWorldPopulation
         bool usesCompiledSite =
             YQCompiledWorldSiteInstance.HasSite(encampment.encampmentId);
 
-        if (usesCompiledSite)
+        // note: Continuation population never starts a load or substitutes legacy camp geometry for its captured loaded provider.
+        bool stagedProviderReady = stagingContext != null && stagingContext.TryGetOwner(parent.parent, out var stagedProvider) &&
+            YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(encampment.encampmentId,
+                encampment.runtimeSiteKitId, stagedProvider.semanticSliceSeedForPopulation, out var exactProvider) && exactProvider == stagedProvider;
+        if (requireCompiledSite && (!usesCompiledSite || !(stagedProviderReady || YQCompiledWorldSiteInstance.IsSiteLoaded(encampment.encampmentId))))
+            throw new InvalidOperationException("Continuation hostile provider is not loaded: " + encampment.encampmentId);
+
+        if (usesCompiledSite && !requireCompiledSite)
         {
             // note: A prepared stream root is not loaded geometry. Resolve actors only after its real surfaces and colliders exist.
             bool siteLoaded = false;
@@ -1453,12 +1783,15 @@ public static class YQGeneratedWorldPopulation
             FindEncampmentLeader(
                 plan,
                 encampment.encampmentId,
-                world);
+                world,
+                scopedPopulation,
+                requireCompiledSite);
 
         if (leader != null &&
             ShouldMaterializeNpc(
                 world,
-                leader.npcId))
+                leader.npcId,
+                !requireCompiledSite))
         {
             string seed =
                 plan.worldSeed +
@@ -1473,7 +1806,8 @@ public static class YQGeneratedWorldPopulation
                     "hostile leader boss",
                     seed,
                     0,
-                    out leaderPosition);
+                    out leaderPosition,
+                    requireCompiledSite);
 
             if (!compiledLeaderPosition)
             {
@@ -1494,7 +1828,8 @@ public static class YQGeneratedWorldPopulation
                 leader,
                 leaderPosition,
                 seed,
-                registry);
+                registry,
+                requireCompiledSite);
 
             if (!leaderCreated)
                 throw new InvalidOperationException("Leader creation failed for canonical NPC " + leader.npcId);
@@ -1535,7 +1870,8 @@ public static class YQGeneratedWorldPopulation
                     "hostile enemy encounter",
                     seed,
                     i + 1,
-                    out position);
+                    out position,
+                    requireCompiledSite);
 
             if (!compiledRankPosition)
             {
@@ -1548,7 +1884,7 @@ public static class YQGeneratedWorldPopulation
                     position);
             }
 
-            CreateGenericHostile(
+            bool genericCreated = CreateGenericHostile(
                 campRoot.transform,
                 terrain,
                 encampment,
@@ -1556,7 +1892,11 @@ public static class YQGeneratedWorldPopulation
                 position,
                 seed,
                 i,
-                registry);
+                registry,
+                requireCompiledSite);
+
+            if (requireCompiledSite && !genericCreated)
+                throw new InvalidOperationException("Continuation hostile visual creation failed: " + encampment.encampmentId + ":" + i);
 
             genericHostiles++;
 
@@ -1571,7 +1911,8 @@ public static class YQGeneratedWorldPopulation
                 plan,
                 encampment,
                 palette,
-                registry);
+                registry,
+                requireCompiledSite);
 
         completed?.Invoke(
             namedHostiles,
@@ -1612,7 +1953,7 @@ public static class YQGeneratedWorldPopulation
 
     private static bool TryResolveCompiledCampActorPosition(
         GeneratedWorldPlanRecord plan, string locationId, string role, string seed,
-        int index, out Vector3 position)
+        int index, out Vector3 position, bool requireRouteClear = false)
     {
         position = default;
         // note: Authored non-V2 worlds retain their existing site resolver; V2 alone requires the accepted spatial route projection.
@@ -1642,7 +1983,7 @@ public static class YQGeneratedWorldPopulation
             position = candidate;
             return true;
         }
-        if (foundCandidate)
+        if (foundCandidate && !requireRouteClear)
         {
             // note: The site resolver already verified floor support and standing clearance; use its best deterministic socket instead of aborting the whole world.
             position = bestCandidate;
@@ -1687,10 +2028,12 @@ public static class YQGeneratedWorldPopulation
         FindEncampmentLeader(
             GeneratedWorldPlanRecord plan,
             string encampmentId,
-            WorldState world)
+            WorldState world,
+            IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null,
+            bool requireCompiledSite = false)
     {
-        if (plan == null ||
-            plan.generatedNpcs == null ||
+        IReadOnlyList<GeneratedNpcPlanRecord> population = scopedPopulation ?? plan?.generatedNpcs;
+        if (population == null ||
             string.IsNullOrWhiteSpace(
                 encampmentId))
         {
@@ -1701,16 +2044,16 @@ public static class YQGeneratedWorldPopulation
             null;
 
         for (int i = 0;
-             i < plan.generatedNpcs.Count;
+             i < population.Count;
              i++)
         {
             GeneratedNpcPlanRecord npc =
-                plan.generatedNpcs[i];
+                population[i];
 
             if (npc == null ||
                 !npc.hostile ||
                 // note: A persisted dead commander must not shadow a different living canonical actor assigned to this camp.
-                !ShouldMaterializeNpc(world, npc.npcId) ||
+                !ShouldMaterializeNpc(world, npc.npcId, !requireCompiledSite) ||
                 !string.Equals(
                     npc.encampmentId,
                     encampmentId,
@@ -1776,7 +2119,8 @@ public static class YQGeneratedWorldPopulation
         GeneratedNpcPlanRecord npcRecord,
         Vector3 position,
         string seed,
-        YQRuntimeWorldAssetRegistry registry)
+        YQRuntimeWorldAssetRegistry registry,
+        bool requireCompiledSite = false)
     {
         if (npcRecord == null)
             return false;
@@ -1795,7 +2139,8 @@ public static class YQGeneratedWorldPopulation
                 position,
                 true,
                 seed,
-                registry);
+                registry,
+                requireCompiledSite);
 
         if (enemyObject == null)
             return false;
@@ -1876,7 +2221,7 @@ public static class YQGeneratedWorldPopulation
         return true;
     }
 
-    private static void CreateGenericHostile(
+    private static bool CreateGenericHostile(
         Transform parent,
         Terrain terrain,
         GeneratedEncampmentRecord encampment,
@@ -1884,7 +2229,8 @@ public static class YQGeneratedWorldPopulation
         Vector3 position,
         string seed,
         int index,
-        YQRuntimeWorldAssetRegistry registry)
+        YQRuntimeWorldAssetRegistry registry,
+        bool requireCompiledSite = false)
     {
         int tier =
             Mathf.Max(
@@ -1905,10 +2251,11 @@ public static class YQGeneratedWorldPopulation
                 position,
                 false,
                 seed,
-                registry);
+                registry,
+                requireCompiledSite);
 
         if (enemyObject == null)
-            return;
+            return false;
 
         enemyObject.name =
             "Hostile__" +
@@ -1998,6 +2345,7 @@ public static class YQGeneratedWorldPopulation
         // note: Attach runtime grounding at the frame-budgeted hostile spawn point so safety setup cannot bunch into a later frame.
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
             enemy);
+        return true;
     }
     private static void ApplyHumanHostileReadability(
     GameObject instance,
@@ -2327,7 +2675,8 @@ public static class YQGeneratedWorldPopulation
     Vector3 position,
     bool leader,
     string seed,
-    YQRuntimeWorldAssetRegistry registry)
+    YQRuntimeWorldAssetRegistry registry,
+    bool requireCompiledSite = false)
     {
         if (TryResolveHostilePrefab(
                 registry,
@@ -2380,6 +2729,8 @@ public static class YQGeneratedWorldPopulation
                     UnityEngine.Object.Destroy(
                         instance);
 
+                    if (requireCompiledSite)
+                        return null;
                     return
                         CreateHostileFallbackPrimitive(
                             parent,
@@ -2398,10 +2749,18 @@ public static class YQGeneratedWorldPopulation
                 // note: Existing hostile physics, combat and identity remain authoritative for the new visual shell.
                 YQDotCreatureVisual.Bind(instance, entry.assetPath);
 
-                GroundCharacterToTerrain(
-                    instance,
-                    terrain,
-                    position);
+                if (requireCompiledSite)
+                {
+                    // note: Continuation actors keep the reviewed socket's floor height and never resample the terrain underneath it.
+                    if (!TryPlaceResidentOnReviewedSurface(instance, position))
+                    {
+                        instance.SetActive(false);
+                        UnityEngine.Object.Destroy(instance);
+                        return null;
+                    }
+                }
+                else
+                    GroundCharacterToTerrain(instance, terrain, position);
 
                 /*
                  * Only AFTER collider generation and grounding do we add
@@ -2444,6 +2803,9 @@ public static class YQGeneratedWorldPopulation
             encampment.displayName +
             ". Using emergency capsule placeholder.");
 
+        // note: Strict continuation materialization reports missing approved visuals rather than publishing emergency primitives.
+        if (requireCompiledSite)
+            return null;
         return
             CreateHostileFallbackPrimitive(
                 parent,
@@ -4434,7 +4796,8 @@ public static class YQGeneratedWorldPopulation
     GeneratedWorldPlanRecord plan,
     GeneratedEncampmentRecord encampment,
     GeneratedRegionAssetPaletteRecord palette,
-    YQRuntimeWorldAssetRegistry registry)
+    YQRuntimeWorldAssetRegistry registry,
+    bool requireCompiledSite = false)
     {
         if (parent == null ||
             terrain == null ||
@@ -4484,6 +4847,8 @@ public static class YQGeneratedWorldPopulation
                             .SlotLootContainer,
                         seed);
 
+            if (reference == null && requireCompiledSite)
+                throw new InvalidOperationException("Continuation encampment has no approved reward container: " + encampment.encampmentId + ":" + i);
             if (reference == null)
                 continue;
 
@@ -4493,6 +4858,8 @@ public static class YQGeneratedWorldPopulation
 
             if (prefab == null)
             {
+                if (requireCompiledSite)
+                    throw new InvalidOperationException("Continuation reward prefab is unavailable: " + reference.assetPath);
                 Debug.LogWarning(
                     "[YQGeneratedWorldPopulation] " +
                     "Reward prefab could not be resolved: " +
@@ -4525,6 +4892,9 @@ public static class YQGeneratedWorldPopulation
 
             if (!compiledRewardPosition)
             {
+                // note: Continuation rewards require a real loaded provider socket; no terrain scatter can satisfy that contract.
+                if (requireCompiledSite)
+                    throw new InvalidOperationException("No loaded provider reward surface for continuation camp " + encampment.encampmentId + ":" + i);
                 Vector3 offset = ResolveCampOffset(
                     seed,
                     i == 0 ? 8f : 13f,
@@ -5412,7 +5782,8 @@ public static class YQGeneratedWorldPopulation
 
     private static bool ShouldMaterializeNpc(
         WorldState world,
-        string npcId)
+        string npcId,
+        bool repairCollections = true)
     {
         if (world == null ||
             string.IsNullOrWhiteSpace(
@@ -5421,7 +5792,11 @@ public static class YQGeneratedWorldPopulation
             return true;
         }
 
-        world.EnsureCollections();
+        // note: A continuation preflight reads persisted status without repairing or rewriting accepted plan collections.
+        if (repairCollections)
+            world.EnsureCollections();
+        if (world.npcs == null)
+            return true;
 
         for (int i = 0;
              i < world.npcs.Count;

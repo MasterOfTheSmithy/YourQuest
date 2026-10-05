@@ -195,10 +195,74 @@ public readonly struct YQSemanticSiteCompositionV2
 
 public static class YQCompiledWorldSiteBindingService
 {
-    // note: Version four migrates previously persisted site bindings so the semantic-slice selector can replace legacy golden-scene assignments once, then remain save-authoritative.
-    public const string BindingVersion = "reviewed-site-binding-4-semantic-slices";
+    // note: Version five assigns new sites in canonical feature order; valid version-four bindings remain accepted without migration or reroll.
+    public const string BindingVersion = "reviewed-site-binding-5-canonical-features";
+    private const string PreviousBindingVersion = "reviewed-site-binding-4-semantic-slices";
 
     private static YQRuntimeWorldSiteCatalog catalog;
+
+    internal static YQRuntimeWorldSiteRecord GetCachedSiteRecord(string kitId)
+    {
+        // note: Pure admission repeats the existing catalog policy without causing a synchronous asset load.
+        return catalog != null ? catalog.FindByKitId(kitId) : null;
+    }
+
+    internal static IEnumerator WarmCanonicalCatalogRoutine(Func<bool> isCurrent, Action<bool, string> completed)
+    {
+        bool success = false;
+        string failure = "Canonical site catalog warmup was interrupted.";
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        bool Current() => YQServiceLifecycle.IsCurrent(epoch) && isCurrent != null && isCurrent();
+        try
+        {
+            if (!Current()) { failure = "Canonical site catalog owner became stale."; yield break; }
+            if (catalog == null)
+            {
+                // note: Warm the existing allow-list asynchronously; generated records never supply this resource path.
+                ResourceRequest request = Resources.LoadAsync<YQRuntimeWorldSiteCatalog>("YQRuntimeWorldSiteCatalog");
+                while (!request.isDone)
+                {
+                    if (!Current()) { failure = "Canonical site catalog owner became stale."; yield break; }
+                    yield return null;
+                }
+                if (!Current()) { failure = "Canonical site catalog owner became stale."; yield break; }
+                var loaded = request.asset as YQRuntimeWorldSiteCatalog;
+                if (loaded == null || loaded.SchemaVersion != "runtime-world-sites-1.0.0" || loaded.Sites == null)
+                { failure = "Canonical site catalog is missing or unsupported."; yield break; }
+                if (catalog != null && catalog != loaded)
+                { failure = "Canonical site catalog changed during warmup."; yield break; }
+                catalog = loaded;
+            }
+            if (catalog.SchemaVersion != "runtime-world-sites-1.0.0" || catalog.Sites == null)
+            { failure = "Cached canonical site catalog is unsupported."; yield break; }
+            success = true;
+            failure = string.Empty;
+        }
+        finally { completed?.Invoke(success, failure); }
+    }
+
+    internal static bool TryGetCachedContinuationReplayRecord(GeneratedSpatialContinuationLocationV2Record location,
+        out YQRuntimeWorldSiteRecord record, out string failure)
+    {
+        record = null;
+        failure = "Accepted continuation lacks its saved reviewed kit or binding version.";
+        string kitId = location?.settlement?.runtimeSiteKitId ?? location?.encampment?.runtimeSiteKitId ?? location?.poiRuntimeSiteKitId;
+        string version = location?.settlement?.runtimeSiteBindingVersion ?? location?.encampment?.runtimeSiteBindingVersion ?? location?.poiRuntimeSiteBindingVersion;
+        if (catalog == null || catalog.Sites == null || string.IsNullOrWhiteSpace(kitId) || !IsAcceptedBindingVersion(version)) return false;
+        foreach (var candidate in catalog.Sites)
+        {
+            if (candidate == null || !string.Equals(candidate.kitId, kitId, StringComparison.OrdinalIgnoreCase)) continue;
+            // note: Replay consumes one exact allow-listed binding; ambiguity never permits reselection or a generated resource key.
+            if (record != null) { record = null; failure = "Accepted continuation kit is ambiguous in the canonical catalog."; return false; }
+            record = candidate;
+        }
+        if (record == null || string.IsNullOrWhiteSpace(record.runtimeManifestResourceKey) ||
+            !record.spatiallyValidated || !record.seamlessPlacementEligible ||
+            record.presentationMode != YQWorldSitePresentationMode.SeamlessExterior)
+        { record = null; failure = "Accepted continuation kit is missing or no longer approved for seamless placement."; return false; }
+        failure = string.Empty;
+        return true;
+    }
 
     [RuntimeInitializeOnLoadMethod(
         RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -382,8 +446,7 @@ public static class YQCompiledWorldSiteBindingService
         if (catalog == null || catalog.Sites.Count == 0 || settlement == null)
             return false;
 
-        if (string.Equals(settlement.runtimeSiteBindingVersion,
-                BindingVersion, StringComparison.Ordinal) &&
+        if (IsAcceptedBindingVersion(settlement.runtimeSiteBindingVersion) &&
             !string.IsNullOrWhiteSpace(settlement.runtimeSiteKitId))
         {
             selected = catalog.FindByKitId(settlement.runtimeSiteKitId);
@@ -407,47 +470,8 @@ public static class YQCompiledWorldSiteBindingService
             settlement.kind,
             settlement.marketBias
         };
-        int bestScore = int.MinValue;
-        uint bestTie = uint.MaxValue;
-        bool unusedSettlementCandidateAvailable =
-            HasUnusedSettlementCandidate(plan, settlement.settlementId, excludedKitIds, palette, region);
-
-        for (int index = 0; index < catalog.Sites.Count; index++)
-        {
-            YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
-
-            if (!IsSettlementCandidate(candidate) || !IsSitePaletteCompatible(candidate, palette, region) ||
-                (excludedKitIds != null && excludedKitIds.Contains(candidate.kitId)))
-                continue;
-
-            // note: Spread a new plan across every eligible reviewed settlement profile before allowing deterministic profile reuse after the catalog is exhausted.
-            if (unusedSettlementCandidateAvailable &&
-                IsKitAlreadyBound(plan, candidate.kitId,
-                    settlement.settlementId))
-            {
-                continue;
-            }
-
-            int score = ScoreCandidate(candidate, intents);
-            score += 1800;
-
-            // note: Prefer a different reviewed map for each world location while still allowing deterministic reuse when the catalog is genuinely exhausted.
-            if (IsKitAlreadyBound(plan, candidate.kitId,
-                    settlement.settlementId))
-                score -= 7000;
-
-            uint tie = StableHash(
-                (plan != null ? plan.worldSeed : string.Empty) + "|" +
-                settlement.deterministicSeed + "|" + candidate.kitId);
-
-            if (score > bestScore ||
-                (score == bestScore && tie < bestTie))
-            {
-                selected = candidate;
-                bestScore = score;
-                bestTie = tie;
-            }
-        }
+        SiteSelectionRequest request = SettlementRequest(settlement, region, palette, intents);
+        selected = SelectCandidate(plan, request, BuildPriorKitIds(plan, request), excludedKitIds);
 
         if (selected == null)
             return false;
@@ -482,8 +506,7 @@ public static class YQCompiledWorldSiteBindingService
         if (catalog == null || catalog.Sites.Count == 0 || encampment == null)
             return false;
 
-        if (string.Equals(encampment.runtimeSiteBindingVersion,
-                BindingVersion, StringComparison.Ordinal) &&
+        if (IsAcceptedBindingVersion(encampment.runtimeSiteBindingVersion) &&
             !string.IsNullOrWhiteSpace(encampment.runtimeSiteKitId))
         {
             selected = catalog.FindByKitId(encampment.runtimeSiteKitId);
@@ -514,46 +537,8 @@ public static class YQCompiledWorldSiteBindingService
             palette != null ? palette.styleKey : string.Empty,
             region != null ? region.assetStyleKey : string.Empty
         };
-        int bestScore = int.MinValue;
-        uint bestTie = uint.MaxValue;
-
-        for (int index = 0; index < catalog.Sites.Count; index++)
-        {
-            YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
-
-            // note: Transition-only interiors remain portal destinations and ordinary towns cannot silently become small hostile camps.
-            if (!IsEncampmentCandidate(candidate, intents) || !IsSitePaletteCompatible(candidate, palette, region) ||
-                (excludedKitIds != null && excludedKitIds.Contains(candidate.kitId)))
-                continue;
-
-            int score = ScoreCandidate(candidate, intents);
-
-            if (candidate.siteKind == YQAuthoredSiteKind.Camp)
-                score += 2600;
-            else if (candidate.siteKind == YQAuthoredSiteKind.SciFiSite)
-                score += ContainsAny(intents, "sci", "cyber", "bio", "container")
-                    ? 2300
-                    : 500;
-            else if (candidate.siteKind == YQAuthoredSiteKind.Landmark ||
-                     candidate.siteKind == YQAuthoredSiteKind.Wilderness)
-                score += 900;
-
-            if (IsKitAlreadyBound(plan, candidate.kitId,
-                    encampment.encampmentId))
-                score -= 7000;
-
-            uint tie = StableHash(
-                (plan != null ? plan.worldSeed : string.Empty) + "|" +
-                encampment.deterministicSeed + "|" + candidate.kitId);
-
-            if (score > bestScore ||
-                (score == bestScore && tie < bestTie))
-            {
-                selected = candidate;
-                bestScore = score;
-                bestTie = tie;
-            }
-        }
+        SiteSelectionRequest request = EncampmentRequest(encampment, region, palette, intents);
+        selected = SelectCandidate(plan, request, BuildPriorKitIds(plan, request), excludedKitIds);
 
         if (selected == null)
             return false;
@@ -568,6 +553,38 @@ public static class YQCompiledWorldSiteBindingService
         encampment.runtimeSiteBindingVersion = BindingVersion;
         bindingChanged = true;
         return true;
+    }
+
+    public static bool TryResolveContinuationPoiSite(GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationLocationV2Record location, GeneratedRegionRecord region,
+        GeneratedRegionAssetPaletteRecord palette, out YQRuntimeWorldSiteRecord selected,
+        ISet<string> excludedKitIds = null)
+    {
+        selected = null;
+        if (location?.pointOfInterest == null || location.anchor?.requiredFunctions == null) return false;
+        catalog ??= Resources.Load<YQRuntimeWorldSiteCatalog>("YQRuntimeWorldSiteCatalog");
+        if (catalog == null) return false;
+        int bestScore = int.MinValue;
+        uint bestTie = uint.MaxValue;
+        var intents = new[] { location.pointOfInterest.kind, region?.assetStyleKey, palette?.styleKey };
+        foreach (var candidate in catalog.Sites)
+        {
+            // note: POI selection uses the same reviewed catalog and style gate; visual resemblance cannot supply a missing physical capability.
+            if (candidate == null || !candidate.spatiallyValidated || !candidate.seamlessPlacementEligible ||
+                candidate.presentationMode != YQWorldSitePresentationMode.SeamlessExterior ||
+                !IsSitePaletteCompatible(candidate, palette, region) || candidate.reviewedFunctionsV2 == null ||
+                excludedKitIds != null && excludedKitIds.Contains(candidate.kitId)) continue;
+            bool complete = true;
+            foreach (var function in location.anchor.requiredFunctions)
+                if (!candidate.reviewedFunctionsV2.Contains(function)) { complete = false; break; }
+            if (!complete) continue;
+            int score = ScoreCandidate(candidate, intents);
+            uint tie = StableHash((plan?.worldSeed ?? string.Empty) + "|" + location.deterministicSeed + "|poi|" + candidate.kitId);
+            if (score > bestScore || score == bestScore && (tie < bestTie || tie == bestTie &&
+                    (selected == null || string.CompareOrdinal(candidate.kitId, selected.kitId) < 0)))
+            { selected = candidate; bestScore = score; bestTie = tie; }
+        }
+        return selected != null;
     }
 
     private static bool IsSettlementCandidate(YQRuntimeWorldSiteRecord candidate)
@@ -622,74 +639,150 @@ public static class YQCompiledWorldSiteBindingService
                 "stronghold", "fortress", "occupied_city");
     }
 
-    private static bool IsKitAlreadyBound(
-        GeneratedWorldPlanRecord plan,
-        string kitId,
-        string currentLocationId)
+    private sealed class SiteSelectionRequest
     {
-        if (plan == null || string.IsNullOrWhiteSpace(kitId))
-            return false;
-
-        if (plan.settlements != null)
-        {
-            for (int index = 0; index < plan.settlements.Count; index++)
-            {
-                GeneratedSettlementRecord settlement = plan.settlements[index];
-
-                if (settlement != null &&
-                    !string.Equals(settlement.settlementId, currentLocationId,
-                        StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(settlement.runtimeSiteKitId, kitId,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-        }
-
-        if (plan.encampments != null)
-        {
-            for (int index = 0; index < plan.encampments.Count; index++)
-            {
-                GeneratedEncampmentRecord encampment = plan.encampments[index];
-
-                if (encampment != null &&
-                    !string.Equals(encampment.encampmentId, currentLocationId,
-                        StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(encampment.runtimeSiteKitId, kitId,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        public string key;
+        public string seed;
+        public string acceptedKit;
+        public string acceptedVersion;
+        public bool settlement;
+        public GeneratedRegionRecord region;
+        public GeneratedRegionAssetPaletteRecord palette;
+        public string[] intents;
     }
 
-    private static bool HasUnusedSettlementCandidate(
-        GeneratedWorldPlanRecord plan,
-        string currentLocationId,
-        ISet<string> excludedKitIds = null,
-        GeneratedRegionAssetPaletteRecord palette = null,
-        GeneratedRegionRecord region = null)
+    internal static bool IsAcceptedBindingVersion(string version)
     {
-        if (catalog == null || catalog.Sites == null)
-            return false;
+        return string.Equals(version, BindingVersion, StringComparison.Ordinal) ||
+            string.Equals(version, PreviousBindingVersion, StringComparison.Ordinal);
+    }
 
-        for (int index = 0; index < catalog.Sites.Count; index++)
+    public static string VersionForCommittedKit(string previousKit, string previousVersion, string committedKit)
+    {
+        // note: Revalidating the same accepted kit does not migrate its policy stamp; only a newly accepted binding receives version five.
+        return IsAcceptedBindingVersion(previousVersion) && string.Equals(previousKit, committedKit, StringComparison.OrdinalIgnoreCase)
+            ? previousVersion : BindingVersion;
+    }
+
+    private static SiteSelectionRequest SettlementRequest(GeneratedSettlementRecord record,
+        GeneratedRegionRecord region, GeneratedRegionAssetPaletteRecord palette, string[] intents = null)
+    {
+        return new SiteSelectionRequest
         {
-            YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
-            if (IsSettlementCandidate(candidate) && IsSitePaletteCompatible(candidate, palette, region) &&
-                (excludedKitIds == null || !excludedKitIds.Contains(candidate.kitId)) &&
-                !IsKitAlreadyBound(plan, candidate.kitId,
-                    currentLocationId))
-            {
-                return true;
-            }
-        }
+            key = "settlement:" + (record.settlementId ?? string.Empty).ToLowerInvariant(),
+            seed = record.deterministicSeed, acceptedKit = record.runtimeSiteKitId,
+            acceptedVersion = record.runtimeSiteBindingVersion, settlement = true, region = region, palette = palette,
+            intents = intents ?? new[] { record.siteStyleIntent, record.siteRoleIntent, palette?.styleKey,
+                region?.assetStyleKey, palette?.architecturePack, palette?.settlementPack, record.kind, record.marketBias }
+        };
+    }
 
-        return false;
+    private static SiteSelectionRequest EncampmentRequest(GeneratedEncampmentRecord record,
+        GeneratedRegionRecord region, GeneratedRegionAssetPaletteRecord palette, string[] intents = null)
+    {
+        return new SiteSelectionRequest
+        {
+            key = "encampment:" + (record.encampmentId ?? string.Empty).ToLowerInvariant(),
+            seed = record.deterministicSeed, acceptedKit = record.runtimeSiteKitId,
+            acceptedVersion = record.runtimeSiteBindingVersion, region = region, palette = palette,
+            intents = intents ?? new[] { record.siteStyleIntent, record.siteRoleIntent, record.kind, record.layoutIntent,
+                record.surfacePresentation, record.monsterFamily, palette?.styleKey, region?.assetStyleKey }
+        };
+    }
+
+    private static HashSet<string> BuildPriorKitIds(GeneratedWorldPlanRecord plan, SiteSelectionRequest current)
+    {
+        HashSet<string> used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (plan == null) return used;
+        List<SiteSelectionRequest> prior = new List<SiteSelectionRequest>();
+
+        // note: Compute earlier feature choices without committing them; query order cannot masquerade as an accepted neighbor input.
+        if (plan.settlements != null)
+            foreach (GeneratedSettlementRecord record in plan.settlements)
+            {
+                if (record == null || string.IsNullOrWhiteSpace(record.settlementId)) continue;
+                GetSelectionContext(plan, record.regionId, current, out GeneratedRegionRecord region, out GeneratedRegionAssetPaletteRecord palette);
+                SiteSelectionRequest request = SettlementRequest(record, region, palette);
+                if (string.CompareOrdinal(request.key, current.key) < 0) prior.Add(request);
+            }
+        if (plan.encampments != null)
+            foreach (GeneratedEncampmentRecord record in plan.encampments)
+            {
+                if (record == null || string.IsNullOrWhiteSpace(record.encampmentId)) continue;
+                GetSelectionContext(plan, record.regionId, current, out GeneratedRegionRecord region, out GeneratedRegionAssetPaletteRecord palette);
+                SiteSelectionRequest request = EncampmentRequest(record, region, palette);
+                if (string.CompareOrdinal(request.key, current.key) < 0) prior.Add(request);
+            }
+
+        prior.Sort((left, right) => string.CompareOrdinal(left.key, right.key));
+        foreach (SiteSelectionRequest request in prior)
+        {
+            YQRuntimeWorldSiteRecord accepted = IsAcceptedBindingVersion(request.acceptedVersion)
+                ? catalog.FindByKitId(request.acceptedKit) : null;
+            YQRuntimeWorldSiteRecord selected = IsCandidate(accepted, request)
+                ? accepted : SelectCandidate(plan, request, used, null);
+            if (selected != null) used.Add(selected.kitId);
+        }
+        return used;
+    }
+
+    private static void GetSelectionContext(GeneratedWorldPlanRecord plan, string regionId, SiteSelectionRequest current,
+        out GeneratedRegionRecord region, out GeneratedRegionAssetPaletteRecord palette)
+    {
+        region = null;
+        palette = null;
+        if (plan.regions != null)
+            foreach (GeneratedRegionRecord candidate in plan.regions)
+                if (candidate != null && string.Equals(candidate.regionId, regionId, StringComparison.OrdinalIgnoreCase))
+                { region = candidate; break; }
+        if (plan.assetPalettes != null)
+            foreach (GeneratedRegionAssetPaletteRecord candidate in plan.assetPalettes)
+                if (candidate != null && string.Equals(candidate.regionId, regionId, StringComparison.OrdinalIgnoreCase))
+                { palette = candidate; break; }
+        // note: Callers may supply a resolved context not yet stored in the plan; reuse it only for that same stable region.
+        if (region == null && current.region != null && string.Equals(current.region.regionId, regionId, StringComparison.OrdinalIgnoreCase))
+            region = current.region;
+        if (palette == null && current.palette != null && string.Equals(current.palette.regionId, regionId, StringComparison.OrdinalIgnoreCase))
+            palette = current.palette;
+    }
+
+    private static bool IsCandidate(YQRuntimeWorldSiteRecord candidate, SiteSelectionRequest request)
+    {
+        return (request.settlement ? IsSettlementCandidate(candidate) : IsEncampmentCandidate(candidate, request.intents)) &&
+            IsSitePaletteCompatible(candidate, request.palette, request.region);
+    }
+
+    private static YQRuntimeWorldSiteRecord SelectCandidate(GeneratedWorldPlanRecord plan, SiteSelectionRequest request,
+        ISet<string> used, ISet<string> excluded)
+    {
+        bool unusedAvailable = false;
+        if (request.settlement)
+            foreach (YQRuntimeWorldSiteRecord candidate in catalog.Sites)
+                if (IsCandidate(candidate, request) && (excluded == null || !excluded.Contains(candidate.kitId)) && !used.Contains(candidate.kitId))
+                { unusedAvailable = true; break; }
+
+        YQRuntimeWorldSiteRecord selected = null;
+        int bestScore = int.MinValue;
+        uint bestTie = uint.MaxValue;
+        foreach (YQRuntimeWorldSiteRecord candidate in catalog.Sites)
+        {
+            if (!IsCandidate(candidate, request) || (excluded != null && excluded.Contains(candidate.kitId)) ||
+                (unusedAvailable && used.Contains(candidate.kitId))) continue;
+            int score = ScoreCandidate(candidate, request.intents);
+            if (request.settlement) score += 1800;
+            else if (candidate.siteKind == YQAuthoredSiteKind.Camp) score += 2600;
+            else if (candidate.siteKind == YQAuthoredSiteKind.SciFiSite)
+                score += ContainsAny(request.intents, "sci", "cyber", "bio", "container") ? 2300 : 500;
+            else if (candidate.siteKind == YQAuthoredSiteKind.Landmark || candidate.siteKind == YQAuthoredSiteKind.Wilderness) score += 900;
+            if (used.Contains(candidate.kitId)) score -= 7000;
+
+            // note: Stable feature identity breaks repeated semantic-seed ties; exact hash collisions use the stable kit key, never enumeration order.
+            uint tie = StableHash((plan?.worldSeed ?? string.Empty) + "|" + request.seed + "|" + request.key + "|" + candidate.kitId);
+            if (score > bestScore || (score == bestScore && (tie < bestTie ||
+                (tie == bestTie && (selected == null || string.CompareOrdinal(candidate.kitId, selected.kitId) < 0)))))
+            { selected = candidate; bestScore = score; bestTie = tie; }
+        }
+        return selected;
     }
 
     internal static bool IsSitePaletteCompatible(YQRuntimeWorldSiteRecord site, GeneratedRegionAssetPaletteRecord palette, GeneratedRegionRecord region)
@@ -882,11 +975,15 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         YQWorldSitePresentationMode.Unknown;
     private string[] semanticSliceTags = Array.Empty<string>();
     private string semanticSliceSeed = string.Empty;
+    private YQSpatialMaterializationSiteV2? acceptedSectorFootprint;
+    public YQProceduralSettlementLayoutRecord PreparedLayout => YQProceduralSettlementLayout.Get(semanticSliceSeed);
     private HashSet<string> activeCellIds;
     private bool requiresV2CellSelection;
     private bool loading;
     private bool loaded;
     private bool loadRejected;
+    private bool interruptedStreamCleanupRequired;
+    private int streamExecutionEpoch;
     // note: Preserve the last site-admission reason for the editor heartbeat so a hidden required site can be diagnosed without exposing partial geometry.
     private string loadFailure = string.Empty;
     private bool streamScheduledLogged;
@@ -894,8 +991,17 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private float loadedSiteRadius;
     private float nextDistanceCheckTime;
     private bool unloading;
-    // note: Expose site readiness to companion runtime binders without allowing them to mutate the serialized streaming state.
-    public bool IsLoaded => loaded;
+    private GeneratedSpatialContinuationLocationV2Record continuationLocation;
+    private bool continuationPopulationReady;
+    private bool continuationPopulationInFlight;
+    internal bool IsContinuationGeometryLoaded => loaded && !loading && !unloading && !loadRejected;
+    internal string semanticSliceSeedForPopulation => semanticSliceSeed;
+    internal bool NeedsContinuationPopulation => continuationLocation != null && continuationLocation.pointOfInterest == null &&
+        IsContinuationGeometryLoaded && !continuationPopulationReady && !continuationPopulationInFlight;
+    // note: POIs have no canonical actor population; accepted geometry alone is their complete loaded state.
+    public bool IsLoaded => loaded && (continuationLocation == null ||
+        continuationLocation.pointOfInterest != null || continuationPopulationReady);
+    public string CanonicalRegionId => canonicalRegionId;
     // note: Site streaming owns its nested work even when a world preload coroutine is waiting on it.
     private IEnumerator streamLoadExecution;
     private IEnumerator streamUnloadExecution;
@@ -1140,15 +1246,20 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             if (string.IsNullOrWhiteSpace(locationId) ||
                 !Instances.TryGetValue(locationId,
                     out YQCompiledWorldSiteInstance site) ||
-                site == null || site.loaded || site.loading || site.loadRejected)
+                site == null || site.loaded || site.loading || site.unloading ||
+                (site.loadRejected && !site.interruptedStreamCleanupRequired))
             {
                 continue;
             }
 
+            int requestEpoch = site.streamExecutionEpoch;
             float slotWaitStartedAt = Time.realtimeSinceStartup;
             bool slotWaitWarningLogged = false;
             while (ActiveStreamLoader != null && ActiveStreamLoader != site)
             {
+                // note: A queued preload belongs to this exact preparation, not a replacement or cancelled provider.
+                if (!IsCurrentPreparedSite(locationId, site) || site.streamExecutionEpoch != requestEpoch)
+                    break;
                 if (!slotWaitWarningLogged &&
                     Time.realtimeSinceStartup - slotWaitStartedAt >
                     StreamSlotDiagnosticSeconds)
@@ -1160,6 +1271,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 }
                 yield return null;
             }
+
+            if (!IsCurrentPreparedSite(locationId, site) || site.streamExecutionEpoch != requestEpoch)
+                continue;
 
             // note: The title Goddess camera is the safest hidden streaming window; semantic settlements finish one at a time before the generated-world reveal.
             ActiveStreamLoader = site;
@@ -1236,6 +1350,70 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         ActiveStreamLoader = site;
         yield return site.LoadPreparedSiteDetachedRoutine();
         completed?.Invoke(site.loaded && !site.loading && !site.unloading && !site.loadRejected);
+    }
+
+    // note: Replay consumes the persisted physical selection directly; semantic tags never reroll an accepted continuation.
+    public static IEnumerator MaterializeAcceptedContinuationRoutine(
+        Transform siteRoot, GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationLocationV2Record location,
+        YQPreparedSpatialMaterializationV2 prepared, Action<bool> completed)
+    {
+        if (!Application.isPlaying || siteRoot == null ||
+            !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out string failure))
+        {
+            completed?.Invoke(false);
+            yield break;
+        }
+        string kitId = location.settlement?.runtimeSiteKitId ?? location.encampment?.runtimeSiteKitId ?? location.poiRuntimeSiteKitId;
+        var record = YQCompiledWorldSiteBindingService.GetCachedSiteRecord(kitId);
+        bool ready = false;
+        yield return PrepareValidatedSiteRoutine(siteRoot, location.anchor.sourceSemanticId, record,
+            Array.Empty<string>(), location.compositionSeed, result => ready = result, location, prepared);
+        if (!ready) { completed?.Invoke(false); yield break; }
+        var site = siteRoot.GetComponent<YQCompiledWorldSiteInstance>();
+        int epoch = site != null ? site.streamExecutionEpoch : -1;
+        while (ActiveStreamLoader != null && ActiveStreamLoader != site)
+        {
+            if (site == null || site.streamExecutionEpoch != epoch ||
+                !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure))
+            { completed?.Invoke(false); yield break; }
+            yield return null;
+        }
+        if (site == null || !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure))
+        { completed?.Invoke(false); yield break; }
+        ActiveStreamLoader = site;
+        yield return site.LoadPreparedSiteDetachedRoutine();
+        completed?.Invoke(site != null && site.streamExecutionEpoch == epoch && site.loaded &&
+            !site.loading && !site.unloading && !site.loadRejected &&
+            TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure));
+    }
+
+    internal static bool TryValidateAcceptedContinuationReplay(
+        GeneratedWorldPlanRecord plan, GeneratedSpatialContinuationLocationV2Record location,
+        YQPreparedSpatialMaterializationV2 prepared, out YQSpatialMaterializationSiteV2 site, out string failure)
+    {
+        site = default;
+        failure = "Accepted continuation replay lacks its exact active saved authority.";
+        var world = WorldStateManager.Instance?.State;
+        var parent = plan?.spatialPlanV2;
+        var extension = parent?.acceptedContinuation;
+        if (world == null || !ReferenceEquals(world.generatedWorldPlan, plan) || extension == null || location?.anchor == null ||
+            extension.state != YQSpatialContinuationStateV2.Accepted || extension.locations == null ||
+            !extension.locations.Contains(location) || location.state != YQSpatialContinuationStateV2.Accepted ||
+            prepared == null || !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var current, out failure) ||
+            !ReferenceEquals(current, prepared) ||
+            !prepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out site) ||
+            !string.Equals(site.siteId, location.anchor.siteId, StringComparison.OrdinalIgnoreCase)) return false;
+        // note: Repeat actual checksums and provider contracts at admission, rather than accepting copied proof claims.
+        var basic = YQSpatialContinuationValidatorV2.ValidateBasic(parent);
+        if (!basic.IsStructurallyValid) { failure = basic.errors[0]; return false; }
+        string kitId = location.settlement?.runtimeSiteKitId ?? location.encampment?.runtimeSiteKitId ?? location.poiRuntimeSiteKitId;
+        string binding = location.settlement?.runtimeSiteBindingVersion ?? location.encampment?.runtimeSiteBindingVersion ?? location.poiRuntimeSiteBindingVersion;
+        if (YQCompiledWorldSiteBindingService.GetCachedSiteRecord(kitId) == null ||
+            !YQCompiledWorldSiteBindingService.IsAcceptedBindingVersion(binding))
+        { failure = "Accepted continuation kit or binding policy is unavailable."; return false; }
+        return TryValidateAcceptedContinuationFunctions(location, out failure);
     }
 
     public static IEnumerator MaterializeSemanticSliceRoutine(
@@ -1360,7 +1538,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         string selectionSeed,
         Action<bool, float, YQSemanticSiteCompositionV2, string> completed,
         IReadOnlyList<YQAssetFunctionV2> requiredFunctions = null,
-        Action<bool> reportVariantIndependentFailure = null)
+        Action<bool> reportVariantIndependentFailure = null,
+        YQSpatialMaterializationSiteV2? acceptedSectorSite = null)
     {
         if (record == null ||
             string.IsNullOrWhiteSpace(record.runtimeManifestResourceKey))
@@ -1415,6 +1594,20 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
+        // note: Preflight and loading use the same explicit sector seed and geometry. Committed older layouts retain their saved policy.
+        if (acceptedSectorSite.HasValue && acceptedSectorSite.Value.MemberFootprint.Count > 0)
+        {
+            var savedLayout = YQProceduralSettlementLayout.FindOwner(selectionSeed)?.proceduralLayout;
+            if (YQProceduralSettlementLayout.UsesSectors(selectionSeed) || savedLayout == null &&
+                YQProceduralSettlementLayout.CountReviewedSectorAssemblies(manifest) > 0)
+            {
+                if (!YQProceduralSettlementLayout.UsesSectors(selectionSeed))
+                    selectionSeed = YQProceduralSettlementLayout.BuildReusableSectorSeed(selectionSeed, acceptedSectorSite.Value);
+            }
+            else acceptedSectorSite = null;
+        }
+        else acceptedSectorSite = null;
+
         if (!TryBuildSemanticCompositionV2(
                 manifest,
                 requiredSemanticTags,
@@ -1422,8 +1615,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 out YQSemanticSiteCompositionV2 composition,
                 out string compositionFailure,
                 requiredFunctions,
-                record.structureUsagePolicy))
+                record.structureUsagePolicy,
+                acceptedSectorSite))
         {
+            // note: A rejected detached composition must not retain temporary layout state after its owning attempt retires.
+            YQProceduralSettlementLayout.DiscardPending(selectionSeed, YQProceduralSettlementLayout.Get(selectionSeed));
             completed?.Invoke(
                 false,
                 0f,
@@ -1443,12 +1639,168 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             out Vector3 _unusedOrigin,
             out float radius,
             out string validationFailure,
-            selectionSeed);
+            selectionSeed,
+            enforceOriginTerrainBoundary: !acceptedSectorSite.HasValue,
+            acceptedSectorSite: acceptedSectorSite);
+        if (!valid) YQProceduralSettlementLayout.DiscardPending(selectionSeed, YQProceduralSettlementLayout.Get(selectionSeed));
         completed?.Invoke(
             valid,
             valid ? radius : 0f,
             valid ? composition : default,
             valid ? string.Empty : validationFailure);
+    }
+
+    internal static IEnumerator WarmAcceptedContinuationProvidersRoutine(GeneratedWorldPlanRecord plan,
+        Func<bool> isCurrent, Action<bool, string> completed)
+    {
+        bool success = false;
+        string failure = "Accepted continuation provider warmup was interrupted.";
+        var manager = WorldStateManager.Instance;
+        var world = manager != null ? manager.State : null;
+        var identity = world?.worldIdentity;
+        string worldId = identity?.worldId, profileId = identity?.ownerProfileId;
+        var parent = plan?.spatialPlanV2;
+        var envelope = parent?.acceptedContinuation;
+        var blueprint = parent?.blueprint;
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        string parentHash = parent?.contentHash, parentValidationHash = parent?.validatedContentHash;
+        string parentGeneration = parent?.generationVersion, parentValidation = parent?.validationVersion;
+        long revision = envelope?.revision ?? 0;
+        string contentHash = envelope?.contentHash, validationHash = envelope?.validatedContentHash;
+        bool Current() => isCurrent != null && isCurrent() && YQServiceLifecycle.IsCurrent(epoch) &&
+            manager != null && manager.isActiveAndEnabled && ReferenceEquals(WorldStateManager.Instance, manager) &&
+            world != null && ReferenceEquals(manager.State, world) && ReferenceEquals(world.worldIdentity, identity) &&
+            world.worldIdentity?.worldId == worldId && world.worldIdentity?.ownerProfileId == profileId &&
+            ReferenceEquals(world.generatedWorldPlan, plan) && ReferenceEquals(plan?.spatialPlanV2, parent) &&
+            ReferenceEquals(parent?.blueprint, blueprint) && ReferenceEquals(parent?.acceptedContinuation, envelope) &&
+            parent?.contentHash == parentHash && parent?.validatedContentHash == parentValidationHash &&
+            parent?.generationVersion == parentGeneration && parent?.validationVersion == parentValidation &&
+            (envelope?.revision ?? 0) == revision && envelope?.contentHash == contentHash && envelope?.validatedContentHash == validationHash;
+        try
+        {
+            if (plan == null || !Current()) { failure = "Accepted continuation warmup belongs to a stale active world."; yield break; }
+            // note: Old saves and unaccepted proposals need no provider warmup; only accepted continuation participates in physical replay.
+            if (envelope == null || envelope.state != YQSpatialContinuationStateV2.Accepted)
+            { success = true; failure = string.Empty; yield break; }
+            if (!TryValidateContinuationWarmupIdentity(plan, parent, envelope, out string fingerprint, out failure)) yield break;
+            bool catalogReady = false;
+            yield return YQCompiledWorldSiteBindingService.WarmCanonicalCatalogRoutine(Current,
+                (ready, reason) => { catalogReady = ready; failure = reason; });
+            if (!catalogReady) yield break;
+            foreach (var location in envelope.locations)
+            {
+                if (!Current() || !TryValidateContinuationWarmupIdentity(plan, parent, envelope, out string currentFingerprint, out failure) ||
+                    !string.Equals(currentFingerprint, fingerprint, StringComparison.Ordinal))
+                { if (string.IsNullOrWhiteSpace(failure)) failure = "Accepted continuation changed during provider warmup."; yield break; }
+                if (!YQCompiledWorldSiteBindingService.TryGetCachedContinuationReplayRecord(location, out var record, out failure)) yield break;
+                string resourceKey = record.runtimeManifestResourceKey;
+                string recordJson = JsonUtility.ToJson(record);
+                PreparedManifestCache.TryGetValue(resourceKey, out var manifest);
+                if (manifest == null)
+                {
+                    // note: Load only the saved kit's approved catalog key and check ownership each frame until the request actually completes.
+                    ResourceRequest request = Resources.LoadAsync<YQReviewedSemanticSiteManifest>(resourceKey);
+                    while (!request.isDone)
+                    {
+                        if (!Current()) { failure = "Accepted continuation became stale while its provider loaded."; yield break; }
+                        yield return null;
+                    }
+                    if (!Current()) { failure = "Accepted continuation became stale while its provider loaded."; yield break; }
+                    manifest = request.asset as YQReviewedSemanticSiteManifest;
+                }
+                if (!Current() || !TryValidateContinuationWarmupIdentity(plan, parent, envelope, out currentFingerprint, out failure) ||
+                    !string.Equals(currentFingerprint, fingerprint, StringComparison.Ordinal) ||
+                    !YQCompiledWorldSiteBindingService.TryGetCachedContinuationReplayRecord(location, out var currentRecord, out failure) ||
+                    !ReferenceEquals(currentRecord, record) || record.runtimeManifestResourceKey != resourceKey ||
+                    !string.Equals(JsonUtility.ToJson(record), recordJson, StringComparison.Ordinal))
+                { if (string.IsNullOrWhiteSpace(failure)) failure = "Accepted continuation catalog binding changed during warmup."; yield break; }
+                if (!TryValidateAcceptedContinuationFunctionsWithManifest(location, manifest, record, out failure)) yield break;
+                foreach (var cached in PreparedManifestCache.Values)
+                    if (cached != null && cached.ReleaseEligible && cached != manifest &&
+                        string.Equals(cached.KitId, manifest.KitId, StringComparison.OrdinalIgnoreCase))
+                    { failure = "Accepted continuation provider is ambiguous in the prepared cache."; yield break; }
+                // note: A stale request or rejected replay never poisons the existing prepared-manifest cache.
+                PreparedManifestCache[resourceKey] = manifest;
+                yield return null;
+            }
+            if (!Current() || !TryValidateContinuationWarmupIdentity(plan, parent, envelope, out string finalFingerprint, out failure) ||
+                !string.Equals(finalFingerprint, fingerprint, StringComparison.Ordinal))
+            { if (string.IsNullOrWhiteSpace(failure)) failure = "Accepted continuation changed before provider warmup completed."; yield break; }
+            success = true;
+            failure = string.Empty;
+        }
+        finally { completed?.Invoke(success, failure); }
+    }
+
+    private static bool TryValidateContinuationWarmupIdentity(GeneratedWorldPlanRecord plan,
+        GeneratedSpatialWorldPlanV2Record parent, GeneratedSpatialContinuationV2Record envelope,
+        out string fingerprint, out string failure)
+    {
+        fingerprint = string.Empty;
+        failure = "Accepted continuation parent or envelope changed before provider warmup.";
+        if (!ReferenceEquals(plan?.spatialPlanV2, parent) || !ReferenceEquals(parent?.acceptedContinuation, envelope)) return false;
+        // note: These read-only identity/basic gates do not prepare a projection or depend on warm provider caches.
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure) ||
+            !YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out var accepted, out fingerprint, out failure)) return false;
+        if (!ReferenceEquals(accepted, envelope)) { failure = "The continuation is no longer accepted."; return false; }
+        var basic = YQSpatialContinuationValidatorV2.ValidateBasic(parent, envelope);
+        if (!basic.IsStructurallyValid) { failure = basic.errors[0]; return false; }
+        return true;
+    }
+
+    public static bool TryValidateAcceptedContinuationFunctions(
+        GeneratedSpatialContinuationLocationV2Record location, out string failure)
+    {
+        failure = "continuation reviewed provider is not cached";
+        string kitId = location?.settlement?.runtimeSiteKitId ?? location?.encampment?.runtimeSiteKitId ?? location?.poiRuntimeSiteKitId;
+        if (location?.anchor == null || string.IsNullOrWhiteSpace(kitId) || location.selectedSourceCellIds == null ||
+            location.selectedSourceCellIds.Count == 0 || string.IsNullOrWhiteSpace(location.compositionSeed)) return false;
+        // note: Prepared projection is a read boundary: construction must first warm the approved manifest through its existing asynchronous loader.
+        YQReviewedSemanticSiteManifest selected = null;
+        foreach (var cached in PreparedManifestCache.Values)
+            if (cached != null && cached.ReleaseEligible && string.Equals(cached.KitId, kitId, StringComparison.OrdinalIgnoreCase))
+            {
+                if (selected != null && selected != cached) { failure = "ambiguous cached continuation provider"; return false; }
+                selected = cached;
+            }
+        if (selected == null) return false;
+        var record = YQCompiledWorldSiteBindingService.GetCachedSiteRecord(kitId);
+        if (record == null) { failure = "continuation reviewed catalog policy is not cached"; return false; }
+        return TryValidateAcceptedContinuationFunctionsWithManifest(location, selected, record, out failure);
+    }
+
+    private static bool TryValidateAcceptedContinuationFunctionsWithManifest(GeneratedSpatialContinuationLocationV2Record location,
+        YQReviewedSemanticSiteManifest selected, YQRuntimeWorldSiteRecord record, out string failure)
+    {
+        failure = "continuation reviewed manifest is missing, unreleased, or mismatched";
+        string kitId = location?.settlement?.runtimeSiteKitId ?? location?.encampment?.runtimeSiteKitId ?? location?.poiRuntimeSiteKitId;
+        if (location?.anchor == null || selected == null || !selected.ReleaseEligible || record == null ||
+            !string.Equals(selected.KitId, kitId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(record.kitId, kitId, StringComparison.OrdinalIgnoreCase) || location.selectedSourceCellIds == null ||
+            location.selectedSourceCellIds.Count == 0 || string.IsNullOrWhiteSpace(location.compositionSeed)) return false;
+        // note: Cold replay validates the same committed selection before cache publication; it never calls the seeded selector or resolves a new layout.
+        var sources = new HashSet<string>(location.selectedSourceCellIds, StringComparer.OrdinalIgnoreCase);
+        if (sources.Count != location.selectedSourceCellIds.Count || sources.Contains(null) || sources.Contains(string.Empty))
+        { failure = "invalid continuation source selection"; return false; }
+        var policy = record.structureUsagePolicy;
+        if (!YQSiteFunctionContractsV2.TryValidate(selected, sources, location.anchor.requiredFunctions, policy, out failure)) return false;
+        var layout = location.settlement?.proceduralLayout ?? location.compositionLayout;
+        if (layout == null || !YQProceduralSettlementLayout.ValidateRecord(layout, out failure) || layout.seed != location.compositionSeed ||
+            layout.kitId != selected.KitId || layout.sourceSignature != selected.SourceSignature ||
+            !BuildCommittedSourceIds(layout).SetEquals(sources) ||
+            YQProceduralSettlementLayout.GeometrySignature(layout) != location.compositionGeometrySignature)
+        { failure = "continuation committed composition geometry is missing or changed"; return false; }
+        var anchor = location.anchor;
+        var footprint = new YQSpatialMaterializationSiteV2 { siteId = anchor.siteId, x = anchor.x, z = anchor.z,
+            headingDegrees = Mathf.Repeat(anchor.preferredHeadingDegrees, 360f), reservedRadius = anchor.reservedRadius,
+            memberFootprint = anchor.memberFootprint.ToArray() };
+        if ((layout.version >= 5 || footprint.MemberFootprint.Count > 0) &&
+            !YQProceduralSettlementLayout.TryValidateAcceptedSectorFootprint(layout, footprint, out failure)) return false;
+        if (!TryMeasureSemanticComposition(selected, sources, out int count, out _, out failure)) return false;
+        if (layout.version == 6 && !TryMeasureSectorPayload(selected, sources, layout, out count, out failure)) return false;
+        if (count > SettlementSemanticInstanceBudget) { failure = "continuation exceeds physical instance budget"; return false; }
+        failure = string.Empty;
+        return true;
     }
 
     public static bool TryBuildSemanticCompositionV2(
@@ -1458,7 +1810,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         out YQSemanticSiteCompositionV2 composition,
         out string failure,
         IReadOnlyList<YQAssetFunctionV2> requiredFunctions = null,
-        YQWorldStructureUsagePolicy structurePolicy = YQWorldStructureUsagePolicy.Unspecified)
+        YQWorldStructureUsagePolicy structurePolicy = YQWorldStructureUsagePolicy.Unspecified,
+        YQSpatialMaterializationSiteV2? acceptedSectorSite = null)
     {
         composition = default;
         failure = string.Empty;
@@ -1481,13 +1834,14 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 requiredTags,
                 selectionSeed,
                 requiredFunctions,
-                structurePolicy)
+                structurePolicy,
+                acceptedSectorSite.HasValue && !YQProceduralSettlementLayout.UsesReusableSectors(selectionSeed) ? acceptedSectorSite.Value.MemberFootprint.Count + 1 : 0)
             : BuildSemanticLegacyZoneIds(
                 selectedManifest,
                 requiredTags,
                 selectionSeed,
                 requiredFunctions,
-                structurePolicy);
+                structurePolicy, minimumSelectedUnits: acceptedSectorSite.HasValue && !YQProceduralSettlementLayout.UsesReusableSectors(selectionSeed) ? acceptedSectorSite.Value.MemberFootprint.Count + 1 : 0);
         if (selectedIds == null || selectedIds.Count == 0)
         {
             failure = "no reviewed cells satisfy the requested semantic roles.";
@@ -1529,7 +1883,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             return false;
         }
         // note: New worlds connect cells by generated streets; authored source proximity is only the legacy layout's connectivity rule.
-        if (!YQProceduralSettlementLayout.TryResolve(selectedManifest, selectedIds, selectionSeed, out var blockLayout, out failure))
+        if (!YQProceduralSettlementLayout.TryResolve(selectedManifest, selectedIds, selectionSeed, out var blockLayout, out failure, acceptedSectorSite))
+            return false;
+        if (blockLayout?.version == 6 && !TryMeasureSectorPayload(selectedManifest, selectedIds, blockLayout, out sourceInstanceCount, out failure))
             return false;
         if (blockLayout == null && !IsConnectedSemanticComposition(selectedBounds))
         {
@@ -1564,7 +1920,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         YQRuntimeWorldSiteRecord record,
         string[] requiredSemanticTags,
         string selectionSeed,
-        Action<bool> completed)
+        Action<bool> completed,
+        GeneratedSpatialContinuationLocationV2Record acceptedContinuation = null,
+        YQPreparedSpatialMaterializationV2 acceptedPrepared = null)
     {
         // note: Resource validation is asynchronous and instantiates no authored cell, preventing an invalid distant site from being accepted merely because a streaming component exists.
         YQReviewedSemanticSiteManifest selectedManifest;
@@ -1602,7 +1960,35 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         HashSet<string> selectedCellIds = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase);
         string preparedCanonicalRegionId = string.Empty;
-        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntime)
+        YQSpatialMaterializationSiteV2? preparedSectorSite = null;
+        if (acceptedContinuation != null)
+        {
+            var plan = WorldStateManager.Instance?.State?.generatedWorldPlan;
+            if (!TryValidateAcceptedContinuationReplay(plan, acceptedContinuation, acceptedPrepared,
+                    out var acceptedSite, out string replayFailure) ||
+                !string.Equals(locationId, acceptedContinuation.anchor.sourceSemanticId, StringComparison.OrdinalIgnoreCase) ||
+                selectionSeed != acceptedContinuation.compositionSeed)
+            {
+                Debug.LogError("[WORLDGEN ERROR] Accepted continuation replay rejected: " + replayFailure);
+                completed?.Invoke(false);
+                yield break;
+            }
+            // note: Restore the saved selection and sector envelope without invoking the current semantic selector or deriving another seed.
+            selectedCellIds = new HashSet<string>(acceptedContinuation.selectedSourceCellIds, StringComparer.OrdinalIgnoreCase);
+            preparedCanonicalRegionId = acceptedSite.parentRegionId;
+            var layout = acceptedContinuation.settlement?.proceduralLayout ?? acceptedContinuation.compositionLayout;
+            if (layout.version >= 5 || acceptedSite.MemberFootprint.Count > 0) preparedSectorSite = acceptedSite;
+            if (!YQProceduralSettlementLayout.TryResolve(selectedManifest, selectedCellIds, selectionSeed,
+                    out var replayedLayout, out replayFailure, preparedSectorSite) ||
+                !ReferenceEquals(layout, replayedLayout) ||
+                YQProceduralSettlementLayout.GeometrySignature(replayedLayout) != acceptedContinuation.compositionGeometrySignature)
+            {
+                Debug.LogError("[WORLDGEN ERROR] Accepted continuation layout replay rejected: " + replayFailure);
+                completed?.Invoke(false);
+                yield break;
+            }
+        }
+        else if (YQWorldGenerationArchitecture.UsesV2SpatialRuntime)
         {
             IReadOnlyList<YQAssetFunctionV2> siteFunctions = null;
             YQSemanticSiteCompositionV2 composition = default;
@@ -1634,6 +2020,19 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 }
                 // note: Carry the accepted region identity into the staged site so reviewed storage can bind to the same persisted world record as the generator.
                 preparedCanonicalRegionId = acceptedSite.parentRegionId ?? string.Empty;
+                // note: Only uncommitted geometry adopts the explicit sector policy. Existing saved streets/cells remain authoritative and are never relocated implicitly.
+                if (acceptedSite.MemberFootprint.Count > 0)
+                {
+                    var committedLayout = YQProceduralSettlementLayout.FindOwner(selectionSeed)?.proceduralLayout;
+                    if (YQProceduralSettlementLayout.UsesSectors(selectionSeed) || committedLayout == null &&
+                        YQProceduralSettlementLayout.CountReviewedSectorAssemblies(selectedManifest) > 0)
+                    {
+                        if (!YQProceduralSettlementLayout.UsesSectors(selectionSeed))
+                            selectionSeed = YQProceduralSettlementLayout.BuildReusableSectorSeed(selectionSeed, acceptedSite);
+                        preparedSectorSite = acceptedSite;
+                    }
+                    else Debug.LogWarning("[WORLDGEN] Accepted central content retained; physical member sectors remain unresolved (committed geometry or no reviewed independent assembly): " + locationId);
+                }
                 // note: Resource-area POIs retain their accepted cultural/transition/reward intent, while the reviewed authored shell is supplied by the qualified home provider and the generated landmark resource supplies the reward interaction.
                 siteFunctions = GetReviewedProviderFunctions(acceptedSite);
             }
@@ -1646,7 +2045,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     out composition,
                     out string compositionFailure,
                     siteFunctions,
-                    record.structureUsagePolicy))
+                    record.structureUsagePolicy,
+                    preparedSectorSite))
             {
                 Debug.LogError(
                     "[YQCompiledWorldSiteInstance] PREPARE REJECTED\n" +
@@ -1681,7 +2081,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 out string validationFailure,
                 selectionSeed,
                 enforceOriginTerrainBoundary: !YQWorldGenerationArchitecture.UsesV2SpatialRuntime ||
-                    IsCuratedOriginSite(locationId)))
+                    IsCuratedOriginSite(locationId), acceptedSectorSite: preparedSectorSite))
         {
             Debug.LogError(
                 "[YQCompiledWorldSiteInstance] PREPARE REJECTED\n" +
@@ -1709,7 +2109,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             validatedRadius,
             selectedManifest,
             selectedCellIds,
-            preparedCanonicalRegionId);
+            preparedCanonicalRegionId,
+            preparedSectorSite);
+        // note: Complete geometry can activate for real floor queries while renderer/member publication waits for its saved cast.
+        streamingSite.continuationLocation = acceptedContinuation;
+        streamingSite.continuationPopulationReady = acceptedContinuation == null || acceptedContinuation.pointOfInterest != null;
         completed?.Invoke(true);
     }
 
@@ -1723,8 +2127,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         float validatedRadius = 0f,
         YQReviewedSemanticSiteManifest preparedManifest = null,
         HashSet<string> preparedCellIds = null,
-        string preparedCanonicalRegionId = null)
+        string preparedCanonicalRegionId = null,
+        YQSpatialMaterializationSiteV2? preparedSectorSite = null)
     {
+        unchecked { streamExecutionEpoch++; }
+        continuationLocation = null;
+        continuationPopulationReady = true;
+        continuationPopulationInFlight = false;
         settlementId = locationId ?? string.Empty;
         canonicalRegionId = preparedCanonicalRegionId ?? string.Empty;
         runtimeManifestResourceKey = resourceKey ?? string.Empty;
@@ -1734,6 +2143,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             ? (string[])requiredSemanticTags.Clone()
             : Array.Empty<string>();
         semanticSliceSeed = newSelectionSeed ?? string.Empty;
+        acceptedSectorFootprint = preparedSectorSite;
         activeCellIds = preparedCellIds != null
             ? new HashSet<string>(preparedCellIds,
                 StringComparer.OrdinalIgnoreCase)
@@ -1752,7 +2162,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         authoredOrigin = Vector3.zero;
         loaded = false;
         loading = false;
-        loadRejected = false;
+        // note: Re-preparation cannot make interrupted geometry eligible before the existing retirement pass finishes.
+        loadRejected = interruptedStreamCleanupRequired;
         loadFailure = string.Empty;
         streamScheduledLogged = false;
         // note: Stable per-site phasing prevents every prepared settlement from running its distance check on the same frame.
@@ -1896,12 +2307,16 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             : 0f;
 
         float loadRadius = LoadDistance + preparedSiteRadius;
+        // note: A separated accepted member can demand this same hierarchy beyond the center's distance threshold.
+        bool sharedSiteDemanded = YQPlayerFollowingSemanticChunkStreamer.Active != null &&
+            YQPlayerFollowingSemanticChunkStreamer.Active.IsSharedSiteDemanded(settlementId);
 
-        if (!loaded && !loading && !unloading && !loadRejected &&
+        if (!loaded && !loading && !unloading &&
+            (!loadRejected || interruptedStreamCleanupRequired) &&
             ActiveStreamLoader == null &&
             (pinnedOriginSite ||
              (!YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked &&
-              distanceSquared <= loadRadius * loadRadius)))
+              (sharedSiteDemanded || distanceSquared <= loadRadius * loadRadius))))
         {
             // note: Only one authored hierarchy may enter Unity at a time; inactive staging starts by distance rather than camera visibility, because looking toward an empty town site must never suppress its construction.
             ActiveStreamLoader = this;
@@ -1925,7 +2340,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             float hardUnloadRadius = unloadRadius + HardUnloadDistanceMargin;
             bool outsideUnloadRadius = distanceSquared >= unloadRadius * unloadRadius;
             bool outsideHardLimit = distanceSquared >= hardUnloadRadius * hardUnloadRadius;
-            if (outsideUnloadRadius &&
+            if (!sharedSiteDemanded && outsideUnloadRadius &&
                 (!IsVisibleToGameplayCamera() || outsideHardLimit))
             {
                 // note: Normal retirement waits for the settlement to leave the camera; the hard distance cap prevents a backward-looking camera from retaining remote worlds forever.
@@ -2017,7 +2432,12 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     cell.SourceInstanceCount);
             }
 
-            // note: One bounded diagnostic exposes semantic-slice cost before cloning, making an accidental golden-example load visible without per-frame log spam.
+            if (PreparedLayout?.version == 6 && TryMeasureSectorPayload(selectedManifest, activeCellIds, PreparedLayout, out int repeatedCost, out _))
+            {
+                selectedCellCount = PreparedLayout.cells.Count;
+                selectedSourceInstances = repeatedCost;
+            }
+            // note: One bounded diagnostic exposes semantic-slice cost before cloning, including repeated assembly instances.
             Debug.Log(
                 "[YQCompiledWorldSiteInstance] SEMANTIC SLICE BUDGET\n" +
                 "Location: " + settlementId + "\n" +
@@ -2037,7 +2457,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 semanticSliceSeed,
                 // note: Accepted V2 sites own streamed terrain outside the finite origin tile; only curated origin sites retain the legacy boundary check.
                 enforceOriginTerrainBoundary: !YQWorldGenerationArchitecture.UsesV2SpatialRuntime ||
-                    IsCuratedOriginSite(settlementId)))
+                    IsCuratedOriginSite(settlementId), acceptedSectorSite: acceptedSectorFootprint))
         {
             // note: Preserve the validator's exact reason so a rejected site can be repaired from evidence rather than guessed around.
             loadFailure = "selected-site validation failed: " + validationFailure;
@@ -2086,6 +2506,10 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     !activeCellIds.Contains(cell.StableCellId))
                     continue;
 
+                // note: Reuse approved sources through distinct accepted placements within this one staged owner.
+                foreach (string instanceId in YQProceduralSettlementLayout.InstanceCellIds(PreparedLayout, cell.StableCellId))
+                {
+
                 // note: A selected cell is mandatory even if its prefab fails to load or instantiate.
                 requiredParts++;
                 if (cell.CellPrefab == null)
@@ -2120,13 +2544,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     "Source transforms/renderers: " + sourceTransformCount + "/" + sourceRendererCount + "\n" +
                     "Clone transforms/renderers: " + clonedTransformCount + "/" + clonedRendererCount + "\n" +
                     "Clone renderer names: " + SummarizeRendererNames(instance));
-                instance.name = "CompiledCell__" + cell.StableCellId;
+                instance.name = "CompiledCell__" + instanceId;
                 instance.transform.localPosition =
                     cell.AuthoredLocalPosition - authoredOrigin;
                 instance.transform.localRotation = Quaternion.identity;
                 // note: Accepted independent layouts own streamed transforms; old authored slices retain their original placement.
                 YQProceduralSettlementLayout.ApplyPlacement(YQProceduralSettlementLayout.Get(semanticSliceSeed),
-                    cell.StableCellId, instance.transform, authoredOrigin);
+                    instanceId, instance.transform, authoredOrigin);
                 // note: Known source-pack preview props are removed while the cell is still hidden so they cannot leak into the curated generated environment.
                 yield return CurateKnownPreviewArtifactsRoutine(
                     instance,
@@ -2153,7 +2577,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     });
                 traversalColliderCount += cellTraversalColliders;
                 disabledReflectionProbeCount += cellReflectionProbes;
-                spawnedCells.Add(new KeyValuePair<string, GameObject>(cell.StableCellId, instance));
+                spawnedCells.Add(new KeyValuePair<string, GameObject>(instanceId, instance));
                 spawned++;
                 ReportSiteLoadingProgress("Prepared " + spawned + " cells; latest: " + cell.StableCellId, true);
 
@@ -2164,6 +2588,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 {
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
+                }
                 }
             }
         }
@@ -2179,6 +2604,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 if (zone == null ||
                     !IsZoneActive(zone))
                     continue;
+
+                foreach (string instanceId in YQProceduralSettlementLayout.InstanceCellIds(PreparedLayout, zone.stableId))
+                {
 
                 requiredParts++;
                 if (zone.prefab == null)
@@ -2202,12 +2630,12 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 sanitizedColliderCount += repairedColliders;
                 if (instance == null)
                     continue;
-                instance.name = "CompiledZone__" + zone.stableId;
+                instance.name = "CompiledZone__" + instanceId;
                 instance.transform.localPosition =
                     zone.authoredSourceOrigin - authoredOrigin;
                 instance.transform.localRotation = Quaternion.identity;
                 // note: Instantiate the same rigid-cell transform reserved by the terrain prepass, not the donor district's coordinates.
-                if (YQProceduralSettlementLayout.TryPlacement(YQProceduralSettlementLayout.Get(semanticSliceSeed), zone.stableId, out var placement))
+                if (YQProceduralSettlementLayout.TryPlacement(YQProceduralSettlementLayout.Get(semanticSliceSeed), instanceId, out var placement))
                 {
                     instance.transform.localPosition = placement.position - authoredOrigin;
                     instance.transform.localRotation = Quaternion.Euler(0, placement.yaw, 0);
@@ -2227,7 +2655,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                     });
                 traversalColliderCount += zoneTraversalColliders;
                 disabledReflectionProbeCount += zoneReflectionProbes;
-                spawnedCells.Add(new KeyValuePair<string, GameObject>(zone.stableId, instance));
+                spawnedCells.Add(new KeyValuePair<string, GameObject>(instanceId, instance));
                 spawned++;
                 ReportSiteLoadingProgress("Prepared " + spawned + " zones; latest: " + zone.stableId, true);
 
@@ -2236,6 +2664,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 {
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
+                }
                 }
             }
         }
@@ -2272,7 +2701,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 yield return WaitForStreamedSiteTerrainRoutine(
                     contentRoot,
                     generatedTerrain,
-                    ready => streamedTerrainCoverageReady = ready);
+                    ready => streamedTerrainCoverageReady = ready,
+                    acceptedSectorFootprint.HasValue ? spawnedCells : null);
             }
             // note: Streamed reviewed assemblies are staged before publication; prepare bounded support on every published collision tile touched by the authored footprint before judging foundation contacts.
             if (streamedTerrainCoverageReady &&
@@ -2282,7 +2712,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 !UsesAuthoredTerrainRelief())
             {
                 List<Terrain> supportTerrains = new List<Terrain>();
-                CollectStreamedSiteTerrains(contentRoot, generatedTerrain, supportTerrains);
+                CollectStreamedSiteTerrains(contentRoot, generatedTerrain, supportTerrains,
+                    acceptedSectorFootprint.HasValue ? spawnedCells : null);
                 for (int terrainIndex = 0; terrainIndex < supportTerrains.Count; terrainIndex++)
                 {
                     List<YQTerrainSupportStamp> streamedSupportStamps =
@@ -2310,7 +2741,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             bool independentlyPlacedSite =
                 YQProceduralSettlementLayout.Get(semanticSliceSeed) != null;
             Dictionary<GameObject, YQReviewedCellFunctionContractV2> groundingContracts =
-                BuildGroundingContracts(selectedManifest, spawnedCells);
+                BuildGroundingContracts(selectedManifest, spawnedCells, PreparedLayout);
             bool hasSingleReviewedCellGroundingContract =
                 spawnedCells.Count == 1 && groundingContracts.Count == 1;
 
@@ -2599,6 +3030,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private IEnumerator BindReviewedCellDoorsRoutine(YQReviewedSemanticSiteManifest source,
         string cellId, GameObject cell, Action<bool> completed)
     {
+        // note: Lookup approval by source, but bind persistent doors/storage by physical instance so repeated assemblies never share mutable state.
+        string instanceId = cellId;
+        cellId = YQProceduralSettlementLayout.SourceCellId(PreparedLayout, instanceId);
         YQReviewedCellFunctionContractV2 contract = null;
         foreach (YQReviewedSemanticZoneRecord zone in source.Zones)
         {
@@ -2695,7 +3129,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 completed?.Invoke(false);
                 yield break;
             }
-            if (!YQCellDoorBindingsV2.TryBind(cell.transform, binding, settlementId, cellId,
+            if (!YQCellDoorBindingsV2.TryBind(cell.transform, binding, settlementId, instanceId,
                     label + " Door", regionId, out string failure))
             {
                 Debug.LogError("[YQCompiledWorldSiteInstance] Door provider rejected for " + cellId + ": " + failure);
@@ -2716,7 +3150,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 completed?.Invoke(false);
                 yield break;
             }
-            if (!YQCellLootBindingsV2.TryBind(cell.transform, binding, source.SourceSignature, settlementId, cellId,
+            if (!YQCellLootBindingsV2.TryBind(cell.transform, binding, source.SourceSignature, settlementId, instanceId,
                     label, regionId, hostile != null ? hostile.threatTier : 1, out string storageFailure))
             {
                 Debug.LogError("[YQCompiledWorldSiteInstance] Reviewed storage provider rejected: " + cellId + " / " +
@@ -2730,7 +3164,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
     private IEnumerator LoadPreparedSiteGuardedRoutine()
     {
-        if (!isActiveAndEnabled || loading || unloading || loaded || loadRejected)
+        if (!IsCurrentPreparedSite(settlementId, this) || loading || unloading || loaded ||
+            (loadRejected && !interruptedStreamCleanupRequired) || ActiveStreamLoader != this)
         {
             // note: A duplicate request must not release a slot still owned by an already-running load.
             if (!loading && !unloading)
@@ -2738,9 +3173,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
+        string preparedLocationId = settlementId;
+        int executionEpoch = streamExecutionEpoch;
         bool completedNormally = false;
         IEnumerator execution = YQGeneratedWorldRuntimeBuilder.RunOwnedGenerationRoutine(
-            LoadPreparedSiteRoutine(), ReportStreamExecutionFailure);
+            RecoverInterruptedStreamAndLoadRoutine(preparedLocationId, executionEpoch), ReportStreamExecutionFailure);
         streamLoadExecution = execution;
         try
         {
@@ -2755,26 +3192,56 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             finally
             {
                 if (ReferenceEquals(streamLoadExecution, execution))
+                {
                     streamLoadExecution = null;
-                streamLoadCoroutine = null;
+                    streamLoadCoroutine = null;
+                }
                 try
                 {
-                    if (!completedNormally && loading)
+                    if (executionEpoch == streamExecutionEpoch && !completedNormally && loading)
                     {
                         loading = false;
                         loaded = false;
                         loadRejected = true;
+                        interruptedStreamCleanupRequired = false;
                         QuarantinePendingSiteContent();
                         Debug.LogError(
                             "[WORLDGEN ERROR] Streamed site coroutine ended unexpectedly; its slot was released. " +
                             "Location=" + settlementId + ", kit=" + expectedKitId + ".");
                     }
-                    if (loaded && !loadRejected)
+                    if (executionEpoch == streamExecutionEpoch && loaded && !loadRejected)
                         pendingSiteContent = null;
                 }
-                finally { ReleaseStreamLoadSlot(); }
+                finally
+                {
+                    // note: Cancellation releases its own slot; an older iterator cannot release a later execution on the same provider.
+                    if (executionEpoch == streamExecutionEpoch)
+                        ReleaseStreamLoadSlot();
+                }
             }
         }
+    }
+
+    private IEnumerator RecoverInterruptedStreamAndLoadRoutine(string preparedLocationId, int executionEpoch)
+    {
+        if (interruptedStreamCleanupRequired)
+        {
+            // note: Keep the load and global slot owned throughout bounded retirement; quarantined cells are never cloned over.
+            loading = true;
+            yield return UnloadPreparedSiteRoutine();
+            if (executionEpoch != streamExecutionEpoch ||
+                !IsCurrentPreparedSite(preparedLocationId, this) || ActiveStreamLoader != this)
+                yield break;
+
+            // note: Only intentional interruption reopens after cleanup. Validation and execution failures remain terminal.
+            interruptedStreamCleanupRequired = false;
+            loadRejected = false;
+        }
+
+        if (executionEpoch != streamExecutionEpoch ||
+            !IsCurrentPreparedSite(preparedLocationId, this) || ActiveStreamLoader != this)
+            yield break;
+        yield return LoadPreparedSiteRoutine();
     }
 
     private IEnumerator LoadPreparedSiteDetachedRoutine()
@@ -2783,7 +3250,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         if (loading || unloading || loaded || loadRejected)
             yield break;
 
+        string preparedLocationId = settlementId;
+        int executionEpoch = streamExecutionEpoch;
         yield return LoadPreparedSiteRoutine();
+        // note: Detached publication has the same success-only pending-content boundary as the guarded loader, while its chunk parent may remain inactive.
+        if (executionEpoch == streamExecutionEpoch && loaded && !loading && !unloading && !loadRejected &&
+            Instances.TryGetValue(preparedLocationId, out YQCompiledWorldSiteInstance current) && current == this)
+            pendingSiteContent = null;
     }
 
     private void ReportSiteLoadingProgress(string detail, bool completedWork)
@@ -2805,6 +3278,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         loading = false;
         unloading = false;
         loadRejected = true;
+        interruptedStreamCleanupRequired = false;
         QuarantinePendingSiteContent();
         ReleaseStreamLoadSlot();
     }
@@ -2818,7 +3292,10 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
     private void CancelOwnedSiteStreaming()
     {
+        // note: A cancelled actor runner cannot keep a replacement provider lifetime marked in flight.
+        continuationPopulationInFlight = false;
         bool interrupted = loading || unloading;
+        unchecked { streamExecutionEpoch++; }
         // note: Detach ownership before invoking iterator cleanup; OnDisable/OnDestroy may both cancel the same site.
         Coroutine loadCoroutine = streamLoadCoroutine;
         Coroutine unloadCoroutine = streamUnloadCoroutine;
@@ -2833,7 +3310,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         unloading = false;
         if (interrupted)
         {
-            // note: A disabled partial site requires a fresh prepared instance, not a second load on top of orphaned cells.
+            // note: Record intentional interruption separately from rejection; the same accepted provider may return only after bounded cleanup.
+            interruptedStreamCleanupRequired = interruptedStreamCleanupRequired ||
+                (!loadRejected && string.IsNullOrWhiteSpace(loadFailure));
             loaded = false;
             loadRejected = true;
         }
@@ -3328,6 +3807,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
 
         unloading = true;
         loaded = false;
+        // note: Population belongs to this content lifetime; retained providers reconstruct the saved cast after geometry returns.
+        continuationPopulationReady = continuationLocation == null || continuationLocation.pointOfInterest != null;
         List<Transform> hierarchy = new List<Transform>();
         Stack<Transform> pending = new Stack<Transform>();
         for (int index = transform.childCount - 1; index >= 0; index--)
@@ -3404,6 +3885,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 workThisFrame = 0;
             }
         }
+
+        // note: Destroy is deferred until frame end. Keep retirement owned until the last scheduled objects are actually gone.
+        yield return null;
 
         // note: Clearing the selected manifest reference allows Unity to reclaim that pack after its instantiated cells are gone; the lightweight catalog remains resident.
         manifest = null;
@@ -3583,8 +4067,114 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 locationId ?? string.Empty,
                 out YQCompiledWorldSiteInstance site) &&
             // note: Cached completion alone cannot make a disabled, rejected or retiring hierarchy usable.
-            site != null && site.isActiveAndEnabled && site.loaded &&
+            site != null && site.isActiveAndEnabled && site.IsLoaded &&
             !site.loading && !site.unloading && !site.loadRejected;
+    }
+
+    // note: Visual streaming can admit the accepted structure while its separately owned population is still preparing.
+    internal static bool IsSiteGeometryLoaded(string locationId)
+    {
+        return Instances.TryGetValue(locationId ?? string.Empty, out YQCompiledWorldSiteInstance site) &&
+            site != null && site.isActiveAndEnabled && site.IsContinuationGeometryLoaded;
+    }
+
+    public static bool TryGetLoadedPopulationContext(
+        string locationId,
+        string expectedKitId,
+        string expectedCompositionSeed,
+        out YQCompiledWorldSiteInstance owner)
+    {
+        // note: Public population context certifies both geometry and the required saved cast; internal staging uses an opaque owner token.
+        if (!TryGetContinuationGeometryContext(locationId, expectedKitId, expectedCompositionSeed, out owner)) return false;
+        if (owner.IsLoaded) return true;
+        owner = null;
+        return false;
+    }
+
+    internal static bool TryGetContinuationGeometryContext(string locationId, string expectedKitId,
+        string expectedCompositionSeed, out YQCompiledWorldSiteInstance owner)
+    {
+        // note: This internal query exposes only actual geometry readiness, retaining exact registration, epoch cleanup and binding checks.
+        owner = null;
+        if (string.IsNullOrWhiteSpace(locationId) || string.IsNullOrWhiteSpace(expectedKitId) ||
+            string.IsNullOrWhiteSpace(expectedCompositionSeed) ||
+            !Instances.TryGetValue(locationId, out YQCompiledWorldSiteInstance site) ||
+            site == null || !site.isActiveAndEnabled || !site.loaded ||
+            site.loading || site.unloading || site.loadRejected ||
+            site.interruptedStreamCleanupRequired || site.pendingSiteContent != null ||
+            !string.Equals(site.settlementId, locationId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(site.expectedKitId, expectedKitId, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(site.semanticSliceSeed, expectedCompositionSeed, StringComparison.Ordinal))
+            return false;
+
+        owner = site;
+        return true;
+    }
+
+    private static readonly object ContinuationPopulationIssuer = new object();
+    public sealed class ContinuationPopulationContext
+    {
+        private readonly YQCompiledWorldSiteInstance owner;
+        private readonly Transform content;
+        private readonly int epoch;
+        private ContinuationPopulationContext(YQCompiledWorldSiteInstance provider, Transform root)
+        { owner = provider; content = root; epoch = provider.streamExecutionEpoch; }
+        internal static ContinuationPopulationContext Capture(YQCompiledWorldSiteInstance provider, Transform root, object issuer)
+        {
+            // note: Only the provider's owned population runner issues a context; copied IDs cannot authorize staging actors.
+            return ReferenceEquals(issuer, ContinuationPopulationIssuer) && provider != null && root != null
+                ? new ContinuationPopulationContext(provider, root) : null;
+        }
+        internal bool TryGetOwner(Transform root, out YQCompiledWorldSiteInstance provider)
+        {
+            provider = null;
+            if (owner == null || root == null || root != content || !root.gameObject.activeInHierarchy ||
+                owner.streamExecutionEpoch != epoch || !owner.continuationPopulationInFlight ||
+                owner.transform.Find("CompiledSiteContent") != root ||
+                !TryGetContinuationGeometryContext(owner.settlementId, owner.expectedKitId, owner.semanticSliceSeed, out var current) ||
+                current != owner) return false;
+            provider = owner;
+            return true;
+        }
+    }
+
+    internal IEnumerator BuildRequiredContinuationPopulationRoutine(Terrain terrain, GeneratedWorldPlanRecord plan,
+        YQRuntimeWorldAssetRegistry registry, Action<bool, string> completed)
+    {
+        var location = continuationLocation;
+        if (!NeedsContinuationPopulation || !isActiveAndEnabled ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out string failure) ||
+            !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure))
+        { completed?.Invoke(false, "Continuation population provider is not ready."); yield break; }
+        Transform content = transform.Find("CompiledSiteContent");
+        int epoch = streamExecutionEpoch;
+        continuationPopulationInFlight = true;
+        bool finished = false;
+        try
+        {
+            var context = ContinuationPopulationContext.Capture(this, content, ContinuationPopulationIssuer);
+            bool success = false;
+            string populationFailure = string.Empty;
+            yield return YQGeneratedWorldPopulation.BuildContinuationLocationRoutine(content, terrain, plan, location,
+                prepared, registry, (result, reason) => { success = result; populationFailure = reason; }, context);
+            finished = true;
+            if (streamExecutionEpoch != epoch || continuationLocation != location)
+            { completed?.Invoke(false, "Continuation population provider changed."); yield break; }
+            continuationPopulationReady = success;
+            if (!success) ReportStreamExecutionFailure(new InvalidOperationException(populationFailure));
+            completed?.Invoke(success, populationFailure);
+        }
+        finally
+        {
+            if (streamExecutionEpoch == epoch) continuationPopulationInFlight = false;
+            if (!finished) completed?.Invoke(false, "Continuation population work was cancelled.");
+        }
+    }
+
+    internal void RejectContinuationPopulation(Exception exception)
+    {
+        // note: Unexpected actor execution failure is terminal for this provider, rather than restarting the same broken cast every frame.
+        if (continuationLocation != null) ReportStreamExecutionFailure(exception);
     }
 
     public static IEnumerator EnsureSiteLoadedRoutine(
@@ -3603,12 +4193,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
+        int requestEpoch = site.streamExecutionEpoch;
         float waitStartedAt = Time.realtimeSinceStartup;
         bool waitWarningLogged = false;
         while (true)
         {
             // note: Never transfer an old request to a replacement site or keep it queued after its captured owner disappears.
-            if (!IsCurrentPreparedSite(locationId, site))
+            if (!IsCurrentPreparedSite(locationId, site) || site.streamExecutionEpoch != requestEpoch)
             {
                 Debug.LogError(
                     "[WORLDGEN ERROR] Required site became unavailable while awaiting materialization. " +
@@ -3616,16 +4207,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 completed?.Invoke(false);
                 yield break;
             }
-            if (site.loadRejected)
+            if (site.loadRejected && !site.interruptedStreamCleanupRequired)
             {
-                // note: A cancelled unload or replaced stream can leave a transient rejection without pending content; reopen that recoverable request once instead of making a required site permanently unavailable.
-                if (site.pendingSiteContent == null)
-                    site.loadRejected = false;
-                else
-                {
-                    completed?.Invoke(false);
-                    yield break;
-                }
+                // note: Missing pending geometry is not evidence that a reviewed-content failure can be retried.
+                completed?.Invoke(false);
+                yield break;
             }
             if (site.loaded && !site.loading && !site.unloading)
             {
@@ -3660,7 +4246,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 overlayStreamer.RegisterFeatureOverlayTarget(overlayTarget.featureId, site.gameObject, overlayTarget.objectId);
         }
         // note: A completed child does not authorize publishing geometry from a superseded or disabled prepared root.
-        completed?.Invoke(IsCurrentPreparedSite(locationId, site) &&
+        completed?.Invoke(IsCurrentPreparedSite(locationId, site) && site.streamExecutionEpoch == requestEpoch &&
             site.loaded && !site.loading && !site.unloading && !site.loadRejected);
     }
 
@@ -3706,11 +4292,13 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         YQReviewedSemanticSiteManifest newManifest,
         Vector3 newAuthoredOrigin)
     {
+        unchecked { streamExecutionEpoch++; }
         settlementId = newSettlementId ?? string.Empty;
         manifest = newManifest;
         authoredOrigin = newAuthoredOrigin;
         loaded = true;
         loading = false;
+        interruptedStreamCleanupRequired = false;
         Instances[settlementId] = this;
     }
 
@@ -3983,7 +4571,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         out float radius,
         out string failure,
         string selectionSeed = null,
-        bool enforceOriginTerrainBoundary = true)
+        bool enforceOriginTerrainBoundary = true,
+        YQSpatialMaterializationSiteV2? acceptedSectorSite = null)
     {
         origin = Vector3.zero;
         radius = 0f;
@@ -4140,7 +4729,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         radius = horizontalExtents.magnitude;
 
         // note: Resolve before accepting any footprint so roads, terrain reservation and streaming share one versioned layout.
-        if (!YQProceduralSettlementLayout.TryResolve(selectedManifest, allowedCellIds, selectionSeed, out var proceduralLayout, out failure))
+        if (!YQProceduralSettlementLayout.TryResolve(selectedManifest, allowedCellIds, selectionSeed, out var proceduralLayout, out failure, acceptedSectorSite))
             return false;
         if (proceduralLayout != null)
         {
@@ -4163,6 +4752,26 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         {
             failure = "aggregate authored origin or radius is invalid.";
             return false;
+        }
+
+        if (proceduralLayout != null && proceduralLayout.version >= 5)
+        {
+            // note: The accepted owner may span distant chunks, while each physical assembly retains the existing radius/dimension limits and total payload budget.
+            if (!acceptedSectorSite.HasValue || !YQProceduralSettlementLayout.TryValidateAcceptedSectorFootprint(
+                proceduralLayout, acceptedSectorSite.Value, out _))
+            { failure = "Sector layout does not match the accepted footprint."; return false; }
+            if (proceduralLayout.version == 6 && !TryMeasureSectorPayload(selectedManifest, allowedCellIds, proceduralLayout, out _, out failure)) return false;
+            foreach (var cell in proceduralLayout.cells)
+            {
+                var cellBounds = new Bounds(cell.boundsCenter, cell.boundsSize);
+                float cellRadius = new Vector2(cell.boundsSize.x, cell.boundsSize.z).magnitude * .5f;
+                if (cellRadius > RuntimeSiteRadiusLimit || cellRadius > SeamlessSiteRadiusLimit ||
+                    cell.boundsSize.x > SeamlessSiteDimensionLimit || cell.boundsSize.z > SeamlessSiteDimensionLimit ||
+                    cell.boundsSize.y > YQGeneratedWorldTerrain.TerrainHeight * 2f ||
+                    siteRoot != null && enforceOriginTerrainBoundary && !FitsGeneratedTerrainAtAnchor(siteRoot, cellBounds, origin))
+                { failure = "Physical sector assembly exceeds the existing reviewed runtime envelope: " + cell.cellId; return false; }
+            }
+            return true;
         }
 
         if (radius > RuntimeSiteRadiusLimit)
@@ -4206,6 +4815,40 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         }
 
         return true;
+    }
+
+    public static bool TryMeasureSectorPayload(YQReviewedSemanticSiteManifest manifest, HashSet<string> selectedSources,
+        YQProceduralSettlementLayoutRecord layout, out int instanceCount, out string failure)
+    {
+        // note: Repeated sources consume real hierarchy instances and cell slots. Functional coverage stays source-based; cost is counted for every physical placement.
+        instanceCount = 0; failure = "Invalid reusable sector payload.";
+        if (manifest == null || selectedSources == null || layout?.version != 6 ||
+            !YQProceduralSettlementLayout.ValidateRecord(layout, out _) || layout.cells.Count > MaximumSettlementSemanticCells) return false;
+        var costs = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        if (manifest.StreamingSite != null)
+        {
+            foreach (var cell in manifest.StreamingSite.Cells)
+                if (cell != null && selectedSources.Contains(cell.StableCellId))
+                {
+                    if (costs.ContainsKey(cell.StableCellId) || cell.SourceInstanceCount <= 0) return false;
+                    costs.Add(cell.StableCellId, cell.SourceInstanceCount);
+                }
+        }
+        else foreach (var zone in manifest.Zones)
+            if (zone != null && selectedSources.Contains(zone.stableId))
+            {
+                if (costs.ContainsKey(zone.stableId) || zone.sourceInstanceCount <= 0) return false;
+                costs.Add(zone.stableId, zone.sourceInstanceCount);
+            }
+        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var placement in layout.cells)
+        {
+            if (!costs.TryGetValue(placement.sourceCellId, out int cost) || cost > SettlementSemanticInstanceBudget - instanceCount)
+            { failure = "Reusable sector source is absent or exceeds the existing instance budget: " + placement.sourceCellId; return false; }
+            instanceCount += cost; used.Add(placement.sourceCellId);
+        }
+        if (!used.SetEquals(selectedSources)) { failure = "Reusable sector layout does not match its complete selected sources."; return false; }
+        failure = string.Empty; return true;
     }
 
     private static IReadOnlyList<YQAssetFunctionV2> GetReviewedProviderFunctions(
@@ -4657,7 +5300,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         IReadOnlyList<string> requiredTags,
         string selectionSeed,
         IReadOnlyList<YQAssetFunctionV2> requiredFunctions = null,
-        YQWorldStructureUsagePolicy structurePolicy = YQWorldStructureUsagePolicy.Unspecified)
+        YQWorldStructureUsagePolicy structurePolicy = YQWorldStructureUsagePolicy.Unspecified,
+        int minimumSelectedUnits = 0)
     {
         // note: Fresh worlds select complete reviewed assemblies through the existing demand-aware block selector, independently of donor adjacency.
         if (YQProceduralSettlementLayout.UsesIndependentStreaming(selectionSeed) &&
@@ -4666,7 +5310,7 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             if (!YQProceduralSettlementLayout.TryGetIndependentStreamingZones(selectedManifest, out var independentZones, out _))
                 return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             return BuildSemanticLegacyZoneIds(selectedManifest, requiredTags, selectionSeed,
-                requiredFunctions, structurePolicy, independentZones);
+                requiredFunctions, structurePolicy, independentZones, minimumSelectedUnits);
         }
         HashSet<string> selected = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase);
@@ -5121,26 +5765,40 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         return false;
     }
 
+    private static HashSet<string> BuildCommittedSourceIds(YQProceduralSettlementLayoutRecord layout)
+    {
+        // note: A repeated sector is a placement of an approved source, not another source asset. Replay selects the saved sources before expanding their instance IDs.
+        var sources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (layout?.cells == null) return sources;
+        foreach (var cell in layout.cells)
+        {
+            if (cell == null) continue;
+            string sourceId = layout.version == 6 ? cell.sourceCellId : cell.cellId;
+            if (!string.IsNullOrWhiteSpace(sourceId)) sources.Add(sourceId);
+        }
+        return sources;
+    }
+
     private static HashSet<string> BuildSemanticLegacyZoneIds(
         YQReviewedSemanticSiteManifest selectedManifest,
         IReadOnlyList<string> requiredTags,
         string selectionSeed,
         IReadOnlyList<YQAssetFunctionV2> requiredFunctions = null,
         YQWorldStructureUsagePolicy structurePolicy = YQWorldStructureUsagePolicy.Unspecified,
-        IReadOnlyList<YQReviewedSemanticZoneRecord> independentZones = null)
+        IReadOnlyList<YQReviewedSemanticZoneRecord> independentZones = null,
+        int minimumSelectedUnits = 0)
     {
         // note: New street-composed settlements select functional blocks independently of their donor-scene adjacency.
         bool proceduralBlocks = YQProceduralSettlementLayout.Enabled(selectionSeed);
         var layoutOwner = proceduralBlocks ? YQProceduralSettlementLayout.FindOwner(selectionSeed) : null;
-        // note: Continue consumes committed cell IDs verbatim; current demand or selector tuning cannot rewrite an accepted settlement.
+        // note: Continue consumes the committed source selection; sector aliases remain distinct placements and current demand cannot rewrite accepted geometry.
         if (layoutOwner?.proceduralLayout != null && layoutOwner.proceduralLayout.seed == selectionSeed)
         {
-            var committedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var cell in layoutOwner.proceduralLayout.cells)
-                if (cell != null) committedIds.Add(cell.cellId);
-            return committedIds;
+            return BuildCommittedSourceIds(layoutOwner.proceduralLayout);
         }
-        int desiredBlocks = layoutOwner != null ? layoutOwner.proceduralBlockTarget : 0;
+        int desiredBlocks = Mathf.Max(layoutOwner != null ? layoutOwner.proceduralBlockTarget : 0, minimumSelectedUnits);
+        // note: Additional member sectors consume the existing cell budget; an oversized accepted demand fails rather than increasing capacity or duplicating whole sites.
+        if (desiredBlocks > MaximumSettlementSemanticCells) return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int zoneCapacity = desiredBlocks > 0 ? MaximumSettlementSemanticCells : MaximumSettlementSemanticZones;
         HashSet<string> selected = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase);
@@ -5882,7 +6540,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     private static IEnumerator WaitForStreamedSiteTerrainRoutine(
         GameObject siteContent,
         Terrain preferredTerrain,
-        Action<bool> completed)
+        Action<bool> completed,
+        List<KeyValuePair<string, GameObject>> physicalCells = null)
     {
         if (siteContent == null || preferredTerrain == null ||
             !YQTerrainSupportComposer.TryGetSolidBoundsAndMaterial(
@@ -5903,7 +6562,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
             yield break;
         }
 
-        Vector3[] coveragePoints = BuildSiteCoveragePoints(bounds);
+        Vector3[] coveragePoints = BuildPhysicalSiteCoveragePoints(siteContent, bounds, physicalCells);
+        if (coveragePoints == null || coveragePoints.Length == 0) { completed?.Invoke(false); yield break; }
         // note: The terrain scheduler owns dependency priority and progress; disposing this nested wait releases its site leases.
         yield return streamer.WaitForSiteTerrainRoutine(siteContent, coveragePoints, completed);
     }
@@ -5926,10 +6586,47 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         };
     }
 
+    private static Vector3[] BuildPhysicalSiteCoveragePoints(GameObject siteContent, Bounds aggregate,
+        List<KeyValuePair<string, GameObject>> physicalCells)
+    {
+        // note: Separated sectors request the union of real assembly bounds. Never reserve the empty rectangle between distant members.
+        if (physicalCells == null) return BuildSiteCoveragePoints(aggregate);
+        var bounds = new List<Bounds>(physicalCells.Count);
+        foreach (var cell in physicalCells)
+        {
+            if (cell.Value == null || !YQTerrainSupportComposer.TryGetSolidBoundsAndMaterial(cell.Value, out var solid, out _)) return null;
+            bounds.Add(solid);
+        }
+        return BuildSectorCoveragePoints(bounds);
+    }
+
+    internal static Vector3[] BuildSectorCoveragePoints(IReadOnlyList<Bounds> bounds)
+    {
+        // note: Sampling intervals smaller than a 128m tile cover every touched collision tile even when an assembly exceeds a single cell; this is bounded by the existing assembly dimensions/count.
+        if (bounds == null || bounds.Count == 0 || bounds.Count > MaximumSettlementSemanticCells) return null;
+        var points = new List<Vector3>();
+        var seen = new HashSet<Vector2>();
+        foreach (var box in bounds)
+        {
+            if (!IsFiniteVector(box.center) || !IsFiniteVector(box.size) || box.size.x <= 0f || box.size.z <= 0f ||
+                box.size.x > SeamlessSiteDimensionLimit || box.size.z > SeamlessSiteDimensionLimit) return null;
+            int xSteps = Mathf.Max(1, Mathf.CeilToInt(box.size.x / 64f)), zSteps = Mathf.Max(1, Mathf.CeilToInt(box.size.z / 64f));
+            for (int x = 0; x <= xSteps; x++)
+                for (int z = 0; z <= zSteps; z++)
+                {
+                    var point = new Vector3(Mathf.Lerp(box.min.x, box.max.x, x / (float)xSteps), box.center.y,
+                        Mathf.Lerp(box.min.z, box.max.z, z / (float)zSteps));
+                    if (seen.Add(new Vector2(point.x, point.z))) points.Add(point);
+                }
+        }
+        return points.ToArray();
+    }
+
     private static void CollectStreamedSiteTerrains(
         GameObject siteContent,
         Terrain preferredTerrain,
-        List<Terrain> results)
+        List<Terrain> results,
+        List<KeyValuePair<string, GameObject>> physicalCells = null)
     {
         if (results == null)
             return;
@@ -5952,7 +6649,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         if (streamer == null)
             return;
 
-        Vector3[] coveragePoints = BuildSiteCoveragePoints(bounds);
+        Vector3[] coveragePoints = BuildPhysicalSiteCoveragePoints(siteContent, bounds, physicalCells);
+        if (coveragePoints == null) return;
         for (int index = 0; index < coveragePoints.Length; index++)
         {
             if (!streamer.TryGetGeneratedTerrainAt(
@@ -7363,9 +8061,10 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     }
 
     private static Dictionary<GameObject, YQReviewedCellFunctionContractV2> BuildGroundingContracts(
-        YQReviewedSemanticSiteManifest source, List<KeyValuePair<string, GameObject>> cells)
+        YQReviewedSemanticSiteManifest source, List<KeyValuePair<string, GameObject>> cells,
+        YQProceduralSettlementLayoutRecord layout = null)
     {
-        // note: Only source-matched approved door/approach evidence can replace geometric compatibility grounding. Pending authoring candidates never gain runtime authority here.
+        // note: Source-matched approved approaches or complete doorless foundation assemblies own grounding; pending candidates never gain runtime authority.
         var result = new Dictionary<GameObject, YQReviewedCellFunctionContractV2>();
         foreach (var zone in source.Zones)
             foreach (var contract in zone?.cellContractsV2 ?? new List<YQReviewedCellFunctionContractV2>())
@@ -7376,9 +8075,9 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 foreach (var door in contract.doorBindings ?? new List<YQCellDoorBindingV2>())
                     hasLanding |= door != null && door.reviewState == YQSemanticSiteReviewState.Approved &&
                         door.terrainApproach != null && door.terrainApproach.reviewState == YQSemanticSiteReviewState.Approved;
-                if (!hasLanding) continue;
+                if (!hasLanding && !HasReviewedDoorlessFoundation(contract)) continue;
                 foreach (var cell in cells)
-                    if (cell.Value != null && string.Equals(cell.Key, contract.cellId, StringComparison.OrdinalIgnoreCase))
+                    if (cell.Value != null && string.Equals(YQProceduralSettlementLayout.SourceCellId(layout, cell.Key), contract.cellId, StringComparison.OrdinalIgnoreCase))
                         result[cell.Value] = contract;
             }
         return result;
@@ -7388,7 +8087,11 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         YQReviewedCellFunctionContractV2 contract, out float delta)
     {
         delta = 0f;
-        if (cell == null || terrain == null || terrain.terrainData == null || contract?.doorBindings == null) return false;
+        if (cell == null || terrain == null || terrain.terrainData == null || contract == null) return false;
+        // note: Open assemblies use their measured foundation points without acquiring fictional entrance evidence.
+        if (HasReviewedDoorlessFoundation(contract))
+            return TryResolveReviewedFoundationDelta(cell, terrain, contract, out delta);
+        if (contract.doorBindings == null) return false;
         bool found = false;
         foreach (var door in contract.doorBindings)
         {
@@ -7459,11 +8162,55 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
         return found;
     }
 
+    private static bool HasReviewedDoorlessFoundation(YQReviewedCellFunctionContractV2 contract)
+    {
+        // note: Keep this branch restricted to complete approved open assemblies; doors retain their existing landing solver.
+        var assembly = contract?.independentAssembly;
+        return contract != null && contract.reviewState == YQSemanticSiteReviewState.Approved &&
+            !string.IsNullOrWhiteSpace(contract.sourceSignature) &&
+            (contract.doorBindings == null || contract.doorBindings.Count == 0) &&
+            assembly != null && assembly.reviewState == YQSemanticSiteReviewState.Approved &&
+            assembly.sourceSignature == contract.sourceSignature && assembly.completeStructuralDependencies &&
+            assembly.foundationVerified && assembly.terrainContactVersion == 1 &&
+            assembly.terrainContacts != null && assembly.terrainContacts.Count > 0 && assembly.terrainContacts.Count <= 256;
+    }
+
+    private static bool TryResolveReviewedFoundationDelta(Transform cell, Terrain terrain,
+        YQReviewedCellFunctionContractV2 contract, out float delta)
+    {
+        delta = 0f;
+        float minimumDelta = -MaximumExteriorFoundationCorrection;
+        float maximumDelta = MaximumExteriorFoundationCorrection;
+        float preferredDelta = 0f;
+        foreach (var contact in contract.independentAssembly.terrainContacts)
+        {
+            // note: Every measured point constrains the same rigid translation; invalid evidence rejects the whole assembly before it moves.
+            if (contact == null || !IsFiniteVector(contact.localBottom) ||
+                !IsFinite(contact.minimumEmbedDepth) || !IsFinite(contact.maximumEmbedDepth) ||
+                contact.minimumEmbedDepth < 0f || contact.maximumEmbedDepth < contact.minimumEmbedDepth ||
+                !YQCellDoorBindingsV2.TryResolveUniquePath(cell, contact.supportPath, out _)) return false;
+            Vector3 bottom = cell.TransformPoint(contact.localBottom);
+            if (!TrySamplePublishedTerrain(terrain, bottom, out float soil)) return false;
+            float soilDelta = soil - bottom.y;
+            if (!IsFinite(soilDelta)) return false;
+            minimumDelta = Mathf.Max(minimumDelta, soilDelta - contact.maximumEmbedDepth);
+            maximumDelta = Mathf.Min(maximumDelta, soilDelta - contact.minimumEmbedDepth);
+            // note: Prefer the shallowest reviewed embedding, then constrain it by every other support point.
+            preferredDelta += (soilDelta - contact.minimumEmbedDepth) / contract.independentAssembly.terrainContacts.Count;
+        }
+        if (!IsFinite(preferredDelta) || minimumDelta > maximumDelta) return false;
+        delta = Mathf.Clamp(preferredDelta, minimumDelta, maximumDelta);
+        // note: The shared final-terrain validator remains the publication boundary; this solver only proposes a bounded translation.
+        return YQFoundationTerrainContacts.TryValidate(cell, terrain, contract, delta, out _);
+    }
     private static string DescribeReviewedLandingFailure(
         Transform cell,
         Terrain terrain,
         YQReviewedCellFunctionContractV2 contract)
     {
+        // note: Report doorless foundation rejection without treating the absence of doors as missing entrance evidence.
+        if (HasReviewedDoorlessFoundation(contract))
+            return "reviewed doorless foundation has no shared bounded terrain correction";
         // note: Mirror only the reviewed landing preconditions to identify the first failed evidence boundary; this helper never changes acceptance behavior.
         if (cell == null || terrain == null || terrain.terrainData == null || contract?.doorBindings == null)
             return "missing cell, terrain, terrain data, or door bindings";
@@ -8681,7 +9428,12 @@ public sealed class YQRuntimeWorldSiteCatalog : ScriptableObject
                 matches.Add(site);
         }
 
-        // note: Catalog order is stable by kit ID, so the same accepted query and seed can choose deterministically without exposing Unity asset paths to the LLM.
+        // note: Sort the returned view rather than the shared catalog; serialized enumeration cannot affect first-compatible selection.
+        matches.Sort((left, right) =>
+        {
+            int order = string.CompareOrdinal(left.kitId, right.kitId);
+            return order != 0 ? order : string.CompareOrdinal(left.runtimeManifestResourceKey, right.runtimeManifestResourceKey);
+        });
         return matches;
     }
 

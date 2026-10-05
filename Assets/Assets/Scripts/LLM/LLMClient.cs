@@ -924,6 +924,7 @@ public sealed class LLMClient : MonoBehaviour
             ? ResolveCategory(request.debugTag)
             : request.category;
         LLMGenerationProfile profile = config.GetProfile(category);
+        YQLlmBackend requestBackend = config.GetBackend(category);
         Dictionary<string, object> options = BuildEffectiveOptions(config, profile, request.optionsOverride);
         int reservedOutputTokens = ReadIntOption(options, "num_predict", profile != null ? profile.maxOutputTokens : numPredict);
         int requestTimeout = request.disableTimeout
@@ -936,7 +937,7 @@ public sealed class LLMClient : MonoBehaviour
         // note: The protected path rejects overflow instead of removing required repair facts from the payload.
         LLMCompiledPrompt compiled;
         string compileError;
-        int contextLimitTokens = config.backend == YQLlmBackend.Ollama
+        int contextLimitTokens = requestBackend == YQLlmBackend.Ollama
             ? ReadIntOption(options, "num_ctx", config.contextSizeTokens) : config.contextSizeTokens;
         bool compiledOk = request.protectPrompt
             ? LLMContextCompiler.TryCompileProtected(request.prompt, config, profile, reservedOutputTokens, out compiled, out compileError, contextLimitTokens)
@@ -948,7 +949,8 @@ public sealed class LLMClient : MonoBehaviour
             yield break;
         }
 
-        if (_usingRuntimeDefaultConfig && !_runtimeBackendResolved)
+        if (_usingRuntimeDefaultConfig && !_runtimeBackendResolved &&
+            (profile == null || !profile.useBackendOverride))
         {
             bool backendReady = false;
             string backendMessage = string.Empty;
@@ -966,10 +968,12 @@ public sealed class LLMClient : MonoBehaviour
                     CompleteRequest(request, false, null, backendMessage, 0f, 0f, compiled);
                 yield break;
             }
+
+            // note: A runtime fallback changes only inherited categories; explicit category routes retain their selected backend.
+            requestBackend = config.GetBackend(category);
         }
 
-        if (config.backend == YQLlmBackend.LlamaCpp &&
-            (!_usingRuntimeDefaultConfig || _runtimeBackendResolved))
+        if (requestBackend == YQLlmBackend.LlamaCpp)
         {
             bool ready = false;
             string readyMessage = string.Empty;
@@ -990,7 +994,7 @@ public sealed class LLMClient : MonoBehaviour
             }
         }
 
-        if (!TryBuildGenerateUrl(config, out string url, out string urlError))
+        if (!TryBuildGenerateUrl(config, requestBackend, out string url, out string urlError))
         {
             RecordFailure(urlError, request.debugTag);
             CompleteRequest(request, false, null, urlError, 0f, 0f, compiled);
@@ -999,6 +1003,7 @@ public sealed class LLMClient : MonoBehaviour
 
         string json = BuildRequestJson(
             config,
+            requestBackend,
             compiled.prompt,
             request.debugTag,
             options,
@@ -1009,7 +1014,7 @@ public sealed class LLMClient : MonoBehaviour
         {
             // note: Qualification belongs to a specific model; a retagged model must not inherit its verifier receipt.
             bool matches = false;
-            if (config.backend == YQLlmBackend.Ollama)
+            if (requestBackend == YQLlmBackend.Ollama)
             {
                 string tagsUrl = config.ollamaApiUrl.TrimEnd('/') + "/api/tags";
                 string selectedModel = JObject.Parse(json).Value<string>("model");
@@ -1048,7 +1053,7 @@ public sealed class LLMClient : MonoBehaviour
                 request.id +
                 FormatTag(request.debugTag) +
                 ": backend=" +
-                config.backend +
+                requestBackend +
                 ", category=" +
                 category +
                 ", attempt=" +
@@ -1128,7 +1133,7 @@ public sealed class LLMClient : MonoBehaviour
             }
 
             string raw = www.downloadHandler.text;
-            if (!TryExtractResponseText(raw, config.backend, out string modelText, out string responseError))
+            if (!TryExtractResponseText(raw, requestBackend, out string modelText, out string responseError))
             {
                 RuntimeState = YQLlmRuntimeState.Faulted;
                 MalformedResponseCount++;
@@ -1415,6 +1420,7 @@ public sealed class LLMClient : MonoBehaviour
 
     private string BuildRequestJson(
         LLMRuntimeConfig config,
+        YQLlmBackend requestBackend,
         string prompt,
         string debugTag,
         Dictionary<string, object> options,
@@ -1424,7 +1430,7 @@ public sealed class LLMClient : MonoBehaviour
     {
         bool jsonOutput = forceJson || RequiresJsonOutput(debugTag) || (profile != null && profile.preferJson);
 
-        if (config.backend == YQLlmBackend.LlamaCpp)
+        if (requestBackend == YQLlmBackend.LlamaCpp)
         {
             List<Dictionary<string, string>> messages = new List<Dictionary<string, string>>(1)
             {
@@ -1449,13 +1455,13 @@ public sealed class LLMClient : MonoBehaviour
                 { "cache_prompt", !config.preserveGameResponsiveness }
             };
 
-            if (profile != null && profile.directMode && !profile.reasoningMode)
+            if (profile != null && (profile.directMode || profile.reasoningMode))
             {
-                // note: Qwen chat templates can otherwise spend the entire structured-output budget in hidden reasoning and return an empty final content field.
+                // note: Select Qwen's direct or reasoning template explicitly so the chosen role does not depend on server defaults.
                 payload["chat_template_kwargs"] =
                     new Dictionary<string, object>
                     {
-                        { "enable_thinking", false }
+                        { "enable_thinking", profile.reasoningMode }
                     };
             }
 
@@ -1507,6 +1513,9 @@ public sealed class LLMClient : MonoBehaviour
             (debugTag ?? string.Empty).StartsWith("DialogueRepair:", StringComparison.Ordinal);
         bool constrainGoddess = profile != null && (profile.category == LLMGenerationCategory.GoddessCommentary ||
             profile.category == LLMGenerationCategory.GoddessVerification);
+        bool? thinkPreference = profile == null || profile.category == LLMGenerationCategory.Dialogue ? (bool?)null :
+            profile.reasoningMode ? (bool?)true :
+            profile.directMode ? (bool?)false : null;
         OllamaRequest payloadOllama = new OllamaRequest
         {
             model = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel)
@@ -1521,8 +1530,8 @@ public sealed class LLMClient : MonoBehaviour
             // note: Backend shape constraints never replace the domain parser or semantic acceptance checks.
             format = jsonOutput ? (profile != null && (profile.category == LLMGenerationCategory.DialogueVerification || constrainDialogue || constrainGoddess) &&
                 jsonSchema != null && jsonSchema.Count > 0 ? (object)jsonSchema : "json") : null,
-            // note: Both bounded Goddess roles stay direct; a model alias must not spend the reply budget in hidden reasoning.
-            think = constrainGoddess ? (bool?)false : null,
+            // note: Honor each role's direct/thinking selection; both bounded Goddess roles always stay direct.
+            think = constrainGoddess ? (bool?)false : thinkPreference,
             options = ollamaOptions
         };
 
@@ -1538,12 +1547,12 @@ public sealed class LLMClient : MonoBehaviour
             options["num_gpu"] = 0;
     }
 
-    private bool TryBuildGenerateUrl(LLMRuntimeConfig config, out string url, out string error)
+    private bool TryBuildGenerateUrl(LLMRuntimeConfig config, YQLlmBackend requestBackend, out string url, out string error)
     {
         url = string.Empty;
         error = string.Empty;
 
-        if (config.backend == YQLlmBackend.LlamaCpp)
+        if (requestBackend == YQLlmBackend.LlamaCpp)
         {
             url = config.BuildBaseUrl().TrimEnd('/') + "/v1/chat/completions";
             return true;
