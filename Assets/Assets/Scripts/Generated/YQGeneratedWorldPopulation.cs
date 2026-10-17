@@ -405,16 +405,19 @@ public static class YQGeneratedWorldPopulation
         const string marker = "Generated_BaseSitePopulation";
         if (content.Find(marker) != null)
         { completed?.Invoke(false, "Base site population is already staged or published for this content lifetime."); yield break; }
+        // note: Retain every selected dependency through final group activation, including time spent in nested preparation yields.
+        List<string> populationPaths = CollectPopulationPrefabPaths(plan, records, encampment, world);
+        using var populationResidency = new PopulationDependencyResidency(registry, populationPaths);
         GameObject staging = new GameObject(marker);
         staging.SetActive(false);
         staging.transform.SetParent(content, false);
         var work = new Stack<IEnumerator>();
         int created = 0;
-        work.Push(settlement != null
+        work.Push(PreloadPopulationVisualsRoutine(registry, populationPaths, settlement != null
             ? BuildSettlementResidentsForSettlementRoutine(staging.transform, terrain, plan, world, registry, settlement,
-                count => created = count, records, true)
+                count => created = count, records, true, -1, populationResidency.Retain)
             : BuildEncampmentRoutine(staging.transform, terrain, plan, world, encampment, region, palette, registry,
-                (named, generic, rewards) => created = named, records, true, context));
+                (named, generic, rewards) => created = named, records, true, context, populationResidency.Retain)));
         bool published = false, reported = false;
         string failure = string.Empty;
         try
@@ -584,6 +587,10 @@ public static class YQGeneratedWorldPopulation
             yield break;
         }
 
+        // note: Scoped snapshots reject in-place actor/location changes without repeatedly serializing the entire accepted world artifact.
+        var populationSnapshot = new ContinuationPopulationSnapshot(plan, world, location);
+        List<string> populationPaths = CollectPopulationPrefabPaths(plan, location.population, location.encampment, world);
+        using var populationResidency = new PopulationDependencyResidency(registry, populationPaths);
         GameObject staging = new GameObject(marker);
         staging.SetActive(false);
         staging.transform.SetParent(locationRoot, false);
@@ -591,18 +598,19 @@ public static class YQGeneratedWorldPopulation
         bool reported = false;
         var work = new Stack<IEnumerator>();
         int createdLivingNpcs = 0;
-        work.Push(location.settlement != null
+        work.Push(PreloadPopulationVisualsRoutine(registry, populationPaths, location.settlement != null
             ? BuildSettlementResidentsForSettlementRoutine(staging.transform, terrain, plan, world, registry,
-                location.settlement, count => createdLivingNpcs = count, location.population, true, expectedLivingNpcs)
+                location.settlement, count => createdLivingNpcs = count, location.population, true, expectedLivingNpcs, populationResidency.Retain)
             : BuildEncampmentRoutine(staging.transform, terrain, plan, world, location.encampment, region, palette,
-                registry, (named, generic, rewards) => createdLivingNpcs = named, location.population, true, stagingContext));
+                registry, (named, generic, rewards) => createdLivingNpcs = named, location.population, true, stagingContext, populationResidency.Retain)));
         try
         {
             // note: Flatten nested work so every cooperative boundary rechecks the exact saved payload, projection and provider owner.
             while (work.Count > 0)
             {
                 if (!TryCheckContinuationPopulationContext(locationRoot, plan, world, artifact, continuation, location,
-                        prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure))
+                        prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure,
+                        populationSnapshot, false))
                     break;
                 IEnumerator step = work.Peek();
                 bool moved = false;
@@ -635,7 +643,8 @@ public static class YQGeneratedWorldPopulation
                 failure = "Continuation acceptance changed while its population was staging.";
             if (string.IsNullOrEmpty(failure) &&
                 !TryCheckContinuationPopulationContext(locationRoot, plan, world, artifact, continuation, location,
-                    prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure))
+                    prepared, envelopeHash, envelopeRevision, locationHash, locationRevision, provider, stagingContext, out _, out failure,
+                    populationSnapshot))
                 published = false;
             else if (string.IsNullOrEmpty(failure))
             {
@@ -674,7 +683,8 @@ public static class YQGeneratedWorldPopulation
         YQPreparedSpatialMaterializationV2 prepared, string envelopeHash, long envelopeRevision,
         string locationHash, long locationRevision, YQCompiledWorldSiteInstance expectedProvider,
         YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext,
-        out YQCompiledWorldSiteInstance provider, out string failure)
+        out YQCompiledWorldSiteInstance provider, out string failure,
+        ContinuationPopulationSnapshot snapshot = null, bool validateCompleteArtifact = true)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.ContinuationContext.Auto();
@@ -690,7 +700,8 @@ public static class YQGeneratedWorldPopulation
             location.state != YQSpatialContinuationStateV2.Accepted || location.revision != locationRevision ||
             location.contentHash != locationHash || location.validatedContentHash != locationHash ||
             !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
-            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var currentPrepared, out _) ||
+            snapshot != null && !snapshot.IsCurrent(plan, world, location) ||
+            !TryGetPopulationProjection(plan, validateCompleteArtifact, out var currentPrepared) ||
             !ReferenceEquals(prepared, currentPrepared) ||
             !prepared.TryGetSiteBySemanticId(location.anchor.sourceSemanticId, out var site) ||
             !ContinuationPreparedSiteMatches(location.anchor, site))
@@ -710,6 +721,123 @@ public static class YQGeneratedWorldPopulation
             return false;
         failure = string.Empty;
         return true;
+    }
+
+    private static bool TryGetPopulationProjection(GeneratedWorldPlanRecord plan, bool validateCompleteArtifact,
+        out YQPreparedSpatialMaterializationV2 prepared)
+    {
+        // note: Full world/hash validation remains mandatory at admission and immediately before activation; nested resumes consume the published projection.
+        return validateCompleteArtifact
+            ? YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out _)
+            : YQSpatialMaterializationResolverV2.TryGetPublishedProjection(plan, out prepared);
+    }
+
+    private sealed class ContinuationPopulationSnapshot
+    {
+        private readonly int requestEpoch;
+        private readonly string worldSeed;
+        private readonly GeneratedSettlementRecord settlement;
+        private readonly GeneratedEncampmentRecord encampment;
+        private readonly string locationJson;
+        private readonly List<GeneratedNpcPlanRecord> records;
+        private readonly List<GeneratedNpcPlanRecord> bodies;
+        private readonly List<bool> living;
+
+        internal ContinuationPopulationSnapshot(GeneratedWorldPlanRecord plan, WorldState world,
+            GeneratedSpatialContinuationLocationV2Record location)
+        {
+            // note: Capture this one accepted location, ordered canonical references and live/dead state once; unchanged hash fields alone are insufficient proof.
+            requestEpoch = YQServiceLifecycle.RequestEpoch;
+            worldSeed = plan.worldSeed;
+            settlement = location.settlement;
+            encampment = location.encampment;
+            locationJson = JsonUtility.ToJson(location);
+            records = new List<GeneratedNpcPlanRecord>(location.population);
+            bodies = new List<GeneratedNpcPlanRecord>(records.Count);
+            living = new List<bool>(records.Count);
+            foreach (var npc in records)
+            {
+                bodies.Add(JsonUtility.FromJson<GeneratedNpcPlanRecord>(JsonUtility.ToJson(npc)));
+                living.Add(ShouldMaterializeNpc(world, npc.npcId, false));
+            }
+        }
+
+        internal bool IsCurrent(GeneratedWorldPlanRecord plan, WorldState world,
+            GeneratedSpatialContinuationLocationV2Record location)
+        {
+            // note: Exact scoped JSON covers every nested settlement/camp/layout/anchor field; ordered references and life state cover facts outside that body.
+            if (YQServiceLifecycle.RequestEpoch != requestEpoch || plan.worldSeed != worldSeed ||
+                !ReferenceEquals(location.settlement, settlement) || !ReferenceEquals(location.encampment, encampment) ||
+                location.population == null || location.population.Count != records.Count)
+                return false;
+            for (int index = 0; index < records.Count; index++)
+                if (!ReferenceEquals(location.population[index], records[index]) ||
+                    !SameNpcPopulationBody(location.population[index], bodies[index]) ||
+                    ShouldMaterializeNpc(world, records[index].npcId, false) != living[index])
+                    return false;
+            return string.Equals(locationJson, JsonUtility.ToJson(location), StringComparison.Ordinal);
+        }
+    }
+
+    internal static List<string> CollectPopulationPrefabPaths(GeneratedWorldPlanRecord plan,
+        IEnumerable<GeneratedNpcPlanRecord> records, GeneratedEncampmentRecord encampment, WorldState world = null)
+    {
+        // note: Select only metadata paths with the existing species/seed rules, before any cold prefab or Animator access.
+        var paths = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (plan == null) return paths;
+        if (records != null)
+            foreach (var npc in records)
+            {
+                if (npc == null || world != null && !ShouldMaterializeNpc(world, npc.npcId, false)) continue;
+                string semantics = npc.hostile ? encampment?.monsterFamily : BuildNpcVisualDescription(npc);
+                string seed = plan.worldSeed + (npc.hostile ? "|encampment_leader|" : "|resident_position|") + npc.npcId;
+                if (YQDotCreatureCatalog.TrySelectPrefabPath(semantics, npc.hostile ? "monster" : "race", seed,
+                        out string path, out _) && seen.Add(path)) paths.Add(path);
+            }
+        if (encampment != null)
+        {
+            int rankCount = Mathf.Clamp(1 + encampment.threatTier / 5, 1, 2);
+            for (int index = 0; index < rankCount; index++)
+                if (YQDotCreatureCatalog.TrySelectPrefabPath(encampment.monsterFamily, "monster",
+                        EncampmentSeed(encampment) + "|rank_and_file|" + index, out string path, out _) && seen.Add(path))
+                    paths.Add(path);
+        }
+        return paths;
+    }
+
+    private static IEnumerator PreloadPopulationVisualsRoutine(YQRuntimeWorldAssetRegistry registry,
+        List<string> paths, IEnumerator materialize)
+    {
+        // note: The owner's existing nested runner rechecks canonical context during every load and preparation yield.
+        yield return registry.PreloadAssetPathsRoutine(paths);
+        yield return materialize;
+    }
+
+    private sealed class PopulationDependencyResidency : IDisposable
+    {
+        private readonly YQRuntimeWorldAssetRegistry registry;
+        private readonly HashSet<string> retained = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<IDisposable> leases = new List<IDisposable>();
+
+        internal PopulationDependencyResidency(YQRuntimeWorldAssetRegistry registry, IEnumerable<string> paths)
+        {
+            this.registry = registry;
+            foreach (string path in paths) Retain(path);
+        }
+
+        internal void Retain(string path)
+        {
+            // note: Legacy selection can discover its exact body later; extend the same group lifetime without changing candidate order or activation.
+            if (!string.IsNullOrWhiteSpace(path) && retained.Add(path))
+                leases.Add(registry.AcquireAssetResidency(new[] { path }));
+        }
+
+        public void Dispose()
+        {
+            for (int index = leases.Count - 1; index >= 0; index--) leases[index]?.Dispose();
+            leases.Clear();
+        }
     }
 
     private static bool ContinuationPreparedSiteMatches(YQSiteAnchorV2 anchor, YQSpatialMaterializationSiteV2 site)
@@ -969,7 +1097,8 @@ public static class YQGeneratedWorldPopulation
         Action<int> completed,
         IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null,
         bool requireCompiledSite = false,
-        int traceArmAfterCreated = -1)
+        int traceArmAfterCreated = -1,
+        Action<string> retainPrefab = null)
     {
         if (settlement == null)
         {
@@ -1042,7 +1171,8 @@ public static class YQGeneratedWorldPopulation
             }
 
             occupiedResidentPositions.Add(position);
-            bool residentCreated = CreateResident(
+            bool residentCreated = false;
+            yield return CreateResidentRoutine(
                 settlementPopulation.transform,
                 terrain,
                 settlement,
@@ -1052,7 +1182,9 @@ public static class YQGeneratedWorldPopulation
                 index,
                 registry,
                 usesCompiledSite,
-                requireCompiledSite);
+                requireCompiledSite,
+                created => residentCreated = created,
+                retainPrefab);
             if (!residentCreated)
                 throw new InvalidOperationException("Resident creation failed for canonical NPC " + npcRecord.npcId);
             total++;
@@ -1060,7 +1192,7 @@ public static class YQGeneratedWorldPopulation
             if (total == traceArmAfterCreated)
                 YQPopulationWorkDiagnostics.NotifyActivationTraceArm(settlement.settlementId);
 
-            // note: Publish at most one imported resident hierarchy per frame so a populous settlement cannot create a visible gameplay hitch.
+            // note: Preserve a scheduling boundary between residents; native instantiation is measured separately and is not claimed to be time-bounded.
             yield return null;
         }
 
@@ -1289,6 +1421,62 @@ public static class YQGeneratedWorldPopulation
     }
 #endif
 
+    private static IEnumerator CreateResidentRoutine(Transform parent, Terrain terrain, GeneratedSettlementRecord settlement,
+        GeneratedNpcPlanRecord npcRecord, Vector3 position, string seed, int residentIndex,
+        YQRuntimeWorldAssetRegistry registry, bool usesReviewedSurface, bool requireApprovedVisual,
+        Action<bool> completed, Action<string> retainPrefab)
+    {
+        if (npcRecord == null || parent == null || registry == null)
+        { completed?.Invoke(false); yield break; }
+
+        // note: DOT path selection is metadata-only. Warm its authored dependency descriptors before resolving even the selected prefab.
+        string selectedPath = null;
+        if (YQDotCreatureCatalog.TrySelectPrefabPath(BuildNpcVisualDescription(npcRecord), "race", seed, out selectedPath, out _))
+        {
+            retainPrefab?.Invoke(selectedPath);
+            yield return registry.PreloadPrefabDependenciesRoutine(selectedPath);
+        }
+        if (!TryResolveResidentPrefab(registry, npcRecord, seed, out var entry, out string category))
+        {
+            // note: Compatibility fallback remains in the existing synchronous visual owner; approved streamed casts still fail closed.
+            completed?.Invoke(CreateResident(parent, terrain, settlement, npcRecord, position, seed, residentIndex,
+                registry, usesReviewedSurface, requireApprovedVisual));
+            yield break;
+        }
+
+        retainPrefab?.Invoke(entry.assetPath);
+        using var residency = registry.AcquireAssetResidency(new[] { entry.assetPath });
+        if (!string.Equals(selectedPath, entry.assetPath, StringComparison.OrdinalIgnoreCase))
+            yield return registry.PreloadPrefabDependenciesRoutine(entry.assetPath);
+
+        // note: Even compatibility callers with active parents must not run imported actor callbacks during yielded preparation.
+        var preparation = new GameObject("Resident_Preparation");
+        preparation.SetActive(false);
+        preparation.transform.SetParent(parent, false);
+        GameObject instance = null;
+        bool published = false;
+        try
+        {
+            yield return InstantiateRegisteredPrefabRoutine(preparation.transform, entry, registry, value => instance = value);
+            if (instance == null)
+            { completed?.Invoke(false); yield break; }
+            bool created = CreateResident(preparation.transform, terrain, settlement, npcRecord, position, seed, residentIndex,
+                registry, usesReviewedSurface, requireApprovedVisual, entry, instance, category);
+            if (created)
+            {
+                // note: The provider's parent remains inactive until complete group publication; ordinary callers activate only the fully bound actor.
+                instance.transform.SetParent(parent, true);
+                published = true;
+            }
+            completed?.Invoke(created);
+        }
+        finally
+        {
+            if (!published && instance != null) instance.SetActive(false);
+            if (preparation != null) UnityEngine.Object.Destroy(preparation);
+        }
+    }
+
     private static bool CreateResident(
         Transform parent,
         Terrain terrain,
@@ -1299,7 +1487,10 @@ public static class YQGeneratedWorldPopulation
         int residentIndex,
         YQRuntimeWorldAssetRegistry registry,
         bool usesReviewedSurface,
-        bool requireApprovedVisual = false)
+        bool requireApprovedVisual = false,
+        YQRuntimeWorldAssetEntry preparedEntry = null,
+        GameObject preparedInstance = null,
+        string preparedHumanCategory = null)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.Resident.Auto();
@@ -1316,7 +1507,10 @@ public static class YQGeneratedWorldPopulation
                 registry,
                 usesReviewedSurface,
                 out string resolvedHumanCategory,
-                requireApprovedVisual);
+                requireApprovedVisual,
+                preparedEntry,
+                preparedInstance,
+                preparedHumanCategory);
 
         if (npc == null)
             return false;
@@ -1455,21 +1649,26 @@ public static class YQGeneratedWorldPopulation
         YQRuntimeWorldAssetRegistry registry,
         bool usesReviewedSurface,
         out string resolvedHumanCategory,
-        bool requireApprovedVisual = false)
+        bool requireApprovedVisual = false,
+        YQRuntimeWorldAssetEntry preparedEntry = null,
+        GameObject preparedInstance = null,
+        string preparedHumanCategory = null)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.ResidentVisual.Auto();
         // note: Only a successfully instantiated real human binding supplies a sex-specific voice category; DOT and capsule paths remain unclassified.
         resolvedHumanCategory = string.Empty;
-        if (TryResolveResidentPrefab(
+        YQRuntimeWorldAssetEntry entry = preparedEntry;
+        string candidateHumanCategory = preparedHumanCategory;
+        if (entry != null || TryResolveResidentPrefab(
                 registry,
                 record,
                 seed,
-                out YQRuntimeWorldAssetEntry entry,
-                out string candidateHumanCategory))
+                out entry,
+                out candidateHumanCategory))
         {
             GameObject instance =
-                InstantiateRegisteredPrefab(
+                preparedInstance != null ? preparedInstance : InstantiateRegisteredPrefab(
                     parent,
                     entry,
                     registry);
@@ -1982,7 +2181,7 @@ public static class YQGeneratedWorldPopulation
                 named = namedCount;
                 generic = genericCount;
                 rewards = rewardCount;
-            });
+            }, cooperativeVisualPreparation: false);
 
         // note: The retained legacy Build API drains the phased routine immediately; production startup always uses Unity's coroutine scheduler.
         DrainCoroutineSynchronously(routine);
@@ -2003,7 +2202,9 @@ public static class YQGeneratedWorldPopulation
         Action<int, int, int> completed,
         IReadOnlyList<GeneratedNpcPlanRecord> scopedPopulation = null,
         bool requireCompiledSite = false,
-        YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext = null)
+        YQCompiledWorldSiteInstance.ContinuationPopulationContext stagingContext = null,
+        Action<string> retainPrefab = null,
+        bool cooperativeVisualPreparation = true)
     {
         int namedHostiles =
             0;
@@ -2119,7 +2320,9 @@ public static class YQGeneratedWorldPopulation
                     leaderPosition);
             }
 
-            bool leaderCreated = CreateNamedHostile(
+            bool leaderCreated = false;
+            if (cooperativeVisualPreparation)
+                yield return CreateHostileRoutine(
                 campRoot.transform,
                 terrain,
                 encampment,
@@ -2127,8 +2330,15 @@ public static class YQGeneratedWorldPopulation
                 leader,
                 leaderPosition,
                 seed,
+                0,
                 registry,
-                requireCompiledSite);
+                requireCompiledSite,
+                created => leaderCreated = created,
+                retainPrefab);
+            else
+                // note: The legacy synchronous API cannot await ResourceRequest; preserve its original direct creation path.
+                leaderCreated = CreateNamedHostile(campRoot.transform, terrain, encampment, region, leader, leaderPosition,
+                    seed, registry, requireCompiledSite);
 
             if (!leaderCreated)
                 throw new InvalidOperationException("Leader creation failed for canonical NPC " + leader.npcId);
@@ -2183,16 +2393,24 @@ public static class YQGeneratedWorldPopulation
                     position);
             }
 
-            bool genericCreated = CreateGenericHostile(
+            bool genericCreated = false;
+            if (cooperativeVisualPreparation)
+                yield return CreateHostileRoutine(
                 campRoot.transform,
                 terrain,
                 encampment,
                 region,
+                null,
                 position,
                 seed,
                 i,
                 registry,
-                requireCompiledSite);
+                requireCompiledSite,
+                created => genericCreated = created,
+                retainPrefab);
+            else
+                genericCreated = CreateGenericHostile(campRoot.transform, terrain, encampment, region, position,
+                    seed, i, registry, requireCompiledSite);
 
             if (requireCompiledSite && !genericCreated)
                 throw new InvalidOperationException("Continuation hostile visual creation failed: " + encampment.encampmentId + ":" + i);
@@ -2412,6 +2630,57 @@ public static class YQGeneratedWorldPopulation
     // HOSTILES
     // ============================================================
 
+    private static IEnumerator CreateHostileRoutine(Transform parent, Terrain terrain, GeneratedEncampmentRecord encampment,
+        GeneratedRegionRecord region, GeneratedNpcPlanRecord record, Vector3 position, string seed, int index,
+        YQRuntimeWorldAssetRegistry registry, bool requireCompiledSite, Action<bool> completed, Action<string> retainPrefab)
+    {
+        // note: Named and rank-and-file actors retain their original seeds, categories and combat owners while sharing cooperative visual preparation.
+        string selectedPath = null;
+        if (YQDotCreatureCatalog.TrySelectPrefabPath(encampment.monsterFamily, "monster", seed, out selectedPath, out _))
+        {
+            retainPrefab?.Invoke(selectedPath);
+            yield return registry.PreloadPrefabDependenciesRoutine(selectedPath);
+        }
+        if (!TryResolveHostilePrefab(registry, encampment, record, seed, out var entry, out string category))
+        {
+            completed?.Invoke(record != null
+                ? CreateNamedHostile(parent, terrain, encampment, region, record, position, seed, registry, requireCompiledSite)
+                : CreateGenericHostile(parent, terrain, encampment, region, position, seed, index, registry, requireCompiledSite));
+            yield break;
+        }
+        retainPrefab?.Invoke(entry.assetPath);
+        using var residency = registry.AcquireAssetResidency(new[] { entry.assetPath });
+        if (!string.Equals(selectedPath, entry.assetPath, StringComparison.OrdinalIgnoreCase))
+            yield return registry.PreloadPrefabDependenciesRoutine(entry.assetPath);
+        var preparation = new GameObject("Hostile_Preparation");
+        preparation.SetActive(false);
+        preparation.transform.SetParent(parent, false);
+        GameObject instance = null;
+        bool published = false;
+        try
+        {
+            yield return InstantiateRegisteredPrefabRoutine(preparation.transform, entry, registry, value => instance = value);
+            if (instance == null)
+            { completed?.Invoke(false); yield break; }
+            bool created = record != null
+                ? CreateNamedHostile(preparation.transform, terrain, encampment, region, record, position, seed, registry,
+                    requireCompiledSite, entry, instance, category, value => instance = value)
+                : CreateGenericHostile(preparation.transform, terrain, encampment, region, position, seed, index, registry,
+                    requireCompiledSite, entry, instance, category, value => instance = value);
+            if (created && instance != null)
+            {
+                instance.transform.SetParent(parent, true);
+                published = true;
+            }
+            completed?.Invoke(created);
+        }
+        finally
+        {
+            if (!published && instance != null) instance.SetActive(false);
+            if (preparation != null) UnityEngine.Object.Destroy(preparation);
+        }
+    }
+
     private static bool CreateNamedHostile(
         Transform parent,
         Terrain terrain,
@@ -2421,7 +2690,11 @@ public static class YQGeneratedWorldPopulation
         Vector3 position,
         string seed,
         YQRuntimeWorldAssetRegistry registry,
-        bool requireCompiledSite = false)
+        bool requireCompiledSite = false,
+        YQRuntimeWorldAssetEntry preparedEntry = null,
+        GameObject preparedInstance = null,
+        string preparedCategory = null,
+        Action<GameObject> createdActor = null)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.NamedHostile.Auto();
@@ -2443,7 +2716,10 @@ public static class YQGeneratedWorldPopulation
                 true,
                 seed,
                 registry,
-                requireCompiledSite);
+                requireCompiledSite,
+                preparedEntry,
+                preparedInstance,
+                preparedCategory);
 
         if (enemyObject == null)
             return false;
@@ -2524,6 +2800,7 @@ public static class YQGeneratedWorldPopulation
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
             enemy);
         // note: Report success only after the canonical identity and combat receiver have been configured.
+        createdActor?.Invoke(enemyObject);
         YQPopulationWorkDiagnostics.ActorCreated(1);
         return true;
     }
@@ -2537,7 +2814,11 @@ public static class YQGeneratedWorldPopulation
         string seed,
         int index,
         YQRuntimeWorldAssetRegistry registry,
-        bool requireCompiledSite = false)
+        bool requireCompiledSite = false,
+        YQRuntimeWorldAssetEntry preparedEntry = null,
+        GameObject preparedInstance = null,
+        string preparedCategory = null,
+        Action<GameObject> createdActor = null)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.GenericHostile.Auto();
@@ -2561,7 +2842,10 @@ public static class YQGeneratedWorldPopulation
                 false,
                 seed,
                 registry,
-                requireCompiledSite);
+                requireCompiledSite,
+                preparedEntry,
+                preparedInstance,
+                preparedCategory);
 
         if (enemyObject == null)
             return false;
@@ -2657,6 +2941,7 @@ public static class YQGeneratedWorldPopulation
         // note: Attach runtime grounding at the frame-budgeted hostile spawn point so safety setup cannot bunch into a later frame.
         YQGeneratedEnemyRuntimeSafety.EnsureAttached(
             enemy);
+        createdActor?.Invoke(enemyObject);
         YQPopulationWorkDiagnostics.ActorCreated(2);
         return true;
     }
@@ -2989,20 +3274,25 @@ public static class YQGeneratedWorldPopulation
     bool leader,
     string seed,
     YQRuntimeWorldAssetRegistry registry,
-    bool requireCompiledSite = false)
+    bool requireCompiledSite = false,
+    YQRuntimeWorldAssetEntry preparedEntry = null,
+    GameObject preparedInstance = null,
+    string preparedCategory = null)
     {
         // note: Synchronous attribution only; this scope never spans an iterator yield.
         using var populationTiming = YQPopulationWorkDiagnostics.HostileVisual.Auto();
-        if (TryResolveHostilePrefab(
+        YQRuntimeWorldAssetEntry entry = preparedEntry;
+        string resolvedCategory = preparedCategory;
+        if (entry != null || TryResolveHostilePrefab(
                 registry,
                 encampment,
                 leaderRecord,
                 seed,
-                out YQRuntimeWorldAssetEntry entry,
-                out string resolvedCategory))
+                out entry,
+                out resolvedCategory))
         {
             GameObject instance =
-                InstantiateRegisteredPrefab(
+                preparedInstance != null ? preparedInstance : InstantiateRegisteredPrefab(
                     parent,
                     entry,
                     registry);
@@ -3758,14 +4048,41 @@ public static class YQGeneratedWorldPopulation
 
         registry.ApplyMaterialOverrides(
             entry.assetPath,
-            instance);
+            instance,
+            false);
 
         YQRuntimeUrpMaterialRepair
             .RepairHierarchy(
-                instance);
+                instance,
+                false);
 
 
         return instance;
+    }
+
+    private static IEnumerator InstantiateRegisteredPrefabRoutine(Transform parent, YQRuntimeWorldAssetEntry entry,
+        YQRuntimeWorldAssetRegistry registry, Action<GameObject> completed)
+    {
+        if (entry?.prefab == null || registry == null)
+        { completed?.Invoke(null); yield break; }
+        GameObject instance;
+        // note: Native Instantiate remains indivisible. Isolate its frame from discovery and repair so profiling shows any remaining native limit honestly.
+        using (YQPopulationWorkDiagnostics.PrefabInstantiate.Auto())
+            instance = UnityEngine.Object.Instantiate(entry.prefab, parent);
+        yield return null;
+        using (YQPopulationWorkDiagnostics.PrefabVisualIntent.Auto())
+            YQGeneratedActorVisualIntent.Capture(instance, entry.prefab);
+        yield return null;
+        using (YQPopulationWorkDiagnostics.PrefabMaterialOverrides.Auto())
+            registry.ApplyMaterialOverrides(entry.assetPath, instance, false);
+        yield return null;
+        // note: The existing cooperative repair retains source recovery and material ownership; no preceding automatic repair duplicates its scans.
+        yield return YQRuntimeUrpMaterialRepair.RepairMaterialHierarchyRoutine(instance, null);
+        using (YQPopulationWorkDiagnostics.PrefabText.Auto())
+            YQRuntimeUrpMaterialRepair.RepairTextHierarchy(instance);
+        yield return null;
+        // note: The visual owner performs the single final LOD stabilization only after character scale normalization.
+        completed?.Invoke(instance);
     }
 
     private static void PrepareResidentPhysics(
@@ -6879,6 +7196,10 @@ public static class YQPopulationWorkDiagnostics
     public static readonly Unity.Profiling.ProfilerMarker ResidentVisual = new Unity.Profiling.ProfilerMarker("YQ.Population.ResidentVisual");
     public static readonly Unity.Profiling.ProfilerMarker HostileVisual = new Unity.Profiling.ProfilerMarker("YQ.Population.HostileVisual");
     public static readonly Unity.Profiling.ProfilerMarker Prefab = new Unity.Profiling.ProfilerMarker("YQ.Population.Prefab");
+    public static readonly Unity.Profiling.ProfilerMarker PrefabInstantiate = new Unity.Profiling.ProfilerMarker("YQ.Population.Prefab.Instantiate");
+    public static readonly Unity.Profiling.ProfilerMarker PrefabVisualIntent = new Unity.Profiling.ProfilerMarker("YQ.Population.Prefab.VisualIntent");
+    public static readonly Unity.Profiling.ProfilerMarker PrefabMaterialOverrides = new Unity.Profiling.ProfilerMarker("YQ.Population.Prefab.MaterialOverrides");
+    public static readonly Unity.Profiling.ProfilerMarker PrefabText = new Unity.Profiling.ProfilerMarker("YQ.Population.Prefab.Text");
     public static readonly Unity.Profiling.ProfilerMarker HostilePlacement = new Unity.Profiling.ProfilerMarker("YQ.Population.HostilePlacement");
     public static readonly Unity.Profiling.ProfilerMarker ResidentPlacement = new Unity.Profiling.ProfilerMarker("YQ.Population.ResidentPlacement");
     public static readonly Unity.Profiling.ProfilerMarker BasicValidation = new Unity.Profiling.ProfilerMarker("YQ.Population.BasicValidation");

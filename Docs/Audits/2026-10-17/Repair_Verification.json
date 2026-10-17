@@ -1,0 +1,683 @@
+{
+  "recorded_utc": "2026-10-17T17:14:04.682235+00:00",
+  "repository": "MasterOfTheSmithy/YourQuest",
+  "baseline_commit": "ee485e38ab6d66610e5ce3293b615b6b1a9dc1b8",
+  "repair_branch": "repair/chat-audit-2026-10-17",
+  "evidence_level": "SOURCE_AND_FOCUSED_MANAGED_REGRESSIONS_NOT_UNITY_COMPILE_OR_NATIVE_ACCEPTANCE",
+  "toolchain": {
+    "sdk": "8.0.426",
+    "runtime_and_reference_pack": "8.0.32",
+    "csharp_language": "9.0"
+  },
+  "summary": {
+    "changed_project_csharp_files": 17,
+    "syntax_errors": 0,
+    "publication_checks_passed": 37,
+    "population_checks_passed": 28,
+    "movement_checks_passed": 34,
+    "asset_groups_passed": 7,
+    "failures": 0,
+    "existing_meta_files_unchanged": true,
+    "new_meta_guids_unique": 3,
+    "git_diff_check": "PASS"
+  },
+  "preserved_schema_versions": {
+    "state": 8,
+    "profile_manifest": 2
+  },
+  "source_unchanged_during_final_run": true,
+  "verified_source_sha256": {
+    "Assets/Assets/Scripts/Generated/Editor/YQGranularWorldAssetResources.cs": "4fb87aab0164591492471a2bac33c04c62b48995eb82ecff55cabff021a94318",
+    "Assets/Assets/Scripts/Generated/Editor/YQMovementAdmissionRegressionTests.cs": "76b72bb9afedb087068d3de1a8d5b945b2b4d13d7befb3107befe2912f13d56e",
+    "Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs": "6b2e80857aca067fbd6138e98378731fd0dd49aa7231407d9b9a7639c5c9b86f",
+    "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs": "a69084438eddbb22064e06869dade9d39bf9130c9112ea8df0983be86dce00cc",
+    "Assets/Assets/Scripts/Generated/YQGeneratedWorldPopulation.cs": "03812bc61b8cc26257134f9fe34b840d12dd1f4e872d18c215fccd5fc702886d",
+    "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.PhysicsAdmission.cs": "360c49a6160e271eee33c2993fe66461763479de600fd76239f060ec5e4659c9",
+    "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs": "916e79a28b57c159c9b705bd4ffc279855829f236666ab6cd4e640fa4cbebf29",
+    "Assets/Assets/Scripts/Generated/YQRuntimeCreatureAssetIndex.cs": "12322ff05cdbd1ab1ecef42479e64af5387f4b069e732a0727620ee0cdb7cec1",
+    "Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs": "a4c9b4a2e3019da197db5feeb846a87ed16625621a76c061ba88c46bd63c1021",
+    "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs": "3db08a9c514c96fba8fb8aead0b28cfceee48622e477d2e7235ea0e57bb3ca34",
+    "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs": "e7189a05f178342f6a6e8cd39f4969f0f0ad6b429a5314e6d96536c293b6212c",
+    "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs": "782dcf969244ea6e2fc4c24ccfc0bfe48b509ea330c9cbf0add06eb27891cb0e",
+    "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.Traversal.cs": "c20ac9308f8ce35f87aebe82263ac41bf85e4e5cce755e32e27705b96bea1126",
+    "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs": "f2f4c66b29d9237e52e127d2d4c38676ffd87417c241db1a33bf37e529ece2b2",
+    "Assets/Assets/Scripts/Tutorial/YQPlayerRagdoll.cs": "2db56903d1c3b1b1a70cfa313f4683da1c7a869e1d073ce44ab8017722c8502f",
+    "Assets/Assets/Scripts/Tutorial/YQProfileSaveSystem.cs": "18af35d99048ffec2118a0cb5e2fc13e3dbd51365980aad4a7f88141a38b5e3e",
+    "Assets/Assets/Scripts/Tutorial/YQRuntimeUrpMaterialRepair.cs": "a04c377857c29f164834bc395dd7e8365ef0285e87265fb9f7a2a0ee0680f5cb",
+    "Tools/ChatAuditVerification/AssetRegistryStubs.cs": "6a9455bb4491770159d85bedb7afe99ff3bc98ebc50738654dbd04be421d1650",
+    "Tools/ChatAuditVerification/AssetRegistryTests.cs": "6cbc143d7f99efe7acbeebe83b2a4c4bdf4ce3b4389395e2b24967641cb1bdeb",
+    "Tools/ChatAuditVerification/MovementFixtures.cs": "9c71c18f5673f9840bcb9cf444ff152939d693a9abde7bd7ceea44c5a9b18afe",
+    "Tools/ChatAuditVerification/PopulationFixtures.cs": "5e89bdd8145535ce2ddc9aef6a687995feb281870645de49915d236a0caf54e8",
+    "Tools/ChatAuditVerification/PublicationFixtures.cs": "21bde9a31d224bb489dd407328edbb1caff9c48fff289d83e2aa79989babf2d4",
+    "Tools/ChatAuditVerification/Verify.cs": "289eaa66dd509813eaf2810c57b07b3b18da6795c9cbbd4eef5af3e866c0bcc8",
+    "Tools/ChatAuditVerification/VerifyMovement.cs": "2160d2a7a3e34e36060044fd45b0b157245f497c06bf6fd0a96bb69a242ca120",
+    "Tools/ChatAuditVerification/VerifyPopulation.cs": "42cea3610b9bc038d5d9357a17ca5ac919d9d7a2c64c95bb2d6467b2bc64f962",
+    "Tools/ChatAuditVerification/run.py": "968c6081b14c4f48ee506fa6436144df8e6624b7f9ea126643c8659c57191da8",
+    "Tools/ChatAuditVerification/run_assets.py": "436e069d48f3d8f13e0fa3ec3ca9f78fdccab97d79d33d6f5cfd2ea67ed26328"
+  },
+  "results": {
+    "syntax": {
+      "evidence": "ROSLYN_CSHARP9_SYNTAX_ONLY_NOT_UNITY_COMPILATION",
+      "sourceFiles": 17,
+      "errors": 0,
+      "syntax": [
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQGranularWorldAssetResources.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQGranularWorldAssetResources.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQMovementAdmissionRegressionTests.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQMovementAdmissionRegressionTests.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQGeneratedWorldPopulation.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQGeneratedWorldPopulation.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.PhysicsAdmission.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.PhysicsAdmission.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeCreatureAssetIndex.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeCreatureAssetIndex.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.Traversal.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.Traversal.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQPlayerRagdoll.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQPlayerRagdoll.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQProfileSaveSystem.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQProfileSaveSystem.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQRuntimeUrpMaterialRepair.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Tutorial/YQRuntimeUrpMaterialRepair.cs",
+          "editor": true,
+          "errors": []
+        }
+      ]
+    },
+    "publication": {
+      "evidence": "VERBATIM_PRODUCTION_PUBLICATION_METHODS_AND_REAL_STORE_IO_WITH_CONTROLLED_UNITY_OWNER_FIXTURES_NOT_PLAYSAFE",
+      "passed": 37,
+      "failures": 0,
+      "results": [
+        {
+          "name": "immediate publication succeeds with real paired revision files",
+          "passed": true
+        },
+        {
+          "name": "immediate publication uses four disk proofs and two auxiliary captures",
+          "passed": true
+        },
+        {
+          "name": "immediate path joins existing player writer once",
+          "passed": true
+        },
+        {
+          "name": "retained preparation succeeds",
+          "passed": true
+        },
+        {
+          "name": "retained token publication succeeds",
+          "passed": true
+        },
+        {
+          "name": "retained tokens keep six disk proofs and three auxiliary captures",
+          "passed": true
+        },
+        {
+          "name": "consumed token cannot publish twice",
+          "passed": true
+        },
+        {
+          "name": "retained token rejects player changes",
+          "passed": true
+        },
+        {
+          "name": "immediate path requires runtime guard",
+          "passed": true
+        },
+        {
+          "name": "runtime guard veto prevents publication",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: player",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: world",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: construction",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: player",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: world",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: prior-file",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: player",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: world",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: document",
+          "passed": true
+        },
+        {
+          "name": "same-JSON final auxiliary callback cannot invalidate runtime ownership and still publish",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: player",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: world",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: construction",
+          "passed": true
+        },
+        {
+          "name": "pointer failure leaves live world and prior revision unchanged",
+          "passed": true
+        },
+        {
+          "name": "post-pointer apply failure retains durable truth and requires reload",
+          "passed": true
+        }
+      ]
+    },
+    "population": {
+      "evidence": "VERBATIM_MANAGED_CONTEXT_LOD_AND_PREPARATION_METHODS_WITH_CONTROLLED_UNITY_BOUNDARIES_NOT_RUNTIME_OR_PERFORMANCE_PASS",
+      "limitations": "JsonUtility uses a test JSON codec; DTOs, native cloning, bounds and material work use small controlled fixtures. Real imported assets, Unity lifecycle, all LOD animation and cold frame durations require Unity validation.",
+      "checks": 28,
+      "failures": 0,
+      "results": [
+        {
+          "name": "unchanged scoped context remains current",
+          "passed": true
+        },
+        {
+          "name": "in-place actor field invalidates unchanged hash claim",
+          "passed": true
+        },
+        {
+          "name": "in-place actor list invalidates",
+          "passed": true
+        },
+        {
+          "name": "canonical ordering is part of staging context",
+          "passed": true
+        },
+        {
+          "name": "equal cloned actor cannot replace canonical reference",
+          "passed": true
+        },
+        {
+          "name": "nested location body invalidates without hash change",
+          "passed": true
+        },
+        {
+          "name": "non-actor location proof mutation invalidates",
+          "passed": true
+        },
+        {
+          "name": "equal replacement settlement identity invalidates",
+          "passed": true
+        },
+        {
+          "name": "death outside serialized location invalidates",
+          "passed": true
+        },
+        {
+          "name": "canonical seed mutation invalidates",
+          "passed": true
+        },
+        {
+          "name": "profile request epoch invalidates",
+          "passed": true
+        },
+        {
+          "name": "restored exact context passes",
+          "passed": true
+        },
+        {
+          "name": "deferred hierarchy repair performs one material pass without premature LOD mutation",
+          "passed": true
+        },
+        {
+          "name": "deepest LOD group retains authored shared renderer across levels",
+          "passed": true
+        },
+        {
+          "name": "ancestor relinquishes shared renderer and drops empty level",
+          "passed": true
+        },
+        {
+          "name": "authored transition thresholds survive one final stabilization",
+          "passed": true
+        },
+        {
+          "name": "bounds rebuild occurs once per final group",
+          "passed": true
+        },
+        {
+          "name": "native clone has its own yielded step",
+          "passed": true
+        },
+        {
+          "name": "visual intent has a separate yielded step",
+          "passed": true
+        },
+        {
+          "name": "overrides skip automatic residual repair",
+          "passed": true
+        },
+        {
+          "name": "existing cooperative material repair is delegated",
+          "passed": true
+        },
+        {
+          "name": "text finishes before publication callback",
+          "passed": true
+        },
+        {
+          "name": "complete preparation invokes callback only after all phases",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Dragons/Dragon.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Demons/Devil.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Spiders/Spider.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Rock Monster/RockMonster.prefab",
+          "passed": true
+        },
+        {
+          "name": "ambiguous generic-monster metadata remains eligible for full human inspection",
+          "passed": true
+        }
+      ]
+    },
+    "movement": {
+      "evidence": "VERBATIM_MANAGED_MOVEMENT_AND_BUDGET_METHODS_WITH_CONTROLLED_UNITY_BOUNDARIES_NOT_RUNTIME_TRAVEL",
+      "checks": 34,
+      "failures": 0,
+      "results": [
+        {
+          "name": "fresh authored scene has no streamed dependency",
+          "passed": true
+        },
+        {
+          "name": "bound current owner admits dependency",
+          "passed": true
+        },
+        {
+          "name": "missing manager closes admission",
+          "passed": true
+        },
+        {
+          "name": "replacement manager cannot reuse a document proof",
+          "passed": true
+        },
+        {
+          "name": "in-place world plan replacement closes admission",
+          "passed": true
+        },
+        {
+          "name": "new generated world waits for its bind",
+          "passed": true
+        },
+        {
+          "name": "new authored world releases generated dependency",
+          "passed": true
+        },
+        {
+          "name": "disabled bound streamer closes admission",
+          "passed": true
+        },
+        {
+          "name": "reenable without bind remains closed",
+          "passed": true
+        },
+        {
+          "name": "closed dependency never calls native controller",
+          "passed": true
+        },
+        {
+          "name": "30 fully denied steps accumulate no acceleration gravity or dash time",
+          "passed": true
+        },
+        {
+          "name": "holds preserve actual fall height and impact history",
+          "passed": true
+        },
+        {
+          "name": "readiness stop does not cause physical ragdoll",
+          "passed": true
+        },
+        {
+          "name": "resolved displacement still truthfully reports zero during holds",
+          "passed": true
+        },
+        {
+          "name": "accepted launch survives a held time integration",
+          "passed": true
+        },
+        {
+          "name": "denied secondary assist preserves earlier actual landing",
+          "passed": true
+        },
+        {
+          "name": "real collision still updates momentum and acceleration accounting",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies lifecycleActivation",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies lifecycleObjectActivation",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies hardViewTerrainAppearance",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies turnBufferGroundProgress",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies terrainHeightUpload",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies terrainColliderSync",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies contentDispatch",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies requiredContent",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies requiredHardViewEcology",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies emergencyGroundPublication",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies provisionalGroundReactivation",
+          "passed": true
+        },
+        {
+          "name": "native synchronization remains pending after exhausted allowance",
+          "passed": true
+        },
+        {
+          "name": "next frame completes the required native synchronization",
+          "passed": true
+        },
+        {
+          "name": "unchanged ground reuses completed synchronization",
+          "passed": true
+        },
+        {
+          "name": "later same-frame ground dirtiness cannot reuse an earlier sync",
+          "passed": true
+        },
+        {
+          "name": "later dirtiness completes on its own shared sync frame",
+          "passed": true
+        },
+        {
+          "name": "destroyed required owner does not become authored-scene permission",
+          "passed": true
+        }
+      ]
+    },
+    "assets": {
+      "evidence": "ACTUAL_REGISTRY_AND_EXTRACTED_FALLBACK_APPROVAL_METHODS_WITH_CONTROLLED_UNITY_RESOURCES_NOT_NATIVE_RUNTIME",
+      "command": "python Tools/ChatAuditVerification/run_assets.py --dotnet-root /tmp/yourquest-dotnet",
+      "test_groups_passed": 7,
+      "failures": 0,
+      "binding_paths_checked": 8174,
+      "unapproved_fallbacks_rejected": 8,
+      "unbound_fallbacks_rejected_even_when_fixture_approved": 5,
+      "warnings": [
+        "CS1701 SDK Newtonsoft.Json reference unification",
+        "CS0649 fields populated by JSON deserialization"
+      ],
+      "output": "warning CS1701: Assuming assembly reference 'System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' used by 'Newtonsoft.Json' matches identity 'System.Runtime, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' of 'System.Runtime', you may need to supply runtime policy\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(61,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.path' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(73,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.entrySha256' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(63,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.entrySha256' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(74,29): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.resources' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(68,42): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencyManifest.prefabs' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(72,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.path' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(57,36): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularManifest.assets' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(56,20): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularManifest.version' is never assigned to, and will always have its default value 0\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(62,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.resource' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(67,20): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencyManifest.version' is never assigned to, and will always have its default value 0\nPASS all 8174 published binding paths; no prefab loads during membership queries.\nPASS actual fallback/approval method bodies: eight unapproved proposals rejected; five remain rejected after approval when binding absent; accepted reference retained.\nPASS registry contract cases=7; actual registry source, simulated Unity API; no Unity compile/native timing claim.\n"
+    }
+  },
+  "unexecuted": [
+    "Full Unity compilation",
+    "Unity Edit-mode movement fixture",
+    "Dependency descriptor build and imported closure validation",
+    "Cold native loading through activation and playable publication",
+    "Production PlaySafe lifecycle/physics/save-reload scenarios",
+    "Sustained actual 200 m/s travel and approximately 90 ms maximum stall acceptance"
+  ],
+  "remaining_source_limitations": [
+    "Synchronous paired revision staging, final proofs and projection IO remain.",
+    "Native Instantiate, activation, terrain publication and physics synchronization remain indivisible.",
+    "Missing required approved foliage remains a readiness failure.",
+    "Dependency assets must be generated in the complete local project before a granular Player build."
+  ]
+}

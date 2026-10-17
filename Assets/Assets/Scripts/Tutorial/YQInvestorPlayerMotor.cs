@@ -174,6 +174,9 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
     private CollisionFlags _lastMoveCollisionFlags;
     private int _animationGroundContactFrame = -1;
     private bool _lastMoveRejectedByTraversalGate;
+    // note: A configured streamed world remains required after its component is disabled or destroyed; absence is not movement permission.
+    private YQPlayerFollowingSemanticChunkStreamer _streamedMovementOwner;
+    private WorldState _streamedMovementWorld;
 
     private bool _generationMovementLocked;
     private bool _deactivatedDuplicate;
@@ -213,6 +216,35 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
     internal Vector3 LastBlockingControllerContactPoint => _lastBlockingControllerContactPoint;
     internal Vector3 LastBlockingControllerContactNormal => _lastBlockingControllerContactNormal;
     internal int BlockingControllerContactCount => _blockingControllerContactCount;
+
+    internal void BindStreamedMovementAdmission(YQPlayerFollowingSemanticChunkStreamer owner, WorldState world)
+    {
+        // note: Only the existing streamer's normal world bind replaces this transient admission dependency.
+        if (owner == null || world == null) return;
+        _streamedMovementOwner = owner;
+        _streamedMovementWorld = world;
+    }
+
+    internal bool TryResolveStreamedMovementAdmission(out YQPlayerFollowingSemanticChunkStreamer owner)
+    {
+        owner = _streamedMovementOwner;
+        WorldState currentWorld = WorldStateManager.Instance != null ? WorldStateManager.Instance.State : null;
+        if (_streamedMovementWorld != null && currentWorld != null &&
+            !ReferenceEquals(currentWorld, _streamedMovementWorld))
+        {
+            // note: A newly selected nonstreamed world has no terrain dependency. A replacement generated world must bind its own streamer first.
+            if (currentWorld.generatedWorldPlan != null) return false;
+            owner = null;
+            return true;
+        }
+        if (_streamedMovementWorld == null)
+        {
+            // note: Standalone authored scenes have no required streamer; an attachment in progress still closes admission until configured.
+            owner = YQPlayerFollowingSemanticChunkStreamer.Active;
+            if (owner == null) return true;
+        }
+        return owner != null && owner.IsPlayerMovementAdmissionAvailable(this);
+    }
 
     private void Awake()
     {
@@ -571,10 +603,11 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
         targetSpeed *= _movementCombat != null ? _movementCombat.MovementScale : 1f;
         Vector3 targetPlanar = wish * targetSpeed;
         float accel = grounded ? (move.sqrMagnitude > 0.01f ? acceleration : deceleration) : acceleration * airControl;
+        bool jumped = TryConsumeBufferedJump(grounded);
+        // note: Keep an accepted jump impulse, but commit time integration only when this frame actually submits controller movement.
+        CaptureMotionIntegrationState();
         // note: High-speed turns brake world momentum before steering; ordinary stops stay crisp.
         AdvancePlanarVelocity(targetPlanar, accel, grounded, dt);
-
-        bool jumped = TryConsumeBufferedJump(grounded);
         if (!jumped)
             ApplyGravity(dt, grounded, jumpHeld);
 
@@ -643,6 +676,7 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
         float speed = _isSprinting ? fastSwimSpeed : swimSpeed;
         Vector3 target = wish * speed;
         target.y = 0f;
+        CaptureMotionIntegrationState();
         _planarVelocity = Vector3.MoveTowards(_planarVelocity, target, 6f * dt);
         float desiredVertical = wish.y * speed + (riseHeld ? swimVerticalSpeed : 0f) - (diveHeld ? swimVerticalSpeed : 0f);
         if (!riseHeld && !diveHeld && Mathf.Abs(wish.y) < .05f)
@@ -729,30 +763,32 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
     private CollisionFlags MoveWithTraversalGate(Vector3 displacement)
     {
         if (_controller == null || !_controller.enabled) return CollisionFlags.None;
-        // note: Capture impact speed before contact clamps vertical integration.
-        _frameImpactSpeed = Mathf.Max(_frameImpactSpeed, -_verticalVelocity);
-        YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        bool admissionAvailable = TryResolveStreamedMovementAdmission(out YQPlayerFollowingSemanticChunkStreamer streamer);
         Vector3 movementStart = transform.position;
         Vector3 requestedDisplacement = displacement;
         _lastRequestedMoveDisplacement = requestedDisplacement;
         _lastActualMoveDisplacement = Vector3.zero;
         _lastMoveCollisionFlags = CollisionFlags.None;
         _lastMoveRejectedByTraversalGate = false;
-        bool startedTraversable = streamer != null && streamer.isActiveAndEnabled &&
+        bool startedTraversable = admissionAvailable && streamer != null &&
             streamer.TryValidateCurrentTraversability(movementStart, _controller.radius, _controller.skinWidth, out _);
-        if (streamer != null && streamer.isActiveAndEnabled &&
+        if (!admissionAvailable || (streamer != null &&
             !streamer.TryConstrainMovement(
                 transform.position,
                 displacement,
                 _controller.radius,
                 _controller.skinWidth,
-                out _))
+                out _)))
         {
             // note: Reject the entire controller step when its clearance sweep is blocked; CharacterController resolution can add sideways motion to both horizontal and vertical moves.
             _lastMoveRejectedByTraversalGate = true;
+            _frameMovementHeld = true;
             return CollisionFlags.None;
         }
 
+        // note: Only submitted physical movement contributes an impact sample; an admission hold is not a collision.
+        _frameControllerMoveAdmitted = true;
+        _frameImpactSpeed = Mathf.Max(_frameImpactSpeed, -_verticalVelocity);
         // note: Observe collision-resolved motion immediately, before another owner can change publication, without correcting or hiding the actual movement result.
         CollisionFlags flags = _controller.Move(displacement);
         if ((flags & CollisionFlags.Below) != 0) _animationGroundContactFrame = Time.frameCount;
@@ -979,6 +1015,7 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
 
     private void ApplyDash(float dt)
     {
+        CaptureMotionIntegrationState();
         // note: The last frame spends only the remaining dash time, keeping travel distance stable across frame rates and occasional long frames.
         float dashStep = Mathf.Min(Mathf.Max(0f, dt), _dashTimeRemaining);
         _dashTimeRemaining = Mathf.Max(0f, _dashTimeRemaining - dashStep);
@@ -1018,6 +1055,7 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
         _isClimbing = true;
         _verticalVelocity = 0f;
         _planarVelocity = Vector3.zero;
+        CaptureMotionIntegrationState();
 
         Vector3 side = Vector3.ProjectOnPlane(transform.right, hit.normal).normalized * (move.x * climbSideSpeed);
         // note: Once attached, neutral input holds and backward input descends while the same wall contact owns attachment.
@@ -1103,8 +1141,7 @@ public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
 
     private void ValidateAndRememberCameraPose()
     {
-        YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
-        if (streamer == null)
+        if (!TryResolveStreamedMovementAdmission(out YQPlayerFollowingSemanticChunkStreamer streamer) || streamer == null)
             return;
 
         // note: Make the exact post-motion camera frustum receive same-authority ground before Unity renders; queued work remains responsible for full semantic presentation.

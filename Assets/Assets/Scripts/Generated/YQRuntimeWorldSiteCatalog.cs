@@ -4796,26 +4796,46 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
     internal IEnumerator BuildRequiredContinuationPopulationRoutine(Terrain terrain, GeneratedWorldPlanRecord plan,
         YQRuntimeWorldAssetRegistry registry, Action<bool, string> completed)
     {
+        if (!NeedsContinuationPopulation || !isActiveAndEnabled || plan == null || registry == null)
+        { completed?.Invoke(false, "Saved population provider is not ready."); yield break; }
         var location = continuationLocation;
-        YQPreparedSpatialMaterializationV2 prepared;
-        string failure;
         var capturedBasePlan = basePopulationPlan;
         string capturedBaseId = basePopulationLocationId;
-        using (YQPopulationWorkDiagnostics.ProviderAdmission.Auto())
-        {
-        if (!NeedsContinuationPopulation || !isActiveAndEnabled ||
-            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure) ||
-            (location != null && !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure)) ||
-            (location == null && (!ReferenceEquals(plan, capturedBasePlan) ||
-                !YQGeneratedWorldPopulation.TryGetBasePopulationSite(plan, capturedBaseId, out _, out _, out _))))
-        { completed?.Invoke(false, "Saved population provider is not ready."); yield break; }
-        }
         Transform content = transform.Find("CompiledSiteContent");
         int epoch = streamExecutionEpoch;
+        int requestEpoch = YQServiceLifecycle.RequestEpoch;
+        WorldState world = WorldStateManager.Instance?.State;
         continuationPopulationInFlight = true;
         bool finished = false;
         try
         {
+            // note: Reserve this provider before yielding. Metadata-only selection warms exact dependencies before replay validation touches cold actor bindings.
+            IEnumerable<GeneratedNpcPlanRecord> records = location != null ? location.population :
+                plan.generatedNpcs?.FindAll(npc => npc != null && string.Equals(npc.hostile ? npc.encampmentId : npc.settlementId,
+                    capturedBaseId, StringComparison.OrdinalIgnoreCase));
+            var encampment = location != null ? location.encampment :
+                plan.encampments?.Find(camp => camp != null && string.Equals(camp.encampmentId, capturedBaseId, StringComparison.OrdinalIgnoreCase));
+            var paths = YQGeneratedWorldPopulation.CollectPopulationPrefabPaths(plan, records, encampment, world);
+            using var residency = registry.AcquireAssetResidency(paths);
+            yield return registry.PreloadAssetPathsRoutine(paths);
+            if (streamExecutionEpoch != epoch || YQServiceLifecycle.RequestEpoch != requestEpoch ||
+                continuationLocation != location || basePopulationPlan != capturedBasePlan || basePopulationLocationId != capturedBaseId ||
+                WorldStateManager.Instance?.State != world || world == null || !ReferenceEquals(world.generatedWorldPlan, plan) ||
+                transform.Find("CompiledSiteContent") != content)
+            { finished = true; completed?.Invoke(false, "Population provider changed during dependency preparation."); yield break; }
+
+            YQPreparedSpatialMaterializationV2 prepared;
+            string failure;
+            using (YQPopulationWorkDiagnostics.ProviderAdmission.Auto())
+            {
+                // note: Full accepted-artifact/replay validation remains after warming; a prepared asset does not authorize canonical population.
+                if (!isActiveAndEnabled || !IsContinuationGeometryLoaded ||
+                    !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure) ||
+                    (location != null && !TryValidateAcceptedContinuationReplay(plan, location, prepared, out _, out failure)) ||
+                    (location == null && (!ReferenceEquals(plan, capturedBasePlan) ||
+                        !YQGeneratedWorldPopulation.TryGetBasePopulationSite(plan, capturedBaseId, out _, out _, out _))))
+                { finished = true; completed?.Invoke(false, "Saved population provider is not ready."); yield break; }
+            }
             var context = ContinuationPopulationContext.Capture(this, content, ContinuationPopulationIssuer);
             bool success = false;
             string populationFailure = string.Empty;
@@ -4826,7 +4846,8 @@ public sealed class YQCompiledWorldSiteInstance : MonoBehaviour
                 yield return YQGeneratedWorldPopulation.BuildBaseSitePopulationRoutine(content, terrain, plan, capturedBaseId,
                     prepared, registry, (result, reason) => { success = result; populationFailure = reason; }, context);
             finished = true;
-            if (streamExecutionEpoch != epoch || continuationLocation != location || basePopulationPlan != capturedBasePlan || basePopulationLocationId != capturedBaseId)
+            if (streamExecutionEpoch != epoch || YQServiceLifecycle.RequestEpoch != requestEpoch ||
+                continuationLocation != location || basePopulationPlan != capturedBasePlan || basePopulationLocationId != capturedBaseId)
             { completed?.Invoke(false, "Continuation population provider changed."); yield break; }
             continuationPopulationReady = success;
             if (!success) ReportStreamExecutionFailure(new InvalidOperationException(populationFailure));

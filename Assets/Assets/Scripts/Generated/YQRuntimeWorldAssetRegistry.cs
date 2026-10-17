@@ -60,10 +60,25 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     {
         public string path;
         public string resource;
+        public string entrySha256;
+    }
+    [Serializable] private sealed class PrefabDependencyManifest
+    {
+        public int version;
+        public List<PrefabDependencySet> prefabs;
+    }
+    [Serializable] private sealed class PrefabDependencySet
+    {
+        public string path;
+        public string entrySha256;
+        public List<string> resources;
     }
     private Dictionary<string, GranularAsset> _granularAssets;
     private Dictionary<string, List<YQRuntimeWorldAssetEntry>> _granularPacks;
     [NonSerialized] private bool _granularLookupAttempted;
+    private Dictionary<string, PrefabDependencySet> _prefabDependencies;
+    private bool _dependencyLookupAttempted;
+    private bool _loggedMissingDependencyMetadata;
     // note: Approved alpha-cutout grass is shared by native terrain detail batches without duplicating imported textures.
     [SerializeField] private Texture2D terrainGrassTexture;
     public Texture2D TerrainGrassTexture
@@ -82,6 +97,14 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     private Dictionary<string, YQRuntimeWorldAssetEntry> _entriesByPath;
     private Dictionary<string, YQRuntimeWorldAssetRegistry> _loadedShards;
     private readonly Dictionary<string, float> _shardLastUse = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, YQRuntimePrefabDependency> _loadedDependencies =
+        new Dictionary<string, YQRuntimePrefabDependency>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, ResourceRequest> _pendingPreloads =
+        new Dictionary<string, ResourceRequest>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _resourcePins =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _missingDependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private int _residencyEpoch;
     private int _activePreloads;
     private HashSet<string> _missingShardPaths;
 
@@ -112,10 +135,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRuntimeStatics()
     {
-        _instance = null;
-        _loggedRuntimeSummary = false;
-        _loggedRegistryLoadFailure = false;
-        PrefabScriptValidity.Clear();
+        // note: Domain-reload-disabled Play must invalidate leases/callbacks on the previously loaded ScriptableObject as well as its global pointer.
+        ClearCachedInstance();
     }
 
     public static YQRuntimeWorldAssetRegistry Instance
@@ -207,6 +228,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         _granularLookupAttempted = false;
         _loadedShards = null;
         _missingShardPaths = null;
+        ResetDependencyResidency();
     }
 
     private void EnsureGranularLookup()
@@ -248,6 +270,139 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         EnsureGranularLookup();
         return _granularAssets != null && _granularAssets.TryGetValue(NormalizePath(assetPath), out var item)
             ? item.resource : string.Empty;
+    }
+
+    private bool TryGetPrefabDependencies(string assetPath, out PrefabDependencySet dependencies)
+    {
+        dependencies = null;
+        if (!useGranularResourceShards) return false;
+        EnsureGranularLookup();
+        if (!_dependencyLookupAttempted)
+        {
+            _dependencyLookupAttempted = true;
+            // note: Dependency discovery belongs to the explicit Editor builder. Runtime reads strings before loading any prefab/controller.
+            PrefabDependencyManifest manifest = null;
+            try
+            {
+                TextAsset text = Resources.Load<TextAsset>("YQWorldPrefabDependencies");
+                manifest = text != null ? JsonUtility.FromJson<PrefabDependencyManifest>(text.text) : null;
+            }
+            catch (Exception error)
+            {
+                // note: Optional preparation metadata cannot take down an accepted world. Keep legacy loading explicit and unqualified until the local rebuild succeeds.
+                _loggedMissingDependencyMetadata = true;
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistry] Prefab dependency metadata could not be read; cold activation remains unqualified. " +
+                    "Run YourQuest > Assets > Build Prefab Dependency Preloads. " + error.Message);
+            }
+            if (manifest != null && manifest.version == 1 && manifest.prefabs != null)
+            {
+                var lookup = new Dictionary<string, PrefabDependencySet>(StringComparer.OrdinalIgnoreCase);
+                bool valid = true;
+                foreach (PrefabDependencySet item in manifest.prefabs)
+                {
+                    if (item == null || string.IsNullOrWhiteSpace(item.path) || string.IsNullOrWhiteSpace(item.entrySha256) ||
+                        item.resources == null || lookup.ContainsKey(item.path))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    foreach (string resource in item.resources)
+                    {
+                        if (string.IsNullOrWhiteSpace(resource) || !resource.StartsWith("YQWorldAssetDependencies/", StringComparison.Ordinal) ||
+                            resource.Contains("..") || resource.Contains('\\'))
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (!valid) break;
+                    lookup.Add(item.path, item);
+                }
+                if (valid) _prefabDependencies = lookup;
+            }
+        }
+
+        string key = NormalizePath(assetPath);
+        // note: A binding rebuild invalidates only changed dependency rows; stale metadata never claims that a newly selected binding is warm.
+        return _granularAssets != null && _granularAssets.TryGetValue(key, out GranularAsset binding) &&
+               _prefabDependencies != null && _prefabDependencies.TryGetValue(key, out dependencies) &&
+               string.Equals(binding.entrySha256, dependencies.entrySha256, StringComparison.Ordinal);
+    }
+
+    public bool HasPreparedPrefabDependencies(string assetPath)
+    {
+        if (!TryGetPrefabDependencies(assetPath, out PrefabDependencySet dependencies)) return false;
+        foreach (string resource in dependencies.resources)
+            if (!_loadedDependencies.TryGetValue(resource, out YQRuntimePrefabDependency descriptor) ||
+                descriptor == null || descriptor.asset == null) return false;
+        string prefabResource = ResolveResourcePath(assetPath);
+        return _loadedShards != null && _loadedShards.TryGetValue(prefabResource, out var shard) && shard != null;
+    }
+
+    public sealed class AssetResidencyLease : IDisposable
+    {
+        private YQRuntimeWorldAssetRegistry _owner;
+        private readonly string[] _resources;
+        private readonly int _epoch;
+
+        internal AssetResidencyLease(YQRuntimeWorldAssetRegistry owner, string[] resources, int epoch)
+        {
+            _owner = owner;
+            _resources = resources;
+            _epoch = epoch;
+        }
+
+        public void Dispose()
+        {
+            // note: Cancellation and successful publication share idempotent release; a lease from an old session cannot unpin the new one.
+            YQRuntimeWorldAssetRegistry owner = _owner;
+            _owner = null;
+            if (ReferenceEquals(owner, null) || owner._residencyEpoch != _epoch) return;
+            foreach (string resource in _resources)
+            {
+                if (!owner._resourcePins.TryGetValue(resource, out int count)) continue;
+                if (count <= 1) owner._resourcePins.Remove(resource);
+                else owner._resourcePins[resource] = count - 1;
+            }
+        }
+    }
+
+    public AssetResidencyLease AcquireAssetResidency(IEnumerable<string> assetPaths)
+    {
+        // note: The existing materialization iterator owns this lease through preparation/activation; registry eviction respects pending demand.
+        var resources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (assetPaths != null)
+        {
+            foreach (string assetPath in assetPaths)
+            {
+                string resource = ResolveResourcePath(assetPath);
+                if (!string.IsNullOrWhiteSpace(resource)) resources.Add(resource);
+                if (TryGetPrefabDependencies(assetPath, out PrefabDependencySet dependencies))
+                    foreach (string dependency in dependencies.resources) resources.Add(dependency);
+            }
+        }
+        foreach (string resource in resources)
+        {
+            _resourcePins.TryGetValue(resource, out int count);
+            _resourcePins[resource] = count + 1;
+        }
+        string[] retained = new string[resources.Count];
+        resources.CopyTo(retained);
+        return new AssetResidencyLease(this, retained, _residencyEpoch);
+    }
+
+    public GameObject ResolvePreloadedPrefab(string assetPath)
+    {
+        // note: Streamed callers resolve only their completed request. Editor AssetDatabase recovery must not hide a missing player binding.
+        EnsureLookup();
+        string key = NormalizePath(assetPath);
+        if (_prefabsByPath.TryGetValue(key, out GameObject direct) && direct != null && HasValidPrefabScripts(direct, key)) return direct;
+        string resource = ResolveResourcePath(key);
+        if (_loadedShards == null || !_loadedShards.TryGetValue(resource, out YQRuntimeWorldAssetRegistry shard) || shard == null) return null;
+        shard.EnsureLookup();
+        _shardLastUse[resource] = Time.realtimeSinceStartup;
+        return shard._prefabsByPath.TryGetValue(key, out GameObject prefab) && prefab != null && HasValidPrefabScripts(prefab, key)
+            ? prefab : null;
     }
 
     private Texture2D ResolveTerrainGrassTextureFallback()
@@ -775,11 +930,19 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             return true;
         }
 
-        return
-            useLazyResourceShards &&
-            key.EndsWith(
-                ".prefab",
-                StringComparison.OrdinalIgnoreCase);
+        // note: A prefab suffix or pack name is not a binding. Granular membership is exact and does not deserialize the source prefab.
+        if (useGranularResourceShards)
+        {
+            EnsureGranularLookup();
+            return key.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) &&
+                   _granularAssets != null && _granularAssets.ContainsKey(key);
+        }
+        if (TryGetLazyShard(key, out YQRuntimeWorldAssetRegistry shard) && shard != null)
+        {
+            shard.EnsureLookup();
+            return shard._prefabsByPath.TryGetValue(key, out prefab) && prefab != null;
+        }
+        return false;
     }
 
     public void SetEntries(
@@ -805,6 +968,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
         _missingShardPaths =
             null;
+        ResetDependencyResidency();
     }
 
     public void RebuildLookup()
@@ -816,14 +980,21 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         IEnumerable<string> assetPaths)
     {
         // note: Memory reclamation never retires a shard while its asynchronous preload is still warming the spawn path.
+        int epoch = _residencyEpoch;
         _activePreloads++;
-        try { yield return PreloadAssetPathsCore(assetPaths); }
-        finally { _activePreloads--; }
+        try { yield return PreloadAssetPathsCore(assetPaths, epoch); }
+        finally { if (_residencyEpoch == epoch) _activePreloads--; }
     }
 
-    private IEnumerator PreloadAssetPathsCore(IEnumerable<string> assetPaths)
+    public IEnumerator PreloadPrefabDependenciesRoutine(string assetPath)
     {
-        if (!useLazyResourceShards ||
+        // note: Population and ecology share the exact-path preload boundary; clips/controllers precede the prefab's first native load.
+        yield return PreloadAssetPathsRoutine(new[] { assetPath });
+    }
+
+    private IEnumerator PreloadAssetPathsCore(IEnumerable<string> assetPaths, int epoch)
+    {
+        if (_residencyEpoch != epoch || !useLazyResourceShards ||
             assetPaths == null)
         {
             yield break;
@@ -837,52 +1008,91 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
 
-        HashSet<string> requiredShards =
-            new HashSet<string>(
-                StringComparer.OrdinalIgnoreCase);
-
+        var requiredPaths = new List<string>();
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (string assetPath in assetPaths)
         {
-            string resourcePath = ResolveResourcePath(assetPath);
-
-            if (!string.IsNullOrWhiteSpace(resourcePath))
-            {
-                requiredShards.Add(
-                    resourcePath);
-            }
+            string key = NormalizePath(assetPath);
+            if (!string.IsNullOrWhiteSpace(key) && seenPaths.Add(key)) requiredPaths.Add(key);
         }
 
-        foreach (string resourcePath in requiredShards)
+        foreach (string assetPath in requiredPaths)
         {
-            _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
-            if (_loadedShards.ContainsKey(resourcePath) ||
-                _missingShardPaths.Contains(resourcePath))
+            if (_residencyEpoch != epoch) yield break;
+            if (TryGetPrefabDependencies(assetPath, out PrefabDependencySet dependencies))
             {
-                continue;
+                foreach (string dependency in dependencies.resources)
+                {
+                    yield return PreloadResourceRoutine(dependency, true, epoch);
+                    if (_residencyEpoch != epoch) yield break;
+                }
+            }
+            else if (assetPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase) && !_loggedMissingDependencyMetadata)
+            {
+                // note: Older source checkpoints remain loadable, but cannot silently claim the cold activation repair without rebuilt dependency bindings.
+                _loggedMissingDependencyMetadata = true;
+                Debug.LogWarning("[YQRuntimeWorldAssetRegistry] Selected prefab dependency metadata is missing/stale. " +
+                    "Run YourQuest > Assets > Build Prefab Dependency Preloads in the complete Unity checkout. " +
+                    "Legacy asynchronous prefab loading remains available; cold activation is not qualified. First path: " + assetPath);
             }
 
-            // note: Active palette packs warm asynchronously before spawning so their first prefab cannot introduce a synchronous Resources hitch.
-            ResourceRequest request =
-                Resources.LoadAsync<YQRuntimeWorldAssetRegistry>(
-                    resourcePath);
+            string resourcePath = ResolveResourcePath(assetPath);
+            if (!string.IsNullOrWhiteSpace(resourcePath))
+                yield return PreloadResourceRoutine(resourcePath, false, epoch);
+        }
+    }
 
-            yield return request;
+    private IEnumerator PreloadResourceRoutine(string resourcePath, bool dependency, int epoch)
+    {
+        if (_residencyEpoch != epoch) yield break;
+        _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
+        if (dependency)
+        {
+            if ((_loadedDependencies.TryGetValue(resourcePath, out var loadedDependency) && loadedDependency != null && loadedDependency.asset != null) ||
+                _missingDependencies.Contains(resourcePath)) yield break;
+        }
+        else if ((_loadedShards.TryGetValue(resourcePath, out var loadedShard) && loadedShard != null) ||
+                 _missingShardPaths.Contains(resourcePath)) yield break;
 
-            YQRuntimeWorldAssetRegistry shard =
-                request.asset as YQRuntimeWorldAssetRegistry;
+        if (!_pendingPreloads.TryGetValue(resourcePath, out ResourceRequest request))
+        {
+            request = dependency ? Resources.LoadAsync<YQRuntimePrefabDependency>(resourcePath)
+                                 : Resources.LoadAsync<YQRuntimeWorldAssetRegistry>(resourcePath);
+            _pendingPreloads[resourcePath] = request;
+            ResourceRequest pending = request;
+            // note: A canceled consumer cannot cancel native Resources loading. Its completion still retires the request and enters the ordinary reclaimable cache.
+            request.completed += _ => CompleteResourcePreload(resourcePath, pending, dependency, epoch);
+        }
+        // note: Both Unity coroutines and manual materialization drivers advance this iterator. A raw ResourceRequest yield is not a wait in every driver.
+        while (_residencyEpoch == epoch && !request.isDone) yield return null;
+        if (_residencyEpoch != epoch) yield break;
+        // note: Custom coroutine drivers may resume as soon as isDone; install the result even if Unity has not dispatched its completion event yet.
+        if (_pendingPreloads.TryGetValue(resourcePath, out var current) && ReferenceEquals(current, request))
+            CompleteResourcePreload(resourcePath, request, dependency, epoch);
+    }
 
-            if (shard == null)
+    private void CompleteResourcePreload(string resourcePath, ResourceRequest request, bool dependency, int epoch)
+    {
+        if (_residencyEpoch != epoch || !_pendingPreloads.TryGetValue(resourcePath, out var current) || !ReferenceEquals(current, request)) return;
+        _pendingPreloads.Remove(resourcePath);
+        _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
+        if (dependency)
+        {
+            var descriptor = request.asset as YQRuntimePrefabDependency;
+            if (descriptor == null || descriptor.asset == null)
             {
-                _missingShardPaths.Add(
-                    resourcePath);
-
-                continue;
+                _missingDependencies.Add(resourcePath);
+                Debug.LogError("[YQRuntimeWorldAssetRegistry] Prefab dependency binding failed to load: " + resourcePath);
             }
-
-            // note: The asynchronously loaded shard has already run OnEnable; only build here if its nonserialized lookup was genuinely unavailable.
+            else _loadedDependencies[resourcePath] = descriptor;
+            return;
+        }
+        var shard = request.asset as YQRuntimeWorldAssetRegistry;
+        if (shard == null) _missingShardPaths.Add(resourcePath);
+        else
+        {
             shard.EnsureLookup();
-            _loadedShards[resourcePath] =
-                shard;
+            _loadedShards[resourcePath] = shard;
         }
     }
 
@@ -895,12 +1105,27 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         _loadedShards = null;
         _missingShardPaths = null;
         _shardLastUse.Clear();
+        ResetDependencyResidency();
         /*
          * Do not trust dictionaries to survive reload/play-mode
          * transitions. They are intentionally rebuilt from the
          * serialized list.
          */
         BuildLookup();
+    }
+
+    private void ResetDependencyResidency()
+    {
+        // note: Private dictionaries and lease identities are per session, including Enter Play Mode with domain reload disabled.
+        _residencyEpoch++;
+        _activePreloads = 0;
+        _dependencyLookupAttempted = false;
+        _prefabDependencies = null;
+        _loggedMissingDependencyMetadata = false;
+        _loadedDependencies.Clear();
+        _pendingPreloads.Clear();
+        _missingDependencies.Clear();
+        _resourcePins.Clear();
     }
 
     private void EnsureLookup()
@@ -1437,6 +1662,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         {
             _instance._loadedShards?.Clear();
             _instance._missingShardPaths?.Clear();
+            _instance._shardLastUse.Clear();
+            _instance.ResetDependencyResidency();
         }
         PrefabScriptValidity.Clear();
         _instance = null;
@@ -1450,7 +1677,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         if (_instance == null || _instance._activePreloads != 0 || _instance._loadedShards == null) return 0;
         var retired = new List<string>();
         foreach (var pair in _instance._loadedShards)
-            if (_instance._shardLastUse.TryGetValue(pair.Key, out float used) &&
+            if (!_instance._resourcePins.ContainsKey(pair.Key) && !_instance._pendingPreloads.ContainsKey(pair.Key) &&
+                _instance._shardLastUse.TryGetValue(pair.Key, out float used) &&
                 YQLlmResidencyPolicy.CanRetireGameCache(now, used, keepWarmSeconds)) retired.Add(pair.Key);
         foreach (string key in retired)
         {
@@ -1461,7 +1689,17 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             _instance._loadedShards.Remove(key);
             _instance._shardLastUse.Remove(key);
         }
-        return retired.Count;
+        var retiredDependencies = new List<string>();
+        foreach (var pair in _instance._loadedDependencies)
+            if (!_instance._resourcePins.ContainsKey(pair.Key) && !_instance._pendingPreloads.ContainsKey(pair.Key) &&
+                _instance._shardLastUse.TryGetValue(pair.Key, out float used) &&
+                YQLlmResidencyPolicy.CanRetireGameCache(now, used, keepWarmSeconds)) retiredDependencies.Add(pair.Key);
+        foreach (string key in retiredDependencies)
+        {
+            _instance._loadedDependencies.Remove(key);
+            _instance._shardLastUse.Remove(key);
+        }
+        return retired.Count + retiredDependencies.Count;
     }
 
 #if UNITY_EDITOR

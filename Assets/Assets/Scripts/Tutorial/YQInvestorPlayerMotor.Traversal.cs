@@ -37,6 +37,9 @@ public sealed partial class YQInvestorPlayerMotor
     private AudioSource _slideAudio;
     private bool _contactAssetsLoaded;
     private float _nextSlideContactAt;
+    private bool _frameMovementHeld, _frameControllerMoveAdmitted, _frameIntegrationCaptured;
+    private Vector3 _framePlanarBeforeIntegration;
+    private float _frameVerticalBeforeIntegration, _frameDashBeforeIntegration;
     public Vector3 ResolvedVelocity { get; private set; }
     public bool IsPowerSliding => _isPowerSliding;
     public bool IsRagdoll => _ragdoll != null && _ragdoll.IsSimulating;
@@ -104,6 +107,7 @@ public sealed partial class YQInvestorPlayerMotor
         // note: Position changes outside this motor are explicit repositioning, not physical velocity samples.
         if ((transform.position - _motionSamplePosition).sqrMagnitude > .0001f) ResetMotionSample();
         _frameStart = transform.position;
+        _frameMovementHeld = _frameControllerMoveAdmitted = _frameIntegrationCaptured = false;
         _frameImpactSpeed = 0f;
         _frameLanded = false;
         _supportVelocity = Vector3.zero;
@@ -112,11 +116,33 @@ public sealed partial class YQInvestorPlayerMotor
         if (_fallTracked) _fallApex = Mathf.Max(_fallApex, transform.position.y);
     }
 
+    private void CaptureMotionIntegrationState()
+    {
+        // note: Capture after accepted jump/dash impulses, before gravity, acceleration, or remaining dash time is integrated.
+        if (_frameIntegrationCaptured) return;
+        _frameIntegrationCaptured = true;
+        _framePlanarBeforeIntegration = _planarVelocity;
+        _frameVerticalBeforeIntegration = _verticalVelocity;
+        _frameDashBeforeIntegration = _dashTimeRemaining;
+    }
+
     private void EndMotionFrame(float dt)
     {
         if (dt <= .00001f) return;
         ResolvedVelocity = (transform.position - _frameStart) / dt;
         _motionSamplePosition = transform.position;
+        if (_frameMovementHeld && !_frameControllerMoveAdmitted)
+        {
+            // note: An entirely denied step simulates no time. Preserve real momentum/fall history and omit this pause from physical acceleration samples.
+            // note: If an earlier Move did collide and a later step-assist Move is denied, normal impact accounting below still observes that real collision.
+            if (_frameIntegrationCaptured)
+            {
+                _planarVelocity = _framePlanarBeforeIntegration;
+                _verticalVelocity = _frameVerticalBeforeIntegration;
+                _dashTimeRemaining = _frameDashBeforeIntegration;
+            }
+            return;
+        }
         if (_isSwimming || _isClimbing) _fallTracked = false;
         else if (_fallTracked && _frameLanded)
         {
@@ -316,6 +342,7 @@ public sealed partial class YQInvestorPlayerMotor
         if (count == _standingClearanceHits.Length) return false;
         for (int i = 0; i < count; i++) if (_standingClearanceHits[i] != null && !_standingClearanceHits[i].transform.IsChildOf(transform) && _standingClearanceHits[i] != _controller) return false;
         Vector3 step = Vector3.ClampMagnitude(target - transform.position, climbSpeed * dt);
+        CaptureMotionIntegrationState();
         MoveWithTraversalGate(step);
         _isClimbing = !_frameLanded;
         _verticalVelocity = 0f;

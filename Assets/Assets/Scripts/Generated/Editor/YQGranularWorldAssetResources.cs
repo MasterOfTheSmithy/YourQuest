@@ -148,6 +148,7 @@ public static class YQGranularWorldAssetResources
         EditorUtility.SetDirty(root);
         AssetDatabase.SaveAssetIfDirty(root);
         YQRuntimeWorldAssetRegistry.ClearCachedInstance();
+        YQRuntimePrefabDependencyBuilder.ReportBindingRebuildRequirement();
         File.WriteAllText(ReportFolder + "/GranularBuildReceipt.json", JsonConvert.SerializeObject(new {
             utc = DateTime.UtcNow.ToString("O"), sourceShards = sources, entryCount = leaves.Count, filesWritten = written,
             legacySourcesPreserved = true, serializedBindingsPreserved = true, rootGuid = AssetDatabase.AssetPathToGUID(RootPath),

@@ -223,8 +223,9 @@ public sealed class YQPlayerRagdoll : MonoBehaviour
 
     private bool PreparePhysicalAdmission()
     {
-        var streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
-        if (streamer == null || !streamer.isActiveAndEnabled) return admissionStreamer == null;
+        // note: Controller movement, physical simulation, and recovery share the motor's persistent streamed-world dependency.
+        if (motor == null || !motor.TryResolveStreamedMovementAdmission(out var streamer)) return false;
+        if (streamer == null) return admissionStreamer == null;
         if (admissionStreamer != null && admissionStreamer != streamer) admissionStreamer.ReleasePlayerPhysicsAdmission(this);
         admissionStreamer = streamer;
         float reach = maximumPhysicsStep;
@@ -297,6 +298,8 @@ public sealed class YQPlayerRagdoll : MonoBehaviour
     {
         recoveryAdmissionRejected = false;
         result = requested;
+        if (motor == null || !motor.TryResolveStreamedMovementAdmission(out var admission))
+        { recoveryAdmissionRejected = true; return false; }
         int supports = Physics.RaycastNonAlloc(requested + Vector3.up * 2f, Vector3.down, supportHits, 5f, ~0, QueryTriggerInteraction.Ignore);
         if (supports == supportHits.Length) return false;
         RaycastHit support = default; float nearest = float.PositiveInfinity;
@@ -308,16 +311,16 @@ public sealed class YQPlayerRagdoll : MonoBehaviour
         float radius = capsule.radius;
         float height = Mathf.Max(capsule.height, radius * 2f);
         Vector3 center = result + capsule.center;
-        var admission = YQPlayerFollowingSemanticChunkStreamer.Active;
-        if (admission != null && admission.isActiveAndEnabled && !admission.TryValidatePlayerPhysicsBounds(
+        if (admission != null && !admission.TryValidatePlayerPhysicsBounds(
             new Bounds(center, new Vector3(radius * 2f, height, radius * 2f)), out _))
         { recoveryAdmissionRejected = true; return false; }
         int count = Physics.OverlapCapsuleNonAlloc(center + Vector3.up * (height * .5f - radius),
             center - Vector3.up * (height * .5f - radius), radius - .02f, clearance, ~0, QueryTriggerInteraction.Ignore);
         if (count == clearance.Length) return false;
         for (int i = 0; i < count; i++) if (clearance[i] != null && !YQPhysicalChunkAdmissionBoundary.IsOwned(clearance[i]) && !IsOwnedTransform(clearance[i].transform) && clearance[i] != capsule) return false;
-        var streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
-        return streamer == null || !streamer.isActiveAndEnabled || streamer.TryValidateCurrentTraversability(result, radius, capsule.skinWidth, out _);
+        bool ready = admission == null || admission.TryValidateCurrentTraversability(result, radius, capsule.skinWidth, out _);
+        if (!ready) recoveryAdmissionRejected = true;
+        return ready;
     }
 
     public void StopPhysics()

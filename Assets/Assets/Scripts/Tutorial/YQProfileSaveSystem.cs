@@ -747,7 +747,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
         => TryPrepareContinuationPublicationCore(construction, baseWorld, out publication, out failure);
 
     private bool TryPrepareContinuationPublicationCore(YQGeneratedWorldRuntimeBuilder.FrontierConstructionAcceptance construction,
-        WorldStateManager.PreparedContinuationBaseWorld baseWorld, out PreparedContinuationPublication publication, out string failure)
+        WorldStateManager.PreparedContinuationBaseWorld baseWorld, out PreparedContinuationPublication publication, out string failure,
+        Func<string> validateRuntimeContext = null)
     {
         publication = null;
         failure = string.Empty;
@@ -774,6 +775,12 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             if (!YQServiceLifecycle.IsCurrent(epoch)) { failure = "Profile request epoch changed during continuation preparation."; return false; }
             var data = new ContinuationPublicationData(this, construction, psm, wsm, playerJson, playerSourceJson,
                 JsonConvert.SerializeObject(accepted, ContinuationJsonSettings), worldSnapshot, providers, loaded, auxiliary);
+            // note: The immediate publisher retains the streamer's post-capture guard. Run it before the final exact proof, so even an invalidating callback cannot escape document/provider/epoch validation.
+            if (validateRuntimeContext != null)
+            {
+                failure = validateRuntimeContext();
+                if (!string.IsNullOrEmpty(failure)) return false;
+            }
             if (!TryValidateContinuationPublication(data, false, out failure)) return false;
             publication = PreparedContinuationPublication.Create();
             _preparedContinuationPublication = publication;
@@ -788,8 +795,23 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
         finally { _profileTransactionInProgress = false; }
     }
 
+    internal bool TryPrepareAndPublishContinuation(YQGeneratedWorldRuntimeBuilder.FrontierConstructionAcceptance construction,
+        WorldStateManager.PreparedContinuationBaseWorld baseWorld, Func<string> validateRuntimeContext,
+        out YQProfileTransactionReceipt receipt, out string failure)
+    {
+        // note: This one stack frame has no yield or external callback between exact preparation and consumption. Reuse only that immediately completed proof; separately retained tokens still revalidate.
+        receipt = null;
+        if (validateRuntimeContext == null) { failure = "Immediate continuation publication requires its runtime context guard."; return false; }
+        if (!TryPrepareContinuationPublicationCore(construction, baseWorld, out var publication, out failure, validateRuntimeContext)) return false;
+        return TryPublishContinuationCore(publication, true, out receipt, out failure, validateRuntimeContext);
+    }
+
     public bool TryPublishContinuation(PreparedContinuationPublication publication,
         out YQProfileTransactionReceipt receipt, out string failure)
+        => TryPublishContinuationCore(publication, false, out receipt, out failure);
+
+    private bool TryPublishContinuationCore(PreparedContinuationPublication publication, bool preparedInCurrentCall,
+        out YQProfileTransactionReceipt receipt, out string failure, Func<string> validateRuntimeContext = null)
     {
         receipt = null;
         failure = string.Empty;
@@ -805,9 +827,9 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             if (!ReferenceEquals(PlayerStateManager.Instance, data.playerManager) ||
                 !ReferenceEquals(WorldStateManager.Instance, data.worldManager) || !YQServiceLifecycle.IsCurrent(data.epoch))
             { failure = "Continuation profile owners or request epoch changed after preparation."; return false; }
-            // note: This barrier only joins the existing immutable projection-writer task; it invokes no profile save and never recaptures a changed player.
-            if (!data.playerManager.TryFlushPendingAutosave(out failure) ||
-                !TryValidateContinuationPublication(data, true, out failure)) return false;
+            // note: A retained public token must join its writer and revalidate after possible gameplay. The private immediate path already did both before returning from preparation, with no intervening callbacks or Unity work.
+            if (!preparedInCurrentCall && (!data.playerManager.TryFlushPendingAutosave(out failure) ||
+                !TryValidateContinuationPublication(data, true, out failure))) return false;
             data.worldManager.ReserveContinuationPublication(data.worldSnapshot);
             string folder = GetProfileFolder(data.profileId);
             // note: Separate immutable staging from repeated final validation and atomic pointer publication.
@@ -819,7 +841,7 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             receipt.published = false;
             receipt.previousCommitId = data.commitId;
             ProfileManifest next = data.manifest.PrepareCommit(receipt);
-            if (!TryValidateContinuationPublication(data, true, out failure)) { receipt.failure = failure; return false; }
+            if (!TryValidateContinuationPublication(data, true, out failure, validateRuntimeContext)) { receipt.failure = failure; return false; }
             using (FrontierTiming.Begin(FrontierTiming.Operation.ManifestPointer))
             if (!SaveManifest(next)) { failure = "Continuation commit pointer publication failed: " + LastFailure; receipt.failure = failure; return false; }
             // note: No validation, providers, callbacks or document replacement occur after the durable pointer; apply only the prepared delta in place.
@@ -942,7 +964,8 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
         return true;
     }
 
-    private bool TryValidateContinuationPublication(ContinuationPublicationData data, bool recaptureAuxiliary, out string failure)
+    private bool TryValidateContinuationPublication(ContinuationPublicationData data, bool recaptureAuxiliary, out string failure,
+        Func<string> validateRuntimeContext = null)
     {
         failure = "Continuation publication context changed after preparation.";
         if (!ReferenceEquals(data.owner, this) || !TryRequireContinuationOwner(out var psm, out var wsm, out _, out failure) ||
@@ -964,6 +987,12 @@ public sealed class YQProfileSaveSystem : MonoBehaviour
             if (!TryCaptureContinuationAuxiliary(out _, out _, out var currentDocuments, out failure) ||
                 !SameAuxiliaryDocuments(currentDocuments, data.auxiliaryDocuments))
             { if (string.IsNullOrEmpty(failure)) failure = "Auxiliary document changed after preparation."; return false; }
+            // note: A same-JSON provider may invalidate runtime-only ownership. The immediate publisher checks its runtime guard here, then proves exact canonical/provider state again to catch side effects of either callback.
+            if (validateRuntimeContext != null)
+            {
+                failure = validateRuntimeContext();
+                if (!string.IsNullOrEmpty(failure)) return false;
+            }
             // note: Providers are external callbacks and may mutate either canonical document or registry; recheck without invoking them again.
             return TryValidateContinuationPublication(data, false, out failure);
         }

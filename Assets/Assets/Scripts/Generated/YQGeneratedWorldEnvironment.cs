@@ -11731,6 +11731,8 @@ public static class YQGeneratedWorldEnvironment
         preparationRoot.transform.localScale = root.transform.lossyScale;
         preparationRoot.SetActive(false);
         AsyncInstantiateOperation<GameObject> pendingInstantiation = null;
+        var selectedResidency = new List<YQRuntimeWorldAssetRegistry.AssetResidencyLease>();
+        var preparedPrefabPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try
         {
 
@@ -12007,9 +12009,17 @@ public static class YQGeneratedWorldEnvironment
                     continue;
                 }
 
-                GameObject prefab =
-                    registry.ResolvePrefab(
-                        reference.assetPath);
+                if (!synchronousInstantiation && preparedPrefabPaths.Add(reference.assetPath))
+                {
+                    // note: Select with the unchanged placement seed first, then retain and asynchronously prepare only that candidate through this layer's publication.
+                    selectedResidency.Add(registry.AcquireAssetResidency(new[] { reference.assetPath }));
+                    yield return registry.PreloadPrefabDependenciesRoutine(reference.assetPath);
+                    if (parent == null || terrain == null || root == null) yield break;
+                    frameStartedAt = Time.realtimeSinceStartup;
+                }
+                GameObject prefab = synchronousInstantiation
+                    ? registry.ResolvePrefab(reference.assetPath)
+                    : registry.ResolvePreloadedPrefab(reference.assetPath);
 
                 if (prefab == null)
                     continue;
@@ -12236,6 +12246,8 @@ public static class YQGeneratedWorldEnvironment
                 pendingInstantiation.Cancel();
             if (preparationRoot != null)
                 UnityEngine.Object.Destroy(preparationRoot);
+            foreach (YQRuntimeWorldAssetRegistry.AssetResidencyLease lease in selectedResidency)
+                lease.Dispose();
         }
     }
 
@@ -12489,7 +12501,8 @@ public static class YQGeneratedWorldEnvironment
                 palette))
         {
             AddApprovedFallbackUnderstoryReferences(
-                candidates);
+                candidates,
+                palette);
         }
 
         /*
@@ -12739,16 +12752,20 @@ public static class YQGeneratedWorldEnvironment
     }
 
     private static void AddApprovedFallbackUnderstoryReferences(
-        List<GeneratedAssetReferenceRecord> result)
+        List<GeneratedAssetReferenceRecord> result,
+        GeneratedRegionAssetPaletteRecord palette)
     {
         if (result == null)
             return;
 
+        YQRuntimeWorldAssetRegistry registry = YQRuntimeWorldAssetRegistry.Instance;
         for (int index = 0;
              index < ApprovedFallbackUnderstoryPrefabs.Length;
              index++)
         {
-            // note: Bush fallback is used only when a curated palette has no valid low vegetation; it fills an authored gap without replacing an existing biome family.
+            // note: The legacy names are proposals, not approval evidence. Require the canonical spatial contract and exact player binding before admission.
+            string path = ApprovedFallbackUnderstoryPrefabs[index];
+            if (!YQWorldAssetCatalog.IsSpatiallyApprovedForRuntime(path) || registry == null || !registry.ContainsPrefabPath(path)) continue;
             AddUniqueSmallReference(
                 result,
                 new GeneratedAssetReferenceRecord
@@ -12779,6 +12796,19 @@ public static class YQGeneratedWorldEnvironment
                         "natural"
                     }
                 });
+        }
+
+        if (result.Count >= 4) return;
+        // note: Approved alternatives append after accepted palette references in stable identity order; no saved reference, seed or accepted ordering is rewritten.
+        foreach (GeneratedAssetReferenceRecord reference in YQWorldAssetCatalog.BuildApprovedDiscoveredSlotCandidates(
+                     palette, YQWorldAssetCatalog.SlotVegetation))
+        {
+            if (registry == null || !registry.ContainsPrefabPath(reference.assetPath) || LooksLikeTree(null, reference) ||
+                IsLargeTerrainFeatureReference(reference)) continue;
+            string identity = BuildReferenceIdentitySemanticText(reference);
+            if (!ContainsAnySemantic(identity, "bush", "shrub", "fern", "grass", "weed", "flower", "mushroom", "plant", "understory", "undergrowth") ||
+                ContainsAnySemantic(identity, "pot", "planter", "bowl", "plate", "column", "curtain", "vase", "hanging", "cactus")) continue;
+            AddUniqueSmallReference(result, reference);
         }
     }
 

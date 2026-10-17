@@ -21,8 +21,7 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer
     {
         failure = "physics admission context unavailable";
         var motor = actor != null ? actor.GetComponent<YQInvestorPlayerMotor>() : null;
-        if (!isActiveAndEnabled || Active != this || !_configured || _player == null || actor == null ||
-            actor.transform != _player || motor == null || !motor.IsAuthoritative ||
+        if (!IsPlayerMovementAdmissionAvailable(motor) || _player == null || actor == null || !motor.IsAuthoritative ||
             shapes == null || shapes.Length == 0 || !FiniteAdmission(motionReach) || motionReach < 0f) return false;
         if (_physicsAdmissionActor != null && _physicsAdmissionActor != actor)
         { failure = "physics admission already belongs to another actor"; return false; }
@@ -109,6 +108,8 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer
 
     internal bool TryValidatePlayerPhysicsBounds(Bounds bounds, out string failure)
     {
+        if (!IsMovementAdmissionAvailable || _groundSafetyPhysicsSyncPending)
+        { failure = "required streamed-world physics admission or native synchronization is unavailable"; return false; }
         failure = "physical player bounds exceed bounded admission range";
         if (!TryAdmissionRange(bounds, out int minX, out int maxX, out int minZ, out int maxZ)) return false;
         for (int z = minZ; z <= maxZ; z++) for (int x = minX; x <= maxX; x++)

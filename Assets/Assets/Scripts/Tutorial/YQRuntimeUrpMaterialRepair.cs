@@ -244,13 +244,31 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
     public static int RepairHierarchy(GameObject root)
     {
+        return RepairHierarchy(root, true);
+    }
+
+    public static int RepairHierarchy(GameObject root, bool stabilizeLods)
+    {
         if (root == null)
             return 0;
 
         int repaired = RepairMaterialHierarchy(root);
+        repaired += RepairTextHierarchy(root);
+        // note: Actors normalize their scale after material preparation; their owner performs one LOD repair at the final scale.
+        if (stabilizeLods)
+            repaired += StabilizeLodHierarchy(root);
+        return repaired;
+    }
+
+    public static int RepairTextHierarchy(GameObject root)
+    {
+        if (root == null)
+            return 0;
+
+        // note: Cooperative actor preparation has already repaired renderer materials and must not scan them again for text-only work.
+        int repaired = 0;
         repaired += RepairTextMeshes(root.GetComponentsInChildren<TextMesh>(true));
         repaired += RepairTmpText(root.GetComponentsInChildren<TMP_Text>(true));
-        repaired += StabilizeLodHierarchy(root);
         return repaired;
     }
 

@@ -98,7 +98,7 @@ public static class YQRuntimeCreatureAssetIndex
 
         IReadOnlyList<YQRuntimeWorldAssetEntry> entries =
             GetCreatureEntries(
-                registry);
+                registry, true);
 
         if (entries == null)
         {
@@ -112,7 +112,7 @@ public static class YQRuntimeCreatureAssetIndex
 
         List<YQRuntimeWorldAssetEntry> candidates =
             CollectCategory(
-                registry,
+                entries,
                 requested);
 
         /*
@@ -125,7 +125,7 @@ public static class YQRuntimeCreatureAssetIndex
         {
             candidates =
                 CollectCategory(
-                    registry,
+                    entries,
                     HumanGeneric);
 
             resolvedCategory =
@@ -141,7 +141,7 @@ public static class YQRuntimeCreatureAssetIndex
 
             candidates =
                 CollectCategory(
-                    registry,
+                    entries,
                     opposite);
 
             resolvedCategory =
@@ -572,12 +572,14 @@ public static class YQRuntimeCreatureAssetIndex
          YQRuntimeWorldAssetRegistry registry,
          string category)
     {
+        return CollectCategory(GetCreatureEntries(registry, IsHumanCategory(category)), category);
+    }
+
+    private static List<YQRuntimeWorldAssetEntry> CollectCategory(
+        IReadOnlyList<YQRuntimeWorldAssetEntry> entries, string category)
+    {
         List<YQRuntimeWorldAssetEntry> result =
             new List<YQRuntimeWorldAssetEntry>();
-
-        IReadOnlyList<YQRuntimeWorldAssetEntry> entries =
-            GetCreatureEntries(
-                registry);
 
         if (entries == null)
         {
@@ -661,7 +663,7 @@ public static class YQRuntimeCreatureAssetIndex
 
     private static IReadOnlyList<YQRuntimeWorldAssetEntry>
         GetCreatureEntries(
-            YQRuntimeWorldAssetRegistry registry)
+            YQRuntimeWorldAssetRegistry registry, bool humansOnly = false)
     {
         if (registry == null)
             return null;
@@ -685,13 +687,26 @@ public static class YQRuntimeCreatureAssetIndex
             if (shard == null) continue;
             for (int entryIndex = 0; entryIndex < shard.Count; entryIndex++)
             {
-                // note: Granular catalog entries contain paths only; creature selection explicitly resolves the same curated bindings.
-                YQRuntimeWorldAssetEntry entry = shard[entryIndex] != null ? registry.ResolveEntry(shard[entryIndex].assetPath) : null;
+                var metadata = shard[entryIndex];
+                if (metadata == null) continue;
+                // note: These path classifications precede every human rule even if the loaded prefab adds more name tokens. Exclude only proven non-human paths before loading.
+                if (humansOnly && ExcludesHumanCategory(ClassifyMetadataPath(metadata.assetPath)))
+                    continue;
+                // note: Ambiguous paths still load and pass the unchanged authored geometry/Animator checks; candidate order and stable seed selection are preserved.
+                YQRuntimeWorldAssetEntry entry = registry.ResolveEntry(metadata.assetPath);
                 if (entry == null || entry.prefab == null || !seen.Add(entry.assetPath ?? string.Empty)) continue;
                 combined.Add(entry);
             }
         }
         return combined;
+    }
+
+    private static bool ExcludesHumanCategory(string category)
+    {
+        // note: GenericMonster is intentionally excluded from this predicate: a prefab name can still supply a higher-priority human identity.
+        return category == Mimic || category == MushroomMonster || category == Dragon || category == Demon ||
+            category == WormMonster || category == RockMonster || category == PlantMonster || category == Undead ||
+            category == Spider || category == Beast;
     }
 
     private static List<string> GetAvailableMonsterFamilies(
@@ -739,6 +754,19 @@ public static class YQRuntimeCreatureAssetIndex
         {
             return string.Empty;
         }
+
+        return ClassifySemanticEntry(entry);
+    }
+
+    private static string ClassifyMetadataPath(string path)
+    {
+        // note: Metadata inspection must not use ClassifyEntry's required-prefab admission check or load a prefab merely to discover its category.
+        return string.IsNullOrWhiteSpace(path) ? string.Empty :
+            ClassifySemanticEntry(new YQRuntimeWorldAssetEntry { assetPath = path });
+    }
+
+    private static string ClassifySemanticEntry(YQRuntimeWorldAssetEntry entry)
+    {
 
         string semantic =
             BuildEntrySemantic(

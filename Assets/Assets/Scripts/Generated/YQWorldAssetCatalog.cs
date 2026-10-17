@@ -8,6 +8,8 @@ public static class YQWorldAssetCatalog
     private static bool _runtimeIntakeCatalogLoaded;
     private static IReadOnlyList<YQSpatialAssetRecord> _indexedSpatialAssets;
     private static Dictionary<string, YQSpatialAssetRecord> _spatialAssetsByPath;
+    private static IReadOnlyList<GeneratedAssetReferenceRecord> _indexedDiscoveredEntries;
+    private static Dictionary<string, List<GeneratedAssetReferenceRecord>> _discoveredEntriesBySlot;
     private static readonly HashSet<string> RuntimeQuarantinedPrefabPaths =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -32,6 +34,8 @@ public static class YQWorldAssetCatalog
         _runtimeIntakeCatalogLoaded = false;
         _indexedSpatialAssets = null;
         _spatialAssetsByPath = null;
+        _indexedDiscoveredEntries = null;
+        _discoveredEntriesBySlot = null;
     }
     public const string SlotTerrain = "terrain_material";
     public const string SlotFloor = "floor";
@@ -1358,6 +1362,43 @@ public static class YQWorldAssetCatalog
                 "discovered_asset_catalog_entries_merged=" +
                 added);
         }
+    }
+
+    internal static List<GeneratedAssetReferenceRecord> BuildApprovedDiscoveredSlotCandidates(
+        GeneratedRegionAssetPaletteRecord palette, string slot)
+    {
+        // note: Runtime supplements reuse the same approval, owning-pack and style boundary as initial palette construction, without mutating accepted palettes.
+        var candidates = new List<GeneratedAssetReferenceRecord>();
+        IReadOnlyList<GeneratedAssetReferenceRecord> discovered = YQDiscoveredWorldAssetCatalog.Instance?.Entries;
+        if (palette == null || discovered == null) return candidates;
+        if (!ReferenceEquals(_indexedDiscoveredEntries, discovered))
+        {
+            // note: A chunk supplement scans its declared slot only; cache metadata membership, then read current approval from each record when selecting.
+            _indexedDiscoveredEntries = discovered;
+            _discoveredEntriesBySlot = new Dictionary<string, List<GeneratedAssetReferenceRecord>>(StringComparer.OrdinalIgnoreCase);
+            foreach (GeneratedAssetReferenceRecord reference in discovered)
+            {
+                if (reference == null || string.IsNullOrWhiteSpace(reference.slotTag)) continue;
+                if (!_discoveredEntriesBySlot.TryGetValue(reference.slotTag, out var list))
+                    _discoveredEntriesBySlot.Add(reference.slotTag, list = new List<GeneratedAssetReferenceRecord>());
+                list.Add(reference);
+            }
+        }
+        if (!_discoveredEntriesBySlot.TryGetValue(slot, out var slotEntries)) return candidates;
+        foreach (GeneratedAssetReferenceRecord reference in slotEntries)
+        {
+            if (reference == null || !reference.runtimeEligible ||
+                !string.Equals(reference.assetType, "prefab", StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(ResolveRuntimeDiscoveredSlot(reference), slot, StringComparison.OrdinalIgnoreCase) ||
+                !IsAllowedWorldReferenceForSlot(reference, slot) ||
+                !IsSafeDiscoveredAssetForPalette(palette, reference) || !DiscoveredAssetMatchesPalette(palette, reference)) continue;
+            GeneratedAssetReferenceRecord clone = CloneDiscoveredReference(reference);
+            ApplyDiscoveredSlotContract(clone, slot);
+            ApplySlotContract(clone, slot);
+            candidates.Add(clone);
+        }
+        candidates.Sort(CompareStableReferences);
+        return candidates;
     }
 
     private static void PruneUnreviewedCrossPackAssets(GeneratedRegionAssetPaletteRecord palette, string style)
