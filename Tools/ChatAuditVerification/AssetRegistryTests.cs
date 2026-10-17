@@ -11,9 +11,10 @@ using UnityEngine;
 // This executable compiles the complete production registry source with the explicit Unity API stubs in AssetRegistryStubs.cs.
 internal static class AssetRegistryTests
 {
-    private const string A = "Assets/Fixture/Pack/A.prefab", B = "Assets/Fixture/Pack/B.prefab";
-    private const string LeafA = "YQWorldAssetLeaves/a", LeafB = "YQWorldAssetLeaves/b";
+    private const string A = "Assets/Fixture/Pack/A.prefab", B = "Assets/Fixture/Pack/B.prefab", C = "Assets/Fixture/Other/C.prefab";
+    private const string LeafA = "YQWorldAssetLeaves/a", LeafB = "YQWorldAssetLeaves/b", LeafC = "YQWorldAssetLeaves/c";
     private const string Clip = "YQWorldAssetDependencies/clip", Controller = "YQWorldAssetDependencies/controller";
+    private const string UnrelatedClip = "YQWorldAssetDependencies/unrelated_clip";
     private static int cases;
 
     private static void Main(string[] args)
@@ -21,6 +22,7 @@ internal static class AssetRegistryTests
         CheckPublishedMembership(args[0]);
         CheckPublishedFallbackAdmission(args[0], args[1]);
         CheckRequestOrderAndLeaseLifetime();
+        CheckColdRetirementDuringPreload();
         CheckCancellationAndCompletionDispatch();
         CheckSessionEpoch();
         CheckResetDuringPreload();
@@ -38,15 +40,17 @@ internal static class AssetRegistryTests
         Resources.Assets["YQRuntimeWorldAssetRegistry"] = registry;
         Resources.Assets["YQWorldAssetManifest"] = new TextAsset(JsonConvert.SerializeObject(new
         {
-            version = 1, assets = new[] { new { path = A, resource = LeafA, entrySha256 = "a" }, new { path = B, resource = LeafB, entrySha256 = "b" } }
+            version = 1, assets = new[] { new { path = A, resource = LeafA, entrySha256 = "a" },
+                new { path = B, resource = LeafB, entrySha256 = "b" }, new { path = C, resource = LeafC, entrySha256 = "c" } }
         }));
         if (metadata) Resources.Assets["YQWorldPrefabDependencies"] = new TextAsset(JsonConvert.SerializeObject(new
         {
             version = 1, prefabs = new[] {
                 new { path = A, entrySha256 = stale ? "outdated" : "a", resources = new[] { Clip, Controller } },
-                new { path = B, entrySha256 = "b", resources = new[] { Clip } } }
+                new { path = B, entrySha256 = "b", resources = new[] { Clip } },
+                new { path = C, entrySha256 = "c", resources = new[] { UnrelatedClip } } }
         }));
-        foreach (var pair in new[] { (A, LeafA), (B, LeafB) })
+        foreach (var pair in new[] { (A, LeafA), (B, LeafB), (C, LeafC) })
         {
             var leaf = ScriptableObject.CreateInstance<YQRuntimeWorldAssetRegistry>();
             leaf.SetEntries(new List<YQRuntimeWorldAssetEntry> { new YQRuntimeWorldAssetEntry { assetPath = pair.Item1, prefab = new GameObject() } });
@@ -54,6 +58,7 @@ internal static class AssetRegistryTests
         }
         Resources.Assets[Clip] = new YQRuntimePrefabDependency { asset = new UnityEngine.Object(), sourceIdentity = "clip" };
         Resources.Assets[Controller] = new YQRuntimePrefabDependency { asset = new UnityEngine.Object(), sourceIdentity = "controller" };
+        Resources.Assets[UnrelatedClip] = new YQRuntimePrefabDependency { asset = new UnityEngine.Object(), sourceIdentity = "unrelated_clip" };
         return YQRuntimeWorldAssetRegistry.Instance;
     }
 
@@ -131,6 +136,69 @@ internal static class AssetRegistryTests
         Require(bound == 3, "published fallback binding fixture remains three present and five absent");
         Require(Resources.Requests.Count == 0, "fallback admission never loads candidate prefab objects");
         Console.WriteLine("PASS actual fallback/approval method bodies: eight unapproved proposals rejected; five remain rejected after approval when binding absent; accepted reference retained.");
+        cases++;
+    }
+
+    private static void CheckColdRetirementDuringPreload()
+    {
+        foreach (bool cancel in new[] { false, true })
+        {
+            var registry = Fixture();
+            using (var unrelated = new Driver(registry.PreloadPrefabDependenciesRoutine(C))) CompleteAll(unrelated);
+            Require(registry.HasPreparedPrefabDependencies(C), "unrelated cache is available before the new preload");
+            Time.realtimeSinceStartup = 10;
+            var paths = new SinglePassPaths("  " + A.Replace('/', '\\') + "  ", A.ToUpperInvariant(), null, B);
+            // note: Ordinary callers do not supply a demand lease; the preload itself must protect the complete requested set across its yields.
+            using var consumer = new Driver(registry.PreloadAssetPathsRoutine(paths));
+            consumer.Step();
+            for (int step = 0; step < 10 && !Resources.Requests.Any(request => request.path == LeafB); step++)
+            {
+                foreach (ResourceRequest request in Resources.Requests.Where(request => !request.isDone).ToArray()) Resources.Complete(request);
+                consumer.Step();
+            }
+            ResourceRequest pending = Resources.Requests.Single(request => request.path == LeafB);
+            Require(!pending.isDone && !consumer.Done && registry.HasPreparedPrefabDependencies(A), "A is ready while B remains pending");
+            Require(paths.Enumerations == 1 && Resources.Requests.Skip(2).Select(request => request.path)
+                .SequenceEqual(new[] { Clip, Controller, LeafA, LeafB }), "single-pass input keeps first-seen path and dependency order without duplicate loads");
+            Time.realtimeSinceStartup = 20;
+            Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(20) == 0, "unrelated recently used assets retain their ordinary warm window");
+            Time.realtimeSinceStartup = 100;
+            Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(100) == 2,
+                "an unrelated cold prefab and dependency retire while another preload is pending");
+            Require(!registry.HasPreparedPrefabDependencies(C) && registry.HasPreparedPrefabDependencies(A) &&
+                Field<IDictionary>(registry, "_pendingPreloads").Contains(LeafB), "retirement preserves the completed and pending requested resources");
+            if (cancel)
+            {
+                consumer.Dispose();
+                Require(Field<IDictionary>(registry, "_resourcePins").Count == 0 && Field<int>(registry, "_activePreloads") == 0,
+                    "cancellation releases all implicit residency without leaking a preload scope");
+                Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(100) == 3 &&
+                    Field<IDictionary>(registry, "_pendingPreloads").Contains(LeafB), "cancellation retires completed resources but retains the native request");
+                Resources.Complete(pending);
+                Require(Field<IDictionary>(registry, "_pendingPreloads").Count == 0, "the canceled request still retires on native completion");
+                Time.realtimeSinceStartup = 200;
+                Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(200) == 1, "the canceled request's completed leaf becomes reclaimable");
+            }
+            else
+            {
+                using var demand = registry.AcquireAssetResidency(new[] { B });
+                CompleteAll(consumer);
+                Require(registry.HasPreparedPrefabDependencies(B), "the selected pending prefab completes normally");
+                Time.realtimeSinceStartup = 200;
+                Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(200) == 2 && registry.HasPreparedPrefabDependencies(B),
+                    "preload completion releases A while the external demand lease retains B and its shared clip");
+                demand.Dispose();
+                Require(YQRuntimeWorldAssetRegistry.ReleaseColdReloadableShards(200) == 2 &&
+                    Field<IDictionary>(registry, "_resourcePins").Count == 0, "the final demand release leaves no implicit pins behind");
+            }
+        }
+        var disabled = Fixture();
+        disabled.SetLazyResourceShards(false);
+        var unusedPaths = new SinglePassPaths(A);
+        using (var noOp = new Driver(disabled.PreloadAssetPathsRoutine(unusedPaths))) CompleteAll(noOp);
+        Require(unusedPaths.Enumerations == 0 && Resources.Requests.Count == 0 && Field<IDictionary>(disabled, "_resourcePins").Count == 0,
+            "disabled lazy loading remains a no-op without evaluating the caller's enumerable");
+        Console.WriteLine("PASS unrelated cold caches retire during preload; single-pass ordering, implicit residency, external demand and cancellation remain correct.");
         cases++;
     }
 
@@ -233,6 +301,19 @@ internal static class AssetRegistryTests
 
     private static T Field<T>(object value, string name) => (T)value.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(value);
     private static void Require(bool condition, string description) { if (!condition) throw new Exception(description); }
+
+    private sealed class SinglePassPaths : IEnumerable<string>
+    {
+        private readonly string[] paths;
+        public int Enumerations { get; private set; }
+        public SinglePassPaths(params string[] paths) { this.paths = paths; }
+        public IEnumerator<string> GetEnumerator()
+        {
+            if (++Enumerations != 1) throw new InvalidOperationException("Preload enumerated its caller's input more than once.");
+            return ((IEnumerable<string>)paths).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     private sealed class Driver : IDisposable
     {

@@ -1,0 +1,987 @@
+{
+  "recorded_utc": "2026-10-17T18:17:52.152859+00:00",
+  "repository": "MasterOfTheSmithy/YourQuest",
+  "baseline_commit": "33cb3654e237f2dd43e6e8992b792f8a077c2dbf",
+  "baseline_tree": "4e0e9dff7de391f1e1ddbebcce968a196438ec1e",
+  "local_execution_baseline": {
+    "commit": "b9047a219084147033aea5cf2e6b152f5613ad85",
+    "tree": "4e0e9dff7de391f1e1ddbebcce968a196438ec1e",
+    "note": "Local bookkeeping commit only; the published GitHub baseline has the identical tree. Remote publication parents the actual baseline commit."
+  },
+  "repair_branch": "repair/chat-audit-2026-10-17",
+  "evidence_level": "SOURCE_AND_FOCUSED_MANAGED_REGRESSIONS_NOT_UNITY_COMPILE_OR_NATIVE_ACCEPTANCE",
+  "toolchain": {
+    "sdk": "8.0.426",
+    "runtime_and_reference_pack": "8.0.32",
+    "csharp_language": "9.0"
+  },
+  "summary": {
+    "changed_project_csharp_files": 2,
+    "syntax_errors": 0,
+    "publication_checks_passed": 37,
+    "population_checks_passed": 28,
+    "movement_checks_passed": 62,
+    "asset_groups_passed": 8,
+    "manifest_paths_checked": 8174,
+    "failures": 0,
+    "git_diff_check": "PASS",
+    "asset_and_scene_files_changed": false
+  },
+  "preserved_schema_versions": {
+    "state": 8,
+    "profile_manifest": 2
+  },
+  "source_unchanged_during_final_run": true,
+  "changed_project_sources": [
+    "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+    "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs"
+  ],
+  "captured_source_sha256": {
+    "Assets/Assets/Scripts/Generated/Editor/YQGranularWorldAssetResources.cs": "4fb87aab0164591492471a2bac33c04c62b48995eb82ecff55cabff021a94318",
+    "Assets/Assets/Scripts/Generated/Editor/YQMovementAdmissionRegressionTests.cs": "76b72bb9afedb087068d3de1a8d5b945b2b4d13d7befb3107befe2912f13d56e",
+    "Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs": "6b2e80857aca067fbd6138e98378731fd0dd49aa7231407d9b9a7639c5c9b86f",
+    "Assets/Assets/Scripts/Generated/YQGeneratedWorldEnvironment.cs": "a69084438eddbb22064e06869dade9d39bf9130c9112ea8df0983be86dce00cc",
+    "Assets/Assets/Scripts/Generated/YQGeneratedWorldPopulation.cs": "03812bc61b8cc26257134f9fe34b840d12dd1f4e872d18c215fccd5fc702886d",
+    "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.PhysicsAdmission.cs": "360c49a6160e271eee33c2993fe66461763479de600fd76239f060ec5e4659c9",
+    "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs": "98544e648cdb00f04001706cb77afed3418f7fc245c79b7668a98187e1522560",
+    "Assets/Assets/Scripts/Generated/YQRuntimeCreatureAssetIndex.cs": "12322ff05cdbd1ab1ecef42479e64af5387f4b069e732a0727620ee0cdb7cec1",
+    "Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs": "a4c9b4a2e3019da197db5feeb846a87ed16625621a76c061ba88c46bd63c1021",
+    "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs": "2324232d0303ef1cb70e284b4c768dd647626983b8e53c80ad02f482c59adffc",
+    "Assets/Assets/Scripts/Generated/YQRuntimeWorldSiteCatalog.cs": "e7189a05f178342f6a6e8cd39f4969f0f0ad6b429a5314e6d96536c293b6212c",
+    "Assets/Assets/Scripts/Generated/YQWorldAssetCatalog.cs": "782dcf969244ea6e2fc4c24ccfc0bfe48b509ea330c9cbf0add06eb27891cb0e",
+    "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.Traversal.cs": "c20ac9308f8ce35f87aebe82263ac41bf85e4e5cce755e32e27705b96bea1126",
+    "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs": "f2f4c66b29d9237e52e127d2d4c38676ffd87417c241db1a33bf37e529ece2b2",
+    "Assets/Assets/Scripts/Tutorial/YQPlayerRagdoll.cs": "2db56903d1c3b1b1a70cfa313f4683da1c7a869e1d073ce44ab8017722c8502f",
+    "Assets/Assets/Scripts/Tutorial/YQProfileSaveSystem.cs": "18af35d99048ffec2118a0cb5e2fc13e3dbd51365980aad4a7f88141a38b5e3e",
+    "Assets/Assets/Scripts/Tutorial/YQRuntimeUrpMaterialRepair.cs": "a04c377857c29f164834bc395dd7e8365ef0285e87265fb9f7a2a0ee0680f5cb",
+    "Tools/ChatAuditVerification/AssetRegistryStubs.cs": "6a9455bb4491770159d85bedb7afe99ff3bc98ebc50738654dbd04be421d1650",
+    "Tools/ChatAuditVerification/AssetRegistryTests.cs": "0d6a5de06822f70c8496f0e6dcce45e84fa66a1e8fff1c62c2772640badacfe7",
+    "Tools/ChatAuditVerification/MovementFixtures.cs": "9b054cf9f2fa22a2f103775798bb0bf7c9433e44ec53e055dc83aa86c3cae3e8",
+    "Tools/ChatAuditVerification/PopulationFixtures.cs": "5e89bdd8145535ce2ddc9aef6a687995feb281870645de49915d236a0caf54e8",
+    "Tools/ChatAuditVerification/PublicationFixtures.cs": "21bde9a31d224bb489dd407328edbb1caff9c48fff289d83e2aa79989babf2d4",
+    "Tools/ChatAuditVerification/Verify.cs": "289eaa66dd509813eaf2810c57b07b3b18da6795c9cbbd4eef5af3e866c0bcc8",
+    "Tools/ChatAuditVerification/VerifyMovement.cs": "68bd7b251df50f930d72cd2fd6f27736fc26e3b733c35605031a675330c1b36c",
+    "Tools/ChatAuditVerification/VerifyPopulation.cs": "42cea3610b9bc038d5d9357a17ca5ac919d9d7a2c64c95bb2d6467b2bc64f962",
+    "Tools/ChatAuditVerification/run.py": "968c6081b14c4f48ee506fa6436144df8e6624b7f9ea126643c8659c57191da8",
+    "Tools/ChatAuditVerification/run_assets.py": "436e069d48f3d8f13e0fa3ec3ca9f78fdccab97d79d33d6f5cfd2ea67ed26328"
+  },
+  "captured_source_scope": "Includes production and fixture sources from the initial repair integrity set plus the current harness. Only the two changed complete project files were syntax-parsed in this run; extracted production methods and full registry compilation are identified in results.",
+  "commands": {
+    "managed": [
+      "python",
+      "Tools/ChatAuditVerification/run.py",
+      "--sdk-root",
+      "/tmp/yourquest-dotnet",
+      "--baseline",
+      "b9047a219084147033aea5cf2e6b152f5613ad85",
+      "--output",
+      "/tmp/yourquest-beta-next-final"
+    ],
+    "assets": [
+      "python",
+      "Tools/ChatAuditVerification/run_assets.py",
+      "--dotnet-root",
+      "/tmp/yourquest-dotnet"
+    ]
+  },
+  "exit_codes": {
+    "managed": 0,
+    "assets": 0,
+    "git_diff_check": 0
+  },
+  "before_repair": {
+    "terrain": {
+      "baseline_source_sha256": "916e79a28b57c159c9b705bd4ffc279855829f236666ab6cd4e640fa4cbebf29",
+      "fixture_sha256": {
+        "Tools/ChatAuditVerification/MovementFixtures.cs": "9b054cf9f2fa22a2f103775798bb0bf7c9433e44ec53e055dc83aa86c3cae3e8",
+        "Tools/ChatAuditVerification/VerifyMovement.cs": "68bd7b251df50f930d72cd2fd6f27736fc26e3b733c35605031a675330c1b36c"
+      },
+      "compilation": {
+        "evidence": "MANAGED_METHODS_WITH_CONTROLLED_UNITY_FIXTURES_NOT_UNITY_COMPILATION",
+        "streamerSource": "/tmp/yourquest-movement-verification/streamer-before-sync-arbitration.cs",
+        "success": true,
+        "errors": []
+      },
+      "checks": 62,
+      "expected_failed_assertions": 18,
+      "failed_assertion_names": [
+        "shared sync includes eligible canonical collider despite continuous provisional dirtiness",
+        "canonical readiness waits a full frame after its own successful sync",
+        "continuous provisional work cannot starve canonical publication",
+        "same-frame registration preserves the pre-sync flush boundary",
+        "oldest equally eligible ticket owns the first shared sync regardless of coroutine resume order",
+        "both pending canonical tickets progress with provisional work every frame",
+        "second ticket publishes after its own subsequent cook frame",
+        "next available frame advances canonical and provisional ground with charged native cost",
+        "shared sync resets prior-frame spending before eligibility selection even before Update",
+        "pending provisional ground retains urgent eligibility while advancing its canonical companion",
+        "older nonurgent ticket cannot hide newer budget-eligible urgent work",
+        "older deferred ticket progresses when ordinary allowance returns",
+        "urgent canonical-only work retains its existing reserved allowance",
+        "cancellation after synchronization retires collider before publication",
+        "wrong owned heightfield fails before sync and follows existing ticket cleanup",
+        "failed native sync retains dirty ground and no canonical proof",
+        "native failure consumes its existing coroutine rejection and cleanup path",
+        "explicit canonical collision verification hold remains effective after shared sync"
+      ],
+      "qualification": "Some expected failures observe new receipt fields; 18 failures are not 18 independent defects. The twelve-frame disabled/unpublished collider witness directly reproduces starvation.",
+      "frame_witness": {
+        "evidence": "VERBATIM_PUBLICATION_ITERATOR_AND_SHARED_SYNC_WITH_CONTROLLED_FRAME_NATIVE_BOUNDARIES_NOT_UNITY_RUNTIME",
+        "registeredAt": 15,
+        "frames": [
+          {
+            "frame": 16,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 17,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 18,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 19,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 20,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 21,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 22,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 23,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 24,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 25,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 26,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          },
+          {
+            "frame": 27,
+            "registeredFrame": -2147483648,
+            "synchronizedFrame": -2147483648,
+            "published": false,
+            "publishedFrame": -1,
+            "colliderEnabled": false,
+            "nativeCalls": 1,
+            "laterGroundPending": true
+          }
+        ]
+      }
+    },
+    "assets": {
+      "baseline_source_sha256": "3db08a9c514c96fba8fb8aead0b28cfceee48622e477d2e7235ea0e57bb3ca34",
+      "fixture_sha256": "0d6a5de06822f70c8496f0e6dcce45e84fa66a1e8fff1c62c2772640badacfe7",
+      "runner_exit_code": 1,
+      "compilation_succeeded": true,
+      "failed_assertion": "an unrelated cold prefab and dependency retire while another preload is pending",
+      "isolated_replay": true,
+      "working_registry_unchanged": true
+    }
+  },
+  "results": {
+    "syntax": {
+      "evidence": "ROSLYN_CSHARP9_SYNTAX_ONLY_NOT_UNITY_COMPILATION",
+      "sourceFiles": 2,
+      "errors": 0,
+      "syntax": [
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+          "editor": true,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs",
+          "editor": false,
+          "errors": []
+        },
+        {
+          "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs",
+          "editor": true,
+          "errors": []
+        }
+      ]
+    },
+    "publication-compile": {
+      "evidence": "CURRENT_PUBLICATION_METHODS_AND_REAL_COMMIT_STORE_WITH_CONTROLLED_UNITY_OWNER_FIXTURES",
+      "success": true,
+      "errors": []
+    },
+    "publication-tests": {
+      "evidence": "VERBATIM_PRODUCTION_PUBLICATION_METHODS_AND_REAL_STORE_IO_WITH_CONTROLLED_UNITY_OWNER_FIXTURES_NOT_PLAYSAFE",
+      "passed": 37,
+      "failures": 0,
+      "results": [
+        {
+          "name": "immediate publication succeeds with real paired revision files",
+          "passed": true
+        },
+        {
+          "name": "immediate publication uses four disk proofs and two auxiliary captures",
+          "passed": true
+        },
+        {
+          "name": "immediate path joins existing player writer once",
+          "passed": true
+        },
+        {
+          "name": "retained preparation succeeds",
+          "passed": true
+        },
+        {
+          "name": "retained token publication succeeds",
+          "passed": true
+        },
+        {
+          "name": "retained tokens keep six disk proofs and three auxiliary captures",
+          "passed": true
+        },
+        {
+          "name": "consumed token cannot publish twice",
+          "passed": true
+        },
+        {
+          "name": "retained token rejects player changes",
+          "passed": true
+        },
+        {
+          "name": "immediate path requires runtime guard",
+          "passed": true
+        },
+        {
+          "name": "runtime guard veto prevents publication",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: player",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: world",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "final preparation proof rejects runtime-guard mutation: construction",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: player",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: world",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "post-stage proof rejects mutation: prior-file",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: player",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: world",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "post-provider proof rejects mutation: document",
+          "passed": true
+        },
+        {
+          "name": "same-JSON final auxiliary callback cannot invalidate runtime ownership and still publish",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: player",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: world",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: epoch",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: provider",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: manifest",
+          "passed": true
+        },
+        {
+          "name": "exact proof after final runtime guard rejects its mutation: construction",
+          "passed": true
+        },
+        {
+          "name": "pointer failure leaves live world and prior revision unchanged",
+          "passed": true
+        },
+        {
+          "name": "post-pointer apply failure retains durable truth and requires reload",
+          "passed": true
+        }
+      ]
+    },
+    "population-compile": {
+      "evidence": "CURRENT_MANAGED_METHODS_WITH_CONTROLLED_UNITY_AND_DTO_FIXTURES_NOT_UNITY_COMPILATION",
+      "success": true,
+      "errors": []
+    },
+    "population-fixtures": {
+      "evidence": "VERBATIM_MANAGED_CONTEXT_LOD_AND_PREPARATION_METHODS_WITH_CONTROLLED_UNITY_BOUNDARIES_NOT_RUNTIME_OR_PERFORMANCE_PASS",
+      "limitations": "JsonUtility uses a test JSON codec; DTOs, native cloning, bounds and material work use small controlled fixtures. Real imported assets, Unity lifecycle, all LOD animation and cold frame durations require Unity validation.",
+      "checks": 28,
+      "failures": 0,
+      "results": [
+        {
+          "name": "unchanged scoped context remains current",
+          "passed": true
+        },
+        {
+          "name": "in-place actor field invalidates unchanged hash claim",
+          "passed": true
+        },
+        {
+          "name": "in-place actor list invalidates",
+          "passed": true
+        },
+        {
+          "name": "canonical ordering is part of staging context",
+          "passed": true
+        },
+        {
+          "name": "equal cloned actor cannot replace canonical reference",
+          "passed": true
+        },
+        {
+          "name": "nested location body invalidates without hash change",
+          "passed": true
+        },
+        {
+          "name": "non-actor location proof mutation invalidates",
+          "passed": true
+        },
+        {
+          "name": "equal replacement settlement identity invalidates",
+          "passed": true
+        },
+        {
+          "name": "death outside serialized location invalidates",
+          "passed": true
+        },
+        {
+          "name": "canonical seed mutation invalidates",
+          "passed": true
+        },
+        {
+          "name": "profile request epoch invalidates",
+          "passed": true
+        },
+        {
+          "name": "restored exact context passes",
+          "passed": true
+        },
+        {
+          "name": "deferred hierarchy repair performs one material pass without premature LOD mutation",
+          "passed": true
+        },
+        {
+          "name": "deepest LOD group retains authored shared renderer across levels",
+          "passed": true
+        },
+        {
+          "name": "ancestor relinquishes shared renderer and drops empty level",
+          "passed": true
+        },
+        {
+          "name": "authored transition thresholds survive one final stabilization",
+          "passed": true
+        },
+        {
+          "name": "bounds rebuild occurs once per final group",
+          "passed": true
+        },
+        {
+          "name": "native clone has its own yielded step",
+          "passed": true
+        },
+        {
+          "name": "visual intent has a separate yielded step",
+          "passed": true
+        },
+        {
+          "name": "overrides skip automatic residual repair",
+          "passed": true
+        },
+        {
+          "name": "existing cooperative material repair is delegated",
+          "passed": true
+        },
+        {
+          "name": "text finishes before publication callback",
+          "passed": true
+        },
+        {
+          "name": "complete preparation invokes callback only after all phases",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Dragons/Dragon.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Demons/Devil.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Spiders/Spider.prefab",
+          "passed": true
+        },
+        {
+          "name": "excluded path remains non-human even with human prefab-name tokens: Assets/Characters/Rock Monster/RockMonster.prefab",
+          "passed": true
+        },
+        {
+          "name": "ambiguous generic-monster metadata remains eligible for full human inspection",
+          "passed": true
+        }
+      ]
+    },
+    "movement-compile": {
+      "evidence": "MANAGED_METHODS_WITH_CONTROLLED_UNITY_FIXTURES_NOT_UNITY_COMPILATION",
+      "streamerSource": "/tmp/yourquest-audit-remote/Assets/Assets/Scripts/Generated/YQPlayerFollowingSemanticChunkStreamer.cs",
+      "success": true,
+      "errors": []
+    },
+    "movement-fixtures": {
+      "evidence": "VERBATIM_MANAGED_MOVEMENT_AND_BUDGET_METHODS_WITH_CONTROLLED_UNITY_BOUNDARIES_NOT_RUNTIME_TRAVEL",
+      "checks": 62,
+      "failures": 0,
+      "results": [
+        {
+          "name": "fresh authored scene has no streamed dependency",
+          "passed": true
+        },
+        {
+          "name": "bound current owner admits dependency",
+          "passed": true
+        },
+        {
+          "name": "missing manager closes admission",
+          "passed": true
+        },
+        {
+          "name": "replacement manager cannot reuse a document proof",
+          "passed": true
+        },
+        {
+          "name": "in-place world plan replacement closes admission",
+          "passed": true
+        },
+        {
+          "name": "new generated world waits for its bind",
+          "passed": true
+        },
+        {
+          "name": "new authored world releases generated dependency",
+          "passed": true
+        },
+        {
+          "name": "disabled bound streamer closes admission",
+          "passed": true
+        },
+        {
+          "name": "reenable without bind remains closed",
+          "passed": true
+        },
+        {
+          "name": "closed dependency never calls native controller",
+          "passed": true
+        },
+        {
+          "name": "30 fully denied steps accumulate no acceleration gravity or dash time",
+          "passed": true
+        },
+        {
+          "name": "holds preserve actual fall height and impact history",
+          "passed": true
+        },
+        {
+          "name": "readiness stop does not cause physical ragdoll",
+          "passed": true
+        },
+        {
+          "name": "resolved displacement still truthfully reports zero during holds",
+          "passed": true
+        },
+        {
+          "name": "accepted launch survives a held time integration",
+          "passed": true
+        },
+        {
+          "name": "denied secondary assist preserves earlier actual landing",
+          "passed": true
+        },
+        {
+          "name": "real collision still updates momentum and acceleration accounting",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies lifecycleActivation",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies lifecycleObjectActivation",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies hardViewTerrainAppearance",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies turnBufferGroundProgress",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies terrainHeightUpload",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies terrainColliderSync",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies contentDispatch",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies requiredContent",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies requiredHardViewEcology",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies emergencyGroundPublication",
+          "passed": true
+        },
+        {
+          "name": "exhausted aggregate denies provisionalGroundReactivation",
+          "passed": true
+        },
+        {
+          "name": "native synchronization remains pending after exhausted allowance",
+          "passed": true
+        },
+        {
+          "name": "next frame completes the required native synchronization",
+          "passed": true
+        },
+        {
+          "name": "unchanged ground reuses completed synchronization",
+          "passed": true
+        },
+        {
+          "name": "later same-frame ground dirtiness cannot reuse an earlier sync",
+          "passed": true
+        },
+        {
+          "name": "later dirtiness completes on its own shared sync frame",
+          "passed": true
+        },
+        {
+          "name": "destroyed required owner does not become authored-scene permission",
+          "passed": true
+        },
+        {
+          "name": "shared sync includes eligible canonical collider despite continuous provisional dirtiness",
+          "passed": true
+        },
+        {
+          "name": "canonical readiness waits a full frame after its own successful sync",
+          "passed": true
+        },
+        {
+          "name": "continuous provisional work cannot starve canonical publication",
+          "passed": true
+        },
+        {
+          "name": "continuous shared synchronization completes existing ground but retains later same-frame dirtiness",
+          "passed": true
+        },
+        {
+          "name": "same-frame registration preserves the pre-sync flush boundary",
+          "passed": true
+        },
+        {
+          "name": "oldest equally eligible ticket owns the first shared sync regardless of coroutine resume order",
+          "passed": true
+        },
+        {
+          "name": "both pending canonical tickets progress with provisional work every frame",
+          "passed": true
+        },
+        {
+          "name": "second ticket publishes after its own subsequent cook frame",
+          "passed": true
+        },
+        {
+          "name": "spent aggregate budget enables no canonical collider and syncs no ground",
+          "passed": true
+        },
+        {
+          "name": "next available frame advances canonical and provisional ground with charged native cost",
+          "passed": true
+        },
+        {
+          "name": "shared sync resets prior-frame spending before eligibility selection even before Update",
+          "passed": true
+        },
+        {
+          "name": "spent canonical-only allowance does not withhold already-ready ground",
+          "passed": true
+        },
+        {
+          "name": "nonurgent canonical-only ticket preserves ecology allowance without blocking ready ground",
+          "passed": true
+        },
+        {
+          "name": "pending provisional ground retains urgent eligibility while advancing its canonical companion",
+          "passed": true
+        },
+        {
+          "name": "older nonurgent ticket cannot hide newer budget-eligible urgent work",
+          "passed": true
+        },
+        {
+          "name": "older deferred ticket progresses when ordinary allowance returns",
+          "passed": true
+        },
+        {
+          "name": "urgent canonical-only work retains its existing reserved allowance",
+          "passed": true
+        },
+        {
+          "name": "cancelled canonical ticket cannot enable or acquire a later sync receipt",
+          "passed": true
+        },
+        {
+          "name": "replaced canonical owner cannot consume a native sync or publish",
+          "passed": true
+        },
+        {
+          "name": "cancellation after synchronization retires collider before publication",
+          "passed": true
+        },
+        {
+          "name": "wrong owned heightfield fails before sync and follows existing ticket cleanup",
+          "passed": true
+        },
+        {
+          "name": "failed native sync retains dirty ground and no canonical proof",
+          "passed": true
+        },
+        {
+          "name": "native failure consumes its existing coroutine rejection and cleanup path",
+          "passed": true
+        },
+        {
+          "name": "failed native call cannot claim a second shared sync in the same frame",
+          "passed": true
+        },
+        {
+          "name": "remaining provisional ground recovers on the next successful sync",
+          "passed": true
+        },
+        {
+          "name": "explicit canonical collision verification hold remains effective after shared sync",
+          "passed": true
+        },
+        {
+          "name": "releasing collision verification hold permits exact ticket publication",
+          "passed": true
+        },
+        {
+          "name": "shared terrain lane performs at most one native sync per frame across all cases",
+          "passed": true
+        }
+      ]
+    },
+    "terrain-sync-progress": {
+      "evidence": "VERBATIM_PUBLICATION_ITERATOR_AND_SHARED_SYNC_WITH_CONTROLLED_FRAME_NATIVE_BOUNDARIES_NOT_UNITY_RUNTIME",
+      "registeredAt": 15,
+      "frames": [
+        {
+          "frame": 16,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": false,
+          "publishedFrame": -1,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 17,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 18,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 19,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 20,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 21,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 22,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 23,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 24,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 25,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 26,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        },
+        {
+          "frame": 27,
+          "registeredFrame": 15,
+          "synchronizedFrame": 16,
+          "published": true,
+          "publishedFrame": 17,
+          "colliderEnabled": true,
+          "nativeCalls": 1,
+          "laterGroundPending": true
+        }
+      ]
+    }
+  },
+  "asset_results": {
+    "evidence": "COMPLETE_PRODUCTION_REGISTRY_WITH_CONTROLLED_UNITY_RESOURCES_APIS_NOT_NATIVE_MEMORY_MEASUREMENT",
+    "groups_passed": 8,
+    "output": "warning CS1701: Assuming assembly reference 'System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' used by 'Newtonsoft.Json' matches identity 'System.Runtime, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' of 'System.Runtime', you may need to supply runtime policy\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(74,29): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.resources' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(72,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.path' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(67,20): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencyManifest.version' is never assigned to, and will always have its default value 0\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(62,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.resource' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(63,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.entrySha256' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(56,20): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularManifest.version' is never assigned to, and will always have its default value 0\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(73,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencySet.entrySha256' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(57,36): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularManifest.assets' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(68,42): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.PrefabDependencyManifest.prefabs' is never assigned to, and will always have its default value null\nAssets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistry.cs(61,23): warning CS0649: Field 'YQRuntimeWorldAssetRegistry.GranularAsset.path' is never assigned to, and will always have its default value null\nPASS all 8174 published binding paths; no prefab loads during membership queries.\nPASS actual fallback/approval method bodies: eight unapproved proposals rejected; five remain rejected after approval when binding absent; accepted reference retained.\nPASS unrelated cold caches retire during preload; single-pass ordering, implicit residency, external demand and cancellation remain correct.\nPASS registry contract cases=8; actual registry source, simulated Unity API; no Unity compile/native timing claim.\n"
+  },
+  "review": {
+    "production_implementers": [
+      "repair_movement_streaming",
+      "repair_assets"
+    ],
+    "independent_reviewer": "repair_population",
+    "root_final_diff_and_integrated_verification": true,
+    "resolved_finding": "Select budget-eligible tickets before applying oldest-first ordering so older nonurgent work cannot hide urgent work while ordinary allowance is reserved."
+  },
+  "limitations": [
+    "Unity Editor and omitted imported asset libraries unavailable; no Unity compile or native run.",
+    "Native collider cooking, Resources.UnloadUnusedAssets memory results, cold activation, and 200 m/s travel with the approximately 90 ms stall target remain unqualified.",
+    "The one-sync-per-frame assertion applies to the shared canonical/provisional terrain lane; the separate existing physics-admission box path is outside this patch.",
+    "Final native/resource cleanup methods are controlled fixture boundaries; the real publication wrapper is executed and its cleanup handoff is verified.",
+    "Initial repair dependency-preload builder and validator still require the complete local Unity asset project."
+  ]
+}

@@ -360,6 +360,10 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
         public float startedAt;
         public string phase;
         public Coroutine coroutine;
+        // note: A shared native sync may run before this iterator resumes; retain exact ticket-specific frame evidence for both physics boundaries.
+        public int registeredFrame;
+        public int synchronizedFrame = int.MinValue;
+        public string synchronizationFailure;
         // note: Terrain appearance may finish during collider cooking but is not exposed until collision publication commits.
         public bool appearancePrepared;
         public bool published;
@@ -2624,25 +2628,82 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
     private bool TryCompleteGroundSafetySynchronization(out string failure)
     {
         failure = string.Empty;
-        if (!_groundSafetyPhysicsSyncPending) return true;
+        BeginAggregateBudgetFrame();
+        PendingTerrainPublication publication = SelectPendingTerrainSynchronization();
+        if (!_groundSafetyPhysicsSyncPending && publication == null) return true;
         if (_lastTerrainPhysicsSyncFrame == Time.frameCount)
         {
             // note: Ground dirtied after this frame's shared sync still needs a later sync; the earlier native call cannot certify a new activation.
+            if (!_groundSafetyPhysicsSyncPending) return true;
             failure = "ground synchronization deferred until the next shared physics-sync frame";
             return false;
         }
-        if (!CanAdvanceAggregateWork("terrainColliderSync", useUrgentTerrainColliderSyncBudget: true))
+        bool urgentSynchronization = _groundSafetyPhysicsSyncPending ||
+            (publication != null && TerrainPreparationPriority(publication.coordinate, ResolveTraversalVelocity()) <= 3);
+        if (!CanAdvanceAggregateWork("terrainColliderSync", useUrgentTerrainColliderSyncBudget: urgentSynchronization))
         {
+            // note: An unrelated canonical ticket cannot withhold movement on already synchronized ground.
+            if (!_groundSafetyPhysicsSyncPending) return true;
             failure = "ground synchronization deferred by the shared streaming budget";
             return false;
         }
-        // note: A deferred publication cannot grant physical admission until its native synchronization completes within the shared scheduler.
+        // note: Give one eligible canonical ticket the same native call as provisional ground; otherwise Update can consume every frame before its collider coroutine resumes.
         float startedAt = Time.realtimeSinceStartup;
-        _lastTerrainPhysicsSyncFrame = Time.frameCount;
-        Physics.SyncTransforms();
-        _groundSafetyPhysicsSyncPending = false;
-        RecordAggregateWorkSlice(startedAt, "groundSafetySync");
+        TerrainCollider publicationCollider = null;
+        try
+        {
+            if (publication != null)
+            {
+                // note: No yield or external callback separates this exact ownership check, collider enable, and the sync that certifies it.
+                if (!IsPendingTerrainPublicationCurrent(publication)) return !_groundSafetyPhysicsSyncPending;
+                publicationCollider = publication.terrain != null ? publication.terrain.GetComponent<TerrainCollider>() : null;
+                if (publicationCollider == null || publicationCollider.terrainData != publication.data)
+                    throw new InvalidOperationException("Pending terrain collider lost its owned heightfield before synchronization");
+                publicationCollider.enabled = true;
+            }
+            _lastTerrainPhysicsSyncFrame = Time.frameCount;
+            Physics.SyncTransforms();
+            _groundSafetyPhysicsSyncPending = false;
+            if (publication != null) publication.synchronizedFrame = Time.frameCount;
+        }
+        catch (Exception exception) when (publication != null)
+        {
+            // note: The existing ticket coroutine owns rejection, resource cleanup, and retry; keep a failed collider inactive until it consumes this failure.
+            publication.synchronizationFailure = "terrain collider synchronization failed: " + exception.Message;
+            if (publicationCollider != null) publicationCollider.enabled = false;
+            if (!_groundSafetyPhysicsSyncPending) return true;
+            failure = publication.synchronizationFailure;
+            return false;
+        }
+        finally
+        {
+            RecordAggregateWorkSlice(startedAt, publication != null ? "terrainColliderSync" : "groundSafetySync");
+        }
         return true;
+    }
+
+    private PendingTerrainPublication SelectPendingTerrainSynchronization()
+    {
+        PendingTerrainPublication selected = null;
+        bool ordinaryAllowance = _aggregateFrameWorkSeconds < AggregateWorkBudgetLimit("terrainColliderSync");
+        bool urgentAllowance = _aggregateFrameWorkSeconds < AggregateMainThreadBudgetSeconds &&
+            _reservedTerrainColliderSyncFrame != Time.frameCount;
+        // note: The existing two-ticket capacity bounds this scan. Oldest registration wins so a steady provisional stream or newer canonical work cannot starve either ticket.
+        foreach (PendingTerrainPublication candidate in _pendingTerrainPublications.Values)
+        {
+            if (candidate == null || candidate.published || candidate.resourcesDestroyed ||
+                candidate.registeredFrame >= Time.frameCount || candidate.synchronizedFrame != int.MinValue ||
+                !string.IsNullOrEmpty(candidate.synchronizationFailure) || !IsPendingTerrainPublicationCurrent(candidate))
+                continue;
+            // note: An older nonurgent ticket cannot hide an eligible urgent collider while ecology owns the remaining ordinary allowance. Selection never consumes a reserve.
+            if (!ordinaryAllowance && !_groundSafetyPhysicsSyncPending &&
+                (!urgentAllowance || TerrainPreparationPriority(candidate.coordinate, ResolveTraversalVelocity()) > 3))
+                continue;
+            if (selected == null || candidate.registeredFrame < selected.registeredFrame ||
+                (candidate.registeredFrame == selected.registeredFrame && candidate.token.workId < selected.token.workId))
+                selected = candidate;
+        }
+        return selected;
     }
 
     public bool TryValidateRequiredCoverage(out string failure)
@@ -6333,10 +6394,7 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
         // note: Background model/publication work yields completely while the occupied content contract is incomplete.
         if (stage == "frontierConstruction" && MustFinishOccupiedContentFirst()) return false;
         // note: Protect one existing ecology slice when hard-view required habitat can advance, without adding a separate budget or weakening the total cap.
-        float aggregateBudgetLimit = _requiredHardViewEcologyBudgetFrame == Time.frameCount &&
-            !string.Equals(stage, "requiredHardViewEcology", StringComparison.Ordinal)
-            ? Mathf.Max(0f, AggregateMainThreadBudgetSeconds - RequiredHardViewEcologyBudgetReserveSeconds)
-            : AggregateMainThreadBudgetSeconds;
+        float aggregateBudgetLimit = AggregateWorkBudgetLimit(stage);
         if (_aggregateFrameWorkSeconds >= aggregateBudgetLimit)
         {
             // note: Honor the separate, time-bounded lifecycle allowance only for complete cells already inside the live view.
@@ -6376,7 +6434,7 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
                 _lastAggregateWorkStage = stage;
                 return true;
             }
-            // note: Keep demanded collider publication moving after background slices spend the budget; Physics.SyncTransforms remains globally limited to one call per frame.
+            // note: Keep demanded collider publication moving after background slices spend the budget; shared terrain synchronization remains limited to one call per frame.
             if (useUrgentTerrainColliderSyncBudget &&
                 string.Equals(stage, "terrainColliderSync", StringComparison.Ordinal) &&
                 _reservedTerrainColliderSyncFrame != Time.frameCount)
@@ -6443,6 +6501,15 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
         if (_aggregateBudgetDeferredSlices == 0)
             _lastAggregateWorkStage = stage;
         return true;
+    }
+
+    private float AggregateWorkBudgetLimit(string stage)
+    {
+        // note: Candidate arbitration reads this same ordinary allowance without consuming the reserve that only an admitted work slice may claim.
+        return _requiredHardViewEcologyBudgetFrame == Time.frameCount &&
+            !string.Equals(stage, "requiredHardViewEcology", StringComparison.Ordinal)
+            ? Mathf.Max(0f, AggregateMainThreadBudgetSeconds - RequiredHardViewEcologyBudgetReserveSeconds)
+            : AggregateMainThreadBudgetSeconds;
     }
 
     private void RecordHardViewProgressReservation(
@@ -9684,6 +9751,7 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
             return false;
 
         // note: Register before starting the coroutine so a repeated demand sees one canonical owner during its first frame handoff.
+        publication.registeredFrame = Time.frameCount;
         _pendingTerrainPublications.Add(publication.coordinate, publication);
         RecordFixedTerrainObservation("colliderTicketRegistered", publication.coordinate, publication.token.workId);
         _maximumPendingTerrainColliderPublications = Mathf.Max(
@@ -9775,27 +9843,19 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
         if (!IsPendingTerrainPublicationCurrent(publication))
             yield break;
 
-        while (_lastTerrainPhysicsSyncFrame == Time.frameCount ||
-               !CanAdvanceAggregateWork(
-                   "terrainColliderSync",
-                   useUrgentTerrainColliderSyncBudget:
-                       TerrainPreparationPriority(publication.coordinate, ResolveTraversalVelocity()) <= 3))
+        while (publication.synchronizedFrame == int.MinValue)
+        {
+            if (!IsPendingTerrainPublicationCurrent(publication)) yield break;
+            if (!string.IsNullOrEmpty(publication.synchronizationFailure))
+                throw new InvalidOperationException(publication.synchronizationFailure);
+            TryCompleteGroundSafetySynchronization(out _);
+            if (!string.IsNullOrEmpty(publication.synchronizationFailure))
+                throw new InvalidOperationException(publication.synchronizationFailure);
+            if (publication.synchronizedFrame == int.MinValue) yield return null;
+        }
+        // note: Update may have synchronized this exact collider already; its receipt still requires a subsequent frame before collision readiness can publish.
+        while (Time.frameCount <= publication.synchronizedFrame)
             yield return null;
-        float syncStartedAt = Time.realtimeSinceStartup;
-        // note: Budget waits can outlive the ticket; only its current collider may enter physics, with no yield before its canonical transform is synchronized.
-        if (!IsPendingTerrainPublicationCurrent(publication))
-            yield break;
-        TerrainCollider publicationCollider = publication.terrain != null
-            ? publication.terrain.GetComponent<TerrainCollider>() : null;
-        if (publicationCollider == null || publicationCollider.terrainData != publication.data)
-            throw new InvalidOperationException("Pending terrain collider lost its owned heightfield before synchronization");
-        publicationCollider.enabled = true;
-        _lastTerrainPhysicsSyncFrame = Time.frameCount;
-        Physics.SyncTransforms();
-        // note: This global native sync also covers provisional changes made before it; any later change sets the pending flag again and waits for a new frame.
-        _groundSafetyPhysicsSyncPending = false;
-        RecordAggregateWorkSlice(syncStartedAt, "terrainColliderSync");
-        yield return null;
 
         if (!IsPendingTerrainPublicationCurrent(publication))
             yield break;

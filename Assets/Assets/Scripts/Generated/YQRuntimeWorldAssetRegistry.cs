@@ -979,10 +979,25 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     public IEnumerator PreloadAssetPathsRoutine(
         IEnumerable<string> assetPaths)
     {
-        // note: Memory reclamation never retires a shard while its asynchronous preload is still warming the spawn path.
+        // note: Each iterator protects its complete selection, so memory relief can retire unrelated cold caches while this load is pending.
         int epoch = _residencyEpoch;
         _activePreloads++;
-        try { yield return PreloadAssetPathsCore(assetPaths, epoch); }
+        try
+        {
+            if (!useLazyResourceShards || assetPaths == null) yield break;
+            // note: A caller may provide a single-pass enumerable. Snapshot once, retaining the original first-seen order for both residency and loading.
+            var requiredPaths = new List<string>();
+            var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string assetPath in assetPaths)
+            {
+                if (_residencyEpoch != epoch) yield break;
+                string key = NormalizePath(assetPath);
+                if (!string.IsNullOrWhiteSpace(key) && seenPaths.Add(key)) requiredPaths.Add(key);
+            }
+            if (_residencyEpoch != epoch || !useLazyResourceShards) yield break;
+            using var residency = AcquireAssetResidency(requiredPaths);
+            yield return PreloadAssetPathsCore(requiredPaths, epoch);
+        }
         finally { if (_residencyEpoch == epoch) _activePreloads--; }
     }
 
@@ -992,10 +1007,10 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         yield return PreloadAssetPathsRoutine(new[] { assetPath });
     }
 
-    private IEnumerator PreloadAssetPathsCore(IEnumerable<string> assetPaths, int epoch)
+    private IEnumerator PreloadAssetPathsCore(IReadOnlyList<string> requiredPaths, int epoch)
     {
         if (_residencyEpoch != epoch || !useLazyResourceShards ||
-            assetPaths == null)
+            requiredPaths == null)
         {
             yield break;
         }
@@ -1007,14 +1022,6 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         _missingShardPaths ??=
             new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
-
-        var requiredPaths = new List<string>();
-        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (string assetPath in assetPaths)
-        {
-            string key = NormalizePath(assetPath);
-            if (!string.IsNullOrWhiteSpace(key) && seenPaths.Add(key)) requiredPaths.Add(key);
-        }
 
         foreach (string assetPath in requiredPaths)
         {
@@ -1673,8 +1680,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     internal static int ReleaseColdReloadableShards(float now, float keepWarmSeconds = 30f)
     {
-        // note: Retire only dormant source-cache references. Live instances retain their meshes/materials; future demand uses the existing async preload and unchanged asset bindings.
-        if (_instance == null || _instance._activePreloads != 0 || _instance._loadedShards == null) return 0;
+        // note: Iterator and demand leases protect their exact resources; unrelated source-cache references can retire even while another preload is active.
+        if (_instance == null || _instance._loadedShards == null) return 0;
         var retired = new List<string>();
         foreach (var pair in _instance._loadedShards)
             if (!_instance._resourcePins.ContainsKey(pair.Key) && !_instance._pendingPreloads.ContainsKey(pair.Key) &&
