@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_darkfantasyweapons
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Arrow_Var1.prefab
+    prefab: {fileID: 2958757956424834146, guid: 0d389c43bae3b22459d23f7758534cac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Arrow_Var2.prefab
+    prefab: {fileID: 975952291040241182, guid: 32fc4860ca8882a498995fdbcb3714de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Crossbow.prefab
+    prefab: {fileID: 4076528883500384603, guid: 830a38039d0f4374d9cade8a28e5786b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Mace.prefab
+    prefab: {fileID: 4491759732669724671, guid: fa4011589bad552499e447b9a53a0112, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Scythe.prefab
+    prefab: {fileID: 4747759372083092796, guid: 950552a26ac6c44469b1b3b25787eb2f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Shield_1.prefab
+    prefab: {fileID: 4560300585628706206, guid: 1244f59696fb7c14ca1cce53fb97cef4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Shield_2.prefab
+    prefab: {fileID: 933755666798731957, guid: 055224aa6e9599d40b236fad3a975e0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Shield_3.prefab
+    prefab: {fileID: 6565952202331828512, guid: 219489455f9c104449bccedf843e6744, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6aec59c938bf5541894664418ca9d4b, type: 2}
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 23c5d252a0b256c4281ebd1b44e46425, type: 2}
+  - assetPath: Assets/HIVEMIND/DarkFantasyWeapons/Weapons/HDRP/Prefabs/SM_Spear.prefab
+    prefab: {fileID: 1747133474590029265, guid: ba5cb4ebb2492994db8eafbdcec0d7d2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

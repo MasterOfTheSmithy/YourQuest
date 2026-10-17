@@ -16,11 +16,11 @@ public static class YQSemanticWorldAuthority
     public const string HashAlgorithmVersion = "fnv1a32_utf16_v1";
     public const string SiteFootprintProjectionVersion = "accepted_member_footprint_union_v1";
     public const string ContinuationProjectionVersion = "accepted_continuation_projection_v1";
-    // note: Version five increases small-site cadence and keeps rare multi-sector settlements spaced without rerolling accepted locations.
-    public const string FrontierOpportunityVersion = "frontier_sites_v5";
+    // note: Version six proposes denser mixed small sites; accepted older locations retain their persisted identities and geometry.
+    public const string FrontierOpportunityVersion = "frontier_sites_v6";
     internal const string FrontierCandidateReservationVersion = "frontier_candidate_reserves_v2";
-    public const int FrontierOpportunitySpanCells = 4;
-    public const int FrontierOpportunityHaloRadius = 1;
+    public const int FrontierOpportunitySpanCells = 2;
+    public const int FrontierOpportunityHaloRadius = 2;
     public const int CellSizeMeters = 128;
     public const int QueryNeighborhoodRadiusCells = 2;
     public const int OpeningEnvelopeRadiusCells = 4;
@@ -30,11 +30,9 @@ public static class YQSemanticWorldAuthority
     private const int BasinSpanCells = 16;
     private const int HugePoiSpacingCells = 30;
     private const int LargeSettlementSpacingCells = 30;
-    private const float FrontierOpportunityPresenceChance = 0.84f;
-    private const float FrontierHostileDangerThreshold = 0.54f;
-    private const float FrontierSmallSettlementCivilizationThreshold = 0.50f;
-    private const float FrontierLargeSettlementChance = 0.10f;
-    // note: Physical recovery stays inside the candidate's 512m deterministic opportunity block and retains its original identity.
+    private const float FrontierOpportunityPresenceChance = 0.96f;
+    private const float FrontierLargeSettlementChance = 0.025f;
+    // note: Physical recovery stays inside the candidate's 256m deterministic opportunity block and retains its original identity.
     internal const float FrontierPhysicalRecoveryDistance = 768f;
     private const int ContinentCount = 4;
     private const float SyntheticWorldCellRadius = 4096f;
@@ -91,6 +89,29 @@ public static class YQSemanticWorldAuthority
         return authority;
     }
 
+    // note: Lazily register fixed main-thread continuation timing handles; ordinary semantic queries do not initialize native markers.
+    private static class ContinuationRefreshTiming
+    {
+        internal static readonly Unity.Profiling.ProfilerMarker Validation = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.Validation");
+        internal static readonly Unity.Profiling.ProfilerMarker Fingerprint = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.Fingerprint");
+        internal static readonly Unity.Profiling.ProfilerMarker Overrides = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.Overrides");
+        internal static readonly Unity.Profiling.ProfilerMarker Graph = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.Graph");
+        internal static readonly Unity.Profiling.ProfilerMarker OpeningCells = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.OpeningCells");
+        internal static readonly Unity.Profiling.ProfilerMarker FinalProof = new Unity.Profiling.ProfilerMarker("YQ.Frontier.Semantic.FinalProof");
+        internal static readonly IReadOnlyList<string> Names = Array.AsReadOnly(new[] {
+            "YQ.Frontier.Semantic.Validation", "YQ.Frontier.Semantic.Fingerprint", "YQ.Frontier.Semantic.Overrides",
+            "YQ.Frontier.Semantic.Graph", "YQ.Frontier.Semantic.OpeningCells", "YQ.Frontier.Semantic.FinalProof"
+        });
+    }
+
+    public static IReadOnlyList<string> PrimeContinuationRefreshProfilerMarkersForCpuCapture()
+    {
+        // note: Empty priming runs only at the explicit Editor capture boundary before recording; no world work is performed.
+        foreach (string name in ContinuationRefreshTiming.Names)
+            using (new Unity.Profiling.ProfilerMarker(name).Auto()) { }
+        return ContinuationRefreshTiming.Names;
+    }
+
     internal static bool TryPrepareContinuationAuthority(GeneratedWorldPlanRecord plan,
         GeneratedSpatialContinuationV2Record stagedEnvelope, YQPreparedSpatialMaterializationV2 immutablePrepared,
         out GeneratedSemanticWorldAuthorityRecord detachedAuthority, out string failure)
@@ -98,6 +119,9 @@ public static class YQSemanticWorldAuthority
         detachedAuthority = null;
         failure = "Continuation graph staging requires accepted parent data and its compiler-prepared extension projection.";
         var parent = plan?.spatialPlanV2;
+        string stagedHash; long stagedRevision;
+        using (ContinuationRefreshTiming.Validation.Auto())
+        {
         if (parent == null || stagedEnvelope?.state != YQSpatialContinuationStateV2.Accepted || immutablePrepared == null ||
             plan.spatialPlan?.regions == null || plan.regions == null || plan.settlements == null ||
             plan.encampments == null || plan.pointsOfInterest == null || parent.blueprint?.sites == null ||
@@ -106,8 +130,8 @@ public static class YQSemanticWorldAuthority
             !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure)) return false;
         var basic = YQSpatialContinuationValidatorV2.ValidateBasic(parent, stagedEnvelope);
         if (!basic.IsStructurallyValid) { failure = basic.errors[0]; return false; }
-        string stagedHash = stagedEnvelope.contentHash;
-        long stagedRevision = stagedEnvelope.revision;
+        stagedHash = stagedEnvelope.contentHash;
+        stagedRevision = stagedEnvelope.revision;
         string expectedPreparedFingerprint = stagedEnvelope.schemaVersion + "|" +
             stagedRevision.ToString(CultureInfo.InvariantCulture) + "|" + stagedHash;
         if (immutablePrepared.ContinuationFingerprint != expectedPreparedFingerprint ||
@@ -125,22 +149,27 @@ public static class YQSemanticWorldAuthority
                 return false;
             }
 
+        }
+
         var current = plan.semanticAuthority;
         var overlays = current?.featureOverlays;
         long overlayRevision = current != null ? current.featureOverlayRevision : 0;
         string overlaySchema = current?.overlaySchemaVersion;
-        string fingerprint = BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared);
+        string fingerprint = BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared, true);
         // note: Staging uses the same derivation as Ensure with a private cell memo; neither accepted pointers nor runtime query caches are published here.
         var staged = BuildAuthority(plan, SafeSeed(plan), fingerprint, current, immutablePrepared, stagedEnvelope, true);
+        using (ContinuationRefreshTiming.FinalProof.Auto())
+        {
         if (!ReferenceEquals(plan.spatialPlanV2, parent) || !ReferenceEquals(plan.semanticAuthority, current) ||
             current != null && (!ReferenceEquals(current.featureOverlays, overlays) ||
                 current.featureOverlayRevision != overlayRevision || current.overlaySchemaVersion != overlaySchema) ||
             stagedEnvelope.revision != stagedRevision || stagedEnvelope.contentHash != stagedHash ||
             !YQSpatialContinuationValidatorV2.ValidateBasic(parent, stagedEnvelope).IsStructurallyValid ||
-            BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared) != fingerprint)
+            BuildSourceFingerprint(plan, stagedEnvelope, immutablePrepared, true) != fingerprint)
         {
             failure = "Accepted graph inputs or durable overlays changed while continuation authority was staging.";
             return false;
+        }
         }
         detachedAuthority = staged;
         failure = string.Empty;
@@ -201,8 +230,13 @@ public static class YQSemanticWorldAuthority
             authority.overlaySchemaVersion = current.overlaySchemaVersion;
         }
         // note: Capture persisted names and layout bindings before site adaptation so accepted presentation choices survive semantic migration.
-        BuildAcceptedOverrides(plan, authority, acceptedPrepared, continuation);
-        BuildAcceptedGraph(plan, authority, acceptedPrepared, continuation, detached);
+        // note: Detached graph construction is timed without adding work to ordinary Ensure/query paths.
+        using (detached ? ContinuationRefreshTiming.Overrides.Auto() : default(Unity.Profiling.ProfilerMarker.AutoScope))
+            BuildAcceptedOverrides(plan, authority, acceptedPrepared, continuation);
+        using (detached ? ContinuationRefreshTiming.Graph.Auto() : default(Unity.Profiling.ProfilerMarker.AutoScope))
+            BuildAcceptedGraph(plan, authority, acceptedPrepared, continuation, detached);
+        using (detached ? ContinuationRefreshTiming.OpeningCells.Auto() : default(Unity.Profiling.ProfilerMarker.AutoScope))
+        {
         var detachedCells = detached ? new Dictionary<long, GeneratedSemanticCellPlanRecord>() : null;
         for (int z = -OpeningEnvelopeRadiusCells; z <= OpeningEnvelopeRadiusCells; z++)
         for (int x = -OpeningEnvelopeRadiusCells; x <= OpeningEnvelopeRadiusCells; x++)
@@ -210,6 +244,7 @@ public static class YQSemanticWorldAuthority
             // note: Cell four, four is the logical origin cell for the authored -512 metre terrain.
             Vector2Int coordinate = new Vector2Int(4 + x, 4 + z);
             authority.openingEnvelope.Add(BuildCellWithEdges(plan, authority, coordinate, detachedCells));
+        }
         }
         authority.meaningfulFacts.Add(new GeneratedSemanticWorldFactRecord
         {
@@ -239,8 +274,11 @@ public static class YQSemanticWorldAuthority
             accepted = true
         });
         // note: Normalize the newly compiled graph through the same path used by older saves before any cell projection is published.
-        NormalizeSiteOwnership(authority);
-        SortAuthority(authority);
+        using (detached ? ContinuationRefreshTiming.FinalProof.Auto() : default(Unity.Profiling.ProfilerMarker.AutoScope))
+        {
+            NormalizeSiteOwnership(authority);
+            SortAuthority(authority);
+        }
         return authority;
     }
 
@@ -249,6 +287,20 @@ public static class YQSemanticWorldAuthority
         Vector2Int coordinate)
     {
         GeneratedSemanticWorldAuthorityRecord authority = Ensure(plan);
+        return QueryCellCore(plan, coordinate, authority);
+    }
+
+    internal static GeneratedSemanticCellPlanRecord QueryPreparedCell(
+        GeneratedWorldPlanRecord plan, Vector2Int coordinate, GeneratedSemanticWorldAuthorityRecord authority)
+    {
+        // note: A configured cell owner has already validated and installed this exact semantic graph. Read it without rebuilding the full source fingerprint for every cell; public unbound queries still call Ensure.
+        RequireCurrentPreparedAuthority(plan, authority);
+        return QueryCellCore(plan, coordinate, authority);
+    }
+
+    private static GeneratedSemanticCellPlanRecord QueryCellCore(
+        GeneratedWorldPlanRecord plan, Vector2Int coordinate, GeneratedSemanticWorldAuthorityRecord authority)
+    {
         for (int index = 0; index < authority.openingEnvelope.Count; index++)
         {
             GeneratedSemanticCellPlanRecord cached = authority.openingEnvelope[index];
@@ -310,12 +362,20 @@ public static class YQSemanticWorldAuthority
     public static bool TryGetUnacceptedContinuationOpportunity(GeneratedWorldPlanRecord plan,
         int blockX, int blockZ, out GeneratedSemanticSiteReservationRecord candidate, out string failure)
     {
+        return TryGetPreparedContinuationOpportunity(plan, blockX, blockZ, null, out candidate, out failure);
+    }
+
+    internal static bool TryGetPreparedContinuationOpportunity(GeneratedWorldPlanRecord plan,
+        int blockX, int blockZ, YQPreparedSpatialMaterializationV2 prepared,
+        out GeneratedSemanticSiteReservationRecord candidate, out string failure)
+    {
         candidate = null;
         failure = "Frontier opportunity requires an accepted V2 parent and representable signed block coordinates.";
         if (string.IsNullOrWhiteSpace(plan?.worldSeed) || !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
             !IsRepresentableOpportunityBlock(blockX, blockZ))
             return false;
-        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out failure))
+        // note: Streaming scans reuse their validated immutable projection; unbound callers retain the existing checksum resolver gate.
+        if (prepared == null && !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure))
             return false;
         if (!TryBuildContinuationOpportunity(plan.worldSeed, blockX, blockZ, out var proposed, out uint priority))
         {
@@ -336,7 +396,7 @@ public static class YQSemanticWorldAuthority
                 continue;
             bool higherPriority = neighbourPriority < priority || neighbourPriority == priority &&
                 (neighbourX < blockX || neighbourX == blockX && neighbourZ < blockZ);
-            if (higherPriority && OpportunityRectanglesOverlap(proposed, neighbour, 64f))
+            if (higherPriority && OpportunityRectanglesOverlap(proposed, neighbour, 16f))
             {
                 failure = "Frontier opportunity was suppressed by a higher-priority seeded neighbour.";
                 return false;
@@ -346,7 +406,9 @@ public static class YQSemanticWorldAuthority
         GeneratedSpatialContinuationV2Record accepted = plan.spatialPlanV2.acceptedContinuation;
         if (!string.IsNullOrEmpty(prepared.ContinuationFingerprint) && accepted?.locations != null)
             foreach (GeneratedSpatialContinuationLocationV2Record location in accepted.locations)
-                if (location.blockX == blockX && location.blockZ == blockZ)
+                // note: Block indices changed scale in v6; earlier accepted locations reserve their physical footprints, not an unrelated new-grid block.
+                if (location != null && location.blockX == blockX && location.blockZ == blockZ &&
+                    location.anchor?.tags != null && location.anchor.tags.Contains(FrontierOpportunityVersion))
                 {
                     failure = "Frontier opportunity block already owns an accepted continuation location.";
                     return false;
@@ -387,6 +449,13 @@ public static class YQSemanticWorldAuthority
         int blockX, int blockZ, string canonicalRegionId,
         out GeneratedSpatialContinuationLocationV2Record candidate, out string failure)
     {
+        return TryBuildPreparedFrontierLocationCandidate(plan, blockX, blockZ, canonicalRegionId, null, out candidate, out failure);
+    }
+
+    internal static bool TryBuildPreparedFrontierLocationCandidate(GeneratedWorldPlanRecord plan,
+        int blockX, int blockZ, string canonicalRegionId, YQPreparedSpatialMaterializationV2 preparedOverride,
+        out GeneratedSpatialContinuationLocationV2Record candidate, out string failure)
+    {
         candidate = null;
         failure = "Frontier candidate requires one existing styled canonical region.";
         if (string.IsNullOrWhiteSpace(canonicalRegionId) || plan?.regions == null) return false;
@@ -398,8 +467,9 @@ public static class YQSemanticWorldAuthority
             region = existing;
         }
         if (region == null || string.IsNullOrWhiteSpace(region.assetStyleKey)) return false;
-        if (!TryGetUnacceptedContinuationOpportunity(plan, blockX, blockZ, out var opportunity, out failure) ||
-            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out failure)) return false;
+        YQPreparedSpatialMaterializationV2 prepared = preparedOverride;
+        if (prepared == null && !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure)) return false;
+        if (!TryGetPreparedContinuationOpportunity(plan, blockX, blockZ, prepared, out var opportunity, out failure)) return false;
         if (!prepared.TryGetRegion(region.regionId, out _))
         {
             failure = "Frontier candidate region is absent from the accepted canonical spatial owner.";
@@ -601,8 +671,11 @@ public static class YQSemanticWorldAuthority
             out _, out _, out float wetland, out float civilization, out float danger, out _);
         float access = Mathf.Clamp01(civilization * .7f + (1f - ruggedness) * .3f);
         if (ruggedness > .82f || wetland > .78f || access < .24f) return false;
-        YQSiteKindV2 destinationKind = danger > FrontierHostileDangerThreshold ? YQSiteKindV2.HostileSite :
-            civilization > FrontierSmallSettlementCivilizationThreshold ? YQSiteKindV2.Settlement : YQSiteKindV2.PointOfInterest;
+        string opportunitySeed = plan.worldSeed + "|" + FrontierOpportunityVersion + "|" +
+            candidate.blockX.ToString(CultureInfo.InvariantCulture) + "|" + candidate.blockZ.ToString(CultureInfo.InvariantCulture);
+        string kind = ResolveFrontierOpportunityKind(opportunitySeed, civilization, danger, ruggedness);
+        YQSiteKindV2 destinationKind = kind == "hostile_site" ? YQSiteKindV2.HostileSite :
+            kind == "settlement" ? YQSiteKindV2.Settlement : YQSiteKindV2.PointOfInterest;
         if (destinationKind != candidate.anchor.kind) return false;
 
         string nearestRegionId = null;
@@ -719,8 +792,7 @@ public static class YQSemanticWorldAuthority
         float access = Mathf.Clamp01(civilization * 0.7f + (1f - ruggedness) * 0.3f);
         if (ruggedness > 0.82f || wetland > 0.78f || access < 0.24f)
             return false;
-        string kind = danger > FrontierHostileDangerThreshold ? "hostile_site" :
-            civilization > FrontierSmallSettlementCivilizationThreshold ? "settlement" : "landmark";
+        string kind = ResolveFrontierOpportunityKind(seed, civilization, danger, ruggedness);
         float radius = kind == "settlement" ? 64f : kind == "hostile_site" ? 48f : 36f;
         bool multiCellOpportunity = kind == "settlement" && Hash01(seed + "|large_settlement") < FrontierLargeSettlementChance;
         string siteId = "site:opportunity:" + FrontierOpportunityVersion + ":" +
@@ -738,6 +810,16 @@ public static class YQSemanticWorldAuthority
         candidate.accessScore = access;
         candidate.accessConstraint = "minimum_access_score:0.24";
         return true;
+    }
+
+    private static string ResolveFrontierOpportunityKind(string seed, float civilization, float danger, float ruggedness)
+    {
+        // note: Geography weights each type without making a region one repeated category; original planning and bounded recovery use the same deterministic rule.
+        float settlementWeight = .30f + civilization * .40f;
+        float hostileWeight = .20f + danger * .45f;
+        float landmarkWeight = .35f + ruggedness * .25f;
+        float roll = Hash01(seed + "|kind") * (settlementWeight + hostileWeight + landmarkWeight);
+        return roll < settlementWeight ? "settlement" : roll < settlementWeight + hostileWeight ? "hostile_site" : "landmark";
     }
 
     private static bool OpportunityRectanglesOverlap(GeneratedSemanticSiteReservationRecord first,
@@ -780,6 +862,24 @@ public static class YQSemanticWorldAuthority
     {
         GeneratedSemanticWorldAuthorityRecord authority = Ensure(plan);
         return GetSitesForCell(authority, plan, coordinate);
+    }
+
+    internal static List<GeneratedSemanticSiteReservationRecord> GetPreparedSitesForCell(
+        GeneratedWorldPlanRecord plan, Vector2Int coordinate, GeneratedSemanticWorldAuthorityRecord authority)
+    {
+        // note: This internal adapter reads the same installed graph as prepared cell queries, retaining canonical site identities and all ordinary reservation rules.
+        RequireCurrentPreparedAuthority(plan, authority);
+        return GetSitesForCell(authority, plan, coordinate);
+    }
+
+    private static void RequireCurrentPreparedAuthority(GeneratedWorldPlanRecord plan, GeneratedSemanticWorldAuthorityRecord authority)
+    {
+        // note: A stale world or replaced graph must not receive a prepared-query privilege from another configuration epoch.
+        if (authority == null || plan == null || !ReferenceEquals(plan.semanticAuthority, authority) ||
+            authority.worldSeed != SafeSeed(plan) || authority.schemaVersion != SchemaVersion ||
+            authority.generationVersion != GenerationVersion || authority.openingEnvelope == null ||
+            authority.siteReservations == null || authority.routeGraph == null || authority.waterNetworks == null)
+            throw new InvalidOperationException("Prepared semantic query no longer owns the installed world authority.");
     }
 
     private static List<GeneratedSemanticSiteReservationRecord> GetSitesForCell(
@@ -871,8 +971,11 @@ public static class YQSemanticWorldAuthority
     }
 
     private static string BuildSourceFingerprint(GeneratedWorldPlanRecord plan,
-        GeneratedSpatialContinuationV2Record continuation, YQPreparedSpatialMaterializationV2 acceptedPrepared)
+        GeneratedSpatialContinuationV2Record continuation, YQPreparedSpatialMaterializationV2 acceptedPrepared,
+        bool measureContinuationRefresh = false)
     {
+        // note: Only continuation staging opts into this scope; existing fingerprint callers keep the same deterministic derivation and avoid native marker initialization.
+        using var timing = measureContinuationRefresh ? ContinuationRefreshTiming.Fingerprint.Auto() : default(Unity.Profiling.ProfilerMarker.AutoScope);
         if (plan == null)
             return string.Empty;
         StringBuilder builder = new StringBuilder(SafeSeed(plan));

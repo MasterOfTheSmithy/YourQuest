@@ -97,9 +97,10 @@ public sealed class YQGeneratedRuntimeVfx : MonoBehaviour
         return circles;
     }
 
-    public static bool TrySpawnSpellProjectile(Transform caster, string descriptor, int damage, GameObject source)
+    public static bool TrySpawnSpellProjectile(Transform caster, string descriptor, int damage, GameObject source, bool structuredDelivery = false)
     {
-        if (caster == null || !LooksProjectileLike(descriptor))
+        // note: Accepted player targeting contracts select delivery; legacy callers retain their compatibility classification.
+        if (caster == null || (!structuredDelivery && !LooksProjectileLike(descriptor)))
             return false;
 
         bool enemySource = source != null && source.GetComponent<YQInvestorEnemy>() != null;
@@ -147,11 +148,12 @@ public sealed class YQGeneratedRuntimeVfx : MonoBehaviour
         light.shadows = LightShadows.None;
 
         YQGeneratedProjectileVfx mover = projectile.AddComponent<YQGeneratedProjectileVfx>();
-        mover.velocity = forward * ResolveProjectileSpeed(family);
+        mover.velocity = forward * (structuredDelivery ? 24f : ResolveProjectileSpeed(family));
         mover.damage = Mathf.Max(1, damage);
         mover.source = source;
         mover.impactColor = color;
-        mover.maxLifetime = family == GeneratedVisualFamily.Storm ? 1.05f : 1.5f;
+        mover.maxLifetime = structuredDelivery ? 1.5f : family == GeneratedVisualFamily.Storm ? 1.05f : 1.5f;
+        mover.BindRelease(structuredDelivery ? PlayerStateManager.Instance?.state : null, structuredDelivery);
         return true;
     }
 
@@ -820,7 +822,17 @@ public sealed class YQGeneratedProjectileVfx : MonoBehaviour
     public float maxLifetime = 1.5f;
 
     private readonly Collider[] _hits = new Collider[12];
+    private readonly RaycastHit[] _sweepHits = new RaycastHit[24];
     private float _destroyAt;
+    private bool _consumed, _playerBound;
+    private PlayerState _owner;
+
+    public void BindRelease(PlayerState owner, bool playerBound)
+    {
+        // note: Freeze release ownership and lifetime after configuration; profile changes cannot inherit an in-flight player effect.
+        _owner = owner; _playerBound = playerBound;
+        _destroyAt = Time.time + Mathf.Max(.1f, maxLifetime);
+    }
 
     private void Awake()
     {
@@ -829,31 +841,52 @@ public sealed class YQGeneratedProjectileVfx : MonoBehaviour
 
     private void Update()
     {
-        transform.position += velocity * Time.deltaTime;
+        if (_consumed) return;
+        if (source == null || _playerBound && !ReferenceEquals(_owner, PlayerStateManager.Instance?.state))
+        { Consume(); return; }
+        if (RuntimeModalUiBlocker.IsBlocked || Time.deltaTime <= 0f) return;
+        // note: Swept collision prevents a fast accepted spell from tunnelling through walls or committing multiple hits before deferred destruction.
+        Vector3 delta = velocity * Time.deltaTime;
+        int swept = delta.sqrMagnitude > .000001f ? Physics.SphereCastNonAlloc(transform.position, .18f, delta.normalized,
+            _sweepHits, delta.magnitude, ~0, QueryTriggerInteraction.Ignore) : 0;
+        if (swept == _sweepHits.Length) { Consume(); return; }
+        RaycastHit closest = default; float nearest = float.PositiveInfinity;
+        for (int i = 0; i < swept; i++)
+            if (_sweepHits[i].collider != null && !_sweepHits[i].transform.IsChildOf(source.transform) && _sweepHits[i].distance < nearest)
+            { closest = _sweepHits[i]; nearest = closest.distance; }
+        if (closest.collider != null)
+        {
+            transform.position = closest.point;
+            TryApplyDamage(closest.collider); SpawnImpact(); Consume(); return;
+        }
+        transform.position += delta;
         Vector3 position = transform.position;
         if (float.IsNaN(position.x) || float.IsNaN(position.y) || float.IsNaN(position.z) || position.y < -8f || position.y > 80f)
         {
-            Destroy(gameObject);
+            Consume();
             return;
         }
 
         if (Time.time >= _destroyAt)
         {
-            Destroy(gameObject);
+            Consume();
             return;
         }
 
         int count = Physics.OverlapSphereNonAlloc(transform.position, 0.38f, _hits, ~0, QueryTriggerInteraction.Ignore);
+        if (count == _hits.Length) { Consume(); return; }
         for (int i = 0; i < count; i++)
         {
             Collider hit = _hits[i];
-            if (hit == null || source != null && hit.transform.IsChildOf(source.transform))
+            // note: Generated effects retain self exclusion when this actor's existing body is temporarily detached for physical simulation.
+            if (hit == null || source != null && (hit.transform.IsChildOf(source.transform) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(hit)?.gameObject == source))
                 continue;
 
             if (TryApplyDamage(hit))
             {
                 SpawnImpact();
-                Destroy(gameObject);
+                Consume();
                 return;
             }
         }
@@ -861,15 +894,18 @@ public sealed class YQGeneratedProjectileVfx : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other == null || source != null && other.transform.IsChildOf(source.transform))
+        if (_consumed || RuntimeModalUiBlocker.IsBlocked || other == null || source != null &&
+            (other.transform.IsChildOf(source.transform) || YQInvestorPlayerMotor.ResolveFromCollider(other)?.gameObject == source))
             return;
 
         if (TryApplyDamage(other))
         {
             SpawnImpact();
-            Destroy(gameObject);
+            Consume();
         }
     }
+
+    private void Consume() { _consumed = true; Destroy(gameObject); }
 
     private bool TryApplyDamage(Collider other)
     {
@@ -879,7 +915,9 @@ public sealed class YQGeneratedProjectileVfx : MonoBehaviour
         bool enemySource = source != null && source.GetComponent<YQInvestorEnemy>() != null;
         if (enemySource)
         {
-            YQInvestorCombat player = other.GetComponentInParent<YQInvestorCombat>();
+            // note: Damage still invokes the canonical motor's existing combat/vitals; the ragdoll relay supplies identity only.
+            var motor = YQInvestorPlayerMotor.ResolveFromCollider(other);
+            YQInvestorCombat player = motor != null ? motor.GetComponent<YQInvestorCombat>() : null;
             if (player == null)
                 return false;
 

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_thornweaver
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_darkness_affinity_set_v1.prefab
+    prefab: {fileID: 955441509360049912, guid: 0e67d6d99184a7f4482075c06b3f11be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_earth_affinity_set_v1.prefab
+    prefab: {fileID: 8112441458871427673, guid: 03d6abb8df768fd4d91253253ebde197, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_fire_affinity_set_v1.prefab
+    prefab: {fileID: 152273433479834611, guid: 7a13c0c58435b4240b8270014706209e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_frost_affinity_set_v1.prefab
+    prefab: {fileID: 3759546656766532722, guid: 8620f6e1ebdac204bbcee5e51913ccd6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_hybrid_affinity_set_v1.prefab
+    prefab: {fileID: 835712374862354162, guid: f7b24d4fb46a0b0458adcf33b87a8513, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_hybrid_unique_standard.prefab
+    prefab: {fileID: 9045412401346362219, guid: 78696bfd597bcaa4eab75f48f5b177eb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_light_affinity_set_v1.prefab
+    prefab: {fileID: 3277081782284160424, guid: 4b037d69553fbdf4f92881f997942d58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_nature_affinity_set_v1.prefab
+    prefab: {fileID: 8915479313756685491, guid: 5b44e64af9e0bb84787db2e75a122243, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/thornweaver/thornweaver_neutral_normal_standard.prefab
+    prefab: {fileID: 8664435590600934151, guid: 0d5da2440bf51a9419d176ad90e32821, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

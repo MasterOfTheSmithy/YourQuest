@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-02T14:56:41.3890011Z",
+  "evidence": "Source and loaded assembly identity; consult separate receipts for test results",
+  "files": [
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YQFirstPersonArmsView.cs",
+      "sha256": "0F32E720389356420D56AB69CD717CC96B941628235859F803CD26D8FE04BD48"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YQAuthoredPlayerAnimations.cs",
+      "sha256": "F785FA466F885D38F47609A7198FE2D1CE95725D7803257C28545581F80B2D88"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YQPlayerLocomotionRepair.cs",
+      "sha256": "D40D98A5BA684F770FAEA5F1AF3AB31A5F18A4AE0A1A9040B0193151ECF1087C"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YQPlayerAnimationRuntimeVerification.cs",
+      "sha256": "356AEE16100D55937AA2AE4A29557B5EA076AFE0913EF20723474AE1D0B16EA4"
+    },
+    {
+      "path": "Assets/Assets/Resources/Player/YQPlayer.controller",
+      "sha256": "9ECB93C3876AB3BD69C519D64F93E773EB122AEAE91492526B4649397593AE2D"
+    },
+    {
+      "path": "Assets/Assets/Resources/Player/YQFirstPersonArms.asset",
+      "sha256": "96EE93621F0FBDE0B4D4C839D094B2A6672ED1D8E61D6441079B91E5E4F5261E"
+    },
+    {
+      "path": "Library/ScriptAssemblies/Assembly-CSharp.dll",
+      "sha256": "0F1733E23A8CFA0D42F1BCD6D984E1E1B2C70E0179E5BA8821A84291949C35A3"
+    },
+    {
+      "path": "Library/ScriptAssemblies/Assembly-CSharp-Editor.dll",
+      "sha256": "411803056ECDA6D731804E6AED2DF6EF75B8AF8E58627580B7B88D3816F2B542"
+    }
+  ]
+}

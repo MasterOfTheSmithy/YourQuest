@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: house_ona_hill
+  semanticStyleKey: house_on_a_hill
+  sourceSignature: fnv1a32_09a90613
+  topology: 3
+  streamingSite: {fileID: 11400000, guid: 3c04eeb0ab7733a458484915ce030679, type: 2}
+  sourceInstanceCount: 1024
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_house_ona_hill_entrance_01
+    displayName: House Ona Hill Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -2585.3994, y: 1384.1439, z: 460.06363}
+    localBoundsCenter: {x: 0, y: 1606.1478, z: 0}
+    localBoundsSize: {x: 3635.6992, y: 3212.2957, z: 4402.087}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - entrance
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p21_p54_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_house_ona_hill_room_02
+    displayName: House Ona Hill Room
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -644.48615, y: 1885.574, z: 1610.4591}
+    localBoundsCenter: {x: 0, y: 1172.49, z: 0}
+    localBoundsSize: {x: 3126.4495, y: 2344.98, z: 1600.5494}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - interiorrooms
+    - room
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p59_p76_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_house_ona_hill_circulation_03
+    displayName: House Ona Hill Circulation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 12.729004, y: 1454.2827, z: -1020.75977}
+    localBoundsCenter: {x: 0, y: 1375.9653, z: 0}
+    localBoundsSize: {x: 4238.7607, y: 2751.9307, z: 3280.6953}
+    sourceInstanceCount: 3
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - authored
+    - circulation
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p53_p24_p00
+    - yq_cell_house_ona_hill_p61_p35_p00
+    - yq_cell_house_ona_hill_p76_p40_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_house_ona_hill_service_04
+    displayName: House Ona Hill Service
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 934.91736, y: 1857.5818, z: -1943.5403}
+    localBoundsCenter: {x: 0, y: 47.37793, z: 0}
+    localBoundsSize: {x: 296.385, y: 94.75586, z: 470.14368}
+    sourceInstanceCount: 547
+    authoredBuildingCount: 0
+    authoredDressingCount: 547
+    semanticTags:
+    - authored
+    - interiorrooms
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p81_p11_p00
+    - yq_cell_house_ona_hill_p81_p9_p00
+    - yq_cell_house_ona_hill_p82_p11_p00
+    - yq_cell_house_ona_hill_p82_p7_p00
+    - yq_cell_house_ona_hill_p82_p8_p00
+    - yq_cell_house_ona_hill_p82_p9_p00
+    - yq_cell_house_ona_hill_p83_p10_p00
+    - yq_cell_house_ona_hill_p83_p7_p00
+    - yq_cell_house_ona_hill_p83_p8_p00
+    - yq_cell_house_ona_hill_p84_p8_p00
+    - yq_cell_house_ona_hill_p84_p9_p00
+    - yq_cell_house_ona_hill_p85_p10_p00
+    - yq_cell_house_ona_hill_p85_p14_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_house_ona_hill_poi_05
+    displayName: House Ona Hill Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 936.03735, y: 0, z: -2059.277}
+    localBoundsCenter: {x: 0, y: 984.8432, z: 0}
+    localBoundsSize: {x: 71.411865, y: 1969.6864, z: 58.04719}
+    sourceInstanceCount: 470
+    authoredBuildingCount: 0
+    authoredDressingCount: 470
+    semanticTags:
+    - authored
+    - interiorrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p83_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_house_ona_hill_entrance_06
+    displayName: House Ona Hill Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 1872.5344, y: 1219.3087, z: -218.36792}
+    localBoundsCenter: {x: 0, y: 1763.3427, z: 0}
+    localBoundsSize: {x: 5061.4287, y: 3526.6853, z: 4361.3257}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - entrance
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_house_ona_hill_p108_p36_p00
+    - yq_cell_house_ona_hill_p92_p59_p00
+    cellContractsV2: []

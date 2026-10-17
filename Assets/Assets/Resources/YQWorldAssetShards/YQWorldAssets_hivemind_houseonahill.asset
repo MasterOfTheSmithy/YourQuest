@@ -1,0 +1,453 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_houseonahill
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Materials/M_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1026b4ccb1dd3c145b816313014342f3, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Materials/M_Rock_Large.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f73faefe7b03a984c88352c922bdf7cf, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Materials/M_Rock_Red.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 9e7348d897018ca408a564219d4716d1, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Materials/M_Stone_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 27c325d93e52a974c84450fee0204e18, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Meshes/Materials/MI_DecalsDirt_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 77570d9db3891024ebc548b4ac04e57f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Meshes/Materials/MI_Stone_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 969f367b1cec2e4489bbdc270677130d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Cliff_01.prefab
+    prefab: {fileID: 1031133420, guid: abc00000000001975759655911359721, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cliff_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 072671a1176d89d42bd914e96738ded1, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Cliff_02.prefab
+    prefab: {fileID: 1031133525, guid: abc00000000011697853940912642466, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cliff_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 072671a1176d89d42bd914e96738ded1, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Cliff_03.prefab
+    prefab: {fileID: 1031133441, guid: abc00000000000394178604798078187, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cliff_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 072671a1176d89d42bd914e96738ded1, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Cypress_01.prefab
+    prefab: {fileID: 1031133376, guid: abc00000000012845764047300239100, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cypress_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4413e0dac2dd3664c8bb345372ffc8ef, type: 2}
+    - transformPath: SM_Cypress_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7700a5405934cd8428be71e57dc64434, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Gravestone_01.prefab
+    prefab: {fileID: 1031133404, guid: abc00000000006865033052444149091, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Gravestone_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 27c325d93e52a974c84450fee0204e18, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_House.prefab
+    prefab: {fileID: 8068296549901616814, guid: ade55841d86ca2441a17c710d0d36b0e, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3e5841e53025a6b49b938a2d43ed649d, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ccdc3618f0c32044da2ef85c081f5f39, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a24b68b8eccdd0542bf0c15f325fb29c, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 069831eef83e3d946ab54a5cb778fae9, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 4fee3f49e8b7b7743929f6424e133b2c, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: e752cfb8df559614ea646f8fd79784cb, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 6
+      replacementMaterial: {fileID: 2100000, guid: f05164272a2228b49a70a90c7656138b, type: 2}
+    - transformPath: SM_House
+      rendererIndex: 0
+      materialIndex: 7
+      replacementMaterial: {fileID: 2100000, guid: 69588bd84177ea0429262995ee02ad9c, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Lamp_01.prefab
+    prefab: {fileID: 1031134796, guid: abc00000000010677037385077788319, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_PotPlate_01.prefab
+    prefab: {fileID: 1031294934, guid: abc00000000007152558410075177268, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PotPlate_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_PotPlate_02.prefab
+    prefab: {fileID: 1031294941, guid: abc00000000007233298799361335631, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PotPlate_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Pot_01.prefab
+    prefab: {fileID: 1031133680, guid: abc00000000014524222136317618860, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Pot_03.prefab
+    prefab: {fileID: 1031133715, guid: abc00000000016467348837672297966, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Pot_04.prefab
+    prefab: {fileID: 1031133687, guid: abc00000000011055765065928869545, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_04
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Pot_05.prefab
+    prefab: {fileID: 1031133736, guid: abc00000000003214053786957600928, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_05
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3cf354c7f4467aa40bf82b7a0606b513, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Rake_01.prefab
+    prefab: {fileID: 1031133701, guid: abc00000000007927534600539115824, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rake_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+    - transformPath: SM_Rake_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Rock_Large.prefab
+    prefab: {fileID: 1031133965, guid: abc00000000004609812327299092534, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_Large
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f73faefe7b03a984c88352c922bdf7cf, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Rock_Mid.prefab
+    prefab: {fileID: 1031133979, guid: abc00000000006435916125624185297, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_Mid
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1026b4ccb1dd3c145b816313014342f3, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Rock_Small.prefab
+    prefab: {fileID: 1031133986, guid: abc00000000012055764822104188234, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_Small
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1026b4ccb1dd3c145b816313014342f3, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Rock_Small_red.prefab
+    prefab: {fileID: 1031135866, guid: abc00000000007456884112149184942, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_Small_red
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e7348d897018ca408a564219d4716d1, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Spade_01.prefab
+    prefab: {fileID: 1031133694, guid: abc00000000010390636863405630062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Spade_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+    - transformPath: SM_Spade_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Swing.prefab
+    prefab: {fileID: 1031294676, guid: abc00000000008200161755947402673, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Swing
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_SwingAttachment.prefab
+    prefab: {fileID: 1031294689, guid: abc00000000010384106573591718466, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SwingAttachment
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_SwingSeat.prefab
+    prefab: {fileID: 1031294682, guid: abc00000000016225840262446139694, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SwingSeat
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Trough_01.prefab
+    prefab: {fileID: 1031133708, guid: abc00000000011164106261860727944, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Trough_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 27c325d93e52a974c84450fee0204e18, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_WateringPot_01.prefab
+    prefab: {fileID: 1031133869, guid: abc00000000004694029835639284447, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WateringPot_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 69588bd84177ea0429262995ee02ad9c, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_WoodBeam_01.prefab
+    prefab: {fileID: 1031133750, guid: abc00000000011798697123878247987, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBeam_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_WoodBeam_02.prefab
+    prefab: {fileID: 1031133764, guid: abc00000000013976412670551201128, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBeam_02_
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_WoodBeam_03.prefab
+    prefab: {fileID: 1031133757, guid: abc00000000015227057226121088241, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBeam_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Cloud_01.prefab
+    prefab: {fileID: 1031133362, guid: abc00000000005076713954213230006, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cloud_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 520fbf9153c87084784bb56bcbd7d53b, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushFlowerLarge_01.prefab
+    prefab: {fileID: 1031140626, guid: abc00000000002761792289319749345, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushFlowerLarge_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushFlowerLarge_01Foliage.prefab
+    prefab: {fileID: 1031140626, guid: 6f336216c45df424fa0ecb6b64a940ed, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushFlowerSmall_01.prefab
+    prefab: {fileID: 1031153190, guid: abc00000000005195980237464631433, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushFlowerSmall_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushLarge_01.prefab
+    prefab: {fileID: 1031280390, guid: abc00000000009458321461261132980, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushLarge_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushLarge_02.prefab
+    prefab: {fileID: 1031171094, guid: abc00000000009539061850547291343, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushLarge_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushLarge_02Foliage.prefab
+    prefab: {fileID: 1031171094, guid: 903fc96394e21454c8b944739f708c30, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushSmall_01.prefab
+    prefab: {fileID: 1031294758, guid: abc00000000010984914169455230360, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushSmall_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a59db3428b8cabb4d971c8d10c9e662a, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushSmall_LowWind.prefab
+    prefab: {fileID: 1031285364, guid: abc00000000011722497029481195463, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GorseBushSmall_LowWind
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6094d86dcec4049498172c8dcc498199, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GorseBushSmall_LowWindFoliage.prefab
+    prefab: {fileID: 1031285364, guid: 897960ca63fd18545ad8d3278690d25d, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6094d86dcec4049498172c8dcc498199, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_GroundPlates_01.prefab
+    prefab: {fileID: 1031133785, guid: abc00000000010827135953960509871, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GroundPlates_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 27c325d93e52a974c84450fee0204e18, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_HeatherBush_01.prefab
+    prefab: {fileID: 1031272500, guid: abc00000000004318798978276016572, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherBush_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 132ff9b3bf8c8c644b5367a49e248cd2, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_HeatherBush_01Foliage.prefab
+    prefab: {fileID: 1031272500, guid: 3409b28a3019d15469e00ff88fe95563, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 132ff9b3bf8c8c644b5367a49e248cd2, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Hydrangea_01.prefab
+    prefab: {fileID: 1031133917, guid: abc00000000010232278521661430710, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hydrangea_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e7a3e0d777b788f4287bf3a156cb2b88, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Hydrangea_02.prefab
+    prefab: {fileID: 1031133929, guid: abc00000000003733997432989596061, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hydrangea_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 161e6b374e64d8841a828fdd97c824dc, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Hydrangea_Flower.prefab
+    prefab: {fileID: 1031134663, guid: abc00000000001026827104994221218, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hydrangea_Flower
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732af62c142b0794eb578d952e719f94, type: 2}
+  - assetPath: Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_Lighthouse.prefab
+    prefab: {fileID: 1031294879, guid: abc00000000017167628766033424233, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3e5841e53025a6b49b938a2d43ed649d, type: 2}
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6d3251a25326d214c9676d0fd7a7d609, type: 2}
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: ccdc3618f0c32044da2ef85c081f5f39, type: 2}
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 27c325d93e52a974c84450fee0204e18, type: 2}
+    - transformPath: SM_Lighthouse
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: 77570d9db3891024ebc548b4ac04e57f, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

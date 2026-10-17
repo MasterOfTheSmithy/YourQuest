@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_gloves
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Dragonbound_Female.prefab
+    prefab: {fileID: 6944671813989909410, guid: ac2705e6941bfd1489e13643ca0c4760, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Dragonbound_Male.prefab
+    prefab: {fileID: 3505772143756582701, guid: e3e375edef91d914aae36e7da3bd518c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Eclipse_Female.prefab
+    prefab: {fileID: 4514272500692194555, guid: 00744265176e37041995a42f24e1a9ad, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Eclipse_Male.prefab
+    prefab: {fileID: 6719191840880003332, guid: 045d60d0abddcb54b99c518918b3cca1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Field_Female.prefab
+    prefab: {fileID: 8450791546680280124, guid: f5def1341c3909e41b04813366f0c08d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Field_Male.prefab
+    prefab: {fileID: 8750720928947354076, guid: 629a762d9e25e5249a1af01402670acd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Lamellar_Female.prefab
+    prefab: {fileID: 1668188055936596482, guid: bf68d57d043000141bdc4ccbeabf8a55, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Lamellar_Male.prefab
+    prefab: {fileID: 5446684702214280267, guid: 63cb25acd365ce74cb5361ed394da922, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Ranger_Female.prefab
+    prefab: {fileID: 214324075772797121, guid: dce203de98059de4b94ed996b6cb1e3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Ranger_Male.prefab
+    prefab: {fileID: 3646668046728460168, guid: 0c5ad2c60de8c3844b35a8c13bf6b2d4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Sentinel_Female.prefab
+    prefab: {fileID: 1819137008336644559, guid: 16264f924a30bf24e8d2b20462bf18fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Sentinel_Male.prefab
+    prefab: {fileID: 4026739017261710233, guid: 68528ef9727d04446bbc6d3865979cb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 4919870678499504041, guid: 249b214b49bd664468c610cbc92c07a0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 377588050785372388, guid: 1db384983f6918c4a8f8195ca78c9896, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Traveler_Female.prefab
+    prefab: {fileID: 3854471265367300501, guid: 4e4693e8f1880c341b90f9108cdbf27f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Traveler_Male.prefab
+    prefab: {fileID: 7937210060601147934, guid: 7a8af1c0d7fafee44a0f9e87acb2678a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 3206128510193077998, guid: 1e7d79ec0f2889e4cb05abc8d4e16469, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3693078905239308443, guid: 004f24962ac58554a87f438d0a5c8757, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Field_Male_Parts.prefab
+    prefab: {fileID: 4440570859845047884, guid: 620a9c80d31b4614caaaf5b9b6374eb8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Field_Female_Parts.prefab
+    prefab: {fileID: 1887191964427490320, guid: e6e08439c7c50cb4280a516343bb1f9e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Ranger_Male_Parts.prefab
+    prefab: {fileID: 5878402193064156549, guid: 559c02a4cada3ab47bfa1c09811d7524, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7386347466378410920, guid: 03f8f52394b8bfe4bac0310a068c4b85, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 433235609164079695, guid: 29ddcfc0e98890c4ea51904b233c4da8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 2929957379035788225, guid: 0edb00a5fccbb9841b67fd1296682c3d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Traveler_Male_Parts.prefab
+    prefab: {fileID: 3591316511986467736, guid: e9a19693bc9acf64194dbc243e7ab482, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Traveler_Female_Parts.prefab
+    prefab: {fileID: 2421101975949168946, guid: 2e13c17d30b3e2e4b85be013e1063caf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 4220262069448552441, guid: 2616e6077aa0282458c9398b26c4321c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 2371429179860700162, guid: 30d7cda4b0dbb4945a9106ef53c7968a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 176047624109984053, guid: 16cfb2331c1ff204382fbffab8714616, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 1196839203481693584, guid: 64ace7f9ed8464d4ea39751847649606, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 3606190807776247611, guid: a8c0d0edf45f180499129ce8df2b6a4c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 8248680091804075108, guid: 75c00b0c8c4c9e0408e38545e5e1a692, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 3756832765572643010, guid: 1c8fe0667d478ad4ea97a2e17c2875ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 7055501332515860564, guid: fd9f578da9c472a4c891bb4e37be3890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7972827595989947658, guid: 402ac21104fc94c438e7b276c1a4054c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gloves/Gloves_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 71809048510083407, guid: d69bcee3fc1152446bba697c4180e2f7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

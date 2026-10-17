@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public enum YQGeneratedWorldPlacementCategory
@@ -135,7 +136,7 @@ public static class YQGeneratedWorldTerrain
                 }
 
                 SpatialSampleEvaluations++;
-                YQSpatialTerrainSampleV2 sampled = sampler.Sample(worldX, worldZ);
+                YQSpatialTerrainSampleV2 sampled = sampler.SampleTerrainSource(worldX, worldZ);
                 if (cacheable && samples.Count < MaximumCachedSpatialSamples)
                     samples.Add(key, sampled);
                 return sampled;
@@ -212,7 +213,7 @@ public static class YQGeneratedWorldTerrain
         out string failure)
     {
         sampler = null;
-        if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(
+        if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepareTerrainSource(
                 plan,
                 out YQSpatialBlueprintTerrainSamplerV2 prepared,
                 out failure))
@@ -220,14 +221,20 @@ public static class YQGeneratedWorldTerrain
             return false;
         }
 
-        // note: Preserve the runtime versioned seed and detail salt exactly, including its whitespace/default-seed behavior.
+        sampler = CreatePreparedV2HeightSampler(plan, prepared);
+        return true;
+    }
+
+    internal static V2HeightSampler CreatePreparedV2HeightSampler(
+        GeneratedWorldPlanRecord plan, YQSpatialBlueprintTerrainSamplerV2 prepared)
+    {
+        // note: Native joins and terrain publication share the exact versioned seed/detail salt, including whitespace/default-seed behavior.
         string safeSeed = string.IsNullOrWhiteSpace(plan.worldSeed)
             ? "yourquest_default_world"
             : plan.worldSeed.Trim();
         uint seedHash = StableHash32(TerrainGenerationVersion + "|" + safeSeed);
-        sampler = new V2HeightSampler(
+        return new V2HeightSampler(
             prepared, SeedOffset(seedHash, 0xC3195A47u));
-        return true;
     }
 
     /*
@@ -1166,10 +1173,62 @@ public static class YQGeneratedWorldTerrain
             return worldPosition.y;
         }
 
-        return
-            terrain.SampleHeight(
-                worldPosition) +
-            terrain.transform.position.y;
+        // note: A finite Terrain clamps outside its bounds. Distant accepted placements must use the same continuous height authority as their eventual collision tiles.
+        return TrySamplePlacementHeight(terrain, worldPosition, null, out float height)
+            ? height : terrain.SampleHeight(worldPosition) + terrain.transform.position.y;
+    }
+
+    private sealed class PlacementHeightContext
+    {
+        public GeneratedWorldPlanRecord plan;
+        public GeneratedSpatialWorldPlanV2Record artifact;
+        public string hash;
+        public GeneratedSpatialContinuationV2Record continuation;
+        public string continuationHash;
+        public long continuationRevision;
+        public YQContinuousWorldCellAuthority authority;
+    }
+    // note: Each generated Terrain owns one immutable sampling snapshot for its materialization lifetime; this creates no world, save, terrain tile, or streaming owner.
+    private static readonly ConditionalWeakTable<Terrain, PlacementHeightContext> PlacementHeights =
+        new ConditionalWeakTable<Terrain, PlacementHeightContext>();
+
+    internal static bool TrySamplePlacementHeight(Terrain terrain, Vector3 point,
+        GeneratedWorldPlanRecord explicitPlan, out float height)
+    {
+        height = 0f;
+        if (terrain == null || terrain.terrainData == null || !IsFiniteVector(point)) return false;
+        Vector3 origin = terrain.transform.position, size = terrain.terrainData.size;
+        if (point.x >= origin.x && point.x <= origin.x + size.x && point.z >= origin.z && point.z <= origin.z + size.z)
+        {
+            height = terrain.SampleHeight(point) + origin.y;
+            return IsFinite(height);
+        }
+        var streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        if (explicitPlan == null && streamer != null && streamer.TryGetGeneratedTerrainAt(point, out var publishedTerrain))
+        {
+            height = publishedTerrain.SampleHeight(point) + publishedTerrain.transform.position.y;
+            return IsFinite(height);
+        }
+        GeneratedWorldPlanRecord plan = explicitPlan ?? WorldStateManager.Instance?.State?.generatedWorldPlan;
+        if (plan == null || !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan)) return false;
+        Terrain authored = explicitPlan == null && streamer != null && streamer.AuthoredTerrain != null ? streamer.AuthoredTerrain : terrain;
+        PlacementHeightContext context = PlacementHeights.GetValue(authored, _ => new PlacementHeightContext());
+        var artifact = plan.spatialPlanV2;
+        var continuation = artifact?.acceptedContinuation;
+        if (context.authority == null || !ReferenceEquals(context.plan, plan) || !ReferenceEquals(context.artifact, artifact) ||
+            context.hash != artifact?.contentHash || !ReferenceEquals(context.continuation, continuation) ||
+            context.continuationHash != continuation?.contentHash || context.continuationRevision != (continuation?.revision ?? 0))
+        {
+            // note: A new accepted revision must pass the existing resolver before capturing exactly the streamer's seed/detail/collar/terrain-pad height formula.
+            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out _, out _) ||
+                !TryCreateV2HeightSampler(plan, out var sampler, out _)) return false;
+            var authority = new YQContinuousWorldCellAuthority(plan.worldSeed, authored, sampler, plan);
+            context.plan = plan; context.artifact = artifact; context.hash = artifact.contentHash;
+            context.continuation = continuation; context.continuationHash = continuation?.contentHash;
+            context.continuationRevision = continuation?.revision ?? 0; context.authority = authority;
+        }
+        height = authored.transform.position.y + context.authority.SampleHeightNormalized(point.x, point.z) * authored.terrainData.size.y;
+        return IsFinite(height);
     }
 
     public static bool TryGetStableContactGeometry(
@@ -1321,6 +1380,136 @@ public static class YQGeneratedWorldTerrain
             structuralBottom);
     }
 
+    public static bool TryGetActorContactGeometry(GameObject root, out Bounds bodyBounds, out float contactBottom)
+    {
+        bodyBounds = default;
+        contactBottom = 0f;
+        if (root == null) return false;
+        Animator animator = root.GetComponentInChildren<Animator>(true);
+        var feet = new List<Vector3>(4);
+        var footBones = new List<Transform>(4);
+        Transform leftHand = null, rightHand = null;
+        if (animator != null && animator.isHuman)
+        {
+            // note: Humanoid foot/toe anchors constrain actual posed vertices; robe area, weapon tips and padded skin bounds cannot become the feet datum.
+            foreach (HumanBodyBones key in new[] { HumanBodyBones.LeftFoot, HumanBodyBones.RightFoot, HumanBodyBones.LeftToes, HumanBodyBones.RightToes })
+            {
+                Transform bone = animator.GetBoneTransform(key);
+                if (bone != null) { feet.Add(bone.position); footBones.Add(bone); }
+            }
+            leftHand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+            rightHand = animator.GetBoneTransform(HumanBodyBones.RightHand);
+        }
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        bool hasSkinnedBody = root.GetComponentInChildren<SkinnedMeshRenderer>(true) != null;
+        bool initialized = false;
+        var vertices = new List<Vector3>();
+        var footVertices = new List<Vector3>();
+        Mesh snapshot = null;
+        try
+        {
+            foreach (Renderer renderer in renderers)
+            {
+                if (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer)) continue;
+                if (!IsPrimaryActorRenderer(renderer, root.transform)) continue;
+                if (IsActorHandAttachment(renderer.transform, leftHand, rightHand)) continue;
+                Mesh geometry;
+                bool suppliesFootVertices = false;
+                if (renderer is SkinnedMeshRenderer skin)
+                {
+                    if (skin.sharedMesh == null || IsActorHandAttachment(skin.rootBone, leftHand, rightHand)) continue;
+                    if (footBones.Count > 0)
+                    {
+                        foreach (Transform bone in skin.bones)
+                            if (bone != null && footBones.Contains(bone)) { suppliesFootVertices = true; break; }
+                    }
+                    snapshot ??= new Mesh { name = "YQ_ActorContactSnapshot" };
+                    snapshot.Clear();
+                    // note: A setup-only snapshot works with non-readable imported meshes and does not modify the source mesh or its import settings.
+                    skin.BakeMesh(snapshot);
+                    snapshot.RecalculateBounds();
+                    geometry = snapshot;
+                }
+                else
+                {
+                    // note: Static held equipment is not the body of a skinned actor. Primitive/static approved actors retain their actual primary mesh contact.
+                    if (hasSkinnedBody) continue;
+                    geometry = renderer.GetComponent<MeshFilter>()?.sharedMesh;
+                }
+                if (geometry == null || geometry.vertexCount == 0) continue;
+                Bounds local = geometry.bounds;
+                if (!IsFiniteVector(local.center) || !IsFiniteVector(local.size)) continue;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    Vector3 point = renderer.transform.TransformPoint(local.center + Vector3.Scale(local.extents,
+                        new Vector3((corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f)));
+                    if (!initialized) { bodyBounds = new Bounds(point, Vector3.zero); initialized = true; }
+                    else bodyBounds.Encapsulate(point);
+                }
+                // note: Modular boots supply foot vertices while the complete primary body supplies scale; a boot-only mesh height must not shrink the contact search.
+                if (feet.Count == 0 || !suppliesFootVertices) continue;
+                vertices.Clear();
+                geometry.GetVertices(vertices);
+                foreach (Vector3 vertex in vertices) footVertices.Add(renderer.transform.TransformPoint(vertex));
+            }
+        }
+        finally
+        {
+            if (snapshot != null)
+            {
+                if (Application.isPlaying) UnityEngine.Object.Destroy(snapshot);
+                else UnityEngine.Object.DestroyImmediate(snapshot);
+            }
+        }
+        if (!initialized || !IsFiniteVector(bodyBounds.center) || !IsFiniteVector(bodyBounds.size)) return false;
+        if (feet.Count > 0)
+        {
+            float scale = Mathf.Clamp(bodyBounds.size.y / 1.8f, 0.4f, 2f);
+            return TryResolveActorFootContact(footVertices, feet, .24f * scale, .35f * scale, out contactBottom);
+        }
+        // note: Generic bodies use their actual primary posed geometry's bottom, never the building foundation's area-weighted median.
+        contactBottom = bodyBounds.min.y;
+        return IsFinite(contactBottom);
+    }
+
+    internal static bool TryResolveActorFootContact(IReadOnlyList<Vector3> vertices, IReadOnlyList<Vector3> anchors,
+        float horizontalReach, float maximumBelowAnchor, out float contactBottom)
+    {
+        // note: This pure selector permits either planted foot and rejects non-finite or unrelated low geometry; the native adapter supplies posed primary-body vertices.
+        contactBottom = float.PositiveInfinity;
+        if (vertices == null || anchors == null || !IsFinite(horizontalReach) || horizontalReach <= 0f ||
+            !IsFinite(maximumBelowAnchor) || maximumBelowAnchor <= 0f) return false;
+        foreach (Vector3 vertex in vertices)
+        {
+            if (!IsFiniteVector(vertex)) continue;
+            foreach (Vector3 anchor in anchors)
+            {
+                if (!IsFiniteVector(anchor)) continue;
+                Vector3 offset = vertex - anchor;
+                if (offset.y < -maximumBelowAnchor || offset.y > horizontalReach * .5f ||
+                    offset.x * offset.x + offset.z * offset.z > horizontalReach * horizontalReach) continue;
+                contactBottom = Mathf.Min(contactBottom, vertex.y);
+                break;
+            }
+        }
+        return IsFinite(contactBottom);
+    }
+
+    private static bool IsActorHandAttachment(Transform candidate, Transform leftHand, Transform rightHand) =>
+        candidate != null && ((leftHand != null && candidate.IsChildOf(leftHand)) || (rightHand != null && candidate.IsChildOf(rightHand)));
+
+    private static bool IsPrimaryActorRenderer(Renderer renderer, Transform actor)
+    {
+        // note: LOD visibility can be disabled during staging; geometry identity selects the first authored LOD instead of mixing every approximation's bounds.
+        LODGroup group = renderer.GetComponentInParent<LODGroup>(true);
+        if (group == null || !group.transform.IsChildOf(actor)) return true;
+        LOD[] levels = group.GetLODs();
+        for (int level = 0; level < levels.Length; level++)
+            foreach (Renderer member in levels[level].renderers)
+                if (member == renderer) return level == 0;
+        return true;
+    }
+
     public static bool TrySampleFootprintHeight(
         Terrain terrain,
         Bounds bounds,
@@ -1385,18 +1574,12 @@ public static class YQGeneratedWorldTerrain
             Vector3 point =
                 points[index];
 
-            if (point.x < terrainOrigin.x ||
-                point.x > terrainOrigin.x + terrainSize.x ||
-                point.z < terrainOrigin.z ||
-                point.z > terrainOrigin.z + terrainSize.z)
+            if (!TrySamplePlacementHeight(terrain, point, null, out float sampledHeight))
             {
                 continue;
             }
 
-            heights[found++] =
-                SampleWorldHeight(
-                    terrain,
-                    point);
+            heights[found++] = sampledHeight;
         }
 
         if (found == 0)
@@ -1467,10 +1650,13 @@ public static class YQGeneratedWorldTerrain
             terrain,
             resolvedCategory);
 
-        if (!TryGetStableContactGeometry(
-                root,
-                out Bounds bounds,
-                out float structuralBottom))
+        // note: Actors contact through their body/feet datum; structures retain the existing weighted foundation statistic.
+        Bounds bounds;
+        float structuralBottom;
+        bool hasContact = resolvedCategory == YQGeneratedWorldPlacementCategory.Actor
+            ? TryGetActorContactGeometry(root, out bounds, out structuralBottom)
+            : TryGetStableContactGeometry(root, out bounds, out structuralBottom);
+        if (!hasContact)
         {
             return false;
         }
@@ -1777,8 +1963,8 @@ public static class YQGeneratedWorldTerrain
     private static bool IsStableContactRenderer(
         Renderer renderer)
     {
+        // note: Hidden staging and LOD culling change Renderer.enabled, not the geometry's contact datum. Grounding must work before presentation is exposed.
         if (renderer == null ||
-            !renderer.enabled ||
             renderer is ParticleSystemRenderer ||
             renderer is TrailRenderer ||
             renderer is LineRenderer)
@@ -2048,12 +2234,13 @@ public static class YQGeneratedWorldTerrain
         // note: V2 owns macro terrain; seed detail is suppressed around water, roads, caves, and site reserves before applying the unchanged height limits.
         YQSpatialTerrainSampleV2 planned = spatialSession != null
             ? spatialSession.SampleSpatial(spatialSampler, worldX, worldZ)
-            : spatialSampler.Sample(worldX, worldZ);
+            : spatialSampler.SampleTerrainSource(worldX, worldZ);
         float microDetail = Mathf.PerlinNoise(
             worldX * DetailNoiseScale + detailOffset.x,
             worldZ * DetailNoiseScale + detailOffset.y) * 2f - 1f;
+        // note: New connected shores suppress detail and inland smoothing on both sides of the bed/water intersection; legacy samples leave this mask zero.
         float protectedMask = Mathf.Max(
-            planned.waterMask,
+            Mathf.Max(planned.waterMask, planned.connectedBasinSupportMask),
             Mathf.Max(
                 planned.routeMask,
                 Mathf.Max(planned.siteReserveMask, planned.caveMassMask)));
@@ -2077,7 +2264,7 @@ public static class YQGeneratedWorldTerrain
                 float supportZ = worldZ + offsetZ;
                 YQSpatialTerrainSampleV2 support = spatialSession != null
                     ? spatialSession.SampleSpatial(spatialSampler, supportX, supportZ)
-                    : spatialSampler.Sample(supportX, supportZ);
+                    : spatialSampler.SampleTerrainSource(supportX, supportZ);
                 neighbourAverage += support.elevationNormalized;
                 maximumGrade = Mathf.Max(
                     maximumGrade,
@@ -2103,8 +2290,12 @@ public static class YQGeneratedWorldTerrain
                     blend);
             }
         }
+        float detailedElevation = acceptedElevation + microDetail * detailStrength;
+        // note: Version-8 channel grading remains authoritative after cosmetic detail; noise must not reopen a dry bank below its accepted water datum. Earlier accepted versions keep their exact arithmetic.
+        if (planned.constrainFinalChannelElevation)
+            detailedElevation = Mathf.Clamp(detailedElevation, planned.minimumChannelElevation, planned.maximumChannelElevation);
         return Mathf.Clamp(
-            acceptedElevation + microDetail * detailStrength,
+            detailedElevation,
             0.025f,
             0.88f);
     }

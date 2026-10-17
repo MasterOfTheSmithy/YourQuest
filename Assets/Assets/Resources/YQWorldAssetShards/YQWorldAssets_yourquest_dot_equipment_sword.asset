@@ -1,0 +1,197 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_sword
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Ashfall_Longsword.prefab
+    prefab: {fileID: 6212745371121785864, guid: 87cd4e99a258b5744b5f913d9fcf7458, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Border_Arming_Sword.prefab
+    prefab: {fileID: 1917815890935336242, guid: 7de700f209a19724fadfc8be38d12b84, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Cavalry_Sabre.prefab
+    prefab: {fileID: 6422441850620314704, guid: eefae8d02204fb649834dc99554d7f5f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Corsair_Falchion.prefab
+    prefab: {fileID: 5068772287616673891, guid: a1e252c51bcee6545a971d4742a4a75f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Dawn_Cathedral.prefab
+    prefab: {fileID: 3949052871254457842, guid: 1214d25652015714391c6f072ec30532, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Duelist_Estoc.prefab
+    prefab: {fileID: 926039895416941337, guid: 76901b7e2fed39a4b9dba2e7c30202c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Eclipse_Twin_Crescent.prefab
+    prefab: {fileID: 352293726816838307, guid: 67ffad3faafee254ab6cb79f415060d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Frostwake.prefab
+    prefab: {fileID: 3012670541252180735, guid: de3678676e8a81648942f71965d0f1cb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Sword_Starforged_Orrery.prefab
+    prefab: {fileID: 401270157205072250, guid: e427ef277f3ccea48ad35153b105793e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Sword_Worldtree_Sovereign.prefab
+    prefab: {fileID: 2080113819979684671, guid: 2cab8ff7e2c54374681c4efeb4ee7d8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Wyrmfang_Greatblade.prefab
+    prefab: {fileID: 6765958828272247224, guid: 032b609d36e77024b99b013d1fd4a21a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_darkness.prefab
+    prefab: {fileID: 7621167794150225408, guid: 697d255c1a349ce488483a155b67468c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_fire.prefab
+    prefab: {fileID: 6271721683932484896, guid: c66981abd8de6354d89648354a797525, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_forged.prefab
+    prefab: {fileID: 8292865240537902895, guid: 0b11edbbda390f04880b088919a1c396, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_frost.prefab
+    prefab: {fileID: 3136975486043680313, guid: 933429f8ca568b542a5c32aec104910c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_light.prefab
+    prefab: {fileID: 2929408723905093579, guid: a21e0303e1985f8449c72c4738c5a415, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_blade_organic.prefab
+    prefab: {fileID: 1786705505251452291, guid: 026d8d5e6eb23924ca7280a3bd07cbe4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_darkness.prefab
+    prefab: {fileID: 3753022627938673144, guid: b7cd0a81aabbb1949bf4fb702d2626c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_fire.prefab
+    prefab: {fileID: 6444657659826760204, guid: 11bf8e47b3579d646ac44c79900904e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_forged.prefab
+    prefab: {fileID: 7930621111035190903, guid: 995b7535475d32c40811ce5a686078ce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_frost.prefab
+    prefab: {fileID: 4123316902135203677, guid: 69189a9783cbb8c4098eacd19e2f24c9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_light.prefab
+    prefab: {fileID: 5848209989107808188, guid: 6061f9f3ae9c7f942967f619f91ca18b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_guard_organic.prefab
+    prefab: {fileID: 668632781995202001, guid: 7cbc47d541b8ab24eba0e8db1797f4da, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_darkness.prefab
+    prefab: {fileID: 8566590412475738692, guid: 431d465b6a89c644c8b05d882ce65a7a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_fire.prefab
+    prefab: {fileID: 185288778864240302, guid: 458ad62eccc544f4089035d1a3e0b9ab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_forged.prefab
+    prefab: {fileID: 639316169935812647, guid: 39cd207c28198a142890aaf7361b319e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_frost.prefab
+    prefab: {fileID: 7591743087932138795, guid: cc0d6b616af80964eb1226b18a136c59, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_light.prefab
+    prefab: {fileID: 7316178490649591219, guid: 6df73ee8c7324e44c8ee08bd314a2652, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_hilt_organic.prefab
+    prefab: {fileID: 1463123817959021976, guid: 9e8d26b38a11ff54993b3a1333d3ed1e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_mixed_dark_light_forged.prefab
+    prefab: {fileID: 5552217277955264231, guid: 71321dc6152496c4b920d58360d827b2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/yqmod1_weapon_sword_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 2518044763308434883, guid: cc100fffb4a2a254cb1935fb59134399, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Ashfall_Longsword_Parts.prefab
+    prefab: {fileID: 3729639611201322894, guid: ed50a3b00c7f72341a4a5353b74f7cb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Border_Arming_Sword_Parts.prefab
+    prefab: {fileID: 894428161358267706, guid: 84105f74921054c468e63e418fa1fbab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Corsair_Falchion_Parts.prefab
+    prefab: {fileID: 5827086332715406858, guid: 5a40d24fa252b2949b62c2b8fcec8134, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Duelist_Estoc_Parts.prefab
+    prefab: {fileID: 5200544363867932405, guid: 8f082360f11871f49907403ef998e96e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Cavalry_Sabre_Parts.prefab
+    prefab: {fileID: 2156248901692393877, guid: 847b4c3c7078d0d4abaddf59946b7dac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Wyrmfang_Greatblade_Parts.prefab
+    prefab: {fileID: 8451670170685702464, guid: 4fdbfd647559a404aa6f078a251b8d1e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Eclipse_Twin_Crescent_Parts.prefab
+    prefab: {fileID: 517724089215988055, guid: 57fe622bde4e4a447b99e501a54397d0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Sword_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7883427540803052039, guid: d17ea6cf148cb384ead9eca267de5f33, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Sword_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 1716303747764796891, guid: d32ee2808259b564cad7d4f449c2d75b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Frostwake_Parts.prefab
+    prefab: {fileID: 1979756077641097507, guid: a98bc6b46ac73db4aa838a240b5d1cb2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/Dawn_Cathedral_Parts.prefab
+    prefab: {fileID: 5515352139185017008, guid: ba8e4f995195757429f903d4a6a46c36, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/maw_jaw_plate_sword_guard.prefab
+    prefab: {fileID: 7372313240615602974, guid: e5d8fa95170f82e4fae761d9cca8d5c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/maw_radial_tooth_sword_blade.prefab
+    prefab: {fileID: 7035288863511256543, guid: 670cee5dc9eaf5c4690276f94f0ec3a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sword/sword_monster_crafted_assembled.prefab
+    prefab: {fileID: 1912075242163484838, guid: c8d448e34afb0bb4f831da1fa83af67b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

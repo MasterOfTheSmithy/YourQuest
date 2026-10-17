@@ -1209,6 +1209,10 @@ public sealed partial class YourQuestTutorialMenuUI : MonoBehaviour
             _tabButtons.Add(button);
         }
 
+        // note: Feedback controls are local preferences; they never touch canonical character state or change combat mechanics.
+        AddFeedbackPreferenceButton(tabs, "Vibration", "YQ.Haptics.Intensity", 1f, true);
+        AddFeedbackPreferenceButton(tabs, "Camera motion", "YQ.CameraFeedback.Intensity", .65f, false);
+
         _equipmentPanel = CreatePanel(root, "Equipment", new Vector2(0f, 0f), new Vector2(500f, 760f), new Vector2(212f, 82f), YQUITheme.Panel);
         AddOutline(_equipmentPanel, new Color(0f, 0f, 0f, 0.24f));
         VerticalLayoutGroup equipmentLayoutGroup = _equipmentPanel.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -1329,6 +1333,21 @@ public sealed partial class YourQuestTutorialMenuUI : MonoBehaviour
         text.color = color;
         YQUITheme.ApplyText(text, color);
         return text;
+    }
+
+    private void AddFeedbackPreferenceButton(Transform parent, string label, string key, float fallback, bool haptics)
+    {
+        float value = Mathf.Clamp01(PlayerPrefs.GetFloat(key, fallback));
+        Button button = CreateNavButton(parent, label + ": " + Mathf.RoundToInt(value * 100f) + "%");
+        button.onClick.AddListener(() =>
+        {
+            value = value <= .01f ? 1f : Mathf.Max(0f, value - .25f);
+            PlayerPrefs.SetFloat(key, value);
+            YQPlayerHaptics feedback = YQInvestorPlayerMotor.ActiveMotor != null ? YQInvestorPlayerMotor.ActiveMotor.GetComponent<YQPlayerHaptics>() : null;
+            if (feedback != null) { if (haptics) feedback.SetIntensity(value); else feedback.SetCameraIntensity(value); }
+            TMP_Text text = button.GetComponentInChildren<TMP_Text>();
+            if (text != null) text.text = label + ": " + Mathf.RoundToInt(value * 100f) + "%";
+        });
     }
 
     private static TMP_Text CreateTextStretch(Transform parent, string name, float size, FontStyles style, TextAlignmentOptions alignment)

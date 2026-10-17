@@ -9,6 +9,8 @@ public static class YQDeveloperTestSession
 {
     public static bool Active => _player != null;
     public static bool Publishing { get; private set; }
+    public static bool PersistenceBlocked => (Active && !Publishing) || _retainPersistenceForPlayExit;
+    private static bool _retainPersistenceForPlayExit;
     private static bool _temporarySceneChanges;
     private static PlayerStateManager _manager;
     private static WorldStateManager _worldManager;
@@ -33,6 +35,8 @@ public static class YQDeveloperTestSession
         // A surviving owner deliberately keeps its rollback buffer/barrier until restoration succeeds.
         if (Active && _manager == null) Clear();
         Publishing = false;
+        // note: A completed Editor witness retains its save barrier through quit callbacks, then releases it at the next Play session boundary.
+        _retainPersistenceForPlayExit = false;
     }
 
     public static bool Begin(out string message)
@@ -42,6 +46,7 @@ public static class YQDeveloperTestSession
 
     public static bool Begin(PlayerStateManager manager, WorldStateManager world, out string message)
     {
+        if (_retainPersistenceForPlayExit) { message = "Restoration completed for Play Mode exit; restart Play before another snapshot."; return false; }
         if (Active) { message = "Snapshot already active; restore or persist before replacing it."; return false; }
         if (manager == null || manager.state == null || world == null || world.State == null)
         { message = "Player/world state owners are not ready."; return false; }
@@ -77,6 +82,16 @@ public static class YQDeveloperTestSession
     }
 
     public static void OnRestore(Action restore) => Rollbacks.Add(restore);
+
+#if UNITY_EDITOR
+    public static bool RestoreForPlayModeExit(out string message)
+    {
+        // note: Restore the existing owners without letting autosave/quit publish test exploration between restoration and Editor shutdown.
+        if (!CheckOwners(out message)) return false;
+        _retainPersistenceForPlayExit = true;
+        return Restore(out message);
+    }
+#endif
 
     // note: Test encounters are temporary scene objects; they must never be published into a normal profile.
     public static void OnTemporarySceneChange(Action cleanup)

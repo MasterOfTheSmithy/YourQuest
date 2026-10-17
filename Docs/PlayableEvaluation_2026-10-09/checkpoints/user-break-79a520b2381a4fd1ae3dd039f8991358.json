@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-10T04:11:25.9951772Z",
+  "reason": "Explicit user request to stop at the earliest non-destructive stopping point",
+  "goalDisposition": "pause_requested",
+  "changesPreserved": true,
+  "testsStartedDuringStop": 0,
+  "completedSubagents": [
+    "action_commit_review",
+    "candidate_catalog"
+  ],
+  "lastKnownUnity": {
+    "source": "Temp/YQ_STREAMER_PLAYMODE.status",
+    "heartbeatUtc": "2026-10-10T04:06:22.3768140Z",
+    "playing": true,
+    "paused": true,
+    "compiling": false,
+    "updating": false,
+    "liveUiRecheckedDuringStop": false,
+    "workerQuiescenceCertified": false
+  },
+  "stoppingActions": [
+    "Preserved current source, receipts, profiles, models, and staging",
+    "No new capture, transaction, test, download, save, reload, or cleanup initiated"
+  ],
+  "resumePoint": [
+    "Confirm Unity state before interacting",
+    "Capture the reviewed read-only streaming demand diagnostic",
+    "Review actual capture provenance and worker state",
+    "Prepare fresh offer-owner preflight and exact full control-profile backup before any owner transaction",
+    "Review the prepared Coqui dependency plan before any download or inference"
+  ],
+  "remaining": [
+    "Automated owner and streaming runtime checks",
+    "Remaining native candidate evaluations",
+    "Real microphone and human voice acceptance"
+  ],
+  "compilationEvidence": "outputs/streaming-demand-diagnostic-compile-3/receipt.json: prior completed detached compilation, 393 runtime and 186 Editor files, zero errors or warnings; no new compilation during stop"
+}

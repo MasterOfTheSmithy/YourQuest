@@ -1,0 +1,225 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: modular_viking_village
+  semanticStyleKey: modular_viking_village
+  sourceSignature: fnv1a32_90edf72a
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 4bd25cb05ceecf74b86b7e254343b8b3, type: 2}
+  sourceInstanceCount: 10517
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_modular_viking_village_residential_01
+    displayName: Modular Viking Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -6525.6353, y: 0.000034332275, z: -6498.1753}
+    localBoundsCenter: {x: 0, y: 62.2502, z: 0}
+    localBoundsSize: {x: 134.79492, y: 124.5004, z: 30.314453}
+    sourceInstanceCount: 84
+    authoredBuildingCount: 0
+    authoredDressingCount: 84
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p1_p0_p00
+    - yq_cell_modular_viking_village_p2_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_service_02
+    displayName: Modular Viking Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -6492.6416, y: -0.57199097, z: -5814.349}
+    localBoundsCenter: {x: 0, y: 299.87134, z: 0}
+    localBoundsSize: {x: 473.0039, y: 599.7427, z: 581.1455}
+    sourceInstanceCount: 10406
+    authoredBuildingCount: 0
+    authoredDressingCount: 10406
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p0_p6_p00
+    - yq_cell_modular_viking_village_p0_p7_p00
+    - yq_cell_modular_viking_village_p1_p5_p00
+    - yq_cell_modular_viking_village_p1_p6_p00
+    - yq_cell_modular_viking_village_p1_p6_p01
+    - yq_cell_modular_viking_village_p1_p7_p00
+    - yq_cell_modular_viking_village_p1_p7_p01
+    - yq_cell_modular_viking_village_p1_p8_p00
+    - yq_cell_modular_viking_village_p2_p5_p00
+    - yq_cell_modular_viking_village_p2_p6_p00
+    - yq_cell_modular_viking_village_p2_p7_p00
+    - yq_cell_modular_viking_village_p2_p8_p00
+    - yq_cell_modular_viking_village_p2_p9_p00
+    - yq_cell_modular_viking_village_p3_p6_p00
+    - yq_cell_modular_viking_village_p3_p8_p00
+    - yq_cell_modular_viking_village_p3_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_civic_03
+    displayName: Modular Viking Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -6219.8066, y: 379.7262, z: -6141.9497}
+    localBoundsCenter: {x: 0, y: 152.00842, z: 0}
+    localBoundsSize: {x: 627.3169, y: 304.01685, z: 416.8506}
+    sourceInstanceCount: 5
+    authoredBuildingCount: 0
+    authoredDressingCount: 5
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p3_p4_p00
+    - yq_cell_modular_viking_village_p3_p5_p00
+    - yq_cell_modular_viking_village_p5_p3_p00
+    - yq_cell_modular_viking_village_p6_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_circulation_04
+    displayName: Modular Viking Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -6178.257, y: 518.20996, z: -5394.3926}
+    localBoundsCenter: {x: 0, y: 106.74805, z: 0}
+    localBoundsSize: {x: 484.81885, y: 213.49603, z: 431.83594}
+    sourceInstanceCount: 7
+    authoredBuildingCount: 0
+    authoredDressingCount: 7
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p4_p12_p00
+    - yq_cell_modular_viking_village_p5_p11_p00
+    - yq_cell_modular_viking_village_p6_p10_p00
+    - yq_cell_modular_viking_village_p6_p11_p00
+    - yq_cell_modular_viking_village_p7_p12_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_poi_05
+    displayName: Modular Viking Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -6130.716, y: 483.8672, z: -5777.6973}
+    localBoundsCenter: {x: 0, y: 86.302246, z: 0}
+    localBoundsSize: {x: 518.73047, y: 172.60446, z: 405.51367}
+    sourceInstanceCount: 9
+    authoredBuildingCount: 0
+    authoredDressingCount: 9
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p4_p8_p00
+    - yq_cell_modular_viking_village_p6_p6_p00
+    - yq_cell_modular_viking_village_p6_p8_p00
+    - yq_cell_modular_viking_village_p7_p6_p00
+    - yq_cell_modular_viking_village_p7_p8_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_residential_06
+    displayName: Modular Viking Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -5830.3154, y: 502.60437, z: -6014.918}
+    localBoundsCenter: {x: 0, y: 134.33844, z: 0}
+    localBoundsSize: {x: 505.8911, y: 268.67688, z: 716.96387}
+    sourceInstanceCount: 3
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p7_p3_p00
+    - yq_cell_modular_viking_village_p8_p3_p00
+    - yq_cell_modular_viking_village_p9_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_service_07
+    displayName: Modular Viking Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -5497.636, y: 235.94794, z: -2469.1714}
+    localBoundsCenter: {x: 0, y: 756.03015, z: 0}
+    localBoundsSize: {x: 1382.4124, y: 1512.0603, z: 1665.1132}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p13_p40_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_civic_08
+    displayName: Modular Viking Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -3649.481, y: 575.5115, z: -4333.038}
+    localBoundsCenter: {x: 0, y: 201.84326, z: 0}
+    localBoundsSize: {x: 385.6599, y: 403.6865, z: 654.63367}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p31_p22_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_modular_viking_village_circulation_09
+    displayName: Modular Viking Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 5253.7124, y: 501.9718, z: 4286.773}
+    localBoundsCenter: {x: 0, y: 1282.9336, z: 0}
+    localBoundsSize: {x: 3519.621, y: 2565.8672, z: 4453.1167}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_modular_viking_village_p126_p108_p00
+    cellContractsV2: []

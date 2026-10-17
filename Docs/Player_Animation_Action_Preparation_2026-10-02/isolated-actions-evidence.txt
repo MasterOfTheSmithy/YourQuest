@@ -1,0 +1,23 @@
+Idle: Armature|Idle_Loop length=2.5
+Walk: Armature|Walk_Loop length=1.333333
+Run: Armature|Sprint_Loop length=0.6666667
+Backward: WalkBack (body locomotion) length=1.6
+Crouch: Armature|Crouch_Fwd_Loop length=2
+NativeIdle: length=4.666668; foot span=0.009301668
+NativeWalk: length=0.9666668; foot span=0.6303302
+NativeRun: length=0.7000003; foot span=0.7704123
+MeleeLeft: Armature|Sword_Regular_A; length=0.4333334; sampled right-hand arc=0.9260316; trigger/recovery=PASS
+MeleeRight: Armature|Sword_Regular_B; length=0.5333334; sampled right-hand arc=1.157782; trigger/recovery=PASS
+PunchLeft: Armature|Punch_Jab; length=0.8666667; sampled right-hand arc=0.2077449; trigger/recovery=PASS
+PunchRight: Armature|Punch_Cross; length=1; sampled right-hand arc=0.4001054; trigger/recovery=PASS
+Interact: Armature|Interact; length=2; sampled right-hand arc=0.02077698; trigger/recovery=PASS
+Pickup: Armature|PickUp_Table; length=0.8333334; sampled right-hand arc=0.1631963; trigger/recovery=PASS
+Consume: Armature|Consume; length=1.333333; sampled right-hand arc=0.1284428; trigger/recovery=PASS
+Equip: YQ_Action_GrabWeaponR; length=1.666672; sampled right-hand arc=0.870724; trigger/recovery=PASS
+Unequip: YQ_Action_PutAwayWeaponR; length=2.333336; sampled right-hand arc=0.8586314; trigger/recovery=PASS
+Hit: Armature|Hit_Chest; length=0.3333333; sampled right-hand arc=0.07726484; trigger/recovery=PASS
+Guard: Armature|Sword_Block; length=1.233333; sampled right-hand arc=0.7218264; trigger/recovery=PASS
+Channel: Armature|Spell_Simple_Shoot; length=0.5; sampled right-hand arc=0.0345471; trigger/recovery=PASS
+Emote: Armature|Yes; length=2.5; sampled right-hand arc=0.05291829; trigger/recovery=PASS
+DodgeRoll: authored full-body phases and physical-timer recovery=PASS
+Editor-only action coverage PASS. Production motor, gear and camera still require live verification.

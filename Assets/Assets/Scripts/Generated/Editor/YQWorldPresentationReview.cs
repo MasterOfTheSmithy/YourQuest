@@ -9,35 +9,155 @@ using UnityEngine.Rendering.Universal;
 public static class YQWorldPresentationReview
 {
     private static bool _cpuCaptureActive;
+    private static double _cpuDurationSeconds = 15d;
+    private static int _cpuSampleCapacity = 1024;
     private static double _cpuCaptureStarted;
     private static int _cpuFirstGameplayFrame;
     private static bool _cpuFocusedAtStart;
+    private static bool _cpuStartupCapture;
+    private static IReadOnlyList<string> _cpuFrontierMarkerNames = Array.Empty<string>();
+    private static object _cpuStartingContext;
+    private static bool _cpuStreamerAttribution;
+    private static bool _cpuPopulationAttribution;
+    private static readonly List<string> CpuMissingRequestedNames = new List<string>();
     private static readonly List<Unity.Profiling.ProfilerRecorder> CpuRecorders = new List<Unity.Profiling.ProfilerRecorder>();
     private static readonly List<string> CpuRecorderNames = new List<string>();
     private static readonly List<string> CpuRecorderUnits = new List<string>();
 
     [UnityEditor.MenuItem("YourQuest/Verification/Capture 15 Seconds of Streaming CPU")]
     public static void CaptureStreamingCpu()
+        => CaptureCpu(false);
+
+    // note: A longer bounded window can retain an asynchronous frontier publication after a short travel leg.
+    [UnityEditor.MenuItem("YourQuest/Verification/Capture 60 Seconds of Streaming CPU")]
+    public static void CaptureStreamingCpuMinute() => CaptureCpu(false, 60d);
+
+    // note: A separate explicit attribution mode reserves the unchanged recorder cap for synchronous streamer owners and GC/world-reaction controls.
+    [UnityEditor.MenuItem("YourQuest/Verification/Capture 60 Seconds of Streamer Attribution")]
+    public static void CaptureStreamerAttribution() => CaptureCpu(false, 60d, true);
+
+    // note: Separate explicit leaf attribution leaves existing recorder modes unchanged.
+    public static void CapturePopulationAttribution() => CaptureCpu(false, 60d, false, true);
+
+    public static void CaptureStartupCpu()
+        => CaptureCpu(true);
+
+    private static void CaptureCpu(bool startup, double durationSeconds = 15d, bool streamerAttribution = false, bool populationAttribution = false)
     {
         // note: A bounded explicit capture uses Unity's real CPU samples, with no input, scheduler, save, or player-state changes.
-        if (!Application.isPlaying || !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || Time.timeScale <= 0f || _cpuCaptureActive)
+        if (!Application.isPlaying || (!startup && (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased || Time.timeScale <= 0f)) || _cpuCaptureActive)
             return;
+        // note: Startup motion uses unscaled time; this explicit probe can observe menus/loading without changing the native profiler's recording state or gameplay readiness gates.
+        _cpuStartupCapture = startup;
+        _cpuStreamerAttribution = streamerAttribution;
+        _cpuPopulationAttribution = populationAttribution;
+        _cpuDurationSeconds = durationSeconds == 60d ? 60d : 15d;
+        _cpuSampleCapacity = _cpuDurationSeconds == 60d ? 16384 : 1024;
         YQSemanticChunkRuntimeVerification.PrimeProfilerMarkerForCpuCapture();
+        // note: Prime fixed inner publication handles before discovery; no gameplay work or recorded samples occur here.
+        var publicationNames = new List<string>(YQGeneratedWorldRuntimeBuilder.PrimeFrontierPublicationProfilerMarkersForCpuCapture())
+        {
+            "YQ.Frontier.WorldBaseClone", "YQ.Frontier.Refresh.CellAuthority", "YQ.Frontier.Refresh.SemanticAuthority"
+        };
+        // note: Register the private world-copy and refresh owners before recorder discovery; priming is outside the measured window and changes no world state.
+        for (int index = publicationNames.Count - 3; index < publicationNames.Count; index++)
+            using (new Unity.Profiling.ProfilerMarker(publicationNames[index]).Auto()) { }
+        // note: Semantic refresh leaves use the same bounded native recorder and missing-handle reporting as the existing publication owners.
+        publicationNames.AddRange(YQSemanticWorldAuthority.PrimeContinuationRefreshProfilerMarkersForCpuCapture());
+        // note: Ecology dispatch is a separate measured stall candidate; fixed leaf scopes preserve its current output and worker limits.
+        foreach (string name in new[] { "YQ.Ecology.Dispatch", "YQ.Ecology.DispatchScan", "YQ.Ecology.RetireStale",
+            "YQ.Ecology.DispatchSelect", "YQ.Ecology.DispatchProviders", "YQ.Ecology.Start" })
+        {
+            using (new Unity.Profiling.ProfilerMarker(name).Auto()) { }
+            publicationNames.Add(name);
+        }
+        if (streamerAttribution)
+        {
+            // note: Detailed publication leaves retain their existing mode; this named capture keeps all four publication phases while measuring every plausible Update owner together.
+            publicationNames.RemoveAll(name => !name.StartsWith("YQ.Ecology.", StringComparison.Ordinal));
+            // note: Fund measured admission and the observed native LLM coroutine wrapper from two falsified ecology leaves, retaining the owner and the 48-recorder cap.
+            publicationNames.RemoveAll(name => name == "YQ.Ecology.DispatchProviders" || name == "YQ.Ecology.DispatchSelect");
+            foreach (string name in new[] { "YQ.Frontier.BriefAdmission", "YQ.Frontier.RevalidatePreparedParent",
+                "YQ.Frontier.PrepareRefresh", "YQ.Frontier.PrepareProfile", "YQ.Frontier.PublishProfile", "YQ.Frontier.InstallRuntime" })
+            {
+                using (new Unity.Profiling.ProfilerMarker(name).Auto()) { }
+                publicationNames.Add(name);
+            }
+            // note: This exact automatic marker was observed in the preceding native recording; report absence rather than inventing or priming a managed coroutine marker.
+            publicationNames.Add("Assembly-CSharp.dll!::LLMClient.WaitForRequestRoutine() [Coroutine: MoveNext] [Invoke]");
+            foreach (string name in new[] { "YQ.Stream.Appearance", "YQ.Stream.Construction", "YQ.Stream.ContentDeferral", "YQ.Stream.ContentDispatch", "YQ.Stream.DiagnosticLog", "YQ.Stream.Diagnostics", "YQ.Stream.FrontierCancel", "YQ.Stream.FrontierCandidate", "YQ.Stream.FrontierCompletion", "YQ.Stream.FrontierIdentity", "YQ.Stream.FrontierOpportunity", "YQ.Stream.FrontierRefresh", "YQ.Stream.FrontierRoutes", "YQ.Stream.FrontierStep", "YQ.Stream.PhysicalDemand", "YQ.Stream.Population", "YQ.Stream.PredictiveAdmission", "YQ.Stream.ProvisionalGround", "YQ.Stream.QueueMaintenance", "YQ.Stream.RequiredCoverage", "YQ.Stream.SemanticPrune", "YQ.Stream.Telemetry", "YQ.Stream.TerrainDispatch", "YQ.Stream.ViewAdmission" })
+            {
+                using (new Unity.Profiling.ProfilerMarker(name).Auto()) { }
+                publicationNames.Add(name);
+            }
+        }
+        if (populationAttribution)
+        {
+            publicationNames.Clear();
+            foreach (string name in new[] { "YQ.Population.Step", "YQ.Population.ProviderAdmission", "YQ.Population.ReplayValidation", "YQ.Population.BaseContext", "YQ.Population.ContinuationContext", "YQ.Population.Inputs", "YQ.Population.BaseBindings", "YQ.Population.Resident", "YQ.Population.NamedHostile", "YQ.Population.GenericHostile", "YQ.Population.ResidentVisual", "YQ.Population.HostileVisual", "YQ.Population.Prefab", "YQ.Population.HostilePlacement", "YQ.Population.ResidentPlacement", "YQ.Population.BasicValidation", "YQ.Population.ReferenceValidation", "YQ.Population.Activation", "YQ.Population.Completion", "YQ.Population.CacheCompletion", "YQ.Stream.Population", "YQ.Stream.PopulationPreflight", "YQ.Stream.PopulationSelection", "YQ.Stream.PopulationCurrent", "YQ.Stream.PopulationCancel" })
+            {
+                using (new Unity.Profiling.ProfilerMarker(name).Auto()) { }
+                publicationNames.Add(name);
+            }
+        }
+        _cpuFrontierMarkerNames = publicationNames.AsReadOnly();
         // note: Direct recorders do not require an attached Profiler window or a selected recording target; discover the actual available metrics before subscribing.
         var wanted = new HashSet<string>(new[] { "Main Thread", "Render Thread", "PlayerLoop", "EditorLoop", "GC.Alloc", "GC.Collect", "BehaviourUpdate", "CoroutinesDelayedCalls", "Camera.Render", "RenderLoop.Draw", "Gfx.WaitForPresentOnGfxThread", "WaitForTargetFPS", "Update.ScriptRunBehaviourUpdate", "Update.ScriptRunDelayedTasks", "PreLateUpdate.ScriptRunBehaviourLateUpdate", "PostLateUpdate.FinishFrameRendering", "YQPlayerFollowingSemanticChunkStreamer.Update", "YQPlayerFollowingSemanticChunkStreamer.LateUpdate", "YQPlayerFollowingSemanticChunkStreamer.TerrainAppearanceSlice", "YQInvestorPlayerMotor.Update", "YQSemanticChunkRuntimeVerification.LateUpdate" }, StringComparer.Ordinal);
         var handles = new List<Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle>();
         Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle.GetAvailable(handles);
+        // note: The 48-recorder bound must not let unrelated registered YQ markers displace explicit timing targets.
+        wanted.Add("YQ.Title.SelectSavedProfile");
+        wanted.Add("YQ.Title.Presentation");
+        wanted.Add("YQ.PlayerVisual.InitialBinding");
+        // note: Frontier publication and world reactions can stall a stationary player; keep their owning phases inside the existing recorder cap instead of letting optional lifecycle metrics displace them.
+        wanted.Add("YQ.Frontier.PrepareRefresh");
+        wanted.Add("YQ.Frontier.PrepareProfile");
+        wanted.Add("YQ.Frontier.PublishProfile");
+        wanted.Add("YQ.Frontier.InstallRuntime");
+        wanted.Add("YQ.WorldReaction.PrepareThink");
+        wanted.Add("YQ.WorldReaction.SituationSnapshot");
+        wanted.Add("YQ.WorldReaction.PromptContext");
+        wanted.Add("YQ.WorldReaction.ApplyDelta");
+        // note: Reserve recorder capacity for inner attribution; report any missing fixed handles rather than silently losing a leaf scope.
+        // note: The released-gameplay capture already uses all 48 slots. Fund six semantic leaves from inactive title/binding and secondary rendering metrics; startup retains those targets.
+        if (!startup) wanted.ExceptWith(new[] { "YQ.Title.SelectSavedProfile", "YQ.Title.Presentation", "YQ.PlayerVisual.InitialBinding",
+            "Camera.Render", "RenderLoop.Draw", "Gfx.WaitForPresentOnGfxThread" });
+        if (streamerAttribution)
+        {
+            wanted.Clear();
+            wanted.UnionWith(new[] { "Main Thread", "PlayerLoop", "GC.Collect", "GC.Alloc", "CoroutinesDelayedCalls",
+                "YQPlayerFollowingSemanticChunkStreamer.Update", "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+                "YQ.WorldReaction.PrepareThink", "YQ.WorldReaction.SituationSnapshot", "YQ.WorldReaction.PromptContext", "YQ.WorldReaction.ApplyDelta",
+                "YQ.Frontier.PrepareRefresh", "YQ.Frontier.PrepareProfile", "YQ.Frontier.PublishProfile", "YQ.Frontier.InstallRuntime",
+                "BehaviourUpdate", "YQInvestorPlayerMotor.Update" });
+        }
+        if (populationAttribution)
+        {
+            wanted.Clear();
+            wanted.UnionWith(new[] { "Main Thread", "PlayerLoop", "GC.Collect", "GC.Alloc", "CoroutinesDelayedCalls",
+                "YQPlayerFollowingSemanticChunkStreamer.Update", "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+                "BehaviourUpdate", "YQInvestorPlayerMotor.Update", "YQ.Frontier.PrepareRefresh", "YQ.Frontier.PrepareProfile",
+                "YQ.Frontier.PublishProfile", "YQ.Frontier.InstallRuntime" });
+        }
+        var frontierNames = new HashSet<string>(_cpuFrontierMarkerNames, StringComparer.Ordinal);
+        foreach (string name in frontierNames) wanted.Add(name);
+        // note: Preserve main-thread and streamer attribution within the unchanged 48-recorder cap, even when additional inactive markers exist.
+        int Priority(string name) => name == "Main Thread" || name == "YQPlayerFollowingSemanticChunkStreamer.Update" ? 0 :
+            frontierNames.Contains(name) ? 1 : wanted.Contains(name) ? 2 : 3;
+        handles.Sort((left, right) => Priority(Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle.GetDescription(left).Name)
+            .CompareTo(Priority(Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle.GetDescription(right).Name)));
         CpuRecorders.Clear();
         CpuRecorderNames.Clear();
         CpuRecorderUnits.Clear();
         foreach (var handle in handles)
         {
             var description = Unity.Profiling.LowLevel.Unsafe.ProfilerRecorderHandle.GetDescription(handle);
+            if (populationAttribution && !wanted.Contains(description.Name)) continue;
             if (!wanted.Contains(description.Name) && !description.Name.StartsWith("YQ", StringComparison.Ordinal))
                 continue;
             if (CpuRecorders.Count >= 48)
                 break;
-            var recorder = new Unity.Profiling.ProfilerRecorder(handle, 1024,
+            var recorder = new Unity.Profiling.ProfilerRecorder(handle, _cpuSampleCapacity,
                 Unity.Profiling.ProfilerRecorderOptions.StartImmediately |
                 Unity.Profiling.ProfilerRecorderOptions.WrapAroundWhenCapacityReached |
                 Unity.Profiling.ProfilerRecorderOptions.SumAllSamplesInFrame);
@@ -45,34 +165,51 @@ public static class YQWorldPresentationReview
             CpuRecorderNames.Add(description.Name);
             CpuRecorderUnits.Add(description.UnitType.ToString());
         }
+        // note: Missing targets are always explicit; additional registered YQ markers cannot silently masquerade as complete attribution.
+        CpuMissingRequestedNames.Clear();
+        foreach (string name in wanted)
+            if (!CpuRecorderNames.Contains(name)) CpuMissingRequestedNames.Add(name);
+        if (populationAttribution) YQPopulationWorkDiagnostics.BeginCapture();
         _cpuFirstGameplayFrame = Time.frameCount;
         _cpuFocusedAtStart = Application.isFocused;
         _cpuCaptureStarted = UnityEditor.EditorApplication.timeSinceStartup;
+        _cpuStartingContext = CpuCaptureContext();
         _cpuCaptureActive = true;
         UnityEditor.EditorApplication.update += FinishStreamingCpuCapture;
-        Debug.Log("[YQStreamingCpu] Started a 15-second ordinary runtime capture.");
+        Debug.Log("[YQStreamingCpu] Started a " + _cpuDurationSeconds.ToString("0") + "-second " + (startup ? "title/loading" : "released runtime") + " capture.");
     }
 
     private static void FinishStreamingCpuCapture()
     {
-        if (!_cpuCaptureActive || (Application.isPlaying && UnityEditor.EditorApplication.timeSinceStartup - _cpuCaptureStarted < 15d))
+        if (!_cpuCaptureActive || (Application.isPlaying && UnityEditor.EditorApplication.timeSinceStartup - _cpuCaptureStarted < _cpuDurationSeconds))
             return;
         // note: Stop and restore instrumentation before reading samples; aggregation overhead is outside the measured window.
         UnityEditor.EditorApplication.update -= FinishStreamingCpuCapture;
         _cpuCaptureActive = false;
-        var report = new StringBuilder("# G08-R1 streaming CPU capture\n\nUTC: " + DateTime.UtcNow.ToString("O") + "\n");
+        object populationEvidence = _cpuPopulationAttribution ? YQPopulationWorkDiagnostics.EndCapture() : null;
+        var report = new StringBuilder((_cpuStartupCapture ? "# Title/loading CPU capture\n\nUTC: " : "# G08-R1 streaming CPU capture\n\nUTC: ") + DateTime.UtcNow.ToString("O") + "\n");
+        report.AppendLine("Scope: " + (_cpuStartupCapture ? "Explicit title/loading timing; not gameplay/traversal certification" : "Released gameplay; may include assisted input, no ordinary traversal certification"));
         report.AppendLine("Evidence: direct Unity Profiler recorders in the Editor. Inclusive metrics overlap and must not be added together. Deep profiling and quality settings were not changed.");
+        report.AppendLine("Requested seconds: " + _cpuDurationSeconds + "; recorder capacity: " + _cpuSampleCapacity + "; saturated buffers retain only their latest samples.");
         report.AppendLine("Focus at start/end: " + _cpuFocusedAtStart + "/" + Application.isFocused + "; ending timeScale: " + Time.timeScale);
+        if (_cpuStreamerAttribution)
+            report.AppendLine("Mode: synchronous streamer attribution; detailed publication leaves omitted, all four publication phases retained. A trailing aggregate budget label does not establish ownership of elapsed work.");
+        foreach (string name in CpuMissingRequestedNames) report.AppendLine("Missing requested recorder: " + name);
+        // note: Frame Samples counts retained frames; Calls sums native invocation counts, including repeated validation within one hitch frame.
+        report.AppendLine("Calls: sum of ProfilerRecorderSample.Count; phase/leaf timings overlap and must not be added. Empty priming scopes ran before recording.");
+        foreach (string name in _cpuFrontierMarkerNames)
+            if (!CpuRecorderNames.Contains(name)) report.AppendLine("Missing requested recorder: " + name);
         // note: Leaving Play Mode resets the frame counter; an interrupted capture must not masquerade as a complete gameplay measurement.
-        bool completeWindow = Application.isPlaying && Time.timeScale > 0f &&
-            Time.frameCount >= _cpuFirstGameplayFrame && UnityEditor.EditorApplication.timeSinceStartup - _cpuCaptureStarted >= 15d;
+        bool completeWindow = Application.isPlaying && (_cpuStartupCapture || Time.timeScale > 0f) &&
+            Time.frameCount >= _cpuFirstGameplayFrame && UnityEditor.EditorApplication.timeSinceStartup - _cpuCaptureStarted >= _cpuDurationSeconds;
         report.AppendLine("Real elapsed seconds: " + (UnityEditor.EditorApplication.timeSinceStartup - _cpuCaptureStarted).ToString("F3") +
             "; gameplay frames: " + (Application.isPlaying && Time.frameCount >= _cpuFirstGameplayFrame
                 ? (Time.frameCount - _cpuFirstGameplayFrame).ToString() : "unavailable after Play Mode exit"));
         try
         {
-            report.AppendLine("\n| Metric | Unit | Samples | Mean | Maximum |\n| --- | --- | ---: | ---: | ---: |");
+            report.AppendLine("\n| Metric | Unit | Samples | Calls | Mean | Maximum |\n| --- | --- | ---: | ---: | ---: | ---: |");
             int measured = 0;
+            var retained = new List<List<Unity.Profiling.ProfilerRecorderSample>>();
             // note: Stop every recorder before aggregation so the receipt-writing pass cannot contaminate later metrics.
             for (int metric = 0; metric < CpuRecorders.Count; metric++)
             {
@@ -84,15 +221,56 @@ public static class YQWorldPresentationReview
                 var recorder = CpuRecorders[metric];
                 var samples = new List<Unity.Profiling.ProfilerRecorderSample>();
                 recorder.CopyTo(samples);
+                retained.Add(samples);
                 double total = 0d, maximum = 0d;
-                foreach (var sample in samples) { total += sample.Value; maximum = Math.Max(maximum, sample.Value); }
+                long calls = 0;
+                foreach (var sample in samples) { total += sample.Value; maximum = Math.Max(maximum, sample.Value); calls += sample.Count; }
+                if (samples.Count >= _cpuSampleCapacity) report.AppendLine("Saturated sample buffer: " + CpuRecorderNames[metric] + "; oldest samples may be unavailable.");
                 bool time = CpuRecorderUnits[metric] == "TimeNanoseconds";
                 double divisor = time ? 1000000d : 1d;
                 if (samples.Count > 0) measured++;
                 report.AppendLine(string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "| {0} | {1} | {2} | {3:F3} | {4:F3} |", CpuRecorderNames[metric], time ? "ms" : CpuRecorderUnits[metric],
-                    samples.Count, samples.Count > 0 ? total / samples.Count / divisor : 0d, maximum / divisor));
+                    "| {0} | {1} | {2} | {3} | {4:F3} | {5:F3} |", CpuRecorderNames[metric], time ? "ms" : CpuRecorderUnits[metric],
+                    samples.Count, calls, samples.Count > 0 ? total / samples.Count / divisor : 0d, maximum / divisor));
             }
+            // note: Join only equal, unsaturated native sample buffers. Each retained index identifies the same captured frame across owners; no sum of inclusive phases is implied.
+            int main = CpuRecorderNames.IndexOf("Main Thread");
+            bool aligned = main >= 0 && retained[main].Count > 0 && retained[main].Count < _cpuSampleCapacity;
+            if (aligned)
+                foreach (var samples in retained) aligned &= samples.Count == retained[main].Count;
+            var frameRows = new List<object>();
+            if (aligned)
+            {
+                var order = new List<int>();
+                for (int index = 0; index < retained[main].Count; index++) order.Add(index);
+                order.Sort((left, right) => retained[main][right].Value.CompareTo(retained[main][left].Value));
+                for (int row = 0; row < Math.Min(20, order.Count); row++)
+                {
+                    int index = order[row];
+                    var values = new Dictionary<string, object>();
+                    for (int metric = 0; metric < retained.Count; metric++)
+                    {
+                        var sample = retained[metric][index];
+                        if (sample.Count == 0) continue;
+                        values[CpuRecorderNames[metric]] = new { value = sample.Value,
+                            unit = CpuRecorderUnits[metric], calls = sample.Count };
+                    }
+                    frameRows.Add(new { retainedSampleIndex = index, values });
+                }
+            }
+            string joinedPath = Path.Combine("outputs", "WorldAuthoringReview_20261015", "sol61",
+                "cpu-frames-" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + ".json");
+            Directory.CreateDirectory(Path.GetDirectoryName(joinedPath));
+            File.WriteAllText(joinedPath, Newtonsoft.Json.JsonConvert.SerializeObject(new {
+                utc = DateTime.UtcNow, completeWindow, aligned, firstGameplayFrame = _cpuFirstGameplayFrame,
+                endingGameplayFrame = Time.frameCount, startingContext = _cpuStartingContext,
+                endingContext = CpuCaptureContext(), frameRows, missingRequested = CpuMissingRequestedNames.ToArray(),
+                atomicStepMaxima = YQGeneratedWorldRuntimeBuilder.StartupMaximumStepMilliseconds,
+                streamerAttribution = _cpuStreamerAttribution, populationAttribution = _cpuPopulationAttribution,
+                recorderTargets = CpuRecorderNames.ToArray(), recorderUnits = CpuRecorderUnits.ToArray(), populationEvidence,
+                evidence = "Equal-length unsaturated Unity Profiler recorder buffers joined by retained frame index; inclusive scopes overlap; source identity requires matching native symbols."
+            }, Newtonsoft.Json.Formatting.Indented));
+            report.AppendLine("Aligned per-frame evidence: " + joinedPath + "; aligned=" + aligned);
             report.AppendLine(!completeWindow ? "\nResult: INTERRUPTED (partial samples only; not a complete gameplay measurement)." :
                 measured > 0 ? "\nResult: CAPTURED (not a performance acceptance PASS)." : "\nResult: UNAVAILABLE (no recorder samples).");
         }
@@ -111,6 +289,28 @@ public static class YQWorldPresentationReview
         Directory.CreateDirectory("Docs");
         File.WriteAllText(capturePath, report.ToString());
         Debug.Log("[YQStreamingCpu] Capture receipt: " + capturePath);
+    }
+
+    private static object CpuCaptureContext()
+    {
+        // note: Read current canonical identities and player/camera presentation without changing demand, input or accepted records.
+        var plan = WorldStateManager.Instance?.State?.generatedWorldPlan;
+        var player = YQInvestorPlayerMotor.ActiveMotor;
+        var camera = Camera.main;
+        var keyboard = UnityEngine.InputSystem.Keyboard.current;
+        Vector3 position = player != null ? player.transform.position : Vector3.zero;
+        Vector3 origin = PlayerStateManager.Instance?.state?.renderOrigin ?? Vector3.zero;
+        Vector3 look = camera != null ? camera.transform.eulerAngles : Vector3.zero;
+        return new { runtimeMvid = typeof(YQGeneratedWorldRuntimeBuilder).Assembly.ManifestModule.ModuleVersionId,
+            scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
+            profileId = YQProfileSaveSystem.Instance?.ActiveProfileId, worldSeed = plan?.worldSeed,
+            artifactHash = plan?.spatialPlanV2?.contentHash, continuationHash = plan?.spatialPlanV2?.acceptedContinuation?.contentHash,
+            player = new[] { position.x + origin.x, position.y + origin.y, position.z + origin.z },
+            cameraEuler = new[] { look.x, look.y, look.z },
+            movementInputReady = player != null && player.CanProcessMovementInput,
+            autoWalking = player != null && player.IsAutoWalking,
+            modalUiBlocked = RuntimeModalUiBlocker.IsBlocked,
+            keyboard = keyboard != null ? new { keyboard.name, keyboard.deviceId, keyboard.native, keyboard.enabled } : null };
     }
 
     [UnityEditor.MenuItem("YourQuest/Verification/Capture Live Landscape Repair Review")]

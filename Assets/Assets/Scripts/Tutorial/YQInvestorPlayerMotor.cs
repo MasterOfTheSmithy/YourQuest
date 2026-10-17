@@ -5,12 +5,25 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(CharacterController))]
 [DefaultExecutionOrder(-100)]
-public sealed class YQInvestorPlayerMotor : MonoBehaviour
+public sealed partial class YQInvestorPlayerMotor : MonoBehaviour
 {
     // note: Attribute authoritative motor work independently from streamer scheduling and Unity's aggregate behaviour sample.
     private static readonly Unity.Profiling.ProfilerMarker MotorUpdateMarker =
         new Unity.Profiling.ProfilerMarker("YQInvestorPlayerMotor.Update");
     public static YQInvestorPlayerMotor ActiveMotor { get; private set; }
+
+    public static YQInvestorPlayerMotor ResolveFromTransform(Transform target)
+    {
+        // note: Ragdoll temporarily detaches the existing body; its guarded relay still identifies the same authoritative actor for collision/effect queries.
+        if (target == null) return null;
+        var motor = target.GetComponentInParent<YQInvestorPlayerMotor>();
+        if (motor != null) return motor.IsAuthoritative ? motor : null;
+        var relay = target.GetComponentInParent<YQPlayerRagdollContact>();
+        return relay != null && relay.owner != null ? relay.owner.ResolveDetachedMotor(target) : null;
+    }
+
+    public static YQInvestorPlayerMotor ResolveFromCollider(Collider target) =>
+        target != null ? ResolveFromTransform(target.transform) : null;
 
     public Transform cameraPivot;
     public Camera playerCamera;
@@ -25,11 +38,11 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     [Header("Move")]
     // note: Natural walking/running pace matches the approved human gait; legacy saved speed stats retain their existing progression baseline.
-    public float walkSpeed = 1.8f;
-    public float sprintSpeed = 5.4f;
+    public float walkSpeed = 7.5f;
+    public float sprintSpeed = 10f;
     private const float SavedMoveSpeedBaseline = 6.8f;
-    public float acceleration = 28f;
-    public float deceleration = 34f;
+    public float acceleration = 55f;
+    public float deceleration = 75f;
     public float airControl = 0.55f;
     public float jumpHeight = 1.65f;
     public float gravity = -30f;
@@ -37,6 +50,24 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     public float lowJumpGravityMultiplier = 1.85f;
     public float coyoteTime = 0.12f;
     public float jumpBuffer = 0.14f;
+
+    [Header("Water traversal")]
+    public float swimSpeed = 2.4f;
+    public float fastSwimSpeed = 3.6f;
+    public float swimVerticalSpeed = 1.8f;
+    public float breathCapacitySeconds = 60f;
+    public float breathRecoveryPerSecond = 12f;
+    public float drowningDamagePerSecond = 8f;
+    private float _breathRemaining;
+    private float _drowningElapsed;
+    private bool _isSwimming;
+    private bool _headUnderwater;
+    private float _waterSurfaceHeight;
+    public bool IsSwimming => _isSwimming;
+    public bool IsHeadUnderwater => _headUnderwater;
+    public float BreathRemainingSeconds => _breathRemaining;
+    public float BreathCapacitySeconds => Mathf.Max(1f, breathCapacitySeconds);
+    public float WaterSurfaceHeight => _waterSurfaceHeight;
 
     [Header("Traversal Assist")]
     public float blockedStepAssistHeight = 0.56f;
@@ -64,7 +95,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     [Header("Crouch")]
     public float crouchHeight = 1.12f;
-    public float crouchSpeed = 1.1f;
+    public float crouchSpeed = 3.2f;
     public float crouchTransitionSharpness = 12f;
     public Vector3 crouchCameraPivotLocalPosition = new Vector3(0f, 1.10f, 0.02f);
 
@@ -110,6 +141,9 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private Vector3 _cameraBobLocalOffset;
     private Vector3 _thirdPersonCameraVelocity;
     private Vector2 _moveInput;
+    // note: Autowalk supplies forward intent to this motor only; it is transient and never changes saved movement speeds.
+    private bool _autoWalk;
+    public bool IsAutoWalking => _autoWalk;
     private readonly RaycastHit[] _cameraHits = new RaycastHit[12];
     private readonly RaycastHit[] _stepProbeHits = new RaycastHit[8];
     // note: Reuse overlap storage when testing whether the crouched player can safely stand.
@@ -183,6 +217,11 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
+        // note: Transient feedback and physical presentation remain subordinate to this motor and the existing vitals.
+        _feedback = GetComponent<YQPlayerHaptics>() ?? gameObject.AddComponent<YQPlayerHaptics>();
+        _ragdoll = GetComponent<YQPlayerRagdoll>() ?? gameObject.AddComponent<YQPlayerRagdoll>();
+        _motionSamplePosition = transform.position;
+        _breathRemaining = BreathCapacitySeconds;
         // note: Imported steps and shallow terrain seams must be traversable by the authoritative player instead of acting like waist-high collision walls.
         _controller.stepOffset = Mathf.Max(_controller.stepOffset, 0.52f);
         _controller.slopeLimit = Mathf.Max(_controller.slopeLimit, 58f);
@@ -303,9 +342,22 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         HandleLook(dt);
 
+        // note: Ragdoll retains canonical player/camera identity and permits the post-impact clutch input.
+        AdvancePendingLanding();
+        if (_ragdoll != null && _ragdoll.IsSimulating)
+        {
+            ReadClutchInput();
+            TryResolveClutch();
+            HandleCamera(dt);
+            return;
+        }
+        if (Time.time < _getUpUntil) { HandleCamera(dt); return; }
+
         // note: Pair displacement evidence with this motor Update's own time step.
         LastMovementDeltaTime = dt;
+        BeginMotionFrame(dt);
         HandleMove(dt);
+        EndMotionFrame(dt);
 
         AlignCameraPivot(dt);
 
@@ -321,6 +373,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
          */
         _moveInput =
             Vector2.zero;
+
+        // note: Generation, menus and dialogue must cancel autowalk rather than resume it after closing.
+        _autoWalk = false;
+        // note: Pause/loading invalidates motion samples without erasing an unresolved landing transaction.
+        if (Time.timeScale <= 0f && !_fallVelocityPaused)
+        { _pausedFallVelocity = _verticalVelocity; _fallVelocityPaused = true; }
+        ResetMotionSample(false);
+        _isPowerSliding = false;
+        StopSlideAudio();
 
         _planarVelocity =
             Vector3.zero;
@@ -385,16 +446,16 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         // note: Alt UI releases only camera/pointer input; the same motor still simulates locomotion and gravity.
         if (YourQuestTutorialMenuUI.CapturesPointerInput)
             return;
-        if (Mouse.current == null)
+        Vector2 delta = Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero;
+        Vector2 stick = Gamepad.current != null ? Gamepad.current.rightStick.ReadValue() : Vector2.zero;
+        if (delta.sqrMagnitude <= 0.000001f && stick.sqrMagnitude <= .0001f)
             return;
 
-        Vector2 delta = Mouse.current.delta.ReadValue();
-        if (delta.sqrMagnitude <= 0.000001f)
-            return;
-
-        _yaw += delta.x * sensitivityX;
-        _pitch -= delta.y * sensitivityY;
+        _yaw += delta.x * sensitivityX + stick.x * 150f * dt;
+        _pitch -= delta.y * sensitivityY + stick.y * 120f * dt;
         _pitch = Mathf.Clamp(_pitch, pitchMin, pitchMax);
+        // note: Looking during ragdoll changes only the upright camera; rotating the player root would drag simulated bones around it.
+        if (IsRagdoll) { cameraPivot.rotation = Quaternion.Euler(_pitch, _yaw, 0f); return; }
         transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
         cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
 
@@ -425,12 +486,44 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             crouchHeld = kb.leftCtrlKey.isPressed || kb.rightCtrlKey.isPressed;
             if (kb.tKey.wasPressedThisFrame)
                 ToggleCameraMode();
+
+            // note: F8 toggles ordinary forward walking. Explicit locomotion or Escape takes control back immediately.
+            if (kb.f8Key.wasPressedThisFrame)
+                _autoWalk = !_autoWalk;
+            if (move.sqrMagnitude > 0f || jumpPressed || dashPressed || crouchHeld || kb.escapeKey.wasPressedThisFrame)
+                _autoWalk = false;
         }
 
+        if (_autoWalk)
+            move = Vector2.up;
+
+        // note: Controller controls feed the same accepted actions and collision owner as keyboard input.
+        Gamepad pad = Gamepad.current;
+        if (pad != null)
+        {
+            Vector2 stick = pad.leftStick.ReadValue();
+            if (stick.sqrMagnitude > .01f) { move = stick; _autoWalk = false; }
+            sprintHeld |= pad.leftStickButton.isPressed;
+            jumpPressed |= pad.buttonSouth.wasPressedThisFrame;
+            jumpHeld |= pad.buttonSouth.isPressed;
+            dashPressed |= pad.buttonEast.wasPressedThisFrame;
+            crouchHeld |= pad.rightStickButton.isPressed;
+        }
+        if (dashPressed && crouchHeld) _lastClutchPress = Time.time;
+        TryResolveClutch();
 
         move = Vector2.ClampMagnitude(move, 1f);
         _moveInput = move;
         Vector3 wish = transform.forward * move.y + transform.right * move.x;
+        // note: Deep-water movement remains in this single motor and uses the same streamed capsule admission/collision path.
+        RefreshWaterContact();
+        if (_isSwimming)
+        {
+            HandleSwimming(dt, move, sprintHeld, jumpHeld, crouchHeld);
+            UpdateBreathing(dt);
+            return;
+        }
+        UpdateBreathing(dt);
         // note: CharacterController grounding describes the previous Move; takeoff must not refresh coyote time while vertical velocity is still upward.
         bool grounded = _controller.isGrounded && _verticalVelocity <= 0f;
         if (grounded)
@@ -439,7 +532,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         if (jumpPressed)
             _lastJumpPressedTime = Time.time;
 
-        if (dashPressed)
+        if (dashPressed && !(crouchHeld && !grounded) && _dashTimeRemaining <= 0f)
             TryStartDash(wish, grounded);
 
         if (_dashTimeRemaining > 0f)
@@ -462,9 +555,8 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         }
 
         _isClimbing = false;
-        float itemMoveBonus = GeneratedRpgContentService.Instance != null && PlayerStateManager.Instance != null
-            ? GeneratedRpgContentService.Instance.GetMoveSpeedBonus(PlayerStateManager.Instance.state)
-            : 0f;
+        // note: Equipment speed queries allocate internally; sample them briefly without caching accepted player/stat authority.
+        float itemMoveBonus = ResolveEquipmentMoveBonus();
         float statMoveBonus = PlayerStateManager.Instance != null
             ? Mathf.Max(0f, PlayerStateManager.Instance.state.stats.moveSpeed - SavedMoveSpeedBaseline)
             : 0f;
@@ -476,9 +568,11 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         float baseSpeed = _isCrouching ? crouchSpeed : (_isSprinting ? sprintSpeed : walkSpeed);
         float targetSpeed = baseSpeed + itemMoveBonus + statMoveBonus;
+        targetSpeed *= _movementCombat != null ? _movementCombat.MovementScale : 1f;
         Vector3 targetPlanar = wish * targetSpeed;
         float accel = grounded ? (move.sqrMagnitude > 0.01f ? acceleration : deceleration) : acceleration * airControl;
-        _planarVelocity = Vector3.MoveTowards(_planarVelocity, targetPlanar, accel * dt);
+        // note: High-speed turns brake world momentum before steering; ordinary stops stay crisp.
+        AdvancePlanarVelocity(targetPlanar, accel, grounded, dt);
 
         bool jumped = TryConsumeBufferedJump(grounded);
         if (!jumped)
@@ -519,6 +613,77 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             actionRecorder.RecordMove();
 
         vitals?.SetSprinting(_isSprinting);
+    }
+
+    private void RefreshWaterContact()
+    {
+        Vector3 feet = transform.TransformPoint(_standingControllerCenter - Vector3.up * (_standingControllerHeight * .5f));
+        bool found = YQWaterSurfaceMotion.TryGetWaterHeight(feet, out _waterSurfaceHeight);
+        // note: Bridges and shallow wading retain grounded locomotion; the capsule must be substantially immersed before buoyancy takes over.
+        _isSwimming = found && _waterSurfaceHeight - feet.y > (_isSwimming ? .65f : .95f);
+        Vector3 mouth = transform.TransformPoint(_controller.center + Vector3.up * (_controller.height * .4f));
+        _headUnderwater = found && mouth.y < _waterSurfaceHeight - .08f;
+    }
+
+    private void HandleSwimming(float dt, Vector2 move, bool fastHeld, bool riseHeld, bool diveHeld)
+    {
+        _isPowerSliding = false;
+        StopSlideAudio();
+        _isCrouching = false;
+        _isClimbing = false;
+        _dashTimeRemaining = 0f;
+        _lastJumpPressedTime = -999f;
+        UpdateCrouchController(dt);
+        _isSprinting = fastHeld && move.sqrMagnitude > .01f && HasStamina(minSprintStamina) && (vitals == null || vitals.SpendStamina(4f * dt));
+        vitals?.SetSprinting(_isSprinting);
+        Vector3 forward = transform.forward;
+        // note: Looking down while submerged directs the accepted swim stroke; Space surfaces and Control dives in either camera mode.
+        if (_headUnderwater && cameraPivot != null) forward = cameraPivot.forward;
+        Vector3 wish = Vector3.ClampMagnitude(forward * move.y + transform.right * move.x, 1f);
+        float speed = _isSprinting ? fastSwimSpeed : swimSpeed;
+        Vector3 target = wish * speed;
+        target.y = 0f;
+        _planarVelocity = Vector3.MoveTowards(_planarVelocity, target, 6f * dt);
+        float desiredVertical = wish.y * speed + (riseHeld ? swimVerticalSpeed : 0f) - (diveHeld ? swimVerticalSpeed : 0f);
+        if (!riseHeld && !diveHeld && Mathf.Abs(wish.y) < .05f)
+        {
+            Vector3 feet = transform.TransformPoint(_standingControllerCenter - Vector3.up * (_standingControllerHeight * .5f));
+            float floatFeetHeight = _waterSurfaceHeight - _standingControllerHeight * .76f;
+            desiredVertical = Mathf.Clamp((floatFeetHeight - feet.y) * 2f, -.7f, .85f);
+        }
+        _verticalVelocity = Mathf.MoveTowards(_verticalVelocity, desiredVertical, 5f * dt);
+        // note: Ascending surfaces the player's mouth without launching a walk/fall/swim cycle; shallow-bank exit still follows actual capsule contact and immersion.
+        Vector3 currentFeet = transform.TransformPoint(_standingControllerCenter - Vector3.up * (_standingControllerHeight * .5f));
+        float maximumSurfaceFeet = _waterSurfaceHeight - _standingControllerHeight * .65f;
+        if (_verticalVelocity > 0f)
+            _verticalVelocity = Mathf.Min(_verticalVelocity, Mathf.Max(0f, maximumSurfaceFeet - currentFeet.y) / Mathf.Max(.001f, dt));
+        CollisionFlags flags = MoveWithTraversalGate((_planarVelocity + Vector3.up * _verticalVelocity) * dt);
+        if ((flags & (CollisionFlags.Above | CollisionFlags.Below)) != 0) _verticalVelocity = 0f;
+        if (move.sqrMagnitude > .01f) actionRecorder?.RecordMove();
+        RefreshWaterContact();
+    }
+
+    private void UpdateBreathing(float dt)
+    {
+        // note: Breath is transient traversal state; drowning calls the existing vitals/death owner without a second health or save document.
+        if (vitals != null && vitals.IsDead) return;
+        if (_headUnderwater)
+        {
+            float exhaustedTime = Mathf.Max(0f, dt - _breathRemaining);
+            _breathRemaining = Mathf.Max(0f, _breathRemaining - dt);
+            _drowningElapsed += exhaustedTime;
+            if (_drowningElapsed >= 1f)
+            {
+                float ticks = Mathf.Floor(_drowningElapsed);
+                _drowningElapsed -= ticks;
+                vitals?.TakeDamage(Mathf.Max(0f, drowningDamagePerSecond) * ticks);
+            }
+        }
+        else
+        {
+            _breathRemaining = Mathf.Min(BreathCapacitySeconds, _breathRemaining + Mathf.Max(0f, breathRecoveryPerSecond) * dt);
+            _drowningElapsed = 0f;
+        }
     }
 
     private void TryAssistBlockedStep(Vector3 requestedPlanarMotion)
@@ -563,6 +728,9 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     private CollisionFlags MoveWithTraversalGate(Vector3 displacement)
     {
+        if (_controller == null || !_controller.enabled) return CollisionFlags.None;
+        // note: Capture impact speed before contact clamps vertical integration.
+        _frameImpactSpeed = Mathf.Max(_frameImpactSpeed, -_verticalVelocity);
         YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
         Vector3 movementStart = transform.position;
         Vector3 requestedDisplacement = displacement;
@@ -588,6 +756,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         // note: Observe collision-resolved motion immediately, before another owner can change publication, without correcting or hiding the actual movement result.
         CollisionFlags flags = _controller.Move(displacement);
         if ((flags & CollisionFlags.Below) != 0) _animationGroundContactFrame = Time.frameCount;
+        if ((flags & CollisionFlags.Below) != 0) _frameLanded = true;
         _lastMoveCollisionFlags = flags;
         _lastActualMoveDisplacement = transform.position - movementStart;
         if (startedTraversable && !streamer.TryValidateCurrentTraversability(
@@ -604,6 +773,8 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if (hit != null && hit.normal.y >= .45f)
+            _supportVelocity = hit.rigidbody != null ? hit.rigidbody.GetPointVelocity(hit.point) : Vector3.zero;
         // note: Retain only side contacts opposing requested movement so runtime verification can identify physical blockers without allocating in the motor hot path.
         if (hit == null || hit.collider == null || hit.normal.y >= 0.65f ||
             Vector3.Dot(hit.moveDirection, hit.normal) >= -0.05f)
@@ -828,10 +999,13 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
     private bool TryClimb(float dt, Vector2 move, Vector3 wish, bool jumpHeld)
     {
-        if (!enableClimb || !jumpHeld || move.y <= 0.1f)
+        if (!enableClimb || !jumpHeld || (!_isClimbing && move.y <= 0.1f))
             return false;
-        if (!TryGetClimbSurface(wish, out RaycastHit hit))
+        if (!TryGetClimbSurface(transform.forward, out RaycastHit hit))
+        {
+            if (_isClimbing && move.y > .1f) return TryCompleteClimbLedge(dt);
             return false;
+        }
         // note: Climbing must not unfold a crouched capsule into the underside of a ledge.
         if (!HasStandingClearance())
             return false;
@@ -846,7 +1020,8 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         _planarVelocity = Vector3.zero;
 
         Vector3 side = Vector3.ProjectOnPlane(transform.right, hit.normal).normalized * (move.x * climbSideSpeed);
-        Vector3 climb = Vector3.up * climbSpeed;
+        // note: Once attached, neutral input holds and backward input descends while the same wall contact owns attachment.
+        Vector3 climb = Vector3.up * climbSpeed * Mathf.Clamp(move.y, -1f, 1f);
         Vector3 stick = -hit.normal * climbStickSpeed;
         MoveWithTraversalGate((side + climb + stick) * dt);
 
@@ -951,6 +1126,17 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
         firstPerson = !firstPerson;
     }
 
+    internal void FaceWorldDirection(Vector3 direction)
+    {
+        // note: Origin placement updates the motor's own look state so the first mouse movement cannot snap back to the bootstrap yaw.
+        direction.y = 0f;
+        if (direction.sqrMagnitude < .0001f) return;
+        _yaw = Quaternion.LookRotation(direction.normalized, Vector3.up).eulerAngles.y;
+        _pitch = 0f;
+        transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
+        if (cameraPivot != null) cameraPivot.localRotation = Quaternion.identity;
+    }
+
     public static void ForceAuthority(YQInvestorPlayerMotor motor)
     {
         if (motor == null)
@@ -1052,6 +1238,15 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
             ActiveMotor = null;
     }
 
+    // note: Re-enabling the motor or returning to the application must require a fresh autowalk toggle.
+    private void OnDisable() { _autoWalk = false; StopSlideAudio(); }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus)
+        { _autoWalk = false; StopSlideAudio(); }
+    }
+
     private void AlignCameraPivot(float dt)
     {
         if (cameraPivot == null || cameraPivot.parent != transform)
@@ -1130,7 +1325,7 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         float smoothing = 1f - Mathf.Exp(-cameraFeedbackSharpness * dt);
         _cameraBobLocalOffset = Vector3.Lerp(_cameraBobLocalOffset, targetLocalOffset, smoothing);
-        return cameraPivot.rotation * _cameraBobLocalOffset;
+        return cameraPivot.rotation * _cameraBobLocalOffset * CameraFeedbackIntensity;
     }
 
     private float UpdateCameraRoll(float dt)
@@ -1148,6 +1343,6 @@ public sealed class YQInvestorPlayerMotor : MonoBehaviour
 
         float smoothing = 1f - Mathf.Exp(-cameraFeedbackSharpness * dt);
         _cameraRoll = Mathf.Lerp(_cameraRoll, targetRoll, smoothing);
-        return _cameraRoll;
+        return _cameraRoll * CameraFeedbackIntensity;
     }
 }

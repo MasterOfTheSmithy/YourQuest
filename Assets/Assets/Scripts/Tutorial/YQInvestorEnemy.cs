@@ -224,6 +224,15 @@ public sealed class YQInvestorEnemy : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void ReceiveParry(float seconds)
+    {
+        // note: A parry staggers this existing hostile executor without dealing damage, granting loot or creating a second AI owner.
+        if (IsDead) return;
+        _staggerUntil = Mathf.Max(_staggerUntil, Time.time + Mathf.Clamp(seconds, .1f, 1.5f));
+        _nextAttack = Mathf.Max(_nextAttack, _staggerUntil + .15f);
+        TriggerAnimatorHit();
+    }
+
     public void ApplyVariant(string variantName, Color primary, float scaleMultiplier, float healthMultiplier, float damageMultiplier)
     {
         rarity = string.IsNullOrWhiteSpace(variantName) ? "common" : variantName.Trim().ToLowerInvariant();
@@ -506,7 +515,9 @@ public sealed class YQInvestorEnemy : MonoBehaviour
                 continue;
             if (hit.transform == transform || hit.transform.IsChildOf(transform))
                 continue;
-            if (hit.transform == _player || hit.transform.IsChildOf(_player))
+            // note: The physically detached ragdoll body is still the existing target actor, not an occluding stranger.
+            if (hit.transform == _player || hit.transform.IsChildOf(_player) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(hit)?.transform == _player)
                 return true;
 
             return false;

@@ -21,7 +21,8 @@ public static class YQDeveloperConsoleGate
         get
         {
 #if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
-            return YQDeveloperTestSession.Active && !YQDeveloperTestSession.Publishing;
+            // note: Editor witnesses can retain this same owner's barrier after restoration until Play Mode has fully retired.
+            return YQDeveloperTestSession.PersistenceBlocked;
 #else
             return false;
 #endif

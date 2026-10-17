@@ -1,0 +1,251 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: town_smith
+  semanticStyleKey: town_smith
+  sourceSignature: fnv1a32_eba83d7b
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 2d4b5e82613bac4498197c880c6d3582, type: 2}
+  sourceInstanceCount: 13647
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_town_smith_residential_01
+    displayName: Town Smith Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -956.7148, y: 243.02245, z: 1080.7034}
+    localBoundsCenter: {x: 0, y: 35.042557, z: 0}
+    localBoundsSize: {x: 1238.1262, y: 70.08511, z: 1238.1636}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p6_p35_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_service_02
+    displayName: Town Smith Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -932.76245, y: 243.02245, z: 73.12616}
+    localBoundsCenter: {x: 0, y: 35.042557, z: 0}
+    localBoundsSize: {x: 1211.2339, y: 70.08511, z: 1211.2761}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p6_p25_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_civic_03
+    displayName: Town Smith Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -278.59607, y: 249.16139, z: 582.2208}
+    localBoundsCenter: {x: 0, y: 17.521286, z: 0}
+    localBoundsSize: {x: 1100.5775, y: 35.042572, z: 1100.636}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p13_p30_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_circulation_04
+    displayName: Town Smith Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -274.06445, y: 253.24487, z: -1516.8682}
+    localBoundsCenter: {x: 0, y: 135.02753, z: 0}
+    localBoundsSize: {x: 1671.9722, y: 270.05505, z: 1763.1313}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p11_p11_p00
+    - yq_cell_town_smith_p15_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_poi_05
+    displayName: Town Smith Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -201.70587, y: 248.31142, z: -64.407715}
+    localBoundsCenter: {x: 0, y: 17.521286, z: 0}
+    localBoundsSize: {x: 1319.6592, y: 35.042572, z: 1319.6796}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p14_p23_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_residential_06
+    displayName: Town Smith Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 151.6983, y: 224.27245, z: 1211.4941}
+    localBoundsCenter: {x: 0, y: 35.042557, z: 0}
+    localBoundsSize: {x: 1238.1262, y: 70.08511, z: 1238.1636}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p17_p37_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_service_07
+    displayName: Town Smith Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 358.52487, y: -0.5680084, z: 429.9711}
+    localBoundsCenter: {x: 0, y: 141.88318, z: 0}
+    localBoundsSize: {x: 563.0804, y: 283.76636, z: 622.81366}
+    sourceInstanceCount: 11328
+    authoredBuildingCount: 0
+    authoredDressingCount: 11328
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p17_p27_p00
+    - yq_cell_town_smith_p17_p29_p00
+    - yq_cell_town_smith_p18_p29_p00
+    - yq_cell_town_smith_p18_p30_p00
+    - yq_cell_town_smith_p19_p28_p00
+    - yq_cell_town_smith_p19_p29_p00
+    - yq_cell_town_smith_p19_p30_p00
+    - yq_cell_town_smith_p19_p30_p01
+    - yq_cell_town_smith_p19_p31_p00
+    - yq_cell_town_smith_p20_p26_p00
+    - yq_cell_town_smith_p20_p27_p00
+    - yq_cell_town_smith_p20_p29_p00
+    - yq_cell_town_smith_p20_p30_p00
+    - yq_cell_town_smith_p20_p31_p00
+    - yq_cell_town_smith_p21_p28_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_civic_08
+    displayName: Town Smith Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 417.04492, y: 250.002, z: -741.2533}
+    localBoundsCenter: {x: 0, y: 70.0851, z: 0}
+    localBoundsSize: {x: 2256.6191, y: 140.1702, z: 2256.5095}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p21_p17_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_circulation_09
+    displayName: Town Smith Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 869.0791, y: -57.280518, z: 817.51306}
+    localBoundsCenter: {x: 0, y: 170.89651, z: 0}
+    localBoundsSize: {x: 1301.1182, y: 341.79303, z: 1301.0935}
+    sourceInstanceCount: 2309
+    authoredBuildingCount: 0
+    authoredDressingCount: 2309
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p19_p29_p01
+    - yq_cell_town_smith_p20_p30_p01
+    - yq_cell_town_smith_p24_p33_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_poi_10
+    displayName: Town Smith Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 822.27997, y: 226.97241, z: 1715.0481}
+    localBoundsCenter: {x: 0, y: 35.04254, z: 0}
+    localBoundsSize: {x: 1366.7794, y: 70.08508, z: 1366.7714}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p25_p42_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_town_smith_residential_11
+    displayName: Town Smith Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 1132.3855, y: 233.90576, z: 230.40512}
+    localBoundsCenter: {x: 0, y: 26.968079, z: 0}
+    localBoundsSize: {x: 886.7843, y: 53.936157, z: 1001.647}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_town_smith_p27_p27_p00
+    cellContractsV2: []

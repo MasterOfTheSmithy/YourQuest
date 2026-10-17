@@ -1,0 +1,25 @@
+{
+    "status": "PASS",
+    "utc": "2026-10-02T10:26:25.6895856Z",
+    "mode": "isolated Editor asset evaluation and rendered previews; no production gameplay or saves",
+    "checks": [
+        "approved avatar retargets authored clips",
+        "authored base state: JumpRise",
+        "authored base state: Fall",
+        "authored base state: Land",
+        "authored base state: Dash",
+        "authored base state: Climb",
+        "authored base state: Death",
+        "first-person arm geometry uses the existing skeleton and skinning",
+        "first-person view introduces no second Animator",
+        "first-person view introduces no colliders",
+        "first-person framing uses a stable ready-pose reference across camera toggles",
+        "sampled first-person actions move the source hand bones",
+        "casting pose holds until the observed combat timer ends",
+        "cast release recovers without a stuck charging pose",
+        "interrupted casting returns without a release gesture",
+        "terminal death lowers first-person hands out of view",
+        "revival restores first-person ready hands",
+        "animation leaves root displacement with the motor"
+    ]
+}

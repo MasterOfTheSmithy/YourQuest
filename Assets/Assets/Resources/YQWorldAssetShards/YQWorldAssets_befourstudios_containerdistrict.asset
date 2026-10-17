@@ -1,0 +1,1529 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_containerdistrict
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_PanelWall01.prefab
+    prefab: {fileID: 1031025160, guid: abc00000000000840454187160076680, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall01.prefab
+    prefab: {fileID: 1031025732, guid: abc00000000011444026066394324038, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall02.prefab
+    prefab: {fileID: 1031025754, guid: abc00000000018443331209230055853, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall01.prefab
+    prefab: {fileID: 1031025996, guid: abc00000000013956386619456670692, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ACUnit.prefab
+    prefab: {fileID: 1030976363, guid: abc00000000017080227078121266767, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Antenna01.prefab
+    prefab: {fileID: 1031026260, guid: abc00000000016814796492764732867, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Antenna02.prefab
+    prefab: {fileID: 1031026282, guid: abc00000000016132289631569926200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Antenna03.prefab
+    prefab: {fileID: 1031026304, guid: abc00000000016465281278977060353, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_AntennaMount01.prefab
+    prefab: {fileID: 1031026326, guid: abc00000000016864346047071356756, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_AntennaMount02.prefab
+    prefab: {fileID: 1031026349, guid: abc00000000005378772222512878063, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_AntennaMount03.prefab
+    prefab: {fileID: 1031026371, guid: abc00000000000222367988122759702, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_AntennaMount04.prefab
+    prefab: {fileID: 1031026393, guid: abc00000000016218172025798175153, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Ashtray.prefab
+    prefab: {fileID: 1031013535, guid: abc00000000014928403817694459823, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrel01.prefab
+    prefab: {fileID: 1030991197, guid: abc00000000006956028195139091448, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrel02.prefab
+    prefab: {fileID: 1030991175, guid: abc00000000018091736430344339075, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrel03.prefab
+    prefab: {fileID: 1030991131, guid: abc00000000003054373722788649530, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrel04.prefab
+    prefab: {fileID: 1030991343, guid: abc00000000015314994153440992525, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrel05.prefab
+    prefab: {fileID: 1030991241, guid: abc00000000013766948797055637476, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrier01.prefab
+    prefab: {fileID: 1030975235, guid: abc00000000017260945840077862263, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Barrier02.prefab
+    prefab: {fileID: 1030975339, guid: abc00000000003593223875924149628, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BigWaterTank.prefab
+    prefab: {fileID: 1030972692, guid: abc00000000003421069280033511982, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bike.prefab
+    prefab: {fileID: 1031023821, guid: abc00000000009428177017844938106, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Binocle.prefab
+    prefab: {fileID: 1031013513, guid: abc00000000017523375005725865831, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bottle.prefab
+    prefab: {fileID: 1031013629, guid: abc00000000008933423329859131157, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bottle01.prefab
+    prefab: {fileID: 1031014743, guid: abc00000000000687629244303911396, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bottle02.prefab
+    prefab: {fileID: 1031017259, guid: abc00000000001397175565248356863, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleBroken01.prefab
+    prefab: {fileID: 1031029934, guid: abc00000000017664405940377665947, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleBroken02.prefab
+    prefab: {fileID: 1031014091, guid: abc00000000004082618544974651664, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleCap.prefab
+    prefab: {fileID: 1031029976, guid: abc00000000016241968963344464447, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleDebris01.prefab
+    prefab: {fileID: 1031029998, guid: abc00000000018132008221112383225, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleDebris02.prefab
+    prefab: {fileID: 1031030020, guid: abc00000000002295775990816351410, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BottleDebris03.prefab
+    prefab: {fileID: 1031030042, guid: abc00000000001620260599645055867, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bowl.prefab
+    prefab: {fileID: 1030986117, guid: abc00000000002398913700988682933, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box01.prefab
+    prefab: {fileID: 1030996615, guid: abc00000000001944124734478665357, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box02.prefab
+    prefab: {fileID: 1030996777, guid: abc00000000013391563665352485158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box03.prefab
+    prefab: {fileID: 1030997061, guid: abc00000000001105625699037755775, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box04.prefab
+    prefab: {fileID: 1030996879, guid: abc00000000012031902849886315896, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box05.prefab
+    prefab: {fileID: 1030996971, guid: abc00000000012609777727080162369, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Box06.prefab
+    prefab: {fileID: 1030996905, guid: abc00000000008130248377535873978, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence01.prefab
+    prefab: {fileID: 1030976551, guid: abc00000000017280076894891131909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchLong01.prefab
+    prefab: {fileID: 1031027036, guid: abc00000000018015182046559231030, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchLong02.prefab
+    prefab: {fileID: 1031027058, guid: abc00000000011516900957887396381, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchLong03.prefab
+    prefab: {fileID: 1031027080, guid: abc00000000010249403649410754036, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchLong04.prefab
+    prefab: {fileID: 1031027102, guid: abc00000000000324684464650905235, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchShort01.prefab
+    prefab: {fileID: 1031027124, guid: abc00000000015863558112501870528, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchShort02.prefab
+    prefab: {fileID: 1031027146, guid: abc00000000014112629475569521227, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchShort03.prefab
+    prefab: {fileID: 1031027168, guid: abc00000000012959348221256867330, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bucket01.prefab
+    prefab: {fileID: 1030991219, guid: abc00000000000114795081957852122, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bucket02.prefab
+    prefab: {fileID: 1030991153, guid: abc00000000016405521875133489889, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BulkheadLight.prefab
+    prefab: {fileID: 1031028569, guid: abc00000000010683923036433714809, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ConcreteBarrier01.prefab
+    prefab: {fileID: 1030999595, guid: abc00000000004979671338396101544, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ConcreteBarrier02.prefab
+    prefab: {fileID: 1030999637, guid: abc00000000013883963097391876467, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_CoveredBoxes01.prefab
+    prefab: {fileID: 1030994906, guid: abc00000000007777953083376763569, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_CoveredBoxes02.prefab
+    prefab: {fileID: 1030994884, guid: abc00000000003963105589845379178, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_CoveredBoxes03.prefab
+    prefab: {fileID: 1030994948, guid: abc00000000004733797157982320115, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_FoodCan01.prefab
+    prefab: {fileID: 1031030170, guid: abc00000000010693197545245435300, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_FoodCan02.prefab
+    prefab: {fileID: 1031013777, guid: abc00000000005174039990613184959, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_FoodCan03.prefab
+    prefab: {fileID: 1031030212, guid: abc00000000012851557756622594406, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_FoodCan04.prefab
+    prefab: {fileID: 1031013879, guid: abc00000000016678192018655591553, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Fork.prefab
+    prefab: {fileID: 1031013695, guid: abc00000000012999481929581992381, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Knife.prefab
+    prefab: {fileID: 1030978207, guid: abc00000000004274399439466988800, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Mattress.prefab
+    prefab: {fileID: 1031000449, guid: abc00000000007171426267852210814, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pebble03.prefab
+    prefab: {fileID: 1031029136, guid: abc00000000007837102299812260234, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pebble04.prefab
+    prefab: {fileID: 1031029158, guid: abc00000000001370500977590544413, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pebble05.prefab
+    prefab: {fileID: 1031029180, guid: abc00000000000103003669113902068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pebble06.prefab
+    prefab: {fileID: 1031029202, guid: abc00000000013414512890062778127, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pebble07.prefab
+    prefab: {fileID: 1031029224, guid: abc00000000007868782066262379062, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pillow01.prefab
+    prefab: {fileID: 1031000593, guid: abc00000000009529817895094330763, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pillow02.prefab
+    prefab: {fileID: 1031001157, guid: abc00000000011280465057049858048, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Pipe.prefab
+    prefab: {fileID: 1030979903, guid: abc00000000007494030320148000325, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_PowerStrip.prefab
+    prefab: {fileID: 1031026457, guid: abc00000000006062362687672036918, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RackingBeam.prefab
+    prefab: {fileID: 1030978596, guid: abc00000000017909734521435303553, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RackingColumns.prefab
+    prefab: {fileID: 1030978574, guid: abc00000000011568314072000559613, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile01.prefab
+    prefab: {fileID: 1031008368, guid: abc00000000016639695616347631839, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile02.prefab
+    prefab: {fileID: 1031008238, guid: abc00000000009533800532596168516, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile03.prefab
+    prefab: {fileID: 1031008260, guid: abc00000000011855376655240201069, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile04.prefab
+    prefab: {fileID: 1031008430, guid: abc00000000011307238624628031770, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile05.prefab
+    prefab: {fileID: 1031008304, guid: abc00000000003428306844504360803, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockPile06.prefab
+    prefab: {fileID: 1031008282, guid: abc00000000015324842830684053080, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel01.prefab
+    prefab: {fileID: 1030973241, guid: abc00000000011793633001323086743, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel02.prefab
+    prefab: {fileID: 1030973199, guid: abc00000000016840909554021743132, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel03.prefab
+    prefab: {fileID: 1030973325, guid: abc00000000011285934967748846693, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel04.prefab
+    prefab: {fileID: 1030973263, guid: abc00000000000423823024861439250, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel05.prefab
+    prefab: {fileID: 1030973177, guid: abc00000000018195051707399695323, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel06.prefab
+    prefab: {fileID: 1030973155, guid: abc00000000010847935025065726800, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel07.prefab
+    prefab: {fileID: 1030973527, guid: abc00000000010031351379580775257, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RustyPanel08.prefab
+    prefab: {fileID: 1030973711, guid: abc00000000011397550656530965190, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SmallBox.prefab
+    prefab: {fileID: 1030997155, guid: abc00000000015243923276920055253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SmallBoxCap.prefab
+    prefab: {fileID: 1030997181, guid: abc00000000007348493559688656127, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Spoon.prefab
+    prefab: {fileID: 1030978485, guid: abc00000000016267550028462329208, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelBeam01.prefab
+    prefab: {fileID: 1030972714, guid: abc00000000012700896958072991446, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelBeam02.prefab
+    prefab: {fileID: 1030973011, guid: abc00000000007583813466628818877, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelFrame.prefab
+    prefab: {fileID: 1030972265, guid: abc00000000000239093176235853289, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_StorageBox.prefab
+    prefab: {fileID: 1030997087, guid: abc00000000014582080462515061547, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TrashBag01.prefab
+    prefab: {fileID: 1031013923, guid: abc00000000003243857649472971828, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TrashBag02.prefab
+    prefab: {fileID: 1031014157, guid: abc00000000003324598038759130191, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TrashBag03.prefab
+    prefab: {fileID: 1031014135, guid: abc00000000016859821107865275766, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Tree01.prefab
+    prefab: {fileID: 1031030716, guid: abc00000000010940701198551878516, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Tree02.prefab
+    prefab: {fileID: 1031030738, guid: abc00000000005805466345791202959, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Tree03.prefab
+    prefab: {fileID: 1031030760, guid: abc00000000000259735521990803894, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Tree04.prefab
+    prefab: {fileID: 1031030782, guid: abc00000000004043184724048891473, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TV.prefab
+    prefab: {fileID: 1031023943, guid: abc00000000000752878703832335899, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Window01.prefab
+    prefab: {fileID: 1031027630, guid: abc00000000009119157945215084544, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Window05.prefab
+    prefab: {fileID: 1031027718, guid: abc00000000006429042896456076684, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WindowClothesline.prefab
+    prefab: {fileID: 1030971886, guid: abc00000000007081742321600483825, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenLadder.prefab
+    prefab: {fileID: 1030972022, guid: abc00000000000005598782478533527, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPallet01.prefab
+    prefab: {fileID: 1030992305, guid: abc00000000016194377929288964124, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPallet02.prefab
+    prefab: {fileID: 1030992327, guid: abc00000000011147101376590307735, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodStove.prefab
+    prefab: {fileID: 1031004676, guid: abc00000000003432522741954454845, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodStovePipe01.prefab
+    prefab: {fileID: 1031004698, guid: abc00000000000864601307832898336, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodStovePipe02.prefab
+    prefab: {fileID: 1031004847, guid: abc00000000006495925604032598315, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodStovePipe03.prefab
+    prefab: {fileID: 1031004825, guid: abc00000000016808011407306603234, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Workbench.prefab
+    prefab: {fileID: 1030988184, guid: abc00000000013635531857285313308, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchPart01.prefab
+    prefab: {fileID: 1030988594, guid: abc00000000018186767566757614410, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchPart02.prefab
+    prefab: {fileID: 1030988714, guid: abc00000000003310269231769556881, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchPart03.prefab
+    prefab: {fileID: 1030988686, guid: abc00000000008695171306277872008, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchPart04.prefab
+    prefab: {fileID: 1030988616, guid: abc00000000003307712029389453519, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_1M_PanelWall01.prefab
+    prefab: {fileID: 1031025072, guid: abc00000000007053053001511035637, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_1M_PanelWall02.prefab
+    prefab: {fileID: 1031025094, guid: abc00000000015413131014881802990, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_1M_WoodenWall01.prefab
+    prefab: {fileID: 1031025116, guid: abc00000000002306621047941562089, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_1M_WoodenWall02.prefab
+    prefab: {fileID: 1031025138, guid: abc00000000012028715332942844834, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_PanelWall02.prefab
+    prefab: {fileID: 1031025182, guid: abc00000000009744745946155851603, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_PanelWall03.prefab
+    prefab: {fileID: 1031025204, guid: abc00000000010332050447639819082, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_WoodenWall01.prefab
+    prefab: {fileID: 1031025226, guid: abc00000000004554812995991975646, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_WoodenWall02.prefab
+    prefab: {fileID: 1031025248, guid: abc00000000014026403772736336741, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_2M_WoodenWall03.prefab
+    prefab: {fileID: 1031025270, guid: abc00000000001134634285299681564, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall01.prefab
+    prefab: {fileID: 1031025292, guid: abc00000000000218921203393282683, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall02.prefab
+    prefab: {fileID: 1031025314, guid: abc00000000009669378029375208304, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall03.prefab
+    prefab: {fileID: 1031025336, guid: abc00000000016730668824860610041, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall04.prefab
+    prefab: {fileID: 1031025358, guid: abc00000000008758544866071032702, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall05.prefab
+    prefab: {fileID: 1031025380, guid: abc00000000000046487847870191927, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall06.prefab
+    prefab: {fileID: 1031025402, guid: abc00000000017533486300881662780, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall07.prefab
+    prefab: {fileID: 1031025424, guid: abc00000000005360481249621789829, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall08.prefab
+    prefab: {fileID: 1031025446, guid: abc00000000012451630112122614010, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall09.prefab
+    prefab: {fileID: 1031025468, guid: abc00000000003826273503921918019, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_PanelWall10.prefab
+    prefab: {fileID: 1031025490, guid: abc00000000006875658721675781909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall01.prefab
+    prefab: {fileID: 1031025512, guid: abc00000000017741579100741425823, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall02.prefab
+    prefab: {fileID: 1031025534, guid: abc00000000010780408851590352900, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall03.prefab
+    prefab: {fileID: 1031025556, guid: abc00000000012328172732998885933, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall04.prefab
+    prefab: {fileID: 1031025578, guid: abc00000000006319176230553170394, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall05.prefab
+    prefab: {fileID: 1031025600, guid: abc00000000002909794864399308323, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall06.prefab
+    prefab: {fileID: 1031025622, guid: abc00000000008822228729812195096, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall07.prefab
+    prefab: {fileID: 1031025644, guid: abc00000000004163158950019256545, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall08.prefab
+    prefab: {fileID: 1031025666, guid: abc00000000014192405198346226142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall09.prefab
+    prefab: {fileID: 1031025688, guid: abc00000000005724949934955275671, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_3M_WoodenWall10.prefab
+    prefab: {fileID: 1031025710, guid: abc00000000006851608241028431273, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall03.prefab
+    prefab: {fileID: 1031025776, guid: abc00000000016895567327821522820, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall04.prefab
+    prefab: {fileID: 1031025798, guid: abc00000000009024953340630478243, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall05.prefab
+    prefab: {fileID: 1031025820, guid: abc00000000012434334706784340314, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall06.prefab
+    prefab: {fileID: 1031025842, guid: abc00000000010278317426250426465, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall07.prefab
+    prefab: {fileID: 1031025864, guid: abc00000000014937387206043365016, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall08.prefab
+    prefab: {fileID: 1031025886, guid: abc00000000011840108411186445591, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall09.prefab
+    prefab: {fileID: 1031025908, guid: abc00000000001860819600867844446, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall10.prefab
+    prefab: {fileID: 1031025930, guid: abc00000000002705099332078786292, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall11.prefab
+    prefab: {fileID: 1031025952, guid: abc00000000003972596640555428637, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_PanelWall12.prefab
+    prefab: {fileID: 1031025974, guid: abc00000000010470877729227263286, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall02.prefab
+    prefab: {fileID: 1031026018, guid: abc00000000014665932940401116159, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall03.prefab
+    prefab: {fileID: 1031026040, guid: abc00000000008505126833006293926, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall04.prefab
+    prefab: {fileID: 1031026062, guid: abc00000000007723340894733971137, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall05.prefab
+    prefab: {fileID: 1031026084, guid: abc00000000007145466017540124664, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall06.prefab
+    prefab: {fileID: 1031026106, guid: abc00000000018281174252745372291, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall07.prefab
+    prefab: {fileID: 1031026128, guid: abc00000000003243811545189682746, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall08.prefab
+    prefab: {fileID: 1031026150, guid: abc00000000015596569862527026885, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall09.prefab
+    prefab: {fileID: 1031026172, guid: abc00000000007696580327313622396, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall10.prefab
+    prefab: {fileID: 1031026194, guid: abc00000000007500298729389114346, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall11.prefab
+    prefab: {fileID: 1031026216, guid: abc00000000008270990297526055283, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_4M_WoodenWall12.prefab
+    prefab: {fileID: 1031026238, guid: abc00000000017813442612239831976, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BedSheet03.prefab
+    prefab: {fileID: 1031029564, guid: abc00000000001118449970329008092, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BedSheet04.prefab
+    prefab: {fileID: 1031012503, guid: abc00000000007464935025883855003, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BedSheet05.prefab
+    prefab: {fileID: 1031029604, guid: abc00000000015750351889859508434, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BedSheet06.prefab
+    prefab: {fileID: 1031012524, guid: abc00000000007049894167977333273, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BedSheet07.prefab
+    prefab: {fileID: 1031012545, guid: abc00000000012329891704190392336, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Bolt.prefab
+    prefab: {fileID: 1030978698, guid: abc00000000002633217070395890948, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BoxCover.prefab
+    prefab: {fileID: 1030997601, guid: abc00000000004708290367398265957, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence02.prefab
+    prefab: {fileID: 1030976573, guid: abc00000000002231396437630823166, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence03.prefab
+    prefab: {fileID: 1030976705, guid: abc00000000011966083493139534007, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence04.prefab
+    prefab: {fileID: 1030976595, guid: abc00000000003142229600934998768, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence05.prefab
+    prefab: {fileID: 1030978310, guid: abc00000000010203520396420400505, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence06.prefab
+    prefab: {fileID: 1030976683, guid: abc00000000012814032239833920306, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence07.prefab
+    prefab: {fileID: 1030976617, guid: abc00000000012138516848662624763, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence08.prefab
+    prefab: {fileID: 1030976639, guid: abc00000000009411359461993431332, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_BranchFence09.prefab
+    prefab: {fileID: 1030976661, guid: abc00000000012969408347264735565, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_CablePlug.prefab
+    prefab: {fileID: 1031026436, guid: abc00000000014238765109909134804, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_0.prefab
+    prefab: {fileID: 1031160592, guid: abc00000000010232965630489196910, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_1.prefab
+    prefab: {fileID: 1031160613, guid: abc00000000017954588131405479399, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_19.prefab
+    prefab: {fileID: 1031160991, guid: abc00000000012578528525433541524, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_20.prefab
+    prefab: {fileID: 1031161012, guid: abc00000000017870322638828255204, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_21.prefab
+    prefab: {fileID: 1031161033, guid: abc00000000000971623921504058637, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_22.prefab
+    prefab: {fileID: 1031161054, guid: abc00000000012419062852377878438, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_23.prefab
+    prefab: {fileID: 1031161075, guid: abc00000000000133124886063149055, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_24.prefab
+    prefab: {fileID: 1031161096, guid: abc00000000011059402036911709176, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_25.prefab
+    prefab: {fileID: 1031161117, guid: abc00000000011637276914105555649, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_26.prefab
+    prefab: {fileID: 1031161138, guid: abc00000000007157747564561267258, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_27.prefab
+    prefab: {fileID: 1031161159, guid: abc00000000003748366198407405187, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_28.prefab
+    prefab: {fileID: 1031161180, guid: abc00000000011610516346685206908, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_29.prefab
+    prefab: {fileID: 1031161201, guid: abc00000000001063761808189059781, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_30.prefab
+    prefab: {fileID: 1031161222, guid: abc00000000003818849870600963279, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_31.prefab
+    prefab: {fileID: 1031161243, guid: abc00000000017354072939707108854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_32.prefab
+    prefab: {fileID: 1031161264, guid: abc00000000012231304085747408349, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_39.prefab
+    prefab: {fileID: 1031161411, guid: abc00000000010080893659570064974, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_40.prefab
+    prefab: {fileID: 1031161432, guid: abc00000000014559676727222413742, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_41.prefab
+    prefab: {fileID: 1031161453, guid: abc00000000014671397755334338343, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_42.prefab
+    prefab: {fileID: 1031161474, guid: abc00000000017464168093444238956, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_43.prefab
+    prefab: {fileID: 1031161495, guid: abc00000000005815957486956893621, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_44.prefab
+    prefab: {fileID: 1031161516, guid: abc00000000010876644540781157410, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_45.prefab
+    prefab: {fileID: 1031161537, guid: abc00000000018019713278376144747, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_46.prefab
+    prefab: {fileID: 1031161558, guid: abc00000000000916773612120613984, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_47.prefab
+    prefab: {fileID: 1031161579, guid: abc00000000001154550255779874665, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_48.prefab
+    prefab: {fileID: 1031161600, guid: abc00000000001777547271726757334, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_49.prefab
+    prefab: {fileID: 1031161621, guid: abc00000000014933179568331514287, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_50.prefab
+    prefab: {fileID: 1031161642, guid: abc00000000015229082242292083249, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_51.prefab
+    prefab: {fileID: 1031161663, guid: abc00000000003280634557901864872, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_52.prefab
+    prefab: {fileID: 1031161684, guid: abc00000000012184926316897639795, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_53.prefab
+    prefab: {fileID: 1031161705, guid: abc00000000011414234748760698858, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_54.prefab
+    prefab: {fileID: 1031161726, guid: abc00000000012557253424366518909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_55.prefab
+    prefab: {fileID: 1031161747, guid: abc00000000015875256263565264852, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_56.prefab
+    prefab: {fileID: 1031161768, guid: abc00000000004389682439006786159, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_57.prefab
+    prefab: {fileID: 1031161789, guid: abc00000000017680022278326219414, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_58.prefab
+    prefab: {fileID: 1031161810, guid: abc00000000017051339899863808809, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_59.prefab
+    prefab: {fileID: 1031161831, guid: abc00000000009209628620892540192, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_60.prefab
+    prefab: {fileID: 1031161852, guid: abc00000000004433152763242773632, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_61.prefab
+    prefab: {fileID: 1031161873, guid: abc00000000004281321342514931593, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_62.prefab
+    prefab: {fileID: 1031161894, guid: abc00000000006376279464597452738, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_63.prefab
+    prefab: {fileID: 1031161915, guid: abc00000000002682505601287246347, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_64.prefab
+    prefab: {fileID: 1031161936, guid: abc00000000001743037714483765772, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_65.prefab
+    prefab: {fileID: 1031161957, guid: abc00000000015422001041570886613, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_66.prefab
+    prefab: {fileID: 1031161978, guid: abc00000000010076827816129934798, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_67.prefab
+    prefab: {fileID: 1031161999, guid: abc00000000017397011450083416775, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_70.prefab
+    prefab: {fileID: 1031162062, guid: abc00000000006674193885570039963, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_71.prefab
+    prefab: {fileID: 1031162083, guid: abc00000000014959610749545693394, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_72.prefab
+    prefab: {fileID: 1031162104, guid: abc00000000006259153027663518233, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_73.prefab
+    prefab: {fileID: 1031162125, guid: abc00000000011539150563876577296, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_74.prefab
+    prefab: {fileID: 1031162146, guid: abc00000000013866497298087772759, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_75.prefab
+    prefab: {fileID: 1031162167, guid: abc00000000002505841204792158110, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_76.prefab
+    prefab: {fileID: 1031162188, guid: abc00000000006985370554336446501, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_77.prefab
+    prefab: {fileID: 1031162209, guid: abc00000000000327708830015193052, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_78.prefab
+    prefab: {fileID: 1031162230, guid: abc00000000017279594942382327779, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_79.prefab
+    prefab: {fileID: 1031162251, guid: abc00000000006711782648796447130, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_80.prefab
+    prefab: {fileID: 1031162272, guid: abc00000000011410168905320568682, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_81.prefab
+    prefab: {fileID: 1031162293, guid: abc00000000012180860473457509619, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_82.prefab
+    prefab: {fileID: 1031162314, guid: abc00000000003276568714461734696, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_83.prefab
+    prefab: {fileID: 1031162335, guid: abc00000000015225016398851953073, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_84.prefab
+    prefab: {fileID: 1031162356, guid: abc00000000017675956434886089238, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_85.prefab
+    prefab: {fileID: 1031162377, guid: abc00000000004385616595566655983, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_86.prefab
+    prefab: {fileID: 1031162398, guid: abc00000000015871190420125134676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_87.prefab
+    prefab: {fileID: 1031162419, guid: abc00000000012553187580926388733, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_88.prefab
+    prefab: {fileID: 1031162440, guid: abc00000000006702228803216563298, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_89.prefab
+    prefab: {fileID: 1031162461, guid: abc00000000014836887073652109995, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_90.prefab
+    prefab: {fileID: 1031162482, guid: abc00000000000967558078063928461, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_91.prefab
+    prefab: {fileID: 1031162503, guid: abc00000000017866256795388125028, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_92.prefab
+    prefab: {fileID: 1031162524, guid: abc00000000000129059042623018879, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cable_Splines_93.prefab
+    prefab: {fileID: 1031162545, guid: abc00000000012414997008937748262, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireBarb.prefab
+    prefab: {fileID: 1031028823, guid: abc00000000013598334320060069744, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireBarb_Splines_1.prefab
+    prefab: {fileID: 1031161285, guid: abc00000000010385602643177799916, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireBarb_Splines_2.prefab
+    prefab: {fileID: 1031161306, guid: abc00000000010941147828109705707, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireBarb_Splines_3.prefab
+    prefab: {fileID: 1031161327, guid: abc00000000003798079090514718370, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence.prefab
+    prefab: {fileID: 1031028844, guid: abc00000000004689129883399651514, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence_Splines_1.prefab
+    prefab: {fileID: 1031161348, guid: abc00000000010554656963281934931, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence_Splines_2.prefab
+    prefab: {fileID: 1031161369, guid: abc00000000011141961464765902410, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence_Splines_3.prefab
+    prefab: {fileID: 1031161390, guid: abc00000000007870122941807795029, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence_Splines_4.prefab
+    prefab: {fileID: 1031162020, guid: abc00000000002520883872926713038, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ChainWireFence_Splines_5.prefab
+    prefab: {fileID: 1031162041, guid: abc00000000009841067506880195015, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Chair03.prefab
+    prefab: {fileID: 1031000695, guid: abc00000000016411161158060350023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cigarette01.prefab
+    prefab: {fileID: 1031013605, guid: abc00000000014345073908456458570, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cigarette02.prefab
+    prefab: {fileID: 1031013557, guid: abc00000000017915319647177952657, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_CigaretteBox.prefab
+    prefab: {fileID: 1031013581, guid: abc00000000010977693836914535490, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth01.prefab
+    prefab: {fileID: 1030985918, guid: abc00000000006297631520488771606, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth02.prefab
+    prefab: {fileID: 1030985876, guid: abc00000000001174862666529071101, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth03.prefab
+    prefab: {fileID: 1030985754, guid: abc00000000004492865505727817044, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth04.prefab
+    prefab: {fileID: 1030985775, guid: abc00000000000802535559060191987, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth05.prefab
+    prefab: {fileID: 1030985733, guid: abc00000000000031843990923251050, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth06.prefab
+    prefab: {fileID: 1030985796, guid: abc00000000003846691484454635441, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth07.prefab
+    prefab: {fileID: 1030985897, guid: abc00000000010344987873773968680, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Cloth08.prefab
+    prefab: {fileID: 1030985817, guid: abc00000000000355411340976520295, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerDoor01.prefab
+    prefab: {fileID: 1030991109, guid: abc00000000000479907500666108839, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerDoor02.prefab
+    prefab: {fileID: 1031031333, guid: abc00000000003272677838776009452, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerDoorLeft.prefab
+    prefab: {fileID: 1030991087, guid: abc00000000003523487536165994805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerDoorRight.prefab
+    prefab: {fileID: 1030991065, guid: abc00000000007290580408519311856, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerDoorsFrame.prefab
+    prefab: {fileID: 1031031395, guid: abc00000000005500668508940804920, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFloor01.prefab
+    prefab: {fileID: 1031031420, guid: abc00000000005925832885602442441, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFloor02.prefab
+    prefab: {fileID: 1031031442, guid: abc00000000007392266551003498498, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFloor03.prefab
+    prefab: {fileID: 1031031467, guid: abc00000000008545547805316152395, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFloor04.prefab
+    prefab: {fileID: 1031031489, guid: abc00000000013979508628689758028, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrame.prefab
+    prefab: {fileID: 1031031511, guid: abc00000000009895853977461530421, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontCover01.prefab
+    prefab: {fileID: 1031031544, guid: abc00000000002255180224428509677, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontCover02.prefab
+    prefab: {fileID: 1031031566, guid: abc00000000013457735925515617158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontCover03.prefab
+    prefab: {fileID: 1031031590, guid: abc00000000007039499185535940447, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontCurtain01.prefab
+    prefab: {fileID: 1031031615, guid: abc00000000009622399272223257102, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontCurtain02.prefab
+    prefab: {fileID: 1031031637, guid: abc00000000000878398556980914965, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontPanel01.prefab
+    prefab: {fileID: 1031031659, guid: abc00000000017973131927938033738, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontPanel02.prefab
+    prefab: {fileID: 1031031681, guid: abc00000000003096633592949976209, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerFrontPanel03.prefab
+    prefab: {fileID: 1031031705, guid: abc00000000008481535667458291336, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCover01.prefab
+    prefab: {fileID: 1031031730, guid: abc00000000003565416551057607633, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCover02.prefab
+    prefab: {fileID: 1031031752, guid: abc00000000018197031656258952842, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCover03.prefab
+    prefab: {fileID: 1031031778, guid: abc00000000000538213840800745875, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCover04.prefab
+    prefab: {fileID: 1031031807, guid: abc00000000010462933025560594676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCurtain01.prefab
+    prefab: {fileID: 1031031840, guid: abc00000000012569732171210549394, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSideCurtain02.prefab
+    prefab: {fileID: 1031031862, guid: abc00000000003730516452220333785, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSidePanel01.prefab
+    prefab: {fileID: 1030991023, guid: abc00000000009061637805108206718, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSidePanel02.prefab
+    prefab: {fileID: 1031031904, guid: abc00000000005663574188658963845, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSidePanel03.prefab
+    prefab: {fileID: 1031031930, guid: abc00000000017836579239918836796, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerSidePanel04.prefab
+    prefab: {fileID: 1031031959, guid: abc00000000000522014142430456699, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopCover01.prefab
+    prefab: {fileID: 1031031992, guid: abc00000000001755274420648368349, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopCover02.prefab
+    prefab: {fileID: 1031032014, guid: abc00000000006878043274608068854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopCurtain01.prefab
+    prefab: {fileID: 1031032049, guid: abc00000000000099355258159376286, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopCurtain02.prefab
+    prefab: {fileID: 1031032071, guid: abc00000000004578884607703664677, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopPanel01.prefab
+    prefab: {fileID: 1031032093, guid: abc00000000010925128892344216026, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ContainerTopPanel02.prefab
+    prefab: {fileID: 1031032115, guid: abc00000000008769111611810302177, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Door03.prefab
+    prefab: {fileID: 1031027566, guid: abc00000000008381799974238747258, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Door04.prefab
+    prefab: {fileID: 1031027588, guid: abc00000000015426726637821078349, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Door05.prefab
+    prefab: {fileID: 1030987835, guid: abc00000000011868677752549774116, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_DrainPipe.prefab
+    prefab: {fileID: 1030979532, guid: abc00000000009350318597340798149, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_DrainPipeCap.prefab
+    prefab: {fileID: 1030979726, guid: abc00000000007143088901574826927, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_DrainPipeConnector.prefab
+    prefab: {fileID: 1030979629, guid: abc00000000017475425468262727422, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_DrainPipeElbow.prefab
+    prefab: {fileID: 1030980158, guid: abc00000000009355756033276574150, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_1x1.prefab
+    prefab: {fileID: 1031028651, guid: abc00000000008601647432967053456, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_2x1.prefab
+    prefab: {fileID: 1031028673, guid: abc00000000007326818638846017043, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_2x2.prefab
+    prefab: {fileID: 1030972389, guid: abc00000000015493758718847659592, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_3x3.prefab
+    prefab: {fileID: 1031028717, guid: abc00000000002044739820074952432, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_3x4.prefab
+    prefab: {fileID: 1030972367, guid: abc00000000010868593712279487671, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Floor_6x4.prefab
+    prefab: {fileID: 1031028761, guid: abc00000000016811298526626228426, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ForestGroundMesh01.prefab
+    prefab: {fileID: 1031028238, guid: abc00000000006811265170003139921, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ForestGroundMesh02.prefab
+    prefab: {fileID: 1031000320, guid: abc00000000002996136201494933514, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ForestGroundMesh03.prefab
+    prefab: {fileID: 1031028278, guid: abc00000000003784062459746278163, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundLeaves01.prefab
+    prefab: {fileID: 1031027977, guid: abc00000000006592285797532737001, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundLeaves02.prefab
+    prefab: {fileID: 1031027998, guid: abc00000000016314380082534019746, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundLeaves03.prefab
+    prefab: {fileID: 1031028019, guid: abc00000000005010704746419455467, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundMesh01.prefab
+    prefab: {fileID: 1030982991, guid: abc00000000006808276437229395986, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundMesh02.prefab
+    prefab: {fileID: 1030982969, guid: abc00000000016415804791948731993, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundMesh03.prefab
+    prefab: {fileID: 1030983053, guid: abc00000000017232388437433683536, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_GroundMesh04.prefab
+    prefab: {fileID: 1030985371, guid: abc00000000018178086413691043479, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_HighVoltageInsulator01.prefab
+    prefab: {fileID: 1030987657, guid: abc00000000000535987150580342385, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_HighVoltageInsulator02.prefab
+    prefab: {fileID: 1030987697, guid: abc00000000002955247420164359722, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_HighVoltageInsulator03.prefab
+    prefab: {fileID: 1030987776, guid: abc00000000015554371122047053747, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Hook01.prefab
+    prefab: {fileID: 1031030274, guid: abc00000000007009423076541366725, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Hook02.prefab
+    prefab: {fileID: 1030987438, guid: abc00000000008781517655203705790, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_MetalFencePole.prefab
+    prefab: {fileID: 1030976279, guid: abc00000000015100226526552156275, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_PipeConnector.prefab
+    prefab: {fileID: 1030979925, guid: abc00000000017572401284651289470, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_PipeDrainFunnel.prefab
+    prefab: {fileID: 1030979882, guid: abc00000000008475203575512577821, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_PipeElbow.prefab
+    prefab: {fileID: 1030980004, guid: abc00000000002564165172903755334, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_PipeWallJoint.prefab
+    prefab: {fileID: 1030979747, guid: abc00000000008567604468614335199, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Projector.prefab
+    prefab: {fileID: 1031028609, guid: abc00000000015579420430523224399, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ProjectorHandle.prefab
+    prefab: {fileID: 1031028630, guid: abc00000000005171051989866717297, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RackingBeamWire.prefab
+    prefab: {fileID: 1030978738, guid: abc00000000004278217751627528170, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockyGround01.prefab
+    prefab: {fileID: 1031008840, guid: abc00000000012670598253211272271, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_RockyGround02.prefab
+    prefab: {fileID: 1031009002, guid: abc00000000012589857863925113908, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ShelfHolder01.prefab
+    prefab: {fileID: 1031000511, guid: abc00000000002524308820982759492, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_ShelfHolder02.prefab
+    prefab: {fileID: 1031001179, guid: abc00000000009630203904734222815, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelFence01.prefab
+    prefab: {fileID: 1030977268, guid: abc00000000017969276933007320136, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelFence02.prefab
+    prefab: {fileID: 1030977042, guid: abc00000000009802336853005677587, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelFence03.prefab
+    prefab: {fileID: 1030977184, guid: abc00000000009014410594754332938, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelFence04.prefab
+    prefab: {fileID: 1030977206, guid: abc00000000002547809272532617117, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_SteelPillar.prefab
+    prefab: {fileID: 1030976940, guid: abc00000000008919600135578491598, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TableSheet01.prefab
+    prefab: {fileID: 1031012764, guid: abc00000000007895847602621011841, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TableSheet02.prefab
+    prefab: {fileID: 1031012743, guid: abc00000000016870719424609380346, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TableSheet03.prefab
+    prefab: {fileID: 1031012665, guid: abc00000000008245362816408684355, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_TableSheet04.prefab
+    prefab: {fileID: 1031012644, guid: abc00000000001910853129210855588, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WindowClotheslineSingle.prefab
+    prefab: {fileID: 1031029030, guid: abc00000000008825774171513574217, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WindowCurtain01.prefab
+    prefab: {fileID: 1030976410, guid: abc00000000010251429204000719892, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WindowCurtain02.prefab
+    prefab: {fileID: 1030976233, guid: abc00000000012610146090338822831, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Wire01.prefab
+    prefab: {fileID: 1031030434, guid: abc00000000018260617296024463771, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_Wire02.prefab
+    prefab: {fileID: 1030987558, guid: abc00000000004678829900621449488, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenBridge01.prefab
+    prefab: {fileID: 1030972502, guid: abc00000000015690368427074999101, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenBridge02.prefab
+    prefab: {fileID: 1030972670, guid: abc00000000002360707844809620054, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenBridge03.prefab
+    prefab: {fileID: 1030972524, guid: abc00000000015516340141414377007, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenBridge04.prefab
+    prefab: {fileID: 1030972628, guid: abc00000000006269024726009954664, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank01.prefab
+    prefab: {fileID: 1030974653, guid: abc00000000002411501434804427188, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank02.prefab
+    prefab: {fileID: 1030976456, guid: abc00000000002492241824090585551, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank03.prefab
+    prefab: {fileID: 1030979093, guid: abc00000000016027464893196731126, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank04.prefab
+    prefab: {fileID: 1030972776, guid: abc00000000002494799026470688913, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank05.prefab
+    prefab: {fileID: 1031000551, guid: abc00000000007879701100979004040, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank06.prefab
+    prefab: {fileID: 1030972869, guid: abc00000000016783992859974778963, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WoodenPlank07.prefab
+    prefab: {fileID: 1030973549, guid: abc00000000017371297361458746442, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchPart05.prefab
+    prefab: {fileID: 1030988736, guid: abc00000000016842935098495599094, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchSheet01.prefab
+    prefab: {fileID: 1031013002, guid: abc00000000011495182768792666836, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchSheet02.prefab
+    prefab: {fileID: 1031012981, guid: abc00000000000009608944234188143, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchSheet03.prefab
+    prefab: {fileID: 1031012960, guid: abc00000000013299948783553621398, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/ContainerDistrict/Art/Prefabs/SM_WorkbenchSheet04.prefab
+    prefab: {fileID: 1031013023, guid: abc00000000010849008747519485233, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

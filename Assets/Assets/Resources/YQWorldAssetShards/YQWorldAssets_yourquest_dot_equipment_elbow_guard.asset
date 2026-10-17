@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_elbow_guard
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Dragonbound_Female.prefab
+    prefab: {fileID: 8515010446963983770, guid: 903fdf24c9ae273478248ccf7dfa875f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Dragonbound_Male.prefab
+    prefab: {fileID: 3507628886415794130, guid: 86dba972b416fab45ac5474c92467eef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Eclipse_Female.prefab
+    prefab: {fileID: 6337390193290826305, guid: 563eb550c67a68f478a2e905fba749f9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Eclipse_Male.prefab
+    prefab: {fileID: 4121683061623074289, guid: b147202a6bb0f344a9ed6cccdfdb2b16, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Field_Female.prefab
+    prefab: {fileID: 8834175048421619179, guid: ee07dab18578efd4b8d6e3d8c2dc813e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Field_Male.prefab
+    prefab: {fileID: 4057034572513350643, guid: 7154a9e6de6d334418c784d44b05b39e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Lamellar_Female.prefab
+    prefab: {fileID: 3367137105740424121, guid: 3ac5313c31ed1174d848b94a14da124e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Lamellar_Male.prefab
+    prefab: {fileID: 8414865274185047329, guid: 4382140cf7f1596499fa7356833feb7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Ranger_Female.prefab
+    prefab: {fileID: 9137634094446863072, guid: 04ffd260aba31594aa1564cdbadbb0bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Ranger_Male.prefab
+    prefab: {fileID: 1233890906140277848, guid: 399cf3cb0b6a8c049bdfd4a1cca2062a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Sentinel_Female.prefab
+    prefab: {fileID: 8776851703137523512, guid: 7240aa49465018940ba8e284ceee1f82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Sentinel_Male.prefab
+    prefab: {fileID: 1806072102572950233, guid: a3ed3b749b5e4ce4da66b132cd30f1ea, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 5241406220597937410, guid: bb8c475598fd74f4fab839e88b57a777, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 7984339111823417538, guid: d1ce55d83fc9215479177b5ba3e5e21e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Traveler_Female.prefab
+    prefab: {fileID: 1125482860436860531, guid: cc5690772b28d4143ad7f24fbed95853, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Traveler_Male.prefab
+    prefab: {fileID: 1802772810452720208, guid: 2e56d1875ba2f4a4d8da77cfd442c36c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 3529978446175122528, guid: fd73fc10f28bb324ebb0ba96b8982f9e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 5800866620423981324, guid: 2f877e384f966bf44a811cd3a5dc01c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Field_Male_Parts.prefab
+    prefab: {fileID: 6716895661328987543, guid: b1213869d4ea0c048abad079ee10a630, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Field_Female_Parts.prefab
+    prefab: {fileID: 5259557630664434298, guid: 2d2299ff459f03a4695b8ce4f2a34cd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Ranger_Male_Parts.prefab
+    prefab: {fileID: 1867373529443268765, guid: 0ea3f1d86fa45584db6ca338222ff571, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Ranger_Female_Parts.prefab
+    prefab: {fileID: 5602819349860681942, guid: 2e7c7ee0061e2a940a2c0e6f01ea7bf6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 8712465202372057925, guid: 8941b55e98798884683f1af678709396, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 5452932391927587988, guid: 095fbd614a9517443b38c626e40ca991, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Traveler_Male_Parts.prefab
+    prefab: {fileID: 2397192854168091224, guid: 69c96360090d6604cab4d99c0a634398, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Traveler_Female_Parts.prefab
+    prefab: {fileID: 7001961861030421032, guid: b8b53a34ea92ec44f93e836d5cf5598a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 9105941393482787507, guid: a7ddfee9e41e5ad46a77911c0fb365d5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 1893611798071041962, guid: dff0b5dbd46372a42ac24a1c87ed0add, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 2274003359221119525, guid: aa65c4545eadd134199f5d70fd413c90, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 3677017658574915350, guid: fc1a7a9663e26204ebd7f45edbbdb494, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 6602527808117022572, guid: d4ee4d33ea91424498a2abcf105cbe87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 1390351367476794428, guid: f9798bd019a672549ac4af54652929bd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 7234769235737941553, guid: 8d07eab25d385934786fd5668c795888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 1823343726021124448, guid: 47a0f4ae3b0c60243b21dc1ca6d9b749, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 4194207062417758610, guid: da3bdde6a4ad79d4cbad428904e8befb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/elbow_guard/Elbow_Guard_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 4665908774550453173, guid: 7dfe22bd659fe7645803ecf45966512d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

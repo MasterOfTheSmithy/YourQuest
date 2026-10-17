@@ -1,0 +1,17 @@
+[
+  {
+    "source": "outputs/OriginLag_20261009/native-frames-213820.json",
+    "file": "Baseline_Native_Frames.json",
+    "sha256": "b198af3a3bca42a609a1b33d92502e546af5d86330bb09772b733382b69290e0"
+  },
+  {
+    "source": "outputs/OriginLag_20261009/activation-raw-metadata.json",
+    "file": "Baseline_Asset_Metadata.json",
+    "sha256": "e70aaeeffd04887bd7fc2a2203c7a1189de7b9167802ce88a4258442a26d7253"
+  },
+  {
+    "source": "outputs/OriginLag_20261009/native-frames-035941.json",
+    "file": "Rejected_Experiment_Native_Frames.json",
+    "sha256": "6664073276d43141266a29fa0f66caca56b0f6c3a364409e1a58eef82f1a66fe"
+  }
+]

@@ -1,0 +1,1691 @@
+{
+  "schemaVersion": 1,
+  "status": "INCOMPLETE",
+  "observedUtc": "2026-10-03T23:27:24.2081208Z",
+  "authority": "Derived coverage targets; accepted production world and G04-G07 contracts remain authoritative",
+  "discovery": "outputs/G08_R3_Physical_20261003/20261003_231619_459_session/Discovery.json",
+  "profileId": "b138c228684b48739bad60f17f6ba5eb",
+  "worldId": "yq-world-300bc1cdba75926d8224ffb9",
+  "primarySeed": "610adf18",
+  "acceptedArtifact": "e37706d3ad7f55b6",
+  "productionRegressionSeeds": "NOT PREPARED: three varied accepted production worlds are required; the four sampler fixtures are separate evidence",
+  "declaredContracts": {
+    "biomes": [
+      "TemperateLowland",
+      "AncientWoodland",
+      "Highland",
+      "Moorland",
+      "Wetland"
+    ],
+    "terrainFields": [
+      "BaseSurface",
+      "RidgeChain",
+      "ValleyCorridor",
+      "Basin",
+      "Escarpment",
+      "HillCluster",
+      "CaveMass",
+      "SiteReserve"
+    ],
+    "waterKinds": [
+      "River",
+      "Lake",
+      "Wetland",
+      "Coastline",
+      "Waterfall"
+    ],
+    "routeClasses": [
+      "PrimaryRoad",
+      "SecondaryRoad",
+      "Trail",
+      "ServiceRoute"
+    ],
+    "crossingKinds": [
+      "Ford",
+      "Bridge",
+      "Causeway",
+      "Ferry"
+    ],
+    "authoredSiteKinds": [
+      "Settlement",
+      "Dungeon",
+      "Interior",
+      "Landmark",
+      "Camp",
+      "Wilderness",
+      "SciFiSite"
+    ],
+    "caveat": "Declared enum vocabulary is not proof that each function is physically supported. Review implementation and eligible assets; do not remove required coverage via N/A."
+  },
+  "primaryObservedFeatures": {
+    "sites": [
+      {
+        "siteId": "site:continuation:east",
+        "sourceSemanticId": "generated:streamed_continuation:east",
+        "kind": "NaturalFeature",
+        "x": 508.0,
+        "z": 128.0,
+        "reservedRadius": 16.0,
+        "headingDegrees": 90.0,
+        "frontageRouteId": "route:trail:site:continuation:east--site:origin",
+        "frontageX": 508.0,
+        "frontageZ": 128.0,
+        "MemberFootprint": [],
+        "Tags": [
+          "accepted_streamed_continuation",
+          "beta_travel_fixture"
+        ],
+        "RequiredFunctions": [
+          13,
+          6
+        ]
+      },
+      {
+        "siteId": "site:continuation:north",
+        "sourceSemanticId": "generated:streamed_continuation:north",
+        "kind": "NaturalFeature",
+        "x": 128.0,
+        "z": 508.0,
+        "reservedRadius": 16.0,
+        "headingDegrees": 0.0,
+        "frontageRouteId": "route:trail:site:continuation:north--site:origin",
+        "frontageX": 128.0,
+        "frontageZ": 508.0,
+        "MemberFootprint": [],
+        "Tags": [
+          "accepted_streamed_continuation",
+          "beta_travel_fixture"
+        ],
+        "RequiredFunctions": [
+          13,
+          6
+        ]
+      },
+      {
+        "siteId": "site:continuation:south",
+        "sourceSemanticId": "generated:streamed_continuation:south",
+        "kind": "NaturalFeature",
+        "x": -128.0,
+        "z": -508.0,
+        "reservedRadius": 16.0,
+        "headingDegrees": 180.0,
+        "frontageRouteId": "route:trail:site:continuation:south--site:origin",
+        "frontageX": -128.0,
+        "frontageZ": -508.0,
+        "MemberFootprint": [],
+        "Tags": [
+          "accepted_streamed_continuation",
+          "beta_travel_fixture"
+        ],
+        "RequiredFunctions": [
+          13,
+          6
+        ]
+      },
+      {
+        "siteId": "site:continuation:west",
+        "sourceSemanticId": "generated:streamed_continuation:west",
+        "kind": "NaturalFeature",
+        "x": -508.0,
+        "z": -128.0,
+        "reservedRadius": 16.0,
+        "headingDegrees": 270.0,
+        "frontageRouteId": "route:trail:site:continuation:west--site:origin",
+        "frontageX": -508.0,
+        "frontageZ": -128.0,
+        "MemberFootprint": [],
+        "Tags": [
+          "accepted_streamed_continuation",
+          "beta_travel_fixture"
+        ],
+        "RequiredFunctions": [
+          13,
+          6
+        ]
+      },
+      {
+        "siteId": "site:hostile:encampment_jorhollow_depths_6ee39527",
+        "sourceSemanticId": "encampment_jorhollow_depths_6ee39527",
+        "kind": "HostileSite",
+        "x": 4803.171,
+        "z": -55.76787,
+        "reservedRadius": 37.0,
+        "headingDegrees": 87.6297455,
+        "frontageRouteId": "route:trail:site:hostile:encampment_jorhollow_depths_6ee39527--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "frontageX": 4803.171,
+        "frontageZ": -55.76787,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_hostile_site",
+          "alternate_approach"
+        ],
+        "RequiredFunctions": [
+          12,
+          11,
+          4
+        ]
+      },
+      {
+        "siteId": "site:hostile:encampment_orcairn_site_6ee39528",
+        "sourceSemanticId": "encampment_orcairn_site_6ee39528",
+        "kind": "HostileSite",
+        "x": -5068.0166,
+        "z": 4962.9873,
+        "reservedRadius": 34.0,
+        "headingDegrees": 118.431763,
+        "frontageRouteId": "route:trail:site:hostile:encampment_orcairn_site_6ee39528--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "frontageX": -5068.0166,
+        "frontageZ": 4962.9873,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_hostile_site",
+          "alternate_approach"
+        ],
+        "RequiredFunctions": [
+          12,
+          11,
+          4
+        ]
+      },
+      {
+        "siteId": "site:natural:waterfall_cave",
+        "sourceSemanticId": "generated:waterfall_cave",
+        "kind": "NaturalFeature",
+        "x": -2101.21167,
+        "z": 1012.62305,
+        "reservedRadius": 18.0,
+        "headingDegrees": 296.148865,
+        "frontageRouteId": "route:trail:site:natural:waterfall_cave--site:origin",
+        "frontageX": -2101.21167,
+        "frontageZ": 1012.62305,
+        "MemberFootprint": [],
+        "Tags": [
+          "concealed_access_candidate",
+          "waterfall_backed_space"
+        ],
+        "RequiredFunctions": [
+          13,
+          12,
+          11
+        ]
+      },
+      {
+        "siteId": "site:origin",
+        "sourceSemanticId": "origin_vey",
+        "kind": "Origin",
+        "x": 0.0,
+        "z": 0.0,
+        "reservedRadius": 96.0,
+        "headingDegrees": 176.571457,
+        "frontageRouteId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "frontageX": 0.0,
+        "frontageZ": 0.0,
+        "MemberFootprint": [],
+        "Tags": [
+          "safe_spawn",
+          "curated_origin_stage"
+        ],
+        "RequiredFunctions": [
+          6,
+          7
+        ]
+      },
+      {
+        "siteId": "site:poi:curated_nordic_hut_1",
+        "sourceSemanticId": "curated_nordic_hut_1",
+        "kind": "PointOfInterest",
+        "x": -4941.094,
+        "z": -4837.061,
+        "reservedRadius": 24.0,
+        "headingDegrees": 45.80428,
+        "frontageRouteId": "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1",
+        "frontageX": -4941.094,
+        "frontageZ": -4837.061,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_point_of_interest",
+          "curated_nordic_hut",
+          "route_frontage",
+          "rest_stop"
+        ],
+        "RequiredFunctions": [
+          6,
+          13
+        ]
+      },
+      {
+        "siteId": "site:poi:curated_nordic_hut_2",
+        "sourceSemanticId": "curated_nordic_hut_2",
+        "kind": "PointOfInterest",
+        "x": 4922.05957,
+        "z": 94.52133,
+        "reservedRadius": 24.0,
+        "headingDegrees": 165.797668,
+        "frontageRouteId": "route:secondaryroad:site:poi:curated_nordic_hut_2--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "frontageX": 4922.05957,
+        "frontageZ": 94.52133,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_point_of_interest",
+          "curated_nordic_hut",
+          "route_frontage",
+          "rest_stop"
+        ],
+        "RequiredFunctions": [
+          6,
+          13
+        ]
+      },
+      {
+        "siteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "sourceSemanticId": "settlement_pyrspire_crossing_2abf5f08",
+        "kind": "Settlement",
+        "x": 4969.96045,
+        "z": -58.5428238,
+        "reservedRadius": 39.35397,
+        "headingDegrees": 305.244629,
+        "frontageRouteId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "frontageX": 4969.96045,
+        "frontageZ": -58.5428238,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_settlement",
+          "service:cookhouse",
+          "service:apothecary",
+          "service:locksmith",
+          "service:inn"
+        ],
+        "RequiredFunctions": [
+          1,
+          7,
+          9,
+          2
+        ]
+      },
+      {
+        "siteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "sourceSemanticId": "settlement_vaelward_rest_2abf5f09",
+        "kind": "Settlement",
+        "x": -5000.02637,
+        "z": 4946.26953,
+        "reservedRadius": 39.8461533,
+        "headingDegrees": 134.2455,
+        "frontageRouteId": "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "frontageX": -5000.02637,
+        "frontageZ": 4946.26953,
+        "MemberFootprint": [],
+        "Tags": [
+          "semantic_settlement",
+          "service:blacksmith",
+          "service:stable",
+          "service:scribe"
+        ],
+        "RequiredFunctions": [
+          1,
+          7,
+          9,
+          2
+        ]
+      }
+    ],
+    "routes": [
+      {
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "width": 7.5,
+        "shoulderWidth": 2.4,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 7.5
+          },
+          {
+            "x": 2.27508926,
+            "z": -37.9745941,
+            "surfaceElevationNormalized": 0.474056959,
+            "width": 7.5
+          },
+          {
+            "x": 1690.13892,
+            "z": 10.0037384,
+            "surfaceElevationNormalized": 0.37293908,
+            "width": 7.5
+          },
+          {
+            "x": 3330.10254,
+            "z": -19.7833,
+            "surfaceElevationNormalized": 0.375724256,
+            "width": 7.5
+          },
+          {
+            "x": 4737.065,
+            "z": 13.538517,
+            "surfaceElevationNormalized": 0.383803,
+            "width": 7.5
+          },
+          {
+            "x": 4872.477,
+            "z": 10.337925,
+            "surfaceElevationNormalized": 0.442369938,
+            "width": 7.5
+          },
+          {
+            "x": 4969.96045,
+            "z": -58.5428238,
+            "surfaceElevationNormalized": 0.3776591,
+            "width": 7.5
+          }
+        ]
+      },
+      {
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "width": 7.5,
+        "shoulderWidth": 2.4,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 7.5
+          },
+          {
+            "x": -33.3105621,
+            "z": -23.1014862,
+            "surfaceElevationNormalized": 0.492438018,
+            "width": 7.5
+          },
+          {
+            "x": -1680.51184,
+            "z": 1701.4408,
+            "surfaceElevationNormalized": 0.36416626,
+            "width": 7.5
+          },
+          {
+            "x": -3337.34473,
+            "z": 3326.81152,
+            "surfaceElevationNormalized": 0.35546115,
+            "width": 7.5
+          },
+          {
+            "x": -5000.02637,
+            "z": 4946.26953,
+            "surfaceElevationNormalized": 0.3513491,
+            "width": 7.5
+          }
+        ]
+      },
+      {
+        "routeId": "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:poi:curated_nordic_hut_1",
+        "width": 5.2,
+        "shoulderWidth": 1.6,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 5.2
+          },
+          {
+            "x": -1671.62659,
+            "z": -1653.12573,
+            "surfaceElevationNormalized": 0.3730883,
+            "width": 5.2
+          },
+          {
+            "x": -3305.10864,
+            "z": -3246.37231,
+            "surfaceElevationNormalized": 0.380074978,
+            "width": 5.2
+          },
+          {
+            "x": -4941.094,
+            "z": -4837.061,
+            "surfaceElevationNormalized": 0.659609,
+            "width": 5.2
+          }
+        ]
+      },
+      {
+        "routeId": "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "sourceSemanticRouteId": "route_halrun_ridge_to_rynreach_basin_6e03a8b8",
+        "fromSiteId": "site:poi:curated_nordic_hut_1",
+        "toSiteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "width": 5.2,
+        "shoulderWidth": 1.6,
+        "points": [
+          {
+            "x": -4941.094,
+            "z": -4837.061,
+            "surfaceElevationNormalized": 0.659609,
+            "width": 5.2
+          },
+          {
+            "x": -1569.63538,
+            "z": -3215.891,
+            "surfaceElevationNormalized": 0.8536413,
+            "width": 5.2
+          },
+          {
+            "x": 1700.41772,
+            "z": -1637.74585,
+            "surfaceElevationNormalized": 0.373786628,
+            "width": 5.2
+          },
+          {
+            "x": 4969.96045,
+            "z": -58.5428238,
+            "surfaceElevationNormalized": 0.3776591,
+            "width": 5.2
+          }
+        ]
+      },
+      {
+        "routeId": "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "sourceSemanticRouteId": "route_ithaven_basin_to_halrun_ridge_6e03a8b7",
+        "fromSiteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "toSiteId": "site:poi:curated_nordic_hut_1",
+        "width": 5.2,
+        "shoulderWidth": 1.6,
+        "points": [
+          {
+            "x": -5000.02637,
+            "z": 4946.26953,
+            "surfaceElevationNormalized": 0.3513491,
+            "width": 5.2
+          },
+          {
+            "x": -4949.43,
+            "z": 1620.12122,
+            "surfaceElevationNormalized": 0.359817326,
+            "width": 5.2
+          },
+          {
+            "x": -4940.67871,
+            "z": -1608.4425,
+            "surfaceElevationNormalized": 0.376784027,
+            "width": 5.2
+          },
+          {
+            "x": -4941.094,
+            "z": -4837.061,
+            "surfaceElevationNormalized": 0.659609,
+            "width": 5.2
+          }
+        ]
+      },
+      {
+        "routeId": "route:secondaryroad:site:poi:curated_nordic_hut_2--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "toSiteId": "site:poi:curated_nordic_hut_2",
+        "width": 5.2,
+        "shoulderWidth": 1.6,
+        "points": [
+          {
+            "x": 4969.96045,
+            "z": -58.5428238,
+            "surfaceElevationNormalized": 0.3776591,
+            "width": 5.2
+          },
+          {
+            "x": 4949.36426,
+            "z": -7.84986973,
+            "surfaceElevationNormalized": 0.377642,
+            "width": 5.2
+          },
+          {
+            "x": 4935.065,
+            "z": 43.1334038,
+            "surfaceElevationNormalized": 0.40156886,
+            "width": 5.2
+          },
+          {
+            "x": 4922.05957,
+            "z": 94.52133,
+            "surfaceElevationNormalized": 0.4243913,
+            "width": 5.2
+          }
+        ]
+      },
+      {
+        "routeId": "route:secondaryroad:site:settlement:settlement_pyrspire_crossing_2abf5f08--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "sourceSemanticRouteId": "route_rynreach_basin_to_ithaven_basin_6e03a8b6",
+        "fromSiteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "toSiteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "width": 5.2,
+        "shoulderWidth": 1.6,
+        "points": [
+          {
+            "x": 4969.96045,
+            "z": -58.5428238,
+            "surfaceElevationNormalized": 0.3776591,
+            "width": 5.2
+          },
+          {
+            "x": 1575.09326,
+            "z": 1632.99023,
+            "surfaceElevationNormalized": 0.371780545,
+            "width": 5.2
+          },
+          {
+            "x": -1713.22754,
+            "z": 3288.1145,
+            "surfaceElevationNormalized": 0.3600058,
+            "width": 5.2
+          },
+          {
+            "x": -5000.02637,
+            "z": 4946.26953,
+            "surfaceElevationNormalized": 0.3513491,
+            "width": 5.2
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:continuation:east--site:origin",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:continuation:east",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 2.8
+          },
+          {
+            "x": 1.64612007,
+            "z": -32.6475029,
+            "surfaceElevationNormalized": 0.456100374,
+            "width": 2.8
+          },
+          {
+            "x": 181.628281,
+            "z": 8.165241,
+            "surfaceElevationNormalized": 0.407244,
+            "width": 2.8
+          },
+          {
+            "x": 346.1504,
+            "z": 62.77941,
+            "surfaceElevationNormalized": 0.370665938,
+            "width": 2.8
+          },
+          {
+            "x": 508.0,
+            "z": 128.0,
+            "surfaceElevationNormalized": 0.3708454,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:continuation:north--site:origin",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:continuation:north",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 2.8
+          },
+          {
+            "x": 80.63692,
+            "z": 163.3677,
+            "surfaceElevationNormalized": 0.705902457,
+            "width": 2.8
+          },
+          {
+            "x": 133.0389,
+            "z": 338.601746,
+            "surfaceElevationNormalized": 0.5628096,
+            "width": 2.8
+          },
+          {
+            "x": 97.43993,
+            "z": 481.960052,
+            "surfaceElevationNormalized": 0.544319451,
+            "width": 2.8
+          },
+          {
+            "x": 128.0,
+            "z": 508.0,
+            "surfaceElevationNormalized": 0.5589139,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:continuation:south--site:origin",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:continuation:south",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 2.8
+          },
+          {
+            "x": -32.0564728,
+            "z": -175.608444,
+            "surfaceElevationNormalized": 0.8720334,
+            "width": 2.8
+          },
+          {
+            "x": -78.30871,
+            "z": -342.237518,
+            "surfaceElevationNormalized": 0.831579864,
+            "width": 2.8
+          },
+          {
+            "x": -128.0,
+            "z": -508.0,
+            "surfaceElevationNormalized": 0.742620647,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:continuation:west--site:origin",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:continuation:west",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 2.8
+          },
+          {
+            "x": -168.689056,
+            "z": -59.5178146,
+            "surfaceElevationNormalized": 0.527884066,
+            "width": 2.8
+          },
+          {
+            "x": -337.7399,
+            "z": -96.1585846,
+            "surfaceElevationNormalized": 0.370006,
+            "width": 2.8
+          },
+          {
+            "x": -508.0,
+            "z": -128.0,
+            "surfaceElevationNormalized": 0.3698874,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:hostile:encampment_jorhollow_depths_6ee39527--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "toSiteId": "site:hostile:encampment_jorhollow_depths_6ee39527",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 4969.96045,
+            "z": -58.5428238,
+            "surfaceElevationNormalized": 0.3776591,
+            "width": 2.8
+          },
+          {
+            "x": 4913.334,
+            "z": -52.68212,
+            "surfaceElevationNormalized": 0.377610981,
+            "width": 2.8
+          },
+          {
+            "x": 4858.26465,
+            "z": -53.48741,
+            "surfaceElevationNormalized": 0.3782395,
+            "width": 2.8
+          },
+          {
+            "x": 4803.171,
+            "z": -55.76787,
+            "surfaceElevationNormalized": 0.377513349,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:hostile:encampment_orcairn_site_6ee39528--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "toSiteId": "site:hostile:encampment_orcairn_site_6ee39528",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": -5000.02637,
+            "z": 4946.26953,
+            "surfaceElevationNormalized": 0.3513491,
+            "width": 2.8
+          },
+          {
+            "x": -5025.35645,
+            "z": 4942.951,
+            "surfaceElevationNormalized": 0.3513483,
+            "width": 2.8
+          },
+          {
+            "x": -5047.01855,
+            "z": 4951.61865,
+            "surfaceElevationNormalized": 0.351346821,
+            "width": 2.8
+          },
+          {
+            "x": -5068.0166,
+            "z": 4962.9873,
+            "surfaceElevationNormalized": 0.351345718,
+            "width": 2.8
+          }
+        ]
+      },
+      {
+        "routeId": "route:trail:site:natural:waterfall_cave--site:origin",
+        "sourceSemanticRouteId": "",
+        "fromSiteId": "site:origin",
+        "toSiteId": "site:natural:waterfall_cave",
+        "width": 2.8,
+        "shoulderWidth": 0.8,
+        "points": [
+          {
+            "x": 0.0,
+            "z": 0.0,
+            "surfaceElevationNormalized": 0.4292078,
+            "width": 2.8
+          },
+          {
+            "x": -9.055943,
+            "z": 28.75021,
+            "surfaceElevationNormalized": 0.5151978,
+            "width": 2.8
+          },
+          {
+            "x": -702.033752,
+            "z": 369.139,
+            "surfaceElevationNormalized": 0.368825942,
+            "width": 2.8
+          },
+          {
+            "x": -1393.00745,
+            "z": 708.374634,
+            "surfaceElevationNormalized": 0.365752161,
+            "width": 2.8
+          },
+          {
+            "x": -2065.28662,
+            "z": 1038.60132,
+            "surfaceElevationNormalized": 0.357634574,
+            "width": 2.8
+          },
+          {
+            "x": -2101.21167,
+            "z": 1012.62305,
+            "surfaceElevationNormalized": 0.352998763,
+            "width": 2.8
+          }
+        ]
+      }
+    ],
+    "waters": [
+      {
+        "hydrologyId": "water:lake:primary",
+        "kind": "Lake",
+        "nominalWidth": 112.0,
+        "nominalDepth": 12.0,
+        "points": [
+          {
+            "x": -6313.60742,
+            "z": 3126.03223,
+            "waterSurfaceNormalized": 0.2,
+            "width": 112.0
+          }
+        ]
+      },
+      {
+        "hydrologyId": "water:river:primary",
+        "kind": "River",
+        "nominalWidth": 14.0,
+        "nominalDepth": 4.5,
+        "points": [
+          {
+            "x": 6313.60742,
+            "z": -3126.03223,
+            "waterSurfaceNormalized": 0.66,
+            "width": 14.0
+          },
+          {
+            "x": 4217.65234,
+            "z": -2066.69287,
+            "waterSurfaceNormalized": 0.5833334,
+            "width": 14.0
+          },
+          {
+            "x": 2109.01758,
+            "z": -1033.041,
+            "waterSurfaceNormalized": 0.50666666,
+            "width": 14.0
+          },
+          {
+            "x": -4.37808,
+            "z": -9.025766,
+            "waterSurfaceNormalized": 0.43,
+            "width": 14.0
+          },
+          {
+            "x": -2112.48926,
+            "z": 1025.95789,
+            "waterSurfaceNormalized": 0.353333324,
+            "width": 14.0
+          },
+          {
+            "x": -4215.01465,
+            "z": 2071.96655,
+            "waterSurfaceNormalized": 0.276666671,
+            "width": 14.0
+          },
+          {
+            "x": -6313.60742,
+            "z": 3126.03223,
+            "waterSurfaceNormalized": 0.2,
+            "width": 14.0
+          }
+        ]
+      },
+      {
+        "hydrologyId": "water:river:streamed_continuation",
+        "kind": "River",
+        "nominalWidth": 14.0,
+        "nominalDepth": 4.5,
+        "points": [
+          {
+            "x": 133.978973,
+            "z": 508.0,
+            "waterSurfaceNormalized": 0.56,
+            "width": 14.0
+          },
+          {
+            "x": 182.125809,
+            "z": 250.0,
+            "waterSurfaceNormalized": 0.46,
+            "width": 14.0
+          },
+          {
+            "x": 155.969833,
+            "z": 0.0,
+            "waterSurfaceNormalized": 0.36,
+            "width": 14.0
+          },
+          {
+            "x": 116.006409,
+            "z": -250.0,
+            "waterSurfaceNormalized": 0.26,
+            "width": 14.0
+          },
+          {
+            "x": 154.66571,
+            "z": -508.0,
+            "waterSurfaceNormalized": 0.16,
+            "width": 14.0
+          }
+        ]
+      },
+      {
+        "hydrologyId": "water:waterfall:primary",
+        "kind": "Waterfall",
+        "nominalWidth": 10.0,
+        "nominalDepth": 3.5,
+        "points": [
+          {
+            "x": -4.37808,
+            "z": -9.025766,
+            "waterSurfaceNormalized": 0.473333329,
+            "width": 10.0
+          },
+          {
+            "x": -2112.48926,
+            "z": 1025.95789,
+            "waterSurfaceNormalized": 0.353333324,
+            "width": 10.0
+          }
+        ]
+      }
+    ],
+    "crossings": [
+      {
+        "crossingId": "crossing:route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08:water:river:primary:span:0",
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 0.6825268,
+        "z": -11.3923788,
+        "requiredSpan": 12.8
+      },
+      {
+        "crossingId": "crossing:route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08:water:river:primary:span:1",
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 54.1479721,
+        "z": -36.5000839,
+        "requiredSpan": 12.8
+      },
+      {
+        "crossingId": "crossing:route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08:water:river:streamed_continuation",
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "hydrologyId": "water:river:streamed_continuation",
+        "kind": 2,
+        "x": 149.9133,
+        "z": -33.77791,
+        "requiredSpan": 14.8
+      },
+      {
+        "crossingId": "crossing:route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09:water:river:primary:span:0",
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -9.084699,
+        "z": -6.3004055,
+        "requiredSpan": 12.8
+      },
+      {
+        "crossingId": "crossing:route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09:water:river:primary:span:1",
+        "routeId": "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -82.97492,
+        "z": 28.8947639,
+        "requiredSpan": 12.8
+      },
+      {
+        "crossingId": "crossing:route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1:water:river:primary",
+        "routeId": "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -8.528707,
+        "z": -8.434315,
+        "requiredSpan": 11.2
+      },
+      {
+        "crossingId": "crossing:route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_pyrspire_crossing_2abf5f08:water:river:primary",
+        "routeId": "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 2528.606,
+        "z": -1237.72742,
+        "requiredSpan": 11.2
+      },
+      {
+        "crossingId": "crossing:route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_vaelward_rest_2abf5f09:water:river:primary",
+        "routeId": "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_vaelward_rest_2abf5f09",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -4962.01855,
+        "z": 2447.6604,
+        "requiredSpan": 11.2
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:east--site:origin:water:river:primary:span:0",
+        "routeId": "route:trail:site:continuation:east--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 0.5487067,
+        "z": -10.8825016,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:east--site:origin:water:river:primary:span:1",
+        "routeId": "route:trail:site:continuation:east--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 32.28138,
+        "z": -25.7006531,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:east--site:origin:water:river:streamed_continuation",
+        "routeId": "route:trail:site:continuation:east--site:origin",
+        "hydrologyId": "water:river:streamed_continuation",
+        "kind": 2,
+        "x": 154.822433,
+        "z": 2.08674812,
+        "requiredSpan": 11.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:north--site:origin:water:river:primary",
+        "routeId": "route:trail:site:continuation:north--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 0.0,
+        "z": 0.0,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:north--site:origin:water:river:streamed_continuation",
+        "routeId": "route:trail:site:continuation:north--site:origin",
+        "hydrologyId": "water:river:streamed_continuation",
+        "kind": 2,
+        "x": 128.0,
+        "z": 508.0,
+        "requiredSpan": 11.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:south--site:origin:water:river:primary",
+        "routeId": "route:trail:site:continuation:south--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -2.13709831,
+        "z": -11.7072306,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:continuation:west--site:origin:water:river:primary",
+        "routeId": "route:trail:site:continuation:west--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -14.9945831,
+        "z": -5.29047251,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:natural:waterfall_cave--site:origin:water:river:primary:span:0",
+        "routeId": "route:trail:site:natural:waterfall_cave--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": 0.0,
+        "z": 0.0,
+        "requiredSpan": 9.6
+      },
+      {
+        "crossingId": "crossing:route:trail:site:natural:waterfall_cave--site:origin:water:river:primary:span:1",
+        "routeId": "route:trail:site:natural:waterfall_cave--site:origin",
+        "hydrologyId": "water:river:primary",
+        "kind": 2,
+        "x": -2095.224,
+        "z": 1016.95276,
+        "requiredSpan": 9.6
+      }
+    ],
+    "reservations": [
+      {
+        "siteId": "site:continuation:east",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:continuation:east",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "NaturalFeature",
+        "structuralIntent": "NaturalFeature",
+        "worldX": 508.0,
+        "worldZ": 128.0,
+        "footprintRadius": 16.0,
+        "minimumExclusionRadius": 34.0,
+        "expansionRadius": 21.6,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:7:5",
+        "memberCellIds": [
+          "cell:7:4",
+          "cell:7:5",
+          "cell:8:4",
+          "cell:8:5"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:continuation:east|entrance|0",
+            "worldX": 524.0,
+            "worldZ": 128.0,
+            "headingDegrees": 90.0,
+            "permittedRouteId": "route:trail:site:continuation:east--site:origin"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:continuation:east--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:continuation:north",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:continuation:north",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "NaturalFeature",
+        "structuralIntent": "NaturalFeature",
+        "worldX": 128.0,
+        "worldZ": 508.0,
+        "footprintRadius": 16.0,
+        "minimumExclusionRadius": 34.0,
+        "expansionRadius": 21.6,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:5:7",
+        "memberCellIds": [
+          "cell:4:7",
+          "cell:4:8",
+          "cell:5:7",
+          "cell:5:8"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:continuation:north|entrance|0",
+            "worldX": 128.0,
+            "worldZ": 524.0,
+            "headingDegrees": 0.0,
+            "permittedRouteId": "route:trail:site:continuation:north--site:origin"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:continuation:north--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:continuation:south",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:continuation:south",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "NaturalFeature",
+        "structuralIntent": "NaturalFeature",
+        "worldX": -128.0,
+        "worldZ": -508.0,
+        "footprintRadius": 16.0,
+        "minimumExclusionRadius": 34.0,
+        "expansionRadius": 21.6,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:3:0",
+        "memberCellIds": [
+          "cell:2:-1",
+          "cell:2:0",
+          "cell:3:-1",
+          "cell:3:0"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:continuation:south|entrance|0",
+            "worldX": -128.0,
+            "worldZ": -524.0,
+            "headingDegrees": 180.0,
+            "permittedRouteId": "route:trail:site:continuation:south--site:origin"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:continuation:south--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:continuation:west",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:continuation:west",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "NaturalFeature",
+        "structuralIntent": "NaturalFeature",
+        "worldX": -508.0,
+        "worldZ": -128.0,
+        "footprintRadius": 16.0,
+        "minimumExclusionRadius": 34.0,
+        "expansionRadius": 21.6,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:0:3",
+        "memberCellIds": [
+          "cell:-1:2",
+          "cell:-1:3",
+          "cell:0:2",
+          "cell:0:3"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:continuation:west|entrance|0",
+            "worldX": -524.0,
+            "worldZ": -128.0,
+            "headingDegrees": 270.0,
+            "permittedRouteId": "route:trail:site:continuation:west--site:origin"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:continuation:west--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:hostile:encampment_jorhollow_depths_6ee39527",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:hostile:encampment_jorhollow_depths_6ee39527",
+        "displayName": "Jorhollow Depths",
+        "layoutBindingId": "qualified_occupied_homestead",
+        "layoutBindingVersion": "reviewed-site-binding-5-canonical-features",
+        "layoutSignature": "looped cave route",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "HostileSite",
+        "structuralIntent": "HostileSite",
+        "worldX": 4803.171,
+        "worldZ": -55.76787,
+        "footprintRadius": 37.0,
+        "minimumExclusionRadius": 55.0,
+        "expansionRadius": 49.95,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:41:3",
+        "memberCellIds": [
+          "cell:41:3"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:hostile:encampment_jorhollow_depths_6ee39527|entrance|0",
+            "worldX": 4840.139,
+            "worldZ": -54.2376633,
+            "headingDegrees": 87.6297455,
+            "permittedRouteId": "route:trail:site:hostile:encampment_jorhollow_depths_6ee39527--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:hostile:encampment_jorhollow_depths_6ee39527--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+        ]
+      },
+      {
+        "siteId": "site:hostile:encampment_orcairn_site_6ee39528",
+        "ownerRegionId": "region_ithaven_basin_28f99294",
+        "ownerFeatureId": "site:hostile:encampment_orcairn_site_6ee39528",
+        "displayName": "Orcairn Site",
+        "layoutBindingId": "qualified_occupied_homestead",
+        "layoutBindingVersion": "reviewed-site-binding-5-canonical-features",
+        "layoutSignature": "vertical mine descent",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "HostileSite",
+        "structuralIntent": "HostileSite",
+        "worldX": -5068.0166,
+        "worldZ": 4962.9873,
+        "footprintRadius": 34.0,
+        "minimumExclusionRadius": 52.0,
+        "expansionRadius": 45.9,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:-36:42",
+        "memberCellIds": [
+          "cell:-36:42",
+          "cell:-36:43"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:hostile:encampment_orcairn_site_6ee39528|entrance|0",
+            "worldX": -5038.11768,
+            "worldZ": 4946.79932,
+            "headingDegrees": 118.431763,
+            "permittedRouteId": "route:trail:site:hostile:encampment_orcairn_site_6ee39528--site:settlement:settlement_vaelward_rest_2abf5f09"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:hostile:encampment_orcairn_site_6ee39528--site:settlement:settlement_vaelward_rest_2abf5f09"
+        ]
+      },
+      {
+        "siteId": "site:natural:waterfall_cave",
+        "ownerRegionId": "region_ithaven_basin_28f99294",
+        "ownerFeatureId": "site:natural:waterfall_cave",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "NaturalFeature",
+        "structuralIntent": "NaturalFeature",
+        "worldX": -2101.21167,
+        "worldZ": 1012.62305,
+        "footprintRadius": 18.0,
+        "minimumExclusionRadius": 36.0,
+        "expansionRadius": 24.3000011,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:-13:11",
+        "memberCellIds": [
+          "cell:-13:11",
+          "cell:-13:12"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:natural:waterfall_cave|entrance|0",
+            "worldX": -2117.36938,
+            "worldZ": 1020.55573,
+            "headingDegrees": -63.8511276,
+            "permittedRouteId": "route:trail:site:natural:waterfall_cave--site:origin"
+          }
+        ],
+        "routeIds": [
+          "route:trail:site:natural:waterfall_cave--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:origin",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:origin",
+        "displayName": null,
+        "layoutBindingId": null,
+        "layoutBindingVersion": null,
+        "layoutSignature": null,
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "Origin",
+        "structuralIntent": "Origin",
+        "worldX": 0.0,
+        "worldZ": 0.0,
+        "footprintRadius": 96.0,
+        "minimumExclusionRadius": 114.0,
+        "expansionRadius": 129.6,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:4:4",
+        "memberCellIds": [
+          "cell:3:3",
+          "cell:3:4",
+          "cell:4:3",
+          "cell:4:4"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:origin|entrance|0",
+            "worldX": 5.74115467,
+            "worldZ": -95.82817,
+            "headingDegrees": 176.571457,
+            "permittedRouteId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+          }
+        ],
+        "routeIds": [
+          "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+          "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+          "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1",
+          "route:trail:site:continuation:east--site:origin",
+          "route:trail:site:continuation:north--site:origin",
+          "route:trail:site:continuation:south--site:origin",
+          "route:trail:site:continuation:west--site:origin",
+          "route:trail:site:natural:waterfall_cave--site:origin"
+        ]
+      },
+      {
+        "siteId": "site:poi:curated_nordic_hut_1",
+        "ownerRegionId": "region_halrun_ridge_28f99295",
+        "ownerFeatureId": "site:poi:curated_nordic_hut_1",
+        "displayName": "Nordic Wayhouse",
+        "layoutBindingId": "nordic",
+        "layoutBindingVersion": "poi_visual_style_v1",
+        "layoutSignature": "",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "PointOfInterest",
+        "structuralIntent": "PointOfInterest",
+        "worldX": -4941.094,
+        "worldZ": -4837.061,
+        "footprintRadius": 24.0,
+        "minimumExclusionRadius": 42.0,
+        "expansionRadius": 32.4,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:-35:-34",
+        "memberCellIds": [
+          "cell:-35:-34"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:poi:curated_nordic_hut_1|entrance|0",
+            "worldX": -4923.887,
+            "worldZ": -4820.33057,
+            "headingDegrees": 45.80428,
+            "permittedRouteId": "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1"
+          }
+        ],
+        "routeIds": [
+          "route:secondaryroad:site:origin--site:poi:curated_nordic_hut_1",
+          "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+          "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_vaelward_rest_2abf5f09"
+        ]
+      },
+      {
+        "siteId": "site:poi:curated_nordic_hut_2",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:poi:curated_nordic_hut_2",
+        "displayName": "Pinewatch Hut",
+        "layoutBindingId": "nordic",
+        "layoutBindingVersion": "poi_visual_style_v1",
+        "layoutSignature": "",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "PointOfInterest",
+        "structuralIntent": "PointOfInterest",
+        "worldX": 4922.05957,
+        "worldZ": 94.52133,
+        "footprintRadius": 24.0,
+        "minimumExclusionRadius": 42.0,
+        "expansionRadius": 32.4,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:42:4",
+        "memberCellIds": [
+          "cell:42:4"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:poi:curated_nordic_hut_2|entrance|0",
+            "worldX": 4927.94775,
+            "worldZ": 71.25488,
+            "headingDegrees": 165.797668,
+            "permittedRouteId": "route:secondaryroad:site:poi:curated_nordic_hut_2--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+          }
+        ],
+        "routeIds": [
+          "route:secondaryroad:site:poi:curated_nordic_hut_2--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+        ]
+      },
+      {
+        "siteId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "ownerRegionId": "region_rynreach_basin_28f99293",
+        "ownerFeatureId": "site:settlement:settlement_pyrspire_crossing_2abf5f08",
+        "displayName": "Pyrspire Crossing",
+        "layoutBindingId": "qualified_viking_home",
+        "layoutBindingVersion": "reviewed-site-binding-5-canonical-features",
+        "layoutSignature": "",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "Settlement",
+        "structuralIntent": "Settlement",
+        "worldX": 4969.96045,
+        "worldZ": -58.5428238,
+        "footprintRadius": 39.35397,
+        "minimumExclusionRadius": 57.35397,
+        "expansionRadius": 53.12786,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:42:3",
+        "memberCellIds": [
+          "cell:42:3",
+          "cell:43:3"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:settlement:settlement_pyrspire_crossing_2abf5f08|entrance|0",
+            "worldX": 4937.82031,
+            "worldZ": -35.8328857,
+            "headingDegrees": 305.244629,
+            "permittedRouteId": "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+          }
+        ],
+        "routeIds": [
+          "route:primaryroad:site:origin--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+          "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+          "route:secondaryroad:site:poi:curated_nordic_hut_2--site:settlement:settlement_pyrspire_crossing_2abf5f08",
+          "route:secondaryroad:site:settlement:settlement_pyrspire_crossing_2abf5f08--site:settlement:settlement_vaelward_rest_2abf5f09",
+          "route:trail:site:hostile:encampment_jorhollow_depths_6ee39527--site:settlement:settlement_pyrspire_crossing_2abf5f08"
+        ]
+      },
+      {
+        "siteId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "ownerRegionId": "region_ithaven_basin_28f99294",
+        "ownerFeatureId": "site:settlement:settlement_vaelward_rest_2abf5f09",
+        "displayName": "Vaelward Rest",
+        "layoutBindingId": "qualified_viking_home",
+        "layoutBindingVersion": "reviewed-site-binding-5-canonical-features",
+        "layoutSignature": "",
+        "accessScore": 1.0,
+        "accessConstraint": "accepted_layout_access",
+        "siteKind": "Settlement",
+        "structuralIntent": "Settlement",
+        "worldX": -5000.02637,
+        "worldZ": 4946.26953,
+        "footprintRadius": 39.8461533,
+        "minimumExclusionRadius": 57.8461533,
+        "expansionRadius": 53.79231,
+        "culturalIntent": "derived_from_accepted_semantic_site",
+        "immutable": true,
+        "accepted": true,
+        "provenance": "accepted_spatial_v2",
+        "ownerCellId": "cell:-36:42",
+        "memberCellIds": [
+          "cell:-35:42",
+          "cell:-36:42"
+        ],
+        "entrances": [
+          {
+            "entranceId": "site:settlement:settlement_vaelward_rest_2abf5f09|entrance|0",
+            "worldX": -4971.48242,
+            "worldZ": 4918.46729,
+            "headingDegrees": 134.2455,
+            "permittedRouteId": "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09"
+          }
+        ],
+        "routeIds": [
+          "route:primaryroad:site:origin--site:settlement:settlement_vaelward_rest_2abf5f09",
+          "route:secondaryroad:site:poi:curated_nordic_hut_1--site:settlement:settlement_vaelward_rest_2abf5f09",
+          "route:secondaryroad:site:settlement:settlement_pyrspire_crossing_2abf5f08--site:settlement:settlement_vaelward_rest_2abf5f09",
+          "route:trail:site:hostile:encampment_orcairn_site_6ee39528--site:settlement:settlement_vaelward_rest_2abf5f09"
+        ]
+      }
+    ],
+    "bindings": [
+      {
+        "semanticId": "settlement_pyrspire_crossing_2abf5f08",
+        "kind": "settlement",
+        "runtimeSiteKitId": "qualified_viking_home",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "settlement_vaelward_rest_2abf5f09",
+        "kind": "settlement",
+        "runtimeSiteKitId": "qualified_viking_home",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "encampment_jorhollow_depths_6ee39527",
+        "kind": "encampment",
+        "runtimeSiteKitId": "qualified_occupied_homestead",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      },
+      {
+        "semanticId": "encampment_orcairn_site_6ee39528",
+        "kind": "encampment",
+        "runtimeSiteKitId": "qualified_occupied_homestead",
+        "runtimeSiteSemanticStyle": "medieval_viking_village",
+        "runtimeSiteBindingVersion": "reviewed-site-binding-5-canonical-features"
+      }
+    ]
+  },
+  "requiredSampling": {
+    "coordinateCoverage": [
+      "four directions",
+      "positive and negative",
+      "diagonals",
+      "fresh far frontier",
+      "accepted-origin continuation"
+    ],
+    "transitions": "Every supported important pairwise biome, land-use and water/site transition",
+    "cameras": [
+      "first-person",
+      "third-person"
+    ],
+    "lifecycle": [
+      "opposite member activation orders",
+      "beyond-retention unload/revisit",
+      "save/quit/reload",
+      "profile switch/cancel/replacement",
+      "supported mutation replay exactly once"
+    ],
+    "physicalArchetypes": [
+      "hut and exit",
+      "service settlement/interior",
+      "hostile or ruin",
+      "cave/interior",
+      "landmark/resource area",
+      "large multi-cell sectors",
+      "off-road quiet habitat"
+    ],
+    "verdict": "NOT VERIFIED: current feature records and old narrow traces do not close this matrix"
+  }
+}

@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 // note: New race fixtures evaluate supplied rigs, including Bramblekin's per-LOD morph curves, without touching the production scene or saves.
@@ -68,7 +69,8 @@ public static class YQDotRaceBaseVerification
             foreach (var skin in model.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 skin.BakeMesh(mesh); var original = skin.sharedMesh;
-                details.Add(new { skin.name, mesh = original.name, vertices = original.vertexCount, originalUv = original.uv.Length, bakedUv = mesh.uv.Length, uvExact = original.uv.SequenceEqual(mesh.uv), originalColors = original.colors.Length, bakedColors = mesh.colors.Length, colorsExact = original.colors.SequenceEqual(mesh.colors), materials = skin.sharedMaterials.Select(m => new { m.name, shader = m.shader.name, keywords = m.shaderKeywords, properties = Enumerable.Range(0, ShaderUtil.GetPropertyCount(m.shader)).Select(i => { string property = ShaderUtil.GetPropertyName(m.shader, i); var type = ShaderUtil.GetPropertyType(m.shader, i); return new { property, type = type.ToString(), value = type == ShaderUtil.ShaderPropertyType.TexEnv ? m.GetTexture(property)?.name : type == ShaderUtil.ShaderPropertyType.Color ? m.GetColor(property).ToString() : type == ShaderUtil.ShaderPropertyType.Float || type == ShaderUtil.ShaderPropertyType.Range ? m.GetFloat(property).ToString() : "" }; }) }) });
+                // note: Use current Shader metadata APIs while preserving the receipt's historical texture type label.
+                details.Add(new { skin.name, mesh = original.name, vertices = original.vertexCount, originalUv = original.uv.Length, bakedUv = mesh.uv.Length, uvExact = original.uv.SequenceEqual(mesh.uv), originalColors = original.colors.Length, bakedColors = mesh.colors.Length, colorsExact = original.colors.SequenceEqual(mesh.colors), materials = skin.sharedMaterials.Select(m => new { m.name, shader = m.shader.name, keywords = m.shaderKeywords, properties = Enumerable.Range(0, m.shader.GetPropertyCount()).Select(i => { string property = m.shader.GetPropertyName(i); var type = m.shader.GetPropertyType(i); return new { property, type = type == ShaderPropertyType.Texture ? "TexEnv" : type.ToString(), value = type == ShaderPropertyType.Texture ? m.GetTexture(property)?.name : type == ShaderPropertyType.Color ? m.GetColor(property).ToString() : type == ShaderPropertyType.Float || type == ShaderPropertyType.Range ? m.GetFloat(property).ToString() : "" }; }) }) });
             }
             File.WriteAllText(output + "/bramblekin-material-diagnostic.json", JsonConvert.SerializeObject(details, Formatting.Indented));
         }

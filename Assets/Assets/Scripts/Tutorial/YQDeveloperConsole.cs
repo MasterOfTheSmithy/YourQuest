@@ -22,10 +22,12 @@ public sealed partial class YQDeveloperConsole : MonoBehaviour
     private Vector2 _scroll;
     private readonly List<string> _lines = new List<string>();
     private readonly List<string> _history = new List<string>();
+    private string[] _layoutLines = Array.Empty<string>();
+    private Rect _layoutBounds;
     private readonly object _modalToken = new object();
     private YQDeveloperCommandRegistry _registry;
     private StreamWriter _audit;
-    private GUIStyle _text, _entry, _panel, _header;
+    private GUIStyle _text, _entry, _panel, _header, _prompt;
     private CursorLockMode _cursorLock;
     private bool _cursorVisible;
     private GameObject _selected;
@@ -147,12 +149,23 @@ public sealed partial class YQDeveloperConsole : MonoBehaviour
         {
             _text = new GUIStyle(GUI.skin.label) { wordWrap = true, richText = false, fontSize = 14, normal = { textColor = new Color(.78f, .9f, 1f) } };
             _entry = new GUIStyle(GUI.skin.textField) { fontSize = 16, richText = false };
+            _prompt = new GUIStyle(GUI.skin.textArea) { fontSize = 16, richText = false, wordWrap = true, padding = new RectOffset(8, 8, 7, 7) };
             _header = new GUIStyle(_text) { fontSize = 17, fontStyle = FontStyle.Bold };
             _panel = new GUIStyle(GUI.skin.box);
         }
         // note: Browsing gets enough space for names and hover details; the advanced prompt remains available below it.
         GUI.depth = -20000;
-        Rect bounds = new Rect(8, 8, Screen.width - 16, Mathf.Max(120, Screen.height - 16));
+        // note: Freeze panel geometry per layout; scene picking leaves the world visible while the modal input barrier remains active.
+        if (Event.current.type == EventType.Layout)
+        {
+            _layoutScenePicker = _scenePicker && Screen.width >= 900;
+            _layoutPickerRequested = _scenePicker;
+            float width = _layoutScenePicker ? Mathf.Min(Screen.width - 220, Mathf.Max(610, Screen.width * .52f)) : Screen.width - 16;
+            _layoutBounds = new Rect(Screen.width - width - 8, 8, width, Mathf.Max(120, Screen.height - 16));
+            _layoutLines = _lines.Where(line => _search.Length == 0 || line.IndexOf(_search, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
+        }
+        Rect bounds = _layoutBounds; _panelWidth = bounds.width;
+        if (_layoutScenePicker) DrawScenePicker(bounds);
         GUI.Box(bounds, GUIContent.none, _panel);
         GUILayout.BeginArea(new Rect(bounds.x + 12, bounds.y + 8, bounds.width - 24, bounds.height - 16));
         // note: Small Game views can scroll the whole panel so action controls and the advanced prompt are never clipped away.
@@ -162,6 +175,7 @@ public sealed partial class YQDeveloperConsole : MonoBehaviour
         if (GUILayout.Button("Close [" + toggleKey + "]", GUILayout.Width(145))) SetOpen(false);
         GUILayout.EndHorizontal();
         DrawBrowserToolbar();
+        if (_layoutPickerRequested) GUILayout.Label(_layoutScenePicker ? "SCENE PICKER: hover an actor in the world area, then click to target. Gameplay input stays captured." : "Scene picking needs a Game view at least 900 pixels wide. Actors still lists loaded targets.", _text);
         float browserHeight = Mathf.Clamp(bounds.height - (Screen.width < 760 ? 290 : 235), 100, 470);
         if (_layoutShowBrowser) DrawBrowser(browserHeight);
         GUILayout.Label(_layoutShowAdvanced ? "RESULTS / ADVANCED COMMANDS" : "RESULTS", _header);
@@ -170,7 +184,7 @@ public sealed partial class YQDeveloperConsole : MonoBehaviour
         if (GUILayout.Button("Clear", GUILayout.Width(65))) { _lines.Clear(); _search = ""; }
         GUILayout.EndHorizontal();
         _scroll = GUILayout.BeginScrollView(_scroll, GUILayout.Height(Mathf.Max(70, bounds.height - (_layoutShowBrowser ? browserHeight : 0) - (Screen.width < 760 ? 290 : 235))));
-        foreach (string line in _lines) if (_search.Length == 0 || line.IndexOf(_search, StringComparison.OrdinalIgnoreCase) >= 0) GUILayout.Label(line, _text);
+        foreach (string line in _layoutLines) GUILayout.Label(line, _text);
         GUILayout.EndScrollView();
         HandleEditingKeys();
         if (_layoutShowAdvanced)
@@ -186,6 +200,19 @@ public sealed partial class YQDeveloperConsole : MonoBehaviour
         }
         GUILayout.EndScrollView();
         GUILayout.EndArea();
+    }
+    private void DrawScenePicker(Rect panel)
+    {
+        // note: Only visible colliders under the gameplay camera are eligible; the nearest obstruction prevents picking through walls.
+        Event e = Event.current; if (panel.Contains(e.mousePosition)) return;
+        var camera = YQInvestorPlayerMotor.ActiveMotor?.playerCamera;
+        if (camera == null) return;
+        Ray ray = camera.ScreenPointToRay(new Vector3(e.mousePosition.x, Screen.height - e.mousePosition.y));
+        GameObject actor = Physics.Raycast(ray, out RaycastHit hit, 200, ~0, QueryTriggerInteraction.Ignore) ? YQDeveloperCommandRegistry.ActorFromCollider(hit.collider) : null;
+        if (actor == null) return;
+        string id = _registry.RegisterActor(actor);
+        GUI.Label(new Rect(12, 12, Mathf.Max(100, panel.x - 25), 80), "PICK: " + (actor.GetComponent<EntityInfo>()?.displayName ?? actor.name) + "\nClick to select • " + id, _header);
+        if (e.type == EventType.MouseDown && e.button == 0) { Submit("target actor " + YQDeveloperCommandRegistry.QuoteArgument(id)); OpenBrowserTab("Actors"); e.Use(); }
     }
     private void HandleEditingKeys()
     {

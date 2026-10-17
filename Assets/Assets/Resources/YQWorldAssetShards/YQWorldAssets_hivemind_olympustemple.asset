@@ -1,0 +1,841 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_olympustemple
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Materials/M_Ground.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 549ed097a2dd6534482d3009de67a19c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Materials/M_Ground2.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0b81f0433aacd2149a4dfec216971115, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Meshes/PineInPot/Pot/SM/Materials/MI_Ground.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8c2583743507c6f4c9dca7b2bc22215e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_base_wall.prefab
+    prefab: {fileID: 1030982055, guid: abc00000000014633762621996528264, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_base_wall
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Chandellier_SM_Chandellier_body.prefab
+    prefab: {fileID: 1030983916, guid: abc00000000000472526092836351128, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chandellier_SM_Chandellier_body
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64f038bfb8458bd4ba9632f8f8a5bc3c, type: 2}
+    - transformPath: SM_Chandellier_SM_Chandellier_body
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 49afb9fc55c8ddc409c905f45152d0b9, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Chandellier_SM_Chandellier_chain.prefab
+    prefab: {fileID: 1030983909, guid: abc00000000010598575832071824775, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chandellier_SM_Chandellier_chain
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64f038bfb8458bd4ba9632f8f8a5bc3c, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_CylinderSculpture.prefab
+    prefab: {fileID: 1030982195, guid: abc00000000006350599757224977272, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_CylinderSculpture
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 24becc9e7408496449cc9c009d0bee7d, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Flag.prefab
+    prefab: {fileID: 1030982605, guid: abc00000000016296770397044791599, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flag
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0addb8278e7f2149b2af0c7a828258d, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FlagConnection_part_connection.prefab
+    prefab: {fileID: 1030982612, guid: abc00000000001630808464710511708, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FlagConnection_part_connection
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FlagConnection_part_mid_decor.prefab
+    prefab: {fileID: 1030982619, guid: abc00000000008185902437662681360, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FlagConnection_part_mid_decor
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FlagConnection_part_rope.prefab
+    prefab: {fileID: 1030982626, guid: abc00000000012482881362229657448, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FlagConnection_part_rope
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_trunk_0.prefab
+    prefab: {fileID: 1030982936, guid: abc00000000005569268574081556012, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_trunk_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineSmall.prefab
+    prefab: {fileID: 1030978924, guid: abc00000000013615510659810553108, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineSmall
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c3f60656126b96b4f926f649b39433c0, type: 2}
+    - transformPath: SM_PineSmall
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b1177ecc20caf544c8df2c25e4bc535a, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Pot.prefab
+    prefab: {fileID: 1031006755, guid: abc00000000014327047588651083102, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Pot_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Pot_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Pot_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Sculpture.prefab
+    prefab: {fileID: 1030972828, guid: abc00000000012566276622033357710, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sculpture
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fa949a2ab19208044959b27ba76998b2, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Stairs_modular_part_1.prefab
+    prefab: {fileID: 1030972483, guid: abc00000000013401566326252366712, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_modular_part_1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2a4dabffd71a08e4eb23048f10cfecea, type: 2}
+    - transformPath: SM_Stairs_modular_part_1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 3112d5cfd7a0792478501648da9d6683, type: 2}
+    - transformPath: SM_Stairs_modular_part_1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Stairs_modular_part_2.prefab
+    prefab: {fileID: 1030977132, guid: abc00000000006090530487748062723, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_modular_part_2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_Stairs_modular_part_2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_Stairs_modular_part_2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Stairs_modular_part_3.prefab
+    prefab: {fileID: 1030977146, guid: abc00000000009499911853901924794, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_modular_part_3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_ArchSmall.prefab
+    prefab: {fileID: 1030972161, guid: abc00000000001775751427171239978, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArchSmall
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_ArchSmall
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_ArchSmallModular_part_bot.prefab
+    prefab: {fileID: 1030972259, guid: abc00000000009723649243351343194, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArchSmallModular_part_bot
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_ArchSmallModular_part_bot
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_ArchSmallModular_part_mid.prefab
+    prefab: {fileID: 1030975865, guid: abc00000000000486848536574228119, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArchSmallModular_part_mid
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_ArchSmallModular_part_mid
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_ArchSmallModular_part_top.prefab
+    prefab: {fileID: 1030975872, guid: abc00000000006899583499822919452, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArchSmallModular_part_top
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_ArchSmallModular_part_top
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_base_gold.prefab
+    prefab: {fileID: 1030980765, guid: abc00000000011660577209489410590, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_base_gold
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_top_gold.prefab
+    prefab: {fileID: 1030974448, guid: abc00000000002457011857872870936, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_top_gold
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_top_gold_1.prefab
+    prefab: {fileID: 1030974455, guid: abc00000000005918223118346967596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_top_gold
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_top_gold_detail.prefab
+    prefab: {fileID: 1030982034, guid: abc00000000009820331413355241748, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_top_gold_detail
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Arch_SM_Arch_top_wall.prefab
+    prefab: {fileID: 1030982062, guid: abc00000000006958833142223529182, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_SM_Arch_top_wall
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_above_sculpture.prefab
+    prefab: {fileID: 1030977335, guid: abc00000000006674542196583190173, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_above_sculpture
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_belove_sculpture.prefab
+    prefab: {fileID: 1030982222, guid: abc00000000013309513481656540221, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_belove_sculpture
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+    - transformPath: SM_Column_SM_Column_belove_sculpture
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_body.prefab
+    prefab: {fileID: 1030977321, guid: abc00000000015238344189612735062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_body
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_Column_SM_Column_body
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4fc1cd6888aea09449e682fe2410cd25, type: 2}
+    - transformPath: SM_Column_SM_Column_body
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_sculpture.prefab
+    prefab: {fileID: 1030972532, guid: abc00000000004376022406662590631, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_sculpture
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_top.prefab
+    prefab: {fileID: 1030973304, guid: abc00000000017814429993966225891, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_top
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0b81f0433aacd2149a4dfec216971115, type: 2}
+    - transformPath: SM_Column_SM_Column_top
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_Column_SM_Column_top_1.prefab
+    prefab: {fileID: 1030977349, guid: abc00000000000776279831777474019, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_SM_Column_top
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+    - transformPath: SM_Column_SM_Column_top
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_1.prefab
+    prefab: {fileID: 1030971916, guid: abc00000000008257994291248502429, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_FenceBase_part_1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_FenceBase_part_1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_10.prefab
+    prefab: {fileID: 1030974976, guid: abc00000000000675976944163758535, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_10
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_11.prefab
+    prefab: {fileID: 1030973024, guid: abc00000000011802537383919828174, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_11
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_2.prefab
+    prefab: {fileID: 1030971923, guid: abc00000000014756275379920337078, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_FenceBase_part_2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_FenceBase_part_2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_3.prefab
+    prefab: {fileID: 1030971930, guid: abc00000000001855262130011184527, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+    - transformPath: SM_FenceBase_part_3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_FenceBase_part_3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_4.prefab
+    prefab: {fileID: 1030971937, guid: abc00000000005232717878013653832, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_FenceBase_part_4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_FenceBase_part_4
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_5.prefab
+    prefab: {fileID: 1030971979, guid: abc00000000000092980508268873041, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_6.prefab
+    prefab: {fileID: 1030971944, guid: abc00000000014724595613470218250, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_6
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_6
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_7.prefab
+    prefab: {fileID: 1030971993, guid: abc00000000015512521871721562899, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_7
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+    - transformPath: SM_FenceBase_part_7
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_8.prefab
+    prefab: {fileID: 1030971951, guid: abc00000000016220256362157719628, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_8
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FenceBase_part_9.prefab
+    prefab: {fileID: 1030972140, guid: abc00000000004834163675571490325, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceBase_part_9
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_1_a.prefab
+    prefab: {fileID: 1030972189, guid: abc00000000002176346272399026182, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_1_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_1_a_1.prefab
+    prefab: {fileID: 1030975242, guid: abc00000000001062059380936594118, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_1_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_1_b1.prefab
+    prefab: {fileID: 1030975704, guid: abc00000000016661119810283067166, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_1_b1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_1_c.prefab
+    prefab: {fileID: 1030975711, guid: abc00000000007098958522377437764, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_1_c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_2_a.prefab
+    prefab: {fileID: 1030972343, guid: abc00000000017900491774161714961, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_2_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_2_a_1.prefab
+    prefab: {fileID: 1030972961, guid: abc00000000011206983480152369357, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_2_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_corner.prefab
+    prefab: {fileID: 1030975732, guid: abc00000000014965511282998051412, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_corner
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel.prefab
+    prefab: {fileID: 1030971909, guid: abc00000000010405191371721329843, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6a4aa15e7614834f8a639a6f93854f3, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_1.prefab
+    prefab: {fileID: 1030972154, guid: abc00000000000698321808340583539, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3112d5cfd7a0792478501648da9d6683, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_2.prefab
+    prefab: {fileID: 1030972175, guid: abc00000000010240774123054360232, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_3.prefab
+    prefab: {fileID: 1030972182, guid: abc00000000003742477733735026993, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03f694d920391544486e5e8e495c31a0, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_4.prefab
+    prefab: {fileID: 1030972350, guid: abc00000000006193417769769163158, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_5.prefab
+    prefab: {fileID: 1030975151, guid: abc00000000011349822004159281519, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d8e55c83067d6bb49a10511ae10510eb, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_bevel_6.prefab
+    prefab: {fileID: 1030978609, guid: abc00000000004388651755008208596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_bevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel.prefab
+    prefab: {fileID: 1030972203, guid: abc00000000006758067274248851568, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_1.prefab
+    prefab: {fileID: 1030972308, guid: abc00000000016403287207164735412, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_2.prefab
+    prefab: {fileID: 1030972968, guid: abc00000000016484027596450893775, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_3.prefab
+    prefab: {fileID: 1030972975, guid: abc00000000011572506591847487734, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0b81f0433aacd2149a4dfec216971115, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_4.prefab
+    prefab: {fileID: 1030973010, guid: abc00000000016486584798830997137, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3112d5cfd7a0792478501648da9d6683, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_5.prefab
+    prefab: {fileID: 1030977790, guid: abc00000000003424742799629760648, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6a4aa15e7614834f8a639a6f93854f3, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_FloorBase_part_3_square_nobevel_6.prefab
+    prefab: {fileID: 1030982027, guid: abc00000000012329034558625535571, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorBase_part_3_square_nobevel
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_0.prefab
+    prefab: {fileID: 1030973703, guid: abc00000000004384220107448728804, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_1.prefab
+    prefab: {fileID: 1030982915, guid: abc00000000005932265463834083853, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_10.prefab
+    prefab: {fileID: 1030982873, guid: abc00000000010741735483488979959, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_10
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_10
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_11.prefab
+    prefab: {fileID: 1030982880, guid: abc00000000006746097633211010878, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_11
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_11
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_2.prefab
+    prefab: {fileID: 1030973724, guid: abc00000000017379704394707903654, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_6.prefab
+    prefab: {fileID: 1030982894, guid: abc00000000012118389106891292474, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_6
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_6
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_7.prefab
+    prefab: {fileID: 1030982845, guid: abc00000000008709007740737430403, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_7
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_7
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_8.prefab
+    prefab: {fileID: 1030982887, guid: abc00000000016571157889015232124, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_8
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_8
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_PineLargeModular_branch_9.prefab
+    prefab: {fileID: 1030982852, guid: abc00000000006024403350519084997, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PineLargeModular_branch_9
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19a384c3a41ded045a5149a75091e9bf, type: 2}
+    - transformPath: SM_PineLargeModular_branch_9
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f3e026a9f164294468af70bdaae9889f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SmallColumn_SM_ColumnSmall_body_bot.prefab
+    prefab: {fileID: 1030972525, guid: abc00000000002388713467712341722, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_bot
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_bot
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4fc1cd6888aea09449e682fe2410cd25, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_bot
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SmallColumn_SM_ColumnSmall_body_mid.prefab
+    prefab: {fileID: 1030977237, guid: abc00000000011598656834644778263, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_mid
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_mid
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4fc1cd6888aea09449e682fe2410cd25, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_mid
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SmallColumn_SM_ColumnSmall_body_top.prefab
+    prefab: {fileID: 1030977244, guid: abc00000000018011391797893469596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_top
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_top
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4fc1cd6888aea09449e682fe2410cd25, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_body_top
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SmallColumn_SM_ColumnSmall_Bot.prefab
+    prefab: {fileID: 1030972511, guid: abc00000000001636316990517033331, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_Bot
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SmallColumn_SM_ColumnSmall_Top.prefab
+    prefab: {fileID: 1030977251, guid: abc00000000014723864404936229621, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_Top
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c1b1e517efdf9d840bdfc879697dcf33, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_Top
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 39e1e50b3a1d7a543ba05d6d6622d97f, type: 2}
+    - transformPath: SM_SmallColumn_SM_ColumnSmall_Top
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 671cc643d00eee946a9b26f449323c6f, type: 2}
+  - assetPath: Assets/HIVEMIND/OlympusTemple/HDRP/Art/Prefabs/SM_SM_Cloud.prefab
+    prefab: {fileID: 1030974132, guid: abc00000000006086409009305043531, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SM_Cloud
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 520fbf9153c87084784bb56bcbd7d53b, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

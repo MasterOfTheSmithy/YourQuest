@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_throwing_axe
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Drake_Throwing_Axe.prefab
+    prefab: {fileID: 9122649601762861429, guid: 1198bf47dd553414b8c0a1b3f9a1ea6b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Duelist_Throwing_Axe.prefab
+    prefab: {fileID: 666783210710416265, guid: 190ac4823225ffc4dba12d539ef2204c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Eclipse_Throwing_Axe.prefab
+    prefab: {fileID: 2849528242448276361, guid: c9c95ea99e9af0743bf156507db18948, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Field_Throwing_Axe.prefab
+    prefab: {fileID: 8017668689491900866, guid: 8d61167a94238414f8cbe2839b54302e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Frontier_Throwing_Axe.prefab
+    prefab: {fileID: 3603664926946463347, guid: c57afb4bc8d1bd2408fec05aaf1adccb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Ranger_Throwing_Axe.prefab
+    prefab: {fileID: 1698115181459892893, guid: f3f0ced1d51d08b409b3b4186d014dc9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Sentinel_Throwing_Axe.prefab
+    prefab: {fileID: 9117884084928630842, guid: 43c1c004997b89c458701223b5e2e64d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Throwing_Axe_Starforged_Orrery.prefab
+    prefab: {fileID: 6313593422825896576, guid: 9a9eff6474e3f5b44b47eb0fdc1e982d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Throwing_Axe_Worldtree_Sovereign.prefab
+    prefab: {fileID: 3769935117311096213, guid: caef37c98cf3ced4dab036f8112d2ac4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_darkness.prefab
+    prefab: {fileID: 2714284561554493522, guid: 178c8aaa2d2e4a3438c1defee7cc0e5c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_fire.prefab
+    prefab: {fileID: 7103626335060165620, guid: 4e01f5b5e698e0a4a8b5f918b32bcaa7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_forged.prefab
+    prefab: {fileID: 8774088966232764916, guid: cf036922f0aed834c8ee0fe0cbd4ae17, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_frost.prefab
+    prefab: {fileID: 531064842302246718, guid: 44909a0011bdca844b8e25d98cd7e320, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_light.prefab
+    prefab: {fileID: 4721248856202116868, guid: d5701c95d851adc4b8d86f59ae955d4e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_grip_organic.prefab
+    prefab: {fileID: 6106230259815514948, guid: f2cceaf0dfa52954bb2f311a1e58dafe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_darkness.prefab
+    prefab: {fileID: 8849146305194734105, guid: e64b7471a87fc5f4fa0331def1f24cc2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_fire.prefab
+    prefab: {fileID: 209273343617978159, guid: 3f960073496901d45b7265a94b301d7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_forged.prefab
+    prefab: {fileID: 2053874095483486667, guid: 9941c2d274e82d64390ffa1b87e50292, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_frost.prefab
+    prefab: {fileID: 5701506472385993848, guid: 39ac41d0a6e0f1042bb38d547739ffc8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_light.prefab
+    prefab: {fileID: 8897621069235259022, guid: 50a6a2fb0b7a21d49a1c014322f179fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_haft_organic.prefab
+    prefab: {fileID: 4961747918874029184, guid: 2fa152ff2279e9b42b02af2487de9316, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_darkness.prefab
+    prefab: {fileID: 1973875225665729463, guid: 89ee3bf6a6f118f4a8e12146dcb06c6d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_fire.prefab
+    prefab: {fileID: 5906851909530311382, guid: 4981bb5954e11534a847eebb01568ae4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_forged.prefab
+    prefab: {fileID: 8645775473554759552, guid: 736b7a900dc0c2f458272e436f192d7c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_frost.prefab
+    prefab: {fileID: 2280973936711847990, guid: 8ce0b16f4852584449de20ee17b33343, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_light.prefab
+    prefab: {fileID: 6447154007685261430, guid: d5722c959fb3ffc4d80427fe750a2435, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_head_organic.prefab
+    prefab: {fileID: 2871323523781509997, guid: c83f9d1e70a51b945b99cb2c637a7220, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_mixed_dark_light_forged.prefab
+    prefab: {fileID: 8349037055551646769, guid: bb2e84b4c558d4d4693e7a055aaa381f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/yqmod1_weapon_throwing_axe_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 5668401684994977177, guid: e430753c5ebb24747a562309bf8df376, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Field_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 8406359939286766500, guid: c9cde92f02838494798699d8704e1ea6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Ranger_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 7058170498002673903, guid: 1958f2795cdcf3542aff896abc3d1294, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Sentinel_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 1627638084807707350, guid: 9fdc74ff5302b574a94fbb366eecafcd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Duelist_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 4368999170005034095, guid: 30c6a7e4354baba4c968000afec189de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Frontier_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 5754266421144243181, guid: b935f7702f732624ca8500beda767b81, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Drake_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 9038589419757009812, guid: 216f6cc3d5e6b0e4286eba3544934dbe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Eclipse_Throwing_Axe_Parts.prefab
+    prefab: {fileID: 934359878930066254, guid: ef5254c3093e9d3409eb34248efd9447, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Throwing_Axe_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 8507885148403190386, guid: bab7460bcf1969d4395f45d8eeb56f82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/throwing_axe/Throwing_Axe_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 7858847280140547614, guid: 84e2c1fc775101749ad30bbb2d3b265c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

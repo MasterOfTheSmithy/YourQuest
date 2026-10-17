@@ -1,0 +1,30 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import argparse,xml.etree.ElementTree as ET,hashlib,json,re,subprocess,os
+R=Path(__file__).resolve().parents[2];ap=argparse.ArgumentParser();ap.add_argument('--proposal',type=Path,required=True);ap.add_argument('--out',type=Path,required=True);a=ap.parse_args();P=(R/a.proposal).resolve();O=(R/a.out).resolve();assert O.is_relative_to(R/'outputs') and not O.exists();O.mkdir();sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();inputs=[P/'YQGeneratedWorldRuntimeBuilder.before.cs',P/'YQGeneratedWorldRuntimeBuilder.proposal.cs',P/'Overlay.csproj',R/'Tools/TerrainRefactor/FrontierTokenInputChecks.cs',Path(__file__).resolve(),R/'Assets/Assets/Scripts/Generated/YQGeneratedWorldRuntimeBuilder.cs'];before={str(p):sha(p) for p in inputs}
+s=(P/'YQGeneratedWorldRuntimeBuilder.before.cs').read_text();n=(P/'YQGeneratedWorldRuntimeBuilder.proposal.cs').read_text();start='                foreach (var location in accepted.locations)';end='                continuation = accepted;';unchanged=s[s.index(start):s.index(end)]==n[n.index(start):n.index(end)];assert unchanged,'Provider, body and final owner gates changed';assert s.count('accepted = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings)')==n.count('accepted = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings)')==1;assert s[s.index('        private bool TryValidatePublicationOwner('):s.index('    private bool frontierConstructionInFlight;')]==n[n.index('        private bool TryValidatePublicationOwner('):n.index('    private bool frontierConstructionInFlight;')]
+refs=[('Assembly-CSharp',P/'bin/Debug/netstandard2.1/Assembly-CSharp.dll')]
+for node in ET.parse(P/'Overlay.csproj').findall('.//Reference'):
+ path=Path(node.findtext('HintPath'))
+ if path.name.startswith('UnityEngine.') or 'Newtonsoft' in path.name:refs.append((node.attrib['Include'],path))
+root=ET.Element('Project',Sdk='Microsoft.NET.Sdk');props=ET.SubElement(root,'PropertyGroup')
+for k,v in {'TargetFramework':'net10.0','OutputType':'Exe','EnableDefaultCompileItems':'false'}.items():ET.SubElement(props,k).text=v
+items=ET.SubElement(root,'ItemGroup');ET.SubElement(items,'Compile',Include=str(R/'Tools/TerrainRefactor/FrontierTokenInputChecks.cs'))
+# note: Only the native ProfilerMarker scope is unavailable detached. Keep the exact candidate-envelope method executable body, with its existing comparison helper source, unchanged.
+start=n.index('        internal bool HasPreparedCandidate(');end=n.index('        private bool TryValidatePublicationOwner(',start);method=n[start:end]
+timing='        using var publicationTiming = FrontierTiming.Begin(FrontierTiming.Operation.TokenInputs);'
+assert method.count(timing)==1;method=method.replace(timing,'        // Native timing scope omitted only in this detached source adapter.')
+helper=(R/'Assets/Assets/Scripts/Data/State/YQProfileCommitStore.cs').read_text();a=helper.index('    internal static bool JsonEqualsCaptured(');b=helper.index('{',helper.index('    private sealed class CapturedJsonComparisonWriter',a))+1;depth=1
+while depth:
+ depth+=(helper[b]=='{')-(helper[b]=='}');b+=1
+helper=helper[a:b]
+shim='using System;using System.Reflection;using Newtonsoft.Json;class SourceCandidateToken { internal YQPreparedSpatialMaterializationV2 preparedProjection;internal string preparedCandidateInputsJson; static readonly JsonSerializerSettings FrontierConstructionJsonSettings=(JsonSerializerSettings)typeof(YQGeneratedWorldRuntimeBuilder).GetField("FrontierConstructionJsonSettings",BindingFlags.NonPublic|BindingFlags.Static).GetValue(null);\n'+method.replace('YQProfileCommitStore.JsonEqualsCaptured','CapturedHelper.JsonEqualsCaptured')+'}\nstatic class CapturedHelper{\n'+helper+'}\n'
+(O/'CandidateSourceAdapter.cs').write_text(shim);ET.SubElement(items,'Compile',Include=str(O/'CandidateSourceAdapter.cs'));before[str(O/'CandidateSourceAdapter.cs')]=sha(O/'CandidateSourceAdapter.cs');before[str(R/'Assets/Assets/Scripts/Data/State/YQProfileCommitStore.cs')]=sha(R/'Assets/Assets/Scripts/Data/State/YQProfileCommitStore.cs')
+for name,path in refs:
+ q=ET.SubElement(items,'Reference',Include=name);ET.SubElement(q,'HintPath').text=str(path);before[str(path)]=sha(path)
+ET.ElementTree(root).write(O/'Checks.csproj',encoding='utf-8');(O/'NuGet.Config').write_text('<configuration><packageSources><clear /></packageSources></configuration>')
+build=subprocess.run(['dotnet','build',str(O/'Checks.csproj'),'--nologo','-v:q'],capture_output=True,text=True);(O/'Compile.log').write_text(build.stdout+build.stderr);print(build.stdout+build.stderr);run=None
+fixture=R/'outputs/TerrainRefactor_20261014_StreamingRetest/NaturalBridgeShortening/Captured_Plan.json';before[str(fixture)]=sha(fixture)
+if not build.returncode:
+ run=subprocess.run(['dotnet',str(O/'bin/Debug/net10.0/Checks.dll')],cwd=R,env={**os.environ,'YQ_TOKEN_FIXTURE':str(fixture),'YQ_TOKEN_ALLOCATION':str(O/'Allocation.json')},capture_output=True,text=True);(O/'Run.log').write_text(run.stdout+run.stderr);print(run.stdout+run.stderr)
+m=re.search(r'RESULT checks=(\d+) failures=(\d+)',run.stdout) if run else None;changed=[p for p,h in before.items() if sha(Path(p))!=h];checks=int(m[1]) if m else 0;failures=int(m[2]) if m else 1;code=build.returncode or (run.returncode if run else 1) or (1 if changed or not checks or failures else 0);(O/'Receipt.json').write_text(json.dumps(dict(utc=datetime.now(timezone.utc).isoformat(),status='PASS' if not code else 'FAIL',checks=checks,failures=failures,changed_inputs=changed,source_guard_provider_body_final_owner_block_unchanged=unchanged,source_guard_fresh_decode_unchanged=True,source_guard_token_identity_unchanged=True,input_sha256=before,evidence='ACTUAL_PROPOSED_PRIVATE_INPUT_HELPERS_COMPILED_WITH_FULL398_RUNTIME_OVERLAY; EXACT_JSON_COMPONENT_EQUALITY_CALLBACK_ORDER_AND_MUTATION_CONTROLS; NO_NATIVE_PUBLICATION_PERFORMANCE_OR_OWNER_LIFECYCLE_CERTIFICATION'),indent=2));raise SystemExit(code)

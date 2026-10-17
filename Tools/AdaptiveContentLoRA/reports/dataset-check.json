@@ -1,0 +1,67 @@
+{
+  "schema_version": "0.2.0",
+  "status": "PASS_OFFLINE_ARTIFACT_CHECKS_ONLY",
+  "records": 64,
+  "decision_distribution_all_public_records": {
+    "none": 24,
+    "incubate": 16,
+    "personalized": 12,
+    "rare": 8,
+    "unique": 3,
+    "legendary_chain": 1
+  },
+  "train_candidate_distribution": {
+    "none": 16,
+    "incubate": 10,
+    "personalized": 10,
+    "rare": 5,
+    "unique": 1,
+    "legendary_chain": 0
+  },
+  "task_counts": {
+    "BEHAVIOR_INTERPRETATION": 11,
+    "OPPORTUNITY_PROPOSAL": 11,
+    "IDENTITY_GENERATION": 8,
+    "UNIQUE_OPPORTUNITY": 3,
+    "OPPORTUNITY_CHAIN": 4,
+    "NPC_WORLD_REACTION": 3,
+    "LORE_ENRICHMENT": 1,
+    "ABSTAIN_INCUBATE": 21,
+    "NPC_NAME_GENERATION": 2
+  },
+  "train_task_counts": {
+    "BEHAVIOR_INTERPRETATION": 10,
+    "OPPORTUNITY_PROPOSAL": 8,
+    "IDENTITY_GENERATION": 5,
+    "UNIQUE_OPPORTUNITY": 2,
+    "OPPORTUNITY_CHAIN": 1,
+    "NPC_WORLD_REACTION": 1,
+    "LORE_ENRICHMENT": 1,
+    "ABSTAIN_INCUBATE": 13,
+    "NPC_NAME_GENERATION": 1
+  },
+  "previous_family_memberships_preserved": true,
+  "archived_v0_1_0_dataset_sha256": "5f54b5ba9f521ca9526e8f7546a0820667ea19302d5fe5e3e241485dbef1d39c",
+  "split_counts": {
+    "train": 42,
+    "validation": 4,
+    "hidden_test": 0,
+    "adversarial": 8,
+    "regression": 5,
+    "review_only": 5,
+    "development": 0
+  },
+  "human_review_pending": 64,
+  "training_eligible_count": 0,
+  "hidden_test_status": "RESERVED_NOT_AUTHORED_NOT_EVALUATED",
+  "exact_naming_traceability": "ORIGINAL_NUMBERED_TEXT_AVAILABLE",
+  "model_invocations": 0,
+  "dataset_sha256": "d3a8c60b5252ab7c73eb487cf38956e15479f363a054a08106f34c23d5bcc65d",
+  "family_seal_sha256": "ccb7309cdce715e93e12eb70ab7a8e56e370b036693e4105b18b0b4404ab208a",
+  "errors": [],
+  "deduplication": {
+    "exact_input_duplicates": [],
+    "lexical_near_duplicates": [],
+    "semantic_deduplication": "REVIEW_REQUIRED_NO_EMBEDDING_MODEL"
+  }
+}

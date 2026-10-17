@@ -1,0 +1,481 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_chest_armor
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Dragonbound_Female.prefab
+    prefab: {fileID: 1468707499736093064, guid: 218c5607e18c7c0468bedca332f66e87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Dragonbound_Male.prefab
+    prefab: {fileID: 4199213624753509623, guid: 972ec0cc63f036e408b3d668e0fd3b7c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Eclipse_Female.prefab
+    prefab: {fileID: 2458502947013125128, guid: 38a9f1b97adc80544925ec6dcb865e09, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Eclipse_Male.prefab
+    prefab: {fileID: 4743294939303695137, guid: 2294df14b856b6d4aa030c1d0a2a4d5d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Field_Female.prefab
+    prefab: {fileID: 873455753488599086, guid: 3188c3c7fb151ea498d537fc0f94b4e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Field_Male.prefab
+    prefab: {fileID: 6809529703615557532, guid: 2aa0b258d40e96440b0f71091c3cce3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Lamellar_Female.prefab
+    prefab: {fileID: 7671851103899503595, guid: 0a0dda2a4291b714c9244e30ac83c3ee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Lamellar_Male.prefab
+    prefab: {fileID: 8989786559752003788, guid: 37f26d834415cda409906c7c9a43f102, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Ranger_Female.prefab
+    prefab: {fileID: 8082475737925643406, guid: 0bf01644125129a43a85c05dac3d488e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Ranger_Male.prefab
+    prefab: {fileID: 6097736609660199448, guid: b9c6ac299e905054cb0dfc8649fdd8df, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Sentinel_Female.prefab
+    prefab: {fileID: 3189980062636329288, guid: 5eeb4ee2b3d656f438c8ce4a2066b790, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Sentinel_Male.prefab
+    prefab: {fileID: 3392667921441083056, guid: dc0f32580d1075c44b3d40d947fdf60b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 8809851910182590270, guid: e148827637ad8a046a3a21d1d4a6bdc3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 6827300100297932926, guid: d45940acc32a76e4b856ed5841aae534, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Traveler_Female.prefab
+    prefab: {fileID: 8106927693695309322, guid: f934179fcc4b7c942b9beeb46a6133d2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Traveler_Male.prefab
+    prefab: {fileID: 6395215472989319036, guid: b57e1559198ab244c97316b564fc553b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 188883469647406481, guid: 81cef27d227ae1b4ca2eaa9de29a0f94, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3804793875904153512, guid: cbd879de7e305d245b45f805fc1edd26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_core.prefab
+    prefab: {fileID: 289000418658008976, guid: 68b2853bff078b0478246847a8ab907e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mixed_darkness_light.prefab
+    prefab: {fileID: 4990029340515640110, guid: b7972681745efb641952dc24859a5952, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mixed_organic_fire.prefab
+    prefab: {fileID: 2248798386444898567, guid: e28d0b38c4bb6bf4fb0d8a167f5538cb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_darkness.prefab
+    prefab: {fileID: 3540049401558449583, guid: 63f4ee07509ecde4d8fbef322fb7ed69, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_fire.prefab
+    prefab: {fileID: 2494246321997347187, guid: b001de2b6e950c640902e3019a153e45, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_forged.prefab
+    prefab: {fileID: 6025477958177274970, guid: 8f639d385ba002f47bc9d56bf096430e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_frost.prefab
+    prefab: {fileID: 489672594622534007, guid: a6ee570940bfba940b05893149e76ad6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_light.prefab
+    prefab: {fileID: 2714555867636224435, guid: 4b5cd310b9a91b647810e6ce0018928f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_motif_organic.prefab
+    prefab: {fileID: 7516724583823676393, guid: 7fe99adf4d7a279419778ab51d09f516, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_darkness.prefab
+    prefab: {fileID: 3743326709892574836, guid: aacebbfae5d594c4897a0ef4d59280af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_fire.prefab
+    prefab: {fileID: 2198311953390236578, guid: 5c13629a706a1bc4ab6f9b40f83daaf7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_forged.prefab
+    prefab: {fileID: 235271384214388135, guid: 1e1d9959612fc49449ad4c0b01518dab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_frost.prefab
+    prefab: {fileID: 1613328279936165463, guid: c9d41e5a7a60bb94c8a6e95380ffdecb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_light.prefab
+    prefab: {fileID: 4003032577344328234, guid: 2ad734d425aef5c41b7888d880ce3aaa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_female_mount_organic.prefab
+    prefab: {fileID: 7665121190826137848, guid: ef9759356a50d7145adf795641131ce8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_core.prefab
+    prefab: {fileID: 7884038670730521034, guid: 355474cf044b18e4488cead64acd19f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mixed_darkness_light.prefab
+    prefab: {fileID: 1324858640315158812, guid: bf6ebd2f71cbab147836bdd90120ab54, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mixed_organic_fire.prefab
+    prefab: {fileID: 689227421834213671, guid: 0e7fc818501c99b4e955582d936227e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_darkness.prefab
+    prefab: {fileID: 6768074969256342604, guid: b5601495724c01748bbd855b1828b950, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_fire.prefab
+    prefab: {fileID: 6795262636933935914, guid: ce65cc042bc648548a54c2c81aff270f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_forged.prefab
+    prefab: {fileID: 2549161593229130227, guid: f3009f8917446774f85c49d11d92263f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_frost.prefab
+    prefab: {fileID: 4705104651836716121, guid: c2b821f38933d8e408056450c7fe62b4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_light.prefab
+    prefab: {fileID: 9176760639111566720, guid: 734f6e2c6e076db4286f436f5f8ce44c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_motif_organic.prefab
+    prefab: {fileID: 1169878115245235821, guid: 613ecf25f7987294c8553dab95ae2bf3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_darkness.prefab
+    prefab: {fileID: 2912536649491732369, guid: eb7cad626f5a88c4fa268ad20858347e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_fire.prefab
+    prefab: {fileID: 3860040417364851327, guid: b8e30dbd8c07fe44ebb3ac02d636d318, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_forged.prefab
+    prefab: {fileID: 1327828170840332534, guid: 710509a6a8526da48b25ad4a91fe1bec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_frost.prefab
+    prefab: {fileID: 4742808266259264483, guid: c07186d461d6dce4b94902600d309593, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_light.prefab
+    prefab: {fileID: 1235813502070759570, guid: f6afbab4551fc1840a33236a5f336454, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/yqmod1_wearables_chest_armor_male_mount_organic.prefab
+    prefab: {fileID: 2542060931519504483, guid: f87c736d2a2566f4fa2d4585fd694959, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Field_Male_Parts.prefab
+    prefab: {fileID: 6194781733736620715, guid: 102d6056639cb3a4391919325f458838, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Field_Female_Parts.prefab
+    prefab: {fileID: 5937359908760141284, guid: f3f64fd15e293f24faf46a9090942f5b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Ranger_Male_Parts.prefab
+    prefab: {fileID: 830242157106069796, guid: 00230d9a9aa3a8e4aa873adab3efb6e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7135069238329384119, guid: d4d589e8a8883704fb59e1f1efa67e2a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 7191718774949536675, guid: 5848aa51a497a5b4d829619eb77d208d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 2861125772097881335, guid: a89ba63436890ac4980c4ddcea8cf355, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Traveler_Male_Parts.prefab
+    prefab: {fileID: 3158152919700755353, guid: 067c91ec9a66ca2479cb211b03e9535a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Traveler_Female_Parts.prefab
+    prefab: {fileID: 5591176786146285911, guid: 97df58d1ed6aceb4080a04c580ed37c2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 318016216885398490, guid: 74d87abc21dffa5478d43688f3e7157c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 497953417083556856, guid: e63ea9a1213a32d4f9b13265af687383, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 4730426325281562021, guid: 1ab6d359a0be10e48a795a072bc207fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 6608198943104868395, guid: 40dd828d5661a294f8fbabe2c276d042, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 5647934692023469513, guid: 67ee8cb947bdc804a9fa8cfce9926eb9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 4975803050143835515, guid: 7962c4cfc06071e4c9ad7ca62c7f87d0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 2839544969262698825, guid: dccd82c1e6350354a9ec1de80078e00a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 1138895427373790170, guid: 792adbf9d5a63db42a71ada291744cdf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 4529873152998010641, guid: 2f8396a654c4f314e9a5b8474b6b966e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/Chest_Armor_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 7128544933195025108, guid: 2c9577e3f6ef8304a87d34c25da4b84e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_female_chest_assembled.prefab
+    prefab: {fileID: 2869245384038383706, guid: 14c797ba53c7e7f499d376cd5e064bff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_female_chest_motif.prefab
+    prefab: {fileID: 4295925467036316722, guid: 8e0d60b4564e4e440b3c968396a1ad6e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_female_chest_mount.prefab
+    prefab: {fileID: 8724070955054250266, guid: 34c7aac8547227d4193a70f742b95345, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_female_chest_surface_panel.prefab
+    prefab: {fileID: 1655128054675165792, guid: 93fe581958ad1f248af5e34d9c68365c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_female_slate_chest_assembled.prefab
+    prefab: {fileID: 7117471227561630, guid: b437bdf484447874f89a8527249d4f10, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_male_chest_assembled.prefab
+    prefab: {fileID: 6313164816137379402, guid: 10c243fd57bc1fb4d9b6f0e9fc5662e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_male_chest_motif.prefab
+    prefab: {fileID: 6164581054874530077, guid: 63132d9c3a17d8047a53dce257dadc3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_male_chest_mount.prefab
+    prefab: {fileID: 5108023766216234018, guid: 3809bf14f03b9ca498dbd9969c7abcaa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_male_chest_surface_panel.prefab
+    prefab: {fileID: 360885459442020763, guid: 0298c027aa661d140b1a1c6dd6dee65b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/cairnback_male_slate_chest_assembled.prefab
+    prefab: {fileID: 4281492936950630588, guid: fd5171d7dfc30114db18741a3831cd26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_female_chest_assembled.prefab
+    prefab: {fileID: 696360611258390726, guid: 467ba66d653442c41a84c3e38e4dcb54, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_female_chest_motif.prefab
+    prefab: {fileID: 197894860020254919, guid: 36e8d3a3e5fabd540823d5b4d838f611, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_female_chest_mount.prefab
+    prefab: {fileID: 2207261988084688126, guid: ddf2370102621354fa028fb23e15ab03, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_male_chest_assembled.prefab
+    prefab: {fileID: 214389430210816200, guid: f8f449805a14c4d4f875294b82dcb9b5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_male_chest_motif.prefab
+    prefab: {fileID: 8260446978874635905, guid: e35c635a98e69274d9f4277a5dc184a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_male_chest_mount.prefab
+    prefab: {fileID: 2892957120755525575, guid: a04395b073a2f1b4f870c7c88f743aba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_female_chest_assembled.prefab
+    prefab: {fileID: 8350118598344878408, guid: 1a26584d983dca241b11510404ef9d35, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_female_chest_motif.prefab
+    prefab: {fileID: 2784171219511404030, guid: bf561aebec15cb347accce0a6d6b53bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_female_chest_mount.prefab
+    prefab: {fileID: 2204812831507750058, guid: 52e499b2451252a47b8434fcc42ec3c8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_male_chest_assembled.prefab
+    prefab: {fileID: 599159760910455435, guid: 6573958e9d428d3478ef8282d81f72ed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_male_chest_motif.prefab
+    prefab: {fileID: 8676497882082881915, guid: 030641441ffcb654caeb210d48ac6dfc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_male_chest_mount.prefab
+    prefab: {fileID: 8682336998132997565, guid: 66fa594f1ef1e744792dc147b90bf786, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_female_chest_assembled.prefab
+    prefab: {fileID: 4066021236639273389, guid: 47c91678701f3584fb8411acab38a2e5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_female_chest_motif.prefab
+    prefab: {fileID: 5051021924607881994, guid: 89cb915b59ddfe940a3ae02a9f014a3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_female_chest_mount.prefab
+    prefab: {fileID: 8662845599322307851, guid: feba914c8fe0ff945992333bbf8c2854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_male_chest_assembled.prefab
+    prefab: {fileID: 3985919797915764005, guid: 65d5a8b8eb6a25b42bc3ce64f3571188, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_male_chest_motif.prefab
+    prefab: {fileID: 3616513665150475909, guid: c47e91c56f375504f8598ed3ff0533bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_male_chest_mount.prefab
+    prefab: {fileID: 725375041439541015, guid: 34cc3ee6dcf83f542ae9e0e11245ff3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_female_chest_assembled.prefab
+    prefab: {fileID: 4390986662673205172, guid: ef93dc3da9e478d4095f7d74e83a62af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_female_chest_motif.prefab
+    prefab: {fileID: 2503355727257071571, guid: 8ae9c3f67adf137419384f3ccb7c1b6a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_female_chest_mount.prefab
+    prefab: {fileID: 4884662897074410414, guid: a2fecd57ad52716418b5051711e95658, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_male_chest_assembled.prefab
+    prefab: {fileID: 862261003832846964, guid: 2b8c7279ed0fba94aa5aa7e3273a106f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_male_chest_motif.prefab
+    prefab: {fileID: 1319980153152642312, guid: f2230f15df8dcd54e923f7e1711d7581, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_male_chest_mount.prefab
+    prefab: {fileID: 4431218334502594847, guid: ed85c72599fabd044a11bd11c1462ed6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_male_chest_material_surface.prefab
+    prefab: {fileID: 273949785743163025, guid: 9e7326ce6fe3bb44ba95296af7752bc8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_male_chest_material_surface.prefab
+    prefab: {fileID: 2271143552175531066, guid: d443f91afb5cbe74d9fe25d65707a15d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_male_chest_material_surface.prefab
+    prefab: {fileID: 4444000520234469327, guid: 4d291ce37a118f14ca27f35f3b7fe86a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_male_chest_material_surface.prefab
+    prefab: {fileID: 5258226077302122190, guid: 797dc7254874dfe4b85c336f4768221f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_female_chest_material_surface.prefab
+    prefab: {fileID: 4638847049081198881, guid: 031b4a48ff2be874cb3bfdbe4b20d685, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_female_chest_material_surface.prefab
+    prefab: {fileID: 2016714638827608698, guid: da571880982dc294aa5585e27db65347, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_female_chest_material_surface.prefab
+    prefab: {fileID: 8281858845048220066, guid: 204c0dbf7c0032f4b91760f5696c194e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_female_chest_material_surface.prefab
+    prefab: {fileID: 5504004190514506410, guid: 58ffa01ef2f688041b24c96a5fbc7d78, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_male_material_chest_assembled.prefab
+    prefab: {fileID: 6677146684144371693, guid: 1a03ae580731fcd45bfb6a0621e92050, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_male_material_chest_assembled.prefab
+    prefab: {fileID: 6398554221329046874, guid: baef23426e6a9374aad6ddffa84b679b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_male_material_chest_assembled.prefab
+    prefab: {fileID: 3698967845529687284, guid: 355ca7d47fb2234468dac2057a82b671, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_male_material_chest_assembled.prefab
+    prefab: {fileID: 7706593444534901236, guid: 2f264dbe08812fd408b556757ac2b032, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/thornweaver_female_material_chest_assembled.prefab
+    prefab: {fileID: 7132059191446642969, guid: 413f4d86a3da5024b8cb1d6c869b6b70, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/sporewarden_female_material_chest_assembled.prefab
+    prefab: {fileID: 6252230698735540949, guid: b4b2c0cae233a66488865398767cd6c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/mimic_female_material_chest_assembled.prefab
+    prefab: {fileID: 7523230990303931336, guid: c63915bb3b0150c4bb8fb65874932f59, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/chest_armor/maw_female_material_chest_assembled.prefab
+    prefab: {fileID: 1063324224021739427, guid: c6c114863be71a34982e4fe5d950aa3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

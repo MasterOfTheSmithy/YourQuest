@@ -379,7 +379,9 @@ public static class YQWorldGenerationV2ContractTests
         }
 
         // note: Production now prefers a fully prepared V2 world and reserves whole-world V1 fallback for non-canonical compatibility fixtures.
-        if (YQWorldGenerationArchitecture.ActiveSpatialPlanningMode !=
+        // note: A local preserves the test's diagnostic branch when the production selection is a compile-time constant.
+        YQSpatialPlanningMode configuredMode = YQWorldGenerationArchitecture.ActiveSpatialPlanningMode;
+        if (configuredMode !=
             YQSpatialPlanningMode.V2Preferred)
         {
             return "The live architecture is not in transactional V2-preferred mode.";

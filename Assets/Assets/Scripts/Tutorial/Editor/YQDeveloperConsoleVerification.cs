@@ -10,7 +10,7 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class YQDeveloperConsoleVerification
 {
-    private const string Request = "Assets/Assets/EditorBuildRequests/VerifyDeveloperConsoleBrowser.request";
+    private const string Request = "Assets/Assets/EditorBuildRequests/VerifyDeveloperConsoleToolkit.request";
     private static double _nextCheck;
     static YQDeveloperConsoleVerification() { EditorApplication.update += CheckRequest; }
     private static void CheckRequest()
@@ -130,6 +130,33 @@ public static class YQDeveloperConsoleVerification
                 "Restore removes accepted test quest and invokes temporary encounter cleanup", checks);
             Require(YQDeveloperCommandRegistry.Tokenize("target npc \"fixture npc\"")[2] == "fixture npc", "Typed tokenizer preserves quoted identifiers", checks);
             Require(registry.Complete("stat set max").Length == 3 && auditCount > 20, "Identifier autocomplete and mutation/result audit", checks);
+            // note: Guided kit checks use detached owners and never alter the accepted world plan or real profile.
+            Require(registry.Browse("Stats").Count == YQDeveloperVariable.Stats.Length && registry.Browse("Rules").Exists(e => e.Id == "skillCandidateScore"), "Stat/rule forms expose actual variables with units", checks);
+            Require(registry.Browse("Spawn").Exists(e => e.Id == "weapon" && e.Kind == "itemPreset"), "Spawn presets use supported mechanical generator kinds", checks);
+            Require(registry.Browse("Stats").Find(e => e.Id == "maxHealth").Value == "100" && registry.Browse("Rules").Find(e => e.Id == "skillCandidateScore").Value == "24", "Edit forms prefill real current values rather than invented defaults", checks);
+            Require(registry.Browse("Spawn").Exists(e => e.Id == "cairnback_earth_unique_heavy" && e.Kind == "creaturePreset"), "Creature presets use actual DOT catalog ID and whole-monster binding", checks);
+            Reject("spawn creature cairnback_earth_unique_heavy 9 --force"); Reject("spawn creature cairnback_earth_unique_heavy 1"); Reject("spawn creature arbitrary/path --force");
+            Require(YQDeveloperCommandRegistry.Tokenize("spawn npc fixture \"Test Person\" \"\" --force").Count == 6, "Empty quoted persona preserves typed argument positions", checks);
+            Pass("generation context \"I practiced healing for ten years (synthetic)\" --force");
+            Require(registry.SyntheticContext.Contains("synthetic") && manager.state.behaviorCounters.Count == 0, "Synthetic context never becomes canonical gameplay evidence", checks);
+            Reject("generation context \"unmarked fake history\""); Reject("item create arbitrary 1 --force"); Reject("item create weapon 41 --force");
+            Reject("spawn npc missing"); Reject("spawn item missing 9"); Reject("target actor missing"); Reject("animation play missing --force");
+            bool originalEvidence = applier.requirePlayerEvidenceForSkills, originalQuest = applier.requirePlayerEvidenceForQuests, originalCalm = applier.gateSkillsToCalmLowThreat, originalContext = applier.gateQuestsToMeaningfulContext;
+            YQDeveloperCommandRegistry.ApplyTestProposal(applier, "{}", true, out _);
+            Require(applier.requirePlayerEvidenceForSkills == originalEvidence && applier.requirePlayerEvidenceForQuests == originalQuest && applier.gateSkillsToCalmLowThreat == originalCalm && applier.gateQuestsToMeaningfulContext == originalContext, "Rejected forced proposal restores exact service admission flags", checks);
+            Pass("progression set minTitleConfidence 0.7"); Reject("progression set minQuestConfidence 0"); Pass("progression set minQuestConfidence 0 --force");
+            manager.state.pendingOffers.Add(new PendingProgressionOfferRecord { offerId = "fixture-title-offer", offerKind = "title", name = "Detached test title", description = "Fixture title", offerState = "pending", payloadJson = "{}" });
+            Require(registry.Browse("Titles").Exists(e => e.Id == "fixture-title-offer" && e.Pending), "Title offers available for separate review", checks);
+            Pass("offer accept fixture-title-offer"); Require(manager.state.titles.Exists(t => t.name == "Detached test title"), "Title Add uses actual AwardTitle acceptance path", checks);
+            Pass("test restore"); Require(string.IsNullOrEmpty(registry.SyntheticContext) && !manager.state.titles.Exists(t => t.name == "Detached test title"), "Restore discards synthetic context and accepted test title", checks);
+            var actorObject = new GameObject("Detached actor"); actorObject.transform.SetParent(fixture.transform);
+            var entity = actorObject.AddComponent<EntityInfo>(); entity.entityId = "fixture-npc"; entity.displayName = "Detached actor";
+            string actorId = registry.RegisterActor(actorObject);
+            Require(registry.Browse("Actors").Exists(e => e.Id == actorId), "Loaded actor catalog has session ID and real stable identity", checks);
+            Pass("target actor " + actorId); Require(!registry.TargetsPlayer && registry.Browse("Stats").Count == 1, "Scene actor selects canonical NPC affinity capability", checks);
+            Pass("stat set affinityToPlayer 0.5"); Reject("stat set strength 50"); Pass("test restore");
+            UnityEngine.Object.DestroyImmediate(actorObject); Reject("stat set affinityToPlayer 0.8"); Reject("target actor " + actorId);
+            Pass("target player");
         }
         catch (Exception error) { failure = error.ToString(); Debug.LogError("[Developer Console Verification] " + failure); }
         finally
@@ -155,6 +182,8 @@ public static class YQDeveloperConsoleVerification
         DateTime editorBuilt = File.GetLastWriteTimeUtc(typeof(YQDeveloperConsoleVerification).Assembly.Location);
         foreach (string path in Directory.GetFiles("Assets/Assets/Scripts/Tutorial", "YQDeveloper*.cs"))
             if (File.GetLastWriteTimeUtc(path) > runtimeBuilt) return false;
+        if (File.GetLastWriteTimeUtc("Assets/Assets/Scripts/Generated/YQGeneratedWorldPopulation.cs") > runtimeBuilt ||
+            File.GetLastWriteTimeUtc("Assets/Assets/Scripts/Tutorial/YQInvestorWorldPickup.cs") > runtimeBuilt) return false;
         return File.GetLastWriteTimeUtc("Assets/Assets/Scripts/Tutorial/Editor/YQDeveloperConsoleVerification.cs") <= editorBuilt;
     }
 }

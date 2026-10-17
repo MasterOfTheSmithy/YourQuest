@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_mace
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Drake_Mace.prefab
+    prefab: {fileID: 3850837877036224818, guid: e9cb40dc03201334bac71c811f746cc5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Duelist_Mace.prefab
+    prefab: {fileID: 2552811702842014281, guid: 4e31872e76f3afd44b9dce53de006d06, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Eclipse_Mace.prefab
+    prefab: {fileID: 3817326180066734162, guid: ef164f4aff8989c489ed00a8e2187704, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Field_Mace.prefab
+    prefab: {fileID: 7351617678859334450, guid: 9831e6595fb10714c9631e4c95adf239, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Frontier_Mace.prefab
+    prefab: {fileID: 8456638132803354568, guid: 1e4afc717ec0cb144bff6f7d439c9d6a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Mace_Starforged_Orrery.prefab
+    prefab: {fileID: 2509477660302776819, guid: a44861755daea2c4f950f496d0f5f837, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Mace_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1702036779617239714, guid: af401b232a6742c4bbfaee477f97cfa8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Ranger_Mace.prefab
+    prefab: {fileID: 4218042279993162639, guid: 78f9e54152ecea64aa59b5898f45f95c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Sentinel_Mace.prefab
+    prefab: {fileID: 7543310820979148456, guid: 0c885269ffb4e004c9d0b1c6622dfcae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_darkness.prefab
+    prefab: {fileID: 2052299984994404705, guid: 78e76f5b5eceda545bf78bd246d88bd9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_fire.prefab
+    prefab: {fileID: 3551370834850891083, guid: e7bfec94cc783c641a26d716b33e7870, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_forged.prefab
+    prefab: {fileID: 386102220718249046, guid: 85068cc81d1c1254abb8e8366b005c9d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_frost.prefab
+    prefab: {fileID: 7898493319820345951, guid: f12d43b482350b041969051118b91446, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_light.prefab
+    prefab: {fileID: 1647262979365745411, guid: f660f583ab01a36419c990fc3cececf4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_grip_organic.prefab
+    prefab: {fileID: 8071523426374265684, guid: 1ecf81d38657387448d1bffc96704a2c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_darkness.prefab
+    prefab: {fileID: 806517557677525398, guid: 2feb76300f2e89a4e82fd2c70f6a4a0d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_fire.prefab
+    prefab: {fileID: 2433573832190117854, guid: 0889ca64adfc08041926558bc697ab6e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_forged.prefab
+    prefab: {fileID: 5403231927106788478, guid: 750af76b2a341fa4e9df9b102aed0068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_frost.prefab
+    prefab: {fileID: 8790150664728907554, guid: f8e20fed017b86347894a1a276eaf714, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_light.prefab
+    prefab: {fileID: 7979980170701221679, guid: 980e7611bd8bfeb4fa26bac0a9c5671f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_haft_organic.prefab
+    prefab: {fileID: 1475658687117188906, guid: 0bce15eeaa8d0274f98ae69cd990f3dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_darkness.prefab
+    prefab: {fileID: 8717688386894280140, guid: 52c5f49694750a547bba1faffdb587de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_fire.prefab
+    prefab: {fileID: 7050642752234007750, guid: 8741b9353de3b1742bc56c8d32d6b1fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_forged.prefab
+    prefab: {fileID: 6917553283193383775, guid: 551a99e7d19a2c340ac1170706743904, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_frost.prefab
+    prefab: {fileID: 5301624661687390422, guid: e2fe9d03b2ae0e344959665309b10b08, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_light.prefab
+    prefab: {fileID: 2148990154103979907, guid: 552263fa40d3bf5448571ccbd588be63, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_head_organic.prefab
+    prefab: {fileID: 2557624228079121726, guid: 7f8d1730ca278ee449f932b9c9d49a3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_mixed_dark_light_forged.prefab
+    prefab: {fileID: 963065825104204799, guid: a51cd17baa4ff7443a2817b3467586f7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/yqmod1_weapon_mace_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 4482308408040045746, guid: 3a9ce7845e5364c4ea4433a677e8d544, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Field_Mace_Parts.prefab
+    prefab: {fileID: 5042716170855521478, guid: 1a067dbefd3e73d44a923f31ce3c29c3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Ranger_Mace_Parts.prefab
+    prefab: {fileID: 4052830611599991917, guid: b66bebfea19b84743bc59047f9616bb3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Sentinel_Mace_Parts.prefab
+    prefab: {fileID: 4468402732022410206, guid: 383d7b8cb3c98c845b19e29292d18144, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Duelist_Mace_Parts.prefab
+    prefab: {fileID: 3444659286140276036, guid: ca39589a498c73241ad12f03718c5b1e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Frontier_Mace_Parts.prefab
+    prefab: {fileID: 7480581521021208894, guid: 51c9d50430584bf4ea212b88b2205209, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Drake_Mace_Parts.prefab
+    prefab: {fileID: 8610096899980309066, guid: ac17d0f64b1fd3943a60e08f4cb7e067, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Eclipse_Mace_Parts.prefab
+    prefab: {fileID: 5623442035643566091, guid: 78781c2ab7d660e4598c402aa883bf58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Mace_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 6776484724671967049, guid: 0b3aa6f489017884a8709bda2fa723a8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/mace/Mace_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 5778847110096060570, guid: b527402ecb3aa6f459b0875e15d5e761, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_orc
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/orc/orc_burly_field_frost.prefab
+    prefab: {fileID: 6809080942530954928, guid: 5b7c2dcc0577a9d48a156b96668887be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/orc_burly_lamellar_fire.prefab
+    prefab: {fileID: 1181219277489290352, guid: c988e1c8e4712e54896f4ed6a47f1795, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/orc_warden_field_nature.prefab
+    prefab: {fileID: 1122274515459857569, guid: a3275fc71da3d6a41aa5bb82daf55d26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/orc_warden_lamellar.prefab
+    prefab: {fileID: 4400214918847655828, guid: 310d23b00cefc81469ceeab298232e03, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_canine_L_long.prefab
+    prefab: {fileID: 5845025282373035876, guid: a78aa83480372b24d82edd7adc8b4387, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_canine_L_short.prefab
+    prefab: {fileID: 1663250904996596478, guid: d47ff2f3334adec40b06ac75e4c163b4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_canine_R_long.prefab
+    prefab: {fileID: 4278601384280143956, guid: 1f1189299123e9743a5b33b53472218e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_canine_R_short.prefab
+    prefab: {fileID: 8385840160726817043, guid: 1eb7251f2c1a275498e0ec354643aa2b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_darkness.prefab
+    prefab: {fileID: 421558255295582487, guid: 8ffa541b69790c94688d6fb416bd8005, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_earth.prefab
+    prefab: {fileID: 9020403701666494238, guid: 1d38a4ce93cf03f4293b3a5c09056f4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_fire.prefab
+    prefab: {fileID: 5704765041015720423, guid: 86a4a96114472784e9c3e9f817e8f050, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_frost.prefab
+    prefab: {fileID: 885064749358503406, guid: 14270706e45966e43b6137f4fe5853b0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_light.prefab
+    prefab: {fileID: 7764425488010816955, guid: f146ab33b87b5574c861a9c16c115a26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_crest_nature.prefab
+    prefab: {fileID: 3442236172745445373, guid: 239f99c4770484e4bb3df3275eab69b2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_ear_L_compact.prefab
+    prefab: {fileID: 5145524570781045310, guid: bc83f19de0815374f8575b2708bafee5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_ear_L_pointed.prefab
+    prefab: {fileID: 1198418651450866927, guid: 9a70752146b43084699043a3be5b4e53, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_ear_R_compact.prefab
+    prefab: {fileID: 1748447120189419845, guid: 52604246702b4e54e8fde37549e5f178, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_ear_R_pointed.prefab
+    prefab: {fileID: 5789805236855734554, guid: a022fa2b0b145724aba8ebb771162cd5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_burly_equipment_lamellar.prefab
+    prefab: {fileID: 2201715837018198612, guid: e4a402f5a7b041a44adb73f244cec91c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_canine_L_long.prefab
+    prefab: {fileID: 2464671626828751138, guid: 95179283693cf184983cbd12b583eb63, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_canine_L_short.prefab
+    prefab: {fileID: 3435047093909055518, guid: 0b8cc6f3471d86e438bee69a9a177f0a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_canine_R_long.prefab
+    prefab: {fileID: 2271531701594512288, guid: a15336e29ff2bf849a7c0e8a3b562b0f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_canine_R_short.prefab
+    prefab: {fileID: 7628857867406122517, guid: ed1a8a59217d4aa44a70758dd457295f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_darkness.prefab
+    prefab: {fileID: 7420618496955347640, guid: d43d232ac5cdf19449f0bcfec8fba33c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_earth.prefab
+    prefab: {fileID: 5174314869747103217, guid: fe45f78193e02eb45a6d017e22029428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_fire.prefab
+    prefab: {fileID: 2351495813194258397, guid: 4624fd46cade5244d8a81e2298e7cfc1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_frost.prefab
+    prefab: {fileID: 8941300260402053487, guid: ab72d46b3322edd45962a4e4e943f281, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_light.prefab
+    prefab: {fileID: 8640509458174187648, guid: a56bae976a8d4134092803f6edf6d73b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_crest_nature.prefab
+    prefab: {fileID: 497710433533693753, guid: a5f5a75f7708c854aa4780133e3aed69, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_ear_L_compact.prefab
+    prefab: {fileID: 5561128345506873838, guid: bebb7fc7c9e96234f8d54fcd1865eaf5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_ear_L_pointed.prefab
+    prefab: {fileID: 5475026105198780935, guid: 126ced5f242339a488abf992033268e4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_ear_R_compact.prefab
+    prefab: {fileID: 1656079236301888052, guid: a28649def94791e4e8d25ae938bdf277, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_ear_R_pointed.prefab
+    prefab: {fileID: 2160864395424864504, guid: 40632a3a63033d145ac7c60fc1bd1543, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/orc/yqnpc2_orc_warden_equipment_lamellar.prefab
+    prefab: {fileID: 2877785079598620599, guid: 9f30957a77911c142aada86a7226b1a8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

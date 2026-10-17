@@ -1,0 +1,132 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
+
+// note: Isolated-project diagnostic only. Compare controller layers against the authored clip without loading gameplay, scenes or saves.
+public static class YQAnimationLayerProbe
+{
+    public static void Run()
+    {
+        string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../AnimationLayerProbe"));
+        Directory.CreateDirectory(output);
+        string body = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Models/Bodies/Human Male (v4.1).FBX";
+        GameObject actor = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(body));
+        var animator = actor.GetComponent<Animator>();
+        animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>("Assets/Assets/Resources/Player/YQPlayer.controller");
+        animator.applyRootMotion = false;
+        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        var samples = new List<string>();
+        GameObject cameraObject = new GameObject("Layer probe camera");
+        var camera = cameraObject.AddComponent<Camera>();
+        var material = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+        material.color = new Color(.62f, .40f, .30f);
+        foreach (Renderer renderer in actor.GetComponentsInChildren<Renderer>())
+        {
+            var materials = renderer.sharedMaterials;
+            for (int i = 0; i < materials.Length; i++) materials[i] = material;
+            renderer.sharedMaterials = materials;
+        }
+        Bounds bounds = actor.GetComponentInChildren<SkinnedMeshRenderer>().bounds;
+        actor.transform.localScale *= 1.86f / bounds.size.y;
+        camera.transform.position = new Vector3(2.6f, 1.4f, 3.4f);
+        camera.transform.LookAt(new Vector3(0f, 1f, 0f));
+        camera.fieldOfView = 35f;
+        camera.clearFlags = CameraClearFlags.SolidColor;
+        camera.backgroundColor = new Color(.06f, .08f, .12f);
+        var lamp = new GameObject("Layer probe light");
+        lamp.transform.rotation = Quaternion.Euler(35f, -35f, 0f);
+        lamp.AddComponent<Light>().type = LightType.Directional;
+        try
+        {
+            for (int isolated = 0; isolated < 3; isolated++)
+            {
+                animator.Rebind();
+                animator.Update(0f);
+                animator.SetLayerWeight(1, isolated < 2 ? 1f : 0f);
+                animator.SetLayerWeight(2, isolated == 0 ? 1f : 0f);
+                animator.SetFloat("MoveX", 0f);
+                animator.SetFloat("MoveZ", 0f);
+                animator.SetFloat("FirstPersonPose", 0f);
+                animator.SetBool("Grounded", true);
+                animator.Play("Base Layer.Locomotion", 0, .25f);
+                animator.Update(0f);
+                samples.Add("layers=" + isolated + " upper=" + animator.GetBoneTransform(HumanBodyBones.RightUpperArm).localRotation.ToString("F4") + " lower=" + animator.GetBoneTransform(HumanBodyBones.RightLowerArm).localRotation.ToString("F4"));
+                foreach (AnimatorClipInfo info in animator.GetCurrentAnimatorClipInfo(0)) samples.Add(info.clip.name + " weight=" + info.weight);
+                Render(camera, actor, Path.Combine(output, "idle-layers-" + isolated + ".png"));
+            }
+            animator.runtimeAnimatorController = null;
+            AnimationClip idle = null;
+            foreach (UnityEngine.Object asset in AssetDatabase.LoadAllAssetsAtPath("Assets/Assets/Art/PlayerAnimation/Quaternius/UAL1_Standard.fbx"))
+                if (asset is AnimationClip clip && clip.name.EndsWith("|Idle_Loop", StringComparison.Ordinal)) idle = clip;
+            var graph = PlayableGraph.Create("Direct source idle probe");
+            try
+            {
+                var clipPlayable = AnimationClipPlayable.Create(graph, idle);
+                clipPlayable.SetApplyFootIK(false);
+                var animationOutput = AnimationPlayableOutput.Create(graph, "body", animator);
+                animationOutput.SetSourcePlayable(clipPlayable);
+                clipPlayable.SetTime(idle.length * .25f);
+                graph.Evaluate(0f);
+                samples.Add("direct upper=" + animator.GetBoneTransform(HumanBodyBones.RightUpperArm).localRotation.ToString("F4") + " lower=" + animator.GetBoneTransform(HumanBodyBones.RightLowerArm).localRotation.ToString("F4"));
+                Render(camera, actor, Path.Combine(output, "idle-direct.png"));
+            }
+            finally { graph.Destroy(); }
+            File.WriteAllLines(Path.Combine(output, "samples.txt"), samples);
+            Debug.Log("[Animation layer probe] Complete: " + output);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(actor);
+            UnityEngine.Object.DestroyImmediate(cameraObject);
+            UnityEngine.Object.DestroyImmediate(lamp);
+            UnityEngine.Object.DestroyImmediate(material);
+        }
+    }
+
+    private static void Render(Camera camera, GameObject actor, string path)
+    {
+        // note: Bake each sampled pose so multiple renders in one editor frame cannot reuse stale GPU skinning.
+        var skins = actor.GetComponentsInChildren<SkinnedMeshRenderer>();
+        var meshes = new List<Mesh>();
+        var objects = new List<GameObject>();
+        var texture = new RenderTexture(640, 640, 24);
+        var image = new Texture2D(640, 640, TextureFormat.RGB24, false);
+        var previous = RenderTexture.active;
+        try
+        {
+            foreach (var skin in skins)
+            {
+                if (!skin.enabled) continue;
+                var mesh = new Mesh();
+                skin.BakeMesh(mesh);
+                var baked = new GameObject("Baked pose");
+                baked.transform.SetParent(skin.transform, false);
+                baked.AddComponent<MeshFilter>().sharedMesh = mesh;
+                baked.AddComponent<MeshRenderer>().sharedMaterials = skin.sharedMaterials;
+                skin.enabled = false;
+                meshes.Add(mesh);
+                objects.Add(baked);
+            }
+            camera.targetTexture = texture;
+            camera.Render();
+            RenderTexture.active = texture;
+            image.ReadPixels(new Rect(0, 0, 640, 640), 0, 0);
+            image.Apply();
+            File.WriteAllBytes(path, image.EncodeToPNG());
+        }
+        finally
+        {
+            camera.targetTexture = null;
+            RenderTexture.active = previous;
+            foreach (var obj in objects) UnityEngine.Object.DestroyImmediate(obj);
+            foreach (var mesh in meshes) UnityEngine.Object.DestroyImmediate(mesh);
+            foreach (var skin in skins) skin.enabled = true;
+            UnityEngine.Object.DestroyImmediate(texture);
+            UnityEngine.Object.DestroyImmediate(image);
+        }
+    }
+}

@@ -42,8 +42,20 @@ public sealed class YQDotCreatureCatalog : ScriptableObject
         out YQRuntimeWorldAssetEntry result, out string category)
     {
         result = null; category = string.Empty;
+        if (registry == null || !TrySelectPrefabPath(semantics, kind, seed, out string path, out string selectedCategory)) return false;
+        GameObject prefab = registry.ResolvePrefab(path);
+        if (prefab == null) return false;
+        result = new YQRuntimeWorldAssetEntry { assetPath = path, prefab = prefab };
+        category = selectedCategory;
+        return true;
+    }
+
+    public static bool TrySelectPrefabPath(string semantics, string kind, string seed, out string path, out string category)
+    {
+        // note: Startup can warm the exact deterministic binding before validation, without loading every species or changing selection.
+        path = null; category = string.Empty;
         var catalog = Current;
-        if (catalog == null || registry == null) return false;
+        if (catalog == null) return false;
         // note: Whole semantic tokens select only a declared species, leaving legacy family pools and their deterministic choices unchanged.
         string requested = FindSpecies(semantics);
         if (requested == null) return false;
@@ -55,10 +67,8 @@ public sealed class YQDotCreatureCatalog : ScriptableObject
         uint hash = 2166136261u;
         unchecked { foreach (char c in seed ?? string.Empty) { hash ^= c; hash *= 16777619u; } }
         var selected = candidates[(int)(hash % (uint)candidates.Count)];
-        GameObject prefab = registry.ResolvePrefab(selected.prefabPath);
-        if (prefab == null) return false;
-        result = new YQRuntimeWorldAssetEntry { assetPath = selected.prefabPath, prefab = prefab };
-        category = selected.category; return true;
+        path = selected.prefabPath;
+        category = selected.category; return !string.IsNullOrWhiteSpace(path);
     }
 
     public static string FindSpecies(string semantics)

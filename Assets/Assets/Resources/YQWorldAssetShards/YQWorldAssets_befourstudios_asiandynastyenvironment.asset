@@ -1,0 +1,830 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_asiandynastyenvironment
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props1.prefab
+    prefab: {fileID: 1031133641, guid: abc00000000009683455192530770224, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props10.prefab
+    prefab: {fileID: 1031134705, guid: abc00000000015791815098465327696, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props11.prefab
+    prefab: {fileID: 1031135545, guid: abc00000000014975231452980376153, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props12.prefab
+    prefab: {fileID: 1031136413, guid: abc00000000005367703098261040146, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props13.prefab
+    prefab: {fileID: 1031137281, guid: abc00000000004692187707089744603, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props14.prefab
+    prefab: {fileID: 1031138009, guid: abc00000000003338045553711792412, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props15.prefab
+    prefab: {fileID: 1031138821, guid: abc00000000016229815041148447589, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props16.prefab
+    prefab: {fileID: 1031139717, guid: abc00000000006758224264404086494, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props17.prefab
+    prefab: {fileID: 1031140725, guid: abc00000000016737513074722687639, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props18.prefab
+    prefab: {fileID: 1031141733, guid: abc00000000001388047795870055448, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props2.prefab
+    prefab: {fileID: 1031142601, guid: abc00000000004835733204338636603, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props21.prefab
+    prefab: {fileID: 1031143637, guid: abc00000000001718344452906118200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props22.prefab
+    prefab: {fileID: 1031144449, guid: abc00000000002400851314100924867, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props23.prefab
+    prefab: {fileID: 1031145625, guid: abc00000000011026207922301620858, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props24.prefab
+    prefab: {fileID: 1031146633, guid: abc00000000018071134585883951949, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props25.prefab
+    prefab: {fileID: 1031147473, guid: abc00000000014513085700612647716, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props26.prefab
+    prefab: {fileID: 1031148481, guid: abc00000000008993928145980397375, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props27.prefab
+    prefab: {fileID: 1031149377, guid: abc00000000016671445911989806822, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props28.prefab
+    prefab: {fileID: 1031150245, guid: abc00000000015305246635039616889, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props29.prefab
+    prefab: {fileID: 1031151113, guid: abc00000000008243955839554215152, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props30.prefab
+    prefab: {fileID: 1031152121, guid: abc00000000003648687867783433278, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props4.prefab
+    prefab: {fileID: 1031153017, guid: abc00000000005129675182990639429, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props5.prefab
+    prefab: {fileID: 1031153997, guid: abc00000000015676429721486786556, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Bazaar_Props7.prefab
+    prefab: {fileID: 1031154921, guid: abc00000000006901769761652978494, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Buddhas_1.prefab
+    prefab: {fileID: 1031072239, guid: abc00000000011913958252013516022, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Buddhas_2.prefab
+    prefab: {fileID: 1031072043, guid: abc00000000006791189398053815517, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Buddhas_3.prefab
+    prefab: {fileID: 1031071847, guid: abc00000000016744738867330763700, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Buddhas_4.prefab
+    prefab: {fileID: 1031073595, guid: abc00000000012670486218791563859, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Buddhas_5.prefab
+    prefab: {fileID: 1031073791, guid: abc00000000013257790720275531338, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building01.prefab
+    prefab: {fileID: 9088936898933680560, guid: aeb50cd29017c824289474f9d51396a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building03.prefab
+    prefab: {fileID: 2182962258958886945, guid: 99d21343dd68c824cb0e3a77112bdc16, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building04.prefab
+    prefab: {fileID: 1423195981168572218, guid: d5a371e3bd2079b4593e8fe9940993d9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building05.prefab
+    prefab: {fileID: 8855587273963991302, guid: 493ccd3cba50a614183a4ee67de37d41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_CarriageSet_1.prefab
+    prefab: {fileID: 1031072351, guid: abc00000000000730321399597351969, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_CarriageSet_2.prefab
+    prefab: {fileID: 1031072323, guid: abc00000000014581586390057035802, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_CarriageSet_3.prefab
+    prefab: {fileID: 1031072267, guid: abc00000000006702654609933364835, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_CarriageSet_4.prefab
+    prefab: {fileID: 1031072421, guid: abc00000000012808148298025172548, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_CarriageSet_5.prefab
+    prefab: {fileID: 1031069995, guid: abc00000000015129724420669205101, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ChineseDragon_1.prefab
+    prefab: {fileID: 1031072477, guid: abc00000000005630065696259564051, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ChineseDragon_2.prefab
+    prefab: {fileID: 1031128965, guid: abc00000000013797005776261206600, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ChineseDragon_3.prefab
+    prefab: {fileID: 1031128993, guid: abc00000000008657268406516425809, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ChineseDragon_4.prefab
+    prefab: {fileID: 1031129021, guid: abc00000000004873819204458338230, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BellSet.prefab
+    prefab: {fileID: 1031133001, guid: abc00000000012184923836519818577, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BellSet_Bell.prefab
+    prefab: {fileID: 1031083786, guid: abc00000000016999003276943663743, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BellSet_Column.prefab
+    prefab: {fileID: 1031084646, guid: abc00000000006247505914804515866, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BellSet_NoBell.prefab
+    prefab: {fileID: 1031083418, guid: abc00000000017109441166867665206, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_Bench.prefab
+    prefab: {fileID: 1031083306, guid: abc00000000003643036363556098670, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_Bench_2.prefab
+    prefab: {fileID: 1031133145, guid: abc00000000014551007853748519045, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_Bench_3.prefab
+    prefab: {fileID: 1031133173, guid: abc00000000008277268831298840380, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall.prefab
+    prefab: {fileID: 1031133201, guid: abc00000000008396160699264617069, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall_Piece1.prefab
+    prefab: {fileID: 1031084088, guid: abc00000000012105124774419915643, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall_Piece2.prefab
+    prefab: {fileID: 1031133264, guid: abc00000000003108837526692289648, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall_Piece3.prefab
+    prefab: {fileID: 1031133294, guid: abc00000000010170128322177691385, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall_Piece4.prefab
+    prefab: {fileID: 1031133322, guid: abc00000000002198004363388114046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_BigWoodStall_Piece5.prefab
+    prefab: {fileID: 1031133350, guid: abc00000000011932691418896824887, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_MiniFountain.prefab
+    prefab: {fileID: 1031083138, guid: abc00000000017863946185953911697, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_MiniFountain_Base.prefab
+    prefab: {fileID: 1031133406, guid: abc00000000009836083458257365931, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_MiniFountain_Column.prefab
+    prefab: {fileID: 1031083194, guid: abc00000000004207673767861971802, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_SmallWoodStall.prefab
+    prefab: {fileID: 1031083870, guid: abc00000000004911784618355301588, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_SmallWoodStall_Piece1.prefab
+    prefab: {fileID: 1031133496, guid: abc00000000003014481680377309432, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_SmallWoodStall_Piece2.prefab
+    prefab: {fileID: 1031133524, guid: abc00000000014150189915582557059, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ExteriorSet_SmallWoodStall_Piece3.prefab
+    prefab: {fileID: 1031133557, guid: abc00000000017559571281736419130, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces1.prefab
+    prefab: {fileID: 1031130525, guid: abc00000000004469519190317158296, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_1.prefab
+    prefab: {fileID: 1031024836, guid: abc00000000014154584938655402109, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_Baloon.prefab
+    prefab: {fileID: 1031079781, guid: abc00000000015514544779221298899, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_Baloon2.prefab
+    prefab: {fileID: 1031079753, guid: abc00000000010287321064000672235, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_Baloon3.prefab
+    prefab: {fileID: 1031079613, guid: abc00000000003144252326405684898, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_CookHeater.prefab
+    prefab: {fileID: 1031082539, guid: abc00000000013189371972487626967, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_StandWoodBamboo.prefab
+    prefab: {fileID: 1031082427, guid: abc00000000009478814494063457159, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionPlatform.prefab
+    prefab: {fileID: 1031071679, guid: abc00000000006094392297555357609, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_1.prefab
+    prefab: {fileID: 1031046912, guid: abc00000000017884467731345157978, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_1.prefab
+    prefab: {fileID: 1031132353, guid: abc00000000009313348566927640300, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_10.prefab
+    prefab: {fileID: 1031132087, guid: abc00000000011745823350536903972, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_11.prefab
+    prefab: {fileID: 1031132059, guid: abc00000000015303872235808208205, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_12.prefab
+    prefab: {fileID: 1031132031, guid: abc00000000013904183561914063078, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_13.prefab
+    prefab: {fileID: 1031072923, guid: abc00000000006226665795904653631, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_14.prefab
+    prefab: {fileID: 1031072951, guid: abc00000000017397826176539926072, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_15.prefab
+    prefab: {fileID: 1031073119, guid: abc00000000017730817823947060225, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_16.prefab
+    prefab: {fileID: 1031131919, guid: abc00000000008258945572225877114, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_17.prefab
+    prefab: {fileID: 1031073091, guid: abc00000000018080333037734732739, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_18.prefab
+    prefab: {fileID: 1031073035, guid: abc00000000013340801760984925884, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_19.prefab
+    prefab: {fileID: 1031072867, guid: abc00000000001167796709725052933, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_2.prefab
+    prefab: {fileID: 1031132322, guid: abc00000000006520578228817739687, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_20.prefab
+    prefab: {fileID: 1031072763, guid: abc00000000012152480632532890741, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_3.prefab
+    prefab: {fileID: 1031132291, guid: abc00000000006408857200705815086, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_4.prefab
+    prefab: {fileID: 1031132260, guid: abc00000000011450474802972827625, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_5.prefab
+    prefab: {fileID: 1031132227, guid: abc00000000011212698159313566944, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_6.prefab
+    prefab: {fileID: 1031132199, guid: abc00000000009868893751859546091, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_7.prefab
+    prefab: {fileID: 1031072839, guid: abc00000000002725825014264558754, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_8.prefab
+    prefab: {fileID: 1031132143, guid: abc00000000006956388327475537725, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_ShopStand1_9.prefab
+    prefab: {fileID: 1031072895, guid: abc00000000004423643155476812692, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_1.prefab
+    prefab: {fileID: 1031045040, guid: abc00000000016712025558740209132, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StoneChairs_1.prefab
+    prefab: {fileID: 1031084777, guid: abc00000000014964961074676911606, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StoneChairs_2.prefab
+    prefab: {fileID: 1031084749, guid: abc00000000009842192220717211101, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_1.prefab
+    prefab: {fileID: 1031130085, guid: abc00000000014874434780072419288, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_2.prefab
+    prefab: {fileID: 1031130113, guid: abc00000000002977898793892727011, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_3.prefab
+    prefab: {fileID: 1031044760, guid: abc00000000010856830574016397978, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_4.prefab
+    prefab: {fileID: 1031048582, guid: abc00000000011404968604628567277, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_5.prefab
+    prefab: {fileID: 1031074918, guid: abc00000000009083392481984534724, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_6.prefab
+    prefab: {fileID: 1031055900, guid: abc00000000016189287565735998047, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_7.prefab
+    prefab: {fileID: 1031118278, guid: abc00000000004160780232006123142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Stories_8.prefab
+    prefab: {fileID: 1031060259, guid: abc00000000010404200952883469081, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Tree_02.prefab
+    prefab: {fileID: 1030987891, guid: abc00000000007745438520670240082, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Tree_03.prefab
+    prefab: {fileID: 1031069215, guid: abc00000000017906765730404138267, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Tree_04.prefab
+    prefab: {fileID: 1031069235, guid: abc00000000011560280674849291356, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Tree_05.prefab
+    prefab: {fileID: 1031069255, guid: abc00000000018217942399170544805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_1.prefab
+    prefab: {fileID: 1031036798, guid: abc00000000005530626810412995463, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_2.prefab
+    prefab: {fileID: 1031036266, guid: abc00000000006702720209047227596, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_3.prefab
+    prefab: {fileID: 1031036210, guid: abc00000000013763371596170549909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_4.prefab
+    prefab: {fileID: 1031131625, guid: abc00000000000115478131360968066, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_5.prefab
+    prefab: {fileID: 1031036406, guid: abc00000000001268759385673621963, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_6.prefab
+    prefab: {fileID: 1031036350, guid: abc00000000003019688022605971264, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_7.prefab
+    prefab: {fileID: 1031036602, guid: abc00000000017095788539669463625, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Wallset_8.prefab
+    prefab: {fileID: 1031131737, guid: abc00000000005238739226809845046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building02
+      1.prefab
+    prefab: {fileID: 6777207531786241641, guid: 5e580dfc270c9d946bf6a28f3d312555, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building02.prefab
+    prefab: {fileID: 4410852278169599825, guid: 764fcfdf50dbcd546997d2e944c5212c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building06.prefab
+    prefab: {fileID: 9076511196713055578, guid: 1e4e28ce555797744803585a74c9e2db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building07.prefab
+    prefab: {fileID: 6694767384540051293, guid: af325d6127f63634c804dbc2fda980a0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building08.prefab
+    prefab: {fileID: 484470889887225704, guid: 0163680ec08660847bb60321a1de861a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building09.prefab
+    prefab: {fileID: 5887733930448689485, guid: 011b755146119f04a86bf96d4c98330f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building10.prefab
+    prefab: {fileID: 7325358599586704193, guid: 7784d470d2631c745b71136ff3d64413, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building11.prefab
+    prefab: {fileID: 7546128308702733340, guid: e1b4b7de2b812ce45ae92e7082ec04ba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building12.prefab
+    prefab: {fileID: 4098941887500752373, guid: 7598cfa07f737af4791c72f5133f0d45, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building14.prefab
+    prefab: {fileID: 7958973405629820104, guid: b64368bcc9b1a5c459cd340f2629c76a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building15.prefab
+    prefab: {fileID: 6032453190031604807, guid: dc248f3c27f7b9f43ab5cdd01a8db52b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building16.prefab
+    prefab: {fileID: 5615455713026352048, guid: ad069bd27451cb24aad22a967cc38518, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building17.prefab
+    prefab: {fileID: 5478094251883898216, guid: a6201bdb2b370ff4996414f236227a84, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building18.prefab
+    prefab: {fileID: 8642187471789538838, guid: 57b93ca319d19b34e84cdc1932b8cf5c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Building19.prefab
+    prefab: {fileID: 891889024750355928, guid: 1f147b022ad2fd743842cf83bb369239, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces10.prefab
+    prefab: {fileID: 1031130553, guid: abc00000000009843230580397019272, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces11.prefab
+    prefab: {fileID: 1031130581, guid: abc00000000004458328505888704145, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces12.prefab
+    prefab: {fileID: 1031130609, guid: abc00000000000888082767167210058, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces13.prefab
+    prefab: {fileID: 1031130637, guid: abc00000000000300778265683242579, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces14.prefab
+    prefab: {fileID: 1031130665, guid: abc00000000004375030914222442420, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces15.prefab
+    prefab: {fileID: 1031130693, guid: abc00000000012868225518655045853, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces16.prefab
+    prefab: {fileID: 1031130721, guid: abc00000000017990994372614746358, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces17.prefab
+    prefab: {fileID: 1031130749, guid: abc00000000004455771303508600783, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces18.prefab
+    prefab: {fileID: 1031045680, guid: abc00000000005074140039590541312, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces19.prefab
+    prefab: {fileID: 1031045708, guid: abc00000000004922308618862699273, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces2.prefab
+    prefab: {fileID: 1031130833, guid: abc00000000017003829398613823139, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces20.prefab
+    prefab: {fileID: 1031130861, guid: abc00000000009635385081095753721, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces21.prefab
+    prefab: {fileID: 1031130889, guid: abc00000000002574094285610351984, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces22.prefab
+    prefab: {fileID: 1031130917, guid: abc00000000011570381533337977979, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces23.prefab
+    prefab: {fileID: 1031130945, guid: abc00000000012245896924509273522, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces24.prefab
+    prefab: {fileID: 1031130973, guid: abc00000000016711941579566485125, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces25.prefab
+    prefab: {fileID: 1031131001, guid: abc00000000010438202557116806460, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces26.prefab
+    prefab: {fileID: 1031131029, guid: abc00000000011397948177814887223, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces27.prefab
+    prefab: {fileID: 1031131057, guid: abc00000000001663261122306176382, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces28.prefab
+    prefab: {fileID: 1031131085, guid: abc00000000014828218620078940801, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces29.prefab
+    prefab: {fileID: 1031131113, guid: abc00000000014495226972671806648, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces3.prefab
+    prefab: {fileID: 1031131141, guid: abc00000000001966466691058133594, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces30.prefab
+    prefab: {fileID: 1031131169, guid: abc00000000002418534548074525014, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces4.prefab
+    prefab: {fileID: 1031131197, guid: abc00000000007975463193503849133, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces5.prefab
+    prefab: {fileID: 1031131225, guid: abc00000000006427699312095316100, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces6.prefab
+    prefab: {fileID: 1031131253, guid: abc00000000013388869561246389023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces7.prefab
+    prefab: {fileID: 1031131281, guid: abc00000000000976158050668117318, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces8.prefab
+    prefab: {fileID: 1031131309, guid: abc00000000018056702847427479001, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_Pieces9.prefab
+    prefab: {fileID: 1031131337, guid: abc00000000000426542419202878928, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V3.prefab
+    prefab: {fileID: 1031044704, guid: abc00000000008552047008990279875, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V4.prefab
+    prefab: {fileID: 1031048526, guid: abc00000000002217537321792451108, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V5.prefab
+    prefab: {fileID: 1031053602, guid: abc00000000005775586207063755341, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V6.prefab
+    prefab: {fileID: 1031055843, guid: abc00000000004375897533169610214, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V7.prefab
+    prefab: {fileID: 1031057628, guid: abc00000000015145123840869752383, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorSet_V8.prefab
+    prefab: {fileID: 1031059507, guid: abc00000000014395151534443570160, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_10.prefab
+    prefab: {fileID: 1031130001, guid: abc00000000006651297174810088359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_11.prefab
+    prefab: {fileID: 1031130029, guid: abc00000000006539576146698163758, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_12.prefab
+    prefab: {fileID: 1031130057, guid: abc00000000016242600980142195253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_2.prefab
+    prefab: {fileID: 1031129777, guid: abc00000000000830609718905550998, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_3.prefab
+    prefab: {fileID: 1031129805, guid: abc00000000005987013953295669359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_4.prefab
+    prefab: {fileID: 1031129833, guid: abc00000000004877966072190748072, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_5.prefab
+    prefab: {fileID: 1031129861, guid: abc00000000016826413756580966449, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_6.prefab
+    prefab: {fileID: 1031129889, guid: abc00000000013011566263049582058, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_7.prefab
+    prefab: {fileID: 1031041478, guid: abc00000000013782257831186522995, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_8.prefab
+    prefab: {fileID: 1031064491, guid: abc00000000003670384410831889708, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_FloorTile_9.prefab
+    prefab: {fileID: 1031129973, guid: abc00000000015700177172525353077, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_LightSet_FirePlaceExt.prefab
+    prefab: {fileID: 1031082315, guid: abc00000000011434024468758914874, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionColumn_1.prefab
+    prefab: {fileID: 1031066839, guid: abc00000000002764716643146412222, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionColumn_2.prefab
+    prefab: {fileID: 1031067707, guid: abc00000000000992622064484073157, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionColumn_Head.prefab
+    prefab: {fileID: 1031070287, guid: abc00000000015906861998063835647, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_2.prefab
+    prefab: {fileID: 1031129208, guid: abc00000000015728450450811244129, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_3.prefab
+    prefab: {fileID: 1031044732, guid: abc00000000001940776156894631064, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_4.prefab
+    prefab: {fileID: 1031048554, guid: abc00000000010860126527823861791, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_5.prefab
+    prefab: {fileID: 1031053631, guid: abc00000000016894159090955141702, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_6.prefab
+    prefab: {fileID: 1031055872, guid: abc00000000005446720160081321901, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_7.prefab
+    prefab: {fileID: 1031058367, guid: abc00000000003898956278672788868, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_MiniPavilionRoof_8.prefab
+    prefab: {fileID: 1031060228, guid: abc00000000005244916068114320219, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_10.prefab
+    prefab: {fileID: 1031128816, guid: abc00000000017556512526862221860, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_11.prefab
+    prefab: {fileID: 1031128844, guid: abc00000000002667817338423974477, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_12.prefab
+    prefab: {fileID: 1031128872, guid: abc00000000001268128664529829350, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_2.prefab
+    prefab: {fileID: 1031128618, guid: abc00000000013919255220630308519, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_3.prefab
+    prefab: {fileID: 1031128900, guid: abc00000000013807534192518383918, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_4.prefab
+    prefab: {fileID: 1031128646, guid: abc00000000000402407721075844841, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_5.prefab
+    prefab: {fileID: 1031128674, guid: abc00000000000164631077416584160, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_6.prefab
+    prefab: {fileID: 1031128702, guid: abc00000000017267570743672114923, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_7.prefab
+    prefab: {fileID: 1031045156, guid: abc00000000010124502006077127586, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_8.prefab
+    prefab: {fileID: 1031029966, guid: abc00000000014355065319288106557, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StairSet_9.prefab
+    prefab: {fileID: 1031128788, guid: abc00000000011822320147289381524, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StallRoof_1.prefab
+    prefab: {fileID: 1031072652, guid: abc00000000004220494127778896931, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StallRoof_2.prefab
+    prefab: {fileID: 1031072794, guid: abc00000000010132927993191783704, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StallRoof_3.prefab
+    prefab: {fileID: 1031072601, guid: abc00000000005473858213398845153, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StallRoof_4.prefab
+    prefab: {fileID: 1031132746, guid: abc00000000006639566853542742726, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_StallRoof_5.prefab
+    prefab: {fileID: 1031072691, guid: abc00000000000605534290411462815, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AsianDynastyEnvironment/Art/Prefabs/SM_Template_Map_Floor.prefab
+    prefab: {fileID: 1030983383, guid: abc00000000008514394057907366435, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

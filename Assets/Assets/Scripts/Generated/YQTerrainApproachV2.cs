@@ -325,21 +325,9 @@ public static class YQTerrainApproachV2
             return false;
         if (!plan.terrainWorkRequired)
             return true;
-        if (!TryGradeApproachTerrain(terrain, plan, out failure))
-            return false;
-        // note: Synchronize once after the local earthwork so the terrain renderer and TerrainCollider share the same reviewed handoff before binding gameplay providers.
-        terrain.terrainData.SyncHeightmap();
-        bool revalidated = TryValidateReviewedConnection(cell, contract, terrain, out failure);
-        if (!revalidated && TryVerifyConstructedApproach(terrain, plan.start, plan.end, plan.width, contract))
-        {
-            // note: The ramp is now real terrain; measured post-write samples are sufficient authority when the pre-construction planner no longer has an untouched join to select.
-            failure = string.Empty;
-            return true;
-        }
-        if (!revalidated)
-            Debug.LogWarning("[YQTerrainApproachV2] Reviewed approach earthwork did not revalidate: start=" + plan.start +
-                ", end=" + plan.end + ", width=" + plan.width.ToString("F2") + ", reason=" + failure);
-        return revalidated;
+        return TryCommitApproachTerrain(cell, contract,
+            (Vector3 point, out float height) => TrySampleTerrain(terrain, point, out height),
+            new[] { terrain }, plan, null, out failure);
     }
 
     public static bool TryConstructReviewedConnection(
@@ -348,6 +336,14 @@ public static class YQTerrainApproachV2
         SampleHeight sample,
         IReadOnlyList<Terrain> terrains,
         out string failure)
+    {
+        return TryConstructReviewedConnection(cell, contract, sample, terrains, null, out failure);
+    }
+
+    // note: The production site supplies its existing accepted reservation query; old standalone geometry callers retain their public signature.
+    internal static bool TryConstructReviewedConnection(
+        Transform cell, YQTerrainApproachContractV2 contract, SampleHeight sample,
+        IReadOnlyList<Terrain> terrains, Func<Vector3, bool> protectedTerrain, out string failure)
     {
         failure = string.Empty;
         if (sample == null || terrains == null || terrains.Count == 0 ||
@@ -403,143 +399,114 @@ public static class YQTerrainApproachV2
         if (!plan.terrainWorkRequired)
             return true;
 
-        int modifiedTerrains = 0;
-        HashSet<Terrain> visited = new HashSet<Terrain>();
+        return TryCommitApproachTerrain(cell, contract, sample, terrains, plan, protectedTerrain, out failure);
+    }
+
+    private sealed class ApproachTerrainEdit
+    {
+        public Terrain terrain;
+        public TerrainData data;
+        public int x, z;
+        public float[,] before, after;
+    }
+
+    private static bool TryCommitApproachTerrain(Transform cell, YQTerrainApproachContractV2 contract,
+        SampleHeight sample, IReadOnlyList<Terrain> terrains, YQTerrainApproachPlanV2 plan,
+        Func<Vector3, bool> protectedTerrain, out string failure)
+    {
+        failure = string.Empty;
+        var edits = new List<ApproachTerrainEdit>();
+        var visited = new HashSet<Terrain>();
+        // note: Prepare every neighboring tile before the first write. A partial strip is never published when one of its terrain owners is invalid.
         for (int index = 0; index < terrains.Count; index++)
         {
             Terrain terrain = terrains[index];
-            if (terrain == null || !visited.Add(terrain))
-                continue;
-            if (TryGradeApproachTerrain(terrain, plan, out string terrainFailure))
-                modifiedTerrains++;
-            else if (failure.Length == 0 || failure.StartsWith("No covered"))
-                failure = terrainFailure;
+            if (terrain == null || !visited.Add(terrain)) continue;
+            if (!TryPrepareApproachTerrain(terrain, plan, contract, protectedTerrain, out var edit, out failure)) return false;
+            if (edit != null) edits.Add(edit);
         }
-        if (modifiedTerrains == 0)
+        if (edits.Count == 0)
+        { failure = "Reviewed approach did not overlap a generated terrain tile."; return false; }
+        bool committed = false;
+        int attemptedWrites = 0;
+        try
         {
-            if (failure.Length == 0)
-                failure = "Reviewed approach did not overlap a generated terrain tile.";
-            return false;
+            foreach (var edit in edits)
+            {
+                // note: Count before writing so even a throwing terrain API has its original region available to rollback.
+                attemptedWrites++;
+                edit.data.SetHeightsDelayLOD(edit.x, edit.z, edit.after);
+            }
+            foreach (var edit in edits) edit.data.SyncHeightmap();
+            // note: Construction uses the same contact, full-width cross-slope and grade limits as admission, with finer stations and no resolution-based allowances.
+            committed = TryVerifyConstructedApproach(sample, plan.start, plan.end, plan.width, contract, out failure) &&
+                TryValidateReviewedConnection(cell, contract, sample, out failure);
+            return committed;
         }
-
-        // note: Synchronize every touched tile before the seam-aware revalidation observes the constructed corridor.
-        foreach (Terrain terrain in visited)
-            if (terrain != null && terrain.terrainData != null)
-                terrain.terrainData.SyncHeightmap();
-
-        if (TryValidateReviewedConnection(cell, contract, sample, out failure))
-            return true;
-        return TryVerifyConstructedApproach(sample, plan.start, plan.end, plan.width, contract, out failure);
+        finally
+        {
+            if (!committed)
+            {
+                // note: A rejected attempt cannot accumulate earthwork or poison a later prerequisite fingerprint. Restore only these exact owned regions, including both seam copies.
+                for (int index = attemptedWrites - 1; index >= 0; index--)
+                {
+                    var edit = edits[index];
+                    if (edit.data != null) edit.data.SetHeightsDelayLOD(edit.x, edit.z, edit.before);
+                }
+                for (int index = 0; index < attemptedWrites; index++)
+                    if (edits[index].data != null) edits[index].data.SyncHeightmap();
+            }
+        }
     }
 
     private static bool TryVerifyConstructedApproach(
-        SampleHeight sample,
-        Vector3 start,
-        Vector3 end,
-        float width,
-        YQTerrainApproachContractV2 contract,
-        out string failure)
+        SampleHeight sample, Vector3 start, Vector3 end, float width,
+        YQTerrainApproachContractV2 contract, out string failure)
     {
         failure = string.Empty;
-        if (sample == null)
-        {
-            failure = "Constructed seam-aware approach has no terrain sampler.";
-            return false;
-        }
+        if (sample == null || !Valid(contract) || !Finite(start) || !Finite(end))
+        { failure = "Constructed approach has no valid terrain sampling contract."; return false; }
         Vector3 direction = end - start;
         direction.y = 0f;
         float run = direction.magnitude;
-        if (run < 0.5f)
-        {
-            failure = "Constructed seam-aware approach has no usable run.";
-            return false;
-        }
+        if (run < contract.minimumRun || run > contract.maximumRun + 0.001f)
+        { failure = "Constructed approach is outside its reviewed run."; return false; }
         direction /= run;
         Vector3 side = Vector3.Cross(Vector3.up, direction);
-        float spacing = Mathf.Max(0.25f, contract.sampleSpacing * 0.5f);
-        int stations = Mathf.CeilToInt((run + 1f) / spacing);
-        float previousCenter = 0f;
+        float spacing = contract.sampleSpacing * 0.5f;
+        int stations = Mathf.CeilToInt((run + HandoffLength) / spacing);
+        float previousAlong = 0f;
+        var previous = new float[3];
+        var current = new float[3];
+        float crossLimit = Mathf.Tan(contract.maximumCrossSlopeDegrees * Mathf.Deg2Rad) * width;
+        float grade = Mathf.Tan(contract.maximumGradeDegrees * Mathf.Deg2Rad);
         for (int index = 0; index <= stations; index++)
         {
-            float along = Mathf.Min(run + 1f, index * spacing);
-            Vector3 center = start + direction * along;
-            float expected = Mathf.Lerp(start.y, end.y, Mathf.Clamp01(along / run));
-            if (!sample(center, out float centerHeight) ||
-                Mathf.Abs(centerHeight - expected) > 0.65f)
+            float along = Mathf.Min(run + HandoffLength, index * spacing);
+            for (int rail = 0; rail < 3; rail++)
             {
-                failure = "Constructed seam-aware approach center is outside its graded height envelope.";
-                return false;
+                Vector3 point = start + direction * along + side * ((rail - 1) * width * 0.5f);
+                if (!sample(point, out current[rail]) || !Finite(current[rail]))
+                { failure = "Constructed approach is missing a finite full-width terrain sample."; return false; }
+                if (index == 0 && Mathf.Abs(current[rail] - start.y) > contract.contactTolerance)
+                { failure = "Constructed approach does not meet the reviewed full-width landing contact."; return false; }
+                if (index > 0 && Mathf.Abs(current[rail] - previous[rail]) > grade * (along - previousAlong))
+                { failure = "Constructed approach exceeds its reviewed grade on rail " + rail + "."; return false; }
             }
-            for (int rail = -1; rail <= 1; rail++)
-            {
-                Vector3 railPoint = center + side * (rail * width * 0.5f);
-                if (!sample(railPoint, out float railHeight) ||
-                    Mathf.Abs(railHeight - centerHeight) > 0.65f)
-                {
-                    failure = "Constructed seam-aware approach has an excessive cross-slope.";
-                    return false;
-                }
-            }
-            if (index > 0 && Mathf.Abs(centerHeight - previousCenter) >
-                Mathf.Tan(contract.maximumGradeDegrees * Mathf.Deg2Rad) * spacing + 0.10f)
-            {
-                failure = "Constructed seam-aware approach exceeds its reviewed grade.";
-                return false;
-            }
-            previousCenter = centerHeight;
-        }
-        return true;
-    }
-
-    // note: Validate the constructed corridor directly at half-station spacing so a generated door is published only after the terrain itself proves the reviewed ramp.
-    private static bool TryVerifyConstructedApproach(Terrain terrain, Vector3 start, Vector3 end, float width,
-        YQTerrainApproachContractV2 contract)
-    {
-        Vector3 direction = end - start;
-        direction.y = 0f;
-        float run = direction.magnitude;
-        if (run < 0.5f)
-            return false;
-        direction /= run;
-        Vector3 side = Vector3.Cross(Vector3.up, direction);
-        float spacing = Mathf.Max(0.25f, contract.sampleSpacing * 0.5f);
-        // note: A generated terrain height sample spans a finite world cell; validation tolerances follow that resolution instead of rejecting short diagonal ramps between grid vertices.
-        TerrainData terrainData = terrain.terrainData;
-        float gridStep = Mathf.Max(
-            terrainData.size.x / Mathf.Max(1f, terrainData.heightmapResolution - 1f),
-            terrainData.size.z / Mathf.Max(1f, terrainData.heightmapResolution - 1f));
-        float heightTolerance = Mathf.Clamp(.20f + gridStep * .20f, .20f, .65f);
-        float crossTolerance = Mathf.Clamp(.25f + gridStep * .20f, .25f, .65f);
-        float gradeAllowance = .10f + gridStep * .12f;
-        int stations = Mathf.CeilToInt((run + 1f) / spacing);
-        float previousCenter = 0f;
-        for (int index = 0; index <= stations; index++)
-        {
-            float along = Mathf.Min(run + 1f, index * spacing);
-            Vector3 center = start + direction * along;
-            float expected = Mathf.Lerp(start.y, end.y, Mathf.Clamp01(along / run));
-            float centerHeight;
-            if (!TrySampleTerrain(terrain, center, out centerHeight) ||
-                Mathf.Abs(centerHeight - expected) > heightTolerance)
-                return false;
-            for (int rail = -1; rail <= 1; rail++)
-            {
-                Vector3 railPoint = center + side * (rail * width * 0.5f);
-                if (!TrySampleTerrain(terrain, railPoint, out float railHeight) ||
-                    Mathf.Abs(railHeight - centerHeight) > crossTolerance)
-                    return false;
-            }
-            if (index > 0 && Mathf.Abs(centerHeight - previousCenter) >
-                Mathf.Tan(contract.maximumGradeDegrees * Mathf.Deg2Rad) * spacing + gradeAllowance)
-                return false;
-            previousCenter = centerHeight;
+            if (Mathf.Abs(current[0] - current[2]) > crossLimit)
+            { failure = "Constructed approach exceeds its reviewed full-width cross-slope."; return false; }
+            for (int rail = 0; rail < 3; rail++) previous[rail] = current[rail];
+            previousAlong = along;
         }
         return true;
     }
 
     // note: Grade only the reviewed entrance corridor with a soft shoulder; unrelated terrain, parcels and water remain owned by their existing passes.
-    private static bool TryGradeApproachTerrain(Terrain terrain, YQTerrainApproachPlanV2 plan, out string failure)
+    private static bool TryPrepareApproachTerrain(Terrain terrain, YQTerrainApproachPlanV2 plan,
+        YQTerrainApproachContractV2 contract, Func<Vector3, bool> protectedTerrain,
+        out ApproachTerrainEdit edit, out string failure)
     {
+        edit = null;
         failure = string.Empty;
         Vector3 start = plan.start;
         Vector3 end = plan.end;
@@ -563,15 +530,13 @@ public static class YQTerrainApproachV2
         // note: Keep the overwritten core within the three rails that were sampled and fade only a feathered shoulder through the reviewed one-metre handoff.
         float corridorWidth = width;
         float corridorReach = run + HandoffLength;
-        Vector3 extendedEnd = start + direction * corridorReach;
-        Vector3 min = Vector3.Min(start, extendedEnd) - Vector3.one * (corridorWidth * 1.5f + 0.5f);
-        Vector3 max = Vector3.Max(start, extendedEnd) + Vector3.one * (corridorWidth * 1.5f + 0.5f);
+        GetTerrainEditWorldBounds(start, end, width, out Vector3 min, out Vector3 max);
         Vector3 origin = terrain.transform.position;
         Vector3 size = data.size;
         if (max.x < origin.x || min.x > origin.x + size.x || max.z < origin.z || min.z > origin.z + size.z)
         {
-            failure = "Reviewed approach earthwork lies outside generated terrain.";
-            return false;
+            // note: A collected neighboring tile can be outside the chosen shorter run; it has no edit and is not a failed support sample.
+            return true;
         }
         int resolution = data.heightmapResolution;
         int startX = Mathf.Clamp(Mathf.FloorToInt((min.x - origin.x) / size.x * (resolution - 1)), 0, resolution - 1);
@@ -585,7 +550,9 @@ public static class YQTerrainApproachV2
             failure = "Reviewed approach earthwork has insufficient terrain samples.";
             return false;
         }
-        float[,] heights = data.GetHeights(startX, startZ, sampleWidth, sampleHeight);
+        float[,] before = data.GetHeights(startX, startZ, sampleWidth, sampleHeight);
+        float[,] heights = (float[,])before.Clone();
+        bool changed = false;
         for (int z = 0; z < sampleHeight; z++)
             for (int x = 0; x < sampleWidth; x++)
             {
@@ -611,10 +578,33 @@ public static class YQTerrainApproachV2
                 // note: Longitudinally fade the target to untouched terrain at the end of the measured handoff so no artificial step remains beyond the validated corridor.
                 if (along > run)
                     blend *= 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(run, corridorReach, along));
-                heights[z, x] = Mathf.Lerp(heights[z, x], normalizedTarget, blend);
+                float proposed = Mathf.Lerp(heights[z, x], normalizedTarget, blend);
+                float delta = (proposed - heights[z, x]) * size.y;
+                // note: Rail feasibility is not permission for a larger unmeasured shoulder cut/fill at a terrain vertex.
+                if (!Finite(delta) || -delta > contract.maximumCut || delta > contract.maximumFill)
+                { failure = "Reviewed approach earthwork exceeds its cut/fill limit at a terrain vertex."; return false; }
+                if (delta != 0f && protectedTerrain != null && protectedTerrain(point))
+                { failure = "Reviewed approach earthwork conflicts with a protected water, route or cave reservation."; return false; }
+                if (delta != 0f && !TrySampleTerrain(terrain, point, out _))
+                { failure = "Reviewed approach earthwork intersects missing terrain or a hole."; return false; }
+                heights[z, x] = proposed;
+                changed |= delta != 0f;
             }
-        data.SetHeightsDelayLOD(startX, startZ, heights);
+        if (changed) edit = new ApproachTerrainEdit
+        { terrain = terrain, data = data, x = startX, z = startZ, before = before, after = heights };
         return true;
+    }
+
+    internal static void GetTerrainEditWorldBounds(Vector3 start, Vector3 end, float width,
+        out Vector3 minimum, out Vector3 maximum)
+    {
+        // note: Rejection receipts and the writer share this exact footprint, including every shoulder vertex and its endpoint handoff.
+        Vector3 direction = end - start;
+        direction.y = 0f;
+        Vector3 extendedEnd = end + direction.normalized * HandoffLength;
+        float padding = width * 1.5f + .5f;
+        minimum = Vector3.Min(start, extendedEnd) - Vector3.one * padding;
+        maximum = Vector3.Max(start, extendedEnd) + Vector3.one * padding;
     }
 
     public static bool TrySampleTerrain(Terrain terrain, Vector3 world, out float height)

@@ -45,6 +45,8 @@ public sealed class YQLlmRequest
     public bool bindPlayerStateRevision = true;
     public bool bindWorldStateRevision = true;
     public int maxRetries = -1;
+    // note: Only restartable, uncommitted background work may opt into at most two yields to player-facing requests.
+    public bool allowPlayerFacingPreemption;
     public Dictionary<string, object> optionsOverride;
     // note: Optional episode metadata bounds nested transport/domain repair without changing ordinary requests.
     public YQRepairEpisode repairEpisode;
@@ -52,12 +54,29 @@ public sealed class YQLlmRequest
     public bool protectPrompt;
     public string parentRequestKey;
     public string requiredOllamaModelDigest;
+    // note: GGUF qualification pins file content rather than an Ollama tag; transport verifies it before loading.
+    public string requiredModelSha256;
     public Func<bool> ownerStillCurrent;
 }
 
 // note: Central schema factories keep transport constraints aligned with the compact canonical prompts without making llama.cpp aware of Unity domain types.
 public static class YQLlmJsonSchema
 {
+    public static Dictionary<string, object> BuildProgression(string kind)
+    {
+        // note: The admitted role is code-owned. A specialist may abstain, but cannot silently substitute another reward category.
+        if (kind != "item" && kind != "skill" && kind != "spell" && kind != "title" && kind != "class" && kind != "quest")
+            throw new ArgumentException("Unsupported progression proposal kind.", nameof(kind));
+        return Object(new Dictionary<string, object>
+        {
+            { "decision", String(kind, "none") },
+            { "confidence", new Dictionary<string, object> { { "type", "number" }, { "minimum", 0 }, { "maximum", 1 } } },
+            { "reason", RequiredText() },
+            // note: Kind-specific fields still pass through the existing typed proposal evaluator and curation gates.
+            { "payload", new Dictionary<string, object> { { "type", "object" }, { "additionalProperties", true } } }
+        }, "decision", "confidence", "reason", "payload");
+    }
+
     public static Dictionary<string, object> BuildOrigin()
     {
         Dictionary<string, object> ability = Object(
@@ -74,11 +93,14 @@ public static class YQLlmJsonSchema
         Dictionary<string, object> loadoutEntry = Object(
             new Dictionary<string, object>
             {
-                { "slot", String("weapon", "offhand", "boots") },
+                // note: A transport-level three-slot kit prevented armor/accessory intent from reaching the existing loadout owner.
+                { "slot", String("weapon", "offhand", "head", "chest", "gloves", "legs", "boots", "belt", "cloak", "ring_left", "ring_right", "earring_left", "earring_right", "necklace", "trinket") },
                 { "nameHint", String() },
-                { "descriptionHint", String() }
+                { "descriptionHint", String() },
+                { "rarityHint", String("", "Common", "Uncommon", "Rare", "Epic", "Legendary") },
+                { "intentEvidence", String() }
             },
-            "slot", "nameHint", "descriptionHint");
+            "slot", "nameHint", "descriptionHint", "rarityHint", "intentEvidence");
 
         return Object(
             new Dictionary<string, object>
@@ -86,8 +108,8 @@ public static class YQLlmJsonSchema
                 { "source", String() },
                 { "directionKey", String("merchant", "lumberjack", "hero", "demonlord", "arcanist", "warden", "wanderer", "stillness", "custom") },
                 { "stimulus", String() },
-                { "className", String() },
-                { "titleName", String() },
+                { "className", RequiredText() },
+                { "titleName", RequiredText() },
                 { "ability", ability },
                 { "quest", Object(new Dictionary<string, object> { { "name", String() }, { "description", String() } }, "name", "description") },
                 { "loadout", Array(loadoutEntry, 3, 3) },
@@ -244,6 +266,12 @@ public static class YQLlmJsonSchema
             schema["enum"] = allowed;
         return schema;
     }
+
+    // note: Required origin identities cannot satisfy the wire contract with the empty string rejected by the domain validator.
+    private static Dictionary<string, object> RequiredText() => new Dictionary<string, object>
+    {
+        { "type", "string" }, { "minLength", 1 }
+    };
 
     private static Dictionary<string, object> Integer()
     {

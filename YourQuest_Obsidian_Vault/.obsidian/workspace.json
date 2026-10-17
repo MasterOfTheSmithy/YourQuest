@@ -1,0 +1,209 @@
+{
+  "main": {
+    "id": "5d3c6d9771324e43",
+    "type": "split",
+    "children": [
+      {
+        "id": "562e4dd45d03ec24",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9cb436c6fb18b7e7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "# goal 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "# goal 1"
+            }
+          },
+          {
+            "id": "22a69e33970cfe60",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "goal 2.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "goal 2"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1bab7d90822e4939",
+    "type": "split",
+    "children": [
+      {
+        "id": "4422012d722e5427",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c9ec03514097739f",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "c93911643e8cfeaf",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:board/kanban",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "69b3fe2ce56e67b5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "409f110db73de874",
+    "type": "split",
+    "children": [
+      {
+        "id": "9099e723c3220a88",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b1c4f7a6625acc26",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Boards/YourQuest Board.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "20dc7cc76d165410",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Boards/YourQuest Board.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "1a53b4cc7b7443ad",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "654df3908b93a4b6",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "9cb436c6fb18b7e7",
+  "lastOpenFiles": [
+    "goal 2.md",
+    "# goal 1.md",
+    "Boards/YourQuest Board.md",
+    "Tasks/TQ-027 URP assets in procedural palettes.md",
+    "Tasks/TQ-028 Deterministic layout math evidence.md",
+    "Tasks/TQ-001 URP asset conversion audit.md",
+    "Boards/Board Guide.md",
+    "Tasks/TQ-017 Behavior-driven capability paths.md",
+    "Tasks/TQ-003 Deterministic save and canon persistence.md",
+    "Untitled.canvas",
+    "Tasks/TQ-002 Structured generation and validation pipeline.md",
+    "Sources/Planning Index.md",
+    "Sources/Design Authority.md",
+    "Goals/YourQuest North Star.md",
+    "Goals/Phase Roadmap.md",
+    "Decisions/DEC-001 Authority and status model.md",
+    "Dashboards/Current Focus.md"
+  ]
+}

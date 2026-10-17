@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
+using FrontierTiming = YQGeneratedWorldRuntimeBuilder.FrontierPublicationDiagnostics;
 
 public enum YQWorldMaterializationPath
 {
@@ -150,6 +151,11 @@ public static class YQWorldGenerationArchitecture
 [DisallowMultipleComponent]
 public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 {
+    // note: Observe actual physical workers and existing retirement callbacks across builder instances without owning their execution.
+    private static readonly YQOwnedWorkerLifetimeObservation FrontierWorkerLifetime = new YQOwnedWorkerLifetimeObservation(256);
+    private readonly object _frontierWorkerLifetimeOwner = new object();
+    public static YQWorkerLifetimeSnapshot CaptureFrontierWorkerLifetime() => FrontierWorkerLifetime.Capture();
+
     private static readonly object FrontierConstructionIssuer = new object();
     private static readonly JsonSerializerSettings FrontierConstructionJsonSettings = new JsonSerializerSettings
     {
@@ -169,9 +175,14 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         private readonly string acceptedJson;
         private readonly string worldId;
         private readonly string profileId;
+        private string preparedCanonicalInputsJson;
+        private string preparedCandidateInputsJson;
+        private string preparedPlanInputsJson;
+        private string preparedParentInputsJson;
+        private YQPreparedSpatialMaterializationV2 preparedProjection;
 
         private FrontierConstructionAcceptance(WorldState owner, string previousFingerprint,
-            GeneratedSpatialContinuationV2Record continuation)
+            GeneratedSpatialContinuationV2Record continuation, string capturedAcceptedJson = null)
         {
             // note: Only the construction owner can issue this immutable admission token; caller-owned claims cannot authorize a save.
             world = owner;
@@ -182,7 +193,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             priorFingerprint = previousFingerprint;
             worldId = owner.worldIdentity?.worldId;
             profileId = owner.worldIdentity?.ownerProfileId;
-            acceptedJson = JsonConvert.SerializeObject(continuation, FrontierConstructionJsonSettings);
+            // note: The owned preparation worker may supply its complete immutable body; ordinary issuance retains the same serialization position after owner stamps.
+            acceptedJson = capturedAcceptedJson ?? JsonConvert.SerializeObject(continuation, FrontierConstructionJsonSettings);
         }
 
         internal static FrontierConstructionAcceptance Issue(WorldState owner, string previousFingerprint,
@@ -194,11 +206,121 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return new FrontierConstructionAcceptance(owner, previousFingerprint, continuation);
         }
 
+        internal static FrontierConstructionAcceptance IssueCaptured(WorldState owner, string previousFingerprint,
+            string capturedAcceptedJson, object issuer)
+        {
+            // note: Only this construction owner may turn a worker's immutable body into a token; actual owner, checksum, provider and compiler admission still run on the main thread.
+            if (!ReferenceEquals(issuer, FrontierConstructionIssuer) || string.IsNullOrEmpty(capturedAcceptedJson))
+                throw new InvalidOperationException("Frontier admission requires the construction owner's captured body.");
+            return new FrontierConstructionAcceptance(owner, previousFingerprint, null, capturedAcceptedJson);
+        }
+
         internal bool TryValidateForPublication(WorldState owner,
             out GeneratedSpatialContinuationV2Record continuation, out string failure)
         {
             // note: Persistence and projection staging share the same construction-owned compiler and population admission.
             return TryPrepareForPublication(owner, out continuation, out _, out failure);
+        }
+
+        internal IEnumerator PrepareRoutine(WorldState owner, Func<bool> isCurrent, Action<bool, string> completed)
+            => PrepareRoutineCore(owner, isCurrent, completed, null);
+
+        internal IEnumerator PrepareOwnedRoutine(WorldState owner, Func<bool> isCurrent, Action<bool, string> completed, object workerOwner)
+            => PrepareRoutineCore(owner, isCurrent, completed, workerOwner ?? throw new ArgumentNullException(nameof(workerOwner)));
+
+        private IEnumerator PrepareRoutineCore(WorldState owner, Func<bool> isCurrent, Action<bool, string> completed, object workerOwner)
+        {
+            bool success = false;
+            string failure = "Frontier projection preparation was cancelled.";
+            System.Threading.Tasks.Task<YQSpatialMaterializationCompilerV2.StartupPreparation.CapturedCompilerInputs> copying = null;
+            System.Threading.CancellationTokenSource copyCancellation = null;
+            try
+            {
+                if (isCurrent == null || !isCurrent() || !TryValidatePublicationOwner(owner, out failure)) yield break;
+                // note: Reuse the compiler's existing detached numeric worker and reviewed-provider proof. No candidate reaches live state while its complete union is being validated.
+                yield return null;
+                if (!isCurrent()) yield break;
+                string planInputs = null, parentInputs = null;
+                string canonicalInputs = MeasureStartupOperation("Frontier.Token.CaptureInputs",
+                    () => CanonicalInputsJson(out planInputs, out parentInputs));
+                yield return null;
+                if (!isCurrent()) yield break;
+                GeneratedWorldPlanRecord snapshot = null;
+                YQSpatialMaterializationCompilerV2.StartupPreparation.CapturedCompilerInputs captured = null;
+                YQSpatialMaterializationCompilerV2.StartupPreparation preparation = null;
+                bool Current() => isCurrent() && YQServiceLifecycle.IsCurrent(epoch) &&
+                    ReferenceEquals(WorldStateManager.Instance?.State, world) && ReferenceEquals(world.generatedWorldPlan, plan) &&
+                    ReferenceEquals(plan.spatialPlanV2, parent) && parent.contentHash == parentHash;
+                if (workerOwner == null)
+                {
+                    // note: Compatibility callers retain their original live-input copy and validation path.
+                    snapshot = MeasureStartupOperation("Frontier.Token.CopyInputs", () => YQSpatialMaterializationCompilerV2.StartupPreparation.CopyCompilerInputs(plan));
+                    snapshot.spatialPlanV2.acceptedContinuation = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings);
+                    bool validationReady = false;
+                    yield return YQSpatialPlanVersionRouter.WarmAcceptedValidationRoutine(snapshot, Current,
+                        (ready, reason) => { validationReady = ready; failure = reason; });
+                    if (!Current() || !validationReady) yield break;
+                    yield return YQSpatialMaterializationCompilerV2.StartupPreparation.PrepareRoutine(snapshot, Current,
+                        (value, reason) => { preparation = value; failure = reason; });
+                }
+                else
+                {
+                    // note: Earlier physical/union work has completed. Reuse its one observed owner sequentially; only immutable strings enter this private decode.
+                    copyCancellation = new System.Threading.CancellationTokenSource();
+                    copying = FrontierWorkerLifetime.Observe(workerOwner, false, () => System.Threading.Tasks.Task.Run(() =>
+                        YQSpatialMaterializationCompilerV2.StartupPreparation.CapturedCompilerInputs.Decode(planInputs, parentInputs, acceptedJson, copyCancellation.Token), copyCancellation.Token));
+                    while (!copying.IsCompleted && Current()) yield return null;
+                    if (!Current() || copying.IsCanceled) yield break;
+                    if (copying.IsFaulted) { failure = "Captured frontier inputs could not be decoded: " + copying.Exception.GetBaseException().Message; yield break; }
+                    captured = copying.GetAwaiter().GetResult();
+                    yield return YQSpatialMaterializationCompilerV2.StartupPreparation.PrepareCapturedRoutine(captured, Current,
+                        (value, reason) => { preparation = value; failure = reason; });
+                }
+                if (!Current() || preparation == null || !TryValidatePublicationOwner(owner, out failure)) yield break;
+                if (!string.Equals(canonicalInputs, CanonicalInputsJson(), StringComparison.Ordinal))
+                { failure = "Frontier compiler inputs changed during numeric preparation."; yield break; }
+                // note: Only this construction-owned token retains the compiler-issued immutable result, bound to the full original input and exact candidate envelope.
+                preparedProjection = preparation.Prepared;
+                preparedCanonicalInputsJson = canonicalInputs;
+                preparedPlanInputsJson = planInputs;
+                preparedParentInputsJson = parentInputs;
+                preparedCandidateInputsJson = captured == null ? CandidateCompilerInputsJson(snapshot, snapshot.spatialPlanV2) : preparation.CandidateInputsJson;
+                yield return null;
+                if (!Current()) yield break;
+                success = TryPrepareForPublication(owner, out _, out _, out failure);
+            }
+            finally
+            {
+                // note: Retired work can finish privately but cannot install. Keep cancellation storage alive until the one observed task stops using it.
+                copyCancellation?.Cancel();
+                if (copying != null && !copying.IsCompleted)
+                    FrontierWorkerLifetime.Observe(workerOwner, true, () => copying.ContinueWith(finished => { _ = finished.Exception; copyCancellation.Dispose(); }, System.Threading.Tasks.TaskScheduler.Default));
+                else copyCancellation?.Dispose();
+                completed?.Invoke(success, failure);
+            }
+        }
+
+        private string CanonicalInputsJson() => CanonicalInputsJson(out _, out _);
+
+        private string CanonicalInputsJson(out string planInputs, out string parentInputs)
+        {
+            // note: Retain the exact two immutable component strings from numeric preparation; no delimiter parsing or mutable-source memo authorizes publication.
+            planInputs = JsonConvert.SerializeObject(new {
+                plan.worldSeed, plan.spatialPlan, plan.settlements, plan.encampments
+            }, FrontierConstructionJsonSettings);
+            parentInputs = JsonConvert.SerializeObject(parent, FrontierConstructionJsonSettings);
+            return planInputs + "|" + parentInputs;
+        }
+
+        private static bool CanonicalInputsMatch(GeneratedWorldPlanRecord source,
+            GeneratedSpatialWorldPlanV2Record artifact, string capturedPlanInputs, string capturedParentInputs)
+        {
+            // note: Traverse both current sources in the original parent-first order even after mismatch, preserving serializer callbacks/errors and exact ordinal equality without whole-document allocations.
+            bool parentMatches = YQProfileCommitStore.JsonEqualsCaptured(artifact, capturedParentInputs, FrontierConstructionJsonSettings);
+            bool planMatches = YQProfileCommitStore.JsonEqualsCaptured(new {
+                source.worldSeed, source.spatialPlan, source.settlements, source.encampments
+            }, capturedPlanInputs, FrontierConstructionJsonSettings);
+            return parentMatches && planMatches;
         }
 
         internal bool TryPrepareForPublication(WorldState owner,
@@ -210,15 +332,55 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             if (!TryValidatePublicationOwner(owner, out failure)) return false;
             try
             {
-                var accepted = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings);
-                var detachedParent = JsonConvert.DeserializeObject<GeneratedSpatialWorldPlanV2Record>(
-                    JsonConvert.SerializeObject(parent, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
-                detachedParent.acceptedContinuation = accepted;
-                // note: Repeat actual final-union numeric and approved provider gates rather than trusting the recorded proof claims.
-                if (!YQSpatialMaterializationCompilerV2.TryPrepareCandidate(plan, detachedParent, out var prepared, out failure)) return false;
+                GeneratedSpatialContinuationV2Record accepted;
+                using (FrontierTiming.Begin(FrontierTiming.Operation.TokenDecode))
+                    accepted = JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, FrontierConstructionJsonSettings);
+                string parentJson, planInputsJson, canonicalInputsJson;
+                var prepared = preparedProjection;
+                string candidateInputsJson = preparedCandidateInputsJson;
+                using (FrontierTiming.Begin(FrontierTiming.Operation.TokenInputs))
+                {
+                    if (prepared != null && preparedCanonicalInputsJson != null &&
+                        preparedPlanInputsJson != null && preparedParentInputsJson != null)
+                    {
+                        if (!CanonicalInputsMatch(plan, parent, preparedPlanInputsJson, preparedParentInputsJson))
+                        { failure = "Frontier compiler inputs changed after numeric preparation."; return false; }
+                        // note: Only an exact current-source traversal can reuse these captured strings; all following provider, owner and accepted-body checks still execute.
+                        parentJson = preparedParentInputsJson;
+                        planInputsJson = preparedPlanInputsJson;
+                        canonicalInputsJson = preparedCanonicalInputsJson;
+                    }
+                    else
+                    {
+                        // note: A missing numeric proof retains the original synchronous compilation path and its parent-first serialization order.
+                        parentJson = JsonConvert.SerializeObject(parent, FrontierConstructionJsonSettings);
+                        planInputsJson = JsonConvert.SerializeObject(new {
+                            plan.worldSeed, plan.spatialPlan, plan.settlements, plan.encampments
+                        }, FrontierConstructionJsonSettings);
+                        canonicalInputsJson = planInputsJson + "|" + parentJson;
+                    }
+                }
+                // note: A prepared token is an immutable admission for its captured inputs; changed inputs must retry construction rather than synchronously recompile on the rendering thread.
+                if (prepared != null && !string.Equals(canonicalInputsJson, preparedCanonicalInputsJson, StringComparison.Ordinal))
+                { failure = "Frontier compiler inputs changed after numeric preparation."; return false; }
+                if (prepared == null || !string.Equals(canonicalInputsJson, preparedCanonicalInputsJson, StringComparison.Ordinal))
+                {
+                    // note: A repeated byte-identical admission already owns its immutable projection; clone the full parent only when compilation is actually needed.
+                    var detachedParent = JsonConvert.DeserializeObject<GeneratedSpatialWorldPlanV2Record>(
+                        parentJson, FrontierConstructionJsonSettings);
+                    detachedParent.acceptedContinuation = accepted;
+                    candidateInputsJson = CandidateCompilerInputsJson(plan, detachedParent);
+                    if (!YQSpatialMaterializationCompilerV2.TryPrepareCandidate(plan, detachedParent, out prepared, out failure)) return false;
+                }
                 foreach (var location in accepted.locations)
-                    if (!YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, location,
+                {
+                    // note: Keep the original short-circuit order: population bindings run only after reviewed site functions accept.
+                    using (FrontierTiming.Begin(FrontierTiming.Operation.SiteFunctions))
+                        if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure)) return false;
+                    using (FrontierTiming.Begin(FrontierTiming.Operation.PopulationBindings))
+                        if (!YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, location,
                             YQRuntimeWorldAssetRegistry.Instance, out failure)) return false;
+                }
                 // note: Provider inspection cannot authorize a projection if its captured owner changed during admission.
                 if (!TryValidatePublicationOwner(owner, out failure)) return false;
                 if (!string.Equals(JsonConvert.SerializeObject(accepted, FrontierConstructionJsonSettings), acceptedJson, StringComparison.Ordinal))
@@ -228,6 +390,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 }
                 continuation = accepted;
                 immutablePrepared = prepared;
+                preparedCanonicalInputsJson = canonicalInputsJson;
+                preparedPlanInputsJson = planInputsJson;
+                preparedParentInputsJson = parentJson;
+                preparedCandidateInputsJson = candidateInputsJson;
+                preparedProjection = prepared;
                 failure = string.Empty;
                 return true;
             }
@@ -238,7 +405,35 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
+        private static string CandidateCompilerInputsJson(GeneratedWorldPlanRecord source, GeneratedSpatialWorldPlanV2Record candidate)
+        {
+            // note: This is the complete input envelope consumed by TryPrepareCandidate, including deep geometry and continuation fields, not only claimed hashes or revisions.
+            return JsonConvert.SerializeObject(new { source.worldSeed, source.spatialPlan, source.settlements, source.encampments, spatialPlanV2 = candidate }, FrontierConstructionJsonSettings);
+        }
+
+        internal bool HasPreparedCandidate(GeneratedWorldPlanRecord candidate)
+        {
+        // note: Measure this existing owner without changing its callbacks or rejection gates.
+        using var publicationTiming = FrontierTiming.Begin(FrontierTiming.Operation.TokenInputs);
+            // note: The profile owner may reuse this token's immutable compiler result only for an exactly identical detached snapshot. Every ownership, identity and final publication gate still runs.
+            return preparedProjection != null && preparedCandidateInputsJson != null && candidate != null &&
+                YQProfileCommitStore.JsonEqualsCaptured(new {
+                    candidate.worldSeed, candidate.spatialPlan, candidate.settlements, candidate.encampments,
+                    spatialPlanV2 = candidate.spatialPlanV2
+                }, preparedCandidateInputsJson, FrontierConstructionJsonSettings);
+        }
+
         private bool TryValidatePublicationOwner(WorldState owner, out string failure)
+        {
+        // note: Measure this existing owner without changing its callbacks or rejection gates.
+        using var publicationTiming = FrontierTiming.Begin(FrontierTiming.Operation.TokenIdentity);
+            string reason = string.Empty;
+            bool ready = MeasureStartupOperation("Frontier.Token.OwnerGate", () => TryValidatePublicationOwnerCore(owner, out reason));
+            failure = reason;
+            return ready;
+        }
+
+        private bool TryValidatePublicationOwnerCore(WorldState owner, out string failure)
         {
             failure = "Frontier construction belongs to a stale world, parent artifact or request epoch.";
             var manager = WorldStateManager.Instance;
@@ -247,8 +442,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 !ReferenceEquals(plan?.spatialPlanV2, parent) || !YQServiceLifecycle.IsCurrent(epoch) ||
                 owner.worldIdentity?.worldId != worldId || owner.worldIdentity?.ownerProfileId != profileId ||
                 parent.contentHash != parentHash) return false;
-            if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure) ||
-                !YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out _, out string currentFingerprint, out failure))
+            if (!YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out _, out string currentFingerprint, out failure))
                 return false;
             if (!string.Equals(currentFingerprint, priorFingerprint, StringComparison.Ordinal))
             {
@@ -478,6 +672,92 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return PrepareFrontierConstructionWithAdmissionRoutine(world, engineCandidate, completed, null);
     }
 
+    private sealed class FrontierPhysicalPlacementResult
+    {
+        public bool success;
+        public GeneratedSpatialContinuationLocationV2Record candidate;
+        public GeneratedSpatialContinuationPhysicalContextV2Record context;
+        public string failure;
+        public string acceptedJson;
+    }
+
+    private static string BuildFrontierAcceptedBody(string previousJson, string stagedJson, string worldSeed,
+        string parentHash, string parentMemberFootprintHash, string proposalHash, System.Threading.CancellationToken cancellation)
+    {
+        // note: Inputs are immutable captured strings/scalars. This worker owns every decoded record and touches no live owner, provider, Unity object or shared layout cache.
+        cancellation.ThrowIfCancellationRequested();
+        var accepted = previousJson == null ? new GeneratedSpatialContinuationV2Record {
+            worldSeed = worldSeed, parentSpatialContentHash = parentHash,
+            parentMemberFootprintHash = parentMemberFootprintHash
+        } : JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(previousJson, FrontierConstructionJsonSettings);
+        var staged = JsonConvert.DeserializeObject<GeneratedSpatialContinuationLocationV2Record>(stagedJson, FrontierConstructionJsonSettings);
+        cancellation.ThrowIfCancellationRequested();
+        accepted.revision = checked(accepted.revision + 1);
+        staged.revision = accepted.revision;
+        staged.state = YQSpatialContinuationStateV2.Accepted;
+        staged.contentHash = staged.validatedContentHash = string.Empty;
+        staged.proofClaims.Clear();
+        string payloadHash = YQSpatialContinuationHasherV2.ComputeLocationPayloadHash(staged);
+        // note: Preserve the construction owner's exact revision, proof enumeration and checksum order on this private union.
+        for (int kind = 1; kind <= 5; kind++)
+            staged.proofClaims.Add(new GeneratedSpatialContinuationProofV2Record {
+                kind = (YQSpatialContinuationProofKindV2)kind, outcome = YQSpatialContinuationProofOutcomeV2.Passed,
+                subjectSiteId = staged.anchor.siteId, subjectPayloadHash = payloadHash,
+                ownerValidationVersion = "frontier_construction_owner_v1",
+                evidenceId = staged.contentId + ":" + kind,
+                evidenceHash = kind == 1 ? proposalHash : YQStateContract.Sha256Hex(payloadHash + "|" + kind)
+            });
+        staged.contentHash = staged.validatedContentHash = YQSpatialContinuationHasherV2.ComputeLocationContentHash(staged);
+        accepted.locations.Add(staged);
+        accepted.state = YQSpatialContinuationStateV2.Accepted;
+        cancellation.ThrowIfCancellationRequested();
+        accepted.contentHash = accepted.validatedContentHash = YQSpatialContinuationHasherV2.ComputeContentHash(accepted);
+        cancellation.ThrowIfCancellationRequested();
+        string body = JsonConvert.SerializeObject(accepted, FrontierConstructionJsonSettings);
+        cancellation.ThrowIfCancellationRequested();
+        return body;
+    }
+
+    private static GeneratedWorldPlanRecord CopyFrontierPhysicalPlan(GeneratedWorldPlanRecord plan)
+    {
+        // note: The numeric worker reads only these scalar identities and region IDs; it never receives the mutable live world or Unity objects.
+        var artifact = plan.spatialPlanV2;
+        var copy = new GeneratedWorldPlanRecord {
+            worldSeed = plan.worldSeed,
+            spatialPlanV2 = new GeneratedSpatialWorldPlanV2Record {
+                worldSeed = artifact.worldSeed, contentHash = artifact.contentHash,
+                validatedContentHash = artifact.validatedContentHash, acceptanceState = artifact.acceptanceState
+            },
+            regions = new List<GeneratedRegionRecord>()
+        };
+        foreach (var region in plan.regions)
+            if (region != null) copy.regions.Add(new GeneratedRegionRecord { regionId = region.regionId });
+        return copy;
+    }
+
+    internal static string BuildFrontierPhysicalInputIdentity(GeneratedWorldPlanRecord plan,
+        GeneratedSpatialContinuationLocationV2Record candidate)
+    {
+        // note: Refusal memo identity covers the exact detached numeric inputs; semantic/player state and live Unity objects are never cached here.
+        return JsonConvert.SerializeObject(new { plan = CopyFrontierPhysicalPlan(plan), candidate }, FrontierConstructionJsonSettings);
+    }
+
+    private static FrontierPhysicalPlacementResult BuildFrontierPhysicalPlacementSnapshot(
+        GeneratedWorldPlanRecord copy, YQPreparedSpatialMaterializationV2 prepared,
+        GeneratedSpatialContinuationLocationV2Record candidate, System.Threading.CancellationToken cancellation)
+    {
+        // note: Preserve the synchronous algorithm and every physical gate; cancellation is checked between bounded geometry attempts.
+        try
+        {
+            var result = new FrontierPhysicalPlacementResult();
+            result.success = TryBuildFrontierPhysicalPlacement(copy, prepared, candidate, () => !cancellation.IsCancellationRequested,
+                out result.candidate, out result.context, out result.failure);
+            return result;
+        }
+        catch (Exception exception)
+        { return new FrontierPhysicalPlacementResult { failure = "Frontier physical snapshot failed: " + exception.Message }; }
+    }
+
     internal IEnumerator PrepareFrontierConstructionWithAdmissionRoutine(WorldState world,
         GeneratedSpatialContinuationLocationV2Record engineCandidate,
         Action<FrontierConstructionAcceptance, string> completed, Action proposalPrepared,
@@ -487,12 +767,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         var plan = world?.generatedWorldPlan;
         var parent = plan?.spatialPlanV2;
         if (frontierConstructionInFlight || world == null || !ReferenceEquals(WorldStateManager.Instance?.State, world) ||
-            IsInitialGenerationGameplayLocked || !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _) ||
-            !YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan, out var previous,
-                out string previousFingerprint, out _) ||
-            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out _))
+            IsInitialGenerationGameplayLocked || !YQSpatialMaterializationResolverV2.TryGetQueryProjection(plan, out var prepared, out _))
         { completed?.Invoke(null, "Frontier construction requires the idle active accepted world."); yield break; }
 
+        // note: Cheap physical rejection reads only the already admitted immutable projection. Rehashing the whole world for every impossible site stalls play before the worker even starts.
+        var previous = parent.acceptedContinuation;
+        if (previous != null && previous.state != YQSpatialContinuationStateV2.Accepted) previous = null;
+        string previousFingerprint = prepared.ContinuationFingerprint;
         int epoch = YQServiceLifecycle.RequestEpoch;
         string parentHash = parent.contentHash;
         string worldId = world.worldIdentity?.worldId;
@@ -511,27 +792,52 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         long requestId = 0;
         bool briefFinished = false;
         var ownedLayouts = new Dictionary<string, YQProceduralSettlementLayoutRecord>(StringComparer.Ordinal);
+        var physicalCancellation = new System.Threading.CancellationTokenSource();
+        System.Threading.Tasks.Task<FrontierPhysicalPlacementResult> physicalWork = null;
         try
         {
             var service = YQWorldGenerationService.Instance;
             GeneratedSpatialContinuationLocationV2Record staged = null;
             string failure = string.Empty;
             // note: Reject impossible terrain/network reserves before owning a model request. The untouched candidate remains unchanged and this transient result is not acceptance.
-            if (!Current() || !TryBuildFrontierPhysicalPlacement(plan, prepared, engineCandidate, Current,
-                    out var selectedCandidate, out var physicalContext, out failure) || !Current())
-            { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier physical preflight owner changed."); yield break; }
-            engineCandidate = selectedCandidate;
-            string reservationFingerprint = BuildFrontierReservationFingerprint(engineCandidate);
-            // note: Reject terrain/content already owned by this streamer before inference; final publication repeats the same guard after all waits.
+            if (!Current()) { completed?.Invoke(null, "Frontier physical preflight owner changed."); yield break; }
+            var physicalPlan = MeasureStartupOperation("Frontier.Physical.CopyPlan", () => CopyFrontierPhysicalPlan(plan));
+            var physicalCandidate = MeasureStartupOperation("Frontier.Physical.CopyCandidate", () =>
+                JsonConvert.DeserializeObject<GeneratedSpatialContinuationLocationV2Record>(
+                    JsonConvert.SerializeObject(engineCandidate, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings));
+            // note: One builder-owned worker performs pure geometry while the game keeps rendering; live terrain screening and publication remain on the main thread.
+            physicalWork = FrontierWorkerLifetime.Observe(_frontierWorkerLifetimeOwner, false, () => System.Threading.Tasks.Task.Run(() => BuildFrontierPhysicalPlacementSnapshot(
+                physicalPlan, prepared, physicalCandidate, physicalCancellation.Token)));
+            while (!physicalWork.IsCompleted && Current()) yield return null;
+            if (!Current()) { completed?.Invoke(null, "Frontier physical preflight owner changed."); yield break; }
+            var physicalResult = physicalWork.GetAwaiter().GetResult();
+            if (!physicalResult.success) { completed?.Invoke(null, physicalResult.failure); yield break; }
+            engineCandidate = physicalResult.candidate;
+            var physicalContext = physicalResult.context;
+            // note: Reject occupied terrain before whole-world revalidation; this read-only veto grants no acceptance and every surviving candidate still passes the full gates below.
             if (!TryScreenFrontierTerrainInfluences(engineCandidate, physicalContext, terrainOwnershipScreen, out failure) || !Current())
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier terrain screening owner changed."); yield break; }
-            if (service == null || !service.TryRequestFrontierLocationBrief(world, engineCandidate,
+            // note: This identity screen only rejects stale requests. The immediately following synchronous service call still performs full actual-source prepared admission before inference.
+            // note: Split synchronous parent admission leaves without changing their short-circuit order or retaining a timing scope across yields.
+            GeneratedSpatialContinuationV2Record verifiedPrevious = null;
+            string verifiedFingerprint = string.Empty;
+            using (new Unity.Profiling.ProfilerMarker("YQ.Frontier.RevalidatePreparedParent").Auto())
+            if (!MeasureStartupOperation("Frontier.Parent.Identity", () => YQSpatialMaterializationResolverV2.TryScreenAcceptedContinuationIdentityForPreparedRequest(plan, out verifiedPrevious, out verifiedFingerprint, out failure)) ||
+                !ReferenceEquals(previous, verifiedPrevious) || !string.Equals(previousFingerprint, verifiedFingerprint, StringComparison.Ordinal) ||
+                !Current())
+            { completed?.Invoke(null, string.IsNullOrEmpty(failure) ? "Frontier source changed after numeric preflight." : failure); yield break; }
+            string reservationFingerprint = BuildFrontierReservationFingerprint(engineCandidate);
+            // note: The service repeats full prepared admission and compares this expected identity in the same synchronous request; it is not supplied acceptance proof.
+            if (service == null || !service.TryRequestFrontierLocationBriefForPreparedParent(world, engineCandidate, prepared,
                     (value, reason) => { staged = value; failure = reason; briefFinished = true; }, out requestId))
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier generation service is unavailable."); yield break; }
             // note: Queue/inference waiting has no clock deadline; this owner still cancels retired construction.
             while (!briefFinished && Current() && LLMClient.Instance != null) yield return null;
             if (!briefFinished || !Current() || staged == null)
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier brief failed or its owner changed."); yield break; }
+            // note: Travel can occupy a reservation during inference. Reject it before loading providers or compiling the complete accepted union.
+            if (!TryScreenFrontierTerrainInfluences(engineCandidate, physicalContext, terrainOwnershipScreen, out failure))
+            { completed?.Invoke(null, failure); yield break; }
             // note: Retain the actual prepared proposal provenance before adding engine-owned physical decisions.
             string proposalHash = staged.sourceContentHash;
             if (staged.state != YQSpatialContinuationStateV2.Staged || staged.source != YQSpatialContinuationSourceV2.LlmProposal ||
@@ -606,41 +912,66 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
             if (!composed || !Current())
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier construction owner changed."); yield break; }
-            if (!YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, staged,
-                    YQRuntimeWorldAssetRegistry.Instance, out failure) ||
-                !YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, prepared, staged, out _, out failure))
+            // note: Provider loading also yields; an occupied reservation must not proceed into expensive acceptance preparation.
+            if (!TryScreenFrontierTerrainInfluences(staged, physicalContext, terrainOwnershipScreen, out failure))
             { completed?.Invoke(null, failure); yield break; }
-            var accepted = previous == null ? new GeneratedSpatialContinuationV2Record {
-                worldSeed = plan.worldSeed, parentSpatialContentHash = parentHash,
-                parentMemberFootprintHash = YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(parent)
-            } : JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(
-                JsonConvert.SerializeObject(previous, FrontierConstructionJsonSettings), FrontierConstructionJsonSettings);
-            accepted.revision = checked((previous?.revision ?? 0) + 1);
-            staged.revision = accepted.revision;
-            staged.state = YQSpatialContinuationStateV2.Accepted;
-            staged.contentHash = staged.validatedContentHash = string.Empty;
-            staged.proofClaims.Clear();
-            string payloadHash = YQSpatialContinuationHasherV2.ComputeLocationPayloadHash(staged);
-            // note: These receipts describe gates executed above; publication independently repeats their owning validators on the complete candidate union.
-            for (int kind = 1; kind <= 5; kind++)
-                staged.proofClaims.Add(new GeneratedSpatialContinuationProofV2Record {
-                    kind = (YQSpatialContinuationProofKindV2)kind, outcome = YQSpatialContinuationProofOutcomeV2.Passed,
-                    subjectSiteId = staged.anchor.siteId, subjectPayloadHash = payloadHash,
-                    ownerValidationVersion = "frontier_construction_owner_v1",
-                    evidenceId = staged.contentId + ":" + kind,
-                    evidenceHash = kind == 1 ? proposalHash : YQStateContract.Sha256Hex(payloadHash + "|" + kind)
-                });
-            staged.contentHash = staged.validatedContentHash = YQSpatialContinuationHasherV2.ComputeLocationContentHash(staged);
-            accepted.locations.Add(staged);
-            accepted.state = YQSpatialContinuationStateV2.Accepted;
-            accepted.contentHash = accepted.validatedContentHash = YQSpatialContinuationHasherV2.ComputeContentHash(accepted);
-            var token = FrontierConstructionAcceptance.Issue(world, previousFingerprint, accepted, FrontierConstructionIssuer);
-            if (!Current() || !token.TryValidateForPublication(world, out _, out failure))
+            if (!MeasureStartupOperation("Frontier.Candidate.Population", () => YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, staged,
+                    YQRuntimeWorldAssetRegistry.Instance, out failure)))
+            { completed?.Invoke(null, failure); yield break; }
+            // note: Post-composition terrain conformance uses the same bounded numeric kernel as replay. The existing owned worker receives detached records and cannot touch providers, live state or terrain objects.
+            string measuredInput = MeasureStartupOperation("Frontier.Candidate.Capture", () => JsonConvert.SerializeObject(staged, FrontierConstructionJsonSettings));
+            var measuredCandidate = MeasureStartupOperation("Frontier.Candidate.Decode", () => JsonConvert.DeserializeObject<GeneratedSpatialContinuationLocationV2Record>(measuredInput, FrontierConstructionJsonSettings));
+            var measuredPlan = MeasureStartupOperation("Frontier.Candidate.CopyPlan", () => CopyFrontierPhysicalPlan(plan));
+            physicalWork = FrontierWorkerLifetime.Observe(_frontierWorkerLifetimeOwner, false, () => System.Threading.Tasks.Task.Run(() => {
+                bool ready = YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(measuredPlan, prepared, measuredCandidate, out _, out string reason);
+                return new FrontierPhysicalPlacementResult { success = ready, failure = reason };
+            }, physicalCancellation.Token));
+            while (!physicalWork.IsCompleted && Current()) yield return null;
+            if (!Current() || !string.Equals(measuredInput, MeasureStartupOperation("Frontier.Candidate.Recapture", () => JsonConvert.SerializeObject(staged, FrontierConstructionJsonSettings)), StringComparison.Ordinal))
+            { completed?.Invoke(null, "Frontier inputs changed during post-composition conformance."); yield break; }
+            var measuredResult = physicalWork.GetAwaiter().GetResult();
+            if (!measuredResult.success) { completed?.Invoke(null, measuredResult.failure); yield break; }
+            // note: Capture live mutable sources on this thread, then reuse the existing single owned worker for private decoding, union hashing and token-body rendering.
+            string previousJson = previous == null ? null : MeasureStartupOperation("Frontier.Accepted.CapturePrevious",
+                () => JsonConvert.SerializeObject(previous, FrontierConstructionJsonSettings));
+            string capturedWorldSeed = plan.worldSeed;
+            string capturedFootprintHash = previous == null ? YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(parent) : null;
+            physicalWork = FrontierWorkerLifetime.Observe(_frontierWorkerLifetimeOwner, false, () => System.Threading.Tasks.Task.Run(() => {
+                try
+                {
+                    string body = BuildFrontierAcceptedBody(previousJson, measuredInput, capturedWorldSeed, parentHash,
+                        capturedFootprintHash, proposalHash, physicalCancellation.Token);
+                    return new FrontierPhysicalPlacementResult { success = true, acceptedJson = body };
+                }
+                catch (Exception exception)
+                { return new FrontierPhysicalPlacementResult { failure = "Frontier accepted-union preparation failed: " + exception.Message }; }
+            }, physicalCancellation.Token));
+            while (!physicalWork.IsCompleted && Current()) yield return null;
+            if (!Current()) { completed?.Invoke(null, "Frontier accepted-union owner changed."); yield break; }
+            var acceptedResult = physicalWork.GetAwaiter().GetResult();
+            if (!acceptedResult.success) { completed?.Invoke(null, acceptedResult.failure); yield break; }
+            // note: Exact current-source traversals reject deep unrevisioned edits while the worker ran. The original full owner/checksum/provider gates still repeat inside token preparation and publication.
+            bool previousMatches = previous == null || MeasureStartupOperation("Frontier.Accepted.ComparePrevious",
+                () => YQProfileCommitStore.JsonEqualsCaptured(previous, previousJson, FrontierConstructionJsonSettings));
+            bool stagedMatches = MeasureStartupOperation("Frontier.Accepted.CompareStaged",
+                () => YQProfileCommitStore.JsonEqualsCaptured(staged, measuredInput, FrontierConstructionJsonSettings));
+            if (!previousMatches || !stagedMatches || !Current())
+            { completed?.Invoke(null, "Frontier accepted-union inputs changed during preparation."); yield break; }
+            // note: No code after this point consumes staged in-place acceptance edits; only the immutable token is returned, and layout cleanup retains its original owned dictionary.
+            var token = MeasureStartupOperation("Frontier.Accepted.IssueCaptured", () =>
+                FrontierConstructionAcceptance.IssueCaptured(world, previousFingerprint, acceptedResult.acceptedJson, FrontierConstructionIssuer));
+            bool admitted = false;
+            yield return token.PrepareOwnedRoutine(world, Current, (success, reason) => { admitted = success; failure = reason; }, _frontierWorkerLifetimeOwner);
+            if (!Current() || !admitted)
             { completed?.Invoke(null, failure.Length > 0 ? failure : "Frontier construction owner changed."); yield break; }
             completed?.Invoke(token, string.Empty);
         }
         finally
         {
+            // note: Retired owners cancel their numeric work; dispose only after the bounded worker has stopped using the token source.
+            physicalCancellation.Cancel();
+            if (physicalWork == null || physicalWork.IsCompleted) physicalCancellation.Dispose();
+            else FrontierWorkerLifetime.Observe(_frontierWorkerLifetimeOwner, true, () => physicalWork.ContinueWith(_ => physicalCancellation.Dispose(), System.Threading.Tasks.TaskScheduler.Default));
             // note: Cancellation retires only this owned inference request and releases the builder's single construction slot.
             if (!briefFinished && requestId > 0 && LLMClient.Instance != null)
                 LLMClient.Instance.CancelRequest(requestId, "Frontier construction retired.");
@@ -649,7 +980,6 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
     }
 
-    private const float MaximumAsyncInstantiateIntegrationMilliseconds = 2f;
 
     private static bool _initialGenerationLifecycleLocked;
 
@@ -661,7 +991,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static float _initialGenerationLastWatchdogUpdateAt = -1f;
     private static bool _initialGenerationDeadlineWarningIssued;
     private const float MaximumInitialGenerationStallSeconds = 120f;
-    private const float StartupHierarchyFrameBudgetSeconds = 0.0015f;
+    // note: Share the loading-only throughput budget; hierarchy results and gameplay slice limits stay unchanged.
+    private static float StartupHierarchyFrameBudgetSeconds => YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds;
 
     private const int MaxSkippedMissingScriptPrefabLogs =
         8;
@@ -765,14 +1096,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             int generatedNpcCount = plan.generatedNpcs != null
                 ? plan.generatedNpcs.Count
                 : 0;
-            bool populationReady = generatedNpcCount == 0 ||
-                _materializedGeneratedNpcCount == generatedNpcCount;
+            // note: This tracker qualifies every canonical plan obligation; visible/current provider actors have their own physical streamer gate.
+            bool populationCoverageReady = generatedNpcCount == 0 ||
+                _qualifiedGeneratedNpcPlanCount == generatedNpcCount;
             // note: Startup matches physically required settlements; V2 distant settlements remain owned by streaming.
             return ReferenceEquals(_builtWorldState, world) &&
                    ReferenceEquals(_builtPlan, plan) &&
                    string.Equals(_builtWorldSeed, plan.worldSeed, StringComparison.Ordinal) &&
                    _builtSettlementCount == settlementCount &&
-                   populationReady;
+                   populationCoverageReady;
         }
     }
 
@@ -991,7 +1323,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
      *  0 = world built but canonical population has not arrived yet
      * >0 = exact number of canonical NPC plan records materialized
      */
-    private int _materializedGeneratedNpcCount =
+    // note: Count qualified canonical NPC plan records, including explicitly delegated streamed casts; this is not a live actor census.
+    private int _qualifiedGeneratedNpcPlanCount =
         -1;
 
     private float _nextPopulationMaterializationRetryAt;
@@ -1071,16 +1404,6 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Instance =
             this;
 
-        // note: Unity integrates async-created objects and calls Awake on the main thread; cap that shared phase so streamed props cannot monopolize a frame.
-        float asyncInstantiateIntegrationMilliseconds =
-            UnityEngine.AsyncInstantiateOperation.GetIntegrationTimeMS();
-        if (!(asyncInstantiateIntegrationMilliseconds > 0f) ||
-            asyncInstantiateIntegrationMilliseconds > MaximumAsyncInstantiateIntegrationMilliseconds)
-        {
-            UnityEngine.AsyncInstantiateOperation.SetIntegrationTimeMS(
-                MaximumAsyncInstantiateIntegrationMilliseconds);
-        }
-
         // note: Register terrain as a profile-owned auxiliary snapshot before creation/continue saves can publish their next paired revision.
         EnsureProfileTerrainSnapshotProvider();
 
@@ -1144,15 +1467,18 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             out string loadedCandidate);
         string[] candidates = { _profileTerrainSnapshotJson, loadedCandidate };
         bool hasCurrentWorldIdentity = world != null && world.worldIdentity != null && plan != null;
-        string expectedFingerprint = hasCurrentWorldIdentity
-            ? YQStateContract.Sha256Hex(BuildVisualSignature(plan))
-            : string.Empty;
+        string expectedFingerprint;
+        // note: Retain the existing maximum-step evidence while exposing this provider cost to the native frame recorder.
+        using (FrontierTiming.Begin(FrontierTiming.Operation.TerrainFingerprint))
+            expectedFingerprint = hasCurrentWorldIdentity
+                ? MeasureStartupOperation("Final.TerrainFingerprint", () => YQStateContract.Sha256Hex(BuildVisualSignature(plan)))
+                : string.Empty;
 
         // note: Profile saves can run during shutdown or startup before world services are fully available; retain an owned snapshot then and let restore validate its world identity.
         for (int index = 0; index < candidates.Length; index++)
         {
             string candidate = candidates[index];
-            if (IsCompatibleProfileTerrainSnapshot(
+            if (IsCompatibleCachedProfileTerrainSnapshot(
                     candidate,
                     activeProfileId,
                     world,
@@ -1163,7 +1489,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         if (profileSystem.TryGetPriorAuxiliaryDocument(
                 YQGeneratedWorldTerrain.ProfileTerrainSnapshotDocumentId,
-                candidate => IsCompatibleProfileTerrainSnapshot(
+                candidate => IsCompatibleCachedProfileTerrainSnapshot(
                     candidate,
                     activeProfileId,
                     world,
@@ -1178,6 +1504,50 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         // note: Empty clears prior terrain only when no committed snapshot matches the active profile's current world identity and plan.
         return YQGeneratedWorldTerrain.CreateEmptyProfileSnapshotJson();
+    }
+
+    private sealed class ProfileTerrainCompatibilityMemo
+    {
+        internal readonly string json, profileId, worldOwner, worldId, seed, fingerprint;
+        internal readonly bool hasWorldIdentity, compatible;
+
+        internal ProfileTerrainCompatibilityMemo(string json, string profileId, bool hasWorldIdentity,
+            string worldOwner, string worldId, string seed, string fingerprint, bool compatible)
+        {
+            this.json = json; this.profileId = profileId; this.hasWorldIdentity = hasWorldIdentity;
+            this.worldOwner = worldOwner; this.worldId = worldId; this.seed = seed;
+            this.fingerprint = fingerprint; this.compatible = compatible;
+        }
+    }
+
+    private readonly ProfileTerrainCompatibilityMemo[] _profileTerrainCompatibilityMemos = new ProfileTerrainCompatibilityMemo[2];
+    private int _nextProfileTerrainCompatibilityMemo;
+
+    private bool IsCompatibleCachedProfileTerrainSnapshot(string candidate, string activeProfileId,
+        WorldState world, GeneratedWorldPlanRecord plan, string expectedFingerprint)
+    {
+        // note: Provider recapture still checks every live scalar input; only an identical immutable JSON declaration avoids repeated native decoding.
+        bool hasWorld = world != null && world.worldIdentity != null && plan != null;
+        string owner = hasWorld ? world.worldIdentity.ownerProfileId : null;
+        string worldId = hasWorld ? world.worldIdentity.worldId : null;
+        string seed = hasWorld ? plan.worldSeed : null;
+        for (int i = 0; i < _profileTerrainCompatibilityMemos.Length; i++)
+        {
+            var memo = _profileTerrainCompatibilityMemos[i];
+            if (memo != null && ReferenceEquals(memo.json, candidate) && memo.hasWorldIdentity == hasWorld &&
+                string.Equals(memo.profileId, activeProfileId, StringComparison.Ordinal) &&
+                string.Equals(memo.worldOwner, owner, StringComparison.Ordinal) &&
+                string.Equals(memo.worldId, worldId, StringComparison.Ordinal) &&
+                string.Equals(memo.seed, seed, StringComparison.Ordinal) &&
+                string.Equals(memo.fingerprint, expectedFingerprint, StringComparison.Ordinal)) return memo.compatible;
+        }
+
+        bool compatible = IsCompatibleProfileTerrainSnapshot(candidate, activeProfileId, world, plan, expectedFingerprint);
+        // note: This builder owns only two declaration results, never a global accepted-save or terrain-authority cache.
+        _profileTerrainCompatibilityMemos[_nextProfileTerrainCompatibilityMemo] = new ProfileTerrainCompatibilityMemo(
+            candidate, activeProfileId, hasWorld, owner, worldId, seed, expectedFingerprint, compatible);
+        _nextProfileTerrainCompatibilityMemo = (_nextProfileTerrainCompatibilityMemo + 1) % _profileTerrainCompatibilityMemos.Length;
+        return compatible;
     }
 
     // note: Carry terrain forward only when profile ownership and the exact accepted world plan still match.
@@ -1452,7 +1822,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         {
             if (generatedNpcCount > 0 &&
                 generatedNpcCount !=
-                    _materializedGeneratedNpcCount)
+                    _qualifiedGeneratedNpcPlanCount)
             {
                 if (_populationBuildInProgress)
                     return;
@@ -1537,6 +1907,90 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         BuildGeneratedWorld();
     }
 
+#if UNITY_EDITOR
+    // note: Lightweight explicit-proof counters avoid allocating native profiler frame histories while attributing startup work and waits.
+    public static readonly Dictionary<string, double> StartupWorkMilliseconds = new Dictionary<string, double>();
+    public static readonly Dictionary<string, double> StartupMaximumStepMilliseconds = new Dictionary<string, double>();
+    public static readonly Dictionary<string, double> StartupWaitMilliseconds = new Dictionary<string, double>();
+#endif
+    // note: Fixed Editor-only scopes attribute repeated publication gates without changing their execution or retaining frame histories.
+    internal static class FrontierPublicationDiagnostics
+    {
+        internal enum Operation
+        {
+            TokenIdentity, TokenDecode, TokenInputs, SiteFunctions, PopulationBindings,
+            ProfileDiskProof, WorldPrepare, WorldEquality, AuxiliaryCapture,
+            TerrainFingerprint, RevisionStage, ManifestPointer, WorkingProjection
+        }
+
+        internal readonly struct TimingScope : IDisposable
+        {
+#if UNITY_EDITOR
+            private readonly Unity.Profiling.ProfilerMarker.AutoScope scope;
+            internal TimingScope(Operation operation) => scope = MarkerHolder.Markers[(int)operation].Auto();
+#else
+            internal TimingScope(Operation operation) { }
+#endif
+            public void Dispose()
+            {
+#if UNITY_EDITOR
+                scope.Dispose();
+#endif
+            }
+        }
+
+        internal static TimingScope Begin(Operation operation) => new TimingScope(operation);
+#if UNITY_EDITOR
+        private static class MarkerHolder
+        {
+            internal static readonly string[] Names = {
+                "YQ.Frontier.TokenIdentity", "YQ.Frontier.TokenDecode", "YQ.Frontier.TokenInputs",
+                "YQ.Frontier.SiteFunctions", "YQ.Frontier.PopulationBindings", "YQ.Frontier.ProfileDiskProof",
+                "YQ.Frontier.WorldPrepare", "YQ.Frontier.WorldEquality", "YQ.Frontier.AuxiliaryCapture",
+                "YQ.Frontier.TerrainFingerprint", "YQ.Frontier.RevisionStage", "YQ.Frontier.ManifestPointer",
+                "YQ.Frontier.WorkingProjection"
+            };
+            internal static readonly Unity.Profiling.ProfilerMarker[] Markers = CreateMarkers();
+            private static Unity.Profiling.ProfilerMarker[] CreateMarkers()
+            {
+                var markers = new Unity.Profiling.ProfilerMarker[Names.Length];
+                for (int index = 0; index < markers.Length; index++) markers[index] = new Unity.Profiling.ProfilerMarker(Names[index]);
+                return markers;
+            }
+        }
+
+        internal static IReadOnlyList<string> Prime()
+        {
+            // note: Register all fixed handles before recorder discovery; these empty samples occur before recording starts.
+            for (int index = 0; index < MarkerHolder.Names.Length; index++)
+                using (Begin((Operation)index)) { }
+            return Array.AsReadOnly(MarkerHolder.Names);
+        }
+#endif
+    }
+
+#if UNITY_EDITOR
+    // note: The separate Editor assembly may prime diagnostics only; this API grants no publication or gameplay authority.
+    public static IReadOnlyList<string> PrimeFrontierPublicationProfilerMarkersForCpuCapture()
+        => FrontierPublicationDiagnostics.Prime();
+#endif
+
+    internal static T MeasureStartupOperation<T>(string name, Func<T> action)
+    {
+#if UNITY_EDITOR
+        // note: Attribute atomic handoff work separately from its enclosing iterator, without native profiler retention.
+        double started = Time.realtimeSinceStartupAsDouble;
+        try { return action(); }
+        finally
+        {
+            double ms = (Time.realtimeSinceStartupAsDouble - started) * 1000d;
+            StartupMaximumStepMilliseconds.TryGetValue(name, out double maximum);
+            if (ms > maximum) StartupMaximumStepMilliseconds[name] = ms;
+        }
+#else
+        return action();
+#endif
+    }
     // note: Own ordinary nested iterators explicitly, preserving Unity wait objects and bounding immediate scheduling work per frame.
     public static IEnumerator RunOwnedGenerationRoutine(IEnumerator routine, Action<Exception> failed)
     {
@@ -1546,22 +2000,43 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         pending.Push(routine);
         Exception failure = null;
         int immediateSteps = 0;
+        int workFrame = Time.frameCount;
+        double workStarted = Time.realtimeSinceStartupAsDouble;
         try
         {
             while (pending.Count > 0)
             {
-                if (++immediateSteps > 64)
+                // note: Only explicitly marked construction work is batched; retain a measured loading slice and the existing recursion guard.
+                if (workFrame != Time.frameCount) { workFrame = Time.frameCount; workStarted = Time.realtimeSinceStartupAsDouble; }
+                if (++immediateSteps > 64 || (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased && Time.realtimeSinceStartupAsDouble - workStarted >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds))
                 {
                     immediateSteps = 0;
                     yield return null;
+                    workFrame = Time.frameCount;
+                    workStarted = Time.realtimeSinceStartupAsDouble;
                 }
                 IEnumerator current = pending.Peek();
                 bool advanced;
                 object yielded;
                 try
                 {
+#if UNITY_EDITOR
+                    double startedAt = Time.realtimeSinceStartupAsDouble;
+#endif
                     advanced = current.MoveNext();
                     yielded = advanced ? current.Current : null;
+#if UNITY_EDITOR
+                    if (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+                    {
+                        string name = current.GetType().Name;
+                        StartupWorkMilliseconds.TryGetValue(name, out double previous);
+                        double elapsedMs = (Time.realtimeSinceStartupAsDouble - startedAt) * 1000d;
+                        StartupWorkMilliseconds[name] = previous + elapsedMs;
+                        // note: A cumulative total cannot distinguish many short slices from a single camera-freezing step; keep the observed maximum for an explicit lightweight census.
+                        StartupMaximumStepMilliseconds.TryGetValue(name, out double maximum);
+                        if (elapsedMs > maximum) StartupMaximumStepMilliseconds[name] = elapsedMs;
+                    }
+#endif
                 }
                 catch (Exception exception)
                 {
@@ -1588,9 +2063,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     continue;
                 }
 
+                if (ReferenceEquals(yielded, YQGeneratedWorldPerformanceDirector.LoadingWorkBoundaryToken)) continue;
                 // note: Null, async operations, WaitForSeconds and custom Unity waits retain their original scheduling semantics.
                 immediateSteps = 0;
+#if UNITY_EDITOR
+                double waitStarted = Time.realtimeSinceStartupAsDouble;
+#endif
                 yield return yielded;
+#if UNITY_EDITOR
+                if (!YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
+                {
+                    string name = current.GetType().Name;
+                    StartupWaitMilliseconds.TryGetValue(name, out double previous);
+                    StartupWaitMilliseconds[name] = previous + (Time.realtimeSinceStartupAsDouble - waitStarted) * 1000d;
+                }
+#endif
             }
         }
         finally
@@ -1644,7 +2131,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return;
 
         // note: Unexpected NPC construction errors require explicit retry instead of repeating the same exception every two seconds.
-        _materializedGeneratedNpcCount = -1;
+        _qualifiedGeneratedNpcPlanCount = -1;
         _nextPopulationMaterializationRetryAt = float.PositiveInfinity;
         if (IsInitialGenerationGameplayLocked)
         {
@@ -1701,18 +2188,19 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             if (populationBuilt && contextStillCurrent &&
                 currentNpcCount == expectedNpcCount)
             {
-                _materializedGeneratedNpcCount = expectedNpcCount;
+                _qualifiedGeneratedNpcPlanCount = expectedNpcCount;
                 _nextPopulationMaterializationRetryAt = 0f;
 
                 Debug.Log(
                     "[YQGeneratedWorldRuntimeBuilder] " +
-                    "Canonical population materialized cooperatively in-place: " +
+                    "Canonical population placement obligations qualified cooperatively in-place: " +
                     expectedNpcCount +
-                    " NPC plan records.");
+                    " NPC plan records; living actors delegated to reviewed streamed sites=" +
+                    YQGeneratedWorldPopulation.LastBuildDeferredLivingNpcCount + ".");
             }
             else if (contextStillCurrent)
             {
-                _materializedGeneratedNpcCount = -1;
+                _qualifiedGeneratedNpcPlanCount = -1;
                 // note: A failed or superseded population pass retries at a bounded cadence without rebuilding actors every frame.
                 _nextPopulationMaterializationRetryAt =
                     Time.unscaledTime + 2f;
@@ -2277,6 +2765,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
 
             // note: A restored snapshot already contains finalized road grades. Solving again from those modified heights shifts accepted terrain on every Continue.
+            // note: The committed heightfield includes the origin clearing and later construction/road grades. Reapplying the clearing here overwrites accepted geometry on Continue.
 
             YQStartupLoadingScreen.SetGenerationWorkStage(
                 "Painting the terrain",
@@ -2646,12 +3135,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     " prepared site(s) will materialize off-camera after gameplay unlock.");
             }
 
-            /*
-             * Population is WORLD-level materialization.
-             *
-             * Every settlement must already exist before residents and
-             * hostile leaders are placed.
-             */
+            // note: Accepted compiled settlements/camps own their saved cast when geometry streams; ordinary sites still materialize here on their actual floors.
             int generatedNpcCount =
                 plan.generatedNpcs != null
                     ? plan.generatedNpcs.Count
@@ -2685,7 +3169,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     success => populationBuilt = success);
                 TouchInitialGenerationWatchdog();
 
-                _materializedGeneratedNpcCount =
+                _qualifiedGeneratedNpcPlanCount =
                     populationBuilt
                         ? generatedNpcCount
                         : -1;
@@ -2698,9 +3182,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 {
                     Debug.Log(
                         "[YQGeneratedWorldRuntimeBuilder] " +
-                        "Canonical population materialized after world build: " +
+                        "Canonical population placement obligations qualified after world build: " +
                         generatedNpcCount +
-                        " NPC plan records.");
+                        " NPC plan records; living actors delegated to reviewed streamed sites=" +
+                        YQGeneratedWorldPopulation.LastBuildDeferredLivingNpcCount + ".");
                 }
                 else
                 {
@@ -2718,7 +3203,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                  * Update() will perform one in-place population pass when
                  * generatedNpcs becomes available.
                  */
-                _materializedGeneratedNpcCount =
+                _qualifiedGeneratedNpcPlanCount =
                     0;
             }
 
@@ -2817,8 +3302,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
             // note: Persist the semantic presentation fingerprint so a later curated genre/palette shift triggers one deterministic rebuild.
             _builtVisualSignature =
-                BuildVisualSignature(
-                    plan);
+                MeasureStartupOperation("Final.VisualSignature", () => BuildVisualSignature(plan));
 
             if (_worldMaterializationFailed)
             {
@@ -2898,6 +3382,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     "Route integrity valid: " +
                     routeIntegrityReady + "\n" +
 
+                    // note: Keep the failed route category in the final rejection users copy; the detailed first witnesses still identify the physical collider and coordinates.
+                    "Route missing ground / excessive rises / traversal issues: " +
+                    (routeIntegrity != null ? routeIntegrity.missingGroundPoints + "/" +
+                        routeIntegrity.impassableHeightSteps + "/" + routeIntegrity.traversalIssueSamples : "no report") + "\n" +
+
+                    "Route measurement complete / clearance saturations / blockers: " +
+                    (routeIntegrity != null ? routeIntegrity.traversalMeasurementComplete + "/" +
+                        routeIntegrity.clearanceQuerySaturations + "/" + routeIntegrity.unresolvedStructuralBlockers : "no report") + "\n" +
+
                     "Hostile sites ready: " +
                     hostileSitesReady + "\n" +
 
@@ -2944,7 +3437,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord capturedRecord = null;
                     try
                     {
-                        capturedRecord = JsonUtility.FromJson<YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord>(capturedTerrainJson);
+                        capturedRecord = MeasureStartupOperation("Final.SnapshotDecode", () => JsonUtility.FromJson<YQGeneratedWorldTerrain.ProfileTerrainSnapshotRecord>(capturedTerrainJson));
                     }
                     catch (ArgumentException)
                     {
@@ -2963,7 +3456,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                         bool profileTerrainChanged = restoredProfileTerrainFromPriorRevision ||
                             !restoredProfileTerrain ||
                             !string.Equals(loadedProfileTerrainChecksum, capturedRecord.heightmapChecksum, StringComparison.OrdinalIgnoreCase);
-                        if (profileTerrainChanged && !profileSystem.SaveActiveProfile())
+                        if (profileTerrainChanged && !MeasureStartupOperation("Final.PairedSave", () => profileSystem.SaveActiveProfile()))
                         {
                             _worldMaterializationFailed = true;
                             _lastMaterializationDecision = "rejected: profile terrain commit failed: " + profileSystem.LastFailure;
@@ -2995,11 +3488,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             // note: A persisted canonical plan with valid terrain must keep its continuation owner even when a downstream route/site gate rejects playability; otherwise the original 1024m terrain becomes an artificial world edge.
             if (!_worldMaterializationFailed || canonicalContinuationReady)
             {
-                YQPlayerFollowingSemanticChunkStreamer.Attach(
-                    _runtimeRoot.transform,
-                    world,
-                    plan,
-                    _generatedTerrain);
+                YQPlayerFollowingSemanticChunkStreamer attachedStreamer = null;
+                yield return YQPlayerFollowingSemanticChunkStreamer.AttachRoutine(
+                    _runtimeRoot.transform, world, plan, _generatedTerrain, value => attachedStreamer = value);
+                if (attachedStreamer == null || !IsCurrentBuildContext(world, plan))
+                    throw new InvalidOperationException("Startup streaming bind was interrupted before its complete cell index was ready.");
                 if (_worldMaterializationFailed)
                     Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Continuation streamer retained after downstream validation rejection; canonical terrain remains explorable while the rejected gate is repaired.");
             }
@@ -3038,8 +3531,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 "Canonical NPC records: " +
                 generatedNpcCount +
                 "\n" +
-                "Canonical NPCs materialized: " +
-                _materializedGeneratedNpcCount +
+                "Canonical NPC plan obligations qualified: " +
+                _qualifiedGeneratedNpcPlanCount +
                 "\n" +
                 "Terrain size: " +
                 YQGeneratedWorldTerrain.WorldSize +
@@ -3083,9 +3576,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         GeneratedWorldPlanRecord plan,
         Action<bool, string> completed)
     {
-        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
-                plan, out YQPreparedSpatialMaterializationV2 prepared,
-                out string failure))
+        YQPreparedSpatialMaterializationV2 prepared = null;
+        string failure = string.Empty;
+        if (!MeasureStartupOperation("Preflight.Projection", () => YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure)))
         {
             completed?.Invoke(false, failure);
             yield break;
@@ -3095,6 +3588,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         var owners = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         // note: Alternative bindings become authoritative together only after every required site passes; a failed V2 probe leaves V1 bindings intact.
         var acceptedBindings = new List<Action>();
+        YQCompiledWorldSiteInstance.ContinuationReplayProof replayProof = null;
         _resolvedSemanticCompositionSeedsV2.Clear();
         for (int index = 0; index < prepared.SiteCount; index++)
         {
@@ -3108,8 +3602,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             var continued = FindAcceptedContinuationLocation(plan, anchor);
             if (continued != null)
             {
+                // note: Validate once for this preflight, then recheck exact contents at each cooperative boundary; every saved location still gets its provider and population checks.
+                replayProof ??= MeasureStartupOperation("Preflight.ReplayProof", () => YQCompiledWorldSiteInstance.ContinuationReplayProof.Create(plan, prepared, out failure));
                 // note: Saved frontier payloads replay their committed provider/seed/layout; base synthetic fallback and kit reselection cannot inspect them.
-                if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationReplay(plan, continued, prepared, out _, out failure) ||
+                if (replayProof == null || !YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationReplay(plan, continued, prepared, out _, out failure, replayProof) ||
                     !YQGeneratedWorldPopulation.TryValidateContinuationPopulationBindings(plan, world, continued,
                         YQRuntimeWorldAssetRegistry.Instance, out failure))
                 {
@@ -3150,8 +3646,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     siteRegion = region;
                     sitePalette = palette;
                     bound = region != null && palette != null &&
-                        YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
-                            plan, settlement, region, palette, out record, out bindingChanged, persistBinding: false);
+                        MeasureStartupOperation("Preflight.SettlementBinding", () => YQCompiledWorldSiteBindingService.TryResolveSettlementSite(
+                            plan, settlement, region, palette, out record, out bindingChanged, persistBinding: false));
                     tags = YQCompiledWorldSiteBindingService.BuildSettlementSemanticSliceTags(settlement);
                     seed = SettlementSeed(settlement);
                     displayName = settlement.displayName;
@@ -3173,8 +3669,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     siteRegion = region;
                     sitePalette = palette;
                     bound = region != null && palette != null &&
-                        YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
-                            plan, encampment, region, palette, out record, out bindingChanged, persistBinding: false);
+                        MeasureStartupOperation("Preflight.EncampmentBinding", () => YQCompiledWorldSiteBindingService.TryResolveEncampmentSite(
+                            plan, encampment, region, palette, out record, out bindingChanged, persistBinding: false));
                     tags = YQCompiledWorldSiteBindingService.BuildEncampmentSemanticSliceTags(encampment);
                     seed = !string.IsNullOrWhiteSpace(encampment.proceduralLayout?.seed) ? encampment.proceduralLayout.seed : !string.IsNullOrWhiteSpace(encampment.deterministicSeed)
                         ? encampment.deterministicSeed : encampment.encampmentId;
@@ -3373,6 +3869,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         GeneratedSpatialWorldPlanV2Record previousArtifact =
             plan.spatialPlanV2;
+        // note: Warm the unchanged full accepted-artifact gate on detached numeric data so returning-journey presentation keeps advancing during validation.
+        yield return YQSpatialPlanVersionRouter.WarmAcceptedValidationRoutine(plan,
+            () => IsCurrentWorldPlanReference(world, plan) && ReferenceEquals(plan.spatialPlanV2, previousArtifact));
+        if (!IsCurrentWorldPlanReference(world, plan) || !ReferenceEquals(plan.spatialPlanV2, previousArtifact))
+        { completed?.Invoke(false); yield break; }
         bool acceptedV2 =
             YQSpatialPlanVersionRouter.TryValidateAcceptedV2(
                 plan,
@@ -3398,12 +3899,32 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
 
             string preparationFailure = string.Empty;
+            bool waterPrepared = false;
+            // note: Native water raster preparation is detached numeric work; await it through this build owner before the unchanged projection/acceptance gate consumes the result.
+            yield return YQSpatialBlueprintTerrainSamplerV2.WarmMaterializedWaterRoutine(plan,
+                () => IsCurrentWorldPlanReference(world, plan) && ReferenceEquals(plan.spatialPlanV2, previousArtifact),
+                (ready, reason) => { waterPrepared = ready; preparationFailure = reason; });
+            if (!waterPrepared)
+            {
+                Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Accepted water preparation failed: " + preparationFailure);
+                completed?.Invoke(false);
+                yield break;
+            }
+            TouchInitialGenerationWatchdog();
+            YQSpatialMaterializationCompilerV2.StartupPreparation startupProjection = null;
+            // note: Prepare a detached saved projection without blocking presentation; provider checks and resolver publication stay on the existing owner.
+            yield return YQSpatialMaterializationCompilerV2.StartupPreparation.PrepareRoutine(plan,
+                () => IsCurrentWorldPlanReference(world, plan) && ReferenceEquals(plan.spatialPlanV2, previousArtifact),
+                (prepared, reason) => { startupProjection = prepared; preparationFailure = reason; });
+            if (startupProjection == null)
+            {
+                Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Startup projection preparation rejected: " + preparationFailure);
+                completed?.Invoke(false);
+                yield break;
+            }
             if (IsCurrentWorldPlanReference(world, plan) &&
                 ReferenceEquals(plan.spatialPlanV2, previousArtifact) &&
-                YQSpatialMaterializationResolverV2.TryGetPrepared(
-                    plan,
-                    out _,
-                    out preparationFailure))
+                YQSpatialMaterializationResolverV2.TryInstallStartupPreparation(plan, startupProjection, out preparationFailure))
             {
                 YQWorldGenerationArchitecture.LockRuntimeAuthority(
                     plan,
@@ -3822,10 +4343,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             YQGeneratedNpcPlanningService.Instance;
 
         if (canonicalNpcCount > 0 &&
-            _materializedGeneratedNpcCount !=
+            _qualifiedGeneratedNpcPlanCount !=
                 canonicalNpcCount)
         {
-            // note: NPC records are not enough; generated people/threats must be physically placed before reveal.
+            // note: Every saved cast requires local placement or validated delegation; the visible streamer envelope separately waits for actual provider actors.
             YQStartupLoadingScreen.SetGenerationStage(
                 string.Empty,
                 0.94f);
@@ -3877,8 +4398,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     plan.worldSeed +
     "\nSettlement stream roots prepared: " +
     _builtSettlementCount +
-    "\nCanonical NPCs materialized: " +
-    _materializedGeneratedNpcCount);
+    "\nCanonical NPC plan obligations qualified: " +
+    _qualifiedGeneratedNpcPlanCount);
 
         /*
  * This is the ONLY successful initial-generation unlock point.
@@ -3897,8 +4418,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             _builtWorldSeed +
             "\nCanonicalNpcCount=" +
             canonicalNpcCount +
-            "\nMaterializedNpcCount=" +
-            _materializedGeneratedNpcCount +
+            "\nQualifiedNpcPlanCount=" +
+            _qualifiedGeneratedNpcPlanCount +
             "\nNpcGenerationEnabled=" +
             (npcPlanner != null &&
              npcPlanner.enableNpcGeneration) +
@@ -4574,7 +5095,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         _builtVisualSignature =
             string.Empty;
 
-        _materializedGeneratedNpcCount =
+        _qualifiedGeneratedNpcPlanCount =
             -1;
 
         _nextPopulationMaterializationRetryAt = 0f;
@@ -4612,7 +5133,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         _builtVisualSignature =
             string.Empty;
 
-        _materializedGeneratedNpcCount =
+        _qualifiedGeneratedNpcPlanCount =
             -1;
 
         _nextPopulationMaterializationRetryAt = 0f;
@@ -4761,6 +5282,23 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         paths.Add(
             YQRuntimeCreatureAssetIndex
                 .CreaturePackAnchorPath);
+
+        // note: Granular Resources no longer warm an entire creature pack from its anchor. Replay must await its selected DOT leaves before preflight.
+        var continuation = plan.spatialPlanV2?.acceptedContinuation;
+        if (continuation?.locations != null)
+        {
+            foreach (var location in continuation.locations)
+            {
+                if (location?.encampment == null || location.population == null) continue;
+                foreach (var npc in location.population)
+                {
+                    if (npc == null || !npc.hostile) continue;
+                    if (YQDotCreatureCatalog.TrySelectPrefabPath(location.encampment.monsterFamily, "monster",
+                            plan.worldSeed + "|encampment_leader|" + npc.npcId, out string path, out _) && unique.Add(path))
+                        paths.Add(path);
+                }
+            }
+        }
 
         string[] slots =
         {
@@ -5273,22 +5811,22 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 // note: Expected content exhaustion rejects this candidate through its owner's cleanup path, before creating a partial modular shell.
                 if (!HasSupportedFallbackRecipe(settlement, palette, seed, lot.purpose))
                     return false;
-                BuildModularBuildingLot(
+                if (!BuildModularBuildingLot(
                     parent,
                     settlement,
                     palette,
                     registry,
                     seed,
                     i,
-                    lot);
+                    lot)) return false;
 
-                BuildLotPurposeDressing(
+                if (!BuildLotPurposeDressing(
                     parent,
                     settlement,
                     palette,
                     registry,
                     lot,
-                    i);
+                    i)) return false;
 
                 spawned++;
                 continue;
@@ -5324,22 +5862,22 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 // note: Only after every whole-building candidate fails may a complete supported modular recipe be attempted.
                 if (!HasSupportedFallbackRecipe(settlement, palette, seed, lot.purpose))
                     return false;
-                BuildModularBuildingLot(
+                if (!BuildModularBuildingLot(
                     parent,
                     settlement,
                     palette,
                     registry,
                     seed,
                     i,
-                    lot);
+                    lot)) return false;
 
-                BuildLotPurposeDressing(
+                if (!BuildLotPurposeDressing(
                     parent,
                     settlement,
                     palette,
                     registry,
                     lot,
-                    i);
+                    i)) return false;
 
                 spawned++;
                 continue;
@@ -5375,23 +5913,26 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             GroundInstance(
                 instance);
 
-            BuildLotPurposeDressing(
+            // note: Imported pivots and overhanging bounds can violate an otherwise valid lot; try small deterministic adjustments before rejecting the complete candidate.
+            if (!TryKeepSettlementBuildingClear(instance, parent)) return false;
+
+            if (!BuildLotPurposeDressing(
                 parent,
                 settlement,
                 palette,
                 registry,
                 lot,
-                i);
+                i)) return false;
 
             spawned++;
         }
 
-        BuildSettlementLandmark(
+        if (!BuildSettlementLandmark(
             parent,
             plan,
             settlement,
             palette,
-            registry);
+            registry)) return false;
 
         bool presentationValid = ValidateSettlementPresentation(
             parent,
@@ -5452,17 +5993,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         for (int first = 0; first < buildingBounds.Count; first++)
         {
             Bounds a = buildingBounds[first];
-            a.Expand(new Vector3(-0.8f, 0f, -0.8f));
 
             for (int second = first + 1; second < buildingBounds.Count; second++)
             {
                 Bounds b = buildingBounds[second];
-                b.Expand(new Vector3(-0.8f, 0f, -0.8f));
 
                 // note: Presentation validation ignores vertical terrain separation and checks only whether reserved architectural footprints collide.
-                bool horizontalOverlap =
-                    a.min.x < b.max.x && a.max.x > b.min.x &&
-                    a.min.z < b.max.z && a.max.z > b.min.z;
+                bool horizontalOverlap = YQContinuousWorldFeatureMaterializer.ArchitecturalFootprintsOverlap(a, b);
 
                 if (horizontalOverlap)
                     overlaps++;
@@ -5653,7 +6190,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                    StringComparison.OrdinalIgnoreCase);
     }
 
-    private void BuildLotPurposeDressing(
+    private bool BuildLotPurposeDressing(
         Transform parent,
         GeneratedSettlementRecord settlement,
         GeneratedRegionAssetPaletteRecord palette,
@@ -5662,7 +6199,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         int lotIndex)
     {
         if (parent == null || palette == null || registry == null)
-            return;
+            return false;
 
         string purpose = (lot.purpose ?? string.Empty).ToLowerInvariant();
         string seed = SettlementSeed(settlement) + ":district:" + lotIndex;
@@ -5700,7 +6237,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         if (anchor == null && accent == null)
-            return;
+            return true;
 
         GameObject districtRoot = new GameObject("DistrictFrontage_" + lotIndex + "__" + SafeName(lot.purpose));
         districtRoot.transform.SetParent(parent, false);
@@ -5708,7 +6245,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         districtRoot.transform.localRotation = Quaternion.Euler(0f, lot.yaw, 0f);
 
         // note: A frontage uses at most two role-readable props at fixed authored sockets; it is not an ambient scatter pass.
-        SpawnRegisteredAsset(
+        GameObject anchorInstance = SpawnRegisteredAsset(
             districtRoot.transform,
             "POI_Anchor__" + SafeName(lot.purpose),
             anchor,
@@ -5716,10 +6253,11 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             Quaternion.identity,
             registry,
             false);
+        if (anchorInstance != null && !TryKeepSettlementBuildingClear(anchorInstance, districtRoot.transform, true)) return false;
 
         if (accent != null && !ReferenceEquals(anchor, accent))
         {
-            SpawnRegisteredAsset(
+            GameObject accentInstance = SpawnRegisteredAsset(
                 districtRoot.transform,
                 "POI_Accent__" + SafeName(lot.purpose),
                 accent,
@@ -5727,7 +6265,9 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 Quaternion.identity,
                 registry,
                 false);
+            if (accentInstance != null && !TryKeepSettlementBuildingClear(accentInstance, districtRoot.transform, true)) return false;
         }
+        return TryKeepSettlementBuildingClear(districtRoot, parent);
     }
 
     private static GeneratedAssetReferenceRecord FindSemanticPaletteAsset(
@@ -5783,7 +6323,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return matches[index];
     }
 
-    private void BuildModularBuildingLot(
+    private bool BuildModularBuildingLot(
         Transform parent,
         GeneratedSettlementRecord settlement,
         GeneratedRegionAssetPaletteRecord palette,
@@ -5841,6 +6381,37 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 settlement);
 
         GroundInstance(modularRoot);
+        return TryKeepSettlementBuildingClear(modularRoot, parent);
+    }
+
+    private bool TryKeepSettlementBuildingClear(GameObject building, Transform parent, bool allSiblings = false)
+    {
+        // note: Check separate settlement roots or separate frontage props; walls/roofs within one authored assembly retain their intentional contacts.
+        Vector3 original = building.transform.position;
+        for (int attempt = 0; attempt < 17; attempt++)
+        {
+            float angle = (attempt - 1) % 8 * Mathf.PI * .25f;
+            float distance = attempt == 0 ? 0f : attempt <= 8 ? .75f : 1.5f;
+            building.transform.position = original + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * distance;
+            GroundInstance(building);
+            if (!TryGetRenderableBounds(building, out Bounds bounds)) continue;
+            bool intersects = false;
+            for (int index = 0; index < parent.childCount; index++)
+            {
+                GameObject other = parent.GetChild(index).gameObject;
+                if (other == building || !allSiblings &&
+                    !other.name.StartsWith("SettlementBuilding_", StringComparison.Ordinal) &&
+                    !other.name.StartsWith("DistrictFrontage_", StringComparison.Ordinal) &&
+                    !other.name.StartsWith("SettlementLandmark", StringComparison.Ordinal)) continue;
+                if (TryGetRenderableBounds(other, out Bounds otherBounds) &&
+                    YQContinuousWorldFeatureMaterializer.ArchitecturalFootprintsOverlap(bounds, otherBounds))
+                { intersects = true; break; }
+            }
+            if (!intersects) return true;
+        }
+        building.transform.position = original;
+        Debug.LogWarning("[YQGeneratedWorldRuntimeBuilder] Settlement asset cannot clear neighboring footprints: " + building.name);
+        return false;
     }
 
     private static void NormalizeCuratedBuildingCellScale(
@@ -6620,7 +7191,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     // LANDMARK
     // ------------------------------------------------------------
 
-    private void BuildSettlementLandmark(
+    private bool BuildSettlementLandmark(
         Transform parent,
         GeneratedWorldPlanRecord plan,
         GeneratedSettlementRecord settlement,
@@ -6641,7 +7212,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     seed);
 
         if (reference == null)
-            return;
+            return true;
 
         YQGeneratedSettlementCellLayout.Template template =
             YQGeneratedSettlementCellLayout.ResolveTemplate(
@@ -6653,10 +7224,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 template))
         {
             // note: Cave mouths, generic ruins, and military props remain valid POIs but cannot be dropped into a civilian plaza as civic landmarks.
-            return;
+            return true;
         }
 
-        SpawnRegisteredAsset(
+        GameObject landmark = SpawnRegisteredAsset(
             parent,
             "SettlementLandmark",
             reference,
@@ -6671,6 +7242,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 0f),
             registry,
             true);
+        return landmark == null || TryKeepSettlementBuildingClear(landmark, parent);
     }
 
     private static bool IsCoherentSettlementLandmark(
@@ -7602,6 +8174,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         bool prepared = true;
+        // note: Reconcile accepted river beds before foundations and connected roads establish their final grades; restored finalized snapshots skip this construction pass.
+        yield return YQGeneratedWorldEnvironment.ReconcileRuntimeRiverBedsRoutine(terrain, plan);
         YQPreparedSpatialMaterializationV2 materializationV2 = null;
         YQSpatialBlueprintTerrainSamplerV2 constructionTerrainSampler = null;
         // note: Keep the preflight's exact choices: terrain construction must not reroll districts in a different settlement/hostile iteration order.
@@ -7642,17 +8216,22 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 originAnchor,
                 0f));
         // note: The origin's occupancy reserve is not a foundation; only the authored summit and house core prevent road earthworks.
+        Vector3 originSummit = originAnchor + OriginGoddessSummitOffset;
+        if (materializationV2 != null && !YQGeneratedWorldLayout.TryResolveDryGoddessSummit(materializationV2, out originSummit))
+        {
+            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] No dry origin shrine footprint clears accepted water, routes and sites.");
+            completed?.Invoke(false);
+            yield break;
+        }
         pathTerrainReservations.Add(new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
-            originAnchor + OriginGoddessSummitOffset, 7f));
+            originSummit, 7f));
         pathTerrainReservations.Add(
             new YQGeneratedWorldEnvironment.LivedPathTerrainReservation(
                 originAnchor + OriginWitchHouseOffset,
                 15f));
 
-        // note: Messenger Mountain authored the Goddess 23.7 metres above its source datum; reproduce that relief instead of flattening the shrine and leaving its statue suspended in the air.
-        prepared &= GradeOriginGoddessRelief(
-            terrain,
-            originAnchor);
+        // note: The compact authored shrine and hut share a walkable bank instead of reproducing the source map's detached mountain elevation.
+        prepared &= GradeOriginClearing(terrain, plan);
         yield return null;
         // note: The furnished Witch House occupies a compact shelf cut into the approach face of the Goddess ridge instead of a detached oversized pad.
         prepared &= GradeTerrainPad(
@@ -9255,6 +9834,97 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         return origin.y + data.GetInterpolatedHeight(normalizedX, normalizedZ);
     }
 
+    internal static bool GradeOriginClearing(Terrain terrain, GeneratedWorldPlanRecord plan)
+    {
+        if (terrain == null || terrain.terrainData == null || plan == null) return false;
+        if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
+            return GradeOriginGoddessRelief(terrain, YQGeneratedWorldLayout.GetVeyOriginAnchor());
+        if (
+            !YQGeneratedWorldTerrain.TryCreateV2HeightSampler(plan, out var sampler, out _) ||
+            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out _))
+            return false;
+
+        // note: Recompute this bounded repair from accepted terrain inputs, never from a previously graded heightmap; repeated Continue remains idempotent.
+        if (!YQGeneratedWorldLayout.TryResolveDryGoddessSummit(prepared, out Vector3 drySummit)) return false;
+        Vector3 center = drySummit + new Vector3(4f, 0f, 11f);
+        TerrainData data = terrain.terrainData;
+        Vector3 origin = terrain.transform.position, size = data.size;
+        float datum = origin.y + sampler.SampleNormalized(center.x, center.z) * size.y;
+        for (int water = 0; water < prepared.WaterCount; water++)
+        {
+            for (int point = 0; point + 1 < prepared.GetWaterPointCount(water); point++)
+            {
+                var a = prepared.GetWaterPoint(water, point);
+                var b = prepared.GetWaterPoint(water, point + 1);
+                Vector2 start = new Vector2(a.x, a.z), delta = new Vector2(b.x - a.x, b.z - a.z);
+                float t = delta.sqrMagnitude > .001f ? Mathf.Clamp01(Vector2.Dot(new Vector2(center.x, center.z) - start, delta) / delta.sqrMagnitude) : 0f;
+                if (Vector2.Distance(start + delta * t, new Vector2(center.x, center.z)) < 84f)
+                    datum = Mathf.Max(datum, origin.y + Mathf.Lerp(a.waterSurfaceNormalized, b.waterSurfaceNormalized, t) * size.y + 1.2f);
+            }
+        }
+        int resolution = data.heightmapResolution;
+        int x0 = Mathf.Clamp(Mathf.FloorToInt((center.x - 84f - origin.x) / size.x * (resolution - 1)), 0, resolution - 1);
+        int z0 = Mathf.Clamp(Mathf.FloorToInt((center.z - 84f - origin.z) / size.z * (resolution - 1)), 0, resolution - 1);
+        int x1 = Mathf.Clamp(Mathf.CeilToInt((center.x + 84f - origin.x) / size.x * (resolution - 1)), 0, resolution - 1);
+        int z1 = Mathf.Clamp(Mathf.CeilToInt((center.z + 84f - origin.z) / size.z * (resolution - 1)), 0, resolution - 1);
+        float[,] heights = data.GetHeights(x0, z0, x1 - x0 + 1, z1 - z0 + 1);
+        for (int z = 0; z < heights.GetLength(0); z++)
+        for (int x = 0; x < heights.GetLength(1); x++)
+        {
+            float wx = origin.x + (x0 + x) / (float)(resolution - 1) * size.x;
+            float wz = origin.z + (z0 + z) / (float)(resolution - 1) * size.z;
+            float distance = Vector2.Distance(new Vector2(wx, wz), new Vector2(center.x, center.z));
+            if (distance >= 84f) continue;
+            float weight = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(36f, 84f, distance));
+            // note: Keep the accepted river bed and a graded shoreline; the clearing must not dam or conceal the origin river.
+            if (YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(prepared, wx, wz, out _, out float bank, out bool wet))
+                weight *= wet ? 0f : Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(4f, 8f, bank));
+            float baseline = sampler.SampleNormalized(wx, wz);
+            heights[z, x] = Mathf.Lerp(baseline, Mathf.Clamp01((datum - origin.y) / size.y), weight);
+        }
+        data.SetHeightsDelayLOD(x0, z0, heights);
+        data.SyncHeightmap();
+        return true;
+    }
+
+    private static IEnumerator RestoreAuthoredOriginDressingRoutine(GameObject parent)
+    {
+        YQTitleEnvironmentScene title = FindFirstObjectByType<YQTitleEnvironmentScene>();
+        Transform stage = null;
+        if (title != null)
+            foreach (GameObject root in title.gameObject.scene.GetRootGameObjects())
+                if (root.name == "01__BakedGoddessShrine") stage = root.transform;
+        if (stage == null)
+        {
+            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Authored loading-screen shrine composition is unavailable.");
+            yield break;
+        }
+        Transform sourceStatue = stage.Find("Title_SM_AngelStatue_02");
+        Transform statue = parent.transform.Find("SM_AngelStatue_Origin");
+        if (sourceStatue == null || statue == null) yield break;
+        float compositionScale = statue.localScale.x / Mathf.Max(.01f, sourceStatue.localScale.x);
+        for (int index = 0; index < stage.childCount; index++)
+        {
+            Transform source = stage.GetChild(index);
+            if (source == sourceStatue || !source.name.StartsWith("Title_", StringComparison.Ordinal)) continue;
+            // note: Copy the authored thirteen-piece composition's dressing only, preserving source relative poses and existing URP materials.
+            GameObject instance = UnityEngine.Object.Instantiate(source.gameObject, parent.transform);
+            instance.name = "Origin_" + source.name.Substring(6);
+            instance.transform.SetPositionAndRotation(statue.position + (source.position - sourceStatue.position) * compositionScale, source.rotation);
+            instance.transform.localScale = source.localScale * compositionScale;
+            foreach (Transform child in instance.GetComponentsInChildren<Transform>(true)) child.gameObject.layer = 0;
+            foreach (Renderer renderer in instance.GetComponentsInChildren<Renderer>(true))
+            {
+                // note: Baked title lighting belongs to its original scene coordinates; gameplay uses its own sun and ambient lighting.
+                renderer.lightmapIndex = -1;
+                renderer.realtimeLightmapIndex = -1;
+            }
+            instance.isStatic = false;
+            yield return null;
+        }
+        Debug.Log("[YQGeneratedWorldRuntimeBuilder] AUTHORED ORIGIN DRESSING restored from retained title shrine.");
+    }
+
     private static bool GradeOriginGoddessRelief(
         Terrain terrain,
         Vector3 originAnchor)
@@ -10075,6 +10745,16 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         Vector3 originAnchor = YQGeneratedWorldLayout.GetVeyOriginAnchor();
+        Vector3 drySummit = originAnchor + OriginGoddessSummitOffset;
+        GeneratedWorldPlanRecord originPlan = WorldStateManager.Instance != null ? WorldStateManager.Instance.State.generatedWorldPlan : null;
+        if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(originPlan) &&
+            (!YQSpatialMaterializationResolverV2.TryGetPrepared(originPlan, out var originPrepared, out _) ||
+             !YQGeneratedWorldLayout.TryResolveDryGoddessSummit(originPrepared, out drySummit)))
+        {
+            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Origin shrine has no dry, unobstructed arrival footprint.");
+            completed?.Invoke(false);
+            yield break;
+        }
 
         if (generatedTerrain != null)
         {
@@ -10102,12 +10782,13 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (mountainPrepared)
         {
             statue.name = "SM_AngelStatue_Origin";
-            statue.transform.localPosition = OriginGoddessSummitOffset;
-            statue.transform.localRotation = Quaternion.identity;
+            statue.transform.localPosition = drySummit - originAnchor;
+            statue.transform.localRotation = Quaternion.Euler(0f, -25f, 0f);
+            statue.transform.localScale = Vector3.one * .65f;
             // note: Imported pivots are not the shrine's contact datum; centre its measured geometry over the summit that the terrain prepass actually prepared.
             if (TryGetRenderableBounds(statue, out Bounds authoredStatueBounds))
             {
-                Vector3 summit = originAnchor + OriginGoddessSummitOffset;
+                Vector3 summit = drySummit;
                 statue.transform.position += new Vector3(summit.x - authoredStatueBounds.center.x, 0f,
                     summit.z - authoredStatueBounds.center.z);
             }
@@ -10120,7 +10801,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         GameObject witchHouseRoot = new GameObject(
             "Origin_Vey_WitchHouse");
         witchHouseRoot.transform.SetParent(generatedRoot, false);
-        // note: Surface the single reviewed furnished Witch House cell beside the origin path; Vey's home must be a visible physical destination, not an invisible portal to geometry hidden below the terrain.
+        // note: Load the reviewed furnished interior first; its transition-only catalog contract is paired with an approved visible cottage exterior below.
         witchHouseRoot.transform.position = GroundOriginApproachPoint(
             generatedTerrain,
             originAnchor + OriginWitchHouseOffset,
@@ -10158,6 +10839,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (!CurateAndGroundGoddessLandmark(
                 mountainRoot,
                 generatedTerrain,
+                drySummit,
                 out Bounds statueBounds,
                 out List<YQTerrainSupportStamp> originSupportStamps))
         {
@@ -10169,6 +10851,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         int raisedOriginSupports = 0;
+        // note: Reuse the bounded baked title composition's approved meshes and materials, without cloning its camera, flat presentation floor, or source wilderness map.
+        yield return RestoreAuthoredOriginDressingRoutine(mountainRoot);
         // note: The canonical terrain prepass remains immutable after wilderness generation; the Witch House streaming pass lowers its reviewed cell onto that surface instead of reshaping terrain late.
 
         // note: Let Unity release rejected source-map objects before the forced origin material pass so thousands of discarded route/wilderness renderers are never converted unnecessarily.
@@ -10201,44 +10885,97 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 Vector3.one);
         }
 
+        // note: The WitchHouse pack is an interior room, not a cottage facade. Keep its authored furnishings and use the existing portal contract for its matching surface home.
+        const string exteriorPath = "Assets/HIVEMIND/HouseOnaHill/HDRP/Art/Prefabs/SM_House.prefab";
+        GameObject exteriorPrefab = registry.ResolvePrefab(exteriorPath);
+        if (exteriorPrefab == null)
+        {
+            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Reviewed origin cottage exterior is unavailable.");
+            completed?.Invoke(false);
+            yield break;
+        }
+        GameObject exterior = UnityEngine.Object.Instantiate(exteriorPrefab, generatedRoot);
+        exterior.name = "Origin_Vey_HutExterior";
+        registry.ApplyMaterialOverrides(exteriorPath, exterior);
+        yield return YQRuntimeUrpMaterialRepair.ForceRepairHierarchyRoutine(exterior, null);
+        Vector3 hutAnchor = GroundOriginApproachPoint(generatedTerrain, originAnchor + OriginWitchHouseOffset, .05f);
+        exterior.transform.position = hutAnchor;
+        if (!TryGetRenderableBounds(exterior, out Bounds facadeBounds))
+        {
+            completed?.Invoke(false);
+            yield break;
+        }
+        exterior.transform.localScale *= 8f / Mathf.Max(.1f, facadeBounds.size.y);
+        TryGetRenderableBounds(exterior, out facadeBounds);
+        exterior.transform.position += new Vector3(hutAnchor.x - facadeBounds.center.x,
+            hutAnchor.y - facadeBounds.min.y, hutAnchor.z - facadeBounds.center.z);
+        TryGetRenderableBounds(exterior, out facadeBounds);
+        Vector3 outsideDoor = GroundOriginApproachPoint(generatedTerrain,
+            new Vector3(facadeBounds.center.x, 0f, facadeBounds.min.z - .8f), .15f);
+        Vector3 outsideReturn = outsideDoor + Vector3.back * 3f;
+        Vector3 interiorShift = Vector3.down * 60f;
+        witchHouseRoot.transform.position += interiorShift;
+        witchHouseBounds.center += interiorShift;
+        YQOriginSitePortal.RegisterReviewedInterior(witchHouseBounds);
+        // note: Decoration bounds include pots below the room floor; measure the lowest broad horizontal authored surface for a walkable arrival.
+        Bounds floorBounds = default;
+        bool hasFloor = false;
+        foreach (Renderer renderer in witchHouseRoot.GetComponentsInChildren<Renderer>(true))
+        {
+            Bounds candidate = renderer.bounds;
+            if (candidate.size.x < 3f || candidate.size.z < 3f || candidate.size.y > .65f ||
+                candidate.center.y > witchHouseBounds.center.y) continue;
+            if (!hasFloor || candidate.center.y < floorBounds.center.y - .15f ||
+                (Mathf.Abs(candidate.center.y - floorBounds.center.y) <= .15f && candidate.size.x * candidate.size.z > floorBounds.size.x * floorBounds.size.z))
+            { floorBounds = candidate; hasFloor = true; }
+        }
+        if (!hasFloor)
+        {
+            Debug.LogError("[YQGeneratedWorldRuntimeBuilder] Reviewed furnished origin has no horizontal floor surface.");
+            completed?.Invoke(false);
+            yield break;
+        }
+        // note: Repair collision on the measured floor without creating replacement visible geometry or changing imported assets.
+        GameObject floorSupport = new GameObject("Origin_Vey_ReviewedFloorSupport"); floorSupport.transform.SetParent(witchHouseRoot.transform, true);
+        floorSupport.transform.position = new Vector3(floorBounds.center.x, floorBounds.max.y - .075f, floorBounds.center.z);
+        var supportCollider = floorSupport.AddComponent<BoxCollider>();
+        supportCollider.size = new Vector3(floorBounds.size.x, .15f, floorBounds.size.z);
+        Vector3 interiorLanding = new Vector3(floorBounds.center.x, floorBounds.max.y + .15f, floorBounds.center.z);
+        GameObject entrance = new GameObject("Origin_Vey_HutEntrance"); entrance.transform.SetParent(generatedRoot, false);
+        entrance.transform.position = outsideDoor;
+        entrance.AddComponent<YQOriginSitePortal>().Configure(interiorLanding, Vector3.forward, "Vey's furnished hut");
+        GameObject exit = new GameObject("Origin_Vey_HutExit"); exit.transform.SetParent(witchHouseRoot.transform, true);
+        exit.transform.position = interiorLanding + Vector3.back * 3f;
+        exit.AddComponent<YQOriginSitePortal>().Configure(outsideReturn, -Vector3.forward, "Goddess clearing");
+
         Vector3 originFocus = Vector3.Lerp(
             statueBounds.center,
-            witchHouseBounds.center,
+            facadeBounds.center,
             0.24f);
-        Vector3 authoredApproach =
-            originAnchor + new Vector3(0f, 0f, -76f);
-        Vector3 approachDirection = authoredApproach - originFocus;
-        approachDirection.y = 0f;
-        if (approachDirection.sqrMagnitude < 0.01f)
-            approachDirection = Vector3.back;
-        approachDirection.Normalize();
-        // note: The opening composition frames both the Goddess and Vey's visible hut; the player begins on the authored approach looking at their shared focal area.
+        // note: Enter directly in front of the authored statue, within walking distance of Vey; the old distant approach could intersect the river.
+        Vector3 approachDirection = -(Quaternion.Euler(0f, -25f, 0f) * Vector3.forward);
         Vector3 exteriorLanding = GroundOriginApproachPoint(
             generatedTerrain,
-            originFocus + approachDirection * 42f,
+            new Vector3(statueBounds.center.x, 0f, statueBounds.center.z) + approachDirection * 12f,
             0.25f);
         _generatedOriginSpawnOverride =
             exteriorLanding + Vector3.up * 0.20f;
         _hasGeneratedOriginSpawnOverride = true;
-        _generatedOriginFacingOverride = originFocus - exteriorLanding;
+        _generatedOriginFacingOverride = statueBounds.center - exteriorLanding;
         _generatedOriginFacingOverride.y = 0f;
         _hasGeneratedOriginFacingOverride =
             _generatedOriginFacingOverride.sqrMagnitude > 0.01f;
 
         if (vey != null)
         {
-            vey.transform.SetParent(
-                witchHouseRoot.transform,
-                true);
-
-            // note: The authored socket is derived from the loaded hut bounds, keeping Vey visible and stable even when semantic circulation tags are absent from an imported cell.
-            Vector3 veyPosition = new Vector3(
-                Mathf.Lerp(witchHouseBounds.min.x, witchHouseBounds.max.x, OriginVeySocketNormalizedX),
-                witchHouseBounds.min.y + 1.05f,
-                Mathf.Lerp(witchHouseBounds.min.z, witchHouseBounds.max.z, OriginVeySocketNormalizedZ));
-
-            vey.transform.position =
-                veyPosition;
+            // note: Preserve the existing actor and dialogue identity, independently of the hut interior's visibility lifecycle.
+            vey.transform.SetParent(generatedRoot, true);
+            Vector3 beside = Vector3.Cross(Vector3.up, -approachDirection);
+            vey.transform.position = GroundOriginApproachPoint(generatedTerrain,
+                exteriorLanding - approachDirection * 2f + beside * 2f, .15f);
+            Vector3 towardPlayer = exteriorLanding - vey.transform.position;
+            towardPlayer.y = 0f;
+            if (towardPlayer.sqrMagnitude > .01f) vey.transform.rotation = Quaternion.LookRotation(towardPlayer);
         }
         else
         {
@@ -10257,7 +10994,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         Debug.Log(
             "[YQGeneratedWorldRuntimeBuilder] AUTHORED GODDESS THRESHOLD READY\n" +
             "Shrine: curated Messenger Angel statue (bounded origin asset)\n" +
-            "Vey: visible furnished witch_house at the surface origin\n" +
+            "Vey: beside the player threshold in front of the dry Goddess statue\n" +
             "Terrain-supported authored assemblies: " +
             raisedOriginSupports);
         completed?.Invoke(true);
@@ -10266,6 +11003,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     private static bool CurateAndGroundGoddessLandmark(
         GameObject mountainRoot,
         Terrain terrain,
+        Vector3 desiredSummit,
         out Bounds groundedStatueBounds,
         out List<YQTerrainSupportStamp> supportStamps)
     {
@@ -10299,9 +11037,6 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             return false;
         }
 
-        Vector3 desiredSummit =
-            YQGeneratedWorldLayout.GetVeyOriginAnchor() +
-            OriginGoddessSummitOffset;
         Vector3 horizontalCorrection = new Vector3(
             desiredSummit.x - statueBounds.center.x,
             0f,
@@ -10935,6 +11670,8 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     {
         if (terrain == null || terrain.terrainData == null)
             return requested;
+        // note: Reviewed transition interiors already have their own authored floor; a Continue must not lift their saved player through the cottage terrain.
+        if (preserveContinuationPosition && YQOriginSitePortal.IsInsideReviewedInterior(requested)) return requested;
 
         Vector3 origin = terrain.transform.position;
         Vector3 size = terrain.terrainData.size;
@@ -10980,8 +11717,21 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             }
         }
 
-        if (!IsInsidePlayerWaterReserve(basins, basinCount, requested))
+        bool IsWet(Vector3 point)
+        {
+            // note: Spawn safety includes actual rendered channels and accepted river footprints, not just legacy macro lakes.
+            if (YQWaterSurfaceMotion.TryGetWaterHeight(point, out float water) &&
+                water >= YQGeneratedWorldTerrain.SampleWorldHeight(terrain, point) - .05f) return true;
+            return IsInsidePlayerWaterReserve(basins, basinCount, point);
+        }
+        if (!IsWet(requested))
             return requested;
+
+        // note: Repair invalid origin arrivals back to the authored threshold, while legitimate distant saved travel keeps the existing continuation path.
+        if (_hasGeneratedOriginSpawnOverride &&
+            Vector2.Distance(new Vector2(requested.x, requested.z), new Vector2(0f, 0f)) <= YQGeneratedWorldLayout.OriginReserveRadius &&
+            !IsWet(_generatedOriginSpawnOverride))
+            return _generatedOriginSpawnOverride;
 
         float phase = Deterministic01(
             (plan != null ? plan.worldSeed : string.Empty) +
@@ -11005,7 +11755,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                     candidate.x > origin.x + size.x - spawnMargin ||
                     candidate.z < origin.z + spawnMargin ||
                     candidate.z > origin.z + size.z - spawnMargin ||
-                    IsInsidePlayerWaterReserve(basins, basinCount, candidate))
+                    IsWet(candidate))
                 {
                     continue;
                 }
@@ -11138,6 +11888,15 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
 
         Vector3 spawn;
 
+        // note: Repair only the old bootstrap socket on Continue; real saved travel positions remain authoritative. New and repaired arrivals share Vey's dry shrine threshold.
+        if (!useGeneratedOrigin && _hasGeneratedOriginSpawnOverride && PlayerStateManager.Instance?.state != null)
+        {
+            Vector3 previous = PlayerStateManager.Instance.state.lastPosition;
+            Vector3 legacy = YQGeneratedWorldLayout.GetVeyOriginAnchor() + new Vector3(0f, 0f, -2.2f);
+            if (new Vector2(previous.x - legacy.x, previous.z - legacy.z).sqrMagnitude <= 1f &&
+                !YQOriginSitePortal.IsInsideReviewedInterior(previous)) useGeneratedOrigin = true;
+        }
+
         if (useGeneratedOrigin)
         {
             spawn = _hasGeneratedOriginSpawnOverride
@@ -11160,7 +11919,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
                 : player.transform.position;
         }
 
-        if (terrain != null)
+        if (terrain != null && !( !useGeneratedOrigin && YQOriginSitePortal.IsInsideReviewedInterior(spawn)))
         {
             spawn = ResolveDryPlayerHorizontalPosition(
                 terrain,
@@ -11235,6 +11994,7 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
             player.transform.rotation = Quaternion.LookRotation(
                 _generatedOriginFacingOverride.normalized,
                 Vector3.up);
+            player.GetComponent<YQInvestorPlayerMotor>()?.FaceWorldDirection(_generatedOriginFacingOverride);
         }
 
         if (body != null)
@@ -11569,6 +12329,10 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         if (plan == null || plan.settlements == null)
             return 0;
 
+        // note: Startup counts read the immutable admitted projection; cold callers retain complete validation.
+        if (TryCountPreparedInitialTerrainSettlements(plan, terrain, out int preparedCount))
+            return preparedCount;
+
         int count = 0;
         for (int index = 0; index < plan.settlements.Count; index++)
         {
@@ -11580,6 +12344,34 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
         }
 
         return count;
+    }
+
+    private static bool TryCountPreparedInitialTerrainSettlements(
+        GeneratedWorldPlanRecord plan, Terrain terrain, out int count)
+    {
+        count = 0;
+        if (terrain == null || terrain.terrainData == null || plan.settlements.Count == 0)
+            return false;
+        bool hasSettlement = false;
+        for (int index = 0; index < plan.settlements.Count; index++)
+            if (plan.settlements[index] != null) { hasSettlement = true; break; }
+        if (!hasSettlement || !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan) ||
+            !YQSpatialMaterializationResolverV2.TryGetQueryProjection(plan, out var prepared, out _))
+            return false;
+
+        // note: This fast path performs only read-only anchor/bounds queries with no yield, grounding, logging, or gameplay callback. An exceptional anchor falls back to the original per-settlement path so its diagnostics and failure semantics remain intact.
+        for (int index = 0; index < plan.settlements.Count; index++)
+        {
+            var settlement = plan.settlements[index];
+            if (settlement == null) continue;
+            if (!YQGeneratedWorldLayout.TryGetPreparedSettlementHorizontalAnchor(
+                    prepared, settlement, out Vector3 anchor))
+                return false;
+            // note: The existing startup predicate consumes only X/Z. Grounding Y is unnecessary for this count and the original transform-relative 160-metre border remains authoritative.
+            if (IsWorldPointInsideGeneratedTerrain(anchor, terrain, 160f))
+                count++;
+        }
+        return true;
     }
 
     private static string SafeName(

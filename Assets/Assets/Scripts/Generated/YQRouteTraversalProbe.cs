@@ -67,12 +67,20 @@ public sealed class YQRouteTraversalProbe
         // note: Ephemeral physics evidence belongs to this measurement, never to persisted world identity or automatic repair authority.
         public readonly Collider supportCollider, overlapCollider, sweepCollider;
         public readonly Vector3 sweepContactPoint;
+        // note: Preserve the first failed footprint witness so a rejection distinguishes a missing tread from its actual height or slope defect.
+        public readonly Vector3 footprintPoint;
+        public readonly bool footprintHasSupport;
+        public readonly float footprintHeightDelta, footprintSlopeDegrees;
         public Result(Issue issues, Vector3 feet, bool hasSupport, Collider supportCollider = null,
-            Collider overlapCollider = null, Collider sweepCollider = null, Vector3 sweepContactPoint = default)
+            Collider overlapCollider = null, Collider sweepCollider = null, Vector3 sweepContactPoint = default,
+            Vector3 footprintPoint = default, bool footprintHasSupport = false,
+            float footprintHeightDelta = 0f, float footprintSlopeDegrees = 0f)
         {
             this.issues = issues; this.feet = feet; this.hasSupport = hasSupport;
             this.supportCollider = supportCollider; this.overlapCollider = overlapCollider;
             this.sweepCollider = sweepCollider; this.sweepContactPoint = sweepContactPoint;
+            this.footprintPoint = footprintPoint; this.footprintHasSupport = footprintHasSupport;
+            this.footprintHeightDelta = footprintHeightDelta; this.footprintSlopeDegrees = footprintSlopeDegrees;
         }
     }
 
@@ -100,7 +108,8 @@ public sealed class YQRouteTraversalProbe
         Issue issues = Issue.None;
         if (!TrySupport(expectedFeet, reach, out RaycastHit support, ref issues))
             return new Result(issues | Issue.MissingSupport, expectedFeet, false);
-        // note: The capsule reaches a step before its centre ray does; acquire a reachable tread under the capsule rim before testing its riser as an obstruction.
+        // note: Rim acquisition adjusts the capsule pose for reachable steps; footprint rays stay relative to the original centre surface so a valid incline cannot lift downhill rays above their reach.
+        float footprintCentreHeight = support.point.y;
         float treadRadius = Mathf.Max(.001f, shape.radius - shape.skin);
         for (int sample = 0; sample < 8; sample++)
         {
@@ -116,15 +125,26 @@ public sealed class YQRouteTraversalProbe
 
         // note: A center hit is insufficient on ledges and narrow beams. Four inset footprint rays add bounded support evidence.
         float footprintRadius = shape.radius * .8f;
+        Vector3 footprintFeet = new Vector3(expectedFeet.x, footprintCentreHeight, expectedFeet.z);
+        Vector3 footprintPoint = default;
+        bool footprintHasSupport = false, footprintRecorded = false;
+        float footprintHeightDelta = 0f, footprintSlopeDegrees = 0f;
         for (int foot = 0; foot < 4; foot++)
         {
             Vector3 offset = foot < 2 ? Vector3.right * (foot == 0 ? footprintRadius : -footprintRadius) :
                 Vector3.forward * (foot == 2 ? footprintRadius : -footprintRadius);
-            if (!TrySupport(feet + offset, reach, out RaycastHit contact, ref issues))
+            bool found = TrySupport(footprintFeet + offset, reach, out RaycastHit contact, ref issues);
+            float delta = found ? contact.point.y - footprintFeet.y : 0f;
+            float slope = found ? Vector3.Angle(contact.normal, Vector3.up) : 0f;
+            if (!found || Mathf.Abs(delta) > shape.step + shape.skin || slope > shape.slope)
+            {
                 issues |= Issue.UnsupportedFootprint;
-            else if (Mathf.Abs(contact.point.y - feet.y) > shape.step + shape.skin ||
-                     Vector3.Angle(contact.normal, Vector3.up) > shape.slope)
-                issues |= Issue.UnsupportedFootprint;
+                if (!footprintRecorded)
+                {
+                    footprintRecorded = true; footprintPoint = footprintFeet + offset; footprintHasSupport = found;
+                    footprintHeightDelta = delta; footprintSlopeDegrees = slope;
+                }
+            }
         }
 
         shape.Capsule(feet, out Vector3 lower, out Vector3 upper, out float radius);
@@ -185,7 +205,8 @@ public sealed class YQRouteTraversalProbe
                 }
             }
         }
-        return new Result(issues, feet, true, support.collider, overlapEvidence, sweepEvidence, sweepPoint);
+        return new Result(issues, feet, true, support.collider, overlapEvidence, sweepEvidence, sweepPoint,
+            footprintPoint, footprintHasSupport, footprintHeightDelta, footprintSlopeDegrees);
     }
 
     private bool TrySupport(Vector3 expected, float reach, out RaycastHit support, ref Issue issues)
@@ -220,8 +241,10 @@ public sealed class YQRouteTraversalProbe
 
     private bool Ignore(Collider collider)
     {
-        if (collider == null || collider == shape.controller ||
-            (playerRoot != null && collider.transform.IsChildOf(playerRoot)))
+        // note: Detached ragdoll shapes remain self-colliders, never route support or blocking terrain.
+        if (collider == null || YQPhysicalChunkAdmissionBoundary.IsOwned(collider) || collider == shape.controller ||
+            (playerRoot != null && (collider.transform.IsChildOf(playerRoot) ||
+             YQInvestorPlayerMotor.ResolveFromCollider(collider)?.transform == playerRoot)))
             return true;
         // note: Match the motor's standing-clearance policy for both obstacles and supports. Ignored floors cannot support the player.
         return Physics.GetIgnoreLayerCollision(shape.controller.gameObject.layer, collider.gameObject.layer) ||

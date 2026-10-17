@@ -21,8 +21,14 @@ public class PlayerLocationReporter : MonoBehaviour
         // Prefer semantic region (RegionVolume -> PlayerContext), fallback to grid id
         string region = GetBestRegionId(transform.position);
 
-        psm.SetLocation(scene, region, transform.position);
-        WorldStateManager.Instance?.SetCurrentRegion(region);
+        // note: A stationary reporter must not normalize and save identical state every two seconds; movement and real region changes still use the existing owners.
+        var player = psm.state;
+        if (player == null || player.currentScene != scene || player.currentRegionId != region ||
+            (player.lastPosition - transform.position).sqrMagnitude > .0025f)
+            psm.SetLocation(scene, region, transform.position);
+        var world = WorldStateManager.Instance;
+        if (world != null && !string.Equals(world.State?.currentRegionId, region, System.StringComparison.OrdinalIgnoreCase))
+            world.SetCurrentRegion(region);
     }
 
     private string GetBestRegionId(Vector3 pos)

@@ -1,0 +1,324 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: nordic_village
+  semanticStyleKey: nordic_village
+  sourceSignature: fnv1a32_a081c791
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: c85175a4c56cbfa48b8332fdc5319f24, type: 2}
+  sourceInstanceCount: 145734
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_nordic_village_residential_01
+    displayName: Nordic Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -86.29509, y: 67.18207, z: -20.050907}
+    localBoundsCenter: {x: 0, y: 28.685349, z: 0}
+    localBoundsSize: {x: 78.15371, y: 57.370697, z: 119.175}
+    sourceInstanceCount: 360
+    authoredBuildingCount: 0
+    authoredDressingCount: 360
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p8_p8_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_service_02
+    displayName: Nordic Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -84.59507, y: 66.41713, z: 55.3261}
+    localBoundsCenter: {x: 0, y: 28.18264, z: 0}
+    localBoundsSize: {x: 80.011734, y: 56.36528, z: 80.426506}
+    sourceInstanceCount: 17
+    authoredBuildingCount: 0
+    authoredDressingCount: 17
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p8_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_civic_03
+    displayName: Nordic Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -74.86613, y: 66.5966, z: -93.473236}
+    localBoundsCenter: {x: 0, y: 26.042023, z: 0}
+    localBoundsSize: {x: 58.83754, y: 52.084045, z: 74.46631}
+    sourceInstanceCount: 51
+    authoredBuildingCount: 0
+    authoredDressingCount: 51
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p8_p7_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_circulation_04
+    displayName: Nordic Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -16.709663, y: 118.2039, z: 4.143816}
+    localBoundsCenter: {x: 0, y: 0.12564087, z: 0}
+    localBoundsSize: {x: 0.41908264, y: 0.25128174, z: 0.48550797}
+    sourceInstanceCount: 117500
+    authoredBuildingCount: 0
+    authoredDressingCount: 117500
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p8_p01
+    - yq_cell_nordic_village_p9_p8_p02
+    - yq_cell_nordic_village_p9_p8_p03
+    - yq_cell_nordic_village_p9_p8_p04
+    - yq_cell_nordic_village_p9_p8_p05
+    - yq_cell_nordic_village_p9_p8_p06
+    - yq_cell_nordic_village_p9_p8_p07
+    - yq_cell_nordic_village_p9_p8_p08
+    - yq_cell_nordic_village_p9_p8_p09
+    - yq_cell_nordic_village_p9_p8_p10
+    - yq_cell_nordic_village_p9_p8_p18
+    - yq_cell_nordic_village_p9_p8_p19
+    - yq_cell_nordic_village_p9_p8_p20
+    - yq_cell_nordic_village_p9_p8_p21
+    - yq_cell_nordic_village_p9_p8_p22
+    - yq_cell_nordic_village_p9_p8_p23
+    - yq_cell_nordic_village_p9_p8_p24
+    - yq_cell_nordic_village_p9_p8_p25
+    - yq_cell_nordic_village_p9_p8_p26
+    - yq_cell_nordic_village_p9_p8_p27
+    - yq_cell_nordic_village_p9_p8_p28
+    - yq_cell_nordic_village_p9_p8_p29
+    - yq_cell_nordic_village_p9_p8_p30
+    - yq_cell_nordic_village_p9_p8_p31
+    - yq_cell_nordic_village_p9_p8_p32
+    - yq_cell_nordic_village_p9_p8_p33
+    - yq_cell_nordic_village_p9_p8_p34
+    - yq_cell_nordic_village_p9_p8_p35
+    - yq_cell_nordic_village_p9_p8_p36
+    - yq_cell_nordic_village_p9_p8_p37
+    - yq_cell_nordic_village_p9_p8_p38
+    - yq_cell_nordic_village_p9_p8_p39
+    - yq_cell_nordic_village_p9_p8_p40
+    - yq_cell_nordic_village_p9_p8_p41
+    - yq_cell_nordic_village_p9_p8_p42
+    - yq_cell_nordic_village_p9_p8_p43
+    - yq_cell_nordic_village_p9_p8_p44
+    - yq_cell_nordic_village_p9_p8_p45
+    - yq_cell_nordic_village_p9_p8_p46
+    - yq_cell_nordic_village_p9_p8_p47
+    - yq_cell_nordic_village_p9_p8_p48
+    - yq_cell_nordic_village_p9_p8_p49
+    - yq_cell_nordic_village_p9_p8_p50
+    - yq_cell_nordic_village_p9_p8_p51
+    - yq_cell_nordic_village_p9_p8_p52
+    - yq_cell_nordic_village_p9_p8_p53
+    - yq_cell_nordic_village_p9_p8_p54
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_poi_05
+    displayName: Nordic Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -9.409592, y: 66.55426, z: -102.73482}
+    localBoundsCenter: {x: 0, y: 30.03688, z: 0}
+    localBoundsSize: {x: 118.19162, y: 60.07376, z: 96.65824}
+    sourceInstanceCount: 691
+    authoredBuildingCount: 0
+    authoredDressingCount: 691
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p7_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_residential_06
+    displayName: Nordic Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -9.117893, y: 66.49809, z: -15.982681}
+    localBoundsCenter: {x: 0, y: 26.662231, z: 0}
+    localBoundsSize: {x: 114.01905, y: 53.324463, z: 108.87581}
+    sourceInstanceCount: 9512
+    authoredBuildingCount: 0
+    authoredDressingCount: 9512
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p8_p12
+    - yq_cell_nordic_village_p9_p8_p14
+    - yq_cell_nordic_village_p9_p8_p15
+    - yq_cell_nordic_village_p9_p8_p55
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_service_07
+    displayName: Nordic Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -10.31422, y: 66.534225, z: 59.256927}
+    localBoundsCenter: {x: 0, y: 26.4412, z: 0}
+    localBoundsSize: {x: 117.43311, y: 52.8824, z: 82.718414}
+    sourceInstanceCount: 4640
+    authoredBuildingCount: 0
+    authoredDressingCount: 4640
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p9_p00
+    - yq_cell_nordic_village_p9_p9_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_civic_08
+    displayName: Nordic Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -8.727306, y: -0.5719986, z: -18.809284}
+    localBoundsCenter: {x: 0, y: 61.003277, z: 0}
+    localBoundsSize: {x: 97.43708, y: 122.00655, z: 97.58837}
+    sourceInstanceCount: 7500
+    authoredBuildingCount: 0
+    authoredDressingCount: 7500
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p8_p00
+    - yq_cell_nordic_village_p9_p8_p16
+    - yq_cell_nordic_village_p9_p8_p17
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_circulation_09
+    displayName: Nordic Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -3.0305176, y: 68.54588, z: -23.473076}
+    localBoundsCenter: {x: 0, y: 24.894913, z: 0}
+    localBoundsSize: {x: 69.35118, y: 49.789825, z: 71.12849}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p8_p13
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_poi_10
+    displayName: Nordic Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -2.3245487, y: 68.07855, z: -14.147339}
+    localBoundsCenter: {x: 0, y: 25.178474, z: 0}
+    localBoundsSize: {x: 69.168625, y: 50.35695, z: 83.34581}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p9_p8_p11
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_residential_11
+    displayName: Nordic Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 69.65722, y: 69.49469, z: 53.607304}
+    localBoundsCenter: {x: 0, y: 27.689278, z: 0}
+    localBoundsSize: {x: 76.75037, y: 55.378555, z: 70.45575}
+    sourceInstanceCount: 73
+    authoredBuildingCount: 0
+    authoredDressingCount: 73
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p10_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_service_12
+    displayName: Nordic Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 76.788925, y: 67.788605, z: -87.07104}
+    localBoundsCenter: {x: 0, y: 28.409927, z: 0}
+    localBoundsSize: {x: 85.48845, y: 56.819855, z: 60.273468}
+    sourceInstanceCount: 55
+    authoredBuildingCount: 0
+    authoredDressingCount: 55
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p10_p7_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_nordic_village_civic_13
+    displayName: Nordic Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 87.10791, y: 66.54904, z: -17.825394}
+    localBoundsCenter: {x: 0, y: 27.277527, z: 0}
+    localBoundsSize: {x: 104.05004, y: 54.555054, z: 115.72191}
+    sourceInstanceCount: 335
+    authoredBuildingCount: 0
+    authoredDressingCount: 335
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_nordic_village_p10_p8_p00
+    cellContractsV2: []

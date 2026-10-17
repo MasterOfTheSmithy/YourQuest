@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "observedOn": "2026-09-30",
+  "observedOn": "2026-10-03",
   "authority": "Engineering workflow bookkeeping only. Full goal files define acceptance; accepted game state remains owned by the production saves.",
   "activeGoalId": "G08",
   "activeWorkflow": {
     "goalId": "G08",
-    "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 4.md",
-    "sha256": "3536d02671ab8a70d94475011868cff259fba06a98b6fd57943e4b20cb8ca9d0",
+    "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/G08-Environment-Cohesion.md",
+    "sha256": "2f4a5a92af225d0a4c1befe9859a321eedcf985292ba71ec95a7242e29fa4f3f",
     "order": [
-      "R1 publication and recovery",
-      "R2 streaming and performance",
-      "R3 physical world itinerary"
+      "Accepted legacy forced PASS preserved; baseline, full-library reconciliation and references",
+      "One production palette/site slice then world-wide environment integration",
+      "Affected new-content R1/R2 verification, complete environment coverage and visual audit"
     ]
   },
   "nextGoalAfterAcceptance": "G09",
@@ -21,15 +21,16 @@
     "complete": "Full acceptance supported by named evidence and a rationale; merge or task completion alone is insufficient."
   },
   "currentBlockers": [
-    "R2 260 m/s coast visible coverage fails in the linked receipt.",
-    "R2 coast maximum frame is 1.298 seconds against the existing 0.050 second budget.",
-    "Complete R1/R3 acceptance is not established by this focused R2 receipt."
+    "Expanded world-wide environment cohesion and complete eligible-library integration remain incomplete; see Docs/G08_EnvironmentCohesion_Acceptance_2026-10-03.json.",
+    "The user explicitly confirms that the forced PASS for old goals remains accepted/verified. Preserve those decisions and raw historical failures; do not reopen or rerun waived legacy gates.",
+    "New final content requires its own affected regression, world/seed coverage and visual evidence. Locked target configuration, full library reconciliation and Skyrim-era visual-floor proof are not yet established."
   ],
   "sourceContracts": {
-    "observedOn": "2026-09-30",
+    "observedOn": "2026-10-03",
     "evidenceLevel": "SOURCE_INSPECTED",
     "unityVersion": "6000.3.2f1",
-    "saveSchema": 7,
+    "saveSchema": 8,
+    "profileManifestSchema": 2,
     "cellSchema": "continuous_world_cell_v5",
     "edgeSchema": "continuous_edge_v3"
   },
@@ -50,6 +51,10 @@
     {
       "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 3.md",
       "sha256": "4e2fd64db315f3e7a65057f21f23d5c2a4c0232a3d969da422357b97e4d28e76"
+    },
+    {
+      "path": "Docs/ClosedBetaRoadmap_2026-09-16/goals/8 fix 4.md",
+      "sha256": "3536d02671ab8a70d94475011868cff259fba06a98b6fd57943e4b20cb8ca9d0"
     }
   ],
   "goals": [
@@ -165,8 +170,8 @@
         "G07"
       ],
       "workflowState": "active",
-      "acceptanceStatus": "FAIL",
-      "acceptanceRationale": "The linked R2 receipt reports FAIL. This setup audit does not certify the complete G08 contract or rerun gameplay.",
+      "acceptanceStatus": "PARTIAL",
+      "acceptanceRationale": "The 2026-10-03 replacement goal expands G08 to world-wide environment cohesion and complete eligible-library integration. The user subsequently confirms that the forced PASS for old goals remains accepted/verified; do not reopen waived legacy gates. Raw historical results remain intact. G08 remains PARTIAL pending the expanded EC01-EC15 and retained physical requirements, including affected new-content regression and visual evidence. See Docs/G08_EnvironmentCohesion_ExecutionPlan_2026-10-03.md and its acceptance ledger.",
       "coordinator": null,
       "evidence": [
         {
@@ -176,6 +181,50 @@
           "evidenceLevel": "HISTORICAL_RUNTIME_RECEIPT",
           "reportedResult": "FAIL",
           "coverage": "Focused R2 witness; remaining R1 and G08 rows were not run in this receipt."
+        },
+        {
+          "path": "Docs/G08_R2_Speed260_2026-10-02_202156_P25F_Background_Diagnostic_Receipt.md",
+          "evidenceLevel": "CLEAN_FOCUSED_RUNTIME_RECEIPT",
+          "reportedResult": "FAIL",
+          "coverage": "Raw original 50 ms automatic result. Complete input/coast visibility, controls and travel pass; coast51ms subsequently accepted explicitly by user.",
+          "sha256": "60a866a7f4ccdbe68782d63db7b05a609b42a80a4605aced8513a01a19a8eb4e",
+          "observedUtc": "2026-10-02T20:46:15.942Z"
+        },
+        {
+          "path": "Docs/G08_R2_P25F_Accepted_Focused_Pass_2026-10-02.md",
+          "evidenceLevel": "USER_ACCEPTANCE_WITH_MATCHED_RUNTIME_EVIDENCE",
+          "coverage": "Focused PASS with explicit user timing exception; independent repeat and full R2/G08 remain unverified.",
+          "sha256": "5e7e2b32142e589fba54afa5af527f090c6963206c9eec2921f2de2b2c8f25b6",
+          "observedUtc": "2026-10-02T20:46:15.942Z"
+        },
+        {
+          "path": "Docs/G08_R2_Current_Matrix_2026-10-02.md",
+          "evidenceLevel": "SOURCE_AND_RECEIPT_RECONCILIATION",
+          "coverage": "Per-row reuse and missing-evidence boundary; does not claim new gameplay checks.",
+          "sha256": "d82ac5018770ab9fcf63f9c02148725a5c90eaff4132e4c408d4d75a1eaba98f",
+          "observedUtc": "2026-10-02T20:46:15.942Z"
+        },
+        {
+          "path": "Docs/G08_R2_Speed260_2026-10-02_204406_P25R_Background_Diagnostic_Receipt.md",
+          "evidenceLevel": "CLEAN_INDEPENDENT_REPEAT_RUNTIME_RECEIPT",
+          "reportedResult": "FAIL",
+          "coverage": "Same source/build as accepted P25F; repeat fails62ms input,52ms coast and complete coast ecology readiness. Grounding and full travel pass.",
+          "sha256": "dcf3ee236e771b900b51d28176be13c69ec17e5deb8ca95b4ea02fbab677d34a",
+          "observedUtc": "2026-10-02T20:46:15.930Z"
+        },
+        {
+          "path": "Docs/G08_R2_P25R_Repeat_Result_2026-10-02.md",
+          "evidenceLevel": "MATCHED_RUNTIME_REPEAT_RECONCILIATION",
+          "coverage": "Partial handoff retained; repeatability tested and failed; no further unchanged retry or fourth hash repair.",
+          "sha256": "10b27c1e7145ff12751ec5ef002f6920a53b40775f0ad2f63a931820db7f1591",
+          "observedUtc": "2026-10-02T20:46:15.940Z"
+        },
+        {
+          "path": "Docs/G08_R2_User_Override_2026-10-03.md",
+          "evidenceLevel": "USER_ACCEPTANCE_OVERRIDE",
+          "coverage": "Explicit R2 PASS label for R3 admission; measured R2 failures and missing runtime evidence are preserved. No new runtime/source/assembly certification.",
+          "sha256": "151016d7791db292d6efc3d670bc53bfa4c4cf3ea0a99e660da680b5771f5bbe",
+          "observedUtc": "2026-10-03T21:40:09.4527268Z"
         }
       ]
     },

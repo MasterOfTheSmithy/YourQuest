@@ -92,9 +92,17 @@ public static class LLMContextCompiler
         int contextLimit = Mathf.Clamp(activeConfig.contextSizeTokens, 2048, 32768);
         // note: A smaller transport context must also limit compilation, so required evidence cannot be truncated by the backend.
         if (contextLimitTokens > 0) contextLimit = Mathf.Min(contextLimit, Mathf.Clamp(contextLimitTokens, 2048, 32768));
-        int reserve = Mathf.Clamp(reservedOutputTokens, 64, Mathf.Max(64, contextLimit / 2));
+        // note: Reserve the actual wire output budget, not half the context; otherwise large structured responses silently exceed the slot.
+        int reserve = Mathf.Max(64, reservedOutputTokens);
         int safety = Mathf.Clamp(activeConfig.contextSafetyTokens, 64, 2048);
-        int inputBudget = Mathf.Max(256, contextLimit - reserve - safety);
+        safety += EstimateTokens(profile?.systemPrompt ?? string.Empty);
+        if (reserve + safety >= contextLimit)
+        {
+            compiled = default;
+            error = "ContextOverflow: output and system instructions leave no input budget.";
+            return false;
+        }
+        int inputBudget = contextLimit - reserve - safety;
         string prompt = NormalizeLineEndings(rawPrompt);
         bool reduced = false;
         StringBuilder diagnostic = new StringBuilder(128);

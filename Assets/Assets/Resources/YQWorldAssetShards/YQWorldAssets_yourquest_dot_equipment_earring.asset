@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_earring
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Artisan.prefab
+    prefab: {fileID: 8187639239939008537, guid: 3e88ee5945f04e64c9edce3f806eae8e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Court.prefab
+    prefab: {fileID: 4064570034113100860, guid: 21d6bca2556560049ba2cb5a592f558a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Dragonbound.prefab
+    prefab: {fileID: 4965649186460351712, guid: 9e55de35bf5c09f45bb6c44135a3701b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Eclipse.prefab
+    prefab: {fileID: 602266456295420762, guid: 01c8ca20c9b007944939a8ae7864580f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Field.prefab
+    prefab: {fileID: 1171440787524147721, guid: 76922390102348c4989fb706d35806fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Merchant.prefab
+    prefab: {fileID: 5570122693926682733, guid: 91eb03c9ee160a04fb88a5f12dfe1022, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Ranger.prefab
+    prefab: {fileID: 5355225587820128460, guid: ae28afe0bea229649b4c127fc9b79aee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Starforged_Orrery.prefab
+    prefab: {fileID: 5405430891604344015, guid: 3ab8fde186bf9bb46ac0081d22ed8976, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1856386851194996511, guid: a4783e58c872d7644867f9c4d9153068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_core.prefab
+    prefab: {fileID: 9111283291606948518, guid: 99bca877f0a94d6478fa032608402e34, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mixed_darkness_light.prefab
+    prefab: {fileID: 7387549467114439802, guid: b1fee08eae9444947b9b0059aa2c3bce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mixed_organic_fire.prefab
+    prefab: {fileID: 3224107851786250702, guid: 682742c7c1a9da941b98aa5317dbea22, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_darkness.prefab
+    prefab: {fileID: 4487844797929514210, guid: 9065ed3cdca3d1a44b3b74c400b84b1c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_fire.prefab
+    prefab: {fileID: 8974094522407743964, guid: 48164a31dccf09e41b6d501ccd2db71a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_forged.prefab
+    prefab: {fileID: 351939371184861598, guid: 598f98153d0e33f438a45103b1b2eb0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_frost.prefab
+    prefab: {fileID: 3349917460660069130, guid: b9aabb8958012d24997f192afc3414c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_light.prefab
+    prefab: {fileID: 934815728437166975, guid: 4f728062a36702b42b8788a608adb607, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_motif_organic.prefab
+    prefab: {fileID: 6958925957881547790, guid: 878f259df6ef4a4408a0177d5f4b88ed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_darkness.prefab
+    prefab: {fileID: 8400443623056046264, guid: 02e435c230cf3274984cb229853b44b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_fire.prefab
+    prefab: {fileID: 3303733048605112607, guid: a6993020939ae5a41a55415d93bcb4f5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_forged.prefab
+    prefab: {fileID: 8186568506518974749, guid: 2f847df4dd53b2a459db57f39f5a0706, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_frost.prefab
+    prefab: {fileID: 7040855713598696281, guid: c7bfe3c9d7b72994382e229da52f9acc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_light.prefab
+    prefab: {fileID: 4362743534178935748, guid: 2ae513f42cafac2409558396c90d0459, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/yqmod1_accessories_earring_mount_organic.prefab
+    prefab: {fileID: 2314176966848736330, guid: 2206156bc763f164fb536280ea88b1a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Field_Parts.prefab
+    prefab: {fileID: 6572583967672564063, guid: f7bc12a64d7537a43a1997a90744c2e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Merchant_Parts.prefab
+    prefab: {fileID: 8271153963137270326, guid: b23fab897ea9d3741bbb05e9a4e9f220, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Ranger_Parts.prefab
+    prefab: {fileID: 5467422004365697513, guid: 2e06aa7738ae0cf44a28d4f36329ee02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Artisan_Parts.prefab
+    prefab: {fileID: 8628394394404106371, guid: 598cdfff1afaf9848aef842810119e75, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Court_Parts.prefab
+    prefab: {fileID: 8508747045445832946, guid: e596fafae72cee44489823a3c943c54a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Dragonbound_Parts.prefab
+    prefab: {fileID: 8356841201547771357, guid: d4b18e8a5f559194bbd3fdd86aa78ea9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Eclipse_Parts.prefab
+    prefab: {fileID: 2437228465845445761, guid: 0146fb91418172c449afd57d23551426, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 8754930626767726453, guid: 2ae3d0f4487e3614fbb7e665ceab8634, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/earring/Earring_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 8155419764848626769, guid: c1f8ac84348526747b6016d9094e4078, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

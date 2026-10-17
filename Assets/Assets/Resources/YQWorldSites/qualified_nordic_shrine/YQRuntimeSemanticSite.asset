@@ -1,0 +1,537 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: qualified_nordic_shrine
+  semanticStyleKey: medieval_viking_village
+  sourceSignature: 28779ab17d69390cbdfdbeef743d0357
+  topology: 4
+  streamingSite: {fileID: 0}
+  sourceInstanceCount: 22
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_nordic_shrine_assembly
+    displayName: Nordic altar shrine assembly
+    districtFunction: 0
+    prefab: {fileID: 2415058423308992659, guid: 8d3c0163ee1326f4a95151d660deb6b9, type: 3}
+    authoredSourceOrigin: {x: 0, y: 0, z: 0}
+    localBoundsCenter: {x: 0.6676326, y: 0.47480994, z: 1.6648198}
+    localBoundsSize: {x: 3.7027674, y: 1.1141444, z: 5.8204722}
+    sourceInstanceCount: 22
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - poi
+    - shrine
+    - cultural
+    - transition
+    - reward
+    - circulation
+    - medieval
+    - viking
+    connectionSocketPaths:
+    - ShrineSockets/StreetConnection
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_nordic_shrine_assembly
+      sourceSignature: 28779ab17d69390cbdfdbeef743d0357
+      reviewState: 1
+      reviewNote: 'Actual Nordic altar, native Viking floor threshold and chest:
+        measured support contacts, four headings at three terrain grades, supported
+        walking/capsule transition and native reward binding. Open forecourt, no
+        lockpickable gateway. Detached source qualification only.'
+      curation:
+        contractVersion: 2
+        primaryRole: 15
+        primaryFunction: 6
+        secondaryRoles: 
+        secondaryFunctions: 0d0000000b000000070000000a000000
+        environments: 01000000
+        affordances: 100000000600000007000000050000000400000001000000
+        familyId: qualified_nordic_shrine
+        variantGroupId: yq_nordic_shrine_assembly
+        supportMode: 2
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0.15
+        maximumSupportRelief: 0.04
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_nordic_shrine_assembly:StreetConnection
+          kind: 1
+          transformPath: ShrineSockets/StreetConnection
+          localPosition: {x: 0, y: 0, z: -2.1454163}
+          localRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_StreetConnection
+        - socketId: yq_nordic_shrine_assembly:Entrance
+          kind: 2
+          transformPath: ShrineSockets/Entrance
+          localPosition: {x: 0, y: 0, z: -2.1454163}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_Entrance
+        - socketId: yq_nordic_shrine_assembly:Exit
+          kind: 3
+          transformPath: ShrineSockets/Exit
+          localPosition: {x: 0, y: 0, z: 2.1454163}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_Exit
+        - socketId: yq_nordic_shrine_assembly:AltarAccess
+          kind: 8
+          transformPath: ShrineSockets/AltarAccess
+          localPosition: {x: 0.00007498264, y: 0, z: 2.7249439}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_AltarAccess
+        - socketId: yq_nordic_shrine_assembly:RewardAccess
+          kind: 8
+          transformPath: ShrineSockets/RewardAccess
+          localPosition: {x: 2.300066, y: 0, z: 1.7373784}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_RewardAccess
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 1
+        sourceSignature: 28779ab17d69390cbdfdbeef743d0357
+        completeStructuralDependencies: 1
+        foundationVerified: 1
+        terrainContactVersion: 1
+        terrainContacts:
+        - supportPath: Altar
+          localBottom: {x: -0.7841463, y: -0.060000017, z: 3.5399551}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.7841463, y: -0.060000017, z: 4.1533484}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.7057242, y: -0.060000017, z: 3.8466518}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.6273021, y: -0.060000017, z: 3.5399551}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.6273021, y: -0.060000017, z: 4.2300224}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.5488799, y: -0.060000017, z: 3.8466518}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.4704578, y: -0.060000017, z: 3.5399551}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.4704578, y: -0.060000017, z: 4.2300224}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.3920357, y: -0.060000017, z: 3.9233258}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.31361353, y: -0.060000017, z: 3.5399551}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.31361353, y: -0.060000017, z: 4.2300224}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.2351914, y: -0.060000017, z: 3.9233258}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.15676929, y: -0.060000017, z: 3.6166294}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.15676929, y: -0.060000017, z: 4.3066964}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: -0.07834713, y: -0.060000017, z: 3.9233258}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.00007498264, y: -0.060000017, z: 3.6166294}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.00007498264, y: -0.060000017, z: 4.3066964}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.0784971, y: -0.060000017, z: 4}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.15691921, y: -0.060000017, z: 3.6166294}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.15691921, y: -0.060000017, z: 4.3066964}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.23534143, y: -0.060000017, z: 4}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.31376353, y: -0.060000017, z: 3.6933033}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.31376353, y: -0.060000017, z: 4.383371}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.39218566, y: -0.060000017, z: 4}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.47060776, y: -0.060000017, z: 3.6933033}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.47060776, y: -0.060000017, z: 4.383371}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.5490299, y: -0.060000017, z: 4.076674}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.627452, y: -0.060000017, z: 3.6933033}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.627452, y: -0.060000017, z: 4.383371}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.7058742, y: -0.060000017, z: 4.076674}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.78429633, y: -0.060000017, z: 3.7699776}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Altar
+          localBottom: {x: 0.78429633, y: -0.060000017, z: 4.460045}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.90369755, y: -0.043299362, z: -0.8951429}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.90369755, y: -0.045633502, z: -0.5837889}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.90369755, y: -0.047067948, z: -0.03891921}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.90369755, y: -0.03949277, z: 0.4281119}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.90369755, y: -0.044118624, z: 0.81730443}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.051200546, z: -1.05082}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.05536292, z: -0.6616274}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.05205097, z: -0.3502735}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.059033427, z: 0.03891921}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.05831483, z: 0.3502733}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.057102744, z: 0.7394659}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.82511514, y: -0.058151674, z: 1.05082}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.05503056, z: -0.8951429}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.056834135, z: -0.5837889}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.057951834, z: -0.19459629}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.05693564, z: 0.11675775}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.058280643, z: 0.5059504}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: -0.7465328, y: -0.05699791, z: 0.8173044}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.03680669, z: -1.05082}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679504, y: -0.03714706, z: -0.73946583}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.04139507, z: -0.35027337}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.042356916, z: -0.03891921}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.054668527, z: 0.35027337}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.04085194, z: 0.6616274}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.6679505, y: -0.041669656, z: 1.05082}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.04160293, z: -0.9729816}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.03985838, z: -0.58378875}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.041457985, z: -0.27243483}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.039426643, z: 0.11675775}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.053041883, z: 0.4281118}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465328, y: -0.04167606, z: 0.81730443}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: Approach/SM_StrongholdWallBase_FloorPiece_LOD0
+          localBottom: {x: 0.7465329, y: -0.04097738, z: 1.2064971}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 2.4736407}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 2.546165}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 2.6912134}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 2.8362622}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 2.9813108}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.1195111, y: -0.060000032, z: 3.1263592}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.191733, y: -0.060000032, z: 2.546165}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.191733, y: -0.060000032, z: 2.6912134}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.191733, y: -0.060000032, z: 2.8362622}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.191733, y: -0.060000032, z: 2.9813108}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.191733, y: -0.060000032, z: 3.1263592}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.2639549, y: -0.060000032, z: 2.4736407}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.2639549, y: -0.060000032, z: 2.618689}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.2639549, y: -0.060000032, z: 2.7637377}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.2639549, y: -0.060000032, z: 2.9087863}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.2639549, y: -0.060000032, z: 3.0538352}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 2.4736407}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 2.618689}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 2.7637377}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 2.9087863}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 3.0538352}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.3361769, y: -0.060000032, z: 3.1263592}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.408399, y: -0.060000032, z: 2.546165}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.408399, y: -0.060000032, z: 2.6912134}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.408399, y: -0.060000032, z: 2.8362622}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.408399, y: -0.060000032, z: 2.9813108}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.408399, y: -0.060000032, z: 3.1263592}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.480621, y: -0.060000032, z: 2.546165}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.480621, y: -0.060000032, z: 2.6912134}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.480621, y: -0.060000032, z: 2.8362622}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.480621, y: -0.060000032, z: 2.9813108}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        - supportPath: RewardChest
+          localBottom: {x: 2.480621, y: -0.060000032, z: 3.1263592}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.15
+        externalConnectionPaths:
+        - ShrineSockets/StreetConnection
+      doorBindings: []
+      lootBindings:
+      - bindingId: shrine_reward
+        targetPath: RewardChest
+        sourceSignature: 28779ab17d69390cbdfdbeef743d0357
+        sourcePrefabGuid: abc00000000013195712083664174406
+        reviewState: 1
+        purpose: 1
+        containerType: 0
+        sourceLocalPosition: {x: 2.3, y: -0.05999952, z: 2.8}
+        sourceLocalRotation: {x: 0, y: 0, z: 0, w: 1}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.000066, y: 0.256456, z: -0}
+        colliderSize: {x: 0.433332, y: 0.512913, z: 0.725243}
+        accessSocket:
+          socketId: yq_nordic_shrine_assembly:RewardAccess
+          kind: 8
+          transformPath: ShrineSockets/RewardAccess
+          localPosition: {x: 2.300066, y: 0, z: 1.7373784}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0.8, y: 1.8, z: 0.8}
+          compatibilityKey: shrine_RewardAccess

@@ -1,0 +1,467 @@
+fileFormatVersion: 2
+guid: 6d5aed4043bf50279b873eb1895af849
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: Navigation_Idle
+  - first:
+      213: 21300002
+    second: Navigation_Hover
+  - first:
+      213: 21300004
+    second: Navigation_Selected
+  - first:
+      213: 21300006
+    second: Navigation_Pressed
+  - first:
+      213: 21300008
+    second: Tile_Idle
+  - first:
+      213: 21300010
+    second: Tile_Hover
+  - first:
+      213: 21300012
+    second: Tile_Selected
+  - first:
+      213: 21300014
+    second: Tile_Disabled
+  - first:
+      213: 21300016
+    second: Socket_Idle
+  - first:
+      213: 21300018
+    second: Socket_Hover
+  - first:
+      213: 21300020
+    second: Socket_Selected
+  - first:
+      213: 21300022
+    second: Socket_Confirm
+  - first:
+      213: 21300024
+    second: Panel_Dark
+  - first:
+      213: 21300026
+    second: Panel_Pearl
+  - first:
+      213: 21300028
+    second: Action_Idle
+  - first:
+      213: 21300030
+    second: Action_Active
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  streamingMipmaps: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  compressionQuality: 100
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 100
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Navigation_Idle
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 1023
+        width: 296
+        height: 121
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 64, y: 38, z: 64, w: 38}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4eb2afe0d4aa560c8a89915b433f0da8
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Navigation_Hover
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 1024
+        width: 298
+        height: 121
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 64, y: 38, z: 64, w: 38}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 917fec37330557bd96f1a63a37cfa9a9
+      internalID: 21300002
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Navigation_Selected
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 1020
+        width: 299
+        height: 125
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 64, y: 38, z: 64, w: 38}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e40c08836a65c39b172e3e5cfb7cc80
+      internalID: 21300004
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Navigation_Pressed
+      rect:
+        serializedVersion: 2
+        x: 943
+        y: 1022
+        width: 300
+        height: 123
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 64, y: 38, z: 64, w: 38}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 992a9cac7fef5e94a27fe03f418dc4cf
+      internalID: 21300006
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Idle
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 681
+        width: 244
+        height: 229
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 40, z: 40, w: 40}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2347ce3bdc2559fc8c3acfd4b5a329ce
+      internalID: 21300008
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Hover
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 682
+        width: 242
+        height: 229
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 40, z: 40, w: 40}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd8c27856b3d59f380d94533ee525bf3
+      internalID: 21300010
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Selected
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 680
+        width: 260
+        height: 231
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 40, z: 40, w: 40}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b77efa6d3b4753f1937c9157129c139b
+      internalID: 21300012
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tile_Disabled
+      rect:
+        serializedVersion: 2
+        x: 967
+        y: 681
+        width: 242
+        height: 229
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 40, z: 40, w: 40}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67efc39890c55a1eb7aa5f3e09ada406
+      internalID: 21300014
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Socket_Idle
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 377
+        width: 236
+        height: 230
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bfcab6a27765a5c94035a47d2cdea63
+      internalID: 21300016
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Socket_Hover
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 376
+        width: 240
+        height: 234
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb1b9994f4155d9d961e016b1899d8c5
+      internalID: 21300018
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Socket_Selected
+      rect:
+        serializedVersion: 2
+        x: 644
+        y: 374
+        width: 258
+        height: 237
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea438faadd4d5af8bc886ac2d9c9dafc
+      internalID: 21300020
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Socket_Confirm
+      rect:
+        serializedVersion: 2
+        x: 961
+        y: 370
+        width: 257
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05189d8f615f51cfa9dee4e2304eb9e5
+      internalID: 21300022
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel_Dark
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 68
+        width: 279
+        height: 249
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 60, y: 60, z: 60, w: 60}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b90674aa38e5356881e42abfeeeece7
+      internalID: 21300024
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Panel_Pearl
+      rect:
+        serializedVersion: 2
+        x: 337
+        y: 68
+        width: 281
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 60, y: 60, z: 60, w: 60}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5654779d9bf6520ba8681b564d162721
+      internalID: 21300026
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Action_Idle
+      rect:
+        serializedVersion: 2
+        x: 642
+        y: 141
+        width: 288
+        height: 97
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 34, z: 44, w: 34}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efccff0b4a2e5453932109739eb1c33a
+      internalID: 21300028
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Action_Active
+      rect:
+        serializedVersion: 2
+        x: 946
+        y: 141
+        width: 285
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 44, y: 34, z: 44, w: 34}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc46484bde775623b876508dd3409af7
+      internalID: 21300030
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID:
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Navigation_Idle: 21300000
+      Navigation_Hover: 21300002
+      Navigation_Selected: 21300004
+      Navigation_Pressed: 21300006
+      Tile_Idle: 21300008
+      Tile_Hover: 21300010
+      Tile_Selected: 21300012
+      Tile_Disabled: 21300014
+      Socket_Idle: 21300016
+      Socket_Hover: 21300018
+      Socket_Selected: 21300020
+      Socket_Confirm: 21300022
+      Panel_Dark: 21300024
+      Panel_Pearl: 21300026
+      Action_Idle: 21300028
+      Action_Active: 21300030
+  userData: YourQuest Blueglass art kit v1
+  assetBundleName:
+  assetBundleVariant:

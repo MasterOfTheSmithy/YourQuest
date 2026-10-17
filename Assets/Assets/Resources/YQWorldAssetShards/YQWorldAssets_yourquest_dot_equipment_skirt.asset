@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_skirt
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Dragonbound_Female.prefab
+    prefab: {fileID: 4476331993268547045, guid: 2596ebe5321690b4f86a64f72ec5d7ff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Dragonbound_Male.prefab
+    prefab: {fileID: 1397099116761212192, guid: f3dd1c0cb22690342980385853700a66, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Eclipse_Female.prefab
+    prefab: {fileID: 7402602917630688555, guid: 1490771390534ec43948424b12d0b5bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Eclipse_Male.prefab
+    prefab: {fileID: 8711810076456034371, guid: 859f237b97f2dff4cbd5d6e8fbf509e1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Field_Female.prefab
+    prefab: {fileID: 4339833690463544335, guid: 7e2a4cd54f7955a4d8fc6da00fe7fc8a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Field_Male.prefab
+    prefab: {fileID: 453497325521680752, guid: aa2d38baf782743478c7a1bdaee8269c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Lamellar_Female.prefab
+    prefab: {fileID: 5440715654567529750, guid: 412feba0603ef884e993a5ee8a4974e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Lamellar_Male.prefab
+    prefab: {fileID: 1508959166424598029, guid: 27832428e70446342b43096c31f0b425, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Ranger_Female.prefab
+    prefab: {fileID: 5618556247356484656, guid: baf92b41025a0f043a7516b0120b2e41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Ranger_Male.prefab
+    prefab: {fileID: 3299405570927911594, guid: 57c9fb1d5a9759b48ac19b1d38881d08, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Sentinel_Female.prefab
+    prefab: {fileID: 3194369944711614036, guid: a340393d57be7fe4c95930e6fb639bce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Sentinel_Male.prefab
+    prefab: {fileID: 4821756997845560632, guid: 728392c978729d2419fe3d27e61b22c2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 4206112475028742818, guid: de5a8c77352b9c04ab96d1bba594b059, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 2112633639973359886, guid: 913e2948e8381f246b02350a16db03f2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Traveler_Female.prefab
+    prefab: {fileID: 9150823354818427635, guid: 35581cedfd185f942980705ade3fc5b8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Traveler_Male.prefab
+    prefab: {fileID: 5022500807761729859, guid: 71975b21d7e2f1b4db01a7e18fd4692f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 305113653907427162, guid: f7358150a0c8a414883b6c2d48e434e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 256774618616020109, guid: 1adaa7740defa954581c89b95fb64e50, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Field_Male_Parts.prefab
+    prefab: {fileID: 6216064904855728252, guid: de517331a68cfd24a80bd96578357872, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Field_Female_Parts.prefab
+    prefab: {fileID: 1332386532993148552, guid: 35a5858cf4f38c5488e8b2197b52fea9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Ranger_Male_Parts.prefab
+    prefab: {fileID: 66779428950504711, guid: 3724c79fc8e0ddc44aaeffc30a6e7a38, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Ranger_Female_Parts.prefab
+    prefab: {fileID: 1991175271596531806, guid: 77310f91224ec9e49b696d1828e08553, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 7510555382577002433, guid: 527c187b4d79b4f488900f77e0a443e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 6235181231073387457, guid: bb55d93357a7f9f40ad6a11d2cc39cef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Traveler_Male_Parts.prefab
+    prefab: {fileID: 1391329067749701747, guid: b48d3c4ed68fbd241af16884f7bf02be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Traveler_Female_Parts.prefab
+    prefab: {fileID: 5876198545688699233, guid: 81688be7cd5424144968fa608df077bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 7409765599448138598, guid: a653cd0b867164148849a0a900945f4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 1903536327034609232, guid: c34444750ae0a1642bd25db1ec724d18, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 166110201177503586, guid: 0714e74535072ad4e8396663d36b9b85, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 945951607849559421, guid: 1835602023772834fb5ec49e99fa217e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 7385678353543097239, guid: 3c4d78d53fd55444abb8a12c948d481a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 8398063067147903408, guid: 032754a0c49f71b4786837697161e448, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 8791494336244827476, guid: 916d4f2abfa842045927a94ec4721bc8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 4899039118474872326, guid: 9281ccce06f03c942bbbd61f39b7ff72, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7637753247080425759, guid: 31432f73cb2052a43aebb863b2599112, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/skirt/Skirt_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 4382192833037549161, guid: b4a43be1ce8a06643bcf88eb3d261814, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

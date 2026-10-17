@@ -1,0 +1,229 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: qualified_occupied_homestead
+  semanticStyleKey: medieval_viking_village
+  sourceSignature: beb0cffc83637454e5bfa95de6569c24
+  topology: 5
+  streamingSite: {fileID: 0}
+  sourceInstanceCount: 57
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_independent_home_house4
+    displayName: Independent furnished home
+    districtFunction: 4
+    prefab: {fileID: 5352866267360729184, guid: 15c20c38e0c60974cb750f654344c2c5, type: 3}
+    authoredSourceOrigin: {x: 0, y: -3.6795058, z: 0}
+    localBoundsCenter: {x: -31.97609, y: 7.554573, z: -3.0069497}
+    localBoundsSize: {x: 13.418449, y: 8.46019, z: 7.1795096}
+    sourceInstanceCount: 57
+    authoredBuildingCount: 1
+    authoredDressingCount: 0
+    semanticTags:
+    - encounter
+    - perimeter
+    - circulation
+    - poi
+    - medieval
+    - viking
+    - occupied_homestead
+    connectionSocketPaths:
+    - YQ_V2_EntranceRepairs/SM_House4_Door6_StairApproach/StreetConnection
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_independent_home_house4
+      sourceSignature: beb0cffc83637454e5bfa95de6569c24
+      reviewState: 1
+      reviewNote: 'Qualified existing furnished home: structural contacts, door/loot
+        binding, access clearances and 25 production street placements verified.'
+      curation:
+        contractVersion: 2
+        primaryRole: 15
+        primaryFunction: 12
+        secondaryRoles: 
+        secondaryFunctions: 0b00000004000000070000000a000000
+        environments: 
+        affordances: 060000000900000001000000040000000f000000050000000c000000
+        familyId: medieval_viking_village
+        variantGroupId: yq_viking_district_eastern_works
+        supportMode: 2
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0
+        maximumSupportRelief: 0
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_viking_district_eastern_works:YQ_V2_InteriorSockets/SleepingAccess
+          kind: 6
+          transformPath: YQ_V2_InteriorSockets/SleepingAccess
+          localPosition: {x: -28.411417, y: 4.6400003, z: -4.0581203}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: sleeping_access
+        - socketId: yq_viking_district_eastern_works:YQ_V2_InteriorSockets/StorageAccess
+          kind: 8
+          transformPath: YQ_V2_InteriorSockets/StorageAccess
+          localPosition: {x: -27.811417, y: 4.6400003, z: -4.2081203}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: storage_access
+        - socketId: yq_viking_district_eastern_works:YQ_V2_InteriorSockets/WorkAccess
+          kind: 8
+          transformPath: YQ_V2_InteriorSockets/WorkAccess
+          localPosition: {x: -31.761417, y: 4.6400003, z: -2.6081202}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: work_access
+        - socketId: yq_independent_home_house4:qualified:Entrance
+          kind: 2
+          transformPath: YQ_V2_EntranceRepairs/SM_House4_Door6_StairApproach/StreetConnection
+          localPosition: {x: -38.33277, y: 3.6795058, z: -4.10512}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: 
+        - socketId: yq_independent_home_house4:qualified:Connection
+          kind: 1
+          transformPath: YQ_V2_EntranceRepairs/SM_House4_Door6_StairApproach/StreetConnection
+          localPosition: {x: -38.33277, y: 3.6795058, z: -4.10512}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: 
+        - socketId: yq_independent_home_house4:homestead:Spawn
+          kind: 9
+          transformPath: YQ_V2_InteriorSockets/WorkAccess
+          localPosition: {x: -31.761417, y: 4.6400003, z: -2.6081202}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: work_access
+        - socketId: yq_independent_home_house4:homestead:Cover
+          kind: 12
+          transformPath: YQ_V2_InteriorSockets/WorkAccess
+          localPosition: {x: -31.761417, y: 4.6400003, z: -2.6081202}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: work_access
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 1
+        sourceSignature: beb0cffc83637454e5bfa95de6569c24
+        completeStructuralDependencies: 1
+        foundationVerified: 1
+        terrainContactVersion: 1
+        terrainContacts:
+        - supportPath: YQ_JoistedFoundation/Post_0_0
+          localBottom: {x: -33.11143, y: 3.325799, z: -6.35368}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_0_1
+          localBottom: {x: -33.11143, y: 3.325799, z: -3.0081196}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_0_2
+          localBottom: {x: -33.11143, y: 3.325799, z: 0.3374408}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_1_0
+          localBottom: {x: -29.289902, y: 3.325799, z: -6.35368}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_1_1
+          localBottom: {x: -29.289902, y: 3.325799, z: -3.0081196}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_1_2
+          localBottom: {x: -29.289902, y: 3.325799, z: 0.3374408}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_2_0
+          localBottom: {x: -25.468372, y: 3.325799, z: -6.35368}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_2_1
+          localBottom: {x: -25.468372, y: 3.325799, z: -3.0081196}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        - supportPath: YQ_JoistedFoundation/Post_2_2
+          localBottom: {x: -25.468372, y: 3.325799, z: 0.3374408}
+          minimumEmbedDepth: 0
+          maximumEmbedDepth: 0.7504946
+        externalConnectionPaths: []
+      doorBindings:
+      - bindingId: SM_House4_Door6
+        targetPath: SM_House4_Door6
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 1
+        reviewNote: Candidate passage and swing verified; terrain approach and visual
+          review pending.
+        passageVerified: 1
+        sourceLocalPosition: {x: -32.811417, y: 4.8, z: -4.7081203}
+        sourceLocalRotation: {x: 0, y: 1, z: 0, w: 0}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 86, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 1
+          authoredRouteVerified: 1
+          supportPath: YQ_V2_EntranceRepairs/SM_House4_Door6_StairApproach/LowerLanding
+          localStart: {x: -38.33277, y: 3.6795058, z: -4.10512}
+          localOutward: {x: -1.0000001, y: 0, z: -0.00000011920929}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0.12
+      lootBindings:
+      - bindingId: personal_storage
+        targetPath: YQ_V2_InteriorFurnishings/Personal_Storage
+        sourceSignature: beb0cffc83637454e5bfa95de6569c24
+        sourcePrefabGuid: abc00000000013195712083664174406
+        reviewState: 1
+        purpose: 0
+        sourceLocalPosition: {x: -26.86047, y: 4.640257, z: -4.215753}
+        sourceLocalRotation: {x: 0, y: 1, z: 0, w: 0}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.000066, y: 0.256456, z: 0}
+        colliderSize: {x: 0.433332, y: 0.512913, z: 0.725243}
+        accessSocket:
+          socketId: yq_viking_district_eastern_works:YQ_V2_InteriorSockets/StorageAccess
+          kind: 8
+          transformPath: YQ_V2_InteriorSockets/StorageAccess
+          localPosition: {x: -27.811417, y: 4.6400003, z: -4.2081203}
+          localRotation: {x: 0, y: 1, z: 0, w: 0}
+          clearanceSize: {x: 0.76, y: 1.8, z: 0.76}
+          compatibilityKey: storage_access

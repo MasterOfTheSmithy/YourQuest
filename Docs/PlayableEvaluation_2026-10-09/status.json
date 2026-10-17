@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "parent_goal": "Fast, believable, playable YourQuest and complete source evaluation",
+  "request_path": "C:/Users/Garri/.codex/attachments/0222a2de-ba4e-4a74-b98a-c241cb0099ec/Pasted text.txt",
+  "runtime_slice": "in_progress",
+  "candidate_evaluation": "in_progress",
+  "required_sources": 48,
+  "additional_controls_and_variants": 4,
+  "milestones": {
+    "1_control_and_coverage": "in_progress",
+    "2_runtime_candidates_and_stack": "not_complete",
+    "3_playable_acceptance": "not_verified",
+    "4_development_tools": "not_complete"
+  },
+  "evidence_policy": "Source, detached compile, standalone inference, instrumented Unity and ordinary microphone/playback evidence remain separate. Historical receipts do not certify this goal.",
+  "runtime_observation": {
+    "date": "2026-10-09",
+    "gpu": "NVIDIA GeForce RTX 5060",
+    "gpu_vram_mib": 8151,
+    "driver": "610.88",
+    "editor": "6000.3.2f1",
+    "scene": "YourQuest_PlaySafe",
+    "play_mode": true,
+    "visible_console_errors": 2,
+    "observed_error_kind": "Two retained FrontierLocationBrief truncated structured-JSON errors during ordinary Continue; dialogue opening/input unresolved.",
+    "profile_id": "18452e6b66b444a3935c9a3118a2f5e9",
+    "accepted_seed": "72787057",
+    "playable_acceptance": "NOT_VERIFIED",
+    "observation_utc": "2026-10-10T00:06:42.8913233Z",
+    "observation_note": "Read-only paused ordinary-control capture: HUD/presentation ready, one authoritative motor and audio listener, same accepted seed. Three checked publication contracts pass. The7.582s construction peak is background/startup evidence, not dialogue frame timing. E Talk to Archivist Vey was visible, but the input check did not open dialogue. No microphone/device-audible acceptance.",
+    "paused": true,
+    "maximum_aggregate_work_seconds": 7.582,
+    "maximum_aggregate_work_stage": "frontierConstruction"
+  },
+  "ownership": {
+    "primary": "Integration, live files, quarantine, model rotation, Unity, GPU, acceptance",
+    "candidate_catalog_agent": "Bounded source/input preparation and completed-result analysis; no model imports, staging, Unity or computer use",
+    "review_agent": "Independent bounded source and evidence review; no live writes, model imports, staging, Unity or computer use"
+  },
+  "masters_root": "E:/Temp text models",
+  "staging_root": "C:/Users/Garri/Downloads/YourQuest-ModelTests",
+  "quarantine_root": "E:/YourQuest-TempFiles",
+  "downloads_started": true,
+  "staging_created": true,
+  "production_saves_mutated": false,
+  "remaining": [
+    "User requested automated checks first. Real human microphone/control reproduction and >=50 ordinary spoken turns remain pending.",
+    "Complete all remaining viable candidate-role runs and source-specific license/hardware reviews; do not treat adapter absence as exclusion.",
+    "Run equivalent retrieval and speech combinations, human listening, full structured-generation supplements and representative Unity load.",
+    "Verify integrated ordered offer UI/ordinal binding and aid/report producers through the real owner and ordinary flow; finish Goddess narration/qualification.",
+    "Verify actual reload, score independence, interruption/echo/retry behavior, device latency and frame times; no milestone acceptance yet.",
+    "Current manifest unit=SRC-11-source-native-export, state=clean; keep exact manifest rotation guards and finish with owned staging cleaned."
+  ],
+  "updated_utc": "2026-10-10T01:29:39.969043+00:00",
+  "coverage": {
+    "sources": 52,
+    "pinned": 52,
+    "use_cases": 33,
+    "fixtures": 165,
+    "candidate_role_cells": 138,
+    "all_runtime_results": "Detached text: control 22 initial +4 revised tuning /33 held-out; MiniFantasy 4/6; Kimi 6/9; SRC17/18/19 each22/33. Detached CPU: 40 ONNX text/image/audio/board cases; 35 native retrieval cases. Kokoro64 + int8Kokoro64 + Piper40 syntheses and four-voice synthetic ASR/VAD combination. Native generation:63 completed case/run outputs plus15 retained loader-blocked cases reviewed. MobileBERT chose label A in25/25 reorderings. SigLIP5, Depth Anything5 and GroundingDINO5 CPU cases completed; Florence15 native cases completed and independently reviewed; MusicGen4 actual WAVs plus one license-gated row; CodeT5 native span5 completed with zero expected matches; Qwen coding20 outputs reviewed, six pure fragments executed with18 semantic failures. Two coding fragments have genuine signature mismatch compiler receipts. None replaces ordinary audible acceptance."
+  },
+  "staging_unit": "SRC-11-source-native-export",
+  "offer_patch": {
+    "evidence": "DETACHED_ACTUAL_PRODUCTION_ASSEMBLY_FAULT_TESTS",
+    "passed": 15,
+    "total": 15,
+    "receipt": "Docs/PlayableEvaluation_2026-10-09/reviews/action_commit/run-ca881b7109e04b0ea90b3edc4ddac68d/offer-fault-results.json",
+    "ordinary_owner_microphone_audio": "NOT_VERIFIED"
+  },
+  "disposable_test_profile_mutated_via_ordinary_flow": true,
+  "startup_repairs": {
+    "detail_eligible_minimum": "ordinary cell(6,8) publication check passed; no visible-travel claim",
+    "reviewed_anchor": "Same accepted north/east and current-cell publication passed after shared foundation interval repair; no travel claim.",
+    "foundation_interval": "Same accepted seed reached HUD; fresh three-cell publication checks pass. Two unrelated-to-publication frontier JSON errors are retained; no travel certification.",
+    "latest_compile": "outputs/PlayableEvaluation_20261009/worker-observation-compile-1/receipt.json",
+    "latest_ordinary_receipt": "outputs/PlayableEvaluation_20261009/startup/publication-20261010T000642889Z.json"
+  },
+  "control_tuning": {
+    "initial_run": "outputs/PlayableEvaluation_20261009/text/control-tuning-1/result.json",
+    "independent_review": "reviews/text_control_tuning1/review.json",
+    "revised_run": "outputs/PlayableEvaluation_20261009/text/control-tuning-2/result.json",
+    "result": "FAIL: revised prompts still invent promise completion and accept without presented binding; no further tuning before frozen held-out assessment",
+    "audible_latency": "NOT_MEASURED"
+  },
+  "first_weight_download": "Official Qwen/Qwen3-4B-GGUF Q4_K_M pinned bc640142c66e1fdd12af0bd68f40445458f3869b;3 verified E: masters including card/license; C: unchanged at download.",
+  "speech_archive": "Original pinned speech unit plus source-native ONNX/JETS, int8Kokoro and selected Piper masters verified on E:; original production stack retained.",
+  "dialogue_patch": {
+    "compile": "0 errors/warnings;29.90s detached current runtime/editor",
+    "pure_checks": "7/7 against actual compiled assembly",
+    "qualified_semantic_repair": "NOT_ENABLED_BY_THIS_PATCH; contract change requires fresh qualification",
+    "ordinary_behavior": "NOT_VERIFIED"
+  },
+  "computer_use": "AUTHORIZED_BY_USER; automated checks requested before real microphone acceptance",
+  "social_patch": {
+    "compile": "393 runtime/183 editor sources;0 errors/warnings;29.3678s detached compile; final source hashes unchanged",
+    "focused_checks": "85 groups on the preceding ordered-offers assembly:45 displayed-offer resolver/early guard,7 legacy parser,15 domain/store/selector,18 social domain/inventory/store/completion. Offer/social owner sources unchanged since those checks; later welcome-routing and Editor-only tools have separate compilation evidence.",
+    "receipt": "Tools/PlayableEvaluation/social_producer_tests/runs/run-ad763e11959c42aa9453b183e6d63533/results.json",
+    "independent_review": "Docs/PlayableEvaluation_2026-10-09/reviews/social_producers_primary/final_evidence.json",
+    "producer_integration": "Scoped accepted supply gift and one-recipient report integrated; original turn guards and deterministic report replay; protected published-success callback",
+    "ordinary_behavior": "NOT_VERIFIED",
+    "schema": "8 unchanged"
+  },
+  "voice_assignment_patch": {
+    "detached_checks": "5/5 compiled checks",
+    "native_metadata_checks": "4/4 EditMode hierarchy checks before computer-use pause",
+    "receipt": "outputs/PlayableEvaluation_20261009/voice-native/metadata-20261009T213631095Z.json",
+    "actual_resident_reload_and_audible_fit": "NOT_VERIFIED"
+  },
+  "piper": {
+    "cells": 40,
+    "warm_cells": 30,
+    "warm_full_wav_median_ms": 617.6504000322893,
+    "warm_full_wav_p95_ms": 908.798000018578,
+    "warm_full_wav_worst_ms": 1055.1046000327915,
+    "first_pcm_or_device_audible": "NOT_MEASURED",
+    "listening_and_identity_fit": "PENDING",
+    "receipt": "outputs/PlayableEvaluation_20261009/speech/piper-1/result.json"
+  },
+  "offer_language_patch": {
+    "compile": "outputs/PlayableEvaluation_20261009/ordered-offers-compile-2/receipt.json",
+    "checks": "7/7 actual parser groups plus45/45 displayed-list resolver/early guard and15/15 offer/store groups",
+    "receipt": "Tools/PlayableEvaluation/offer_language_tests/runs/run-8b1492c64fcc4b398631f0a1eafb779c/results.json",
+    "behavior": "Finite nonbinding comments plus explicit acceptance/decline of the one actually presented offer",
+    "ordered_display_and_ordinal_binding": "SOURCE_INTEGRATED; frozen actually rendered list, epoch/profile/NPC/terms guards and owner prepublication predicate; ordinary UI/owner/spoken path NOT_VERIFIED",
+    "ordinary_spoken_behavior": "NOT_VERIFIED"
+  },
+  "native_generation_review": "Docs/PlayableEvaluation_2026-10-09/reviews/native_generation_primary/evaluation.json",
+  "staging": {
+    "state": "clean",
+    "files": 3,
+    "processes": [],
+    "cleaned_utc": "2026-10-10T01:28:06.264709+00:00",
+    "current_owned_files_present": 0
+  },
+  "ordered_offer_evidence": "Docs/PlayableEvaluation_2026-10-09/reviews/ordered_offers_integration/primary_evidence.json",
+  "native_nontext_reviews": [
+    "Docs/PlayableEvaluation_2026-10-09/reviews/florence_results_completed",
+    "Docs/PlayableEvaluation_2026-10-09/reviews/audio_code_completed",
+    "Docs/PlayableEvaluation_2026-10-09/reviews/qwen_code_completed"
+  ],
+  "qwen_compile_checks": {
+    "semantic_receipt": "Tools/PlayableEvaluation/qwen_code_compile_tests/output/qwen-code-compile-2/results.json",
+    "signature_receipt": "Tools/PlayableEvaluation/qwen_code_compile_tests/output/qwen-code-compile-3/results.json",
+    "original_preflight_failure_retained": "qwen-code-compile-1; expectation wording parser IndexError corrected without changing fixtures",
+    "compile_wrapper_failure_retained": "qwen-code-compile-2; unwanted Exe entrypoint errors corrected in compile-only Library rerun",
+    "semantic_failures": 18,
+    "unsafe_reward_or_motor_outputs_executed": false,
+    "acceptance": "NOT_ACCEPTED"
+  },
+  "automated_owner_checks": {
+    "status": "INSTALLED_AND_COMPILED; explicit read-only Unity capture executed; real owner transactions not run",
+    "scope": "Unique existing disposable profile; coherent loaded assembly identity, paired-state admission, reviewed backup, exclusive quiescence required",
+    "packet": "Tools/PlayableEvaluation/offer_owner_verification",
+    "installation": "Docs/PlayableEvaluation_2026-10-09/reviews/offer_owner_verification/installation.json",
+    "name_correction": "Docs/PlayableEvaluation_2026-10-09/reviews/offer_owner_verification/name_revision_2/application.json",
+    "compile": "outputs/PlayableEvaluation_20261009/worker-observation-compile-1/receipt.json",
+    "detached_compile": "393 runtime/185 Editor sources; successful build with source hashes unchanged; see latest completed receipt",
+    "windows_replacement_probe": "Tools/PlayableEvaluation/offer_owner_verification/probe-builds/418c6ca0650d4f1f9cc30de9b8a73eea/receipt.json",
+    "windows_probe_result": "PASS: reads allowed and replacement denied under owned read lock; succeeds after release. Detached files only, not real-owner or save proof.",
+    "latest_read_only_capture": {
+      "path": "Docs/PlayableEvaluation_2026-10-09/reviews/offer_owner_verification/captures/capture-f6319a68ae20484f8b6a9e62eeb7fb49.json",
+      "utc": "2026-10-10T01:01:11.2025213Z",
+      "runtime_sha256": "3c4be9d6e5143c2754cabf7ab2470fb2bce5393e8a2b35a0a5e97a97fcb3c8c0",
+      "runtime_mvid": "b448880d-5904-40f1-8145-1000ebe42405",
+      "active_profile_id": "18452e6b66b444a3935c9a3118a2f5e9",
+      "known_owner_quiescence": false,
+      "blockers": [
+        "Speech/retrieval/request work is active."
+      ],
+      "evidence": "READ_ONLY_PRIMARY_EDITOR_CAPTURE_NOT_TRANSACTION_OR_ORDINARY_INPUT_PROOF",
+      "pending_offer_count": 1,
+      "limitation": "Original completion counters and empty work maps do not observe retired tasks; no owner transaction acceptance."
+    },
+    "worker_lifetime_review": "Docs/PlayableEvaluation_2026-10-09/reviews/offer_owner_verification/preflight_reliability_review/OBSERVATION_CONTRACT.md",
+    "keyboard_delivery": "E/F2 automation did not produce a confirmed UI/mute change despite actual Vey talkability true and modal false. Actual keyboard edge delivery is unresolved; microphone remains pending.",
+    "worker_lifetime_integration": {
+      "application": "Docs/PlayableEvaluation_2026-10-09/reviews/worker_lifetime_integration/revision_3/application.json",
+      "behavior_review": "Docs/PlayableEvaluation_2026-10-09/reviews/worker_lifetime_integration/revision_2/independent_review.md",
+      "pure_results": "Tools/PlayableEvaluation/worker_lifetime_preview/revision_2/pure_tests/runs/run-98fba4f9fe61435e990a42e68c89b243/results.json",
+      "evidence": "16/16 detached actual tracker groups; coherent compile; unchanged line bytes restored and normalized reviewed behavior preserved",
+      "runtime": "Fresh tracked lifecycle and real-owner fault scenarios NOT_VERIFIED"
+    },
+    "whole_profile_backup": {
+      "witness": "Docs/PlayableEvaluation_2026-10-09/reviews/offer_owner_verification/backups/OfferOwnerControl-20261010T012034Z-9b734fc83359466cb4aff0cecafc6f08.json",
+      "receipt": "E:\\YourQuest-TempFiles\\OfferOwnerControl-20261010T012034Z-9b734fc83359466cb4aff0cecafc6f08\\manifest.json",
+      "sha256": "4faa5f6da3a89c581a1c9faacf9b60249e95712bbcc01d90749807ff2a45c6ce",
+      "files": 279,
+      "bytes": 182141823,
+      "revision": 90,
+      "original_deletions": 0,
+      "limitation": "EditMode preparation backup is verified preservation; fresh complete paused capture/unchanged inventory required before transactions"
+    }
+  },
+  "returning_goddess_routing": {
+    "status": "EXPLICIT_WELCOME_PURPOSE_INTEGRATED_AND_COMPILED",
+    "application": "Docs/PlayableEvaluation_2026-10-09/reviews/returning_welcome/application.json",
+    "cause": "The returning-journey caller used the default Commentary purpose and therefore generic uncertainty fallback.",
+    "semantic_qualification": "NOT_ENABLED_OR_CERTIFIED",
+    "ordinary_loading_audio": "NOT_VERIFIED"
+  },
+  "returning_goddess_fallback": {
+    "status": "MARKED_FALLBACK_VISIBLE_IN_ORDINARY_CONTINUE; device audio unverified",
+    "application": "Docs/PlayableEvaluation_2026-10-09/reviews/returning_goddess_fallback_preview/integration/application.json",
+    "visible_observation": "outputs/PlayableEvaluation_20261009/startup/returning-fallback-observation-20261010T0054.json",
+    "visible_text": "Welcome back. Your saved journey in YourQuest is still being prepared.",
+    "focused_checks": "26/26 verbatim pure formatter checks; not live scope/ticket/save or audio proof",
+    "preserved": "Generated reviewed prose primary; exact returning owner/purpose only; accepted facts, scope, novelty, evidence tickets and durable delivery unchanged",
+    "semantic_qualification": "NOT_ENABLED_OR_CERTIFIED"
+  },
+  "frontier_json_diagnostics": {
+    "status": "ACTUAL_NATIVE_OUTPUT_LIMIT_TERMINATION_CAPTURED",
+    "application": "Docs/PlayableEvaluation_2026-10-09/reviews/frontier_background_diagnosis/integration/application.json",
+    "focused_checks": "24/24 verbatim method checks; original17/18 failure retained and fixed with explicit field types",
+    "root_cause": "Native metadata: wireOutputLimit1200, thinkingfalse, finishReasonlength, completionTokens1200; rejected population[4]. Malformed output remains rejected.",
+    "native_failure": "Docs/PlayableEvaluation_2026-10-09/reviews/frontier_output_cap/native_failure_lines.txt",
+    "frame_metric": "7.582s is cumulative recorded wall time in one Time.frameCount; responsible substep/CPU/frame duration unproven"
+  },
+  "frontier_output_cap": {
+    "status": "SETTLEMENT_ONLY3000_CAP_INTEGRATED; runtime repair unverified",
+    "application": "Docs/PlayableEvaluation_2026-10-09/reviews/frontier_output_cap/application.json",
+    "preserved": "Hostile/POI1200; population/schema/typed acceptance/timeouts/no retries/player-facing preemption unchanged",
+    "compile": "outputs/PlayableEvaluation_20261009/worker-observation-compile-1/receipt.json"
+  },
+  "blaze_pose_native": {
+    "receipt": "outputs/PlayableEvaluation_20261009/mediapipe-native-pose-3/result.json",
+    "cases": 5,
+    "statuses": [
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold"
+    ],
+    "observed_pose_identity_shape": [
+      1,
+      195
+    ],
+    "normal_landmarker_executed": false,
+    "assisted_landmarker_calls": {
+      "identity_invocations": 5,
+      "tensor_returned": 5,
+      "errors": 0,
+      "skipped_no_actor_fixtures": 1
+    },
+    "own_rss_after_session_bytes": 83140608,
+    "quality": "NOT_QUALIFIED; synthetic/manual annotation/texture parity limitations remain",
+    "adapter_followup": "V6 actual5 assisted Identity calls expose195 scalars, official loop165 and preserved tail30; old v2/v3 results remain untouched"
+  },
+  "blaze_hand_native": {
+    "receipt": "outputs/PlayableEvaluation_20261009/mediapipe-native-hand-1/result.json",
+    "cases": 5,
+    "statuses": [
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold",
+      "no_detection_over_sample_threshold"
+    ],
+    "observed_identity_shape": [
+      1,
+      63
+    ],
+    "normal_landmarker_executed": false,
+    "assisted_landmarker_calls": {
+      "identity_invocations": 5,
+      "tensor_returned": 5,
+      "errors": 0,
+      "skipped_no_actor_fixtures": 1
+    },
+    "own_rss_after_session_bytes": 77074432,
+    "quality": "NOT_QUALIFIED; synthetic/manual annotation/texture parity limitations remain"
+  }
+}

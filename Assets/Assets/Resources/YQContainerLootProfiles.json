@@ -1,0 +1,83 @@
+{
+  "generationVersion": 1,
+  "profiles": [
+    {
+      "id": "household_clothing_v1", "sourceTypes": ["Wardrobe"], "minRolls": 0, "maxRolls": 2,
+      "maxRarity": "Uncommon", "rarityWeights": [85,15,0,0,0,0,0],
+      "entries": [
+        {"id":"trousers","itemKind":"legs","semanticName":"Trousers","assetSemantic":"clothing_legs","weight":5,"guaranteed":true},
+        {"id":"boots","itemKind":"boots","semanticName":"Travel Boots","assetSemantic":"clothing_boots","weight":3}
+      ]
+    },
+    {
+      "id": "kitchen_cupboard_v1", "sourceTypes": ["Cupboard"], "minRolls": 0, "maxRolls": 2,
+      "maxRarity": "Common", "rarityWeights": [100,0,0,0,0,0,0],
+      "entries": [
+        {"id":"bread","itemKind":"consumable","semanticName":"Bread","assetSemantic":"food","minQuantity":1,"maxQuantity":4,"weight":8,"guaranteed":true},
+        {"id":"spoon","itemKind":"supply","semanticName":"Spoon","assetSemantic":"utensil","minQuantity":1,"maxQuantity":3,"weight":3}
+      ]
+    },
+    {
+      "id": "provision_barrel_v1", "sourceTypes": ["Barrel"], "minRolls": 0, "maxRolls": 2,
+      "maxRarity":"Common", "rarityWeights":[100,0,0,0,0,0,0],
+      "entries":[{"id":"provisions","itemKind":"consumable","semanticName":"Stored Bread","assetSemantic":"food","minQuantity":1,"maxQuantity":6,"weight":1,"guaranteed":true}]
+    },
+    {
+      "id":"supply_crate_v1", "sourceTypes":["Crate"], "minRolls":0, "maxRolls":2,
+      "maxRarity":"Common", "rarityWeights":[100,0,0,0,0,0,0],
+      "entries":[
+        {"id":"utensils","itemKind":"supply","semanticName":"Packed Utensils","assetSemantic":"utensil","minQuantity":1,"maxQuantity":5,"weight":4},
+        {"id":"provisions","itemKind":"consumable","semanticName":"Packed Bread","assetSemantic":"food","minQuantity":1,"maxQuantity":3,"weight":3}
+      ]
+    },
+    {
+      "id":"regional_chest_v1", "sourceTypes":["Chest","Cache"], "minRolls":1, "maxRolls":3, "minGold":2, "maxGold":18,
+      "maxRarity":"Rare", "rarityWeights":[75,20,5,0,0,0,0],
+      "entries":[
+        {"id":"weapon","itemKind":"weapon","weight":2},
+        {"id":"boots","itemKind":"boots","weight":2},
+        {"id":"ring","itemKind":"ring_left","weight":1,"minLevel":3},
+        {"id":"food","itemKind":"consumable","semanticName":"Travel Rations","assetSemantic":"food","minQuantity":1,"maxQuantity":3,"weight":6}
+      ]
+    },
+    {
+      "id":"dungeon_reward_v1", "sourceTypes":["Chest","Cache"], "requiredTags":["encounter"], "priority":20,
+      "minLevel":8, "minRolls":1, "maxRolls":3, "minGold":40, "maxGold":120,
+      "maxRarity":"Legendary", "rarityWeights":[15,30,35,18,0,2,0],
+      "entries":[
+        {"id":"reward_weapon","itemKind":"weapon","weight":4,"guaranteed":true,"minLevel":8},
+        {"id":"offhand","itemKind":"offhand","weight":3,"minLevel":8},
+        {"id":"necklace","itemKind":"necklace","weight":2,"minLevel":8},
+        {"id":"rations","itemKind":"consumable","semanticName":"Expedition Rations","assetSemantic":"food","minQuantity":2,"maxQuantity":5,"weight":2}
+      ]
+    },
+    {
+      "id":"bandit_cache_v1", "sourceTypes":["Chest","Cache"], "requiredTags":["bandit"], "priority":10,
+      "minRolls":1, "maxRolls":3, "minGold":8, "maxGold":30, "maxRarity":"Rare", "rarityWeights":[70,25,5,0,0,0,0],
+      "entries":[
+        {"id":"gear","itemKind":"weapon","weight":4},
+        {"id":"stolen_utensils","itemKind":"supply","semanticName":"Stolen Utensils","assetSemantic":"utensil","minQuantity":1,"maxQuantity":3,"weight":5},
+        {"id":"rations","itemKind":"consumable","semanticName":"Bandit Rations","assetSemantic":"food","minQuantity":1,"maxQuantity":3,"weight":4}
+      ]
+    },
+    {
+      "id":"bandit_hostile_v1", "sourceTypes":["Hostile"], "requiredTags":["bandit"], "priority":10,
+      "minRolls":0, "maxRolls":2, "minGold":4, "maxGold":16, "maxRarity":"Rare", "rarityWeights":[75,20,5,0,0,0,0],
+      "entries":[
+        {"id":"carried_weapon","itemKind":"weapon","weight":1,"guaranteed":true},
+        {"id":"stolen_utensils","itemKind":"supply","semanticName":"Stolen Utensils","assetSemantic":"utensil","minQuantity":1,"maxQuantity":2,"weight":3,"bonusLoot":true},
+        {"id":"rations","itemKind":"consumable","semanticName":"Bandit Rations","assetSemantic":"food","minQuantity":1,"maxQuantity":2,"weight":5,"bonusLoot":true}
+      ]
+    },
+    {
+      "id":"hostile_remains_v1", "sourceTypes":["Hostile"], "minRolls":0, "maxRolls":1,
+      "maxRarity":"Uncommon", "rarityWeights":[90,10,0,0,0,0,0],
+      "entries":[{"id":"remains","itemKind":"supply","semanticName":"Creature Remains","assetSemantic":"logical_supply","weight":1,"bonusLoot":true}]
+    },
+    {
+      "id":"authored_empty_v1", "sourceTypes":["Chest","Wardrobe","Cupboard","Barrel","Crate","Cache","Hostile"],
+      "requiredTags":["loot:empty"], "priority":100, "minRolls":0, "maxRolls":0,
+      "maxRarity":"Common", "rarityWeights":[100,0,0,0,0,0,0], "entries":[]
+    }
+  ]
+}

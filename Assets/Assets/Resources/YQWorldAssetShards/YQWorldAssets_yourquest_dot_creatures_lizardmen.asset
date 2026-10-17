@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_lizardmen
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_Broad.prefab
+    prefab: {fileID: 2171203625143408150, guid: 40bd9c944bab17947894e7a125265256, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_Darklight.prefab
+    prefab: {fileID: 5290514356414669566, guid: d7337ba360fd75b41bbc0a88b5e94f3a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_Emberstone.prefab
+    prefab: {fileID: 6179293281599403808, guid: 7c313666e2268d049a0f5f93ce3fa7cc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_Refined.prefab
+    prefab: {fileID: 684847762535176364, guid: b1fe5d039c2005e40913eaac8f588a61, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_darkness_dorsal.prefab
+    prefab: {fileID: 7159318215883734048, guid: 4ec883184f6d429499540f7f9e479dfc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_darkness_temple_L.prefab
+    prefab: {fileID: 3360107035909303612, guid: 4532e27432a81db4eaae5494bae86e7c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_darkness_temple_R.prefab
+    prefab: {fileID: 8173186309264643647, guid: fa064e19258d1bd49a4cec2b12255761, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_earth_dorsal.prefab
+    prefab: {fileID: 4607685456295556361, guid: 438c763a031b3d74d8d2303edcc8ff14, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_earth_temple_L.prefab
+    prefab: {fileID: 8026572546703527289, guid: de87c5b20ac649f44874bda34b75bb22, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_earth_temple_R.prefab
+    prefab: {fileID: 7821479393886925291, guid: fae0e32bc25cc4442922785d61a02037, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_fire_dorsal.prefab
+    prefab: {fileID: 8864577654425713192, guid: 82753ea6bf1174446ad0608da504fbd4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_fire_temple_L.prefab
+    prefab: {fileID: 1976870367807970188, guid: 460cfaf49d9fbf744bda16a1dc927753, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_fire_temple_R.prefab
+    prefab: {fileID: 6778241553838198502, guid: 067dd717196334443800b06d7c170e5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_frost_dorsal.prefab
+    prefab: {fileID: 1195015542382538255, guid: 5ad6eefb79b3b7c4584fd7e4aad19359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_frost_temple_L.prefab
+    prefab: {fileID: 7599790187593944800, guid: 872c6dbf70931684796af275b7c346b8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_frost_temple_R.prefab
+    prefab: {fileID: 7471747115056629016, guid: 4f52cfae9f033d04893b6797e1346769, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_light_dorsal.prefab
+    prefab: {fileID: 2712032864832874557, guid: 17a0f0f0575131f4ea191a96580c8ac1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_light_temple_L.prefab
+    prefab: {fileID: 3157752655017078731, guid: 74a1c7352b2e0c54fb7aafbfec1912a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_light_temple_R.prefab
+    prefab: {fileID: 3517944671790088131, guid: be2a5cc349d1d8b4eb16badc7bb0bb3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_nature_dorsal.prefab
+    prefab: {fileID: 4297865821813143087, guid: 83f3aa5c11873a44ca043e014da06135, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_nature_temple_L.prefab
+    prefab: {fileID: 4601389316016255225, guid: 6e345a37e3140f9448b166b5dac85fd4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_broad_nature_temple_R.prefab
+    prefab: {fileID: 8320896899497674966, guid: 4107eca321c51f24e9a82a7cc07ce17a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_darkness_dorsal.prefab
+    prefab: {fileID: 3044584140141392197, guid: efdfc3f05f24cfe459f9218b677ce41e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_darkness_temple_L.prefab
+    prefab: {fileID: 1975910524191112720, guid: 589e691f273dc6c4b80860d519fe8312, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_darkness_temple_R.prefab
+    prefab: {fileID: 4858514834856398832, guid: 427556786a897fa4c9f0ca9f5ae92c76, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_earth_dorsal.prefab
+    prefab: {fileID: 1717623300026815749, guid: 47283a2005ea8024ca14190f5202c90e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_earth_temple_L.prefab
+    prefab: {fileID: 7864599075914514033, guid: b4e4f28ced6a92046b7ef66a99094569, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_earth_temple_R.prefab
+    prefab: {fileID: 3953932296152429046, guid: ff0f319c46260254eb30a90655b5321a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_fire_dorsal.prefab
+    prefab: {fileID: 6923754632963385895, guid: 1c9fcdaab11560d49be38ee39b3eb9bd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_fire_temple_L.prefab
+    prefab: {fileID: 6694377485773112632, guid: 9becb7f040c4445438d78ffeaa616156, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_fire_temple_R.prefab
+    prefab: {fileID: 5914264258564420552, guid: c0bfdb83684ffe142a9c2d567ebcc6d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_frost_dorsal.prefab
+    prefab: {fileID: 5057820850061427942, guid: c2b8fcc70399bf349ae2b9b2cf7c4e8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_frost_temple_L.prefab
+    prefab: {fileID: 5540197999712149069, guid: baebf430aad2fa847a990afd2b5076ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_frost_temple_R.prefab
+    prefab: {fileID: 8658869193505683970, guid: 169832b98caf0a545b5c3ca280ff42e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_light_dorsal.prefab
+    prefab: {fileID: 4261292545232816200, guid: db58c6b5c2f80ae46a03bcb6be00359d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_light_temple_L.prefab
+    prefab: {fileID: 5431326682412231654, guid: 8f6aa76cd6d60084db3c89643138bb81, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_light_temple_R.prefab
+    prefab: {fileID: 1133820658319585615, guid: 66cf020e15fa3d04f853360f149e5e8b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_nature_dorsal.prefab
+    prefab: {fileID: 7941489397352495674, guid: 3dfc08f8ddce27d4e99c05b123d45b81, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_nature_temple_L.prefab
+    prefab: {fileID: 3177803271746461740, guid: d9fd1bb66edb3fe43a1583860d4a16d2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/lizardmen/lizardman_standard_nature_temple_R.prefab
+    prefab: {fileID: 2703202929578966113, guid: 5d8809510a20e4d42bed4fada570446d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

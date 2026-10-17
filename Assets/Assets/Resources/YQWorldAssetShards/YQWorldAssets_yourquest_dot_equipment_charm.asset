@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_charm
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Artisan.prefab
+    prefab: {fileID: 6326704259158362080, guid: 3b48d6d09e5697a4085a85622336a555, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Court.prefab
+    prefab: {fileID: 5295141336371317067, guid: fb7a102982cc0a640b4ab1c0cd518e2a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Dragonbound.prefab
+    prefab: {fileID: 5331297874849607485, guid: 59995734efa7b6d4ca3d3717e4342058, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Eclipse.prefab
+    prefab: {fileID: 7867792091116268688, guid: 4320efcc3b7e19647a5ba494397aa5dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Field.prefab
+    prefab: {fileID: 8214309993407409341, guid: fc9138997a2fb9844b1504cbd3600708, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Merchant.prefab
+    prefab: {fileID: 5570591507748088122, guid: cf567b45bc3e127499a5558c12fefccb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Ranger.prefab
+    prefab: {fileID: 2043174230917809920, guid: 8ad8bda3f6d5d2b4f925f7bea7724ed2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Starforged_Orrery.prefab
+    prefab: {fileID: 141060432564368687, guid: 73a507b465740654998f277055e5b328, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Worldtree_Sovereign.prefab
+    prefab: {fileID: 3738382394337939853, guid: f9bd25cfec2537742bbed43964cc7b8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_core.prefab
+    prefab: {fileID: 4049790019430281330, guid: 33126ab1d4f7cff499bc09b44ec20fd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mixed_darkness_light.prefab
+    prefab: {fileID: 3275902200911029468, guid: adcb9820fd1f88347816796237033582, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mixed_organic_fire.prefab
+    prefab: {fileID: 5337223194737806596, guid: e69f37cde17cdf84c8d5e72d0e0fc710, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_darkness.prefab
+    prefab: {fileID: 932103029197979480, guid: 0b0fd4471fb1eaa40be86b3ae2a5b3d6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_fire.prefab
+    prefab: {fileID: 2110634759010786253, guid: 52fb292e45f0f2a45b83ee77488ae72d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_forged.prefab
+    prefab: {fileID: 7779841329027565260, guid: acd24feccf016a148a636e70ae64c176, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_frost.prefab
+    prefab: {fileID: 7648456737467930044, guid: dbc6da872e0fcd64b822543342ad60a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_light.prefab
+    prefab: {fileID: 3294401889478262486, guid: c456869be9ab94743b56e30955edf5cc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_motif_organic.prefab
+    prefab: {fileID: 1413816503584390571, guid: 81baa169b7093234480bc9fb7c90d1e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_darkness.prefab
+    prefab: {fileID: 1353647901468593821, guid: 87b169076fc17db4386cd9c225009a9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_fire.prefab
+    prefab: {fileID: 4426579776787479937, guid: b0ab623c6a73ba048bf19ac2adfcbf8a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_forged.prefab
+    prefab: {fileID: 3198888273301665088, guid: f033822853a14b24e81b32172f88d6e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_frost.prefab
+    prefab: {fileID: 8145956900215770574, guid: 6a4b24da0d39ae542a6d683655b4047c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_light.prefab
+    prefab: {fileID: 8374866614409476312, guid: 8c4f078be0c1072438f57d93706abe11, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/yqmod1_accessories_charm_mount_organic.prefab
+    prefab: {fileID: 4036912194419505426, guid: 2d9c50e6cce743046b23ad487eebafba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Field_Parts.prefab
+    prefab: {fileID: 8414319773908759842, guid: 3761e93129cd9c24eb65ddd35e721311, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Merchant_Parts.prefab
+    prefab: {fileID: 3414819765785934759, guid: 69bcbe9c6420ab84b9c5bc5749eeb5ee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Ranger_Parts.prefab
+    prefab: {fileID: 5136696981133412885, guid: 16c1d85783bad394ea64519409dba346, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Artisan_Parts.prefab
+    prefab: {fileID: 1529986798188613178, guid: 38ec66b09affba845bf60dd67f2a0a1c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Court_Parts.prefab
+    prefab: {fileID: 7736813593364502, guid: 80f29527ef179cf4aa7e21aceef3dad9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Dragonbound_Parts.prefab
+    prefab: {fileID: 7074984234921185762, guid: 915c9aff63f9aea468f4ed050df52c94, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Eclipse_Parts.prefab
+    prefab: {fileID: 5079558298444270208, guid: 4b48aedff69a8b54487858e27bd1c037, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 1538450697313591903, guid: 943ec8635fb851c4082a62e0003a05a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/charm/Charm_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 1137337630258019497, guid: e86ab9812d759d14b86b3bb72d73fd83, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

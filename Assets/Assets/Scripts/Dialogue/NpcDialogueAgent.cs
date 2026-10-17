@@ -7,6 +7,16 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class NpcDialogueAgent : MonoBehaviour
 {
+    private static readonly List<NpcDialogueAgent> Active = new List<NpcDialogueAgent>();
+    private static readonly IReadOnlyList<NpcDialogueAgent> ActiveView = Active.AsReadOnly();
+    public static IReadOnlyList<NpcDialogueAgent> ActiveAgents => ActiveView;
+
+    private void OnEnable()
+    {
+        // note: Hearing uses the existing active dialogue agents; it does not repeatedly search scenes or invent creature intelligence.
+        if (!Active.Contains(this)) Active.Add(this);
+    }
+
     [Header("Identity (fallbacks to EntityInfo)")]
     public string npcId = string.Empty;
     public string npcName = string.Empty;
@@ -20,10 +30,26 @@ public sealed class NpcDialogueAgent : MonoBehaviour
     private bool _sessionLoaded;
     private string _loadedSessionNpcId = string.Empty;
     private PlayerState _loadedSessionPlayer;
+    // note: Failed publication retains the exact accepted delivery token for an explicit retry; successful delivery retires it before any reply/save side effects.
+    private YQDispositionDomain.Admission _pendingDisposition;
+    private string _pendingDispositionText;
+    private string _pendingDispositionNpcId;
+    private YQNpcSocialInteraction _socialInteraction;
     private int _replySequence;
+    private readonly HashSet<string> _heardDeliveries = new HashSet<string>(StringComparer.Ordinal);
+    private readonly Queue<string> _heardDeliveryOrder = new Queue<string>();
+    private double _replyStartedAt;
+    public double LastReplyLatencySeconds { get; private set; }
+    private float _nextRewardConsideration;
+    internal string TurnOfferId { get; private set; }
+    internal string TurnOfferTerms { get; private set; }
+    internal string ProposedOfferDecision { get; set; }
+    internal bool CanConsiderReward => Time.unscaledTime >= _nextRewardConsideration;
+    internal void MarkRewardConsidered() => _nextRewardConsideration = Time.unscaledTime + 60f;
 
     private void OnDisable()
     {
+        Active.Remove(this);
         // note: Streaming out an NPC retires its pending reply; it must not revive or write memory after removal.
         _replySequence++;
         IsThinking = false;
@@ -33,6 +59,25 @@ public sealed class NpcDialogueAgent : MonoBehaviour
     public string NpcName => !string.IsNullOrWhiteSpace(npcName) ? npcName.Trim() : (_entityInfo != null ? _entityInfo.displayName : "NPC");
     public string LastNpcLine { get; private set; }
     public bool IsThinking { get; private set; }
+    // note: Operational failures are transient UI status, never NPC speech or persisted memory.
+    public string LastReplyStatus { get; private set; } = string.Empty;
+    public bool LastReplyGraphicsMemoryUnavailable { get; private set; }
+    public bool LastReplyWasFallback { get; private set; }
+    // note: Delivery belongs to the accepted reply and resets with its turn; it never chooses a different speaker.
+    public string LastReplyDelivery { get; internal set; } = "measured";
+    private int _fallbackReplySequence;
+    internal void ReportReplyUnavailable(string status, bool graphicsMemoryUnavailable = false)
+    {
+        // note: Recovery uses a transient failure reason rather than interpreting player-facing wording.
+        LastReplyStatus = status;
+        LastReplyGraphicsMemoryUnavailable = graphicsMemoryUnavailable;
+    }
+    internal string CreateFallbackReply(string message)
+    {
+        // note: Outage/rejection flavour remains presentation-only for every dialogue-capable actor, including intelligent creatures.
+        LastReplyWasFallback = true;
+        return BuildFallback(message);
+    }
     public string TagsCsv => string.Join(", ", GetTags());
 
     // note: Presentation listens to the authoritative persisted session instead of guessing when an async reply changed it.
@@ -56,11 +101,31 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         RebindSessionIfNeeded();
     }
 
-    public void SendPlayerMessage(string playerText, Action<string> onNpcReplyText)
+    public void CancelPendingTurn()
+    {
+        // note: Cancellation retires callbacks and releases this NPC without altering accepted conversation or world state.
+        _replySequence++;
+        IsThinking = false;
+    }
+
+    public void SendPlayerMessage(string playerText, Action<string> onNpcReplyText, Func<bool> interactionCurrent = null)
+    {
+        SendPlayerMessageCore(playerText, onNpcReplyText, interactionCurrent, null, null);
+    }
+
+    // note: The real caller supplies its immutable displayed order and current presentation proof. Old callers retain the single-offer route.
+    public void SendPlayerMessageWithDisplayedOffers(string playerText, Action<string> onNpcReplyText, Func<bool> interactionCurrent,
+        YQNpcConversationRewards.DisplayedOfferList displayedOffers, Func<bool> offersStillDisplayed, string deliveryId = null)
+    {
+        SendPlayerMessageCore(playerText, onNpcReplyText, interactionCurrent, displayedOffers, offersStillDisplayed, deliveryId);
+    }
+
+    private void SendPlayerMessageCore(string playerText, Action<string> onNpcReplyText, Func<bool> interactionCurrent,
+        YQNpcConversationRewards.DisplayedOfferList displayedOffers, Func<bool> offersStillDisplayed, string deliveryId = null)
     {
         EnsureSessionLoaded();
         // note: One NPC owns one in-flight turn; overlapping submissions used to reorder its transcript.
-        if (IsThinking || !isActiveAndEnabled)
+        if (IsThinking || !isActiveAndEnabled || (interactionCurrent != null && !interactionCurrent()))
             return;
         if (string.IsNullOrWhiteSpace(playerText))
         {
@@ -69,6 +134,70 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         }
 
         string trimmed = playerText.Trim();
+        // note: Duplicate finalized ASR deliveries cannot append another turn, propose another gift, or multiply a heard insult. New captures intentionally receive new identities.
+        string heardKey = string.IsNullOrEmpty(deliveryId) ? null : (_loadedSessionPlayer?.playerId + "|" + NpcId + "|" + deliveryId);
+        if (heardKey != null && _heardDeliveries.Contains(heardKey)) { onNpcReplyText?.Invoke(null); return; }
+        _replyStartedAt = Time.realtimeSinceStartupAsDouble;
+        LastReplyStatus = string.Empty;
+        LastReplyGraphicsMemoryUnavailable = false;
+        LastReplyWasFallback = false;
+        LastReplyDelivery = "measured";
+        TurnOfferId = YQNpcConversationRewards.PresentedOfferId(_loadedSessionPlayer, NpcId);
+        TurnOfferTerms = YQProfileSaveSystem.CaptureOfferTerms(_loadedSessionPlayer?.FindOfferById(TurnOfferId));
+        if (displayedOffers != null) {
+            bool shown = offersStillDisplayed != null && offersStillDisplayed() &&
+                displayedOffers.Matches(_loadedSessionPlayer, NpcId, YQServiceLifecycle.RequestEpoch);
+            TurnOfferId = shown && displayedOffers.Count == 1 ? displayedOffers.OfferIdAt(0) : null;
+            TurnOfferTerms = shown && displayedOffers.Count == 1 ? displayedOffers.TermsAt(0) : null;
+        }
+        ProposedOfferDecision = "none";
+        // note: These explicit whole-utterance interactions have independent accepted requests; generic yes and generated speech cannot give items or report deeds.
+        if (interactionCurrent != null && YQNpcSocialInteraction.IsSupported(trimmed)) {
+            _pendingDisposition = null; _pendingDispositionText = null; _pendingDispositionNpcId = null;
+            IsThinking = true;
+            int socialSequence = ++_replySequence; PlayerState socialPlayer = _loadedSessionPlayer; string socialNpcId = NpcId;
+            Func<bool> socialCurrent = () => this != null && isActiveAndEnabled && socialSequence == _replySequence &&
+                ReferenceEquals(socialPlayer, PlayerStateManager.Instance?.state) && socialNpcId == NpcId && interactionCurrent();
+            _socialInteraction ??= new YQNpcSocialInteraction(this);
+            _socialInteraction.Handle(trimmed, socialCurrent, (speech, status) => {
+                if (socialSequence != _replySequence) return;
+                IsThinking = false;
+                if (!socialCurrent()) return;
+                if (!string.IsNullOrEmpty(status)) ReportReplyUnavailable(status);
+                if (string.IsNullOrEmpty(speech)) { onNpcReplyText?.Invoke(null); return; }
+                if (YQProfileSaveSystem.Instance?.RequiresProfileReload != true) {
+                    // note: A transcript listener can fail after the gift/report was saved; preserve the committed success for reply delivery.
+                    try { RememberDelivery(heardKey); CommitPlayerLine(trimmed); }
+                    catch (Exception exception) { Debug.LogException(exception); }
+                }
+                DeliverCompletedReply(speech, socialPlayer, socialNpcId, onNpcReplyText, preserveCommittedReply: true);
+            });
+            return;
+        }
+        // note: This method is the existing directed-text delivery boundary. Only its actual player span and receiving NPC are admitted; no nearby/witness audience is invented.
+        if (interactionCurrent != null && YQDispositionDomain.TryClassifyDirectInsult(trimmed, out _)) {
+            var deliveredPlayer = _loadedSessionPlayer;
+            var deliveredWorld = WorldStateManager.Instance?.State;
+            if (_pendingDisposition == null || _pendingDispositionText != trimmed ||
+                !ReferenceEquals(_pendingDisposition.player, deliveredPlayer) || !ReferenceEquals(_pendingDisposition.world, deliveredWorld) ||
+                _pendingDispositionNpcId != NpcId) {
+                _pendingDisposition = null;
+                YQDispositionDomain.TryCaptureDeliveredInsult(deliveredPlayer, deliveredWorld, NpcId, trimmed,
+                    "speech:" + (heardKey == null ? Guid.NewGuid().ToString("N") : YQStateContract.Sha256Hex(heardKey)), out _pendingDisposition);
+                _pendingDispositionText = trimmed;
+                _pendingDispositionNpcId = NpcId;
+            }
+            var save = YQProfileSaveSystem.Instance;
+            if (_pendingDisposition == null || save == null ||
+                !save.TryCommitDisposition(deliveredPlayer, deliveredWorld, _pendingDisposition, out var socialReceipt, out _, out _) ||
+                socialReceipt == null || !socialReceipt.published) {
+                ReportReplyUnavailable("Your words could not be saved. Please try again."); onNpcReplyText?.Invoke(null); return;
+            }
+            _pendingDisposition = null; _pendingDispositionText = null; _pendingDispositionNpcId = null;
+            if (save.RequiresProfileReload) { ReportReplyUnavailable("Your words were saved. Reload this journey before continuing."); onNpcReplyText?.Invoke(null); return; }
+        } else { _pendingDisposition = null; _pendingDispositionText = null; _pendingDispositionNpcId = null; }
+
+        RememberDelivery(heardKey);
         CommitPlayerLine(trimmed);
         IsThinking = true;
         int sequence = ++_replySequence;
@@ -76,14 +205,42 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         string identity = NpcId;
         Func<bool> stillCurrent = () => this != null && isActiveAndEnabled &&
             sequence == _replySequence && ReferenceEquals(player, PlayerStateManager.Instance?.state) &&
-            string.Equals(identity, NpcId, StringComparison.OrdinalIgnoreCase);
+            string.Equals(identity, NpcId, StringComparison.OrdinalIgnoreCase) &&
+            (interactionCurrent == null || interactionCurrent());
+
+
+        // note: Ordinals are resolved only against the exact UI snapshot delivered with this turn; models never choose list positions.
+        if (YQNpcConversationRewards.HasOrdinalReference(trimmed) ||
+            (displayedOffers != null && YQNpcConversationRewards.ClassifyOfferReply(trimmed) != "none")) {
+            if (!stillCurrent()) { IsThinking = false; return; }
+            string orderedReceipt = "Please open this NPC's numbered offer list before choosing an offer by number.";
+            string decision = "none"; int index = -1; bool orderedCommitted = false;
+            if (stillCurrent() && offersStillDisplayed != null && offersStillDisplayed() &&
+                YQNpcConversationRewards.TryResolveDisplayedDecision(displayedOffers, player, identity, YQServiceLifecycle.RequestEpoch,
+                    trimmed, out index, out decision, out orderedReceipt)) {
+                TurnOfferId = displayedOffers.OfferIdAt(index); TurnOfferTerms = displayedOffers.TermsAt(index);
+                orderedCommitted = YQNpcConversationRewards.TryApplyDisplayedDecision(displayedOffers, index, player, identity, decision, trimmed,
+                    () => stillCurrent() && offersStillDisplayed(), out orderedReceipt);
+            }
+            DeliverCompletedReply(orderedCommitted ? BuildOfferDecisionReply(player, TurnOfferId, decision, orderedReceipt) : orderedReceipt, player, identity,
+                onNpcReplyText, preserveCommittedReply: true);
+            return;
+        }
+
+        // note: Explicit acceptance uses only this speaker's previously presented offer; the generated reply cannot grant anything.
+        if (displayedOffers == null && stillCurrent() && YQNpcConversationRewards.TryAccept(player, identity, trimmed, out string receipt, TurnOfferTerms))
+        {
+            DeliverCompletedReply(BuildOfferDecisionReply(player, TurnOfferId, YQNpcConversationRewards.ClassifyOfferReply(trimmed), receipt), player, identity, onNpcReplyText);
+            return;
+        }
 
         DialogueThinkService service = DialogueThinkService.Instance;
         if (service == null)
         {
-            CommitNpcLine(BuildFallback(trimmed));
+            ReportReplyUnavailable("Dialogue is unavailable. Please try again shortly.");
             IsThinking = false;
-            onNpcReplyText?.Invoke(LastNpcLine);
+            ReportReplyUnavailable("The dialogue service is not ready. Please try again shortly.");
+            onNpcReplyText?.Invoke(null);
             return;
         }
 
@@ -91,16 +248,94 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         {
             if (!stillCurrent())
                 return;
-            IsThinking = false;
+            if (ProposedOfferDecision == "accept" || ProposedOfferDecision == "decline")
+            {
+                // note: A structured intent is bound to the offer captured at utterance start. Discard model prose and speak only the actual mutation receipt.
+                string choiceReceipt; bool displayedCommitted = false;
+                if (displayedOffers != null) {
+                    choiceReceipt = "Which numbered offer are you accepting or declining?";
+                    if (displayedOffers.Count == 1)
+                        displayedCommitted = YQNpcConversationRewards.TryApplyDisplayedDecision(displayedOffers, 0, player, identity, ProposedOfferDecision, trimmed,
+                            () => stillCurrent() && offersStillDisplayed != null && offersStillDisplayed(), out choiceReceipt);
+                } else if (!YQNpcConversationRewards.TryApplyDecision(player, identity, TurnOfferId, ProposedOfferDecision, out choiceReceipt, TurnOfferTerms, trimmed))
+                    choiceReceipt = "That offer is no longer available.";
+                DeliverCompletedReply(displayedOffers != null && !displayedCommitted ? choiceReceipt :
+                    BuildOfferDecisionReply(player, TurnOfferId, ProposedOfferDecision, choiceReceipt), player, identity,
+                    onNpcReplyText, preserveCommittedReply: displayedOffers != null);
+                return;
+            }
             string final = string.IsNullOrWhiteSpace(npcReply) ? null : npcReply.Trim();
-            if (string.IsNullOrWhiteSpace(final))
-                final = BuildFallback(trimmed);
-            if (!string.IsNullOrWhiteSpace(final))
-                CommitNpcLine(final);
-            onNpcReplyText?.Invoke(LastNpcLine);
+            // note: A missing reply cannot replay the last line or manufacture an answer to the current turn.
+            if (string.IsNullOrWhiteSpace(final) || LastReplyWasFallback)
+            {
+                IsThinking = false;
+                onNpcReplyText?.Invoke(final);
+                return;
+            }
+            YQNpcConversationRewards.PrepareOffer(this, player, stillCurrent, offerLine =>
+            {
+                if (!stillCurrent()) return;
+                DeliverCompletedReply(final + (string.IsNullOrEmpty(offerLine) ? string.Empty : " " + offerLine),
+                    player, identity, onNpcReplyText);
+            });
         }, stillCurrent);
     }
 
+    private void RememberDelivery(string key)
+    {
+        // note: Retain only the bounded callback window; durable disposition deduplication remains in the paired world commit store.
+        if (key == null || !_heardDeliveries.Add(key)) return;
+        _heardDeliveryOrder.Enqueue(key);
+        if (_heardDeliveryOrder.Count > 64) _heardDeliveries.Remove(_heardDeliveryOrder.Dequeue());
+    }
+
+    // note: The separate editor verification assembly calls this same production reply builder.
+    public string BuildOfferDecisionReply(PlayerState player, string offerId, string decision, string receipt)
+    {
+        // note: Emotion follows a real completed choice. Failure or a retired offer cannot produce a celebration or an invented grant.
+        if (YQProfileSaveSystem.Instance != null && YQProfileSaveSystem.Instance.RequiresProfileReload) return receipt;
+        var offer = player?.FindOfferById(offerId);
+        if (offer == null || offer.offerState != (decision == "accept" ? "accepted" : "declined")) return receipt;
+        bool own = offer.context == YQNpcConversationRewards.OfferContext(NpcId);
+        bool harsh = HasDisposition("rude", "irritable", "abrasive", "impatient", "hotheaded");
+        bool stern = harsh || HasTag("guard") || HasDisposition("stern", "gruff", "blunt");
+        string reaction;
+        if (decision == "accept")
+            reaction = stern ? "Good. I like a clear answer." : HasTag("merchant") ? "A fine choice." :
+                HasTag("scholar") || HasTag("lorekeeper") ? "Splendid. A willing mind is welcome." : "I'm glad to hear it.";
+        else
+            reaction = harsh ? "Hmph. Then we're done with that." : stern ? "Disappointing. Your choice." :
+                own ? "A pity. I had hoped you'd say yes." : "A pity. You seemed interested.";
+        // note: The source NPC may react personally; a listener to an unattributed offer only acknowledges the player's decision.
+        return reaction + " " + receipt;
+    }
+
+    private void DeliverCompletedReply(string reply, PlayerState player, string identity, Action<string> completed, bool preserveCommittedReply = false)
+    {
+        // note: Exactly one current, substantive reply counts as a conversation; fallback, cancellation and panel opening do not.
+        IsThinking = false;
+        LastReplyLatencySeconds = Time.realtimeSinceStartupAsDouble - _replyStartedAt;
+        Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, this,
+            "[NpcConversation] NPC={0} replyReadySeconds={1:F3}", identity, LastReplyLatencySeconds);
+        // note: A durable decision requiring canonical reload must not be overwritten by conversation counters, raw projections, or completion callbacks.
+        if (YQProfileSaveSystem.Instance != null && YQProfileSaveSystem.Instance.RequiresProfileReload)
+        { completed?.Invoke(reply); return; }
+        // note: Optional conversation notifications cannot suppress a published social outcome. Keep the actual reply callback outside the catch so a throwing consumer is never retried.
+        try {
+            YQQuestCompletionDirector.RecordCompletedDialogue(player, identity);
+            CommitNpcLine(reply);
+            PlayerStateManager.Instance?.Save();
+            FindFirstObjectByType<YQInvestorDirector>()?.NotifyDialogueCompleted(identity);
+        } catch (Exception exception) when (preserveCommittedReply) { Debug.LogException(exception); }
+        completed?.Invoke(reply);
+    }
+
+    internal bool TryReceiveSocialReport(NpcDialogueAgent reporter, PlayerState player, WorldState world, string incidentId, string sourceKnowledgeId,
+        Func<bool> stillCurrent, out YQSocialAidDomain.ReportDelivery delivery, out string failure)
+    {
+        // note: Only an active receiving agent accepts this explicit one-recipient NPC auditory route. Persistence and knowledge are published together afterward.
+        return YQNpcSocialInteraction.Receive(this, reporter, player, world, incidentId, sourceKnowledgeId, stillCurrent, out delivery, out failure);
+    }
     public void CommitPlayerLine(string text)
     {
         AppendTurn("player", text);
@@ -235,29 +470,45 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         }
 
         sb.AppendLine("tone_rules: " + BuildToneRules());
+        // note: CaptureFacts below already carries this recipient's saved affinity and admitted knowledge; do not duplicate that evidence or expose other NPCs' memories.
+        sb.AppendLine("available_conversation_actions: verbal_response_only; no speech-triggered combat, service lock, guard dispatch or retreat is registered.");
+        sb.AppendLine("conversation_facts: " + YQNpcConversationRewards.CaptureFacts(PlayerStateManager.Instance?.state,
+            WorldStateManager.Instance?.State, NpcId));
+        var choice = PlayerStateManager.Instance?.state?.FindOfferById(TurnOfferId);
+        if (choice != null && choice.IsPending)
+            sb.AppendLine("presented_choice: " + Newtonsoft.Json.JsonConvert.SerializeObject(new { choice.offerKind, choice.name, choice.description, state = "pending" }));
         sb.AppendLine("identity_rules: Always speak as " + NpcName + ", the " + GetPrimaryRoleLabel() + ". Never sound like narration, UI, or an assistant.");
         return sb.ToString();
     }
 
     public string BuildFallback(string playerMessage)
     {
+        // note: These bounded outage lines use public identity, tone and the current message only. They never assert lore, inventory, quests or unseen events.
         string lower = (playerMessage ?? string.Empty).ToLowerInvariant();
-        bool asksFarPlace = lower.Contains("nation") || lower.Contains("empire") || lower.Contains("capital") || lower.Contains("across the sea") || lower.Contains("far away");
-        bool asksNearby = lower.Contains("town") || lower.Contains("village") || lower.Contains("road") || lower.Contains("forest") || lower.Contains("region") || lower.Contains("where");
+        int variation = (int)((uint)_fallbackReplySequence++ % 3u);
+        bool harsh = HasDisposition("rude", "irritable", "abrasive", "impatient", "hotheaded");
+        bool stern = harsh || HasTag("warden") || HasTag("guard") || HasDisposition("stern", "gruff", "blunt");
+        bool scholarly = HasTag("lorekeeper") || HasTag("scholar");
+        bool merchant = HasTag("merchant");
+        if (lower.Contains("who are you") || lower.Contains("your name"))
+            return "I'm " + NpcName + ". " + (stern ? "Speak your mind." : scholarly ? "Curiosity makes a fine introduction." : "And what should I call you?");
+        if (lower.Contains("thank"))
+            return variation == 0 ? "You're welcome." : variation == 1 ? "Gladly." : "No need for thanks.";
+        if (lower == "hi" || lower == "hello" || lower.StartsWith("hello ") || lower.StartsWith("hey ") || lower == "hey")
+            return stern ? "I'm listening. What is it?" : merchant ? "Well met. What catches your interest?" : "Well met. What's on your mind?";
+        if (lower.Contains("afraid") || lower.Contains("scared") || lower.Contains("sad") || lower.Contains("lonely"))
+            return stern ? "Take a breath. You don't have to swallow every feeling at once." : "That sounds heavy. You can speak plainly with me.";
+        if (lower.Contains("goodbye") || lower == "bye") return stern ? "Keep your wits about you." : "Until we speak again.";
+        // note: An unavailable model supplies no evidence of misunderstood words. Callers display technical status instead of manufacturing clarification speech.
+        return string.Empty;
+    }
 
-        if (lower.Contains("who") || lower.Contains("name"))
-            return "I'm " + NpcName + ". Around here, that name is enough.";
-        if (lower.Contains("quest") || lower.Contains("job") || lower.Contains("work"))
-            return HasTag("guide") || HasTag("quest_giver") ? "If you want work, prove you can survive the ground under your boots first." : "Work comes from people who trust you. I am not there yet.";
-        if (asksFarPlace)
-            return "That is beyond my roads. I can give you rumors, not truth.";
-        if (asksNearby)
-            return HasTag("scholar") || HasTag("lorekeeper") ? "The nearby paths are known. Ask me about this region and I can be precise." : "Close roads, I know. Distant banners, no.";
-        if (lower.Contains("help") || lower.Contains("advice"))
-            return HasTag("warden") || HasTag("rude") || HasTag("stern") ? "Keep your guard up and stop asking the world to be gentle." : "Start with what is in reach, then let the road teach you the rest.";
-        if (HasTag("warden") || HasTag("rude") || HasTag("stern"))
-            return "Ask plainly. I will answer what I actually know.";
-        return "I heard you. Ask it closer to the ground we are standing on.";
+    private bool HasDisposition(params string[] words)
+    {
+        // note: Outage reactions use the accepted persona as well as tags; an NPC's job alone does not make them rude or gentle.
+        foreach (string word in words)
+            if (HasTag(word) || System.Text.RegularExpressions.Regex.IsMatch(personaSummary ?? string.Empty, @"\b" + word + @"\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)) return true;
+        return false;
     }
 
     private string BuildToneRules()
@@ -267,10 +518,10 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         if (HasTag("lorekeeper") || HasTag("scholar"))
             return "Precise, calm, grounded, informative without breaking character.";
         if (HasTag("guide") || HasTag("quest_giver") || HasTag("mentor"))
-            return "Practical, directive, concise, always points toward action.";
+            return "Practical and concise; match the accepted temperament without turning every remark into an instruction.";
         if (HasTag("merchant"))
             return "Transactional, sharp, practical, never poetic.";
-        return "Grounded, human, concise, in-world.";
+        return "Grounded, concise, in-world; keep the accepted species, temperament and speaking style.";
     }
 
     private void ResolveIdentity()
@@ -367,6 +618,9 @@ public sealed class NpcDialogueAgent : MonoBehaviour
         _replySequence++;
         IsThinking = false;
         _loadedSessionPlayer = currentPlayer;
+        _heardDeliveries.Clear(); _heardDeliveryOrder.Clear();
+        LastReplyDelivery = "measured";
+        _nextRewardConsideration = 0f;
         _sessionLoaded = true;
         _loadedSessionNpcId = currentId;
 

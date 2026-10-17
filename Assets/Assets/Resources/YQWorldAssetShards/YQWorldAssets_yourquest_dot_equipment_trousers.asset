@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_trousers
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Dragonbound_Female.prefab
+    prefab: {fileID: 1803699948464162651, guid: 6f6aa0f715e812f4c90c304fd4046d56, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Dragonbound_Male.prefab
+    prefab: {fileID: 5343812038584935599, guid: bfa49166f3249844c9e4473b2fc9c598, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Eclipse_Female.prefab
+    prefab: {fileID: 4777205282372951639, guid: 58ba8833f69353b4b953cf7c72c33c7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Eclipse_Male.prefab
+    prefab: {fileID: 1445392363952165451, guid: c4b66b963cd093744979b98de55084c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Field_Female.prefab
+    prefab: {fileID: 146147506448802363, guid: 6fd51130576752c469b474c74153c45b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Field_Male.prefab
+    prefab: {fileID: 864958552414894489, guid: 9206b2c7c2bd49747aa994ff99f667fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Lamellar_Female.prefab
+    prefab: {fileID: 4656316338192269332, guid: 7d938b42ca2adbf4d98d67d282ad155e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Lamellar_Male.prefab
+    prefab: {fileID: 4074663324938902996, guid: 52a60c5f43652ed41bb48b3d150992f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Ranger_Female.prefab
+    prefab: {fileID: 3673212365400157091, guid: 0bb48b74133c8dc4f8c29e670a32a225, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Ranger_Male.prefab
+    prefab: {fileID: 8278762934834885289, guid: edbb0508bdd468d41bd3ca25bb305a75, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Sentinel_Female.prefab
+    prefab: {fileID: 3590314969238835173, guid: a89d8ed288e4b46418eb5303842b9edd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Sentinel_Male.prefab
+    prefab: {fileID: 8945374960776956346, guid: ed7f826bf34d5384c8f403f202c9725c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 6517355834396655997, guid: de79e533f396b0b48a1747d542f25759, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 7014382691063828902, guid: 737af19c6a91ee243964c1c30b07074b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Traveler_Female.prefab
+    prefab: {fileID: 8268172112318549773, guid: 3a1c8df0de1cb3040952b3c7cc34b480, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Traveler_Male.prefab
+    prefab: {fileID: 5989535780253645640, guid: e4a3884f2d63ef948a678a9e82ba6f3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 1315347921359585121, guid: 34de6acb8438359449bf4c5d4690c574, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 9200832422136900895, guid: 6e97b3bbd402d884d9c6a0a9e993dd60, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Field_Male_Parts.prefab
+    prefab: {fileID: 7063691315056734600, guid: 7f45958812d70df46a84600a83925a47, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Field_Female_Parts.prefab
+    prefab: {fileID: 1478472167727806945, guid: 3b87b6024ca6ab04c89b093e1086bda5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Ranger_Male_Parts.prefab
+    prefab: {fileID: 1041652393841880554, guid: 9ac440dc030f80e43adaa3ecaaa0b778, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Ranger_Female_Parts.prefab
+    prefab: {fileID: 1842223543943938363, guid: 57495aa4c10d34f48aba7ecc29ba3946, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 5027226275029962962, guid: 4075e1e858d69e7409c91d36d5c40cd4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 8624384863978676185, guid: ab324a4317329874080690d254f85076, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Traveler_Male_Parts.prefab
+    prefab: {fileID: 4021597201782377387, guid: 4dfa850f1d9b4f142bfd27cdf492ddcd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Traveler_Female_Parts.prefab
+    prefab: {fileID: 1473509718681173814, guid: 5b41efe6f619b73418da8984dd51a9d4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 8561858214931253089, guid: 5c392fe20814b074c99872fee92b555d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 6592382050966576542, guid: 5227c761a21ab3448a1f642335da4064, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 2163185326028504373, guid: 0d89cf5175cdc8e49b9a9fc01ebce94e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 1964679555510438646, guid: 48e903247eab43f4586183f43d92bbba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 8585094386512218405, guid: ab9518360b8e9cb40abe93cefa50a2da, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 2551615198435144009, guid: d703866dbb7078e42bbd674a44937f27, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 5270172679552840586, guid: d1f68b3b26c7d8443adf8e1b804ddaf2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 6407902330957785445, guid: a0251e8323956104bb147df3d45ec401, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7106027327657430228, guid: 96065f17bf0a4624a9f40d130e150a48, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/trousers/Trousers_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 4816434930598084028, guid: 23e673e0a21f9064aa4da66812e54b8d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,1045 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_mountaintemple
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Materials/M_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a3b11b50841ff9348a74f8d7df4e78df, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Materials/M_Terrain.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: fe1afd17d03cfca4ba3aa53e753e9eea, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Meshes/Materials/MI_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 775769509c86c9342b7091a00f71d787, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Beam_01.prefab
+    prefab: {fileID: 1030971893, guid: abc00000000014468132198326208651, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04488a59e2b23c64fb87b2a5c0e4ad30, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Beam_02.prefab
+    prefab: {fileID: 1030972683, guid: abc00000000016218779360281735936, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad7d63dfb25e89647b6cb73fc25a47a1, type: 2}
+    - transformPath: SM_Beam_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad7d63dfb25e89647b6cb73fc25a47a1, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Beam_Support_01.prefab
+    prefab: {fileID: 1030972411, guid: abc00000000012161596020467540483, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Support_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: afafa2ef2945cec499be0a2ed7e90499, type: 2}
+    - transformPath: SM_Beam_Support_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: afafa2ef2945cec499be0a2ed7e90499, type: 2}
+    - transformPath: SM_Beam_Support_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: afafa2ef2945cec499be0a2ed7e90499, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Beam_Support_02.prefab
+    prefab: {fileID: 1030972665, guid: abc00000000001025887785262292856, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Support_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4266289fa3d98443a627fb094285729, type: 2}
+    - transformPath: SM_Beam_Support_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4266289fa3d98443a627fb094285729, type: 2}
+    - transformPath: SM_Beam_Support_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4266289fa3d98443a627fb094285729, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Doll_01.prefab
+    prefab: {fileID: 1030972205, guid: abc00000000007531722064834225577, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Doll_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Doll_02.prefab
+    prefab: {fileID: 1030976375, guid: abc00000000015633420885336661858, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Doll_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Doll_03.prefab
+    prefab: {fileID: 1030972391, guid: abc00000000005321335082062656939, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Doll_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+    - transformPath: SM_Doll_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 31f71e598e4dd7a4e85d1b0dbd16bf44, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Tree_01.prefab
+    prefab: {fileID: 1030971930, guid: abc00000000016681425626278754586, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Tree_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6e2950be6cc00854684af81353fc44b4, type: 2}
+    - transformPath: SM_Ginkgo_Tree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6e2950be6cc00854684af81353fc44b4, type: 2}
+    - transformPath: SM_Ginkgo_Tree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6e2950be6cc00854684af81353fc44b4, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Tree_02.prefab
+    prefab: {fileID: 1030974851, guid: abc00000000002830160635819070753, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Tree_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 93787f3483eacf4418f2af9835a9c55c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 93787f3483eacf4418f2af9835a9c55c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 93787f3483eacf4418f2af9835a9c55c, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Tree_03.prefab
+    prefab: {fileID: 1030974869, guid: abc00000000002252285758625224280, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Tree_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c786b9c1d534a1143ac71f5afc072cc3, type: 2}
+    - transformPath: SM_Ginkgo_Tree_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c786b9c1d534a1143ac71f5afc072cc3, type: 2}
+    - transformPath: SM_Ginkgo_Tree_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35f978849b06cf246a3ef208fff9e00c, type: 2}
+    - transformPath: SM_Ginkgo_Tree_03_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c786b9c1d534a1143ac71f5afc072cc3, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Lamp_01.prefab
+    prefab: {fileID: 1030976476, guid: abc00000000007989326403638979890, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac9e53c43113f5544be0f742fdd3888b, type: 2}
+    - transformPath: SM_Lamp_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ff2caba96f210f345a43086a882f447c, type: 2}
+    - transformPath: SM_Lamp_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac9e53c43113f5544be0f742fdd3888b, type: 2}
+    - transformPath: SM_Lamp_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ff2caba96f210f345a43086a882f447c, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Lamp_01_1.prefab
+    prefab: {fileID: 1030977832, guid: abc00000000004590507088618707034, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac9e53c43113f5544be0f742fdd3888b, type: 2}
+    - transformPath: SM_Lamp_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ff2caba96f210f345a43086a882f447c, type: 2}
+    - transformPath: SM_Lamp_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac9e53c43113f5544be0f742fdd3888b, type: 2}
+    - transformPath: SM_Lamp_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ff2caba96f210f345a43086a882f447c, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Lantern_01.prefab
+    prefab: {fileID: 1030977567, guid: abc00000000007083982762745987812, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lantern_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be40abdd73666bf40808cec06f5f98a3, type: 2}
+    - transformPath: SM_Lantern_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be40abdd73666bf40808cec06f5f98a3, type: 2}
+    - transformPath: SM_Lantern_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be40abdd73666bf40808cec06f5f98a3, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rock_01.prefab
+    prefab: {fileID: 1030972177, guid: abc00000000011735539668517225573, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42ff236c678173e4b89d4c4ccf444bbf, type: 2}
+    - transformPath: SM_Rock_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42ff236c678173e4b89d4c4ccf444bbf, type: 2}
+    - transformPath: SM_Rock_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42ff236c678173e4b89d4c4ccf444bbf, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rock_02.prefab
+    prefab: {fileID: 1030972353, guid: abc00000000002263948891772864478, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91c4d6de8da5709489b67ad1edafda19, type: 2}
+    - transformPath: SM_Rock_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91c4d6de8da5709489b67ad1edafda19, type: 2}
+    - transformPath: SM_Rock_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91c4d6de8da5709489b67ad1edafda19, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rock_03.prefab
+    prefab: {fileID: 1030971954, guid: abc00000000012243237702091465623, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d84cc56620f5540b2f231dde6bb405, type: 2}
+    - transformPath: SM_Rock_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d84cc56620f5540b2f231dde6bb405, type: 2}
+    - transformPath: SM_Rock_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d84cc56620f5540b2f231dde6bb405, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rock_03_No_Moss.prefab
+    prefab: {fileID: 1030981529, guid: abc00000000014583964462641691000, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_03_No_Moss_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd93327af7017464bbe50b3553faaca3, type: 2}
+    - transformPath: SM_Rock_03_No_Moss_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd93327af7017464bbe50b3553faaca3, type: 2}
+    - transformPath: SM_Rock_03_No_Moss_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd93327af7017464bbe50b3553faaca3, type: 2}
+    - transformPath: SM_Rock_03_No_Moss_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd93327af7017464bbe50b3553faaca3, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rock_04.prefab
+    prefab: {fileID: 1030972315, guid: abc00000000011297539725834105680, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 70b33827e795ae144975deff21b71940, type: 2}
+    - transformPath: SM_Rock_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 70b33827e795ae144975deff21b71940, type: 2}
+    - transformPath: SM_Rock_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 70b33827e795ae144975deff21b71940, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01.prefab
+    prefab: {fileID: 1030981257, guid: abc00000000006372194565939434552, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_Decor_01.prefab
+    prefab: {fileID: 1030975900, guid: abc00000000017882192869522696190, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_Decor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Rope_Decor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+    - transformPath: SM_Rope_Decor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Rope_Decor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+    - transformPath: SM_Rope_Decor_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Rope_Decor_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Stairs_01.prefab
+    prefab: {fileID: 1030972179, guid: abc00000000004932507912811597730, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c4be1116646b9c04cb4ea48a71b886f0, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c4be1116646b9c04cb4ea48a71b886f0, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c4be1116646b9c04cb4ea48a71b886f0, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c4be1116646b9c04cb4ea48a71b886f0, type: 2}
+    - transformPath: SM_Stairs_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c4be1116646b9c04cb4ea48a71b886f0, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Stone_01.prefab
+    prefab: {fileID: 1030981310, guid: abc00000000000303675494063008801, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Stone_02.prefab
+    prefab: {fileID: 1030981328, guid: abc00000000014154940484522692634, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Stone_03.prefab
+    prefab: {fileID: 1030981358, guid: abc00000000006276008704399021667, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+    - transformPath: SM_Stone_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 12487172f168dd246a36ee0b088bce57, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Buildings_Railing_01.prefab
+    prefab: {fileID: 1030981443, guid: abc00000000002825260126510777030, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Buildings_Railing_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Buildings_Railing_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Buildings_Railing_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Buildings_Railing_02.prefab
+    prefab: {fileID: 1030981292, guid: abc00000000009824565269346508845, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Buildings_Railing_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Buildings_Railing_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Buildings_Railing_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Complete_Roof_01.prefab
+    prefab: {fileID: 1030972639, guid: abc00000000014658649254863624118, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Complete_Roof_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15a93175c2d56104b936a68ea540fb10, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 041bc5652d560924d9df735a206b84c6, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4a7e0e232165ee14d84c30a590fbbe5c, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15a93175c2d56104b936a68ea540fb10, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 041bc5652d560924d9df735a206b84c6, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4a7e0e232165ee14d84c30a590fbbe5c, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15a93175c2d56104b936a68ea540fb10, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 041bc5652d560924d9df735a206b84c6, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4a7e0e232165ee14d84c30a590fbbe5c, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15a93175c2d56104b936a68ea540fb10, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 041bc5652d560924d9df735a206b84c6, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4a7e0e232165ee14d84c30a590fbbe5c, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15a93175c2d56104b936a68ea540fb10, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 041bc5652d560924d9df735a206b84c6, type: 2}
+    - transformPath: SM_Complete_Roof_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4a7e0e232165ee14d84c30a590fbbe5c, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Corner_Piece_01.prefab
+    prefab: {fileID: 1030971948, guid: abc00000000010057487551296460616, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corner_Piece_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Corner_Piece_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Corner_Piece_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+    - transformPath: SM_Corner_Piece_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9581fb50c44cc42a0e4bf1c8b9f4f8, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Flower_01.prefab
+    prefab: {fileID: 1030978665, guid: abc00000000010570869636337966047, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flower_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Flower_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaf_Single_01.prefab
+    prefab: {fileID: 1030981653, guid: abc00000000011073984637355701155, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaf_Single_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 243a886bc9b4e744294b5ddc2ada5d79, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaf_Single_02.prefab
+    prefab: {fileID: 1030981662, guid: abc00000000016986418502768587928, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaf_Single_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 243a886bc9b4e744294b5ddc2ada5d79, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaf_Single_03.prefab
+    prefab: {fileID: 1030981671, guid: abc00000000012327348722975649377, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaf_Single_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 243a886bc9b4e744294b5ddc2ada5d79, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaves_01.prefab
+    prefab: {fileID: 1030972106, guid: abc00000000018429403164648541022, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaves_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+    - transformPath: SM_Ginkgo_Leaves_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaves_02.prefab
+    prefab: {fileID: 1030974139, guid: abc00000000009454249867683350501, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaves_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+    - transformPath: SM_Ginkgo_Leaves_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+    - transformPath: SM_Ginkgo_Leaves_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Ginkgo_Leaves_03.prefab
+    prefab: {fileID: 1030976056, guid: abc00000000015009224453956246940, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaves_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+    - transformPath: SM_Ginkgo_Leaves_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+    - transformPath: SM_Ginkgo_Leaves_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38bb415cf6374324789bf28455004303, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Grass_01.prefab
+    prefab: {fileID: 1030972034, guid: abc00000000000587644414668666054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Grass_02.prefab
+    prefab: {fileID: 1030981396, guid: abc00000000007586949557504397869, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Grass_03.prefab
+    prefab: {fileID: 1030981425, guid: abc00000000006039185676095864836, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+    - transformPath: SM_Grass_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e903c06f2abb9634a862ff2bfd6977d2, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Large_Roof_Ornament_01.prefab
+    prefab: {fileID: 1030972609, guid: abc00000000005491047413886749583, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Large_Roof_Ornament_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1d5e0b10c5837164badd843ddd86022f, type: 2}
+    - transformPath: SM_Large_Roof_Ornament_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f633a4c1921dc284a84d3a89e80fa1da, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Roof_Corner_01.prefab
+    prefab: {fileID: 1030974661, guid: abc00000000005958790818679841230, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Corner_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7aa288d5c48431d48a3e05264a76d7c4, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8bfe42967f04ca7449fa3cbcd013b5a0, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8c7c0b0da972f854286c1e6bf0e98f2c, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7aa288d5c48431d48a3e05264a76d7c4, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8bfe42967f04ca7449fa3cbcd013b5a0, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8c7c0b0da972f854286c1e6bf0e98f2c, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7aa288d5c48431d48a3e05264a76d7c4, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8bfe42967f04ca7449fa3cbcd013b5a0, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8c7c0b0da972f854286c1e6bf0e98f2c, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7aa288d5c48431d48a3e05264a76d7c4, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8bfe42967f04ca7449fa3cbcd013b5a0, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8c7c0b0da972f854286c1e6bf0e98f2c, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7aa288d5c48431d48a3e05264a76d7c4, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8bfe42967f04ca7449fa3cbcd013b5a0, type: 2}
+    - transformPath: SM_Roof_Corner_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8c7c0b0da972f854286c1e6bf0e98f2c, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Roof_Ornament_01.prefab
+    prefab: {fileID: 1030972583, guid: abc00000000015005386199483744947, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Ornament_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 858105853ef666a478e9ffba93286f08, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18a50994d1f9f654697bf634557b5266, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 858105853ef666a478e9ffba93286f08, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18a50994d1f9f654697bf634557b5266, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 858105853ef666a478e9ffba93286f08, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18a50994d1f9f654697bf634557b5266, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 858105853ef666a478e9ffba93286f08, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18a50994d1f9f654697bf634557b5266, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 858105853ef666a478e9ffba93286f08, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18a50994d1f9f654697bf634557b5266, type: 2}
+    - transformPath: SM_Roof_Ornament_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b3ed1799e33ba1e49a83c8f5fadd3047, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_0.prefab
+    prefab: {fileID: 1031646671, guid: abc00000000000014355231571872942, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_1.prefab
+    prefab: {fileID: 1031646679, guid: abc00000000000126076259683797543, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_2.prefab
+    prefab: {fileID: 1031646687, guid: abc00000000002918846597793698156, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_3.prefab
+    prefab: {fileID: 1031646695, guid: abc00000000009717380065015904437, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_4.prefab
+    prefab: {fileID: 1031646703, guid: abc00000000014778067118840168226, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_5.prefab
+    prefab: {fileID: 1031646711, guid: abc00000000003474391782725603947, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_6.prefab
+    prefab: {fileID: 1031646719, guid: abc00000000004818196190179624800, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_6
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_7.prefab
+    prefab: {fileID: 1031646727, guid: abc00000000005055972833838885481, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_7
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Rope_01_Splines_8.prefab
+    prefab: {fileID: 1031646735, guid: abc00000000005678969849785768150, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rope_01_Splines_8
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c04106d7e21c184da746c689940ea10, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Sign_01.prefab
+    prefab: {fileID: 1030993297, guid: abc00000000016175456321969173425, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sign_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8aaabf8ba14e78541b3e651cb1fb1c14, type: 2}
+    - transformPath: SM_Sign_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8aaabf8ba14e78541b3e651cb1fb1c14, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Statue_01.prefab
+    prefab: {fileID: 1030979064, guid: abc00000000016955249810194926088, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Statue_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 027c58f308bde564a84f442f87df467a, type: 2}
+    - transformPath: SM_Statue_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 027c58f308bde564a84f442f87df467a, type: 2}
+    - transformPath: SM_Statue_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 027c58f308bde564a84f442f87df467a, type: 2}
+    - transformPath: SM_Statue_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 027c58f308bde564a84f442f87df467a, type: 2}
+    - transformPath: SM_Statue_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 027c58f308bde564a84f442f87df467a, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Support_Column_01.prefab
+    prefab: {fileID: 1030973659, guid: abc00000000001410796535508026238, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Support_Column_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c7e8c19f5bfb148b59ea9ade88e941, type: 2}
+    - transformPath: SM_Support_Column_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c7e8c19f5bfb148b59ea9ade88e941, type: 2}
+    - transformPath: SM_Support_Column_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c7e8c19f5bfb148b59ea9ade88e941, type: 2}
+    - transformPath: SM_Support_Column_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c7e8c19f5bfb148b59ea9ade88e941, type: 2}
+    - transformPath: SM_Support_Column_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c7e8c19f5bfb148b59ea9ade88e941, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Prefabs/SM_Wall_01.prefab
+    prefab: {fileID: 1030971992, guid: abc00000000003278014695351401052, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b82f220216726a84d9f8fcc2781b1d29, type: 2}
+    - transformPath: SM_Wall_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b82f220216726a84d9f8fcc2781b1d29, type: 2}
+    - transformPath: SM_Wall_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b82f220216726a84d9f8fcc2781b1d29, type: 2}
+  - assetPath: Assets/HIVEMIND/MountainTemple/HDRP(Default)/Art/Terrain/SM_Ginkgo_Leaf_Single_01Foliage.prefab
+    prefab: {fileID: 4619725871417223302, guid: f97410f48ea1fcf45a2d58d44379f309, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ginkgo_Leaf_Single_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 243a886bc9b4e744294b5ddc2ada5d79, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "run_status": "NOT_RUN",
+  "base_model_sha256": "5d4978a0065869fb353034a4fe41aec32ea47722399a617ee049c23c6ba1843c",
+  "adapter_sha256": null,
+  "backend_sha256": "b4590de3b49eb7c2bb4d1e4774760f202828d5749c37eec34347398c45779550",
+  "input_manifest_sha256": null,
+  "generation_config_sha256": null,
+  "hardware_id": null,
+  "quantization": "Q4_K_M",
+  "seed": null,
+  "sampling": null,
+  "tokenizer_sha256": null,
+  "chat_template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "conditions": "Populate from actual authorized runs; identical baseline/adapter inputs and settings. This harness never starts a model."
+}

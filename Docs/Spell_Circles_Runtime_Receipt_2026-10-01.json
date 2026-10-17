@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-02T10:31:42.9403757Z",
+  "mode": "PlaySafe Input System harness using the existing accepted equipped spell",
+  "assemblyHash": "8f26f9af44ceedc712b9b8595925e01d6fd4f15520273cb378ce47c7375b3a30",
+  "spellId": "e71e9e91b5cf429499e4f4165bb17ca4",
+  "spellName": "Invoke Starward Sign",
+  "circle": 1,
+  "castSeconds": 0.71,
+  "checks": [
+    "Fresh compiled PlaySafe session",
+    "Gameplay input is available",
+    "Exactly one authoritative gameplay player",
+    "An accepted spell is equipped on the living player",
+    "Input devices are available and no cast is in flight",
+    "Resources available before cast release",
+    "Live wind-up uses the displayed cast-time formula",
+    "Live ring count matches the equipped circle",
+    "Spell remains pending until its full cast time",
+    "Successful release records the ordinary cast counter",
+    "Release spends the declared resource cost once (allowing observed regeneration)",
+    "Resources available before cast interruption",
+    "Live wind-up uses the displayed cast-time formula",
+    "Live ring count matches the equipped circle",
+    "Opening the live menu cancels without spending resources or recording a cast",
+    "Interrupted casting rings are removed",
+    "Accepted spell records and IDs remain unchanged"
+  ],
+  "failure": null,
+  "screenshot": "Docs/Spell_Circles_Live_Cast_2026-10-01.png",
+  "remaining": "Other circles are covered by detached contracts; unassisted casting and third-person presentation are not certified by this harness."
+}

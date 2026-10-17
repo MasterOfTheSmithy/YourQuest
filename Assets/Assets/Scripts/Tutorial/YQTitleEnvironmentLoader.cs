@@ -51,15 +51,27 @@ public sealed class YQTitleEnvironmentLoader : MonoBehaviour
         instance._generationHold = true;
         instance._thresholdMode = true;
         instance.SetRequestedVisible(true);
-        // note: Origin generation can precede creation of the player; retain the existing portrait/listener until there is a real gameplay target.
-        ReleaseWorldGeneration();
+        // note: Player creation is not world readiness. Retain the authored Goddess stage until bootstrap explicitly releases presentation.
+        instance._worldGenerationCameraReleased = false;
+        instance.ApplyThresholdModeIfAvailable();
     }
 
     public static void ReleaseWorldGeneration()
     {
         // note: Instantiate the persistent handoff owner before releasing generation so a late title-scene load cannot suppress the gameplay camera.
-        YQTitleEnvironmentLoader instance = EnsureInstance();
+        ReleaseWorldGeneration(EnsureInstance());
+    }
 
+    internal static void ReleaseWorldGenerationIfPresent()
+    {
+        // note: Destruction may run after the persistent loader has retired; cleanup must not create a new owner.
+        YQTitleEnvironmentLoader instance = s_instance;
+        if (instance != null)
+            ReleaseWorldGeneration(instance);
+    }
+
+    private static void ReleaseWorldGeneration(YQTitleEnvironmentLoader instance)
+    {
         YQInvestorPlayerMotor motor = YQInvestorPlayerMotor.ActiveMotor;
         Camera gameplayCamera = motor != null && motor.IsAuthoritative
             ? motor.playerCamera
@@ -116,14 +128,12 @@ public sealed class YQTitleEnvironmentLoader : MonoBehaviour
     public static void SuppressGameplayPresentationUntilRelease(
         Camera gameplayCamera)
     {
-        if ((s_instance != null && s_instance._worldGenerationCameraReleased) ||
-            YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked)
+        if (s_instance != null && s_instance._worldGenerationCameraReleased)
         {
             // note: Initial generation never owns the gameplay camera; late-created cameras stay enabled even if the title stage is still unloading.
             if (gameplayCamera != null)
             {
                 gameplayCamera.enabled = true;
-                ReleaseWorldGeneration();
             }
             return;
         }

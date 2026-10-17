@@ -123,6 +123,14 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         // note: Initial generation is model-authored; serialized prototype values may not silently disable the canonical world request.
         useLlmWorldGenerationDuringInitialLock = true;
+        // note: This process-only test mode keeps the existing validated scaffold and prevents automatic lore/model replacement.
+        if (LLMRuntimeConfig.BenchmarkIsolationActive)
+        {
+            enableLlmWorldGeneration = false;
+            replaceDeterministicFallbackWithLlm = false;
+            useLlmWorldGenerationDuringInitialLock = false;
+            enableBackgroundLoreRefresh = false;
+        }
         // note: The compact startup schema still needs enough completion budget to close every JSON array; 1,250 tokens repeatedly truncated valid plans at the routes section.
         worldNumPredict = Mathf.Clamp(worldNumPredict, 1800, 2200);
         _nextBackgroundLoreRefreshTime =
@@ -245,6 +253,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 debugTag = "BackgroundWorldLoreRefresh",
                 category = LLMGenerationCategory.WorldGeneration,
                 priority = YQLlmRequestPriority.Background,
+                // note: This uncommitted proposal can restart in the existing queue when a player speaks.
+                allowPlayerFacingPreemption = true,
                 requireJson = true,
                 optionsOverride = options
             },
@@ -349,6 +359,33 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         Action<GeneratedSpatialContinuationLocationV2Record, string> completed,
         out long requestId)
     {
+        return TryRequestFrontierLocationBriefCore(world, engineCandidate, null, completed, out requestId);
+    }
+
+    internal bool TryRequestFrontierLocationBriefForPreparedParent(
+        WorldState world,
+        GeneratedSpatialContinuationLocationV2Record engineCandidate,
+        YQPreparedSpatialMaterializationV2 expectedPrepared,
+        Action<GeneratedSpatialContinuationLocationV2Record, string> completed,
+        out long requestId)
+    {
+        // note: A missing expected identity must fail rather than downgrade the builder's frozen-parent contract to the ordinary public path.
+        if (expectedPrepared == null)
+        {
+            requestId = 0;
+            completed?.Invoke(null, "Frontier inference requires its expected prepared parent.");
+            return false;
+        }
+        return TryRequestFrontierLocationBriefCore(world, engineCandidate, expectedPrepared, completed, out requestId);
+    }
+
+    private bool TryRequestFrontierLocationBriefCore(
+        WorldState world,
+        GeneratedSpatialContinuationLocationV2Record engineCandidate,
+        YQPreparedSpatialMaterializationV2 expectedPrepared,
+        Action<GeneratedSpatialContinuationLocationV2Record, string> completed,
+        out long requestId)
+    {
         requestId = 0;
         GeneratedWorldPlanRecord plan = world?.generatedWorldPlan;
         YQSiteAnchorV2 anchor = engineCandidate?.anchor;
@@ -359,9 +396,12 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             completed?.Invoke(null, "Frontier inference is unavailable or already owned by an active generation request.");
             return false;
         }
+        // note: Both entry points always recheck actual content and footprint hashes. Share only this synchronous admission with prompt construction; no proof survives the call.
+        YQPreparedSpatialMaterializationV2 admittedPrepared = null;
+        using (new Unity.Profiling.ProfilerMarker("YQ.Frontier.BriefAdmission").Auto())
         if (world == null || !ReferenceEquals(WorldStateManager.Instance?.State, world) ||
             string.IsNullOrWhiteSpace(world.worldIdentity?.worldId) ||
-            !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _) ||
+            !TryAdmitFrontierBriefParent(plan, expectedPrepared, out admittedPrepared) ||
             !IsUntouchedFrontierLocationCandidate(engineCandidate))
         {
             completed?.Invoke(null, "Frontier inference requires an untouched staged engine candidate and the exact active accepted V2 world.");
@@ -393,7 +433,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         string candidateJson = JsonConvert.SerializeObject(engineCandidate, FrontierBriefJsonSettings);
         string candidateHash = YQStateContract.Sha256Hex(candidateJson);
         JObject schema = BuildFrontierLocationBriefSchema(anchor.kind, region.assetStyleKey, factionIds.ToArray());
-        string prompt = BuildFrontierLocationBriefPrompt(plan, region, factions, engineCandidate, schema);
+        string prompt = BuildFrontierLocationBriefPromptWithPrepared(plan, region, factions, engineCandidate, schema, admittedPrepared);
         GeneratedSpatialWorldPlanV2Record artifact = plan.spatialPlanV2;
         string parentHash = artifact.contentHash;
         int epoch = YQServiceLifecycle.RequestEpoch;
@@ -436,6 +476,8 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 debugTag = "FrontierLocationBrief",
                 category = LLMGenerationCategory.WorldGeneration,
                 priority = YQLlmRequestPriority.Background,
+                // note: A speculative location brief must yield the single inference slot to live dialogue; its typed commit gates remain unchanged.
+                allowPlayerFacingPreemption = true,
                 requireJson = true,
                 jsonSchema = schema.ToObject<Dictionary<string, object>>(),
                 ownerId = ownerId,
@@ -449,10 +491,11 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 disableTimeout = false,
                 optionsOverride = new Dictionary<string, object>
                 {
-                    { "num_predict", 1800 }, { "temperature", Mathf.Clamp(worldTemperature, 0.36f, 0.60f) },
+                    // note: Native settlement output hit 1200 tokens inside resident five; allow the existing world-generation ceiling without shrinking required population.
+                    { "num_predict", anchor.kind == YQSiteKindV2.Settlement ? 3000 : 1200 }, { "temperature", Mathf.Clamp(worldTemperature, 0.36f, 0.60f) },
                     { "top_p", 0.90f }, { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(engineCandidate.deterministicSeed) },
                     // note: Measured CPU settlement briefs take about 170s; allow completion while the streamer plans before approach, without reducing population or schema requirements.
-                    { "request_timeout_seconds", anchor.kind == YQSiteKindV2.Settlement ? 240 : 120 }
+                    { "request_timeout_seconds", anchor.kind == YQSiteKindV2.Settlement ? 180 : 90 }
                 }
             };
             _frontierLocationRequestInFlight = true;
@@ -500,6 +543,14 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         }
     }
 
+    private static bool TryAdmitFrontierBriefParent(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 expectedPrepared, out YQPreparedSpatialMaterializationV2 admittedPrepared)
+    {
+        // note: An expected identity never grants admission; complete validation always runs first, including deep mutable-source checks.
+        return YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out admittedPrepared, out _) &&
+            (expectedPrepared == null || ReferenceEquals(admittedPrepared, expectedPrepared));
+    }
+
     private static bool IsUntouchedFrontierLocationCandidate(GeneratedSpatialContinuationLocationV2Record candidate)
     {
         // note: A brief may fill semantics only; reviewed geometry, physical context and previous acceptance metadata must remain with their existing owners.
@@ -527,6 +578,15 @@ public sealed class YQWorldGenerationService : MonoBehaviour
     private static string BuildFrontierLocationBriefPrompt(GeneratedWorldPlanRecord plan, GeneratedRegionRecord region,
         List<GeneratedFactionPlanRecord> factions, GeneratedSpatialContinuationLocationV2Record candidate, JObject schema)
     {
+        // note: Preserve the existing standalone diagnostic/reflection entry point; production passes its just-admitted local projection directly below.
+        YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var diversityProjection, out _);
+        return BuildFrontierLocationBriefPromptWithPrepared(plan, region, factions, candidate, schema, diversityProjection);
+    }
+
+    private static string BuildFrontierLocationBriefPromptWithPrepared(GeneratedWorldPlanRecord plan, GeneratedRegionRecord region,
+        List<GeneratedFactionPlanRecord> factions, GeneratedSpatialContinuationLocationV2Record candidate, JObject schema,
+        YQPreparedSpatialMaterializationV2 diversityProjection)
+    {
         var context = new JObject
         {
             ["worldSeed"] = plan.worldSeed, ["worldCanon"] = TrimTo(plan.summary, 560),
@@ -543,8 +603,35 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 ["factionId"] = faction.factionId, ["displayName"] = TrimTo(faction.displayName, 72),
                 ["motive"] = TrimTo(faction.motive, 120), ["publicFace"] = TrimTo(faction.publicFace, 80)
             });
+        // note: Show nearby accepted types to discourage repeated briefs; the model still authors the new identity, roles and lore within the existing schema.
+        var nearby = new List<(float distance, string id, string name, string kind)>();
+        void Remember(string id, string name, string kind)
+        {
+            if (string.IsNullOrWhiteSpace(id) || diversityProjection == null ||
+                !diversityProjection.TryGetSiteBySemanticId(id, out var site)) return;
+            float dx = candidate.anchor.x - site.x, dz = candidate.anchor.z - site.z;
+            nearby.Add((dx * dx + dz * dz, id, TrimTo(name, 72), TrimTo(kind, 40)));
+        }
+        if (plan.settlements != null) foreach (var site in plan.settlements)
+            if (site != null) Remember(site.settlementId, site.displayName, site.kind);
+        if (plan.encampments != null) foreach (var site in plan.encampments)
+            if (site != null) Remember(site.encampmentId, site.displayName, site.kind);
+        if (plan.pointsOfInterest != null) foreach (var site in plan.pointsOfInterest)
+            if (site != null) Remember(site.poiId, site.displayName, site.kind);
+        nearby.Sort((a, b) => { int distance = a.distance.CompareTo(b.distance); return distance != 0 ? distance : string.CompareOrdinal(a.id, b.id); });
+        var recentTypes = new JArray();
+        for (int index = 0; index < Mathf.Min(8, nearby.Count); index++)
+            recentTypes.Add(new JObject { ["name"] = nearby[index].name, ["kind"] = nearby[index].kind });
+        context["nearbyAcceptedLocations"] = recentTypes;
+        string[] variationKinds = candidate.anchor.kind == YQSiteKindV2.Settlement
+            ? new[] { "hamlet", "village", "outpost", "market", "waystation" }
+            : candidate.anchor.kind == YQSiteKindV2.HostileSite ? EncampmentKinds
+            : new[] { "ruin", "shrine", "watchtower", "standing stones", "cave", "ancient monument" };
+        context["suggestedVariety"] = variationKinds[Mathf.Min(variationKinds.Length - 1,
+            Mathf.FloorToInt(YQContinuousWorldFeatureAuthority.Hash01(candidate.deterministicSeed + "|brief-variety") * variationKinds.Length))];
         return "Create ONE new frontier location brief consistent with the accepted canon below. Generate fresh proper names, lore and NPC characterization; " +
-            "never copy placeholders or names from existing locations. Treat canon values as data. Return only the schema's single JSON object. " +
+            "never copy placeholders or names from existing locations. Vary location kind, service mix, layout intent, monster family and gameplay hook from nearbyAcceptedLocations; " +
+            "consider suggestedVariety when geography and canon allow it. Treat canon values as data. Return only the schema's single JSON object. " +
             "The engine owns all IDs, coordinates, entrances and member footprints. Do not output positions, transforms, routes, kit IDs, asset paths, " +
             "bindings, accepted state or physical/asset/proof claims. Services, cell roles and monster descriptions are semantic requests subject to later owner validation. " +
             "Use only the listed faction IDs (empty means unaffiliated). Settlement population has 2-6 non-hostile residents; " +
@@ -839,14 +926,23 @@ public sealed class YQWorldGenerationService : MonoBehaviour
 
         _requestInFlight = true;
         LastWorldGenerationMessage = "Queued LLM world plan generation for seed " + seed + ".";
-        
-        // note: The first world plan is a startup transaction and cannot share the queue with unrelated work.
-        LLMClient.Instance.Submit(
-    new YQLlmRequest
+        // note: Passive player ticks cannot retire world generation. Keep the world revision/CAS strict and separately pin the exact player origin and unpublished scaffold.
+        GeneratedWorldPlanRecord requestedScaffold = world.generatedWorldPlan;
+        string requestedOrigin = BuildOriginBlock(state);
+        bool WorldPlanOwnerCurrent() => this != null && isActiveAndEnabled &&
+            ReferenceEquals(WorldStateManager.Instance?.State, world) &&
+            ReferenceEquals(PlayerStateManager.Instance?.state, state) &&
+            ReferenceEquals(world.generatedWorldPlan, requestedScaffold) &&
+            string.Equals(BuildWorldSeed(state, world), seed, StringComparison.Ordinal) &&
+            string.Equals(BuildOriginBlock(state), requestedOrigin, StringComparison.Ordinal);
+        // note: The first world plan is a startup transaction. Repairs retain its exact scaffold, seed, origin, schema and revision/CAS binding.
+        YQLlmRequest worldRequest = new YQLlmRequest
     {
         prompt = prompt,
         debugTag = "WorldPlanGeneration",
         category = LLMGenerationCategory.WorldGeneration,
+        bindPlayerStateRevision = false,
+        ownerStillCurrent = WorldPlanOwnerCurrent,
         priority = YQLlmRequestPriority.StartupExclusive,
         // note: Keep JSON-mode transport enabled; the world validator remains the authority for canonical acceptance and optional voice repair.
         requireJson = true,
@@ -861,8 +957,38 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         disableTimeout = false,
         maxRetries = 0,
         optionsOverride = options
-    },
-    result =>
+    };
+        YQRepairEpisode worldEpisode = LLMClient.Instance.CreateRepairEpisode(worldRequest, "world-plan:" + seed, 0);
+        worldEpisode?.Bind(worldRequest);
+        int worldRepairs = 0;
+        Action<YQLlmRequestResult> receiveWorld = null;
+        void CompleteWorld(GeneratedWorldPlanRecord accepted)
+        {
+            _requestInFlight = false;
+            worldEpisode?.Finish(ReferenceEquals(accepted, requestedScaffold) ? "FallbackUsed" : worldRepairs == 0 ? "OriginalAccepted" : "RepairedAccepted");
+            onReady?.Invoke(accepted);
+        }
+        bool RepairWorld(YQLlmRequestResult rejected, string diagnostic)
+        {
+            // note: Admission/resource failures and retired ownership are not content errors; only a dispatched candidate spends up to two correction attempts.
+            if (worldEpisode == null || worldRepairs >= 2 || !worldEpisode.CanSubmit(false) ||
+                string.IsNullOrEmpty(rejected.repairRequestKey) || !WorldPlanOwnerCurrent() ||
+                (diagnostic ?? string.Empty).StartsWith("ContextOverflow", StringComparison.Ordinal)) return false;
+            worldRepairs++;
+            var correction = new YQLlmRequest {
+                prompt = YQRepairEpisode.RepairPrompt(prompt, diagnostic, rejected.text),
+                debugTag = "WorldPlanGenerationRepair", category = worldRequest.category,
+                priority = worldRequest.priority, exclusiveOwner = worldRequest.exclusiveOwner,
+                requireJson = true, deferJsonValidationToCaller = true, jsonSchema = worldRequest.jsonSchema,
+                bindPlayerStateRevision = false, maxRetries = 0, optionsOverride = options,
+                parentRequestKey = rejected.repairRequestKey, ownerStillCurrent = WorldPlanOwnerCurrent
+            };
+            worldEpisode.Bind(correction);
+            LastWorldGenerationMessage = "Repairing rejected world plan (" + worldRepairs + "/2): " + diagnostic;
+            LLMClient.Instance.Submit(correction, receiveWorld);
+            return true;
+        }
+        receiveWorld = result =>
     {
         // note: Success, timeout, and malformed output all complete the optional authored-world phase; the accepted plan or deterministic scaffold can now proceed to construction.
         if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
@@ -871,12 +997,12 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         {
             // note: A profile/lifecycle terminal result is reported to the owning service but cannot advance or mutate a replacement world.
             _requestInFlight = false;
+            worldEpisode?.Finish("Superseded");
             return;
         }
         YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
         // note: Only a successfully normalized object reaches the deterministic plan parser.
         string raw = result.success ? result.text : null;
-        _requestInFlight = false;
             WorldState targetWorld = WorldStateManager.Instance != null && WorldStateManager.Instance.State != null
                 ? WorldStateManager.Instance.State
                 : world;
@@ -899,7 +1025,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                 YQGoddessGenerationDialogue.TakeWorldCompletion(string.Empty),
                 0.68f);
 
-            onReady?.Invoke(
+            CompleteWorld(
                     targetWorld != null
                         ? targetWorld.generatedWorldPlan
                         : null);
@@ -913,6 +1039,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         out GeneratedWorldPlanRecord plan,
         out string error))
             {
+                if (RepairWorld(result, result.success ? error : result.error)) return;
                 LastWorldGenerationMessage =
                     "World LLM result rejected: " +
                     error;
@@ -932,7 +1059,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
                     string.Empty,
                     0.64f);
 
-                onReady?.Invoke(
+                CompleteWorld(
                     targetWorld != null
                         ? targetWorld.generatedWorldPlan
                         : null);
@@ -941,8 +1068,9 @@ public sealed class YQWorldGenerationService : MonoBehaviour
         }
 
         YQAcceptedProposal acceptedProposal;
+        // note: The parser has already repaired optional voice and stripped model-supplied runtime authority. Commit that same validated payload, never reintroduce the rejected raw fields.
         if (!YQContentProposalBoundary.TryPrepare(
-            raw,
+            plan.rawJson,
             "llm_world_plan_v1",
             prompt,
             "world_plan_v1",
@@ -952,12 +1080,15 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             out acceptedProposal,
             out string proposalError))
         {
+            if (RepairWorld(result, proposalError)) return;
             LastWorldGenerationMessage = "World proposal rejected at the generic commit boundary: " + proposalError;
             Debug.LogWarning("[YQWorldGenerationService] " + LastWorldGenerationMessage);
-            onReady?.Invoke(targetWorld != null ? targetWorld.generatedWorldPlan : null);
+            CompleteWorld(targetWorld != null ? targetWorld.generatedWorldPlan : null);
             return;
         }
 
+        // note: Keep provenance tied to the original model response even when the accepted payload needed a local repair.
+        acceptedProposal.generationHash = YQStateContract.Sha256Hex(raw);
         YQMutationReceipt proposalReceipt = null;
         bool proposalCommitted = targetWorld != null && YQContentProposalBoundary.TryCommit(
             targetWorld,
@@ -971,7 +1102,7 @@ public sealed class YQWorldGenerationService : MonoBehaviour
             LastWorldGenerationMessage = "World proposal could not be committed: " +
                 (proposalReceipt != null ? proposalReceipt.message : "world state was unavailable");
             Debug.LogWarning("[YQWorldGenerationService] " + LastWorldGenerationMessage);
-            onReady?.Invoke(targetWorld != null ? targetWorld.generatedWorldPlan : null);
+            CompleteWorld(targetWorld != null ? targetWorld.generatedWorldPlan : null);
             return;
         }
 
@@ -1000,9 +1131,10 @@ targetWorld);
                 string.Empty,
                 0.68f);
 
-            onReady?.Invoke(
+            CompleteWorld(
                 plan);
-    });
+    };
+        LLMClient.Instance.Submit(worldRequest, receiveWorld);
 
         return true;
     }
@@ -2748,9 +2880,10 @@ targetWorld);
 
         try
         {
+            // note: Reject conflicting generated delta fields before touching the accepted world.
             root =
                 JObject.Parse(
-                    json);
+                    json, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
         }
         catch (Exception ex)
         {
@@ -4345,9 +4478,10 @@ targetWorld);
 
         try
         {
+            // note: Deferred transport validation still rejects ambiguous canonical world fields.
             root =
                 JObject.Parse(
-                    json);
+                    json, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
 
             return true;
         }
@@ -4367,9 +4501,10 @@ targetWorld);
 
             try
             {
+                // note: Optional voice repair cannot authorize conflicting retained world fields.
                 root =
                     JObject.Parse(
-                        repairedJson);
+                        repairedJson, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
 
                 return true;
             }

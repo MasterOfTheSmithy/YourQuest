@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_crossbow
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Crossbow_Starforged_Orrery.prefab
+    prefab: {fileID: 3843130785905087050, guid: a9bd6bb192b838f459a30c08d1c58088, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Crossbow_Worldtree_Sovereign.prefab
+    prefab: {fileID: 6174599774861736429, guid: 1a1bae96cf8964d4f93e0b656d05aa0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Drake_Crossbow.prefab
+    prefab: {fileID: 4105509474231018127, guid: 361e265dc25254f4888245313d44341b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Duelist_Crossbow.prefab
+    prefab: {fileID: 1944142205108790670, guid: ac47630e1567f9b43984814a78be31fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Eclipse_Crossbow.prefab
+    prefab: {fileID: 6345762547220556595, guid: 2c9f723b36818b14b93c44ac93efc31d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Field_Crossbow.prefab
+    prefab: {fileID: 4226269931367769820, guid: 919380278f125d64e923acd1c5f74037, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Frontier_Crossbow.prefab
+    prefab: {fileID: 6138359818746975585, guid: 765a7b73bdac9f341a6709deee79394b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Ranger_Crossbow.prefab
+    prefab: {fileID: 5702464570262543387, guid: 6ea72b1920eee894fb55dc21bad716e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Sentinel_Crossbow.prefab
+    prefab: {fileID: 4593101560061848955, guid: 7291ac5bbf2cf8d45a6e404d80afc89b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_mixed_dark_light_forged.prefab
+    prefab: {fileID: 6517646509962912349, guid: 6e685725556dfba4ab4db2f26b248eba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 4780764392226765099, guid: cff5f1f51a7a5be41bc4f5f56629d072, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_darkness.prefab
+    prefab: {fileID: 7467280801435793922, guid: d0f6ba5d686fdd84c852f0dd822b9a0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_fire.prefab
+    prefab: {fileID: 8555927156539460717, guid: a8aad1994d06c5b43ac1412eeafb7016, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_forged.prefab
+    prefab: {fileID: 5565981490040458777, guid: 1652218a09015bd4b95a1fbded74e1af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_frost.prefab
+    prefab: {fileID: 1152878804820031585, guid: d2f9c9bc481c67b4c81ce34206a5f3ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_light.prefab
+    prefab: {fileID: 591431924818995146, guid: c1b5fded467a6f447a19f53f20fce625, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_prod_string_organic.prefab
+    prefab: {fileID: 3710531482151296985, guid: 880021dcdba017143852f23b1f1cd9f2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_darkness.prefab
+    prefab: {fileID: 3248022059616446442, guid: f1ca0c88af22f9c469d2b8e5c1f32a4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_fire.prefab
+    prefab: {fileID: 8562350986244038383, guid: 3daf3b3259ef8b04ab8a6b8cd770c48c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_forged.prefab
+    prefab: {fileID: 1300729200017749107, guid: 0ed60748975345c4e956fd16e04c7c15, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_frost.prefab
+    prefab: {fileID: 1362947106177042308, guid: 886b4fb2d18ae6c4580467ef0bc4d115, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_light.prefab
+    prefab: {fileID: 6629401058173425722, guid: 86502e867d834094a8e9d459a9996382, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_rail_trigger_organic.prefab
+    prefab: {fileID: 1989672369072684189, guid: d76dd21d074dcc5468697ae1aa61672b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_darkness.prefab
+    prefab: {fileID: 9147729519710725474, guid: 84ac4238e85da42478d9989eed7061c3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_fire.prefab
+    prefab: {fileID: 5831192997150167503, guid: a03b328f7b0c91943810d3d7efce364a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_forged.prefab
+    prefab: {fileID: 4945890109288128735, guid: 31864932fde989a42828295ab37e012d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_frost.prefab
+    prefab: {fileID: 5165473394158894051, guid: 60ffc5230c5132e4e974856f69579804, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_light.prefab
+    prefab: {fileID: 8860200957619526239, guid: 18efa61cd37274345a13525c4f6a12d9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/yqmod1_weapon_crossbow_stock_organic.prefab
+    prefab: {fileID: 1200753593183261379, guid: 5e14b5b3b1b63f946925afbe242e0849, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Field_Crossbow_Parts.prefab
+    prefab: {fileID: 4947574645847023908, guid: 17786de8f4db6734fbb4e5aeca62293c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Ranger_Crossbow_Parts.prefab
+    prefab: {fileID: 3936023139471022119, guid: dd8bd1836405597488f59ff490949b95, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Sentinel_Crossbow_Parts.prefab
+    prefab: {fileID: 4350005147458533337, guid: 5b0dcce6edf9e3e4caac565477b141bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Duelist_Crossbow_Parts.prefab
+    prefab: {fileID: 3725966823554838101, guid: e8aaf2f3f80797b42a6646f02ab333df, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Frontier_Crossbow_Parts.prefab
+    prefab: {fileID: 7804683421304086935, guid: acfdbad152fdbb541939171299c796a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Drake_Crossbow_Parts.prefab
+    prefab: {fileID: 8250337265201995133, guid: 74bb35f9925b3494f90d7bac3ef7bb20, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Eclipse_Crossbow_Parts.prefab
+    prefab: {fileID: 4393450349092287547, guid: 1b480d228f7f16143b77eae189d5d898, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Crossbow_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 3998997417703789086, guid: 5608ec38b181c0f42acb7698dca44766, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/crossbow/Crossbow_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 1345898184748903905, guid: 09ea05fc8d804d649b6545c4b46ff123, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

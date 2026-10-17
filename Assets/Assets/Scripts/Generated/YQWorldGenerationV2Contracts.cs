@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public enum GeneratedSpatialPlanAcceptanceState
@@ -24,9 +27,17 @@ public sealed class GeneratedSpatialWorldPlanV2Record
     public const string SupportedSchemaVersion =
         "spatial_world_plan_v2";
 
-    // note: Topology 9 routes sustained river-following roads onto a deterministic bank and records each separate water entry so accepted trails remain materializable.
+    // note: Topology 12 derives connected basin geometry from accepted relief; older accepted artifacts retain their exact geometry and checksum.
     public const string SupportedGenerationVersion =
-        "spatial_world_plan_v2_topology_9";
+        "spatial_world_plan_v2_topology_12";
+
+    public const string BasinMetadataGenerationVersion = "spatial_world_plan_v2_topology_11";
+
+    public static bool UsesBasinMetadata(string version) =>
+        version == SupportedGenerationVersion || version == BasinMetadataGenerationVersion;
+
+    public const string CompatibleAcceptedGenerationVersion = "spatial_world_plan_v2_topology_10";
+    public const string OlderCompatibleAcceptedGenerationVersion = "spatial_world_plan_v2_topology_9";
 
     // note: Topology 8 is the immediately previous accepted contract; its riverside routes are rebuilt transactionally from the same canonical semantic plan.
     public const string ImmediatePreviousAcceptedGenerationVersion =
@@ -60,7 +71,11 @@ public sealed class GeneratedSpatialWorldPlanV2Record
     public const string AncientAcceptedGenerationVersion =
         "spatial_world_plan_v2_topology_2";
 
+    // note: Gate 3 measures drainage elevations in metres and follows declared basin outlets; existing gate-2 saves keep their original acceptance contract.
     public const string SupportedValidationVersion =
+        "spatial_world_plan_v2_gate_3";
+
+    public const string CompatibleAcceptedValidationVersion =
         "spatial_world_plan_v2_gate_2";
 
     // note: Older accepted snapshots remain readable, but never bypass the current checks; their stored flags/hashes are not rewritten on load.
@@ -226,6 +241,75 @@ public sealed class GeneratedSpatialContinuationProofV2Record
 
 public static class YQSpatialPlanVersionRouter
 {
+    // note: Two bounded immutable proofs retain the active parent and its detached candidate together; no reference, revision or claimed hash alone can authorize reuse.
+    private sealed class AcceptedValidationSnapshot
+    {
+        internal readonly string Json;
+        internal readonly bool ContinuationValidated;
+        internal AcceptedValidationSnapshot(string json, bool continuationValidated) { Json = json; ContinuationValidated = continuationValidated; }
+    }
+    private static AcceptedValidationSnapshot acceptedValidationSnapshot;
+    private static AcceptedValidationSnapshot previousAcceptedValidationSnapshot;
+    private static readonly object ValidationSnapshotLock = new object();
+    private static readonly Newtonsoft.Json.JsonSerializerSettings ValidationCopySettings =
+        new Newtonsoft.Json.JsonSerializerSettings
+        {
+            TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None,
+            Converters = { new Vector2JsonConverter(), new Vector3JsonConverter(), new QuaternionJsonConverter() }
+        };
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetValidationSnapshot()
+    {
+        lock (ValidationSnapshotLock) { acceptedValidationSnapshot = null; previousAcceptedValidationSnapshot = null; }
+    }
+
+    internal static IEnumerator WarmAcceptedValidationRoutine(GeneratedWorldPlanRecord plan, Func<bool> isCurrent,
+        Action<bool, string> completed = null)
+    {
+        if (plan?.spatialPlanV2?.acceptanceState != GeneratedSpatialPlanAcceptanceState.Accepted ||
+            isCurrent == null || !isCurrent()) { completed?.Invoke(false, "Validation preparation owner is unavailable."); yield break; }
+        // note: Only detached plain records enter the worker. Live owners and all publication decisions remain on the calling build coroutine.
+        string sourceJson = Newtonsoft.Json.JsonConvert.SerializeObject(plan.spatialPlanV2, ValidationCopySettings);
+        string seed = plan.worldSeed, fingerprint = plan.spatialPlan?.semanticFingerprint;
+        var work = Task.Run(() =>
+        {
+            var snapshot = new GeneratedWorldPlanRecord
+            {
+                worldSeed = seed,
+                spatialPlan = new GeneratedSpatialWorldPlanRecord { semanticFingerprint = fingerprint },
+                spatialPlanV2 = Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedSpatialWorldPlanV2Record>(sourceJson, ValidationCopySettings)
+            };
+            // note: One complete proof covers both the base blueprint and its exact continuation; ordinary replay can consume it without rebuilding token trees.
+            bool ready = TryValidateAcceptedV2AndContinuation(snapshot, out string reason, out _);
+            return Tuple.Create(ready, reason);
+        });
+        bool success = false;
+        string failure = "Validation preparation was cancelled.";
+        try
+        {
+            while (!work.IsCompleted)
+            {
+                if (!isCurrent()) yield break;
+                yield return null;
+            }
+            if (!isCurrent() || seed != plan.worldSeed || fingerprint != plan.spatialPlan?.semanticFingerprint ||
+                !string.Equals(sourceJson, Newtonsoft.Json.JsonConvert.SerializeObject(plan.spatialPlanV2, ValidationCopySettings), StringComparison.Ordinal))
+            { failure = "Validation inputs changed during preparation."; yield break; }
+            // note: Candidate callers can reject a failed worker immediately. A successful warmup still grants no authority; the complete main-thread gate repeats its exact-input checks before reuse.
+            if (work.IsFaulted)
+            {
+                failure = "Detached validation warmup failed: " + work.Exception.GetBaseException().Message;
+                Debug.LogWarning("[YQSpatialPlanVersionRouter] " + failure);
+            }
+            else { success = work.Result.Item1; failure = work.Result.Item2; }
+        }
+        finally
+        {
+            if (!work.IsCompleted) _ = work.ContinueWith(finished => { _ = finished.Exception; }, TaskScheduler.Default);
+            completed?.Invoke(success, failure);
+        }
+    }
     private const int MaximumAcceptedRegions = 128;
     private const int MaximumAcceptedTerrainFields = 1024;
     private const int MaximumAcceptedHydrologyFeatures = 128;
@@ -296,6 +380,10 @@ public static class YQSpatialPlanVersionRouter
                (string.Equals(
                     candidate.validationVersion,
                     GeneratedSpatialWorldPlanV2Record.LegacyValidationVersion,
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    candidate.validationVersion,
+                    GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedValidationVersion,
                     StringComparison.Ordinal) ||
                 string.Equals(
                     candidate.validationVersion,
@@ -382,10 +470,16 @@ public static class YQSpatialPlanVersionRouter
         return true;
     }
 
-    public static bool TryValidateAcceptedV2(
-        GeneratedWorldPlanRecord plan,
-        out string reason)
+    public static bool TryValidateAcceptedV2(GeneratedWorldPlanRecord plan, out string reason)
+        => TryValidateAcceptedCore(plan, false, out reason, out _);
+
+    internal static bool TryValidateAcceptedV2AndContinuation(GeneratedWorldPlanRecord plan, out string reason, out string validatedJson)
+        => TryValidateAcceptedCore(plan, true, out reason, out validatedJson);
+
+    private static bool TryValidateAcceptedCore(GeneratedWorldPlanRecord plan, bool requireContinuation,
+        out string reason, out string validatedJson)
     {
+        validatedJson = null;
         reason = string.Empty;
 
         if (plan == null)
@@ -415,7 +509,12 @@ public static class YQSpatialPlanVersionRouter
         if (!string.Equals(
                 candidate.generationVersion,
                 GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion,
-                StringComparison.Ordinal))
+                StringComparison.Ordinal) && !string.Equals(candidate.generationVersion,
+                GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedGenerationVersion, StringComparison.Ordinal) &&
+                !string.Equals(candidate.generationVersion,
+                GeneratedSpatialWorldPlanV2Record.BasinMetadataGenerationVersion, StringComparison.Ordinal) &&
+                !string.Equals(candidate.generationVersion,
+                GeneratedSpatialWorldPlanV2Record.OlderCompatibleAcceptedGenerationVersion, StringComparison.Ordinal))
         {
             reason = "The V2 spatial compiler version is unsupported.";
             return false;
@@ -466,6 +565,8 @@ public static class YQSpatialPlanVersionRouter
                 GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion,
                 StringComparison.Ordinal) &&
             !string.Equals(candidate.validationVersion,
+                GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedValidationVersion, StringComparison.Ordinal) &&
+            !string.Equals(candidate.validationVersion,
                 GeneratedSpatialWorldPlanV2Record.LegacyValidationVersion, StringComparison.Ordinal))
         {
             reason = "The V2 validation version is unsupported.";
@@ -488,9 +589,26 @@ public static class YQSpatialPlanVersionRouter
 
         // note: Integrity checks normalize only a detached copy, so reading an accepted save never rewrites null collections or any other persisted evidence.
         GeneratedSpatialWorldPlanV2Record validationCandidate;
+        string detachedJson;
+        string snapshotIdentity;
         try
         {
-            string detachedJson = JsonUtility.ToJson(candidate);
+            detachedJson = JsonUtility.ToJson(candidate);
+            snapshotIdentity = detachedJson + "|" + YQSpatialContinuationValidatorV2.BranchIdentity(candidate.acceptedContinuation);
+            lock (ValidationSnapshotLock)
+            {
+                if (acceptedValidationSnapshot != null && (!requireContinuation || acceptedValidationSnapshot.ContinuationValidated) && string.Equals(acceptedValidationSnapshot.Json, snapshotIdentity, StringComparison.Ordinal))
+                { validatedJson = snapshotIdentity; return true; }
+                if (previousAcceptedValidationSnapshot != null && (!requireContinuation || previousAcceptedValidationSnapshot.ContinuationValidated) && string.Equals(previousAcceptedValidationSnapshot.Json, snapshotIdentity, StringComparison.Ordinal))
+                {
+                    // note: Refresh the active parent's recency before the next candidate arrives; FIFO eviction otherwise kept the old candidate and discarded the parent just checked by its owner.
+                    var previous = acceptedValidationSnapshot;
+                    acceptedValidationSnapshot = previousAcceptedValidationSnapshot;
+                    previousAcceptedValidationSnapshot = previous;
+                    validatedJson = snapshotIdentity;
+                    return true;
+                }
+            }
             validationCandidate =
                 JsonUtility.FromJson<GeneratedSpatialWorldPlanV2Record>(
                     detachedJson);
@@ -528,6 +646,22 @@ public static class YQSpatialPlanVersionRouter
             return false;
         }
 
+        if (requireContinuation)
+        {
+            // note: The proof flag can be issued only here after the original full structural, member-footprint and continuation checksum gate succeeds on the detached envelope.
+            // note: Validate the original read-only variant shape; Unity's inline deserialization can instantiate absent branches. The full serialized identity below still guards the successful result.
+            var basic = YQSpatialContinuationValidatorV2.ValidateBasic(candidate);
+            if (!basic.IsStructurallyValid) { reason = "The persisted continuation no longer satisfies its validation contract: " + basic.errors[0]; return false; }
+        }
+        if (!string.Equals(snapshotIdentity, JsonUtility.ToJson(candidate) + "|" + YQSpatialContinuationValidatorV2.BranchIdentity(candidate.acceptedContinuation), StringComparison.Ordinal))
+        { reason = "The accepted V2 envelope changed during validation."; return false; }
+        // note: Publish only after the complete integrity/hash gate passes. Earlier enclosing-seed/fingerprint/version checks still run on every call, and any deep change misses this exact-input cache.
+        lock (ValidationSnapshotLock)
+        {
+            previousAcceptedValidationSnapshot = acceptedValidationSnapshot;
+            acceptedValidationSnapshot = new AcceptedValidationSnapshot(snapshotIdentity, requireContinuation);
+        }
+        validatedJson = snapshotIdentity;
         // note: Shadow reuse and authoritative activation share this full integrity gate, preventing stale saves from becoming runtime authority later.
         return true;
     }

@@ -1,0 +1,227 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: haunted_village
+  semanticStyleKey: haunted_village
+  sourceSignature: fnv1a32_58f6a757
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: d715ba86c64150a43bab907421bac0c8, type: 2}
+  sourceInstanceCount: 14069
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_haunted_village_residential_01
+    displayName: Haunted Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -221.26694, y: 11.218132, z: -478.0108}
+    localBoundsCenter: {x: 0, y: 0.81497955, z: 0}
+    localBoundsSize: {x: 68.577995, y: 1.6299591, z: 61.536755}
+    sourceInstanceCount: 52
+    authoredBuildingCount: 0
+    authoredDressingCount: 52
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_service_02
+    displayName: Haunted Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -207.24619, y: -0.71000004, z: -174.45187}
+    localBoundsCenter: {x: 0, y: 11.253149, z: 0}
+    localBoundsSize: {x: 118.40857, y: 22.506298, z: 184.28383}
+    sourceInstanceCount: 382
+    authoredBuildingCount: 0
+    authoredDressingCount: 382
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p0_p3_p00
+    - yq_cell_haunted_village_p0_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_civic_03
+    displayName: Haunted Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -161.18588, y: -0.71000004, z: -301.42163}
+    localBoundsCenter: {x: 0, y: 13.227825, z: 0}
+    localBoundsSize: {x: 178.90254, y: 26.45565, z: 116.03717}
+    sourceInstanceCount: 2466
+    authoredBuildingCount: 0
+    authoredDressingCount: 2466
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p0_p2_p00
+    - yq_cell_haunted_village_p1_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_circulation_04
+    displayName: Haunted Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -144.26332, y: 8.151251, z: -444.66486}
+    localBoundsCenter: {x: 0, y: 6.421093, z: 0}
+    localBoundsSize: {x: 140.58524, y: 12.842186, z: 198.34998}
+    sourceInstanceCount: 317
+    authoredBuildingCount: 0
+    authoredDressingCount: 317
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p0_p1_p00
+    - yq_cell_haunted_village_p1_p0_p00
+    - yq_cell_haunted_village_p1_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_poi_05
+    displayName: Haunted Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -105.59189, y: -0.7099991, z: -230.62173}
+    localBoundsCenter: {x: 0, y: 22.895672, z: 0}
+    localBoundsSize: {x: 166.50427, y: 45.791344, z: 417.48358}
+    sourceInstanceCount: 8555
+    authoredBuildingCount: 0
+    authoredDressingCount: 8555
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p1_p3_p00
+    - yq_cell_haunted_village_p1_p3_p01
+    - yq_cell_haunted_village_p1_p3_p02
+    - yq_cell_haunted_village_p1_p3_p03
+    - yq_cell_haunted_village_p1_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_residential_06
+    displayName: Haunted Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -76.10492, y: 4.5138493, z: -111.68191}
+    localBoundsCenter: {x: 0, y: 8.958465, z: 0}
+    localBoundsSize: {x: 189.86615, y: 17.91693, z: 116.46629}
+    sourceInstanceCount: 968
+    authoredBuildingCount: 0
+    authoredDressingCount: 968
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p1_p4_p00
+    - yq_cell_haunted_village_p2_p4_p00
+    - yq_cell_haunted_village_p2_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_service_07
+    displayName: Haunted Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -36.69573, y: -0.63899994, z: -351.36694}
+    localBoundsCenter: {x: 0, y: 11.200824, z: 0}
+    localBoundsSize: {x: 92.70379, y: 22.401648, z: 198.91629}
+    sourceInstanceCount: 418
+    authoredBuildingCount: 0
+    authoredDressingCount: 418
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p2_p1_p00
+    - yq_cell_haunted_village_p2_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_civic_08
+    displayName: Haunted Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -29.300255, y: 11.127964, z: -492.79532}
+    localBoundsCenter: {x: 0, y: 3.5426111, z: 0}
+    localBoundsSize: {x: 91.5903, y: 7.0852222, z: 90.68514}
+    sourceInstanceCount: 93
+    authoredBuildingCount: 0
+    authoredDressingCount: 93
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p2_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_circulation_09
+    displayName: Haunted Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -8.330582, y: -0.7099991, z: -212.54944}
+    localBoundsCenter: {x: 0, y: 18.879578, z: 0}
+    localBoundsSize: {x: 134.43463, y: 37.759155, z: 111.07178}
+    sourceInstanceCount: 817
+    authoredBuildingCount: 0
+    authoredDressingCount: 817
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p2_p3_p00
+    - yq_cell_haunted_village_p3_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_haunted_village_poi_10
+    displayName: Haunted Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 266.2994, y: 12.225368, z: 543.6925}
+    localBoundsCenter: {x: 0, y: 0.15912342, z: 0}
+    localBoundsSize: {x: 0.3022461, y: 0.31824684, z: 0.29530716}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_haunted_village_p5_p11_p00
+    cellContractsV2: []

@@ -8,6 +8,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class ProgressionDecisionApplier : MonoBehaviour
 {
+    // note: Detached proposal evaluation includes Unity vectors; ordinary Json.NET reflection recurses through Vector3.normalized.
+    private static readonly JsonSerializerSettings SnapshotJsonSettings = new JsonSerializerSettings
+    {
+        Converters = { new Vector3JsonConverter(), new Vector2JsonConverter(), new QuaternionJsonConverter() }
+    };
     [Header("Base Confidence Gates")]
     [Range(0f, 1f)] public float minConfidence = 0.70f;
     [Range(0f, 1f)] public float minSkillConfidence = 0.78f;
@@ -74,11 +79,19 @@ public class ProgressionDecisionApplier : MonoBehaviour
             out appliedCategory, out reason, out _);
     }
 
+    internal bool TryApplyNpcOffer(string rawJson, string npcId, string evidenceKey, out string reason)
+    {
+        // note: The caller supplies verified provenance; model-authored source IDs are stripped at the common boundary.
+        ResolveReferences();
+        return TryApplyInternal(rawJson, PlayerStateManager.Instance?.state, GetSnapshot(), true,
+            out _, out reason, out _, npcId, evidenceKey);
+    }
+
     public YQProgressionEvaluation EvaluateProposal(string rawJson, PlayerState frozenState, string situationJson)
     {
         // note: All preview normalization is confined to a detached state; no retry can save or advance active counters.
         PlayerState detached = frozenState == null ? null :
-            JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(frozenState));
+            JsonConvert.DeserializeObject<PlayerState>(JsonConvert.SerializeObject(frozenState, SnapshotJsonSettings), SnapshotJsonSettings);
         bool ready = TryApplyInternal(rawJson, detached, SituationSnapshot.Parse(situationJson), false,
             out string category, out string reason, out bool evidenceRecorded);
         bool abstained = TryParseDecision(rawJson, out ProgressionDecision decision, out _) && SafeLower(decision.decision) == "none";
@@ -95,7 +108,8 @@ public class ProgressionDecisionApplier : MonoBehaviour
     }
 
     private bool TryApplyInternal(string rawJson, PlayerState state, SituationSnapshot snapshot, bool applyEffects,
-        out string appliedCategory, out string reason, out bool evidenceRecorded)
+        out string appliedCategory, out string reason, out bool evidenceRecorded,
+        string npcSourceId = null, string npcEvidenceKey = null)
     {
         evidenceRecorded = false;
         appliedCategory = "none";
@@ -111,6 +125,18 @@ public class ProgressionDecisionApplier : MonoBehaviour
         {
             reason = "Parse failed: " + parseError;
             return false;
+        }
+
+        // note: Provenance is code-owned even when a generic progression model attempts to manufacture an NPC gift.
+        decision.payload ??= new JObject();
+        decision.payload.Remove("npcSourceId");
+        decision.payload.Remove("npcEvidenceKey");
+        if (!string.IsNullOrWhiteSpace(npcSourceId))
+        {
+            if (decision.decision != "title" && decision.decision != "class" && decision.decision != "quest" && decision.decision != "item")
+            { reason = "Unsupported NPC offer kind."; return false; }
+            decision.payload["npcSourceId"] = npcSourceId;
+            decision.payload["npcEvidenceKey"] = npcEvidenceKey;
         }
 
         float confidence = Mathf.Clamp01(decision.confidence);
@@ -451,6 +477,7 @@ public class ProgressionDecisionApplier : MonoBehaviour
         PendingProgressionOfferRecord offer = new PendingProgressionOfferRecord
         {
             offerKind = kind,
+            context = YQNpcConversationRewards.OfferContext(payload?.Value<string>("npcSourceId")),
             name = name.Trim(),
             description = description,
             confidence = confidence,
@@ -546,7 +573,8 @@ public class ProgressionDecisionApplier : MonoBehaviour
             confidence = confidence,
             reason = BuildPlayerFacingReason(modelReason, stimulus),
             skillType = itemType,
-            context = "player_response:" + itemType,
+            context = string.IsNullOrEmpty(payload?.Value<string>("npcSourceId")) ? "player_response:" + itemType :
+                YQNpcConversationRewards.OfferContext(payload.Value<string>("npcSourceId")),
             environment = "player_profile",
             tags = tags,
             payloadJson = payload != null ? payload.ToString(Formatting.None) : string.Empty,
@@ -845,17 +873,8 @@ public class ProgressionDecisionApplier : MonoBehaviour
 
     private static string[] BuildSkillTags(SkillRecord skill)
     {
-        if (skill == null)
-            return Array.Empty<string>();
-
-        List<string> tags = new List<string>(4);
-        if (!string.IsNullOrWhiteSpace(skill.type))
-            tags.Add(skill.type.Trim().ToLowerInvariant());
-        if (skill.isSpell)
-            tags.Add("spell");
-        if (!string.IsNullOrWhiteSpace(skill.context))
-            tags.Add(skill.context.Trim().ToLowerInvariant());
-        return tags.ToArray();
+        // note: Keep this local entry point while sharing the skill-tag projection.
+        return SkillSimilarity.BuildSkillTags(skill);
     }
 
     private static bool PassesPlayerEvidenceGate(

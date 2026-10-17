@@ -1,0 +1,26 @@
+{
+  "mode": "Production PlaySafe session; harness-assisted synthetic keyboard and native listener invocation",
+  "status": "FAIL",
+  "error": "Play session ended or UI witness timed out",
+  "checks": [],
+  "scene": "Assets/Assets/Scenes/YourQuest_PlaySafe.unity",
+  "motionFrames": [
+    {
+      "direction": "open",
+      "reveal": 0.138888881,
+      "frame": 9943,
+      "entryHeight": 84.0
+    },
+    {
+      "direction": "open",
+      "reveal": 0.492616355,
+      "frame": 9948,
+      "entryHeight": 84.0
+    }
+  ],
+  "restoredReducedMotion": true,
+  "physicalGamepads": 0,
+  "physicalHaptics": "NOT TESTED",
+  "ordinaryMouseFlow": "Separate visible UI witness required",
+  "assemblyHash": "85C90D4AFE3F6C4B4C0AAB70EC94860B4B0EA30129BC37415C850E3049637CC9"
+}

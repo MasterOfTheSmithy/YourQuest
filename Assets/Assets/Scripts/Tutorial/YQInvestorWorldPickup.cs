@@ -6,6 +6,9 @@ public sealed class YQInvestorWorldPickup : MonoBehaviour
 {
     public InventoryItemRecord item;
     public int gold;
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+    [System.NonSerialized] public bool developmentTestPickup;
+#endif
 
     public string DisplayName => item != null ? item.displayName : (gold > 0 ? gold + " Gold" : "Pickup");
 
@@ -59,6 +62,11 @@ public sealed class YQInvestorWorldPickup : MonoBehaviour
         PlayerStateManager psm = PlayerStateManager.Instance;
         if (psm == null || psm.state == null)
             return;
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && YQ_DEVELOPER_CONSOLE)
+        // note: Temporary developer pickups retain the same capacity/compatible-stack invariants as the console's direct item actions.
+        if (developmentTestPickup && item != null && !YQDeveloperCommandRegistry.CanAcceptBrowserItem(psm.state, item, out string error))
+        { GeneratedRpgContentService.Instance?.SetInventoryMessage(error); return; }
+#endif
 
         if (item != null)
         {

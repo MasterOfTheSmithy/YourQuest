@@ -100,7 +100,11 @@ export function validateProjectGuidance(root = projectRoot, { guidanceOnly = fal
     }
   }
   const workflow = ledger.activeWorkflow;
-  if (ledger.activeGoalId === 'G08') check(workflow?.path === `${roadmapPath}/goals/8 fix 4.md`, 'G08 must retain its selected fix 4 workflow.');
+  // note: The user-expanded cohesion workflow retains fix 4's requirements; validate either named workflow and its exact recorded hash.
+  if (ledger.activeGoalId === 'G08') check([
+    `${roadmapPath}/goals/8 fix 4.md`,
+    `${roadmapPath}/goals/G08-Environment-Cohesion.md`,
+  ].includes(workflow?.path), 'G08 must select its canonical fix 4 or expanded cohesion workflow.');
   if (workflow?.path) {
     const workflowText = read(workflow.path);
     check(sha256(workflowText) === workflow.sha256, 'Active workflow hash differs from the ledger.');

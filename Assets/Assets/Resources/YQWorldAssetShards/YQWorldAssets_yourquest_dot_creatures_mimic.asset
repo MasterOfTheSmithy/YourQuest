@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_mimic
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_darkness_affinity_set_v1.prefab
+    prefab: {fileID: 2224027954814448063, guid: f4ce9d63bbb9ad0479d0b551babc7f42, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_darkness_unique_heavy.prefab
+    prefab: {fileID: 2218118657866785788, guid: 0940c3421016d49419d1bc106e033a7b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_earth_affinity_set_v1.prefab
+    prefab: {fileID: 482157718184719701, guid: 937eb222da62b574598dbe79406dc97d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_fire_affinity_set_v1.prefab
+    prefab: {fileID: 7351270461344038368, guid: a31f3a4ecd880a94498f12cff252757a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_frost_affinity_set_v1.prefab
+    prefab: {fileID: 4107873714481404656, guid: c606b2a2bcb21134bb0f6ccf19c3338e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_hybrid_affinity_set_v1.prefab
+    prefab: {fileID: 5909468623818383364, guid: 3f0e6662fdf2e5842b9378e78022eaec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_light_affinity_set_v1.prefab
+    prefab: {fileID: 8670399772296350330, guid: e2cf244e43ce51a439878192be5eb0d1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_nature_affinity_set_v1.prefab
+    prefab: {fileID: 6223194752589389616, guid: be0de7b9b7731d449b950cf304634ee2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/mimic/mimic_neutral_normal_standard.prefab
+    prefab: {fileID: 5980684999144198911, guid: 9304f95e067f6984db69a2f2d55ff3b6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -136,27 +136,30 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
                 yield return null;
         }
 
-        YQTitleEnvironmentLoader.Hide();
+        // note: Both Continue and New Journey keep the Goddess stage through player creation and visible world preparation.
+        YQTitleEnvironmentLoader.HoldForWorldGeneration();
 
         // note: Save confirmation transitions directly into a blocked loading phase; gameplay input never gets a stray frame before the player exists.
         RuntimeModalUiBlocker.Acquire(StartupBlockToken);
         bool ownsOrdinaryLoading = !YQStartupLoadingScreen.IsGenerationVisible;
         YQStartupLoadingScreen loading = ownsOrdinaryLoading
-            ? YQStartupLoadingScreen.Show("YourQuest", "Preparing selected save")
+            ? YQStartupLoadingScreen.ShowGeneration("Preparing your return...", 0.03f)
             : YQStartupLoadingScreen.Current;
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Starting gameplay services", 0.12f);
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 1, 4, "Starting gameplay services", 0.12f);
         EnsureGameplayServices();
         yield return null;
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Loading the playable world", 0.32f);
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 2, 4, "Loading the playable world", 0.32f);
+        // note: Keep the Goddess camera responsive while approved player assets load, before the existing synchronous visual binding runs on the authoritative player.
+        yield return YQPlayerEquipmentVisual.PreloadStartupAssetsRoutine();
         EnsureRuntimeWorld();
         yield return null;
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Preparing gameplay interface", 0.58f);
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 2, 4, "Preparing gameplay interface", 0.58f);
         EnsureGameplayPresentationServices();
         EnsureRuntimeUi();
         ForceCloseStartupUi();
@@ -164,14 +167,18 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         yield return null;
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Seeding selected-save progression", 0.74f);
-        SeedData();
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 3, 4, "Linking selected-save progression", 0.74f);
+        yield return SeedDataRoutine();
         yield return null;
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Linking the authoritative player", 0.84f);
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 3, 4, "Linking the authoritative player", 0.84f);
         WireReferences();
         yield return null;
+
+        // note: Bind returning speech after selected-save service setup; setup revisions would supersede an earlier request before delivery.
+        if (ownsOrdinaryLoading && loading != null)
+            loading.RequestReturningJourneySpeech();
 
         /*
          * The reviewed generated-world compiler is now the only production
@@ -187,7 +194,7 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         worldBuilder.BuildGeneratedWorld();
 
         if (ownsOrdinaryLoading && loading != null)
-            loading.SetStage("Materializing the authored world", 0.92f);
+            YQStartupLoadingScreen.SetGenerationWorkStage("Returning to your world", 4, 4, "Materializing the authored world", 0.92f);
 
         while (worldBuilder == null ||
                !worldBuilder.HasMaterializedCurrentWorld)
@@ -221,7 +228,8 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         loading = YQStartupLoadingScreen.Current;
         if (loading == null)
             loading = YQStartupLoadingScreen.Show("YourQuest", "Preparing your surroundings");
-        loading.SetStage("Preparing nearby terrain and wildlife", 0.96f);
+        YQStartupLoadingScreen.SetGenerationWorkStage("Preparing your surroundings", 4, 4,
+            "Preparing nearby terrain and wildlife", 0.96f);
 
         // note: Use normal player-loop frames, not rendering callbacks that can stop when the Editor Game view is hidden. The motor updates its camera before this coroutine resumes.
         yield return null;
@@ -256,34 +264,30 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         YQInvestorPlayerMotor authoritativeMotor = YQInvestorPlayerMotor.ActiveMotor;
         if (authoritativeMotor != null && authoritativeMotor.IsAuthoritative)
             authoritativeMotor.enabled = true;
-        // note: Keep the loading gate until the additive title scene has finished exiting and the authoritative gameplay camera has rendered through two stable player-loop frames.
+        // note: Qualify the live gameplay camera behind the retained Goddess stage. Retire that stage only at the same edge that releases player input.
         int qualifiedGameplayCameraFrames = 0;
         float nextCameraHandoffDiagnosticAt = 0f;
         while (qualifiedGameplayCameraFrames < 2)
         {
-            YQTitleEnvironmentLoader.ReleaseWorldGeneration();
             authoritativeMotor = YQInvestorPlayerMotor.ActiveMotor;
             Camera gameplayCamera = authoritativeMotor != null && authoritativeMotor.IsAuthoritative
                 ? authoritativeMotor.playerCamera
                 : null;
             bool gameplayCameraReady = gameplayCamera != null && gameplayCamera.isActiveAndEnabled;
-            bool titleStageReleased = YQTitleEnvironmentLoader.IsWorldGenerationStageReleased;
-            if (gameplayCameraReady && titleStageReleased)
+            if (gameplayCameraReady)
             {
                 qualifiedGameplayCameraFrames++;
             }
             else
             {
                 qualifiedGameplayCameraFrames = 0;
-                GameplayPresentationWaitReason = !titleStageReleased
-                    ? "title environment presentation is still transitioning"
-                    : "authoritative gameplay camera is inactive";
+                GameplayPresentationWaitReason = "authoritative gameplay camera is inactive";
                 if (Time.unscaledTime >= nextCameraHandoffDiagnosticAt)
                 {
                     Debug.Log("[YourQuestTutorialAutoBootstrap] STARTUP CAMERA HANDOFF WAIT reason=" +
                         GameplayPresentationWaitReason + " camera=" +
                         (gameplayCamera == null ? "missing" : gameplayCamera.isActiveAndEnabled.ToString()) +
-                        " titleStageReleased=" + titleStageReleased);
+                        " goddessRetained=" + YQStartupLoadingScreen.IsGenerationVisible);
                     nextCameraHandoffDiagnosticAt = Time.unscaledTime + 10f;
                 }
             }
@@ -300,9 +304,12 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
                 " position=" + qualifiedCamera.transform.position + " rotation=" + qualifiedCamera.transform.eulerAngles +
                 " timeScale=" + Time.timeScale);
         // note: Startup owns the final modal boundary; clear stale menu, dialogue, and manual tokens before handing the live clock to gameplay.
+        // note: Camera ownership, Goddess retirement, loading dismissal and player release are one synchronous handoff; additive scene cleanup may finish afterwards.
+        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
         RuntimeModalUiBlocker.ClearAll();
         RuntimeModalUiBlocker.Release(StartupBlockToken);
         // note: This is the single presentation-release edge consumed by gameplay HUDs; service readiness alone is intentionally insufficient.
+        YQGeneratedWorldPerformanceDirector.ConfigureGameplayWorkBudget();
         GameplayPresentationReleased = true;
         GameplayPresentationWaitReason = string.Empty;
         // note: Retire loading in the same handoff that enables HUD/input, eliminating the blank blocked interval after either New Journey or Continue.
@@ -861,13 +868,13 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         Destroy(duplicate);
     }
 
-    private void SeedData()
+    private IEnumerator SeedDataRoutine()
     {
         PlayerStateManager psm = PlayerStateManager.Instance;
         WorldStateManager wsm = WorldStateManager.Instance;
         GeneratedRpgContentService content = GeneratedRpgContentService.Instance;
         if (psm == null || psm.state == null || wsm == null || wsm.State == null)
-            return;
+            yield break;
 
         psm.state.EnsureCollections();
         YQGeneratedContentCuration.CleanExistingState(psm.state);
@@ -886,15 +893,20 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         if (string.IsNullOrWhiteSpace(wsm.State.currentRegionId) || wsm.State.currentRegionId == "region_unknown")
             wsm.SetCurrentRegion("origin_forest", originComplete ? "Whisperroot Clearing" : "Goddess Threshold");
 
-        content?.EnsureBaselineGeneratedState(psm.state, wsm.State);
+        // note: Keep save-owned setup ordered, but separate its independent stages so the loading camera continues to advance.
+        yield return null;
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Seed.Baseline", () => { content?.EnsureBaselineGeneratedState(psm.state, wsm.State); return true; });
+        yield return null;
         // note: Loading an existing save must materialize its persisted plan immediately; optional LLM replacement belongs only to the explicit origin-commit path and must not block physical traversal startup.
-        YQWorldGenerationService.Instance?.EnsureWorldPlan(psm.state, wsm.State, false);
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Seed.WorldPlan", () => { YQWorldGenerationService.Instance?.EnsureWorldPlan(psm.state, wsm.State, false); return true; });
+        yield return null;
         YQGeneratedContentCuration.CleanExistingState(psm.state);
         if (originComplete)
             EnsureTutorialQuestChain(psm.state);
         psm.state.GetActiveQuest();
-        psm.Save();
-        wsm.Save();
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Seed.PlayerSave", () => { psm.Save(); return true; });
+        yield return null;
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Seed.WorldSave", () => { wsm.Save(); return true; });
     }
 
     public static void EnsureTutorialQuestChain(PlayerState state)
@@ -2094,6 +2106,9 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
         agent.npcId = npcId;
         agent.npcName = displayName;
         agent.personaSummary = BuildNpcPersona(displayName, tags);
+        // note: Vey is the authored female onboarding anchor. Preserve any intentional authored casting; missing metadata must not silently pick a male fallback.
+        if (npcId == "npc_archivist_01" && YQNpcVoice.Resolve(root) == null)
+            root.AddComponent<YQNpcVoice>().voice = YQNpcVoice.Preset.Alba;
         agent.tagsOverride.Clear();
         if (tags != null)
         {

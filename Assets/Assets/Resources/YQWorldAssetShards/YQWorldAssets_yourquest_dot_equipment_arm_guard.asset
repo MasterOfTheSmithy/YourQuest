@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_arm_guard
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Dragonbound_Female.prefab
+    prefab: {fileID: 188410888881461906, guid: 45e9df8763857f144858c76313bbd297, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Dragonbound_Male.prefab
+    prefab: {fileID: 8355506071705597531, guid: 176ea0124f33b544e8799bc12666830b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Eclipse_Female.prefab
+    prefab: {fileID: 421040779008852420, guid: 701e096c0490dba4e8079f9f9ec9a6f5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Eclipse_Male.prefab
+    prefab: {fileID: 6810496187877224936, guid: b5989eab52e73ba4189c97018a5b5bc4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Field_Female.prefab
+    prefab: {fileID: 6345482297700247315, guid: 6510fef09bc2c0a45be024b860cbea9d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Field_Male.prefab
+    prefab: {fileID: 53669763932319215, guid: 3968f05203de0af4390e4c6490b3eee3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Lamellar_Female.prefab
+    prefab: {fileID: 1585984374435426326, guid: dd3bef43765becc4db0ab193cc05d7c2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Lamellar_Male.prefab
+    prefab: {fileID: 7697741434774921273, guid: 48381d130bbaf9447bf5326d3aff9d35, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Ranger_Female.prefab
+    prefab: {fileID: 5202391855045802861, guid: 07d183ec33234d24bad5328338fcae60, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Ranger_Male.prefab
+    prefab: {fileID: 2303433608475284604, guid: 9ddd3eed2f351e647a9ecec8e0545177, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Sentinel_Female.prefab
+    prefab: {fileID: 7346602448782728710, guid: 4260d16cf81a36b44a4e4efca2ce62d5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Sentinel_Male.prefab
+    prefab: {fileID: 457893001164526266, guid: 9963e72f544ce824f9961174f295ec48, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2427380707416857792, guid: cb5dda996a9121644b9c2c9486c6b831, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 7057500445883629032, guid: 15b7a4d7cec2efd42a7baf23e34ea183, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Traveler_Female.prefab
+    prefab: {fileID: 8288587221553741260, guid: e070e0ca5ab576e4db3abeb047af512f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Traveler_Male.prefab
+    prefab: {fileID: 8188315260617053618, guid: a1f291684edf5cf4cb36e9f275802be9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 9099165678289880355, guid: 3b19dd275b5e3364aa4678b5ee184674, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 4728593032644310404, guid: 223fbf3944b896f46a3211b83d006f7c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Field_Male_Parts.prefab
+    prefab: {fileID: 1768344206079099704, guid: 423e8e580a2779c448a082dccfa1e007, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Field_Female_Parts.prefab
+    prefab: {fileID: 1427845422836610032, guid: 90293670ce11c1640ac7372eb6314dff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Ranger_Male_Parts.prefab
+    prefab: {fileID: 5178895758235263338, guid: 2acedde2be76b4741b34ce38545f1902, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Ranger_Female_Parts.prefab
+    prefab: {fileID: 1994145716830293875, guid: 11c9b8a108ea08c45b08ba48bdc1ccf5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 8737241347872337056, guid: d5a66e00d2b9ce948824a0392a275e4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 1305009281024141323, guid: 09a66535e0ac0154bba31a39e7339323, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Traveler_Male_Parts.prefab
+    prefab: {fileID: 8501122306710249666, guid: db602d6afff5b4f46ad02011cd75269c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Traveler_Female_Parts.prefab
+    prefab: {fileID: 4761707802517970718, guid: 34c3be0476972fb4d916ac83b0731a88, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 3085187022964845887, guid: 776de381524b9b94fadb951ed24e3e29, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 7362306115959018389, guid: 7ef1be502c2b2d44496db0fe6a3adb02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 478886850901639862, guid: 5b52155d5f0f1dc42adfeb093dd9fc0f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 2823684977695283065, guid: aca5e18125dfd694bbfbf2d52bd0da00, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 2116278681481048204, guid: ebf352ae8a064fb4789f0fc0494b6fdd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 8881692539693420008, guid: 36e229a0c986fb34ea1c09e4883ef6ec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 570458723144383038, guid: 294a3f3ce887d0c43bb2fe8aeed1c40f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 3381866184760025446, guid: ff0a9d53b4b2b964184765b19a6c4192, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 8730094481343409273, guid: b8f1dd479ba42b64f8acfab0a86cbd42, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arm_guard/Arm_Guard_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 3277100871698477174, guid: 1f47c4ea8f83d6e43818588073cff12b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

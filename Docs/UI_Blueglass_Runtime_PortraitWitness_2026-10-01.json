@@ -1,0 +1,18 @@
+{
+  "mode": "Production PlaySafe session; harness-assisted synthetic keyboard and native listener invocation",
+  "status": "FAIL",
+  "error": "System.InvalidOperationException: portrait contains rendered character and transparent background pixels\r\n  at YQBlueglassUiVerification.VerifyPortraitAlpha (UnityEngine.RenderTexture target) [0x00093] in C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQBlueglassUiVerification.cs:256 \r\n  at YQBlueglassUiVerification.Tick () [0x0035c] in C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQBlueglassUiVerification.cs:140 ",
+  "checks": [
+    "Alt opens quick UI; cursor unlocked; simulation timescale unchanged",
+    "four native meters; accepted XP ratio; quest name; altitude-relative north-up map; finite discovery atlas",
+    "hover retains highlight across refresh; native quick-entry identity preserved",
+    "quick category navigation uses production listeners",
+    "Alt-up closes quick UI and restores cursor without pausing",
+    "Escape opens full menu; world timescale zero"
+  ],
+  "scene": "Assets/Assets/Scenes/YourQuest_PlaySafe.unity",
+  "physicalGamepads": 0,
+  "physicalHaptics": "NOT TESTED",
+  "ordinaryMouseFlow": "Separate visible UI witness required",
+  "assemblyHash": "4DC0F196FCFFA1B72099A59AD0701A4B39BBAA2B33DD971E27C2BFE1704BF225"
+}

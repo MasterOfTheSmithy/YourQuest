@@ -1,0 +1,259 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: ancient_desert_ruins
+  semanticStyleKey: ancient_desert_ruins
+  sourceSignature: fnv1a32_3379baf8
+  topology: 4
+  streamingSite: {fileID: 11400000, guid: c5da09c7b51211a40aa12792550e9266, type: 2}
+  sourceInstanceCount: 25621
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_ancient_desert_ruins_approach_01
+    displayName: Ancient Desert Ruins Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -53.01893, y: 1.8881702, z: -144.97346}
+    localBoundsCenter: {x: 0, y: 9.4855585, z: 0}
+    localBoundsSize: {x: 99.90378, y: 18.971117, z: 77.08951}
+    sourceInstanceCount: 885
+    authoredBuildingCount: 0
+    authoredDressingCount: 885
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_core_02
+    displayName: Ancient Desert Ruins Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -30.873692, y: 10.168848, z: -84.74701}
+    localBoundsCenter: {x: 0, y: 1.3259315, z: 0}
+    localBoundsSize: {x: 0.5648041, y: 2.651863, z: 0.9459381}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_perimeter_03
+    displayName: Ancient Desert Ruins Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -24.947523, y: 2.0489616, z: -222.0491}
+    localBoundsCenter: {x: 0, y: 8.681196, z: 0}
+    localBoundsSize: {x: 42.530525, y: 17.362392, z: 81.84628}
+    sourceInstanceCount: 1023
+    authoredBuildingCount: 0
+    authoredDressingCount: 1023
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_support_04
+    displayName: Ancient Desert Ruins Support
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 6.103691, y: 6.327692, z: -74.639984}
+    localBoundsCenter: {x: 0, y: 2.8075228, z: 0}
+    localBoundsSize: {x: 11.158836, y: 5.6150455, z: 16.65503}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_poi_05
+    displayName: Ancient Desert Ruins Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 21.23753, y: 2.7579412, z: -195.16388}
+    localBoundsCenter: {x: 0, y: 4.713676, z: 0}
+    localBoundsSize: {x: 79.07728, y: 9.427352, z: 87.13257}
+    sourceInstanceCount: 2626
+    authoredBuildingCount: 0
+    authoredDressingCount: 2626
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p0_p01
+    - yq_cell_ancient_desert_ruins_p1_p0_p06
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_approach_06
+    displayName: Ancient Desert Ruins Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 26.77863, y: 0.82855606, z: -168.69942}
+    localBoundsCenter: {x: 0, y: 2.7342947, z: 0}
+    localBoundsSize: {x: 69.5869, y: 5.4685893, z: 35.753815}
+    sourceInstanceCount: 5954
+    authoredBuildingCount: 0
+    authoredDressingCount: 5954
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p1_p01
+    - yq_cell_ancient_desert_ruins_p1_p1_p02
+    - yq_cell_ancient_desert_ruins_p1_p1_p03
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_core_07
+    displayName: Ancient Desert Ruins Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 28.393436, y: 1.1206856, z: -215.169}
+    localBoundsCenter: {x: 0, y: 4.288415, z: 0}
+    localBoundsSize: {x: 72.89257, y: 8.57683, z: 68.49805}
+    sourceInstanceCount: 10000
+    authoredBuildingCount: 0
+    authoredDressingCount: 10000
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p0_p02
+    - yq_cell_ancient_desert_ruins_p1_p0_p03
+    - yq_cell_ancient_desert_ruins_p1_p0_p04
+    - yq_cell_ancient_desert_ruins_p1_p0_p05
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_perimeter_08
+    displayName: Ancient Desert Ruins Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 35.2584, y: 0.000022411346, z: -214.84843}
+    localBoundsCenter: {x: 0, y: 7.2440033, z: 0}
+    localBoundsSize: {x: 107.976715, y: 14.488007, z: 127.02102}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_support_09
+    displayName: Ancient Desert Ruins Support
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 36.71308, y: 1.8718834, z: -140.845}
+    localBoundsCenter: {x: 0, y: 3.9755526, z: 0}
+    localBoundsSize: {x: 89.16491, y: 7.951105, z: 87.46048}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_poi_10
+    displayName: Ancient Desert Ruins Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 38.918736, y: 519.213, z: 277.0717}
+    localBoundsCenter: {x: 0, y: 1.6472778, z: 0}
+    localBoundsSize: {x: 1.4796772, y: 3.2945557, z: 2.5743942}
+    sourceInstanceCount: 125
+    authoredBuildingCount: 0
+    authoredDressingCount: 125
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p1_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_approach_11
+    displayName: Ancient Desert Ruins Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 94.74556, y: 3.9856243, z: -144.98393}
+    localBoundsCenter: {x: 0, y: 3.542138, z: 0}
+    localBoundsSize: {x: 11.761314, y: 7.084276, z: 18.292896}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_ancient_desert_ruins_core_12
+    displayName: Ancient Desert Ruins Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 98.66695, y: 7.5763397, z: -210.69644}
+    localBoundsCenter: {x: 0, y: 2.87296, z: 0}
+    localBoundsSize: {x: 8.607712, y: 5.74592, z: 48.198616}
+    sourceInstanceCount: 3
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_ancient_desert_ruins_p2_p0_p00
+    cellContractsV2: []

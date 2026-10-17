@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_ration
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Artisan.prefab
+    prefab: {fileID: 6695655445873486302, guid: f1f582d90e4aae44cb63c5a5ecb34298, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Court.prefab
+    prefab: {fileID: 8526474612547744675, guid: 1ede49be9bf7c7e40a2914b656b0082e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Dragonbound.prefab
+    prefab: {fileID: 8938542207837537795, guid: fc38ffa73fcdf7441a82afe794c443d9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Eclipse.prefab
+    prefab: {fileID: 2880201993478419975, guid: a0da78a6c12339249849d99f90f98221, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Field.prefab
+    prefab: {fileID: 748827988147224342, guid: 6b4542b27981e8e43b868b8d94703255, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Merchant.prefab
+    prefab: {fileID: 7035893360184330202, guid: 0ae1eac97a868de42b7fdedbf1508a4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Ranger.prefab
+    prefab: {fileID: 3850986561680940037, guid: 6d598308c869c334e840949d646da0cd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Starforged_Orrery.prefab
+    prefab: {fileID: 3763793660942210088, guid: f2b46382f780e564d8032c890166d024, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Worldtree_Sovereign.prefab
+    prefab: {fileID: 8216301152490402365, guid: 89ff7d55cf7f0ff4f95917940af7ce21, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_core.prefab
+    prefab: {fileID: 7948901146394645166, guid: 279456555e749d34a897fcd5e3f52d9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mixed_darkness_light.prefab
+    prefab: {fileID: 3331152953975549978, guid: 2d6acf3200563f347874613a21e9d981, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mixed_organic_fire.prefab
+    prefab: {fileID: 5199808249109916594, guid: bf3ef8b0fb047ad4cbf4a3e4ccf4a8c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_darkness.prefab
+    prefab: {fileID: 3466366642405666470, guid: 2287ba06b25513e42983bb45dc5f5edc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_fire.prefab
+    prefab: {fileID: 6214473690456132064, guid: 695e571b607a8b5429f790f8cc829265, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_forged.prefab
+    prefab: {fileID: 189366356675296768, guid: 130f3febf8fda2647b669be98f6ebf53, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_frost.prefab
+    prefab: {fileID: 4832502400212019222, guid: c1581a5e66fa20c4b8a8c7125d98b0cb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_light.prefab
+    prefab: {fileID: 4239958342642860992, guid: 829c5f9a3c5ef4144b187ad702866ca0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_motif_organic.prefab
+    prefab: {fileID: 7742901073286827797, guid: 28b5fb459478fa54c9ee145c06f573c9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_darkness.prefab
+    prefab: {fileID: 8482268213845850056, guid: 61fb6e0adfc20f1498be4ea1ba54b7b5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_fire.prefab
+    prefab: {fileID: 4305646749564575271, guid: 9557e665d8b67d9499f9f8e4c4b2b2e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_forged.prefab
+    prefab: {fileID: 6100208530275287336, guid: f8f1c43b3fb921d428efca91071956e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_frost.prefab
+    prefab: {fileID: 2779003462358814214, guid: ae7df7b7cc339aa41b2319fd17472359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_light.prefab
+    prefab: {fileID: 1018899802907865463, guid: 3d25ea73e5a46ea4ea4d496b0c0ea33b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/yqmod1_consumables_ration_mount_organic.prefab
+    prefab: {fileID: 3295622773059120226, guid: d3301611f21b2e8429c7e8bf8656832e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Field_Parts.prefab
+    prefab: {fileID: 1670395066201233653, guid: 5a1abe3d6f4bb7e4a9a5eae1ec09a23b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Merchant_Parts.prefab
+    prefab: {fileID: 6247750047054410533, guid: c560dd3b641598e4fa57b3ec8a2c1e07, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Ranger_Parts.prefab
+    prefab: {fileID: 8344533630058078488, guid: 61980c2b33b16484eb0b78199d5c38f1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Artisan_Parts.prefab
+    prefab: {fileID: 7775744117800386557, guid: 139475bdfdb55c144b267812cf7d4805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Court_Parts.prefab
+    prefab: {fileID: 1989455397052623159, guid: 47c893c2e0b78db4d923d6892bae81cb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Dragonbound_Parts.prefab
+    prefab: {fileID: 2018539216751014145, guid: b58788a82543c944799269c58a90eeb6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Eclipse_Parts.prefab
+    prefab: {fileID: 4360848194104584483, guid: 02d421ff4c31e524399ed7659d3b4c6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 8194977377981294881, guid: ca183e35742c96145af1b2248ebe3893, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ration/Ration_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 2181724356880215628, guid: abfb7282cb45e8549b7fb382d6360f34, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

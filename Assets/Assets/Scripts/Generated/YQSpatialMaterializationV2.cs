@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public struct YQSpatialMaterializationRegionV2
@@ -98,6 +101,7 @@ public struct YQSpatialMaterializationWaterPointV2
 
 public struct YQSpatialMaterializationWaterV2
 {
+    public YQPreparedConnectedBasinV2 connectedBasin;
     public string hydrologyId;
     public string parentRegionId;
     public YQHydrologyKindV2 kind;
@@ -664,6 +668,34 @@ public sealed class YQPreparedSpatialMaterializationV2
         return terrainSampler.Sample(x, z);
     }
 
+    internal bool UsesSharedChannelProjection => terrainSampler.UsesSharedChannelProjection;
+    internal bool UsesCanonicalChannelBanks => terrainSampler.UsesCanonicalChannelBanks;
+    internal bool UsesCanonicalWetFootprint => terrainSampler.UsesCanonicalWetFootprint;
+
+    internal YQPreparedConnectedBasinV2 GetTerrainSourceBasin(int index)
+        => terrainSampler.GetTerrainSourceBasin(index);
+    public int NativeJoinCount => terrainSampler.NativeJoinCount;
+    public YQNativeWaterJoinPatchV2 GetNativeJoin(int index) => terrainSampler.GetNativeJoin(index);
+    // note: Keep aquatic readiness behind the existing prepared spatial authority.
+    internal bool CoversVegetationRectangle(YQPreparedConnectedBasinV2 basin, Bounds bounds)
+        => terrainSampler.CoversVegetationRectangle(basin, bounds);
+    // note: This derived candidate is read-only; ordinary scatter remains the sole vegetation publisher.
+    internal bool TryFindVegetationDryCandidate(Bounds bounds, out Vector2 candidate)
+        => terrainSampler.TryFindVegetationDryCandidate(bounds, out candidate);
+
+    internal bool TryMeasureMaterializedChannelDistance(float x, float z, out int waterIndex, out float distance)
+        => terrainSampler.TryMeasureMaterializedChannelDistance(x, z, out waterIndex, out distance);
+
+    internal Vector3 GetAcceptedChannelBankOffset(int waterIndex, int pointIndex)
+        => terrainSampler.GetAcceptedChannelBankOffset(waterIndex, pointIndex);
+
+    internal void AccumulateAcceptedChannelEnvelope(int waterIndex, float x, float z, float terrainHeight,
+        bool wetOnly, ref YQContinuousWorldFeatureAuthority.AcceptedWaterTerrainEnvelope envelope)
+    {
+        // note: Delegate to the same prepared authority already used for finite terrain and ecology; this projection adds no state, random stream or alternate water plan.
+        terrainSampler.AccumulateAcceptedChannelEnvelope(waterIndex, x, z, terrainHeight, wetOnly, ref envelope);
+    }
+
     public YQGeneratedWorldTileProfile SampleEcology(float x, float z)
     {
         return SampleEcologyContext(x, z).tileProfile;
@@ -840,6 +872,147 @@ public sealed class YQPreparedSpatialMaterializationV2
 
 public static class YQSpatialMaterializationCompilerV2
 {
+    internal sealed class StartupPreparation
+    {
+        private static readonly Newtonsoft.Json.JsonSerializerSettings SnapshotSettings =
+            new Newtonsoft.Json.JsonSerializerSettings
+            {
+                TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None,
+                Converters = { new Vector2JsonConverter(), new Vector3JsonConverter(), new QuaternionJsonConverter() }
+            };
+        internal string SourceJson { get; }
+        internal YQPreparedSpatialMaterializationV2 Prepared { get; }
+        internal string CandidateInputsJson { get; }
+        private StartupPreparation(string sourceJson, YQPreparedSpatialMaterializationV2 prepared, string candidateInputsJson = null)
+        { SourceJson = sourceJson; Prepared = prepared; CandidateInputsJson = candidateInputsJson; }
+
+        internal sealed class CapturedCompilerInputs
+        {
+            private GeneratedWorldPlanRecord snapshot;
+            private CapturedCompilerInputs(GeneratedWorldPlanRecord value) { snapshot = value; }
+
+            internal static CapturedCompilerInputs Decode(string planJson, string parentJson, string acceptedJson, CancellationToken cancellation)
+            {
+                // note: Immutable component strings are decoded into exclusively owned records; no live Unity/provider object crosses this worker boundary.
+                cancellation.ThrowIfCancellationRequested();
+                var plan = Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedWorldPlanRecord>(planJson, SnapshotSettings);
+                plan.spatialPlanV2 = Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedSpatialWorldPlanV2Record>(parentJson, SnapshotSettings);
+                plan.spatialPlanV2.acceptedContinuation = Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedSpatialContinuationV2Record>(acceptedJson, SnapshotSettings);
+                cancellation.ThrowIfCancellationRequested();
+                return new CapturedCompilerInputs(plan);
+            }
+
+            internal GeneratedWorldPlanRecord Take()
+            {
+                // note: Transfer mutable ownership once, even if multiple consumers receive the same wrapper.
+                var owned = Interlocked.Exchange(ref snapshot, null);
+                if (owned == null) throw new InvalidOperationException("Captured compiler inputs were already consumed.");
+                return owned;
+            }
+        }
+
+        internal static IEnumerator PrepareCapturedRoutine(CapturedCompilerInputs inputs, Func<bool> isCurrent,
+            Action<StartupPreparation, string> completed)
+        {
+            if (inputs == null || isCurrent == null || !isCurrent())
+            { completed?.Invoke(null, "Captured projection preparation was cancelled."); yield break; }
+            var plan = inputs.Take();
+            bool validationReady = false;
+            string failure = "Captured validation preparation was cancelled.";
+            // note: Preserve warm proof, provider and numeric ordering plus exact recaptures; the private body needs no second JSON copy.
+            yield return YQSpatialPlanVersionRouter.WarmAcceptedValidationRoutine(plan, isCurrent,
+                (ready, reason) => { validationReady = ready; failure = reason; });
+            if (!isCurrent() || !validationReady) { completed?.Invoke(null, failure); yield break; }
+            yield return PrepareRoutineCore(plan, isCurrent, (value, reason) => {
+                string candidateJson = value == null ? null : Newtonsoft.Json.JsonConvert.SerializeObject(new {
+                    plan.worldSeed, plan.spatialPlan, plan.settlements, plan.encampments, spatialPlanV2 = plan.spatialPlanV2
+                }, SnapshotSettings);
+                completed?.Invoke(value == null ? null : new StartupPreparation(value.SourceJson, value.Prepared, candidateJson), reason);
+            }, plan);
+        }
+
+        internal static GeneratedWorldPlanRecord CopySavedPlan(GeneratedWorldPlanRecord plan)
+        {
+            // note: Retain null variant branches and use the same safe vector converters as persisted continuation staging.
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<GeneratedWorldPlanRecord>(
+                Newtonsoft.Json.JsonConvert.SerializeObject(plan, SnapshotSettings), SnapshotSettings);
+        }
+
+        internal static GeneratedWorldPlanRecord CopyCompilerInputs(GeneratedWorldPlanRecord plan)
+        {
+            // note: The numeric compiler consumes exactly these five saved inputs. Semantic chunk history, quests and unrelated presentation records need no expensive clone for an immutable geometry preparation.
+            return CopySavedPlan(new GeneratedWorldPlanRecord { worldSeed = plan.worldSeed, spatialPlan = plan.spatialPlan,
+                spatialPlanV2 = plan.spatialPlanV2, settlements = plan.settlements, encampments = plan.encampments });
+        }
+
+        internal static IEnumerator PrepareRoutine(GeneratedWorldPlanRecord plan, Func<bool> isCurrent,
+            Action<StartupPreparation, string> completed) => PrepareRoutineCore(plan, isCurrent, completed, null);
+
+        private static IEnumerator PrepareRoutineCore(GeneratedWorldPlanRecord plan, Func<bool> isCurrent,
+            Action<StartupPreparation, string> completed, GeneratedWorldPlanRecord exclusivelyOwnedSnapshot)
+        {
+            StartupPreparation accepted = null;
+            string failure = "Startup projection preparation was cancelled.";
+            Task<Tuple<YQPreparedSpatialMaterializationV2, string>> work = null;
+            var cancellation = new CancellationTokenSource();
+            try
+            {
+                if (plan == null || isCurrent == null || !isCurrent()) yield break;
+                string sourceJson = JsonUtility.ToJson(plan);
+                // note: Unity inline serialization can instantiate null settlement/encampment branches, masking a POI's saved kit. Preserve the saved branch identity in this detached copy.
+                var snapshot = exclusivelyOwnedSnapshot ?? CopyCompilerInputs(plan);
+                yield return null;
+                if (!isCurrent()) yield break;
+                if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(snapshot, out var terrain, out failure)) yield break;
+                var reviewed = new HashSet<GeneratedSpatialContinuationLocationV2Record>();
+                var continuation = snapshot.spatialPlanV2.acceptedContinuation;
+                if (continuation != null && continuation.state == YQSpatialContinuationStateV2.Accepted)
+                    foreach (var location in continuation.locations)
+                    {
+                        // note: Reviewed Unity providers remain on the main thread. Only these exact detached location objects can consume their proof during numeric replay.
+                        if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure)) yield break;
+                        reviewed.Add(location);
+                        yield return null;
+                        if (!isCurrent()) yield break;
+                    }
+                work = Task.Run(() =>
+                {
+                    bool ready = TryPrepareCore(snapshot, terrain, reviewed, cancellation.Token, out var projection, out string reason);
+                    return Tuple.Create(ready ? projection : null, reason);
+                }, cancellation.Token);
+                while (!work.IsCompleted)
+                {
+                    if (!isCurrent()) yield break;
+                    yield return null;
+                }
+                if (!isCurrent() || !string.Equals(sourceJson, JsonUtility.ToJson(plan), StringComparison.Ordinal))
+                { failure = "The accepted plan changed during startup projection preparation."; yield break; }
+                if (work.IsFaulted)
+                { failure = "Startup projection failed: " + work.Exception.GetBaseException().Message; yield break; }
+                if (work.IsCanceled) yield break;
+                failure = work.Result.Item2;
+                if (work.Result.Item1 == null) yield break;
+                foreach (var location in reviewed)
+                {
+                    if (!YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure)) yield break;
+                    yield return null;
+                    if (!isCurrent()) yield break;
+                }
+                if (!string.Equals(sourceJson, JsonUtility.ToJson(plan), StringComparison.Ordinal))
+                { failure = "The accepted plan changed during provider revalidation."; yield break; }
+                // note: This token is created only after the unchanged numeric/acceptance kernel and reviewed providers pass. Installation must still match the complete source snapshot.
+                accepted = new StartupPreparation(sourceJson, work.Result.Item1);
+            }
+            finally
+            {
+                cancellation.Cancel();
+                if (work != null && !work.IsCompleted)
+                    _ = work.ContinueWith(finished => { _ = finished.Exception; cancellation.Dispose(); }, TaskScheduler.Default);
+                else cancellation.Dispose();
+                completed?.Invoke(accepted, failure);
+            }
+        }
+    }
     // note: One presentation-scale contract feeds both the terrain sampler and the streamed mesh projection, without rewriting accepted blueprint values.
     internal static float ResolveWaterWidth(YQHydrologyKindV2 kind, float width) =>
         Mathf.Max(kind == YQHydrologyKindV2.River ? 14f : kind == YQHydrologyKindV2.Waterfall ? 10f : 1f, width);
@@ -877,6 +1050,14 @@ public static class YQSpatialMaterializationCompilerV2
         out YQPreparedSpatialMaterializationV2 prepared,
         out string failure)
     {
+        return TryPrepareCore(plan, null, null, CancellationToken.None, out prepared, out failure);
+    }
+
+    private static bool TryPrepareCore(GeneratedWorldPlanRecord plan, YQSpatialBlueprintTerrainSamplerV2 suppliedTerrain,
+        HashSet<GeneratedSpatialContinuationLocationV2Record> reviewedLocations, CancellationToken cancellation,
+        out YQPreparedSpatialMaterializationV2 prepared, out string failure)
+    {
+        cancellation.ThrowIfCancellationRequested();
         prepared = null;
         if (!YQSpatialMaterializationResolverV2.TryGetAcceptedContinuationIdentity(plan,
                 out var continuation, out string continuationFingerprint, out failure))
@@ -890,10 +1071,10 @@ public static class YQSpatialMaterializationCompilerV2
                 return false;
             }
         }
-        if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(
-                plan,
-                out YQSpatialBlueprintTerrainSamplerV2 terrainSampler,
-                out failure))
+        YQSpatialBlueprintTerrainSamplerV2 terrainSampler = suppliedTerrain;
+        // note: Startup supplies the sampler admitted from this exact detached snapshot; all base artifact validation still runs through the existing router on the worker.
+        if (terrainSampler != null ? !YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure) :
+            !YQSpatialBlueprintTerrainSamplerV2.TryPrepare(plan, out terrainSampler, out failure))
         {
             return false;
         }
@@ -949,6 +1130,8 @@ public static class YQSpatialMaterializationCompilerV2
             if (source == null)
                 continue;
             int pointStart = waterPointCursor;
+            // note: Use the already validated owner projection, including versioned native joins; do not independently rebuild the old geological shoreline for water meshes.
+            YQPreparedConnectedBasinV2 connectedBasin = terrainSampler.GetMaterializedBasin(index);
             float minimumX = float.PositiveInfinity;
             float maximumX = float.NegativeInfinity;
             float minimumZ = float.PositiveInfinity;
@@ -977,6 +1160,7 @@ public static class YQSpatialMaterializationCompilerV2
 
             waters[index] = new YQSpatialMaterializationWaterV2
             {
+                connectedBasin = connectedBasin,
                 hydrologyId = source.hydrologyId,
                 parentRegionId = source.parentRegionId,
                 kind = source.kind,
@@ -989,10 +1173,10 @@ public static class YQSpatialMaterializationCompilerV2
                 pointStart = pointStart,
                 pointCount = waterPointCursor - pointStart,
                 hasSpatialBounds = waterPointCursor > pointStart,
-                minimumX = minimumX,
-                maximumX = maximumX,
-                minimumZ = minimumZ,
-                maximumZ = maximumZ
+                minimumX = connectedBasin != null ? connectedBasin.MinimumX : minimumX,
+                maximumX = connectedBasin != null ? connectedBasin.MaximumX : maximumX,
+                minimumZ = connectedBasin != null ? connectedBasin.MinimumZ : minimumZ,
+                maximumZ = connectedBasin != null ? connectedBasin.MaximumZ : maximumZ
             };
         }
 
@@ -1276,7 +1460,7 @@ public static class YQSpatialMaterializationCompilerV2
             bySiteId,
             terrainSampler);
         if (continuation != null && !TryAppendAcceptedContinuation(plan, prepared, continuation,
-                continuationFingerprint, out prepared, out failure))
+                continuationFingerprint, out prepared, out failure, reviewedLocations, cancellation))
             return false;
         failure = string.Empty;
         return true;
@@ -1284,7 +1468,8 @@ public static class YQSpatialMaterializationCompilerV2
 
     private static bool TryAppendAcceptedContinuation(GeneratedWorldPlanRecord plan,
         YQPreparedSpatialMaterializationV2 basePrepared, GeneratedSpatialContinuationV2Record continuation,
-        string fingerprint, out YQPreparedSpatialMaterializationV2 prepared, out string failure)
+        string fingerprint, out YQPreparedSpatialMaterializationV2 prepared, out string failure,
+        HashSet<GeneratedSpatialContinuationLocationV2Record> reviewedLocations, CancellationToken cancellation)
     {
         prepared = null;
         failure = string.Empty;
@@ -1318,6 +1503,7 @@ public static class YQSpatialMaterializationCompilerV2
         var replayPrepared = basePrepared;
         foreach (GeneratedSpatialContinuationLocationV2Record location in replayLocations)
         {
+            cancellation.ThrowIfCancellationRequested();
             YQSiteAnchorV2 source = location.anchor;
             if (!basePrepared.TryGetRegion(source.parentRegionId, out _))
             {
@@ -1337,7 +1523,8 @@ public static class YQSpatialMaterializationCompilerV2
             // note: Real terrain/access and cached reviewed-source functions are independently repeated; recorded claims cannot make either gate pass.
             if (!YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, replayPrepared, location,
                     out YQSpatialContinuationSiteSampleV2 sample, out failure) ||
-                !YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure))
+                !(reviewedLocations != null ? reviewedLocations.Contains(location) :
+                    YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationFunctions(location, out failure)))
                 return false;
             bool reserveReady = source.kind == YQSiteKindV2.NaturalFeature || !source.requiresTerrainConformance ||
                 sample.terrain.siteReserveMask >= 0.9f;
@@ -1441,6 +1628,8 @@ public static class YQSpatialMaterializationCompilerV2
         });
         prepared = basePrepared.WithAcceptedContinuation(sites.ToArray(), routes.ToArray(), points.ToArray(), pads.ToArray(), fingerprint, continuation.revision);
         foreach (GeneratedSpatialContinuationLocationV2Record location in locations)
+        {
+            cancellation.ThrowIfCancellationRequested();
             if (!YQContinuousWorldCellAuthority.TryMeasureAcceptedContinuationSite(plan, prepared, location, out _, out failure))
             {
                 // note: Individually admitted contexts must also remain valid under every other accepted finite route and terrain pad in the actual union.
@@ -1448,6 +1637,7 @@ public static class YQSpatialMaterializationCompilerV2
                 failure = "Accepted continuation final-union conformance failed: " + failure;
                 return false;
             }
+        }
         return true;
     }
 
@@ -1799,9 +1989,33 @@ public static class YQSpatialMaterializationCompilerV2
 
 public static class YQSpatialMaterializationResolverV2
 {
+    internal static bool TryInstallStartupPreparation(GeneratedWorldPlanRecord plan,
+        YQSpatialMaterializationCompilerV2.StartupPreparation preparation, out string failure)
+    {
+        failure = "Startup projection no longer matches its fully validated input snapshot.";
+        var artifact = plan?.spatialPlanV2;
+        if (preparation == null || preparation.Prepared == null ||
+            !string.Equals(preparation.SourceJson, JsonUtility.ToJson(plan), StringComparison.Ordinal) ||
+            !HasCurrentAcceptanceEvidence(plan, artifact) ||
+            !YQSpatialPlanVersionRouter.TryValidateAcceptedV2AndContinuation(plan, out failure, out string acceptedJson)) return false;
+        var continuation = artifact.acceptedContinuation?.state == YQSpatialContinuationStateV2.Accepted ? artifact.acceptedContinuation : null;
+        string fingerprint = continuation == null ? string.Empty : BuildContinuationFingerprint(continuation);
+        // note: Only the existing resolver publishes the admitted immutable projection, after the same actual hashes/member identities used by its synchronous path are rechecked.
+        cachedPlan = plan;
+        cachedArtifact = artifact;
+        cachedHash = artifact.contentHash;
+        cachedAcceptedSnapshotJson = acceptedJson;
+        cachedMemberFootprintHash = YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(artifact);
+        cachedContinuation = continuation;
+        cachedContinuationFingerprint = fingerprint;
+        cachedPrepared = preparation.Prepared;
+        failure = string.Empty;
+        return true;
+    }
     private static GeneratedWorldPlanRecord cachedPlan;
     private static GeneratedSpatialWorldPlanV2Record cachedArtifact;
     private static string cachedHash = string.Empty;
+    private static string cachedAcceptedSnapshotJson;
     private static string cachedMemberFootprintHash = string.Empty;
     private static GeneratedSpatialContinuationV2Record cachedContinuation;
     private static string cachedContinuationFingerprint = string.Empty;
@@ -1950,6 +2164,7 @@ public static class YQSpatialMaterializationResolverV2
                 cachedContinuation = published;
                 cachedContinuationFingerprint = fingerprint;
                 cachedPrepared = Prepared;
+                cachedAcceptedSnapshotJson = JsonUtility.ToJson(artifact) + "|" + YQSpatialContinuationValidatorV2.BranchIdentity(artifact.acceptedContinuation);
                 failure = string.Empty;
                 return true;
             }
@@ -2025,13 +2240,13 @@ public static class YQSpatialMaterializationResolverV2
     private static string BuildContinuationFingerprint(GeneratedSpatialContinuationV2Record continuation) =>
         continuation.schemaVersion + "|" + continuation.revision.ToString(System.Globalization.CultureInfo.InvariantCulture) + "|" + continuation.contentHash;
 
-    [RuntimeInitializeOnLoadMethod(
-        RuntimeInitializeLoadType.SubsystemRegistration)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetCache()
     {
         cachedPlan = null;
         cachedArtifact = null;
         cachedHash = string.Empty;
+        cachedAcceptedSnapshotJson = null;
         cachedMemberFootprintHash = string.Empty;
         cachedContinuation = null;
         cachedContinuationFingerprint = string.Empty;
@@ -2045,8 +2260,9 @@ public static class YQSpatialMaterializationResolverV2
     {
         GeneratedSpatialWorldPlanV2Record artifact = plan?.spatialPlanV2;
         prepared = null;
-        if (!TryGetAcceptedContinuationIdentity(plan, out var continuation, out string continuationFingerprint, out failure))
-            return false;
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2AndContinuation(plan, out failure, out string sourceJson)) return false;
+        var continuation = artifact.acceptedContinuation?.state == YQSpatialContinuationStateV2.Accepted ? artifact.acceptedContinuation : null;
+        string continuationFingerprint = continuation == null ? string.Empty : BuildContinuationFingerprint(continuation);
         // note: Recompute the artifact fingerprint before reuse; a mutable blueprint cannot retain stale prepared authority by leaving its claimed hash unchanged.
         if (ReferenceEquals(cachedPlan, plan) &&
             ReferenceEquals(cachedArtifact, artifact) &&
@@ -2054,10 +2270,8 @@ public static class YQSpatialMaterializationResolverV2
             string.Equals(cachedContinuationFingerprint, continuationFingerprint, StringComparison.Ordinal) &&
             cachedPrepared != null &&
             HasCurrentAcceptanceEvidence(plan, artifact) &&
-            TryComputeCurrentHash(artifact, out string currentHash) &&
-            string.Equals(cachedHash, currentHash, StringComparison.Ordinal) &&
-            string.Equals(cachedMemberFootprintHash,
-                YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(artifact), StringComparison.Ordinal))
+            string.Equals(cachedHash, artifact.contentHash, StringComparison.Ordinal) &&
+            string.Equals(cachedAcceptedSnapshotJson, sourceJson, StringComparison.Ordinal))
         {
             prepared = cachedPrepared;
             failure = string.Empty;
@@ -2079,11 +2293,8 @@ public static class YQSpatialMaterializationResolverV2
             !string.Equals(claimedHash, preparedArtifact?.contentHash,
                 StringComparison.Ordinal) ||
             !HasCurrentAcceptanceEvidence(plan, preparedArtifact) ||
-            !TryComputeCurrentHash(preparedArtifact,
-                out string preparedHash) ||
-            !TryGetAcceptedContinuationIdentity(plan, out var preparedContinuation, out string preparedContinuationFingerprint, out _) ||
-            !ReferenceEquals(continuation, preparedContinuation) ||
-            !string.Equals(continuationFingerprint, preparedContinuationFingerprint, StringComparison.Ordinal))
+            !YQSpatialPlanVersionRouter.TryValidateAcceptedV2AndContinuation(plan, out failure, out string preparedJson) ||
+            !string.Equals(sourceJson, preparedJson, StringComparison.Ordinal))
         {
             // note: Do not cache a projection if its accepted source changed while the immutable runtime arrays were being constructed.
             prepared = null;
@@ -2093,13 +2304,46 @@ public static class YQSpatialMaterializationResolverV2
 
         cachedPlan = plan;
         cachedArtifact = preparedArtifact;
-        cachedHash = preparedHash;
+        cachedHash = preparedArtifact.contentHash;
+        cachedAcceptedSnapshotJson = preparedJson;
         // note: Member sectors were absent from the historical accepted content hash; their derived index must still invalidate when their geometry changes.
         cachedMemberFootprintHash = YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(preparedArtifact);
-        cachedContinuation = preparedContinuation;
-        cachedContinuationFingerprint = preparedContinuationFingerprint;
+        cachedContinuation = continuation;
+        cachedContinuationFingerprint = continuationFingerprint;
         cachedPrepared = prepared;
         return true;
+    }
+
+    internal static bool TryGetPublishedProjection(GeneratedWorldPlanRecord plan, out YQPreparedSpatialMaterializationV2 prepared)
+    {
+        prepared = null;
+        var artifact = plan?.spatialPlanV2;
+        var continuation = artifact?.acceptedContinuation;
+        // note: Queries read the immutable projection already admitted at load/publication. Mutable candidates still use TryGetPrepared's complete hashing and validation.
+        if (!Application.isPlaying || !YQWorldGenerationArchitecture.IsRuntimeAuthorityCurrent(plan) ||
+            !ReferenceEquals(cachedPlan, plan) || !ReferenceEquals(cachedArtifact, artifact) ||
+            !ReferenceEquals(cachedContinuation, continuation) || cachedPrepared == null ||
+            !HasCurrentAcceptanceEvidence(plan, artifact) || !string.Equals(cachedHash, artifact.contentHash, StringComparison.Ordinal) ||
+            (continuation != null && (continuation.state != YQSpatialContinuationStateV2.Accepted ||
+                continuation.schemaVersion != GeneratedSpatialContinuationV2Record.SupportedSchemaVersion ||
+                continuation.generationVersion != GeneratedSpatialContinuationV2Record.SupportedGenerationVersion ||
+                continuation.validationVersion != GeneratedSpatialContinuationV2Record.SupportedValidationVersion ||
+                continuation.hashAlgorithm != GeneratedSpatialContinuationV2Record.SupportedHashAlgorithm ||
+                continuation.worldSeed != artifact.worldSeed || continuation.parentSpatialContentHash != artifact.contentHash ||
+                continuation.revision <= 0 || continuation.locations == null || continuation.locations.Count == 0 ||
+                continuation.validationErrors == null || continuation.validationErrors.Count != 0 ||
+                continuation.contentHash != continuation.validatedContentHash)) ||
+            !string.Equals(cachedContinuationFingerprint, continuation == null ? string.Empty : BuildContinuationFingerprint(continuation), StringComparison.Ordinal))
+            return false;
+        prepared = cachedPrepared;
+        return true;
+    }
+
+    internal static bool TryGetQueryProjection(GeneratedWorldPlanRecord plan, out YQPreparedSpatialMaterializationV2 prepared, out string failure)
+    {
+        // note: A cold or changed owner goes through the complete admission path; repeated live queries consume only its frozen arrays.
+        if (TryGetPublishedProjection(plan, out prepared)) { failure = string.Empty; return true; }
+        return TryGetPrepared(plan, out prepared, out failure);
     }
 
     internal static bool TryGetAcceptedContinuationIdentity(GeneratedWorldPlanRecord plan,
@@ -2107,6 +2351,31 @@ public static class YQSpatialMaterializationResolverV2
     {
         continuation = null;
         fingerprint = string.Empty;
+        if (!TryScreenAcceptedContinuationIdentityCore(plan, out var candidate, out failure)) return false;
+        if (candidate == null) return true;
+        // note: Preserve complete identity callers' original proof/output ordering: no candidate or fingerprint escapes a failed deep validation.
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2AndContinuation(plan, out failure, out _)) return false;
+        continuation = candidate;
+        fingerprint = BuildContinuationFingerprint(candidate);
+        return true;
+    }
+
+    internal static bool TryScreenAcceptedContinuationIdentityForPreparedRequest(GeneratedWorldPlanRecord plan,
+        out GeneratedSpatialContinuationV2Record continuation, out string fingerprint, out string failure)
+    {
+        continuation = null;
+        fingerprint = string.Empty;
+        // note: This is only an early veto, never acceptance proof. Its sole production caller immediately enters the service's full TryGetPrepared gate without yielding.
+        if (!TryScreenAcceptedContinuationIdentityCore(plan, out var candidate, out failure)) return false;
+        continuation = candidate;
+        fingerprint = candidate == null ? string.Empty : BuildContinuationFingerprint(candidate);
+        return true;
+    }
+
+    private static bool TryScreenAcceptedContinuationIdentityCore(GeneratedWorldPlanRecord plan,
+        out GeneratedSpatialContinuationV2Record continuation, out string failure)
+    {
+        continuation = null;
         failure = string.Empty;
         GeneratedSpatialWorldPlanV2Record artifact = plan?.spatialPlanV2;
         GeneratedSpatialContinuationV2Record candidate = artifact?.acceptedContinuation;
@@ -2126,23 +2395,7 @@ public static class YQSpatialMaterializationResolverV2
             failure = "Accepted V2 continuation has an unsupported or stale parent-bound identity.";
             return false;
         }
-        try
-        {
-            // note: Actual checksums reject unrevisioned mutable corruption; this bounded query cost needs profiling when accepted continuation grows.
-            if (candidate.parentMemberFootprintHash != YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(artifact) ||
-                candidate.contentHash != YQSpatialContinuationHasherV2.ComputeContentHash(candidate))
-            {
-                failure = "Accepted V2 continuation checksum or parent member footprint changed.";
-                return false;
-            }
-        }
-        catch (Exception exception)
-        {
-            failure = "Accepted V2 continuation checksum is unreadable: " + exception.Message;
-            return false;
-        }
         continuation = candidate;
-        fingerprint = candidate.schemaVersion + "|" + candidate.revision.ToString(System.Globalization.CultureInfo.InvariantCulture) + "|" + candidate.contentHash;
         return true;
     }
 

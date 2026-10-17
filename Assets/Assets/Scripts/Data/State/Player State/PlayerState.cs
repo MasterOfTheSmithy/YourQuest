@@ -92,6 +92,8 @@ public class PlayerState
     public Dictionary<string, float> behaviorCounters = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
     // note: Persist a short Goddess memory so her voice remains one character across reloads without turning presentation into canonical world facts.
     public List<string> goddessVoiceMemory = new List<string>();
+    // note: Additive presentation history preserves lifetime delivered-line uniqueness without changing accepted gameplay records or the save schema.
+    public HashSet<string> goddessDeliveredSpeechHashes = new HashSet<string>(StringComparer.Ordinal);
     public long lastLedgerRollupUnix = 0;
 
     public long nextSkillEligibleUnix = 0;
@@ -116,6 +118,7 @@ public class PlayerState
         reputation ??= new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
         behaviorLedger ??= new List<string>();
         goddessVoiceMemory ??= new List<string>();
+        goddessDeliveredSpeechHashes ??= new HashSet<string>(StringComparer.Ordinal);
         originQuestionnaireAnswers ??= new List<string>();
         identityKeywords ??= new List<string>();
         generatedOrigin ??= new GeneratedOriginRecord();
@@ -1003,6 +1006,10 @@ public class PlayerState
             if (!existing.IsPending)
                 continue;
 
+            // note: Similar offers from different speakers must not merge or transfer spoken acceptance to another NPC.
+            if (!YQNpcConversationRewards.CanMergeSources(existing.context, incoming.context))
+                continue;
+
             float similarity = existing.ComputeSimilarity(incoming);
             bool sameUpgradeTarget = !string.IsNullOrWhiteSpace(existing.upgradeTargetId) && string.Equals(existing.upgradeTargetId, incoming.upgradeTargetId, StringComparison.OrdinalIgnoreCase);
             if (similarity >= duplicateThreshold || sameUpgradeTarget)
@@ -1051,6 +1058,11 @@ public class PlayerState
                     applied = false;
                     break;
                 }
+                // note: A newly accepted NPC commission needs a subsequent conversation, not a talk counter earned before the offer.
+                if ((offer.context ?? string.Empty).StartsWith("npc_offer:", StringComparison.Ordinal))
+                    foreach (QuestObjectiveRecord objective in objectives)
+                        if (objective.type == "talk_to_npc" && behaviorCounters.TryGetValue("dialogue:" + objective.targetId, out float priorTalks))
+                            objective.requiredCount += Mathf.Max(0f, priorTalks);
                 OfferQuest(
                     offer.name,
                     offer.description,
@@ -1154,6 +1166,25 @@ public class PlayerState
         Touch();
         message = "Declined " + offer.offerKind + " offer: " + offer.name;
         return true;
+    }
+
+    internal void ApplyPreparedOfferDecision(PlayerState prepared)
+    {
+        // note: Install the already evaluated records after paired pointer publication without replaying GUID generation or replacing the authoritative player.
+        pendingOffers = prepared.pendingOffers;
+        behaviorCounters = prepared.behaviorCounters;
+        behaviorLedger = prepared.behaviorLedger;
+        stateRevision = prepared.stateRevision;
+        lastUpdatedUnix = prepared.lastUpdatedUnix;
+        activeQuestId = prepared.activeQuestId;
+        quests = prepared.quests;
+        titles = prepared.titles;
+        classes = prepared.classes;
+        skills = prepared.skills;
+        equippedSkillBySlot = prepared.equippedSkillBySlot;
+        inventoryItems = prepared.inventoryItems;
+        equippedItemBySlot = prepared.equippedItemBySlot;
+        identityRecords = prepared.identityRecords;
     }
 
     public PendingProgressionOfferRecord FindOfferById(string offerId)
@@ -1262,7 +1293,7 @@ public class PlayerState
         }
 
         // note: GenerateItem applies the curated library's compatible model, material, sound, and effect keys for this semantic type.
-        InventoryItemRecord item = service.GenerateItem("offer:" + offer.offerId + ":" + itemType, Mathf.Max(1, level), itemType, itemType == "consumable");
+        InventoryItemRecord item = service.GenerateItem(this, "offer:" + offer.offerId + ":" + itemType, Mathf.Max(1, level), itemType, itemType == "consumable");
         if (item == null)
         {
             message = "Item offer could not be materialized.";
@@ -1411,17 +1442,8 @@ public class PlayerState
 
     private static string[] BuildSkillTags(SkillRecord skill)
     {
-        if (skill == null)
-            return Array.Empty<string>();
-
-        List<string> tags = new List<string>(4);
-        if (!string.IsNullOrWhiteSpace(skill.type))
-            tags.Add(skill.type.Trim().ToLowerInvariant());
-        if (skill.isSpell)
-            tags.Add("spell");
-        if (!string.IsNullOrWhiteSpace(skill.context))
-            tags.Add(skill.context.Trim().ToLowerInvariant());
-        return tags.ToArray();
+        // note: Keep this local entry point while sharing the skill-tag projection.
+        return SkillSimilarity.BuildSkillTags(skill);
     }
 
     private static string NormalizeKey(string value)

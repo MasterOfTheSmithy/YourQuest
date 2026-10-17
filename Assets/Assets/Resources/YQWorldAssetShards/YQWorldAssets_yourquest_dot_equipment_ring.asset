@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_ring
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Artisan.prefab
+    prefab: {fileID: 6994352014869121643, guid: 6f6b794cf5cc8704cb4fd16f92a5b71a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Court.prefab
+    prefab: {fileID: 8068999070975839903, guid: f929872956f745f49bb9e579161ee85d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Dragonbound.prefab
+    prefab: {fileID: 698361170353195496, guid: 7327a2386808eb64a8b7632bc9df014e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Eclipse.prefab
+    prefab: {fileID: 4335351825386915098, guid: 2d6f3b5741ce0794faff24328003aba0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Field.prefab
+    prefab: {fileID: 4282642280169630007, guid: 57e043395f2b01847a6b2a513e10c0be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Merchant.prefab
+    prefab: {fileID: 3756864118635077628, guid: fad3d5c1382383b46b3d31f58dfc18de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Ranger.prefab
+    prefab: {fileID: 1319449302409355407, guid: 92cb4803962960c4cadd2459784cda70, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Starforged_Orrery.prefab
+    prefab: {fileID: 5211414903466161855, guid: 4ae7111f0ebbe2743b0d0bb741cbf3c7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Worldtree_Sovereign.prefab
+    prefab: {fileID: 4391500055198568125, guid: abf4a5e323ac6b2418ede3021e8ce080, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_core.prefab
+    prefab: {fileID: 6497952272353192727, guid: e3682b9fa69fe304d960e4d2d0dcb1ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mixed_darkness_light.prefab
+    prefab: {fileID: 5178668729329121851, guid: 90abc875b2792394aa2d661a2f3f970f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mixed_organic_fire.prefab
+    prefab: {fileID: 2871010887582303491, guid: f5cd6f55fb0797e42981e4c022b26dab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_darkness.prefab
+    prefab: {fileID: 995747322924795711, guid: 846ab01f82f757b41a28afc567c3e5a8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_fire.prefab
+    prefab: {fileID: 1512572693706504213, guid: 1f1a52f1c4116464cb74b4faccf33673, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_forged.prefab
+    prefab: {fileID: 9130694120720576307, guid: e50f576b829babb4b82a41a9733d8881, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_frost.prefab
+    prefab: {fileID: 8731797311752052329, guid: 6d72ada50b09f3a4d805be068cb31733, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_light.prefab
+    prefab: {fileID: 2682783905864142156, guid: ccb00bf2ec9b9dc4ebb82aa6140b3e72, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_motif_organic.prefab
+    prefab: {fileID: 3689394484967181757, guid: 15cb690ce4d81e6438bd662836dc7f4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_darkness.prefab
+    prefab: {fileID: 230528420162065224, guid: a76e4377aa9c7434ab17821e9c15c01d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_fire.prefab
+    prefab: {fileID: 4830556324426860058, guid: 0f59356c350fb1342a912eaa8dea3c81, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_forged.prefab
+    prefab: {fileID: 7613326408628236356, guid: 27dcbcdb528ec0a4bb4c2cdbb1ca4b9c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_frost.prefab
+    prefab: {fileID: 6971421333302728454, guid: 0ab01e4c47806004d8821b33983e809f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_light.prefab
+    prefab: {fileID: 3634042290767384671, guid: 63b1060a961a0fc46b3abb8376369dc6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/yqmod1_accessories_ring_mount_organic.prefab
+    prefab: {fileID: 7041954958970315193, guid: f35f24cb312184e42bb3eef9d703f585, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Field_Parts.prefab
+    prefab: {fileID: 5701545057490905217, guid: ebcd807960efc444db768e07e59be389, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Merchant_Parts.prefab
+    prefab: {fileID: 3979734575351198601, guid: 6512654854cdd5748a37b1fea92e1c52, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Ranger_Parts.prefab
+    prefab: {fileID: 6411434109553754381, guid: 412b26746f964654d8ae2fbb6f25ed1b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Artisan_Parts.prefab
+    prefab: {fileID: 5861778591800071387, guid: b48e86b471924264e9065af13698036b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Court_Parts.prefab
+    prefab: {fileID: 4633054288461949432, guid: f0a63ae41fd99e243805e69483637678, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Dragonbound_Parts.prefab
+    prefab: {fileID: 8157707351204818758, guid: edef18a585f26014d8d27bb4a3ff9e0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Eclipse_Parts.prefab
+    prefab: {fileID: 5316431433952939981, guid: 7f21ec22a6ec3bd4bbda18da3ba6e7dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 8603760571761717353, guid: 61c22c3dbb3b41f46aa7f19aa83f3220, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/ring/Ring_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 5499853915701298088, guid: 6e60f22369fea474c80579254ec57849, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_boots
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Dragonbound_Female.prefab
+    prefab: {fileID: 607755378950232785, guid: 9f36067020286a64592c4ceea9f3ea13, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Dragonbound_Male.prefab
+    prefab: {fileID: 916286895605245709, guid: f5e74877ac061a54687adcbf914d91a9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Eclipse_Female.prefab
+    prefab: {fileID: 4502981061407344957, guid: a746872aeaff08e48aa9ed857bb31459, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Eclipse_Male.prefab
+    prefab: {fileID: 5712048112201122915, guid: 382c22b519eb4954b8b7a45b0a2c108f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Field_Female.prefab
+    prefab: {fileID: 5605540052442082125, guid: 5143228e1ac7ec042835a7cfbaf11d5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Field_Male.prefab
+    prefab: {fileID: 680445360673144249, guid: 6451cf0be04414e4388175ce1bdbee4b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Lamellar_Female.prefab
+    prefab: {fileID: 7729332256080429782, guid: 7d03e51fdd64e024f8f7add14a94afdf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Lamellar_Male.prefab
+    prefab: {fileID: 4163186692564680510, guid: 5d639319b7fe0894ea7a703f2b4da2a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Ranger_Female.prefab
+    prefab: {fileID: 6295602347305689287, guid: a1003a43a7410604e8a000ad22439841, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Ranger_Male.prefab
+    prefab: {fileID: 5976742848407793687, guid: 2913f2842c15b514e9a9b5acfcc6d160, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Sentinel_Female.prefab
+    prefab: {fileID: 6769887544101608370, guid: ba98cac5ae66cb341a757981613d3752, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Sentinel_Male.prefab
+    prefab: {fileID: 4767813877654179254, guid: f22a8cd2177983e42927396e77208dc3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 1862904566067687944, guid: ccb28f71066ae014c9a3930521a9fb4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 7941018397306961022, guid: f9ff668adfe5f5d4da116d493cee364f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Traveler_Female.prefab
+    prefab: {fileID: 1496902086833116719, guid: 94b861a172d57d64196d321c93fb4bd6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Traveler_Male.prefab
+    prefab: {fileID: 6650789056652623345, guid: f5af15e31df07c94ca9d7beba1a0cd14, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 8535417735143861786, guid: 4fcdfce44f408134fb3fce8437268008, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 4068162483215713218, guid: 234691e228721884fbae2a8acd28d991, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Field_Male_Parts.prefab
+    prefab: {fileID: 5067039066147651551, guid: 84a97066ab6afca4aaf564d7f37ed923, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Field_Female_Parts.prefab
+    prefab: {fileID: 2891259241378811341, guid: c6b2f608fe3da1b4bb4f59c6073f0f35, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Ranger_Male_Parts.prefab
+    prefab: {fileID: 2965839216460684819, guid: ec5b026c91fbd0b45ae15b057271561a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Ranger_Female_Parts.prefab
+    prefab: {fileID: 4353782631534590163, guid: 58b42e2eda94a154b81fd4589201e444, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 2285928240868930573, guid: d42d0e3856ea8494d84390f101943bc6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 4103313304041125801, guid: 6bc0db30b0300f14eb4413d3ffba5dd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Traveler_Male_Parts.prefab
+    prefab: {fileID: 1027707321626345916, guid: e1856077f98d92a47841355ac34fc7aa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Traveler_Female_Parts.prefab
+    prefab: {fileID: 8728284663122881715, guid: ec435c78820aa0d4b9931a378e5819bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 6081952671331784672, guid: a24246c9babcd9c458e94984490e03bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 7875312453315413390, guid: 8214c82315a8ba14a9714fdc98716f85, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 7323049385651727003, guid: b4d508ff91210004fa4f140af619ee4e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 5182822225423849513, guid: e89a590245baa0a429a54183939a3e35, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 804192431453134465, guid: 6a1102ad67c3f7b45be22f03d41f5372, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 4610759609347260300, guid: fe8eddbeed487ed4d89a26ca14ea7c7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 7509110995996027215, guid: aabcd43e547f404499be4e3b53246868, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 3508672373202977557, guid: a2a49db6aad869549b4613c3629749ce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 5596059624618696837, guid: 6d495f1ad92571c4a9e1f49a18ab6583, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boots/Boots_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 1666013096272446340, guid: b53506113635c5049bd93505bdd0a71f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

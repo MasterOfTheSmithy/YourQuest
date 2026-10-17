@@ -1,0 +1,143 @@
+{
+    "action":  "Archive",
+    "utc":  "2026-10-16T06:01:00.4935899Z",
+    "manifest_sha256":  "8ff731376181f21880a5c0ed7c00b235b107f519dd680a1643323a97ff12c48a",
+    "candidate_set_sha256":  "e508bf6f31d449dd85e4b888aa2c7d8e4c606dd14ff62a9d346308c154f2c6a8",
+    "files":  [
+                  {
+                      "relative":  "Assets/Assets/Scripts/PrototypeBuilder/Editor/YQPrototypeSceneBuilder.cs",
+                      "sha256":  "85afee572d488da0ad87ca947a6a5745c33dd50f995a2e473fb96f9700ab8a25",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\PrototypeBuilder\\Editor\\YQPrototypeSceneBuilder.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\PrototypeBuilder\\Editor\\YQPrototypeSceneBuilder.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/PrototypeBuilder/Editor/YQPrototypeSceneBuilder.cs.meta",
+                      "sha256":  "e047aac4e83ea3e3042c20fab261ca4dc83a1300abbec247df8f32dc91a8c80a",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\PrototypeBuilder\\Editor\\YQPrototypeSceneBuilder.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\PrototypeBuilder\\Editor\\YQPrototypeSceneBuilder.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestPolishedPrototypeSceneMenu.cs",
+                      "sha256":  "d58b6ff0ebe5078eab95676388481123000bc8b73c63fa3c13e92dab1dc3bc13",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestPolishedPrototypeSceneMenu.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestPolishedPrototypeSceneMenu.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestPolishedPrototypeSceneMenu.cs.meta",
+                      "sha256":  "08592080a2f8227d0ec84dc7af6ecc474a32cae6b11e5770ef888afc05c33042",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestPolishedPrototypeSceneMenu.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestPolishedPrototypeSceneMenu.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestTestSceneMenu.cs",
+                      "sha256":  "ca7bf87c56e3fc23a8062d3d2fdf6967f7cc92c1103d7ccc0dcac183c93c0ddc",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestTestSceneMenu.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestTestSceneMenu.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestTestSceneMenu.cs.meta",
+                      "sha256":  "c2be08914e49732a61aced925f1e6495a9963371da5ee264b63f3cc3c167c821",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestTestSceneMenu.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestTestSceneMenu.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestInvestorSceneBuilder.cs",
+                      "sha256":  "a876161d27e365519195143087ef066a31f48cd7a9d3d6e9a99dc72ffca33a61",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestInvestorSceneBuilder.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestInvestorSceneBuilder.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/Editor/YourQuestInvestorSceneBuilder.cs.meta",
+                      "sha256":  "1f68800a9302a3a946e71d191d7813394d3e98f597c0f1678e62b86f2371d64a",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestInvestorSceneBuilder.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YourQuestInvestorSceneBuilder.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Data/Serialization/SerializableDictionary.cs",
+                      "sha256":  "dd3f24e9fd27a190a8059741d7f3925b5e58c0e1b17d84c0d0b0f76b246cd8aa",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Data\\Serialization\\SerializableDictionary.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Data\\Serialization\\SerializableDictionary.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Data/Serialization/SerializableDictionary.cs.meta",
+                      "sha256":  "9a5a16fbde75573793d982a34f6d6df3f336a59b7f43b44bca634add76ca7316",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Data\\Serialization\\SerializableDictionary.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Data\\Serialization\\SerializableDictionary.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Data/State/StateCompatibilityExtensions.cs",
+                      "sha256":  "0189404d390377b739814684b1852929b4c2ac4e1a421db906fc49e1da22a6d4",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Data\\State\\StateCompatibilityExtensions.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Data\\State\\StateCompatibilityExtensions.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Data/State/StateCompatibilityExtensions.cs.meta",
+                      "sha256":  "9ad3e3587bc13d0bfb3b94876fe93e8cda0d437d8907c5bd5357d190937ff761",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Data\\State\\StateCompatibilityExtensions.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Data\\State\\StateCompatibilityExtensions.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistrySmokeTest.cs",
+                      "sha256":  "31f322fdae8027161fe2418fd7f34ac169bd2282d4d3ec776764e36317b5d5ba",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Generated\\YQRuntimeWorldAssetRegistrySmokeTest.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Generated\\YQRuntimeWorldAssetRegistrySmokeTest.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistrySmokeTest.cs.meta",
+                      "sha256":  "fe4a684094bca0af78658db68aea72392ab478b44f552bd8ef0fbb554fc4f325",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Generated\\YQRuntimeWorldAssetRegistrySmokeTest.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Generated\\YQRuntimeWorldAssetRegistrySmokeTest.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/LLM/Debug/DebugSkillGenerator.cs",
+                      "sha256":  "e1d818d7de410a9ee096877eeb7e09be553f34303c02f1db74b273705c0f3ccd",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\LLM\\Debug\\DebugSkillGenerator.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\LLM\\Debug\\DebugSkillGenerator.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/LLM/Debug/DebugSkillGenerator.cs.meta",
+                      "sha256":  "f72ff58311738cd8d784b30a94f70b9ab61564e0d1090a2416d4170f667351ba",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\LLM\\Debug\\DebugSkillGenerator.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\LLM\\Debug\\DebugSkillGenerator.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Observation/Threat/ThreatProbe.cs",
+                      "sha256":  "87fee411314e23037da334a3be54e4425f426cee4350349abde650e7c2ca2428",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Observation\\Threat\\ThreatProbe.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Observation\\Threat\\ThreatProbe.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Observation/Threat/ThreatProbe.cs.meta",
+                      "sha256":  "602da181ef944796c2693dcec0cd8bb9af2736ce8a72614b87e9f252a866728b",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Observation\\Threat\\ThreatProbe.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Observation\\Threat\\ThreatProbe.cs.meta.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/YourQuestTutorialVitals.cs",
+                      "sha256":  "cc8e72dee3b807778303f87b3a278871b424264826ceb44ac4929473fa69518d",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\YourQuestTutorialVitals.cs",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\YourQuestTutorialVitals.cs.quarantined"
+                  },
+                  {
+                      "relative":  "Assets/Assets/Scripts/Tutorial/YourQuestTutorialVitals.cs.meta",
+                      "sha256":  "6f61e3366ceab3ecea1ac19a4719db9bab25b56a074dc4264d57f7a96bbc9af9",
+                      "from":  "C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\YourQuestTutorialVitals.cs.meta",
+                      "to":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Assets\\Assets\\Scripts\\Tutorial\\YourQuestTutorialVitals.cs.meta.quarantined"
+                  }
+              ],
+    "restore_sidecars":  [
+                             {
+                                 "path":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\Invoke-EditorScriptQuarantine.ps1",
+                                 "sha256":  "f5ac0932e8eaf078f2fb76d0fa0d2cdc0d32b95296206a2904d4737ef7d51114"
+                             },
+                             {
+                                 "path":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\quarantine_manifest.json",
+                                 "sha256":  "8ff731376181f21880a5c0ed7c00b235b107f519dd680a1643323a97ff12c48a"
+                             },
+                             {
+                                 "path":  "C:\\Users\\Garri\\YourQuest\\Quarantine\\2026-10-16\\scripts\\README.md",
+                                 "sha256":  "c59c7185fd0ce0fd7079f61474ba508af7d8bd482467a9744859421603f676c6"
+                             }
+                         ],
+    "result":  "ALL_HASHES_VERIFIED"
+}

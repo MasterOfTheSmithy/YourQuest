@@ -685,7 +685,8 @@ public static class YQRuntimeCreatureAssetIndex
             if (shard == null) continue;
             for (int entryIndex = 0; entryIndex < shard.Count; entryIndex++)
             {
-                YQRuntimeWorldAssetEntry entry = shard[entryIndex];
+                // note: Granular catalog entries contain paths only; creature selection explicitly resolves the same curated bindings.
+                YQRuntimeWorldAssetEntry entry = shard[entryIndex] != null ? registry.ResolveEntry(shard[entryIndex].assetPath) : null;
                 if (entry == null || entry.prefab == null || !seen.Add(entry.assetPath ?? string.Empty)) continue;
                 combined.Add(entry);
             }
@@ -2420,36 +2421,8 @@ public static class YQRuntimeCreatureAssetIndex
         private static bool HasEquipmentObjectMarker(
     GameObject prefab)
         {
-            if (prefab == null)
-                return false;
-
-            Component[] components =
-                prefab.GetComponentsInChildren<Component>(
-                    true);
-
-            for (int i = 0;
-                 i < components.Length;
-                 i++)
-            {
-                Component component =
-                    components[i];
-
-                if (component == null)
-                    continue;
-
-                Type type =
-                    component.GetType();
-
-                if (string.Equals(
-                        type.FullName,
-                        "InfinityPBR.EquipmentObject",
-                        StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // note: Editor indexing shares runtime creature equipment-marker admission.
+            return YQRuntimeCreatureAssetIndex.HasEquipmentObjectMarker(prefab);
         }
         private static void AddRequiredPrefab(
             List<YQRuntimeWorldAssetEntry> entries,

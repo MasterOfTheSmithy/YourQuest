@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-02T12:49:05.8815751Z",
+  "evidence": "Editor sampling on the normalized approved production body; production motor and gear require the separate PlaySafe witness",
+  "checks": [
+    "approved production body binds the repaired controller",
+    "motor retains displacement ownership",
+    "relaxed idle keeps the torso upright",
+    "walk has visible fore/aft foot travel above 25 cm",
+    "walk has a substantial upper-leg stride",
+    "run has visible fore/aft foot travel above 25 cm",
+    "run has a substantial upper-leg stride",
+    "back has visible fore/aft foot travel above 25 cm",
+    "back has a substantial upper-leg stride"
+  ],
+  "samples": [
+    {
+      "gait": "idle",
+      "torsoLeanDegrees": 6.96635342
+    },
+    {
+      "gait": "idle",
+      "footTravelMetres": 0.01198934,
+      "upperLegArcDegrees": 4.580248
+    },
+    {
+      "gait": "walk",
+      "footTravelMetres": 0.6001023,
+      "upperLegArcDegrees": 36.96276
+    },
+    {
+      "gait": "run",
+      "footTravelMetres": 1.06845033,
+      "upperLegArcDegrees": 63.4099274
+    },
+    {
+      "gait": "back",
+      "footTravelMetres": 0.6259471,
+      "upperLegArcDegrees": 35.8791122
+    },
+    {
+      "walkFootSpeed": 0.638702869,
+      "runFootSpeed": 2.29802775,
+      "backFootSpeed": 0.729535639
+    }
+  ],
+  "error": null
+}

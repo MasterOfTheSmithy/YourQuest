@@ -1,0 +1,12 @@
+﻿{
+  "status": "README_ONLY_POST_ARCHIVE_AMENDMENT",
+  "utc": "2026-10-16T06:02:21.6670958Z",
+  "archive_receipt": "quarantine_archive_17fdfed9f38c4ad385dbd8546172def9.json",
+  "archive_receipt_sha256": "ddeedbb355a1a14efd551b7ae2db118b48eb118e5fc47b46931411c518f79638",
+  "original_readme_sha256": "c59c7185fd0ce0fd7079f61474ba508af7d8bd482467a9744859421603f676c6",
+  "updated_readme_sha256": "6d006de7ea5b816ca87432270472607b88a8ee33b92f42fbbc9ed53fdb5f5bbc",
+  "output_readme_sha256": "6d006de7ea5b816ca87432270472607b88a8ee33b92f42fbbc9ed53fdb5f5bbc",
+  "archived_pairs_rehashed": 20,
+  "helper_and_manifest_match_original_receipt": true,
+  "note": "Only README documentation was expanded with ten file reasons, detached compile evidence, and explicit restore command; archived source/meta/helper/manifest bytes remain as originally receipted."
+}

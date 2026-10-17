@@ -14,6 +14,8 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
     private const string SceneFolder = "Assets/Assets/Scenes";
     private const string ScenePath = "Assets/Assets/Scenes/YourQuest_WorldDialogueValidation.unity";
 
+    private static bool waitingForSavedWorkspace;
+
     [InitializeOnLoadMethod]
     private static void EnsureValidationSceneExists()
     {
@@ -25,18 +27,11 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
         {
             EditorApplication.playModeStateChanged -= BuildAfterPlayModeExit;
             EditorApplication.playModeStateChanged += BuildAfterPlayModeExit;
-            EditorApplication.delayCall += ExitPlayModeForRequestedSceneBuild;
+            // note: Missing optional authoring output does not own the active Play session; resume only after Play exits naturally.
             return;
         }
 
-        EditorApplication.delayCall += BuildMissingSceneWithoutChangingWorkspace;
-    }
-
-    private static void ExitPlayModeForRequestedSceneBuild()
-    {
-        // note: Play mode holds scene serialization; stop only the disposable runtime session so the explicitly requested test scene can be created safely.
-        if (EditorApplication.isPlaying)
-            EditorApplication.ExitPlaymode();
+        QueueMissingSceneBuild();
     }
 
     private static void BuildAfterPlayModeExit(PlayModeStateChange state)
@@ -45,7 +40,7 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
             return;
 
         EditorApplication.playModeStateChanged -= BuildAfterPlayModeExit;
-        EditorApplication.delayCall += BuildMissingSceneWithoutChangingWorkspace;
+        QueueMissingSceneBuild();
     }
 
     [MenuItem("YourQuest/Tests/Rebuild World + Dialogue Validation Scene")]
@@ -65,14 +60,89 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
         BuildSceneInternal(NewSceneMode.Single, false);
     }
 
+    private static void QueueMissingSceneBuild()
+    {
+        // note: Scene save/open/close notifications may arrive together; retain one delayed attempt against the final workspace state.
+        EditorApplication.delayCall -= BuildMissingSceneWithoutChangingWorkspace;
+        EditorApplication.delayCall += BuildMissingSceneWithoutChangingWorkspace;
+    }
+
+    private static bool HasUnsavedWorkspace()
+    {
+        for (int index = 0; index < SceneManager.sceneCount; index++)
+        {
+            Scene scene = SceneManager.GetSceneAt(index);
+            if (scene.isLoaded && (string.IsNullOrEmpty(scene.path) || scene.isDirty))
+                return true;
+        }
+        // note: Unity's SaveScene also persists dirty assets. Automatic scene creation must wait rather than flush any unrelated pending persistent-asset edit.
+        foreach (UnityEngine.Object asset in Resources.FindObjectsOfTypeAll<UnityEngine.Object>())
+            if (HasPendingAssetSave(asset))
+                return true;
+        return false;
+    }
+
+    internal static bool HasPendingAssetSave(UnityEngine.Object asset)
+    {
+        // note: Persistence includes Unity's built-in scripts and imported shader products. Only authored asset files (including embedded packages) and importer metadata represent pending user saves.
+        if (asset == null || !EditorUtility.IsPersistent(asset) || !EditorUtility.IsDirty(asset))
+            return false;
+        string path = AssetDatabase.GetAssetPath(asset);
+        if (!path.StartsWith("Assets/", System.StringComparison.Ordinal) && !path.StartsWith("Packages/", System.StringComparison.Ordinal))
+            return false;
+        // note: IsNativeAsset covers Unity-serialized data and its subassets; native prefab graphs are classified separately by Unity. Importer metadata remains conservatively protected.
+        return AssetDatabase.IsNativeAsset(asset) || asset is AssetImporter ||
+            ((asset is GameObject || asset is Component) && PrefabUtility.IsPartOfPrefabAsset(asset) && !PrefabUtility.IsPartOfModelPrefab(asset));
+    }
+
+    internal static void RetryAfterAssetChanges()
+    {
+        // note: Asset save/import completion is an event-driven retry; the existing queue deduplicates simultaneous scene and asset notifications without polling.
+        if (waitingForSavedWorkspace)
+            QueueMissingSceneBuild();
+    }
+
+    private static void RetryAfterSceneSavedOrClosed(Scene scene) => QueueMissingSceneBuild();
+    private static void RetryAfterSceneOpened(Scene scene, OpenSceneMode mode) => QueueMissingSceneBuild();
+
+    private static void ClearWorkspaceRetry()
+    {
+        EditorSceneManager.sceneSaved -= RetryAfterSceneSavedOrClosed;
+        EditorSceneManager.sceneClosed -= RetryAfterSceneSavedOrClosed;
+        EditorSceneManager.sceneOpened -= RetryAfterSceneOpened;
+        waitingForSavedWorkspace = false;
+    }
+
     private static void BuildMissingSceneWithoutChangingWorkspace()
     {
-        if (EditorApplication.isPlayingOrWillChangePlaymode ||
-            AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
+        EditorApplication.delayCall -= BuildMissingSceneWithoutChangingWorkspace;
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
         {
+            ClearWorkspaceRetry();
+            return;
+        }
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            // note: A queued callback can outlive its Edit Mode frame; retry after the transition without stopping the user's session here.
+            EditorApplication.playModeStateChanged -= BuildAfterPlayModeExit;
+            EditorApplication.playModeStateChanged += BuildAfterPlayModeExit;
+            return;
+        }
+        if (HasUnsavedWorkspace())
+        {
+            // note: Additive scene creation rejects an untitled workspace. Automatic authoring waits for the user to save or close it, never saving or discarding their work.
+            if (!waitingForSavedWorkspace)
+            {
+                waitingForSavedWorkspace = true;
+                EditorSceneManager.sceneSaved += RetryAfterSceneSavedOrClosed;
+                EditorSceneManager.sceneClosed += RetryAfterSceneSavedOrClosed;
+                EditorSceneManager.sceneOpened += RetryAfterSceneOpened;
+                Debug.LogWarning("[YourQuestWorldDialogueValidationSceneBuilder] Automatic scene build deferred until open scenes and persistent assets have no unsaved changes.");
+            }
             return;
         }
 
+        ClearWorkspaceRetry();
         BuildSceneInternal(NewSceneMode.Additive, true);
     }
 
@@ -83,36 +153,53 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
 
         Scene previousScene = SceneManager.GetActiveScene();
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, mode);
-        scene.name = "YourQuest_WorldDialogueValidation";
-
-        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.52f, 0.57f, 0.66f, 1f);
-
-        BuildLightingAndGround();
-        Transform settlementRoot = BuildCuratedSettlementCells();
-        GameObject player = BuildPlayer();
-        (EntityInfo info, NpcDialogueAgent agent) = BuildNpc();
-        YQInvestorDialogueUI dialogueUi = BuildSystems(player.transform);
-
-        YQWorldDialogueValidationHarness harness =
-            new GameObject("00__WorldDialogueValidationHarness")
-                .AddComponent<YQWorldDialogueValidationHarness>();
-        harness.validationNpc = info;
-        harness.validationAgent = agent;
-        harness.dialogueUi = dialogueUi;
-        harness.curatedSettlementRoot = settlementRoot;
-
-        EditorSceneManager.SaveScene(scene, ScenePath);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        if (closeAfterSave)
+        try
         {
-            if (previousScene.IsValid() && previousScene.isLoaded)
-                SceneManager.SetActiveScene(previousScene);
-            EditorSceneManager.CloseScene(scene, true);
-        }
+            // note: Unity can return false for an already-active scene. Verify the real valid/loaded/active postcondition instead of treating that no-op as failure.
+            if (scene.IsValid() && scene.isLoaded && SceneManager.GetActiveScene() != scene)
+                SceneManager.SetActiveScene(scene);
+            if (!scene.IsValid() || !scene.isLoaded || SceneManager.GetActiveScene() != scene)
+                throw new System.InvalidOperationException("New validation scene could not become active.");
+            scene.name = "YourQuest_WorldDialogueValidation";
 
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.52f, 0.57f, 0.66f, 1f);
+
+            BuildLightingAndGround();
+            Transform settlementRoot = BuildCuratedSettlementCells();
+            GameObject player = BuildPlayer();
+            (EntityInfo info, NpcDialogueAgent agent) = BuildNpc();
+            YQInvestorDialogueUI dialogueUi = BuildSystems(player.transform);
+
+            YQWorldDialogueValidationHarness harness =
+                new GameObject("00__WorldDialogueValidationHarness")
+                    .AddComponent<YQWorldDialogueValidationHarness>();
+            harness.validationNpc = info;
+            harness.validationAgent = agent;
+            harness.dialogueUi = dialogueUi;
+            harness.curatedSettlementRoot = settlementRoot;
+
+            EditorSceneManager.SaveScene(scene, ScenePath);
+            // note: Automatic generation owns only this scene; do not flush unrelated dirty materials or ScriptableObjects from the developer's workspace.
+            if (closeAfterSave)
+                AssetDatabase.ImportAsset(ScenePath);
+            else
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+        }
+        finally
+        {
+            // note: This is only the scene created by this invocation; an authoring failure must not strand it or change the developer's active scene.
+            if (closeAfterSave)
+            {
+                if (previousScene.IsValid() && previousScene.isLoaded)
+                    SceneManager.SetActiveScene(previousScene);
+                if (scene.IsValid() && scene.isLoaded)
+                    EditorSceneManager.CloseScene(scene, true);
+            }
+        }
         Debug.Log("[YourQuestWorldDialogueValidationSceneBuilder] Built " + ScenePath);
     }
 
@@ -292,6 +379,16 @@ public static class YourQuestWorldDialogueValidationSceneBuilder
         ui.talkRadius = 6f;
         ui.requireLineOfSight = false;
         return ui;
+    }
+}
+
+// note: A user's explicit asset save can clear the automatic builder's deferral without saving a scene. This observer only requests the owner's existing delayed recheck.
+internal sealed class YourQuestWorldDialogueValidationAssetChangeListener : AssetPostprocessor
+{
+    private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+    {
+        if (importedAssets.Length != 0 || deletedAssets.Length != 0 || movedAssets.Length != 0)
+            YourQuestWorldDialogueValidationSceneBuilder.RetryAfterAssetChanges();
     }
 }
 #endif

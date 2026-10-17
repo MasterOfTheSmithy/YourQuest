@@ -9,6 +9,13 @@ public sealed class YQQuestCompletionDirector : MonoBehaviour
 
     private float _nextEvaluationTime;
 
+    public static void RecordCompletedDialogue(PlayerState state, string npcId)
+    {
+        // note: Typed and spoken turns publish the same stable-ID evidence; objective evaluation and rewards keep their existing owner.
+        if (state == null || string.IsNullOrWhiteSpace(npcId)) return;
+        state.IncCounter("dialogue:" + npcId.Trim(), 1f);
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Install()
     {

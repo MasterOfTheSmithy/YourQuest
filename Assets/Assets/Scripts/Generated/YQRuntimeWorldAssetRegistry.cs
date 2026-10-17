@@ -49,6 +49,21 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     [SerializeField]
     private bool useLazyResourceShards;
+    [SerializeField] private bool useGranularResourceShards;
+
+    [Serializable] private sealed class GranularManifest
+    {
+        public int version;
+        public List<GranularAsset> assets;
+    }
+    [Serializable] private sealed class GranularAsset
+    {
+        public string path;
+        public string resource;
+    }
+    private Dictionary<string, GranularAsset> _granularAssets;
+    private Dictionary<string, List<YQRuntimeWorldAssetEntry>> _granularPacks;
+    [NonSerialized] private bool _granularLookupAttempted;
     // note: Approved alpha-cutout grass is shared by native terrain detail batches without duplicating imported textures.
     [SerializeField] private Texture2D terrainGrassTexture;
     public Texture2D TerrainGrassTexture
@@ -66,6 +81,8 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     private Dictionary<string, Material> _materialsByPath;
     private Dictionary<string, YQRuntimeWorldAssetEntry> _entriesByPath;
     private Dictionary<string, YQRuntimeWorldAssetRegistry> _loadedShards;
+    private readonly Dictionary<string, float> _shardLastUse = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+    private int _activePreloads;
     private HashSet<string> _missingShardPaths;
 
     private static YQRuntimeWorldAssetRegistry _instance;
@@ -138,6 +155,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     public bool UsesLazyResourceShards =>
         useLazyResourceShards;
+    public bool UsesGranularResourceShards => useGranularResourceShards;
 
 #if UNITY_EDITOR
     // note: An opt-in resource census reads the existing session cache without calling Instance, loading shards, or changing their lifetime.
@@ -150,6 +168,13 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     {
         EnsureLookup();
 
+        // note: Catalog enumeration reads only paths; resolving a selected entry loads its own existing prefab/material bindings.
+        if (useGranularResourceShards)
+        {
+            EnsureGranularLookup();
+            return _granularPacks != null && _granularPacks.TryGetValue(BuildShardResourcePath(assetPath), out var pack)
+                ? pack : Array.Empty<YQRuntimeWorldAssetEntry>();
+        }
         if (!useLazyResourceShards)
             return entries;
 
@@ -163,6 +188,66 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         }
 
         return entries;
+    }
+
+    public YQRuntimeWorldAssetEntry ResolveEntry(string assetPath)
+    {
+        // note: The same registry remains binding authority in both granular and legacy layouts; metadata enumeration never implies residency.
+        EnsureLookup();
+        string key = NormalizePath(assetPath);
+        if (_entriesByPath.TryGetValue(key, out var entry)) return entry;
+        return TryGetLazyShard(key, out var shard) && shard != null ? shard.ResolveEntry(key) : null;
+    }
+
+    public void SetGranularResourceShards(bool enabled)
+    {
+        useGranularResourceShards = enabled;
+        _granularAssets = null;
+        _granularPacks = null;
+        _granularLookupAttempted = false;
+        _loadedShards = null;
+        _missingShardPaths = null;
+    }
+
+    private void EnsureGranularLookup()
+    {
+        if (_granularLookupAttempted) return;
+        _granularLookupAttempted = true;
+        // note: This manifest contains strings only. It cannot drag a whole imported pack into RAM/VRAM through serialized object references.
+        TextAsset text = Resources.Load<TextAsset>("YQWorldAssetManifest");
+        GranularManifest manifest = text != null ? JsonUtility.FromJson<GranularManifest>(text.text) : null;
+        if (manifest == null || manifest.version != 1 || manifest.assets == null)
+        {
+            Debug.LogError("[YQRuntimeWorldAssetRegistry] Granular resource manifest missing or unsupported; rebuild the asset bindings.");
+            return;
+        }
+        var assets = new Dictionary<string, GranularAsset>(StringComparer.OrdinalIgnoreCase);
+        var packs = new Dictionary<string, List<YQRuntimeWorldAssetEntry>>(StringComparer.OrdinalIgnoreCase);
+        foreach (GranularAsset item in manifest.assets)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.path) || string.IsNullOrWhiteSpace(item.resource) ||
+                !item.path.StartsWith("Assets/", StringComparison.Ordinal) ||
+                !item.resource.StartsWith("YQWorldAssetLeaves/", StringComparison.Ordinal) || item.resource.Contains("..") ||
+                assets.ContainsKey(item.path))
+            {
+                Debug.LogError("[YQRuntimeWorldAssetRegistry] Invalid granular resource manifest; no legacy bulk-load fallback was attempted.");
+                return;
+            }
+            assets.Add(item.path, item);
+            string pack = BuildShardResourcePath(item.path);
+            if (!packs.TryGetValue(pack, out var list)) packs.Add(pack, list = new List<YQRuntimeWorldAssetEntry>());
+            list.Add(new YQRuntimeWorldAssetEntry { assetPath = item.path });
+        }
+        _granularAssets = assets;
+        _granularPacks = packs;
+    }
+
+    private string ResolveResourcePath(string assetPath)
+    {
+        if (!useGranularResourceShards) return BuildShardResourcePath(assetPath);
+        EnsureGranularLookup();
+        return _granularAssets != null && _granularAssets.TryGetValue(NormalizePath(assetPath), out var item)
+            ? item.resource : string.Empty;
     }
 
     private Texture2D ResolveTerrainGrassTextureFallback()
@@ -712,6 +797,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
     {
         useLazyResourceShards =
             enabled;
+        if (!enabled) SetGranularResourceShards(false);
 
         // note: Changing registry mode invalidates the per-session shard cache without unloading live instantiated objects.
         _loadedShards =
@@ -728,6 +814,14 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     public IEnumerator PreloadAssetPathsRoutine(
         IEnumerable<string> assetPaths)
+    {
+        // note: Memory reclamation never retires a shard while its asynchronous preload is still warming the spawn path.
+        _activePreloads++;
+        try { yield return PreloadAssetPathsCore(assetPaths); }
+        finally { _activePreloads--; }
+    }
+
+    private IEnumerator PreloadAssetPathsCore(IEnumerable<string> assetPaths)
     {
         if (!useLazyResourceShards ||
             assetPaths == null)
@@ -749,9 +843,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
         foreach (string assetPath in assetPaths)
         {
-            string resourcePath =
-                BuildShardResourcePath(
-                    assetPath);
+            string resourcePath = ResolveResourcePath(assetPath);
 
             if (!string.IsNullOrWhiteSpace(resourcePath))
             {
@@ -762,6 +854,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
         foreach (string resourcePath in requiredShards)
         {
+            _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
             if (_loadedShards.ContainsKey(resourcePath) ||
                 _missingShardPaths.Contains(resourcePath))
             {
@@ -795,6 +888,13 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     private void OnEnable()
     {
+        // note: Unity reloads private scalar fields but not dictionaries. Retire the manifest flag with its transient lookups to avoid a false warm cache.
+        _granularLookupAttempted = false;
+        _granularAssets = null;
+        _granularPacks = null;
+        _loadedShards = null;
+        _missingShardPaths = null;
+        _shardLastUse.Clear();
         /*
          * Do not trust dictionaries to survive reload/play-mode
          * transitions. They are intentionally rebuilt from the
@@ -888,9 +988,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
             return false;
         }
 
-        string resourcePath =
-            BuildShardResourcePath(
-                assetPath);
+        string resourcePath = ResolveResourcePath(assetPath);
 
         if (string.IsNullOrWhiteSpace(resourcePath))
             return false;
@@ -908,6 +1006,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
                 out shard) &&
             shard != null)
         {
+            _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
             return true;
         }
 
@@ -934,6 +1033,7 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
         shard.EnsureLookup();
         _loadedShards[resourcePath] =
             shard;
+        _shardLastUse[resourcePath] = Time.realtimeSinceStartup;
 
         return true;
     }
@@ -1332,8 +1432,81 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
 
     public static void ClearCachedInstance()
     {
+        // note: Destroyed scene-owner wrappers can still reference this router. Detach its asset graph before dropping the global pointer.
+        if (!ReferenceEquals(_instance, null))
+        {
+            _instance._loadedShards?.Clear();
+            _instance._missingShardPaths?.Clear();
+        }
+        PrefabScriptValidity.Clear();
         _instance = null;
         _loggedRuntimeSummary = false;
         _loggedRegistryLoadFailure = false;
     }
+
+    internal static int ReleaseColdReloadableShards(float now, float keepWarmSeconds = 30f)
+    {
+        // note: Retire only dormant source-cache references. Live instances retain their meshes/materials; future demand uses the existing async preload and unchanged asset bindings.
+        if (_instance == null || _instance._activePreloads != 0 || _instance._loadedShards == null) return 0;
+        var retired = new List<string>();
+        foreach (var pair in _instance._loadedShards)
+            if (_instance._shardLastUse.TryGetValue(pair.Key, out float used) &&
+                YQLlmResidencyPolicy.CanRetireGameCache(now, used, keepWarmSeconds)) retired.Add(pair.Key);
+        foreach (string key in retired)
+        {
+            var shard = _instance._loadedShards[key];
+            if (shard != null && shard.entries != null)
+                foreach (var entry in shard.entries)
+                    if (entry?.prefab != null) PrefabScriptValidity.Remove(entry.prefab);
+            _instance._loadedShards.Remove(key);
+            _instance._shardLastUse.Remove(key);
+        }
+        return retired.Count;
+    }
+
+#if UNITY_EDITOR
+    private const string EditorCleanupPendingKey = "YourQuest.RuntimeWorldAssetRegistry.UnusedCleanupPending";
+
+    [InitializeOnLoadMethod]
+    private static void RegisterEditorSessionCleanup()
+    {
+        EditorApplication.playModeStateChanged -= OnEditorPlayModeChanged;
+        EditorApplication.playModeStateChanged += OnEditorPlayModeChanged;
+        AssemblyReloadEvents.beforeAssemblyReload -= ClearCachedInstance;
+        AssemblyReloadEvents.beforeAssemblyReload += ClearCachedInstance;
+        // note: A Play-exit domain reload must not discard a collection requested before the Editor finished its transition.
+        if (SessionState.GetBool(EditorCleanupPendingKey, false))
+        {
+            EditorApplication.update -= ReleaseUnusedEditorSessionAssets;
+            EditorApplication.update += ReleaseUnusedEditorSessionAssets;
+        }
+    }
+
+    private static void OnEditorPlayModeChanged(PlayModeStateChange state)
+    {
+        if (state != PlayModeStateChange.EnteredEditMode) return;
+        // note: Retain the request until the Editor is idle; a one-shot delay can run while the Play transition still reports busy.
+        ClearCachedInstance();
+        SessionState.SetBool(EditorCleanupPendingKey, true);
+        EditorApplication.update -= ReleaseUnusedEditorSessionAssets;
+        EditorApplication.update += ReleaseUnusedEditorSessionAssets;
+    }
+
+    private static void ReleaseUnusedEditorSessionAssets()
+    {
+        // note: Cancel if a new Play session started, otherwise wait through compilation/import/transition without losing the cleanup request.
+        if (EditorApplication.isPlaying || !SessionState.GetBool(EditorCleanupPendingKey, false))
+        {
+            SessionState.SetBool(EditorCleanupPendingKey, false);
+            EditorApplication.update -= ReleaseUnusedEditorSessionAssets;
+            return;
+        }
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating) return;
+        SessionState.SetBool(EditorCleanupPendingKey, false);
+        EditorApplication.update -= ReleaseUnusedEditorSessionAssets;
+        // note: Keep script/static references as roots; only genuinely unused imported assets are eligible for unloading.
+        EditorUtility.UnloadUnusedAssetsImmediate(true);
+        Debug.Log("[YQRuntimeWorldAssetRegistry] Released unused assets after Play teardown.");
+    }
+#endif
 }

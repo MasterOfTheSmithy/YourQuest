@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_pteruges
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Dragonbound_Female.prefab
+    prefab: {fileID: 2216020668834777713, guid: 21ffae0c3588ddb45b361910a060c34d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Dragonbound_Male.prefab
+    prefab: {fileID: 1107637188580725193, guid: bd7a07927273e3241a876a66f9563149, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Eclipse_Female.prefab
+    prefab: {fileID: 1873629944054290988, guid: 7a984f10415f57e469dc0f892d0734d5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Eclipse_Male.prefab
+    prefab: {fileID: 4202565135997570447, guid: 38f56217402a58e4bb01779f74a655a0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Field_Female.prefab
+    prefab: {fileID: 779336673669306982, guid: 8ff6b2f9cfa2b3041b5c276cd756aa8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Field_Male.prefab
+    prefab: {fileID: 3086855869287298693, guid: 4c1d724dbe4d5e343b779253c6d89ef7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Lamellar_Female.prefab
+    prefab: {fileID: 4217800243741526273, guid: 3280527a157b4974bb7031f8108dd182, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Lamellar_Male.prefab
+    prefab: {fileID: 2141249179892088455, guid: a4ba469c41c61164b8f0d9fbbef9d2a9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Ranger_Female.prefab
+    prefab: {fileID: 2542488461791805647, guid: 92b5bee3217721649ada81d82ad349fb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Ranger_Male.prefab
+    prefab: {fileID: 2992458035391676149, guid: b31e16f10a6d74648b4081a0033867fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Sentinel_Female.prefab
+    prefab: {fileID: 7429871304281980464, guid: f1d1a06dd32defc4694dcdebab7dba82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Sentinel_Male.prefab
+    prefab: {fileID: 1748936348935397239, guid: e05addd0ffa14b74cb27e0efec80fbbf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 7029816028893889874, guid: 9ef7c1f5fb4fa6c42963e2cb672e77e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 887515745433446289, guid: 9a2887e4b048fcf48a548150b6da8055, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Traveler_Female.prefab
+    prefab: {fileID: 1382447805872324836, guid: 5ed0dc76f7c300b4d868e03c18c363aa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Traveler_Male.prefab
+    prefab: {fileID: 1259164265879200372, guid: e3a9992bdfbeb6c4dba50b0403c1ddd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 3951059157513487612, guid: defd8ee46c14d824786c61191cdfb5cd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 1507288668919813402, guid: eb6591c3b64e62744a0b341719e4c7c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Field_Male_Parts.prefab
+    prefab: {fileID: 9004542726633495355, guid: ca86d5e6fe781b1459e9f7b30162e265, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Field_Female_Parts.prefab
+    prefab: {fileID: 5221415629643196674, guid: 5e0d406245eed6c48810dcb3465e1eb4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Ranger_Male_Parts.prefab
+    prefab: {fileID: 1030044275953788314, guid: 37f80858654e5b14fbc415fc13a2b114, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7968016452951469294, guid: 78480c1f3eb2e5445bf3afa7b2b28f88, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 7930735799105314944, guid: 34d191dca80af8f408acc8bfeab3633d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 5189134085862115439, guid: 8586eec2dfb2f1f46bcf8c63c9947f52, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Traveler_Male_Parts.prefab
+    prefab: {fileID: 7230319480295720469, guid: 6d8081e033b1ce645bdea8a7b2251121, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Traveler_Female_Parts.prefab
+    prefab: {fileID: 613330511275807138, guid: e3276cfaf384a1543ba32c2ba35e6909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 5347025261778886995, guid: 929da322219d2eb45a9603872c2c4a3a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 8168994383054191854, guid: 8daea49b88a41364581e7e60f2cf9429, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 4565463526618481826, guid: 315f8e6a520cc63479e89312baf80453, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 30277559409244257, guid: 5b0572509753e3545b962c404691976f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 1291474846782071724, guid: 8456955b0cdc7414cbd105260c604885, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 976341151785324733, guid: 1f750d8ec0ed09c4fa9d564d9d0a5fb1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 7402849320982939070, guid: 22dce01b688da414db5611de9caa4413, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 7643472285055692009, guid: ee1b62960c1d5224d8f1b0fc8a6f9605, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 5277254494597508532, guid: a60d849e3d6aed2418deefa3e9b7783e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pteruges/Pteruges_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 8652298669718338400, guid: 9c239b001a4ca314e91cdca57a148aea, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -134,6 +134,7 @@ public sealed class YQContinuousWorldCellAuthority
         }
     }
     private readonly AcceptedRouteBounds[] acceptedRouteBounds;
+    private readonly IReadOnlyList<YQContinuousWorldFeatureMaterializer.NativeBridgeEndpointApproach> nativeBridgeEndpointApproaches;
     private readonly float originMinX;
     private readonly float originMaxX;
     private readonly float originMinZ;
@@ -159,6 +160,23 @@ public sealed class YQContinuousWorldCellAuthority
     private const float WorldGridOrigin = YQContinuousWorldFeatureAuthority.WorldGridOrigin;
 
     public IReadOnlyList<string> BiomeIds => OrderedBiomeIds;
+
+    internal static Func<float, float, float> CreateAcceptedFeatureHeightProjection(
+        YQPreparedSpatialMaterializationV2 prepared, float terrainHeight)
+    {
+        if (prepared == null || float.IsNaN(terrainHeight) || float.IsInfinity(terrainHeight) || terrainHeight <= 0f)
+            throw new ArgumentException("Accepted feature height projection requires a prepared owner and finite terrain height.");
+        // note: Reuse this owner's road/pad/water reconciliation for finite accepted features. The private projection never samples macro noise, captures native terrain, or normalizes mutable semantic/save records.
+        var projection = new YQContinuousWorldCellAuthority(prepared, terrainHeight);
+        return (x, z) => projection.ApplyContinuationFeatureModifier(x, z, prepared.SampleTerrain(x, z).elevationNormalized);
+    }
+
+    private YQContinuousWorldCellAuthority(YQPreparedSpatialMaterializationV2 prepared, float terrainHeight)
+        : this("accepted-feature-data", null, null, null, 128f, prepared, null, true, null)
+    {
+        // note: Only normalized accepted feature earthworks are exposed through the factory's delegate; its datum uses the caller's actual terrain scale.
+        originHeight = terrainHeight;
+    }
 
     public YQContinuousWorldCellAuthority(
         string seed,
@@ -235,8 +253,10 @@ public sealed class YQContinuousWorldCellAuthority
         pads.Sort((a, b) => { int order = a.x.CompareTo(b.x); if (order != 0) return order;
             order = a.z.CompareTo(b.z); if (order != 0) return order; return a.elevation.CompareTo(b.elevation); });
         continuationPads = pads.ToArray();
-        continuationPadIndex = BuildContinuationPadIndex(continuationPads);
         candidateRoutes = CopyRoutes(candidate?.physicalContext);
+        // note: Copy finite endpoint earthworks once from immutable route/hydrology inputs. They neither authorize boundary continuations nor depend on a native terrain/layout cache.
+        nativeBridgeEndpointApproaches = acceptedMaterialization == null ? null :
+            YQContinuousWorldFeatureMaterializer.GetNativeBridgeEndpointApproaches(acceptedMaterialization);
         if (candidateRoutes.Length > 0)
         {
             // note: Merge copied candidate roads into the compiler's canonical order once; final-union duplicates occupy the same logical slot rather than grading twice.
@@ -365,6 +385,8 @@ public sealed class YQContinuousWorldCellAuthority
             ridgeOffset = Offset(seedHash, 0x90B5F1E3u);
             biomeOffset = Offset(seedHash, 0xE42C7789u);
         }
+        // note: The index extent depends on the captured terrain height, which must be initialized before grading reserves.
+        continuationPadIndex = BuildContinuationPadIndex(continuationPads, originHeight);
     }
 
     public float SampleHeightNormalized(float worldX, float worldZ)
@@ -544,6 +566,10 @@ public sealed class YQContinuousWorldCellAuthority
                 worldZ >= acceptedWaterMinZ && worldZ <= acceptedWaterMaxZ;
             float result = YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(acceptedMaterialization,
                 worldX, worldZ, normalizedHeight, originHeight, out float waterHeight, insideFiniteWaterEnvelope) ? waterHeight : normalizedHeight;
+            // note: The physical endpoint apron is the final dry-road core, matching road rasterization. Accepted channel/basin cores remain untouched and occupied pads retain their existing final priority.
+            if (nativeBridgeEndpointApproaches != null && nativeBridgeEndpointApproaches.Count > 0 &&
+                !YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterCoreModifiers(acceptedMaterialization, worldX, worldZ, result, originHeight, out _))
+                result = ApplyNativeBridgeEndpointApproaches(worldX, worldZ, result);
             // note: Dry shore/road shoulders cannot move occupied construction pads. Actual wet cores keep their accepted water datum.
             var padCoordinate = new Vector2Int(Mathf.FloorToInt((worldX + 512f) / 128f), Mathf.FloorToInt((worldZ + 512f) / 128f));
             if (!continuationPadIndex.ContainsKey(padCoordinate)) return result;
@@ -594,7 +620,9 @@ public sealed class YQContinuousWorldCellAuthority
         foreach (var pad in localPads)
         {
             float distance = Vector2.Distance(new Vector2(x, z), new Vector2(pad.x, pad.z));
-            float mask = 1f - Mathf.Clamp01((distance - pad.radius) / Mathf.Max(1f, pad.shoulder));
+            // note: Earthworks end only once their grade can meet any supported terrain height; ending at a short authored shoulder left vertical mountain faces.
+            float transition = Mathf.Max(pad.shoulder, originHeight / .45f + 2f);
+            float mask = 1f - Mathf.Clamp01((distance - pad.radius) / transition);
             // note: An absolute grade envelope is idempotent when reapplied after hydrology; repeated interpolation lifted or lowered previously graded shoulders.
             // note: Conformance measures a two-metre derivative at the reserve edge; keep that probe inside the flat floor before the existing shoulder grades outward.
             float allowance = Mathf.Max(0f, distance - pad.radius - 2f) * .45f / Mathf.Max(1f, originHeight);
@@ -603,13 +631,13 @@ public sealed class YQContinuousWorldCellAuthority
         return elevation;
     }
 
-    private static Dictionary<Vector2Int, ContinuationPad[]> BuildContinuationPadIndex(ContinuationPad[] pads)
+    private static Dictionary<Vector2Int, ContinuationPad[]> BuildContinuationPadIndex(ContinuationPad[] pads, float terrainHeight)
     {
         // note: Heightmap workers visit only local immutable reserves rather than scanning every accepted frontier sector for each vertex.
         var building = new Dictionary<Vector2Int, List<ContinuationPad>>();
         foreach (var pad in pads)
         {
-            float extent = pad.radius + pad.shoulder;
+            float extent = pad.radius + Mathf.Max(pad.shoulder, terrainHeight / .45f + 2f);
             int minX = Mathf.FloorToInt((pad.x - extent + 512f) / 128f), maxX = Mathf.FloorToInt((pad.x + extent + 512f) / 128f);
             int minZ = Mathf.FloorToInt((pad.z - extent + 512f) / 128f), maxZ = Mathf.FloorToInt((pad.z + extent + 512f) / 128f);
             for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++)
@@ -774,6 +802,17 @@ public sealed class YQContinuousWorldCellAuthority
         physicalContext = context;
         failure = string.Empty;
         return true;
+    }
+
+    internal static bool IsFrontierOpportunityBlockWhollyInsideOpeningCollar(int blockX, int blockZ)
+    {
+        // note: Recovery keeps the central reserve inside its original semantic block. If even the farthest block corner cannot clear the fixed collar/shoulder, every positive-radius candidate must fail.
+        double blockSize = YQSemanticWorldAuthority.CellSizeMeters * (double)YQSemanticWorldAuthority.FrontierOpportunitySpanCells;
+        double minimumX = WorldGridOrigin + (double)blockX * blockSize;
+        double minimumZ = WorldGridOrigin + (double)blockZ * blockSize;
+        double farthest = Math.Max(Math.Max(Math.Abs(minimumX), Math.Abs(minimumX + blockSize)),
+            Math.Max(Math.Abs(minimumZ), Math.Abs(minimumZ + blockSize)));
+        return farthest <= FrontierOpeningCollarRadius + FrontierPadShoulder;
     }
 
     internal static bool TryGetFrontierOpeningCollarRecoveryDistance(
@@ -1240,6 +1279,40 @@ public sealed class YQContinuousWorldCellAuthority
         return bestElevation;
     }
 
+    private float ApplyNativeBridgeEndpointApproaches(float x, float z, float height)
+    {
+        Vector2 point = new Vector2(x, z);
+        float nearest = float.PositiveInfinity, target = height;
+        foreach (var apron in nativeBridgeEndpointApproaches)
+        {
+            var route = acceptedMaterialization.GetRoute(apron.routeIndex);
+            Vector2 delta = apron.end - apron.start;
+            float t = Mathf.Clamp01(Vector2.Dot(point - apron.start, delta) / delta.sqrMagnitude);
+            float distance = Vector2.Distance(point, apron.start + delta * t);
+            // note: Only this finite road core supplies the level handoff. Its existing cut/fill formula blends the surrounding shoulder; distant aprons cannot override another core.
+            float core = Mathf.Max(1f, route.width * .5f + Mathf.Max(1f, route.shoulderWidth));
+            float score = distance / core;
+            if (distance >= core + YQContinuousWorldFeatureAuthority.AcceptedTerrainTransitionDistance || score >= nearest) continue;
+            if (distance > core && IsInsideAcceptedRoadCore(x, z)) continue;
+            nearest = score;
+            target = YQContinuousWorldFeatureAuthority.SampleAcceptedRouteGrade(height, apron.elevationNormalized,
+                originHeight, route.width * .5f, Mathf.Max(1f, route.shoulderWidth), distance);
+        }
+        return target;
+    }
+
+    private bool IsInsideAcceptedRoadCore(float x, float z)
+    {
+        // note: A derived apron's cut/fill shoulder cannot replace another accepted road's actual walking core.
+        for (int index = 0; index < acceptedMaterialization.RouteCount; index++)
+        {
+            var route = acceptedMaterialization.GetRoute(index);
+            MeasureAcceptedRoute(index, x, z, 0f, out float distance, out _);
+            if (distance <= Mathf.Max(1f, route.width * .5f + route.shoulderWidth)) return true;
+        }
+        return false;
+    }
+
     private float SampleAcceptedRouteModifier(int routeIndex, float worldX, float worldZ, float originalHeight)
     {
         MeasureAcceptedRoute(routeIndex, worldX, worldZ, originalHeight, out float distance, out float elevation);
@@ -1428,7 +1501,12 @@ public sealed class YQContinuousWorldCellAuthority
         {
             // note: The global authority decides feature/site existence once; a cell that looks empty cannot synthesize a competing landmark or road.
             // note: Streamed cells use the same public semantic query boundary as unloaded callers, preventing a second authority path.
-            GeneratedSemanticCellPlanRecord semanticCell = YQGeneratedWorldQuery.GetSemanticCellPlan(plan, coordinate);
+            // note: This terrain owner has already validated its accepted projection and semantic graph. Reuse the installed query context instead of hashing every accepted object twice per admitted cell.
+            bool preparedQuery = acceptedMaterialization != null && ReferenceEquals(plan, semanticPlan) && plan.semanticAuthority != null;
+            GeneratedSemanticWorldAuthorityRecord preparedAuthority = preparedQuery ? plan.semanticAuthority : null;
+            GeneratedSemanticCellPlanRecord semanticCell = preparedQuery
+                ? YQGeneratedWorldQuery.GetPreparedSemanticCellPlan(plan, coordinate, preparedAuthority)
+                : YQGeneratedWorldQuery.GetSemanticCellPlan(plan, coordinate);
             record.parentRegionId = semanticCell.ownerRegionId;
             record.featureIds.RemoveAll(feature => feature != null && feature.StartsWith("continuous:landmark:", StringComparison.Ordinal));
             for (int featureIndex = 0; featureIndex < semanticCell.featureIds.Count; featureIndex++)
@@ -1441,7 +1519,8 @@ public sealed class YQContinuousWorldCellAuthority
             for (int waterIndex = 0; waterIndex < semanticCell.waterIds.Count; waterIndex++)
                 AddUnique(record.featureIds, semanticCell.waterIds[waterIndex]);
             List<GeneratedSemanticSiteReservationRecord> reservations =
-                YQGeneratedWorldQuery.GetSemanticSites(plan, coordinate);
+                preparedQuery ? YQGeneratedWorldQuery.GetPreparedSemanticSites(plan, coordinate, preparedAuthority)
+                    : YQGeneratedWorldQuery.GetSemanticSites(plan, coordinate);
             for (int siteIndex = 0; siteIndex < reservations.Count; siteIndex++)
             {
                 GeneratedSemanticSiteReservationRecord reservation = reservations[siteIndex];

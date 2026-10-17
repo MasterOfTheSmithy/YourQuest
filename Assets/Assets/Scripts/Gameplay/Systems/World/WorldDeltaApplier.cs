@@ -31,7 +31,16 @@ public class WorldDeltaApplier : MonoBehaviour
         ResolveReferences();
     }
 
+    // note: Response application includes validation, normalization and the synchronous canonical save; profiling does not change their gates or order.
+    private static readonly Unity.Profiling.ProfilerMarker ApplyDeltaMarker =
+        new Unity.Profiling.ProfilerMarker("YQ.WorldReaction.ApplyDelta");
+
     public bool TryApply(string raw, out string error)
+    {
+        using (ApplyDeltaMarker.Auto()) return TryApplyCore(raw, out error);
+    }
+
+    private bool TryApplyCore(string raw, out string error)
     {
         error = null;
         ResolveReferences();
@@ -87,6 +96,13 @@ public class WorldDeltaApplier : MonoBehaviour
         var locations = SanitizeLocations(root["locations"] as JArray);
         var regionStyles = SanitizeRegionStyles(root["regionStyles"] as JArray);
 
+        // note: Raw model arithmetic cannot write reserved social scores or accepted governing standing. Reject the complete delta before any mutation.
+        foreach (var flag in flags)
+            if (YQDispositionDomain.IsReservedFlag(flag.key)) { error = "Disposition fields require a typed paired transaction."; return false; }
+        foreach (var faction in factions)
+            if ((faction.op != "add" || faction.value != 0f) && YQDispositionDomain.IsGovernedFaction(worldStateManager.State, faction.factionId))
+            { error = "Accepted governing standing requires a typed incident/report receipt."; return false; }
+
         if (flags.Count > maxFlags) flags.RemoveRange(maxFlags, flags.Count - maxFlags);
         if (factions.Count > maxFactions) factions.RemoveRange(maxFactions, factions.Count - maxFactions);
         if (locations.Count > maxLocations) locations.RemoveRange(maxLocations, locations.Count - maxLocations);
@@ -102,6 +118,10 @@ public class WorldDeltaApplier : MonoBehaviour
         ApplyToWorldState(flags, factions, locations, regionStyles, confidence, rationale);
         return true;
     }
+
+    public static bool TryPrepareDisposition(PlayerState player, WorldState world, YQDispositionDomain.Admission admission,
+        out WorldState prepared, out YQDispositionDomain.Result result, out string failure) =>
+        YQDispositionDomain.TryPrepare(player, world, admission, out prepared, out result, out failure);
 
     private void ApplyToWorldState(
         List<FlagOp> flags,

@@ -55,21 +55,74 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
     private static readonly string[] FallbackSkipTokens = { "missingmaterial", "missing", "runtimeurp", "repaired", "assettest", "material", "materials", "mat", "mesh", "renderer", "object", "gameobject", "prefab", "model", "models", "lod", "group", "human", "male", "female", "base" };
     private static readonly string[] NumberedFamilyPrefixes = { "sword", "dagger", "axe", "hammer", "club", "bow", "crossbow", "shield", "staff", "chest" };
     private static readonly Dictionary<string, Material> s_runtimeRepairMaterialCache = new Dictionary<string, Material>(System.StringComparer.OrdinalIgnoreCase);
+    private static readonly HashSet<Material> s_ownedRuntimeMaterials = new HashSet<Material>();
     public static string LastRepairRoutineStep { get; private set; } = string.Empty;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRuntimeMaterialCache()
     {
-        // note: Entering a new play session must release runtime adapter references when domain reload is disabled; otherwise every generated world retains the prior session's material clones.
-        foreach (Material material in s_runtimeRepairMaterialCache.Values)
-        {
-            if (material != null)
-                Object.Destroy(material);
-        }
+        ReleaseRuntimeMaterials(false);
+    }
 
+    private static void ReleaseRuntimeMaterials(bool immediate)
+    {
+        // note: The repair service owns its clones, including structural-depth variants; imported or persisted materials are never destroyed.
+        foreach (Material material in s_ownedRuntimeMaterials)
+        {
+            if (material == null) continue;
+#if UNITY_EDITOR
+            if (EditorUtility.IsPersistent(material)) continue;
+            if (immediate || !Application.isPlaying) Object.DestroyImmediate(material);
+            else Object.Destroy(material);
+#else
+            Object.Destroy(material);
+#endif
+        }
+        s_ownedRuntimeMaterials.Clear();
         s_runtimeRepairMaterialCache.Clear();
         LastRepairRoutineStep = string.Empty;
     }
+
+#if UNITY_EDITOR
+    [InitializeOnLoadMethod]
+    private static void RegisterEditorMaterialCleanup()
+    {
+        EditorApplication.playModeStateChanged -= OnEditorPlayStateChanged;
+        EditorApplication.playModeStateChanged += OnEditorPlayStateChanged;
+        AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
+        AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
+        EditorApplication.quitting -= ReleaseEditorSessionMaterials;
+        EditorApplication.quitting += ReleaseEditorSessionMaterials;
+        EditorApplication.projectChanged -= ClearEditorAssetSearchCache;
+        EditorApplication.projectChanged += ClearEditorAssetSearchCache;
+    }
+
+    private static void OnEditorPlayStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode) ReleaseEditorSessionMaterials();
+    }
+
+    private static void OnBeforeAssemblyReload()
+    {
+        // note: A live script reload must preserve materials still used by renderers; their ordinary native lifetime ends with those objects.
+        if (!EditorApplication.isPlayingOrWillChangePlaymode) ReleaseEditorSessionMaterials();
+    }
+
+    private static void ReleaseEditorSessionMaterials()
+    {
+        // note: Dispose native clones before a domain reload can discard their managed ownership records.
+        ReleaseRuntimeMaterials(true);
+        ClearEditorAssetSearchCache();
+    }
+
+    private static void ClearEditorAssetSearchCache()
+    {
+        // note: New imports invalidate discovery metadata without retaining every newly imported material or texture in memory.
+        s_editorFallbackMaterialCache.Clear();
+        s_editorNearbyTextureCache.Clear();
+        s_editorMaterialCandidates = null;
+    }
+#endif
 
     private enum TextureSearchKind
     {
@@ -83,11 +136,25 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 #if UNITY_EDITOR
     private sealed class EditorMaterialCandidate
     {
-        public Material material;
+        public string path;
+        public string name;
+        public string[] possibleNames;
         public string text;
+        public int ordinal;
+        public bool evaluated;
         public bool hasTexture;
         public bool hasUsefulColor;
     }
+
+    private sealed class EditorTextureCandidate
+    {
+        public string path;
+        public int score;
+        public int ordinal;
+    }
+
+    internal static int EditorSearchMaterialLoads { get; private set; }
+    internal static int EditorSearchTextureLoads { get; private set; }
 
     private static readonly Dictionary<string, Material> s_editorFallbackMaterialCache = new Dictionary<string, Material>();
     private static readonly Dictionary<string, Texture> s_editorNearbyTextureCache = new Dictionary<string, Texture>();
@@ -350,7 +417,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                  childIndex++)
             {
                 pending.Push(current.GetChild(childIndex));
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: Large authored prefab nodes can have thousands of children; split their expansion instead of waiting for the whole node.
                     yield return null;
@@ -367,7 +434,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 RegisterMaterialRecoverySources(
                     renderers[index],
                     recoverySources);
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: A transform with many renderer/material slots shares the same bounded scan allowance as hierarchy expansion.
                     yield return null;
@@ -375,7 +442,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 }
             }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Dense streamed environments validate imported materials cooperatively so loading presentation animation is never blocked by a full hierarchy pass.
                 yield return null;
@@ -390,7 +457,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 gatheredRenderers[index],
                 false,
                 recoverySources);
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Material assignment is a separately budgeted phase so gathering valid LOD sibling sources cannot make the repair frame unbounded.
                 yield return null;
@@ -452,7 +519,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 }
             }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Final material coverage is verified cooperatively before a streamed cell becomes visible, preventing a dense site validation spike.
                 yield return null;
@@ -554,7 +621,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             repaired += RepairTextMeshes(current.GetComponents<TextMesh>());
             repaired += RepairTmpText(current.GetComponents<TMP_Text>());
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Imported landmark material conversion is spread across loading frames so the Goddess camera and prose remain responsive.
                 yield return null;
@@ -670,14 +737,15 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 Material material = materials[slot];
                 if (material == null || !HasInvalidOpaqueDepth(material))
                     continue;
-                Material corrected = new Material(material)
-                {
-                    name = material.name + "_StructuralDepth",
-                    hideFlags = HideFlags.DontSave
-                };
                 Shader opaqueShader = FindRepairShader(false);
                 if (opaqueShader == null)
                     continue;
+                Material corrected = new Material(material)
+                {
+                    name = material.name + "_StructuralDepth",
+                    hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild
+                };
+                s_ownedRuntimeMaterials.Add(corrected);
                 corrected.shader = opaqueShader;
                 corrected.shaderKeywords = System.Array.Empty<string>();
                 CopyMaterialSurface(material, corrected, false, renderer);
@@ -873,11 +941,12 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             return cached;
 
         Material repaired = effectiveSource != null ? new Material(effectiveSource) : new Material(shader);
+        s_ownedRuntimeMaterials.Add(repaired);
         repaired.shader = shader;
         // note: Foreign shader keywords must not select invalid URP variants; CopyMaterialSurface restores supported normal, emission, cutout and surface keywords from the original textures/properties.
         repaired.shaderKeywords = System.Array.Empty<string>();
         repaired.name = (effectiveSource != null ? effectiveSource.name : "MissingMaterial") + "_RuntimeURP";
-        repaired.hideFlags = HideFlags.DontSave;
+        repaired.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
         CopyMaterialSurface(effectiveSource, repaired, vfxMaterial, renderer);
         s_runtimeRepairMaterialCache[cacheKey] = repaired;
         return repaired;
@@ -906,6 +975,36 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
     }
 
+    private static bool HasKnownConvertedAtlasAliases(Material source, Renderer renderer, Texture baseTexture)
+    {
+        // note: These source-GUID variants came from proven colour-only imported materials, but an earlier conversion persisted their albedo into every optional map. Repair only that proven alias signature on owned runtime clones.
+        if (source == null || !(renderer is MeshRenderer) || !(baseTexture is Texture2D)) return false;
+        string name = source.name ?? string.Empty;
+        bool known = name.StartsWith("thintree__URP_54f8ae2f68d76442582318ea89be0259_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("alder-alderbark__URP_2e2c881dbd110e38a00062d88f962b59_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("alder-branches__URP_2b4c881dbd110e38a00062d88f962b59_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("MimosaBark__URP_9debe36f8e3bd9c40ba331a8f1223269_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("mimosa-bark__URP_a6251c8ecd118f12a000e6888f962b59_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("AlderBranches__URP_76f814fd8d0cfa34db9dfd82116a2437_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("Tree_Leaves1__URP_69f52f21627ab0e438d27272cacdecb6_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("Tree_Leaves2__URP_c181410419204784cb0dd160a74c18d2_Lit", System.StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("Tree_Leaves3__URP_2c81cc45ff25bd34a9350a6a11342a75_Lit", System.StringComparison.OrdinalIgnoreCase);
+        return known && source.HasProperty("_BumpMap") && source.GetTexture("_BumpMap") == baseTexture &&
+            source.HasProperty("_MetallicGlossMap") && source.GetTexture("_MetallicGlossMap") == baseTexture &&
+            source.HasProperty("_OcclusionMap") && source.GetTexture("_OcclusionMap") == baseTexture;
+    }
+
+    private static void ClearKnownConvertedAtlasAliases(Material target)
+    {
+        // note: New Material(source) copies the persisted bad maps too; clear the clone's maps and matching variants before applying the original colour-only contract.
+        if (target.HasProperty("_BumpMap")) target.SetTexture("_BumpMap", null);
+        if (target.HasProperty("_MetallicGlossMap")) target.SetTexture("_MetallicGlossMap", null);
+        if (target.HasProperty("_OcclusionMap")) target.SetTexture("_OcclusionMap", null);
+        target.DisableKeyword("_NORMALMAP");
+        target.DisableKeyword("_METALLICSPECGLOSSMAP");
+        target.DisableKeyword("_OCCLUSIONMAP");
+    }
+
     private static bool ShouldRepairMaterial(Material material, Renderer renderer, bool particleMaterial)
     {
         if (material == null || material.shader == null)
@@ -928,8 +1027,21 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             return true;
         if (particleMaterial)
             return false;
+        if (HasKnownConvertedAtlasAliases(material, renderer, FindTexture(material, BaseTextureProperties)))
+            return true;
+
+        // note: CTI's supported URP graphs own packed normal/translucency, vertex wind and tint contracts. Their custom menu prefix must not force a generic Lit conversion after pipeline/support validation.
+        if (shaderName.StartsWith("CTI/URP/", System.StringComparison.Ordinal) &&
+            string.Equals(material.GetTag("RenderPipeline", false, string.Empty), "UniversalPipeline", System.StringComparison.Ordinal))
+            return false;
+
         if (shaderName.StartsWith("Universal Render Pipeline/") || shaderName.StartsWith("Shader Graphs/"))
         {
+            // note: A valid URP shader can still render leaf cards as solid atlas rectangles when the imported cutout contract was lost.
+            if (shaderName == "Universal Render Pipeline/Lit" && material.HasProperty("_AlphaClip") &&
+                material.GetFloat("_AlphaClip") < .5f &&
+                LooksLikeFoliageMaterial(material, renderer, FindTexture(material, BaseTextureProperties)))
+                return true;
             if (LooksLikeBrokenGeneratedMaterial(material, renderer))
                 return true;
             if (LooksLikeAlertWorldSurfaceMaterial(material, renderer))
@@ -1082,7 +1194,10 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         SetColorIfPresent(target, "_Color", baseColor);
         SetColorIfPresent(target, "_TintColor", baseColor);
 
+        bool clearConvertedAtlasAliases = HasKnownConvertedAtlasAliases(source, renderer, baseTexture);
+        if (clearConvertedAtlasAliases) ClearKnownConvertedAtlasAliases(target);
         Texture normalTexture = FindTexture(source, NormalTextureProperties, out string normalTextureProperty);
+        if (clearConvertedAtlasAliases) normalTexture = null;
         if (normalTexture != null)
         {
             SetTextureIfPresent(target, "_BumpMap", normalTexture);
@@ -1091,6 +1206,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
 
         Texture metallicTexture = FindTexture(source, MetallicTextureProperties, out string metallicTextureProperty);
+        if (clearConvertedAtlasAliases) metallicTexture = null;
         if (metallicTexture != null)
         {
             SetTextureIfPresent(target, "_MetallicGlossMap", metallicTexture);
@@ -1101,6 +1217,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         }
 
         Texture occlusionTexture = FindTexture(source, OcclusionTextureProperties, out string occlusionTextureProperty);
+        if (clearConvertedAtlasAliases) occlusionTexture = null;
         if (occlusionTexture != null)
         {
             SetTextureIfPresent(target, "_OcclusionMap", occlusionTexture);
@@ -1717,26 +1834,44 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
         string[] tokens = ExtractFallbackTokens(searchText);
         Material best = null;
-        int bestScore = 0;
+        int bestScore = 79;
+        int bestOrdinal = int.MaxValue;
+        var ranked = new List<KeyValuePair<EditorMaterialCandidate, int>>();
         if (s_editorMaterialCandidates != null)
         {
             for (int i = 0; i < s_editorMaterialCandidates.Length; i++)
             {
                 EditorMaterialCandidate candidate = s_editorMaterialCandidates[i];
-                if (candidate == null || candidate.material == null)
-                    continue;
-
+                // note: Texture/color can add at most 50 points. An unrelated name cannot win, so its dependency graph need never load.
+                int upperBound = GetEditorMaterialScoreBound(candidate, tokens, searchText);
+                if (upperBound >= 80) ranked.Add(new KeyValuePair<EditorMaterialCandidate, int>(candidate, upperBound));
+            }
+            ranked.Sort((a, b) => a.Value != b.Value ? b.Value.CompareTo(a.Value) : a.Key.ordinal.CompareTo(b.Key.ordinal));
+            foreach (var rankedCandidate in ranked)
+            {
+                if (rankedCandidate.Value < bestScore) break;
+                EditorMaterialCandidate candidate = rankedCandidate.Key;
+                Material material = AssetDatabase.LoadAssetAtPath<Material>(candidate.path);
+                EditorSearchMaterialLoads++;
+                if (material == null) continue;
+                candidate.name = material.name;
+                candidate.text = ToSearchText(material.name + " " + candidate.path);
+                if (!candidate.evaluated)
+                {
+                    candidate.hasTexture = HasUsableBaseTexture(material);
+                    candidate.hasUsefulColor = HasUsefulColor(material);
+                    candidate.evaluated = true;
+                }
+                if (!candidate.hasTexture && !candidate.hasUsefulColor) continue;
                 int score = ScoreEditorMaterialCandidate(candidate, tokens, searchText);
-                if (score > bestScore)
+                if (score >= 80 && (score > bestScore || (score == bestScore && candidate.ordinal < bestOrdinal)))
                 {
                     bestScore = score;
-                    best = candidate.material;
+                    bestOrdinal = candidate.ordinal;
+                    best = material;
                 }
             }
         }
-
-        if (bestScore < 80)
-            best = null;
 
         s_editorFallbackMaterialCache[searchText] = best;
         return best;
@@ -1759,25 +1894,119 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
             if (normalizedPath.Contains("/AssetTest/Repaired/"))
                 continue;
 
-            Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (material == null)
-                continue;
-
-            bool hasTexture = HasUsableBaseTexture(material);
-            bool hasUsefulColor = HasUsefulColor(material);
-            if (!hasTexture && !hasUsefulColor)
-                continue;
-
+            // note: Read the serialized name without instantiating the material and all of its texture dependencies. Unknown/subasset formats keep a conservative bound.
+            string materialName = ReadEditorMaterialName(normalizedPath);
             candidates.Add(new EditorMaterialCandidate
             {
-                material = material,
-                text = ToSearchText(material.name + " " + normalizedPath),
-                hasTexture = hasTexture,
-                hasUsefulColor = hasUsefulColor
+                path = normalizedPath,
+                name = materialName,
+                possibleNames = materialName == null ? ReadEmbeddedEditorMaterialNames(normalizedPath) : null,
+                text = ToSearchText((materialName ?? string.Empty) + " " + normalizedPath),
+                ordinal = i
             });
         }
 
         s_editorMaterialCandidates = candidates.ToArray();
+    }
+
+    private static string ReadEditorMaterialName(string path)
+    {
+        if (!path.EndsWith(".mat", System.StringComparison.OrdinalIgnoreCase)) return null;
+        try
+        {
+            string diskPath = path;
+            if (path.StartsWith("Packages/", System.StringComparison.Ordinal) && !File.Exists(diskPath))
+            {
+                var package = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(path);
+                if (package != null) diskPath = Path.Combine(package.resolvedPath, path.Substring(package.assetPath.Length).TrimStart('/'));
+            }
+            using (var reader = new StreamReader(diskPath))
+            {
+                string line;
+                bool materialDocument = false;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    // note: URP stores a versioning MonoBehaviour before the Material document; its empty m_Name is not the material's identity.
+                    if (line.StartsWith("--- ", System.StringComparison.Ordinal)) materialDocument = false;
+                    if (line == "Material:") materialDocument = true;
+                    if (!materialDocument) continue;
+                    if (!line.StartsWith("  m_Name:", System.StringComparison.Ordinal)) continue;
+                    string value = line.Substring(9).Trim();
+                    while ((line = reader.ReadLine()) != null && line.StartsWith("    ", System.StringComparison.Ordinal))
+                        value += " " + line.Trim();
+                    if (value.StartsWith("\"", System.StringComparison.Ordinal))
+                        return Newtonsoft.Json.JsonConvert.DeserializeObject<string>(value);
+                    if (value.StartsWith("'", System.StringComparison.Ordinal) && value.EndsWith("'", System.StringComparison.Ordinal))
+                        return value.Substring(1, value.Length - 2).Replace("''", "'");
+                    return value;
+                }
+            }
+        }
+        catch (System.IO.IOException) { }
+        catch (Newtonsoft.Json.JsonException) { }
+        return null;
+    }
+
+    private static string[] ReadEmbeddedEditorMaterialNames(string path)
+    {
+        if (path.EndsWith(".glb", System.StringComparison.OrdinalIgnoreCase) || path.EndsWith(".gltf", System.StringComparison.OrdinalIgnoreCase))
+            return ReadGltfEditorMaterialNames(path);
+        if (!(AssetImporter.GetAtPath(path) is ModelImporter importer)) return null;
+        // note: Unity's own material-import Inspector reads this metadata; inspecting names does not deserialize the model's meshes or textures.
+        using (var serialized = new SerializedObject(importer))
+        {
+            SerializedProperty materials = serialized.FindProperty("m_Materials");
+            if (materials == null || !materials.isArray || materials.arraySize == 0) return null;
+            var names = new List<string>();
+            for (int i = 0; i < materials.arraySize; i++)
+            {
+                SerializedProperty name = materials.GetArrayElementAtIndex(i).FindPropertyRelative("name");
+                if (name == null) return null;
+                names.Add(name.stringValue);
+            }
+            return names.ToArray();
+        }
+    }
+
+    private static string[] ReadGltfEditorMaterialNames(string path)
+    {
+        try
+        {
+            string json;
+            if (path.EndsWith(".glb", System.StringComparison.OrdinalIgnoreCase))
+            {
+                // note: Inspect only the small JSON chunk; embedded images and mesh buffers are never read or imported for catalog discovery.
+                using (var reader = new BinaryReader(File.OpenRead(path)))
+                {
+                    if (reader.ReadUInt32() != 0x46546c67 || reader.ReadUInt32() != 2) return null;
+                    reader.ReadUInt32();
+                    uint length = reader.ReadUInt32();
+                    if (reader.ReadUInt32() != 0x4e4f534a || length > 16 * 1024 * 1024 || length > reader.BaseStream.Length - reader.BaseStream.Position) return null;
+                    json = System.Text.Encoding.UTF8.GetString(reader.ReadBytes((int)length)).TrimEnd('\0');
+                }
+            }
+            else json = File.ReadAllText(path);
+            var root = Newtonsoft.Json.Linq.JObject.Parse(json);
+            // note: The installed glTFast generator uses material.name verbatim and glTF-Default-Material for its optional fallback.
+            var names = new List<string> { "glTF-Default-Material" };
+            if (root["materials"] is Newtonsoft.Json.Linq.JArray materials)
+                foreach (var material in materials) names.Add((string)material["name"] ?? string.Empty);
+            return names.ToArray();
+        }
+        catch (System.IO.IOException) { }
+        catch (Newtonsoft.Json.JsonException) { }
+        return null;
+    }
+
+    private static int GetEditorMaterialScoreBound(EditorMaterialCandidate candidate, string[] tokens, string searchText)
+    {
+        if (candidate.name != null)
+            return ScoreEditorMaterialCandidate(candidate, tokens, searchText) + (candidate.evaluated ? 0 : 50);
+        if (candidate.possibleNames == null) return int.MaxValue;
+        int score = int.MinValue;
+        foreach (string name in candidate.possibleNames)
+            score = System.Math.Max(score, ScoreEditorMaterialName(ToSearchText(name + " " + candidate.path), name, tokens, searchText) + 50);
+        return score;
     }
 
     private static string BuildFallbackSearchText(Material source, Renderer renderer)
@@ -1824,12 +2053,20 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         if (candidate.hasUsefulColor)
             score += 15;
 
+        return score + ScoreEditorMaterialName(candidate.text, candidate.name, tokens, searchText);
+    }
+
+    private static int ScoreEditorMaterialName(string candidateText, string candidateName, string[] tokens, string searchText)
+    {
+        // note: The original semantic score and threshold remain unchanged; separating appearance facts supplies a conservative bound before loading.
+        int score = 0;
+
         string familyToken = FindNumberedFamilyToken(tokens);
         if (!string.IsNullOrWhiteSpace(familyToken))
         {
-            if (candidate.text.Contains(familyToken))
+            if (candidateText.Contains(familyToken))
                 score += 220;
-            else if (ContainsConflictingNumberedFamily(candidate.text, familyToken))
+            else if (ContainsConflictingNumberedFamily(candidateText, familyToken))
                 score -= 220;
             else
                 score -= 60;
@@ -1838,7 +2075,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         for (int i = 0; i < tokens.Length; i++)
         {
             string token = tokens[i];
-            if (!candidate.text.Contains(token))
+            if (!candidateText.Contains(token))
                 continue;
 
             score += token.Length >= 7 ? 70 : 34;
@@ -1846,7 +2083,7 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 score += 28;
         }
 
-        if (searchText.Contains(ToSearchText(candidate.material.name)))
+        if (candidateName != null && searchText.Contains(ToSearchText(candidateName)))
             score += 120;
 
         return score;
@@ -1937,6 +2174,13 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
                 matchedPropertyName = propertyName;
                 return texture;
             }
+        }
+
+        // note: Optional surface maps must remain unassigned when their authored slots are empty. A colour atlas is not a normal, metallic, occlusion, or emission map.
+        if (propertyNames != BaseTextureProperties)
+        {
+            matchedPropertyName = null;
+            return null;
         }
 
         try
@@ -2081,25 +2325,38 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
         string[] materialTokens = ExtractFallbackTokens(searchText);
         Texture best = null;
         int bestScore = kind == TextureSearchKind.Base ? 35 : 75;
+        int bestOrdinal = int.MaxValue;
+        int ordinal = 0;
+        var seen = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        var ranked = new List<EditorTextureCandidate>();
         for (int folderIndex = 0; folderIndex < searchFolders.Count; folderIndex++)
         {
             string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { searchFolders[folderIndex] });
             for (int i = 0; i < guids.Length; i++)
             {
                 string texturePath = AssetDatabase.GUIDToAssetPath(guids[i]);
-                if (string.IsNullOrWhiteSpace(texturePath))
+                if (string.IsNullOrWhiteSpace(texturePath) || !seen.Add(texturePath))
                     continue;
-
-                Texture texture = AssetDatabase.LoadAssetAtPath<Texture>(texturePath);
-                if (texture == null)
-                    continue;
-
-                int score = ScoreNearbyTexture(texturePath + " " + texture.name, kind, materialTokens);
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    best = texture;
-                }
+                // note: Ordinary imported images use the filename as their object name. Embedded texture formats retain the full legacy name-based check.
+                bool knownName = AssetImporter.GetAtPath(texturePath) is TextureImporter;
+                int upperBound = knownName ? ScoreNearbyTexture(texturePath + " " + Path.GetFileNameWithoutExtension(texturePath), kind, materialTokens) : int.MaxValue;
+                if (upperBound > bestScore) ranked.Add(new EditorTextureCandidate { path = texturePath, score = upperBound, ordinal = ordinal });
+                ordinal++;
+            }
+        }
+        ranked.Sort((a, b) => a.score != b.score ? b.score.CompareTo(a.score) : a.ordinal.CompareTo(b.ordinal));
+        foreach (EditorTextureCandidate candidate in ranked)
+        {
+            if (candidate.score < bestScore || (candidate.score == bestScore && candidate.ordinal >= bestOrdinal)) break;
+            Texture texture = AssetDatabase.LoadAssetAtPath<Texture>(candidate.path);
+            EditorSearchTextureLoads++;
+            if (texture == null) continue;
+            int score = ScoreNearbyTexture(candidate.path + " " + texture.name, kind, materialTokens);
+            if (score > bestScore || (score == bestScore && candidate.ordinal < bestOrdinal && best != null))
+            {
+                best = texture;
+                bestScore = score;
+                bestOrdinal = candidate.ordinal;
             }
         }
 
@@ -2435,6 +2692,18 @@ public sealed class YQRuntimeUrpMaterialRepair : MonoBehaviour
 
     private static bool LooksLikeFoliageMaterial(Material source, Renderer renderer, Texture texture)
     {
+        // note: The approved ThinTree mesh shares a bark/leaf alpha atlas across both slots. Its material name omits the generic leaf hints; restore that exact atlas contract without classifying the whole tree hierarchy.
+        if (source != null && texture is Texture2D &&
+            string.Equals(texture.name, "ThinTree", System.StringComparison.OrdinalIgnoreCase) &&
+            source.name.StartsWith("thintree", System.StringComparison.OrdinalIgnoreCase) &&
+            renderer is MeshRenderer)
+        {
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter != null && filter.sharedMesh != null &&
+                string.Equals(filter.sharedMesh.name, "ThinTree", System.StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
         string text = ToSearchText(
             (source != null ? source.name : string.Empty) + " " +
             (texture != null ? texture.name : string.Empty) + " " +

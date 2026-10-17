@@ -275,14 +275,8 @@ public static class YQBetaAssetBindingCertification
     {
         if (registry == null)
             return null;
-        IReadOnlyList<YQRuntimeWorldAssetEntry> entries = registry.GetEntriesForAssetPath(assetPath);
-        for (int index = 0; index < entries.Count; index++)
-        {
-            YQRuntimeWorldAssetEntry entry = entries[index];
-            if (entry != null && string.Equals(entry.assetPath, assetPath, StringComparison.OrdinalIgnoreCase))
-                return entry;
-        }
-        return null;
+        // note: Certification inspects the selected binding rather than a metadata-only catalog entry.
+        return registry.ResolveEntry(assetPath);
     }
 }
 #endif

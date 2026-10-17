@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: gladitor_arena
+  semanticStyleKey: gladiator_arena
+  sourceSignature: fnv1a32_35d393a3
+  topology: 4
+  streamingSite: {fileID: 11400000, guid: f36e32098cb36f34aa21fd78ece653f3, type: 2}
+  sourceInstanceCount: 2529
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_gladitor_arena_approach_01
+    displayName: Gladitor Arena Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -270.88327, y: 51.750984, z: -132.89062}
+    localBoundsCenter: {x: 0, y: 76.293816, z: 0}
+    localBoundsSize: {x: 137.81372, y: 152.58763, z: 240.50764}
+    sourceInstanceCount: 7
+    authoredBuildingCount: 0
+    authoredDressingCount: 7
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p0_p1_p00
+    - yq_cell_gladitor_arena_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gladitor_arena_core_02
+    displayName: Gladitor Arena Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -222.44815, y: 57.611786, z: 34.687576}
+    localBoundsCenter: {x: 0, y: 72.33635, z: 0}
+    localBoundsSize: {x: 222.70744, y: 144.6727, z: 253.42126}
+    sourceInstanceCount: 14
+    authoredBuildingCount: 0
+    authoredDressingCount: 14
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p0_p3_p00
+    - yq_cell_gladitor_arena_p1_p3_p00
+    - yq_cell_gladitor_arena_p1_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gladitor_arena_perimeter_03
+    displayName: Gladitor Arena Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -48.82251, y: 42.75824, z: -181.5563}
+    localBoundsCenter: {x: 0, y: 30.775085, z: 0}
+    localBoundsSize: {x: 165.6059, y: 61.55017, z: 261.4803}
+    sourceInstanceCount: 88
+    authoredBuildingCount: 0
+    authoredDressingCount: 88
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p2_p0_p00
+    - yq_cell_gladitor_arena_p2_p1_p00
+    - yq_cell_gladitor_arena_p2_p2_p00
+    - yq_cell_gladitor_arena_p3_p1_p00
+    - yq_cell_gladitor_arena_p3_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gladitor_arena_support_04
+    displayName: Gladitor Arena Support
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 50.356995, y: -0.63899994, z: 78.98038}
+    localBoundsCenter: {x: 0, y: 88.145874, z: 0}
+    localBoundsSize: {x: 399.8459, y: 176.29175, z: 278.07266}
+    sourceInstanceCount: 2400
+    authoredBuildingCount: 0
+    authoredDressingCount: 2400
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p2_p3_p00
+    - yq_cell_gladitor_arena_p2_p4_p00
+    - yq_cell_gladitor_arena_p2_p5_p00
+    - yq_cell_gladitor_arena_p3_p3_p00
+    - yq_cell_gladitor_arena_p3_p4_p00
+    - yq_cell_gladitor_arena_p3_p5_p00
+    - yq_cell_gladitor_arena_p4_p3_p00
+    - yq_cell_gladitor_arena_p4_p4_p00
+    - yq_cell_gladitor_arena_p5_p3_p00
+    - yq_cell_gladitor_arena_p5_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gladitor_arena_poi_05
+    displayName: Gladitor Arena Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 44.7403, y: 37.061996, z: -248.14772}
+    localBoundsCenter: {x: 0, y: 32.3712, z: 0}
+    localBoundsSize: {x: 176.32532, y: 64.7424, z: 177.81027}
+    sourceInstanceCount: 12
+    authoredBuildingCount: 0
+    authoredDressingCount: 12
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p3_p0_p00
+    - yq_cell_gladitor_arena_p4_p0_p00
+    - yq_cell_gladitor_arena_p4_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gladitor_arena_approach_06
+    displayName: Gladitor Arena Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 207.37994, y: 86.286224, z: 241.16412}
+    localBoundsCenter: {x: 0, y: 76.90138, z: 0}
+    localBoundsSize: {x: 264.8203, y: 153.80276, z: 191.7774}
+    sourceInstanceCount: 8
+    authoredBuildingCount: 0
+    authoredDressingCount: 8
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gladitor_arena_p5_p5_p00
+    - yq_cell_gladitor_arena_p5_p6_p00
+    - yq_cell_gladitor_arena_p6_p5_p00
+    - yq_cell_gladitor_arena_p6_p6_p00
+    cellContractsV2: []

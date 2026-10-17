@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.Profiling;
@@ -694,6 +695,12 @@ public static class YQContinuousWorldFeatureAuthority
                 continue;
             indices.Add(waterIndex);
         }
+        // note: Native join coverage can extend one terrain triangle past a source ribbon; demand follows actual accepted water polygons.
+        float nativeMinX = WorldGridOrigin + coordinate.x * cellSize, nativeMinZ = WorldGridOrigin + coordinate.y * cellSize;
+        for (int join = 0; join < prepared.NativeJoinCount; join++)
+        for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
+            if (!indices.Contains(waterIndex) && prepared.GetNativeJoin(join).IntersectsChannelRectangle(
+                waterIndex, nativeMinX, nativeMinZ, nativeMinX + cellSize, nativeMinZ + cellSize)) indices.Add(waterIndex);
         SortWaterIndicesById(prepared, indices);
     }
 
@@ -760,6 +767,16 @@ public static class YQContinuousWorldFeatureAuthority
     {
         if (prepared == null || prepared.GetWaterPointCount(waterIndex) <= 0)
             return false;
+        var connected = prepared.GetWater(waterIndex).connectedBasin;
+        if (connected != null)
+        {
+            // note: Demand only cells with positive accepted wet area; dry islands and enclosing terrain do not request water publication.
+            float x = WorldGridOrigin + coordinate.x * cellSize, z = WorldGridOrigin + coordinate.y * cellSize;
+            if (connected.MaximumX < x || connected.MinimumX > x + cellSize || connected.MaximumZ < z || connected.MinimumZ > z + cellSize) return false;
+            var vertices = new List<Vector2>(); var triangles = new List<int>();
+            connected.AppendClippedTriangles(x, z, x + cellSize, z + cellSize, vertices, triangles);
+            return triangles.Count > 0;
+        }
         // note: Elongated lakes occupy their complete accepted ellipse, not only a nominal-width circle at their center.
         GetAcceptedAreaWaterFootprint(prepared, waterIndex, out Vector2 center, out Vector2 axis, out float major, out float minor);
         float minX = WorldGridOrigin + coordinate.x * cellSize, minZ = WorldGridOrigin + coordinate.y * cellSize;
@@ -875,6 +892,20 @@ public static class YQContinuousWorldFeatureAuthority
         {
             var water = prepared.GetWater(index);
             int count = prepared.GetWaterPointCount(index);
+            if (water.connectedBasin != null)
+            {
+                // note: Route clearance tests the actual contour, so a road on a dry island is possible while a chord crossing wet water is rejected.
+                if (water.connectedBasin.SignedShoreDistance(first.x, first.y) < clearance ||
+                    water.connectedBasin.SignedShoreDistance(second.x, second.y) < clearance)
+                { failure = "frontier route enters connected basin: " + water.hydrologyId; return false; }
+                for (int edge = 0; edge < water.connectedBasin.ShoreSegmentCount; edge++)
+                {
+                    water.connectedBasin.GetShoreSegment(edge, out Vector2 a, out Vector2 b);
+                    if (FrontierSegmentDistanceSquared(first, second, a, b) < clearance * clearance)
+                    { failure = "frontier route crosses connected shore: " + water.hydrologyId; return false; }
+                }
+                continue;
+            }
             if (count > 0 && (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline) &&
                 !Clear(prepared.GetWaterAreaCenter(index), prepared.GetWaterAreaCenter(index), Mathf.Max(16f, water.nominalWidth), out failure)) return false;
             if (count == 1)
@@ -946,11 +977,27 @@ public static class YQContinuousWorldFeatureAuthority
         string nearestId = string.Empty;
         float nearest = float.PositiveInfinity;
         bool wet = false;
+        bool nativeChannels = prepared.NativeJoinCount > 0;
+        // note: Version-7 finite channel exclusions measure the rendered union; distances inside are zero, as for connected lakes. Older accepted versions retain their radial interpretation.
+        if (nativeChannels && prepared.TryMeasureMaterializedChannelDistance(worldX, worldZ, out int channelIndex, out float channelDistance))
+        {
+            nearest = channelDistance; nearestId = prepared.GetWater(channelIndex).hydrologyId;
+            // note: One millimetre only absorbs float-coordinate subdivision roundoff at closed banks; it is below the world contract's centimetre tolerance.
+            wet = channelDistance <= .001f;
+        }
         // note: Measure the same finite channels and boundary-approved terminal rays that carve terrain, without generating cell records or searching Unity objects.
         for (int index = 0; index < prepared.WaterCount; index++)
         {
             var water = prepared.GetWater(index);
             int count = prepared.GetWaterPointCount(index);
+            if (water.connectedBasin != null)
+            {
+                // note: Placement exclusions use the exact shared shore and retain dry island interiors.
+                float signed = water.connectedBasin.SignedShoreDistance(worldX, worldZ);
+                wet |= signed < 0f;
+                if (Mathf.Max(0f, signed) < nearest) { nearest = Mathf.Max(0f, signed); nearestId = water.hydrologyId; }
+                continue;
+            }
             if (count > 0 && (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline))
             {
                 // note: Use the existing area-water reserve as well as its boundary spans; a site's dry circle cannot be admitted inside an accepted basin.
@@ -962,7 +1009,8 @@ public static class YQContinuousWorldFeatureAuthority
                 var point = prepared.GetWaterPoint(index, 0);
                 Measure(Vector2.Distance(sample, new Vector2(point.x, point.z)), Mathf.Max(water.nominalWidth, point.width), water.hydrologyId);
             }
-            for (int point = 0; point + 1 < count; point++)
+            bool indexedChannel = nativeChannels && count >= 2 && (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall);
+            for (int point = 0; !indexedChannel && point + 1 < count; point++)
             {
                 var first = prepared.GetWaterPoint(index, point); var second = prepared.GetWaterPoint(index, point + 1);
                 Vector2 start = new Vector2(first.x, first.z), delta = new Vector2(second.x - first.x, second.z - first.z);
@@ -1452,6 +1500,15 @@ public static class YQContinuousWorldFeatureAuthority
         {
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
             // note: Distant continuation terrain no longer samples the origin basin graph; accepted area water must carve its own shared submerged footprint.
+            if (water.connectedBasin != null)
+            {
+                // note: Terrain modifiers retain the immutable height-source projection. Reapplying the rendered native interpolation here would change off-grid terrain and then change the next native water boundary.
+                var sourceBasin = prepared.GetTerrainSourceBasin(waterIndex);
+                if (sourceBasin.TrySampleBed(worldX, worldZ, out float bed, out bool inside) &&
+                    (inside || (!wetOnly && sourceBasin.SignedShoreDistance(worldX, worldZ) <= AcceptedWaterBankPadding + 2f)))
+                    envelope.AddConnectedBed(bed);
+                continue;
+            }
             if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline)
             {
                 if (prepared.GetWaterPointCount(waterIndex) == 0) continue;
@@ -1467,6 +1524,12 @@ public static class YQContinuousWorldFeatureAuthority
                 continue;
             }
             float nearestClearance = float.PositiveInfinity, nearestDistance = 0f, nearestWidth = 0f, nearestSurface = 0f;
+            if (prepared.UsesSharedChannelProjection && (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall))
+            {
+                // note: New accepted domains share the finite sampler's exact footprint and receiving-level transition. Persisted older domains keep their historical centreline projection below.
+                prepared.AccumulateAcceptedChannelEnvelope(waterIndex, worldX, worldZ, terrainHeight, wetOnly, ref envelope);
+                continue;
+            }
             for (int pointIndex = 0; pointIndex + 1 < prepared.GetWaterPointCount(waterIndex); pointIndex++)
             {
                 YQSpatialMaterializationWaterPointV2 first = prepared.GetWaterPoint(waterIndex, pointIndex);
@@ -1573,14 +1636,18 @@ public static class YQContinuousWorldFeatureAuthority
                 float halfWidth = Mathf.Max(1f, Mathf.Max(water.nominalWidth, endpoint.width) * 0.5f);
                 if (distance >= halfWidth + AcceptedWaterBankPadding + AcceptedTerrainTransitionDistance)
                     continue;
-                bool isCore = distance <= halfWidth + AcceptedWaterBankPadding + 2f;
+                bool isCore = prepared.UsesCanonicalWetFootprint ? distance <= halfWidth + .001f : distance <= halfWidth + AcceptedWaterBankPadding + 2f;
                 if (wetOnly && !isCore) continue;
                 float segmentLength = Mathf.Max(0.001f, Vector2.Distance(new Vector2(endpoint.x, endpoint.z), new Vector2(adjacent.x, adjacent.z)));
                 float slope = (endpoint.waterSurfaceNormalized - adjacent.waterSurfaceNormalized) / segmentLength;
                 // note: Keep terminal candidates order-independent by comparing each one against the original unmodified sample.
-                envelope.Add(terrainHeight,
-                    Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along),
-                    water.nominalDepth, halfWidth, distance);
+                if (prepared.UsesCanonicalWetFootprint)
+                    envelope.AddCanonicalChannel(terrainHeight, Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along),
+                        water.nominalDepth, halfWidth, distance, Mathf.Max(0f, distance - halfWidth));
+                else
+                    envelope.Add(terrainHeight,
+                        Mathf.Clamp01(endpoint.waterSurfaceNormalized + slope * along),
+                        water.nominalDepth, halfWidth, distance);
             }
         }
     }
@@ -1592,6 +1659,13 @@ public static class YQContinuousWorldFeatureAuthority
         private double weightSum, lowerSum, upperSum;
         internal bool Influenced => wet || weightSum > 0d;
         internal bool HasWetCore => wet;
+
+        internal void AddConnectedBed(float bed)
+        {
+            // note: Project an accepted basin's actual geological surface, including its dry shore, without recarving it as a circular channel.
+            wetHeight = wet ? Mathf.Min(wetHeight, bed) : bed;
+            wet = true;
+        }
 
         internal void Add(float terrainHeight, float surface, float depth, float halfWidth, float distance)
         {
@@ -1611,6 +1685,26 @@ public static class YQContinuousWorldFeatureAuthority
             weightSum += weight;
             lowerSum += weight * (bank - allowance);
             upperSum += weight * (bank + allowance);
+        }
+
+        internal void AddCanonicalChannel(float terrainHeight, float surface, float depth, float halfWidth, float distance, float outside)
+        {
+            // note: New drafts use actual ribbon coverage, including finite endpoint caps. Bed depth vanishes at lateral banks; native resampling gaps remain a separate physical verification gate.
+            if (outside <= .001f)
+            {
+                float across = Mathf.Clamp01(distance / Mathf.Max(.1f, halfWidth));
+                float bed = surface - Mathf.Max(.1f, depth) * (1f - across * across) / Mathf.Max(1f, terrainHeight);
+                wetHeight = wet ? Mathf.Min(wetHeight, bed) : bed;
+                wet = true;
+                return;
+            }
+            if (outside >= AcceptedTerrainTransitionDistance) return;
+            // note: Dry shoulders stay at or above the channel datum and meet the zero-depth bank continuously; their constrained interval remains idempotent.
+            double weight = 1d / (outside * outside * outside * outside);
+            float allowance = outside * .45f / Mathf.Max(1f, terrainHeight);
+            weightSum += weight;
+            lowerSum += weight * surface;
+            upperSum += weight * (surface + allowance);
         }
 
         internal float Project(float original)
@@ -2000,9 +2094,18 @@ public static class YQContinuousWorldFeatureAuthority
 // note: This materializer turns the shared feature authority into bounded Unity meshes owned by the streamed cell.
 public static class YQContinuousWorldFeatureMaterializer
 {
+    // note: This static materializer owns every prepared biome task, including records removed before their Dispose callbacks finish.
+    private static readonly YQOwnedWorkerLifetimeObservation BiomeWorkerLifetime = new YQOwnedWorkerLifetimeObservation(256);
+    private static readonly object BiomeWorkerLifetimeOwner = new object();
+    public static YQWorkerLifetimeSnapshot CaptureBiomeWorkerLifetime() => BiomeWorkerLifetime.Capture();
+
     // note: Attribute each accepted road or river mesh separately so a slow per-cell ribbon build can be sized without changing its geometry.
-    private static readonly ProfilerMarker RibbonMeshBuildMarker =
-        new ProfilerMarker("YQContinuousWorldFeatureMaterializer.BuildRibbon");
+    private static ProfilerMarker RibbonMeshBuildMarker => RibbonProfiler.Marker;
+    private static class RibbonProfiler
+    {
+        // note: Pure immutable geometry queries can initialize this owner on a terrain worker or detached verifier without initializing Unity profiling APIs.
+        internal static readonly ProfilerMarker Marker = new ProfilerMarker("YQContinuousWorldFeatureMaterializer.BuildRibbon");
+    }
 
     internal readonly struct BiomeAlphamapBuildResult
     {
@@ -2051,7 +2154,7 @@ public static class YQContinuousWorldFeatureMaterializer
             if (task == null || task.IsCompleted)
                 cancellation?.Dispose();
             else
-                task.ContinueWith(_ => cancellation.Dispose(), TaskScheduler.Default);
+                BiomeWorkerLifetime.Observe(BiomeWorkerLifetimeOwner, true, () => task.ContinueWith(_ => cancellation.Dispose(), TaskScheduler.Default));
         }
     }
 
@@ -2146,9 +2249,9 @@ public static class YQContinuousWorldFeatureMaterializer
         try
         {
             CancellationToken cancellationToken = cancellation.Token;
-            Task<BiomeAlphamapBuildResult> task = Task.Run(
+            Task<BiomeAlphamapBuildResult> task = BiomeWorkerLifetime.Observe(BiomeWorkerLifetimeOwner, false, () => Task.Run(
                 () => BuildBiomeAlphamaps(authority, coordinate, cellSize, resolution, bindings, cancellationToken),
-                cancellationToken);
+                cancellationToken));
             return new PreparedBiomeAlphamap(task, cancellation);
         }
         catch
@@ -2300,6 +2403,59 @@ public static class YQContinuousWorldFeatureMaterializer
         Action<YQPreparedSpatialMaterializationV2> preparedResolved = null,
         YQPreparedSpatialMaterializationV2 preparedOverride = null)
     {
+        return BuildCellRoutineCore(parent, terrain, plan, chunk, palette, registry, cellSize,
+            materializeContinuationFeatures, completed, substageTelemetry, preparedResolved, preparedOverride, null);
+    }
+
+    // note: Adopted geometry retains its existing owner, while every missing accepted category completes through the canonical builder. A prop cannot certify a missing site, road or bridge.
+    internal static IEnumerator BuildAcceptedWaterCompletionRoutine(
+        Transform parent, Terrain terrain, GeneratedWorldPlanRecord plan, GeneratedSemanticChunkRecord chunk,
+        GeneratedRegionAssetPaletteRecord palette, YQRuntimeWorldAssetRegistry registry, float cellSize,
+        Action<int> completed, Action<string, float> substageTelemetry,
+        Action<YQPreparedSpatialMaterializationV2> preparedResolved, YQPreparedSpatialMaterializationV2 preparedOverride,
+        HashSet<string> retainedSiteIds = null)
+    {
+        return BuildCellRoutineCore(parent, terrain, plan, chunk, palette, registry, cellSize,
+            true, completed, substageTelemetry, preparedResolved, preparedOverride, retainedSiteIds);
+    }
+
+    internal static IEnumerator BuildMissingAdoptedSitesRoutine(
+        Transform parent, Terrain terrain, GeneratedWorldPlanRecord plan, GeneratedSemanticChunkRecord chunk,
+        GeneratedRegionAssetPaletteRecord palette, YQRuntimeWorldAssetRegistry registry, float cellSize,
+        YQPreparedSpatialMaterializationV2 prepared, HashSet<string> retainedSiteIds, Action<int> completed)
+    {
+        // note: Borrowed scenery and completed water do not certify absent accepted sites. Reuse the canonical site builder while retaining only explicitly owned, current physical site identities.
+        int built = 0;
+        List<string> materialized = null;
+        Vector2Int coordinate = new Vector2Int(chunk.chunkX, chunk.chunkZ);
+        // note: Most water cells own no site; avoid palette preparation and a new construction lane for those cells.
+        if (!HasAcceptedSiteOwnerDemand(prepared, chunk, coordinate, cellSize))
+        {
+            completed?.Invoke(0);
+            yield break;
+        }
+        yield return BuildAcceptedSiteRoutine(parent, terrain, plan, chunk, palette, registry, coordinate,
+            cellSize, (count, ids) => { built = count; materialized = ids; }, prepared, retainedSiteIds);
+        bool missing = HasMissingRequiredAcceptedSiteOwner(prepared, chunk, coordinate, cellSize, materialized);
+        if (missing)
+            Debug.LogError("[YQContinuousWorldFeatures] ADOPTED CELL SITE COMPLETION FAILED " + coordinate);
+        completed?.Invoke(missing ? -1 : built);
+    }
+
+    private static IEnumerator BuildCellRoutineCore(
+        Transform parent,
+        Terrain terrain,
+        GeneratedWorldPlanRecord plan,
+        GeneratedSemanticChunkRecord chunk,
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry,
+        float cellSize,
+        bool materializeContinuationFeatures,
+        Action<int> completed,
+        Action<string, float> substageTelemetry,
+        Action<YQPreparedSpatialMaterializationV2> preparedResolved,
+        YQPreparedSpatialMaterializationV2 preparedOverride, HashSet<string> retainedSiteIds)
+    {
         int built = 0;
         if (parent == null || terrain == null || terrain.terrainData == null || plan == null || chunk == null || palette == null || registry == null)
         {
@@ -2353,32 +2509,60 @@ public static class YQContinuousWorldFeatureMaterializer
         yield return null;
         substageStarted = Time.realtimeSinceStartup;
         // note: Reuse this cell's accepted projection; resolving it again would rehash the complete world blueprint during each route and river pass.
-        bool hasAcceptedRiver = TryGetAcceptedRiverPoints(preparedWater, cellCoordinate, cellSize, terrain, out List<Vector3> river, out float riverWidth, out List<int> riverBreaks, out List<float> riverPointWidths);
+        // note: Retain each published hydrology owner independently; one missing lake or fall must not rebuild all tutorial water above its existing river.
+        var retainedWaterIndices = new HashSet<int>();
+        int retainedRiverObjects = 0, retainedAreaWaterObjects = 0;
+        if (preparedWater != null)
+        {
+            var intersectingWater = new List<int>();
+            YQContinuousWorldFeatureAuthority.GetAcceptedWaterIndicesForCell(preparedWater, cellCoordinate, cellSize, intersectingWater);
+            foreach (int index in intersectingWater)
+                if (HasPublishedAuthoredWaterCoverage(parent, terrain, preparedWater, cellCoordinate, cellSize, index))
+                {
+                    retainedWaterIndices.Add(index);
+                    var kind = preparedWater.GetWater(index).kind;
+                    if (kind == YQHydrologyKindV2.Lake || kind == YQHydrologyKindV2.Wetland || kind == YQHydrologyKindV2.Coastline)
+                        retainedAreaWaterObjects++;
+                    else retainedRiverObjects++;
+                }
+        }
+        var riverBankOffsets = preparedWater != null && preparedWater.UsesCanonicalChannelBanks ? new List<Vector3>() : null;
+        bool pendingRiver = TryGetAcceptedRiverPointsCore(preparedWater, cellCoordinate, cellSize, terrain,
+            out List<Vector3> river, out float riverWidth, out List<int> riverBreaks, out List<float> riverPointWidths, retainedWaterIndices, riverBankOffsets);
+        bool pendingNativeJoin = HasNativeChannelJoinDemand(preparedWater, terrain, retainedWaterIndices);
+        bool hasAcceptedRiver = pendingRiver || pendingNativeJoin || retainedRiverObjects > 0;
         // note: Planned worlds materialize only authoritative water crossings; the legacy fallback remains isolated for unplanned editor callers.
-        int riverObjects = 0;
+        int riverObjects = retainedRiverObjects;
         if (!hasAcceptedRiver && allowLegacySyntheticFallback)
         {
             hasAcceptedRiver = YQContinuousWorldFeatureAuthority.TryGetRiverPoints(plan.worldSeed, new Vector2Int(chunk.chunkX, chunk.chunkZ), cellSize, terrain, out river, out riverWidth);
+            pendingRiver = hasAcceptedRiver;
             riverBreaks = null;
             riverPointWidths = null;
         }
         RecordSubstage(substageTelemetry, "riverPointExtraction", substageStarted);
         // note: Separate accepted point extraction from mesh construction so a contract lookup cannot share one frame with a large ribbon build.
         yield return null;
-        if (hasAcceptedRiver)
+        if (pendingRiver || pendingNativeJoin)
         {
             substageStarted = Time.realtimeSinceStartup;
             Material waterMaterial = FindMaterial(registry, "water", "river") ?? BuildFallbackWaterMaterial();
             RegisterCellResource(parent, waterMaterial);
-            riverObjects = BuildRibbonSpans(parent, "ContinuousRiver_" + chunk.chunkX + "_" + chunk.chunkZ, river, riverBreaks, riverWidth, waterMaterial, true, cellSize, riverPointWidths);
-            RecordSubstage(substageTelemetry, "riverRibbonBuild", substageStarted);
-            if (riverObjects > 0)
+            int newRiverObjects = 0, joinObjects = 0;
+            // note: Streamed ribbons and native channel patches share the existing cooperative mesh kernel; no complete water rebuild monopolizes one gameplay frame.
+            if (pendingRiver)
+                yield return new MeasuredWaterRoutine(BuildRibbonSpansRoutine(parent, "ContinuousRiver_" + chunk.chunkX + "_" + chunk.chunkZ, river, riverBreaks, riverWidth, waterMaterial, true, cellSize, riverPointWidths, terrain, riverBankOffsets, preparedWater, value => newRiverObjects = value, true), substageTelemetry);
+            yield return new MeasuredWaterRoutine(BuildNativeChannelJoinsRoutine(parent, preparedWater, terrain, waterMaterial, retainedWaterIndices, value => joinObjects = value, true), substageTelemetry);
+            newRiverObjects += joinObjects;
+            riverObjects += newRiverObjects;
+            if (newRiverObjects > 0)
             {
-                built += riverObjects;
+                built += newRiverObjects;
                 yield return null;
             }
         }
         bool hasAcceptedAreaWater = false;
+        int expectedAreaWaterObjects = 0;
         if (hasAcceptedWaterPlan)
         {
             substageStarted = Time.realtimeSinceStartup;
@@ -2397,13 +2581,13 @@ public static class YQContinuousWorldFeatureMaterializer
                     kind == YQHydrologyKindV2.Coastline)
                 {
                     hasAcceptedAreaWater = true;
-                    break;
+                    expectedAreaWaterObjects++;
                 }
             }
             RecordSubstage(substageTelemetry, "waterCellIntersection", substageStarted);
         }
-        int areaWaterObjects = 0;
-        if (hasAcceptedAreaWater)
+        int areaWaterObjects = retainedAreaWaterObjects;
+        if (hasAcceptedAreaWater && retainedAreaWaterObjects < expectedAreaWaterObjects)
         {
             // note: Give the scheduler a frame boundary before the grid-based area-water mesh allocates vertices and normals.
             yield return null;
@@ -2412,21 +2596,25 @@ public static class YQContinuousWorldFeatureMaterializer
             if (areaWaterMaterial != null && areaWaterMaterial.HasProperty("_FlowSpeed"))
                 areaWaterMaterial.SetFloat("_FlowSpeed", 0.012f);
             RegisterCellResource(parent, areaWaterMaterial);
-            areaWaterObjects = BuildAcceptedAreaWaterPatches(
+            int newAreaWaterObjects = BuildAcceptedAreaWaterPatchesCore(
                 parent,
                 terrain,
                 preparedWater,
                 new Vector2Int(chunk.chunkX, chunk.chunkZ),
                 cellSize,
-                areaWaterMaterial);
+                areaWaterMaterial, retainedWaterIndices);
+            areaWaterObjects += newAreaWaterObjects;
             RecordSubstage(substageTelemetry, "areaWaterPatchBuild", substageStarted);
-            if (areaWaterObjects > 0)
+            if (newAreaWaterObjects > 0)
             {
-                built += areaWaterObjects;
+                built += newAreaWaterObjects;
                 yield return null;
             }
         }
 
+        // note: A river cannot mask a missing lake clip; all accepted categories retain their independent completion gates.
+        bool waterComplete = areaWaterObjects == expectedAreaWaterObjects &&
+            (!acceptedWaterDemand || riverObjects + areaWaterObjects > 0);
         // note: Finish site grounding before road sampling so foundations cannot bury this cell's published access paths.
         int siteObjects = 0;
         List<string> materializedSiteIds = new List<string>();
@@ -2444,12 +2632,14 @@ public static class YQContinuousWorldFeatureMaterializer
                 siteObjects = count;
                 materializedSiteIds = ids ?? new List<string>();
             },
-            preparedWater);
+            preparedWater, retainedSiteIds);
         built += siteObjects;
 
         // note: Resolve owner-cell decks before extracting road ribbons so both presentations use the same accepted route interval.
         List<AcceptedCrossingSpan> crossingSpans = new List<AcceptedCrossingSpan>();
         yield return PrepareAcceptedCrossingSpansRoutine(preparedWater, terrain, cellCoordinate, cellSize, crossingSpans, substageTelemetry);
+        // note: A retired terrain cancels its transaction; it must never publish success after an asynchronous bridge search.
+        if (parent == null || terrain == null || terrain.terrainData == null) { completed?.Invoke(-1); yield break; }
         substageStarted = Time.realtimeSinceStartup;
         // note: The same accepted projection already passed this cell's authority check, so route extraction needs no second artifact fingerprint pass.
         bool hasAcceptedRoad = TryGetAcceptedRoadPoints(preparedWater, cellCoordinate, cellSize, terrain, out List<Vector3> road, out float roadWidth, out List<int> roadBreaks, out List<float> roadPointWidths, crossingSpans);
@@ -2463,24 +2653,18 @@ public static class YQContinuousWorldFeatureMaterializer
         RecordSubstage(substageTelemetry, "roadPointExtraction", substageStarted);
         // note: Route point extraction can scan multiple accepted spans; publish its result at a separate cooperative slice before building meshes or crossings.
         yield return null;
+        if (parent == null || terrain == null || terrain.terrainData == null) { completed?.Invoke(-1); yield break; }
         int roadObjects = 0;
         int crossingObjects = 0;
-        if (hasAcceptedRoad)
+        // note: Terrain paint is already the production path surface. Verified painted routes count as realized, instead of drawing a second straight strip over the same geography.
+        bool retainedRoadPaint = hasAcceptedRoad && YQGeneratedWorldEnvironment.TryCountPublishedLivedRoutePaint(
+            plan, terrain, preparedWater, cellCoordinate, cellSize, out roadObjects);
+        if (hasAcceptedRoad && !retainedRoadPaint)
         {
             substageStarted = Time.realtimeSinceStartup;
             Material roadMaterial = FindPaletteMaterial(palette, registry, YQWorldAssetCatalog.SlotPath, plan.worldSeed + "|continuous-road|" + chunk.chunkX + "|" + chunk.chunkZ);
             roadMaterial = roadMaterial ?? BuildFallbackRoadMaterial();
-            // note: Reuse the approved packed-earth terrain texture on the ribbon instead of a prefab's foliage/stone atlas.
-            foreach (TerrainLayer layer in terrain.terrainData.terrainLayers)
-            {
-                if (layer == null || !layer.name.EndsWith("_LivedPath", StringComparison.Ordinal) || layer.diffuseTexture == null) continue;
-                if (roadMaterial.HasProperty("_BaseMap")) roadMaterial.SetTexture("_BaseMap", layer.diffuseTexture);
-                roadMaterial.mainTexture = layer.diffuseTexture;
-                roadMaterial.mainTextureScale = Vector2.one;
-                if (roadMaterial.HasProperty("_BaseColor")) roadMaterial.SetColor("_BaseColor", new Color(.58f, .48f, .36f, 1f));
-                if (roadMaterial.HasProperty("_BumpMap")) roadMaterial.SetTexture("_BumpMap", layer.normalMapTexture);
-                break;
-            }
+            BindGroundedRoadSurface(roadMaterial, terrain);
             RegisterCellResource(parent, roadMaterial);
             roadObjects = BuildRibbonSpans(parent, "ContinuousRoad_" + chunk.chunkX + "_" + chunk.chunkZ, road, roadBreaks, roadWidth, roadMaterial, false, cellSize, roadPointWidths, terrain);
             RecordSubstage(substageTelemetry, "roadRibbonBuild", substageStarted);
@@ -2491,12 +2675,12 @@ public static class YQContinuousWorldFeatureMaterializer
             }
         }
         // note: A deck may replace every road sample in its owner cell; it must still build independently of the remaining ordinary ribbon.
-        yield return BuildAcceptedCrossingsRoutine(parent, crossingSpans, registry, substageTelemetry, count => crossingObjects = count);
+        yield return BuildAcceptedCrossingsRoutine(parent, crossingSpans, registry, substageTelemetry, count => crossingObjects = count, terrain, preparedWater);
         built += crossingObjects;
 
         // note: Accepted feature categories publish independently; one successful site must not hide a missing route or water realization in the same cell.
         // note: A failed accepted category remains a hard publication failure even when an unrelated category produced a positive object count.
-        if ((acceptedWaterDemand && riverObjects + areaWaterObjects <= 0) ||
+        if (!waterComplete ||
             (acceptedRoadDemand && roadObjects + crossingObjects <= 0) ||
             (acceptedCrossingDemand && crossingObjects <= 0))
         {
@@ -2515,7 +2699,7 @@ public static class YQContinuousWorldFeatureMaterializer
         }
 
         // note: Site owners are checked independently so a road or water object cannot mask a missing accepted settlement, cave, hostile site, or POI.
-        if (acceptedSiteDemand && siteObjects <= 0 && !HasExistingAcceptedSiteOwner(preparedWater, cellCoordinate, cellSize))
+        if (acceptedSiteDemand && siteObjects <= 0 && materializedSiteIds.Count == 0 && !HasExistingAcceptedSiteOwner(preparedWater, cellCoordinate, cellSize))
         {
             Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED SITE MISSING " +
                 chunk.chunkX + "," + chunk.chunkZ + " siteDemand=true");
@@ -2604,6 +2788,9 @@ public static class YQContinuousWorldFeatureMaterializer
             }
         }
 
+        // note: Completion counts verified retained coverage as well as new geometry. Painted roads and
+        // authored water already passed the same category gates; reporting zero would reject those valid cells.
+        built += retainedRiverObjects + retainedAreaWaterObjects + (retainedRoadPaint ? roadObjects : 0);
         if (built > 0)
             Debug.Log("[YQContinuousWorldFeatures] CELL " + chunk.chunkX + "," + chunk.chunkZ + " materialized=" + built);
         if (hasAcceptedRiver || hasAcceptedAreaWater || hasAcceptedRoad || siteObjects > 0 || landmarkPlanned)
@@ -2755,7 +2942,7 @@ public static class YQContinuousWorldFeatureMaterializer
             Mathf.Abs(Vector2.Dot(distance, side)) < halfWidth + halfCell * (Mathf.Abs(side.x) + Mathf.Abs(side.y));
     }
 
-    private static bool HasAcceptedWaterDemand(
+    internal static bool HasAcceptedWaterDemand(
         YQPreparedSpatialMaterializationV2 prepared,
         Vector2Int coordinate,
         float cellSize)
@@ -2784,8 +2971,7 @@ public static class YQContinuousWorldFeatureMaterializer
         for (int index = 0; index < prepared.CrossingCount; index++)
         {
             YQSpatialMaterializationCrossingV2 crossing = prepared.GetCrossing(index);
-            if (crossing.kind != YQRouteCrossingKindV2.Bridge &&
-                crossing.kind != YQRouteCrossingKindV2.Causeway)
+            if (!IsPhysicalRiverCrossing(crossing.kind))
                 continue;
             Vector2Int owner = new Vector2Int(
                 Mathf.FloorToInt((crossing.x - WorldGridOrigin) / safeCellSize),
@@ -2856,8 +3042,11 @@ public static class YQContinuousWorldFeatureMaterializer
             YQSpatialMaterializationSiteV2 site = prepared.GetSite(siteIndex);
             if (site.kind == YQSiteKindV2.Origin ||
                 string.IsNullOrWhiteSpace(site.siteId) ||
-                !RequiresReviewedPhysicalSite(site))
+                !(site.kind == YQSiteKindV2.HostileSite ||
+                  site.kind == YQSiteKindV2.PointOfInterest ||
+                  RequiresReviewedPhysicalSite(site)))
                 continue;
+            // note: Every accepted hostile site and POI needs its own physical success; another site in the same cell cannot hide a failed untagged owner.
             // note: Check the canonical owner coordinate directly so a freshly admitted chunk cannot publish a required site as empty while its derived index is still catching up.
             Vector2Int owner = new Vector2Int(
                 Mathf.FloorToInt((site.x - WorldGridOrigin) / Mathf.Max(1f, cellSize)),
@@ -2883,7 +3072,8 @@ public static class YQContinuousWorldFeatureMaterializer
         Vector2Int coordinate,
         float cellSize,
         Action<int, List<string>> completed,
-        YQPreparedSpatialMaterializationV2 preparedOverride = null)
+        YQPreparedSpatialMaterializationV2 preparedOverride = null,
+        HashSet<string> retainedSiteIds = null)
     {
         int built = 0;
         List<string> materializedSiteIds = new List<string>();
@@ -2918,6 +3108,13 @@ public static class YQContinuousWorldFeatureMaterializer
             if (owner != coordinate)
                 continue;
 
+            // note: This receipt comes from the streamer's retained physical hierarchy, not feature metadata or a marker; missing sites still take their ordinary accepted materialization path.
+            if (retainedSiteIds != null && retainedSiteIds.Contains(site.siteId))
+            {
+                materializedSiteIds.Add(site.siteId);
+                continue;
+            }
+
             // note: Only opening anchors retain the historical recovery paths; a continued site must replay its exact persisted reviewed provider.
             bool continuationSite = !IsBaseAcceptedSite(plan, site);
             if (continuationSite && !TryResolveAcceptedContinuationSiteContext(plan, site,
@@ -2937,14 +3134,15 @@ public static class YQContinuousWorldFeatureMaterializer
             {
                 // note: A prepared site root is only an owner registration; load it through its existing bounded stream instead of treating registration as physical publication.
                 bool existingSiteLoaded = false;
-                yield return YQCompiledWorldSiteInstance.EnsureSiteLoadedRoutine(
-                    existingSiteLocationId,
-                    ready => existingSiteLoaded = ready);
+                YQCompiledWorldSiteInstance.StagedSiteGeometryContext stagedGeometry = null;
+                yield return YQCompiledWorldSiteInstance.EnsureSiteGeometryLoadedForStagingRoutine(
+                    existingSiteLocationId, parent, plan,
+                    (ready, context) => { existingSiteLoaded = ready; stagedGeometry = context; });
                 if (continuationSite)
                 {
                     // note: Registration or load success alone cannot admit a provider bound to a different saved kit, composition or region.
                     existingSiteLoaded = existingSiteLoaded &&
-                        TryGetAcceptedContinuationLoadedProvider(plan, site, out _, out _);
+                        TryGetAcceptedContinuationLoadedProvider(plan, site, out _, out _, stagedGeometry);
                     if (existingSiteLoaded)
                     {
                         built++;
@@ -2998,6 +3196,13 @@ public static class YQContinuousWorldFeatureMaterializer
             {
                 // note: A missing or rejected committed provider is a publication failure, never permission to substitute a palette shell or scatter site.
                 Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED CONTINUATION PHYSICAL MATERIALIZATION MISSING " + site.siteId);
+                continue;
+            }
+
+            if (IsAcceptedTravelAnchor(site))
+            {
+                // note: These base anchors require the reviewed released landmark path; registry availability alone cannot approve an unreviewed fallback prefab.
+                Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED TRAVEL ANCHOR PHYSICAL MATERIALIZATION MISSING " + site.siteId);
                 continue;
             }
 
@@ -3170,7 +3375,7 @@ public static class YQContinuousWorldFeatureMaterializer
 
         if (!continuationSite && IsAcceptedCaveSite(site))
         {
-            // note: The beta cave is a real authored module chain derived from the accepted cave anchor; it is not a marker or a readiness-only placeholder.
+            // note: Production cave geometry stays inside its accepted footprint; only an explicit diagnostic fixture requests the extended six-module chain.
             int caveObjects = 0;
             yield return MaterializeBetaCaveRoutine(
                 parent,
@@ -3285,6 +3490,17 @@ public static class YQContinuousWorldFeatureMaterializer
                 semanticTags = new[] { "poi", "circulation", "service", "reward" };
             }
         }
+        else if (!continuationSite && reviewedSite == null && IsAcceptedTravelAnchor(site))
+        {
+            // note: Base travel anchors retain their accepted NaturalFeature identity while their cultural/transition functions select a released exterior landmark.
+            var requiredFunctions = new YQAssetFunctionV2[site.RequiredFunctions.Count];
+            for (int index = 0; index < requiredFunctions.Length; index++)
+                requiredFunctions[index] = site.RequiredFunctions[index];
+            reviewedSite = FindReviewedSiteForFunctions(
+                YQAuthoredSiteKind.Landmark, requiredFunctions, site.siteId,
+                palette?.styleKey, region?.assetStyleRationale, site.reservedRadius);
+            semanticTags = new[] { "cultural", "transition", "circulation" };
+        }
 
         if (reviewedSite == null || string.IsNullOrWhiteSpace(reviewedSite.runtimeManifestResourceKey))
             yield break;
@@ -3292,6 +3508,41 @@ public static class YQContinuousWorldFeatureMaterializer
         string selectionSeed = ResolveAcceptedSiteSelectionSeed(plan, site, settlement, encampment);
         if (continuationSite && (string.IsNullOrWhiteSpace(selectionSeed) || selectionSeed != continuationLocation.compositionSeed))
             yield break;
+
+        if (!continuationSite && IsAcceptedTravelAnchor(site))
+        {
+            // note: Measure the exact seeded selection before loading; a later catalog addition cannot silently exceed the unchanged accepted reservation.
+            bool footprintValid = false;
+            float footprintRadius = 0f;
+            string footprintFailure = string.Empty;
+            string preparedSelectionSeed = null;
+            YQProceduralSettlementLayoutRecord preparedLayout = null;
+            if (YQWorldGenerationArchitecture.UsesV2SpatialRuntime)
+                yield return YQCompiledWorldSiteInstance.ResolveSemanticCompositionV2Routine(
+                    reviewedSite, semanticTags, selectionSeed,
+                    (valid, radius, composition, failure) =>
+                    {
+                        footprintValid = valid; footprintRadius = radius; footprintFailure = failure;
+                        preparedSelectionSeed = composition.selectionSeed;
+                        preparedLayout = YQProceduralSettlementLayout.Get(preparedSelectionSeed);
+                    },
+                    site.RequiredFunctions, null, site);
+            else
+                yield return YQCompiledWorldSiteInstance.ResolveSemanticSliceRadiusRoutine(
+                    reviewedSite, semanticTags, selectionSeed,
+                    (valid, radius) => { footprintValid = valid; footprintRadius = radius; });
+            if (!footprintValid || float.IsNaN(footprintRadius) || float.IsInfinity(footprintRadius) ||
+                footprintRadius <= 0f || footprintRadius > site.reservedRadius)
+            {
+                // note: A successfully prepared but oversized selection remains unpublished; retire only its exact pending cache entry, preserving committed layouts.
+                if (!string.IsNullOrEmpty(preparedSelectionSeed))
+                    YQProceduralSettlementLayout.DiscardPending(preparedSelectionSeed, preparedLayout);
+                Debug.LogError("[YQContinuousWorldFeatures] ACCEPTED TRAVEL ANCHOR FOOTPRINT REJECTED " +
+                    site.siteId + " radius=" + footprintRadius + " reservation=" + site.reservedRadius +
+                    " reason=" + footprintFailure);
+                yield break;
+            }
+        }
 
         GameObject root = new GameObject("ContinuousReviewedSite_" + SafeSiteName(site.siteId));
         root.transform.SetParent(parent, false);
@@ -3472,8 +3723,8 @@ public static class YQContinuousWorldFeatureMaterializer
             if (location != null) return false;
             location = candidate;
         }
-        // note: The compiled owner repeats checksums, binding policy, source functions and exact saved layout; proof claims alone never qualify this lookup.
-        if (location == null || !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out failure) ||
+        // note: Obtain the immutable query projection here; the immediately following replay owner performs full current checksums and binding/layout admission. Do not hash the entire world twice for this one lookup.
+        if (location == null || !YQSpatialMaterializationResolverV2.TryGetQueryProjection(plan, out prepared, out failure) ||
             !YQCompiledWorldSiteInstance.TryValidateAcceptedContinuationReplay(plan, location, prepared, out var currentSite, out failure))
             return false;
         if (!ContinuationPreparedSiteMatches(site, currentSite))
@@ -3530,13 +3781,18 @@ public static class YQContinuousWorldFeatureMaterializer
     }
 
     private static bool TryGetAcceptedContinuationLoadedProvider(GeneratedWorldPlanRecord plan, YQSpatialMaterializationSiteV2 site,
-        out YQCompiledWorldSiteInstance provider, out string failure)
+        out YQCompiledWorldSiteInstance provider, out string failure,
+        YQCompiledWorldSiteInstance.StagedSiteGeometryContext stagedGeometry = null)
     {
         provider = null;
         if (!TryResolveAcceptedContinuationSiteContext(plan, site, out var location, out _, out failure)) return false;
         var savedLayout = location.settlement?.proceduralLayout ?? location.compositionLayout;
-        if (!YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(location.anchor.sourceSemanticId,
-                ContinuationKitId(location), location.compositionSeed, out provider) || savedLayout == null ||
+        bool geometryReady = stagedGeometry != null
+            ? YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(location.anchor.sourceSemanticId,
+                ContinuationKitId(location), location.compositionSeed, stagedGeometry, out provider)
+            : YQCompiledWorldSiteInstance.TryGetContinuationGeometryContext(location.anchor.sourceSemanticId,
+                ContinuationKitId(location), location.compositionSeed, out provider);
+        if (!geometryReady || savedLayout == null ||
             !ReferenceEquals(provider.PreparedLayout, savedLayout) ||
             !string.Equals(provider.CanonicalRegionId, site.parentRegionId, StringComparison.OrdinalIgnoreCase))
         {
@@ -3654,7 +3910,7 @@ public static class YQContinuousWorldFeatureMaterializer
             PrepareWildernessLandmark(instance);
             yield return YQRuntimeUrpMaterialRepair.RepairMaterialHierarchyRoutine(instance, null);
             // note: Search deterministic nearby ground before rejecting an approved fallback; a large prefab can straddle a steep edge even when the site cell itself is valid.
-            if (!TryPlaceApprovedFallbackGrounded(instance, terrain, site, instanceSeed))
+            if (!TryPlaceApprovedFallbackGrounded(instance, terrain, site, instanceSeed, builtInstances))
             {
                 UnityEngine.Object.Destroy(instance);
                 continue;
@@ -3753,7 +4009,8 @@ public static class YQContinuousWorldFeatureMaterializer
         GameObject instance,
         Terrain terrain,
         YQSpatialMaterializationSiteV2 site,
-        string seed)
+        string seed,
+        IReadOnlyList<GameObject> occupied = null)
     {
         if (instance == null || terrain == null)
             return false;
@@ -3770,9 +4027,10 @@ public static class YQContinuousWorldFeatureMaterializer
             }
 
             for (int radiusIndex = 0; radiusIndex < radii.Length; radiusIndex++)
+            for (int directionIndex = 0; directionIndex < (radiusIndex == 0 ? 1 : 8); directionIndex++)
             {
                 float radius = radii[radiusIndex];
-                float angle = angleOffset + radiusIndex * 1.61803399f;
+                float angle = angleOffset + radiusIndex * 1.61803399f + directionIndex * Mathf.PI * .25f;
                 Vector3 candidate = new Vector3(
                     site.x + Mathf.Cos(angle) * radius,
                     0f,
@@ -3786,23 +4044,25 @@ public static class YQContinuousWorldFeatureMaterializer
                         0.04f,
                         out _))
                 {
-                    return true;
+                    // note: Grounding is necessary but cannot place two settlement buildings in the same footprint or outside their accepted reservation.
+                    if (!YQGeneratedWorldTerrain.TryGetStableContactGeometry(instance, out Bounds bounds, out _)) continue;
+                    float dx = Mathf.Abs(bounds.center.x - site.x) + bounds.extents.x;
+                    float dz = Mathf.Abs(bounds.center.z - site.z) + bounds.extents.z;
+                    if (dx * dx + dz * dz > site.reservedRadius * site.reservedRadius) continue;
+                    bool intersects = false;
+                    if (occupied != null) foreach (GameObject other in occupied)
+                        if (other != null && YQGeneratedWorldTerrain.TryGetStableContactGeometry(other, out Bounds otherBounds, out _) &&
+                            ArchitecturalFootprintsOverlap(bounds, otherBounds)) { intersects = true; break; }
+                    if (!intersects) return true;
                 }
             }
         }
 
-        // note: An approved beta site must not strand its entire camera-visible cell when a large imported prefab cannot satisfy the strict structural footprint slope test.
-        // note: Keep the deterministic terrain anchor and compact scale as the final physical contract; this preserves the accepted site identity while avoiding a failed/unloaded chunk.
-        Vector3 anchor = new Vector3(
-            site.x,
-            YQGeneratedWorldTerrain.SampleWorldHeight(terrain, new Vector3(site.x, 0f, site.z)),
-            site.z);
-        instance.transform.position = anchor;
-        instance.transform.localScale *= 0.25f;
+        // note: Exhausted physical placement remains a failed site; the caller retires this instance and the per-site publication gate retains its required identity.
         Debug.LogWarning(
-            "[YQContinuousWorldFeatures] Approved fallback using terrain anchor after footprint grounding rejection site=" +
+            "[YQContinuousWorldFeatures] Approved fallback rejected after grounded nonintersecting footprint attempts site=" +
             site.siteId);
-        return true;
+        return false;
     }
 
     private static IEnumerator MaterializeBetaCaveRoutine(
@@ -3842,14 +4102,14 @@ public static class YQContinuousWorldFeatureMaterializer
         GameObject first = UnityEngine.Object.Instantiate(straightPrefab, root.transform);
         first.name = "BetaCave_Entrance";
         float moduleDepth = EstimateCaveModuleDepth(first);
-        first.transform.localPosition = new Vector3(0f, 0f, moduleDepth * 0.5f);
+        int moduleCount = UsesFixtureCaveModules(site) ? 6 : Mathf.Clamp(Mathf.FloorToInt(site.reservedRadius * 1.4f / moduleDepth), 1, 2);
+        first.transform.localPosition = new Vector3(0f, 0f, moduleDepth * (0.5f - moduleCount * 0.5f));
         first.transform.localRotation = Quaternion.identity;
         registry.ApplyMaterialOverrides(YQContinuousWorldFeatureAuthority.BetaCaveStraightPrefab, first, false);
         yield return YQRuntimeUrpMaterialRepair.RepairMaterialHierarchyRoutine(first, null);
         int built = 1;
 
         // note: Both ends remain open, giving the accepted entrance an actual traversable interior and a second exit rather than a capped prop.
-        const int moduleCount = 6;
         for (int index = 1; index < moduleCount; index++)
         {
             string prefabPath = index == 2 || index == 3
@@ -3858,7 +4118,7 @@ public static class YQContinuousWorldFeatureMaterializer
             GameObject prefab = index == 2 || index == 3 ? crossPrefab : straightPrefab;
             GameObject module = UnityEngine.Object.Instantiate(prefab, root.transform);
             module.name = "BetaCave_Module_" + index;
-            module.transform.localPosition = new Vector3(0f, 0f, moduleDepth * (index + 0.5f));
+            module.transform.localPosition = new Vector3(0f, 0f, moduleDepth * (index + 0.5f - moduleCount * 0.5f));
             module.transform.localRotation = Quaternion.identity;
             registry.ApplyMaterialOverrides(prefabPath, module, false);
             yield return YQRuntimeUrpMaterialRepair.RepairMaterialHierarchyRoutine(module, null);
@@ -3934,7 +4194,8 @@ public static class YQContinuousWorldFeatureMaterializer
         YQAssetFunctionV2[] requiredFunctions,
         string seed,
         string preferredStyleKey = null,
-        string styleTransitionReason = null)
+        string styleTransitionReason = null,
+        float maximumRadius = float.PositiveInfinity)
     {
         YQRuntimeWorldSiteCatalog catalog = Resources.Load<YQRuntimeWorldSiteCatalog>("YQRuntimeWorldSiteCatalog");
         if (catalog == null || catalog.Sites == null)
@@ -3946,6 +4207,12 @@ public static class YQContinuousWorldFeatureMaterializer
             YQRuntimeWorldSiteRecord candidate = catalog.Sites[index];
             if (candidate == null || !candidate.spatiallyValidated || string.IsNullOrWhiteSpace(candidate.runtimeManifestResourceKey) ||
                 (candidate.siteKind != preferredKind && !(preferredKind == YQAuthoredSiteKind.Dungeon && candidate.siteKind == YQAuthoredSiteKind.Interior)))
+                continue;
+            // note: A bounded accepted anchor filters impossible whole-assembly footprints; callers without a bound retain their previous selection contract.
+            if (!float.IsPositiveInfinity(maximumRadius) &&
+                (float.IsNaN(maximumRadius) || maximumRadius <= 0f ||
+                 float.IsNaN(candidate.authoredFootprintRadius) || float.IsInfinity(candidate.authoredFootprintRadius) ||
+                 candidate.authoredFootprintRadius <= 0f || candidate.authoredFootprintRadius > maximumRadius))
                 continue;
             // note: A visible streamed settlement/camp/landmark must have exterior placement evidence and obey the same palette transition contract as narrative sites.
             bool exterior = preferredKind == YQAuthoredSiteKind.Settlement || preferredKind == YQAuthoredSiteKind.Camp || preferredKind == YQAuthoredSiteKind.Landmark;
@@ -3986,6 +4253,12 @@ public static class YQContinuousWorldFeatureMaterializer
             site.siteId.IndexOf(expected, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
+    private static bool UsesFixtureCaveModules(YQSpatialMaterializationSiteV2 site)
+    {
+        // note: Generated natural caves keep their bounded approved kit; only an explicit fixture tag selects the extended diagnostic module chain.
+        return IsAcceptedCaveSite(site) && (HasSiteTag(site, "beta:cave") || HasSiteTag(site, "beta_fixture_cave"));
+    }
+
     private static bool IsAcceptedCaveSite(
         YQSpatialMaterializationSiteV2 site)
     {
@@ -4010,6 +4283,7 @@ public static class YQContinuousWorldFeatureMaterializer
         // note: Stable site IDs are authoritative for older prepared artifacts whose tag list may omit the beta category.
         string siteId = site.siteId ?? string.Empty;
         return IsAcceptedCaveSite(site) ||
+               IsAcceptedTravelAnchor(site) ||
                HasSiteTag(site, "beta_fixture_settlement") ||
                HasSiteTag(site, "beta:settlement") ||
                HasSiteTag(site, "beta_fixture_hostile") ||
@@ -4022,6 +4296,19 @@ public static class YQContinuousWorldFeatureMaterializer
                siteId.IndexOf(":hostile:", StringComparison.OrdinalIgnoreCase) >= 0 ||
                siteId.IndexOf(":cave:", StringComparison.OrdinalIgnoreCase) >= 0 ||
                siteId.IndexOf(":landmark:", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static bool IsAcceptedTravelAnchor(YQSpatialMaterializationSiteV2 site)
+    {
+        if (site.kind != YQSiteKindV2.NaturalFeature) return false;
+        // note: Both actual accepted tags are required; a suggestive name or a generic continuation alone does not select the base itinerary landmark contract.
+        bool travelFixture = false, streamedAnchor = false;
+        foreach (string tag in site.Tags)
+        {
+            travelFixture |= string.Equals(tag, "beta_travel_fixture", StringComparison.OrdinalIgnoreCase);
+            streamedAnchor |= string.Equals(tag, "accepted_streamed_continuation", StringComparison.OrdinalIgnoreCase);
+        }
+        return travelFixture && streamedAnchor;
     }
 
     private static GeneratedRegionAssetPaletteRecord FindSitePalette(
@@ -4037,6 +4324,14 @@ public static class YQContinuousWorldFeatureMaterializer
                 return palette;
         }
         return null;
+    }
+
+    internal static bool ArchitecturalFootprintsOverlap(Bounds first, Bounds second)
+    {
+        // note: A quarter-metre edge clearance permits close neighbors without allowing eaves/foundations to interpenetrate; terrain height cannot disguise overlap.
+        const float clearance = .25f;
+        return first.min.x < second.max.x + clearance && first.max.x + clearance > second.min.x &&
+            first.min.z < second.max.z + clearance && first.max.z + clearance > second.min.z;
     }
 
     private static GeneratedAssetReferenceRecord PickSiteReference(
@@ -4078,9 +4373,12 @@ public static class YQContinuousWorldFeatureMaterializer
                     YQContinuousWorldFeatureAuthority.BetaLandmarkFallbackGatePrefab,
                     YQContinuousWorldFeatureAuthority.BetaLandmarkFallbackChurchPrefab
                 };
-        for (int index = 0; index < candidates.Length; index++)
+        // note: Rotate approved fallback variants by accepted identity rather than always choosing the first available ruin or landmark.
+        int firstCandidate = Mathf.Min(candidates.Length - 1, Mathf.FloorToInt(
+            YQContinuousWorldFeatureAuthority.Hash01(site.siteId + "|fallback-variety") * candidates.Length));
+        for (int offset = 0; offset < candidates.Length; offset++)
         {
-            string candidatePath = candidates[index];
+            string candidatePath = candidates[(firstCandidate + offset) % candidates.Length];
             if (registry.ResolvePrefab(candidatePath) == null)
                 continue;
             return new GeneratedAssetReferenceRecord
@@ -4139,6 +4437,844 @@ public static class YQContinuousWorldFeatureMaterializer
         public float endDistance;
         public float width;
         public List<Vector3> points;
+        // note: Accepted road contacts never move when the derived physical deck changes.
+        public List<Vector3> routeContacts;
+        public List<Vector2> fitRoute;
+        public float fitStart, fitEnd;
+        public bool naturalDeck;
+        public AcceptedCrossingSpan bridge;
+        public Vector2 anchor;
+        public readonly List<List<Vector3>> bankConnections = new List<List<Vector3>>();
+    }
+
+    private sealed class AcceptedBridgeLayout
+    {
+        public bool building;
+        public bool ready;
+        public bool finalizing, finalized, materializationStarted;
+        public int physicalRevision;
+        public float baseY, height;
+        public List<AcceptedCrossingSpan> spans;
+        public Func<float, float, float> featureHeight;
+        public float featureHeightScale;
+        public IReadOnlyList<NativeBridgeEndpointApproach> endpointApproaches;
+    }
+    // note: This weak cache stores only derived geometry from one immutable accepted projection, never canonical records or Unity object ownership.
+    private static readonly ConditionalWeakTable<YQPreparedSpatialMaterializationV2, AcceptedBridgeLayout> BridgeLayouts =
+        new ConditionalWeakTable<YQPreparedSpatialMaterializationV2, AcceptedBridgeLayout>();
+    internal const float MinimumBridgeClearance = 24f;
+
+    private static Func<float, float, float> GetNativeBridgeHeightProjection(
+        YQPreparedSpatialMaterializationV2 prepared, float height)
+    {
+        // note: One immutable finite-feature projection belongs to this existing weak layout cache. Bridges and their bank paths use the cell owner's finished road/water datum without capturing native objects or mutable saves.
+        var layout = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout());
+        if (layout.featureHeight == null || layout.featureHeightScale != height)
+        {
+            layout.featureHeight = YQContinuousWorldCellAuthority.CreateAcceptedFeatureHeightProjection(prepared, height);
+            layout.featureHeightScale = height;
+        }
+        return layout.featureHeight;
+    }
+
+    internal static bool UsesNativeBridgeRoutes(YQPreparedSpatialMaterializationV2 prepared)
+    {
+        // note: Physical route corrections are version-pinned; saved bridge interpretations from earlier basin generations remain intact.
+        for (int water = 0; water < prepared.WaterCount; water++)
+            if (prepared.GetWater(water).connectedBasin?.Version >= YQPreparedConnectedBasinV2.NativeChannelReachVersion) return true;
+        return false;
+    }
+
+    internal readonly struct NativeBridgeEndpointApproach
+    {
+        internal readonly int routeIndex;
+        internal readonly Vector2 start, end;
+        internal readonly float elevationNormalized;
+        internal NativeBridgeEndpointApproach(int routeIndex, Vector2 start, Vector2 end, float elevation)
+        { this.routeIndex = routeIndex; this.start = start; this.end = end; elevationNormalized = elevation; }
+    }
+
+    internal static IReadOnlyList<NativeBridgeEndpointApproach> GetNativeBridgeEndpointApproaches(YQPreparedSpatialMaterializationV2 prepared)
+    {
+        var layout = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout());
+        // note: Every streamed terrain constructor reuses immutable hydrology-derived aprons. The weak prepared-owner cache never stores terrain objects and the lock protects simultaneous worker queries.
+        lock (layout)
+            return layout.endpointApproaches ??= BuildNativeBridgeEndpointApproaches(prepared).AsReadOnly();
+    }
+
+    private static List<NativeBridgeEndpointApproach> BuildNativeBridgeEndpointApproaches(YQPreparedSpatialMaterializationV2 prepared)
+    {
+        var result = new List<NativeBridgeEndpointApproach>();
+        if (!UsesNativeBridgeRoutes(prepared)) return result;
+        // note: Lazily project the immutable road network once for all endpoint queries in this constructor; an empty crossing set still does no road work.
+        YQGeneratedWorldEnvironment.AcceptedRouteCenterlineQueries routeQueries = null;
+        // note: An endpoint crossing needs finite landward earthworks as well as a deck. Derive these from hydrology before layout discovery, avoiding a dependency on the layout that the earthworks support.
+        for (int routeIndex = 0; routeIndex < prepared.RouteCount; routeIndex++)
+        {
+            var route = prepared.GetRoute(routeIndex);
+            List<Vector2> points = null;
+            for (int endpoint = 0; endpoint < 2; endpoint++)
+            {
+                float requiredSpan = 0f;
+                for (int crossingIndex = 0; crossingIndex < prepared.CrossingCount; crossingIndex++)
+                {
+                    var crossing = prepared.GetCrossing(crossingIndex);
+                    if (crossing.routeId != route.routeId || !IsPhysicalRiverCrossing(crossing.kind)) continue;
+                    points ??= (routeQueries ??= new YQGeneratedWorldEnvironment.AcceptedRouteCenterlineQueries(prepared)).GetRoute(routeIndex);
+                    if (points.Count < 2) break;
+                    Vector2 position = points[endpoint == 0 ? 0 : points.Count - 1];
+                    float contact = Mathf.Max(16f, crossing.requiredSpan * 1.5f);
+                    if ((new Vector2(crossing.x, crossing.z) - position).sqrMagnitude <= contact * contact)
+                        requiredSpan = Mathf.Max(requiredSpan, crossing.requiredSpan);
+                }
+                if (requiredSpan <= 0f || points == null || points.Count < 2) continue;
+                int first = endpoint == 0 ? 0 : points.Count - 1;
+                int step = endpoint == 0 ? 1 : -1, adjacent = first + step;
+                while (adjacent >= 0 && adjacent < points.Count && (points[first] - points[adjacent]).sqrMagnitude < .000001f) adjacent += step;
+                if (adjacent < 0 || adjacent >= points.Count) continue;
+                Vector2 origin = points[first], outward = (origin - points[adjacent]).normalized;
+                Vector2 lateral = new Vector2(-outward.y, outward.x);
+                int dryStations = 0;
+                for (int station = 1; station <= 512; station++)
+                {
+                    Vector2 point = origin + outward * station;
+                    bool dry = IsDryBridgeBank(prepared, point, route.width + 2f) && IsDryBridgeBank(prepared, point, route.width);
+                    for (int rail = -2; dry && rail <= 2; rail++)
+                    {
+                        Vector2 sample = point + lateral * ((route.width + 2f) * .25f * rail);
+                        dry = prepared.SampleTerrain(sample.x, sample.y).waterMask <= .05f;
+                    }
+                    dryStations = dry ? dryStations + 1 : 0;
+                    if (dryStations < 3 || station < requiredSpan * .5f) continue;
+                    // note: Keep a finite flat handoff beyond the first two dry metres. This is a local bridge apron, not a permitted boundary continuation or a new semantic road.
+                    float length = Mathf.Min(512f, station + Mathf.Max(32f, 4f * (route.width + 2f)));
+                    result.Add(new NativeBridgeEndpointApproach(routeIndex, origin, origin + outward * length,
+                        prepared.SampleTerrain(origin.x, origin.y).elevationNormalized));
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    internal static IEnumerator PrepareAcceptedBridgeRoutesRoutine(YQPreparedSpatialMaterializationV2 prepared, Terrain terrain)
+    {
+        if (UsesNativeBridgeRoutes(prepared)) yield return PrepareBridgeLayoutRoutine(prepared, terrain, _ => { });
+    }
+
+    internal static void VisitSharedBridgeBankPaths(YQPreparedSpatialMaterializationV2 prepared,
+        Action<int, float, IReadOnlyList<Vector3>> visit)
+    {
+        if (!UsesNativeBridgeRoutes(prepared)) return;
+        if (!BridgeLayouts.TryGetValue(prepared, out var layout) || !layout.ready)
+            throw new InvalidOperationException("Accepted native bridge layout is not prepared.");
+        foreach (var span in layout.spans)
+            foreach (var connection in span.bankConnections) visit(span.routeIndex, span.width, connection);
+    }
+
+    internal static void ApplySharedBridgeRoute(YQPreparedSpatialMaterializationV2 prepared, int routeIndex, List<Vector2> points)
+    {
+        if (!UsesNativeBridgeRoutes(prepared)) return;
+        if (!BridgeLayouts.TryGetValue(prepared, out var layout) || !layout.ready)
+            throw new InvalidOperationException("Physical route validation requires the prepared native bridge layout.");
+        var spans = new List<AcceptedCrossingSpan>();
+        foreach (var span in layout.spans)
+            if (span.routeIndex == routeIndex && (span.bridge != span || span.naturalDeck)) spans.Add(span);
+        if (spans.Count == 0) return;
+        // note: Replace only each derived shared crossing's original wet interval, then validate both complete dry connectors and the actual reused deck. No route or required crossing is omitted.
+        float[] distances = new float[points.Count];
+        for (int point = 1; point < points.Count; point++) distances[point] = distances[point - 1] + Vector2.Distance(points[point - 1], points[point]);
+        float Along(Vector3 position)
+        {
+            Vector2 p = new Vector2(position.x, position.z); float best = float.PositiveInfinity, along = 0f;
+            for (int point = 1; point < points.Count; point++)
+            {
+                Vector2 delta = points[point] - points[point - 1];
+                float t = Mathf.Clamp01(Vector2.Dot(p - points[point - 1], delta) / Mathf.Max(.000001f, delta.sqrMagnitude));
+                float squared = (p - points[point - 1] - delta * t).sqrMagnitude;
+                if (squared < best) { best = squared; along = Mathf.Lerp(distances[point - 1], distances[point], t); }
+            }
+            return along;
+        }
+        spans.Sort((a, b) => { int order = a.startDistance.CompareTo(b.startDistance);
+            return order != 0 ? order : string.CompareOrdinal(a.crossingId, b.crossingId); });
+        var result = new List<Vector2>(); int original = 0; float consumed = -1f;
+        void Add(Vector3 p) { var point = new Vector2(p.x, p.z); if (result.Count == 0 || (result[result.Count - 1] - point).sqrMagnitude > .000001f) result.Add(point); }
+        for (int spanIndex = 0; spanIndex < spans.Count; spanIndex++)
+        {
+            var span = spans[spanIndex];
+            var contacts = span.routeContacts ?? span.points;
+            float start = Along(contacts[0]), end = Along(contacts[contacts.Count - 1]);
+            if (start < consumed - .01f || end < start || span.bankConnections.Count != 2)
+                throw new InvalidOperationException("Shared crossing route intervals are disconnected or overlap: " + span.crossingId);
+            var exitSpan = span;
+            // note: A river and its continuation can accept the same wet interval under distinct identities. Splice their union once through their common real deck, retaining every accepted crossing and both outer dry-bank paths.
+            while (spanIndex + 1 < spans.Count)
+            {
+                var next = spans[spanIndex + 1];
+                var nextContacts = next.routeContacts ?? next.points;
+                float nextStart = Along(nextContacts[0]), nextEnd = Along(nextContacts[nextContacts.Count - 1]);
+                if (nextStart > end + .01f) break;
+                if (next.bridge != span.bridge || nextEnd < nextStart || next.bankConnections.Count != 2)
+                    throw new InvalidOperationException("Overlapping shared crossing intervals require the same bridge and complete dry-bank paths: " + span.crossingId + " / " + next.crossingId);
+                if (nextEnd > end) { end = nextEnd; exitSpan = next; }
+                spanIndex++;
+            }
+            while (original < points.Count && distances[original] < start - .001f) { var p = points[original++]; Add(new Vector3(p.x, 0f, p.y)); }
+            var first = span.bankConnections[0]; var last = exitSpan.bankConnections[1];
+            foreach (var p in first) Add(p);
+            var deck = span.bridge.points;
+            int from = (first[first.Count - 1] - deck[0]).sqrMagnitude <= (first[first.Count - 1] - deck[deck.Count - 1]).sqrMagnitude ? 0 : deck.Count - 1;
+            int to = (last[last.Count - 1] - deck[0]).sqrMagnitude <= (last[last.Count - 1] - deck[deck.Count - 1]).sqrMagnitude ? 0 : deck.Count - 1;
+            int direction = from <= to ? 1 : -1;
+            for (int point = from; ; point += direction) { Add(deck[point]); if (point == to) break; }
+            for (int point = last.Count - 1; point >= 0; point--) Add(last[point]);
+            while (original < points.Count && distances[original] <= end + .001f) original++;
+            consumed = end;
+        }
+        while (original < points.Count) { var p = points[original++]; Add(new Vector3(p.x, 0f, p.y)); }
+        points.Clear(); points.AddRange(result);
+    }
+
+    private static IEnumerator PrepareBridgeLayoutRoutine(YQPreparedSpatialMaterializationV2 prepared, Terrain terrain,
+        Action<List<AcceptedCrossingSpan>> completed)
+    {
+        AcceptedBridgeLayout cache = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout());
+        // note: Waiting on a shared derived bridge layout can outlive this streamed terrain owner. A retired cell supplies no layout and cannot touch its destroyed native terrain.
+        while (cache.building || cache.finalizing)
+        {
+            if (terrain == null || terrain.terrainData == null) { completed(null); yield break; }
+            yield return null;
+        }
+        if (terrain == null || terrain.terrainData == null) { completed(null); yield break; }
+        float baseY = terrain.transform.position.y, height = terrain.terrainData.size.y;
+        if (cache.ready && cache.baseY == baseY && cache.height == height)
+        { completed(cache.spans); yield break; }
+        cache.building = true;
+        try
+        {
+            var spans = new List<AcceptedCrossingSpan>();
+            for (int index = 0; index < prepared.CrossingCount; index++)
+            {
+                if (terrain == null || terrain.terrainData == null) { completed(null); yield break; }
+                var crossing = prepared.GetCrossing(index);
+                if (!IsPhysicalRiverCrossing(crossing.kind)) continue;
+                if (!TryBuildCrossingSpan(prepared, crossing, terrain, out var span, out string failure))
+                    throw new InvalidOperationException("Accepted crossing " + crossing.crossingId + ": " + failure);
+                span.anchor = new Vector2(crossing.x, crossing.z);
+                spans.Add(span);
+                yield return null;
+            }
+            // note: Choose the widest deck first so later shared crossings never widen an already clearance-checked bridge; identity breaks ties independently of traversal.
+            spans.Sort((a, b) => { int width = b.width.CompareTo(a.width); return width != 0 ? width : string.CompareOrdinal(a.crossingId, b.crossingId); });
+            var bridges = new List<AcceptedCrossingSpan>();
+            foreach (var span in spans)
+            {
+                AcceptedCrossingSpan shared = null;
+                foreach (var bridge in bridges)
+                    // note: Compare each deck at its authored width. Using the widest crossing in the whole plan over-deduplicated unrelated crossings and forced invalid shared-bank searches.
+                    if (CrossingDecksConflict(span.points, span.width, bridge.points, bridge.width))
+                    { shared = bridge; break; }
+                span.bridge = shared ?? span;
+                if (shared == null) bridges.Add(span);
+                else
+                {
+                    // note: A conflicting crossing reuses one real deck through two proven dry-bank paths. Lake/tributary seams can put both route contacts on the same connected bank; they may converge on one deck entrance without inventing another wet crossing.
+                    bool reversed = (span.points[0] - shared.points[shared.points.Count - 1]).sqrMagnitude <
+                        (span.points[0] - shared.points[0]).sqrMagnitude;
+                    bool connected = false;
+                    var bankFailures = new List<string>();
+                    for (int pairing = 0; pairing < 4 && !connected; pairing++)
+                    {
+                        span.bankConnections.Clear();
+                        for (int side = 0; side < 2; side++)
+                        {
+                            Vector3 from = span.points[side == 0 ? 0 : span.points.Count - 1];
+                            int destination = pairing >= 2 ? (pairing == 2 ? 0 : shared.points.Count - 1) :
+                                ((side == 0) != (reversed ^ (pairing == 1)) ? 0 : shared.points.Count - 1);
+                            List<Vector3> connection = null;
+                            yield return BuildDryBankConnectionRoutine(prepared, from, shared.points[destination], span.width, baseY, height,
+                                value => connection = value, reason => bankFailures.Add("pair=" + pairing + "; side=" + side + "; " + reason));
+                            if (connection == null) break;
+                            span.bankConnections.Add(connection);
+                            yield return null;
+                        }
+                        connected = span.bankConnections.Count == 2;
+                    }
+                    if (!connected)
+                        throw new InvalidOperationException("Accepted crossing " + span.crossingId +
+                            " violates bridge clearance and has no dry-bank connection to " + shared.crossingId + "; " + string.Join(" | ", bankFailures));
+                }
+                yield return null;
+            }
+            cache.spans = spans; cache.baseY = baseY; cache.height = height; cache.ready = true;
+            completed(spans);
+        }
+        finally { cache.building = false; }
+    }
+
+    internal static bool HasFinalizedBridgeLayout(YQPreparedSpatialMaterializationV2 prepared) =>
+        prepared != null && BridgeLayouts.TryGetValue(prepared, out var layout) && layout.finalized;
+
+    internal static int GetBridgePhysicalRevision(YQPreparedSpatialMaterializationV2 prepared) =>
+        prepared != null && BridgeLayouts.TryGetValue(prepared, out var layout) ? layout.physicalRevision : 0;
+
+    private static float BridgeHorizontalLength(IReadOnlyList<Vector3> points)
+    {
+        float length = 0f;
+        for (int index = 1; index < points.Count; index++)
+            length += Vector2.Distance(new Vector2(points[index - 1].x, points[index - 1].z), new Vector2(points[index].x, points[index].z));
+        return length;
+    }
+
+    private static AcceptedCrossingSpan CopyBridgeSpan(AcceptedCrossingSpan source)
+    {
+        // note: Candidate work is private; cancellation and failed candidates leave the already accepted baseline object graph intact.
+        var copy = new AcceptedCrossingSpan { crossingId = source.crossingId, routeIndex = source.routeIndex,
+            startDistance = source.startDistance, endDistance = source.endDistance, width = source.width,
+            points = source.points, routeContacts = source.routeContacts ?? source.points, anchor = source.anchor,
+            fitRoute = source.fitRoute, fitStart = source.fitStart, fitEnd = source.fitEnd, naturalDeck = source.naturalDeck };
+        copy.bankConnections.AddRange(source.bankConnections);
+        return copy;
+    }
+
+    private static IEnumerator FinalizeNaturalBridgeLayoutRoutine(YQPreparedSpatialMaterializationV2 prepared,
+        Terrain authored, Transform worldRoot)
+    {
+        if (!UsesNativeBridgeRoutes(prepared)) yield break;
+        var cache = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout());
+        while (cache.finalizing)
+        {
+            if (authored == null || authored.terrainData == null || worldRoot == null) yield break;
+            yield return null;
+        }
+        if (cache.finalized) yield break;
+        if (!cache.ready || authored == null || authored.terrainData == null || worldRoot == null)
+            throw new InvalidOperationException("Natural bridge finalization needs its prepared layout and finished authored terrain.");
+        // note: Never replace a deck already used by streaming or a previous physical publication. Its exact baseline remains the fallback.
+        bool published = cache.materializationStarted;
+        foreach (var span in cache.spans)
+            published |= worldRoot.Find("AcceptedRiverCrossing_" + SafeSiteName(span.crossingId)) != null;
+        if (published) { cache.finalized = true; yield break; }
+        cache.finalizing = true;
+        try
+        {
+            var staged = new List<AcceptedCrossingSpan>();
+            var copies = new Dictionary<AcceptedCrossingSpan, AcceptedCrossingSpan>();
+            foreach (var span in cache.spans) { var copy = CopyBridgeSpan(span); staged.Add(copy); copies.Add(span, copy); }
+            foreach (var span in cache.spans) copies[span].bridge = copies[span.bridge ?? span];
+            int chosen = 0;
+            for (int index = 0; index < staged.Count; index++)
+            {
+                var baseline = staged[index];
+                if (baseline.bridge != baseline) continue;
+                // note: Shared deck families retain their proven topology in this bounded first search; no dependent route is silently dropped or rerouted.
+                bool shared = false;
+                foreach (var dependent in staged) if (dependent != baseline && dependent.bridge == baseline) { shared = true; break; }
+                if (shared) continue;
+                AcceptedCrossingSpan alternative = null;
+                yield return FindNaturalBridgeRoutine(prepared, authored, baseline, staged, value => alternative = value);
+                if (authored == null || authored.terrainData == null || worldRoot == null) yield break;
+                if (alternative == null) continue;
+                alternative.bridge = alternative; staged[index] = alternative; chosen++;
+            }
+            // note: One publication switches the complete derived layout and invalidates only its existing presentation caches; persisted IDs/hashes and terrain heights do not change.
+            if (chosen > 0) { cache.spans = staged; cache.physicalRevision++; }
+            cache.finalized = true;
+            Debug.Log("[WORLDGEN BRIDGES] Final-terrain natural candidates accepted=" + chosen +
+                "; remaining crossings retain their original accepted layout.");
+        }
+        finally { cache.finalizing = false; }
+    }
+
+    private static bool TryGetNaturalBridgeAxis(YQPreparedSpatialMaterializationV2 prepared,
+        AcceptedCrossingSpan span, out Vector2 center, out Vector2 normal, out float requiredSpan, out int waterIndex)
+    {
+        center = default; normal = default; requiredSpan = 0f; waterIndex = -1;
+        string waterId = null;
+        for (int index = 0; index < prepared.CrossingCount; index++)
+        {
+            var crossing = prepared.GetCrossing(index);
+            if (crossing.crossingId != span.crossingId) continue;
+            requiredSpan = crossing.requiredSpan; waterId = crossing.hydrologyId; break;
+        }
+        for (int index = 0; index < prepared.WaterCount; index++)
+            if (prepared.GetWater(index).hydrologyId == waterId) { waterIndex = index; break; }
+        if (waterIndex < 0) return false;
+        float nearest = float.PositiveInfinity;
+        for (int point = 1; point < prepared.GetWaterPointCount(waterIndex); point++)
+        {
+            var first = prepared.GetWaterPoint(waterIndex, point - 1); var last = prepared.GetWaterPoint(waterIndex, point);
+            Vector2 a = new Vector2(first.x, first.z), delta = new Vector2(last.x - first.x, last.z - first.z);
+            if (delta.sqrMagnitude < .000001f) continue;
+            Vector2 candidate = a + delta * Mathf.Clamp01(Vector2.Dot(span.anchor - a, delta) / delta.sqrMagnitude);
+            float squared = (candidate - span.anchor).sqrMagnitude;
+            if (squared >= nearest) continue;
+            nearest = squared; center = candidate; normal = new Vector2(-delta.y, delta.x).normalized;
+        }
+        // note: A lake seam or a nearby different water feature cannot substitute for the exact accepted hydrology. Ambiguity retains the original crossing.
+        var sample = prepared.SampleTerrain(center.x, center.y);
+        float radius = Mathf.Max(16f, Mathf.Max(requiredSpan, prepared.GetWater(waterIndex).nominalWidth) * 1.5f);
+        return nearest <= radius * radius && sample.waterFeatureIndex == waterIndex && sample.waterMask > .05f;
+    }
+
+    private static IEnumerator FindNaturalBridgeBankRoutine(YQPreparedSpatialMaterializationV2 prepared,
+        Vector2 center, Vector2 direction, float width, float requiredSpan, Func<Vector3, float> ground,
+        Action<Vector3?> completed)
+    {
+        // note: Keep the original half-span and three-station dry-bank requirements, but search a bounded straight candidate cooperatively.
+        int dryStations = 0; float started = Time.realtimeSinceStartup;
+        Vector2 side = new Vector2(-direction.y, direction.x);
+        for (int station = 1; station <= 512; station++)
+        {
+            Vector2 point = center + direction * station;
+            bool dry = IsDryBridgeBank(prepared, point, width + 2f) && IsDryBridgeBank(prepared, point, width);
+            float centerHeight = ground(new Vector3(point.x, 0f, point.y));
+            if (float.IsNaN(centerHeight) || float.IsInfinity(centerHeight)) dry = false;
+            for (int rail = -2; dry && rail <= 2; rail++)
+            {
+                Vector2 p = point + side * ((width + 2f) * .25f * rail);
+                var sample = prepared.SampleTerrain(p.x, p.y);
+                float height = ground(new Vector3(p.x, 0f, p.y));
+                dry = sample.waterMask <= .05f && !float.IsNaN(height) && !float.IsInfinity(height) && height - centerHeight <= .20f;
+            }
+            dryStations = dry ? dryStations + 1 : 0;
+            if (dryStations >= 3 && station >= Mathf.Max(0f, requiredSpan * .5f))
+            { completed(new Vector3(point.x, centerHeight + .20f, point.y)); yield break; }
+            if (Time.realtimeSinceStartup - started >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+            { yield return null; started = Time.realtimeSinceStartup; }
+        }
+        completed(null);
+    }
+
+    private static IEnumerator FindNaturalBridgeRoutine(YQPreparedSpatialMaterializationV2 prepared, Terrain authored,
+        AcceptedCrossingSpan baseline, List<AcceptedCrossingSpan> allSpans, Action<AcceptedCrossingSpan> completed)
+    {
+        completed(null);
+        if (authored == null || authored.terrainData == null) yield break;
+        if (!TryGetNaturalBridgeAxis(prepared, baseline, out Vector2 center, out Vector2 normal, out float requiredSpan, out _)) yield break;
+        if (!YQGeneratedWorldLayout.TryResolveDryGoddessSummit(prepared, out Vector3 summit)) yield break;
+        Vector2 goddess = new Vector2(summit.x, summit.z);
+        Vector3 origin = authored.transform.position, size = authored.terrainData.size;
+        // note: This finalization pass can certify only already-finished native terrain. Unloaded off-road macro terrain is not replaced by the finite-feature projection.
+        float Ground(Vector3 p) => authored == null || authored.terrainData == null ? float.NaN :
+            p.x >= origin.x && p.x <= origin.x + size.x && p.z >= origin.z && p.z <= origin.z + size.z
+                ? authored.SampleHeight(p) + origin.y : float.NaN;
+        float baselineLength = BridgeHorizontalLength(baseline.points), bestLength = baselineLength - 2f, bestBanks = float.PositiveInfinity;
+        AcceptedCrossingSpan best = null;
+        // note: This finite canonical angular order finds a shorter feasible crossing, not a claimed global optimum. No random stream or traversal order is consumed.
+        for (int directionIndex = -4; directionIndex <= 4; directionIndex++)
+        {
+            if (authored == null || authored.terrainData == null) yield break;
+            float angle = directionIndex * 15f * Mathf.Deg2Rad;
+            Vector2 direction = new Vector2(normal.x * Mathf.Cos(angle) - normal.y * Mathf.Sin(angle), normal.x * Mathf.Sin(angle) + normal.y * Mathf.Cos(angle));
+            var contacts = baseline.routeContacts ?? baseline.points;
+            Vector2 forward = new Vector2(contacts[contacts.Count - 1].x - contacts[0].x, contacts[contacts.Count - 1].z - contacts[0].z);
+            if (Vector2.Dot(forward, direction) < 0f) direction = -direction;
+            Vector3? first = null, last = null;
+            yield return FindNaturalBridgeBankRoutine(prepared, center, -direction, baseline.width, requiredSpan, Ground, value => first = value);
+            yield return FindNaturalBridgeBankRoutine(prepared, center, direction, baseline.width, requiredSpan, Ground, value => last = value);
+            if (authored == null || authored.terrainData == null) yield break;
+            if (!first.HasValue || !last.HasValue || Vector3.Distance(first.Value, last.Value) >= bestLength) continue;
+            Vector2 a = new Vector2(first.Value.x, first.Value.z), b = new Vector2(last.Value.x, last.Value.z);
+            if (!YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(a, b,
+                YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth((baseline.width + 2f) * .5f), goddess)) continue;
+            var candidate = CopyBridgeSpan(baseline); candidate.bankConnections.Clear(); candidate.points = new List<Vector3>();
+            int stations = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(a, b)));
+            for (int station = 0; station <= stations; station++)
+            {
+                Vector2 p = Vector2.Lerp(a, b, station / (float)stations); var sample = prepared.SampleTerrain(p.x, p.y);
+                float y = Ground(new Vector3(p.x, 0f, p.y)) + .20f;
+                if (sample.waterMask > .05f) y = Mathf.Max(y, origin.y + sample.waterSurfaceNormalized * size.y + .32f);
+                candidate.points.Add(new Vector3(p.x, y, p.y));
+            }
+            bool connected = true;
+            for (int side = 0; side < 2; side++)
+            {
+                List<Vector3> bank = null;
+                yield return BuildDryBankConnectionRoutine(prepared, contacts[side == 0 ? 0 : contacts.Count - 1],
+                    candidate.points[side == 0 ? 0 : candidate.points.Count - 1], candidate.width, origin.y, size.y, value => bank = value);
+                bool traversable = false;
+                if (bank != null) yield return CheckNaturalBankRoutine(bank, candidate.width,
+                    prepared.GetRoute(candidate.routeIndex).maximumGradeDegrees, Ground,
+                    p => prepared.SampleTerrain(p.x, p.z).waterMask <= .05f, value => traversable = value);
+                if (!traversable) { connected = false; break; }
+                candidate.bankConnections.Add(bank);
+            }
+            if (!connected) continue;
+            if (authored == null || authored.terrainData == null) yield break;
+            if (!NaturalBridgeFootprintInside(candidate.points, candidate.width, origin, size)) continue;
+            BuildNaturalFitRoute(candidate);
+            IReadOnlyList<Vector3> core = BuildNativeBridgeDeckProfile(candidate.points, Ground);
+            core = ConstrainNativeBridgeDeckGrade(core, prepared.GetRoute(candidate.routeIndex).maximumGradeDegrees);
+            List<Vector3> fitted = null;
+            IEnumerator fit = FitNativeBridgeApproachesRoutine(candidate, prepared, authored, core, value => fitted = value);
+            try
+            {
+                while (true)
+                {
+                    bool more;
+                    try { more = fit.MoveNext(); }
+                    catch (InvalidOperationException) { fitted = null; break; }
+                    if (!more) break;
+                    yield return fit.Current;
+                }
+            }
+            finally { (fit as IDisposable)?.Dispose(); }
+            if (fitted == null || !NaturalBridgeFootprintInside(fitted, candidate.width, origin, size) ||
+                !NaturalBridgeGroundMatches(fitted, candidate.width, Ground)) continue;
+            bool conflict = false;
+            for (int point = 1; point < fitted.Count; point++)
+                if (!YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(
+                    new Vector2(fitted[point - 1].x, fitted[point - 1].z), new Vector2(fitted[point].x, fitted[point].z),
+                    YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth((candidate.width + 2f) * .5f), goddess))
+                { conflict = true; break; }
+            foreach (var other in allSpans)
+                if (other != baseline && other.bridge == other && CrossingDecksConflict(fitted, candidate.width, other.points, other.width)) { conflict = true; break; }
+            if (conflict) continue;
+            var firstBank = TrimNaturalBank(candidate.bankConnections[0], fitted[0]);
+            var lastBank = TrimNaturalBank(candidate.bankConnections[1], fitted[fitted.Count - 1]);
+            if (firstBank == null || lastBank == null || BridgeHorizontalLength(firstBank) < .01f || BridgeHorizontalLength(lastBank) < .01f) continue;
+            float length = BridgeHorizontalLength(fitted), banks = BridgeHorizontalLength(firstBank) + BridgeHorizontalLength(lastBank);
+            if (length > bestLength || length == bestLength && banks >= bestBanks) continue;
+            candidate.points = fitted; candidate.naturalDeck = true; candidate.fitRoute = null;
+            candidate.bankConnections.Clear(); candidate.bankConnections.Add(firstBank); candidate.bankConnections.Add(lastBank);
+            best = candidate; bestLength = length; bestBanks = banks;
+            yield return null;
+        }
+        completed(best);
+    }
+
+    private static void BuildNaturalFitRoute(AcceptedCrossingSpan candidate)
+    {
+        // note: The strict fitter may use only the proven connectors, never extrapolate a shorter deck back into the old wet interval.
+        var route = new List<Vector2>(); float along = 0f;
+        void Add(Vector3 p) { var v = new Vector2(p.x, p.z); if (route.Count > 0) { float d = Vector2.Distance(route[route.Count - 1], v); if (d < .001f) return; along += d; } route.Add(v); }
+        foreach (var p in candidate.bankConnections[0]) Add(p);
+        candidate.fitStart = along;
+        foreach (var p in candidate.points) Add(p);
+        candidate.fitEnd = along;
+        var last = candidate.bankConnections[1];
+        for (int index = last.Count - 1; index >= 0; index--) Add(last[index]);
+        candidate.fitRoute = route;
+    }
+
+    private static List<Vector3> TrimNaturalBank(IReadOnlyList<Vector3> source, Vector3 endpoint)
+    {
+        var result = new List<Vector3>(); result.Add(source[0]);
+        Vector2 p = new Vector2(endpoint.x, endpoint.z);
+        for (int index = 1; index < source.Count; index++)
+        {
+            Vector2 a = new Vector2(source[index - 1].x, source[index - 1].z), d = new Vector2(source[index].x - a.x, source[index].z - a.y);
+            float t = Mathf.Clamp01(Vector2.Dot(p - a, d) / Mathf.Max(.000001f, d.sqrMagnitude));
+            if ((p - a - d * t).sqrMagnitude <= .0001f)
+            { if ((endpoint - result[result.Count - 1]).sqrMagnitude > .000001f) result.Add(endpoint); return result; }
+            result.Add(source[index]);
+        }
+        return null;
+    }
+
+    private static bool NaturalBridgeFootprintInside(IReadOnlyList<Vector3> points, float width, Vector3 origin, Vector3 size)
+    {
+        // note: The native tread bounds miters to four half-widths. This conservative rectangle keeps every fitted shoulder and miter on the same finished terrain datum.
+        float radius = 4f * Mathf.Max(1.2f, (width + 2f) * .5f);
+        foreach (var point in points)
+            if (!IsFinitePoint(point) || point.x - radius < origin.x || point.x + radius > origin.x + size.x ||
+                point.z - radius < origin.z || point.z + radius > origin.z + size.z) return false;
+        return points.Count >= 2;
+    }
+
+    private static bool NaturalBridgeGroundMatches(IReadOnlyList<Vector3> profile, float width, Func<Vector3, float> ground)
+    {
+        if (profile == null || profile.Count < 2) return false;
+        float firstGround = ground(profile[0]), lastGround = ground(profile[profile.Count - 1]);
+        if (float.IsNaN(firstGround) || float.IsInfinity(firstGround) || float.IsNaN(lastGround) || float.IsInfinity(lastGround) ||
+            profile[0].y + YQGeneratedRiverBridge.WalkSurfaceTopOffset - firstGround > .25f ||
+            profile[profile.Count - 1].y + YQGeneratedRiverBridge.WalkSurfaceTopOffset - lastGround > .25f) return false;
+        for (int index = 1; index < profile.Count; index++)
+        {
+            Vector3 first = profile[index - 1], last = profile[index], d = last - first; d.y = 0f;
+            float intrusion = MeasureNativeBridgeSegmentFloor(first, last, width, p => ground(p) - Mathf.Lerp(first.y, last.y,
+                Mathf.Clamp01(((p.x - first.x) * d.x + (p.z - first.z) * d.z) / Mathf.Max(.000001f, d.sqrMagnitude))));
+            if (float.IsNaN(intrusion) || float.IsInfinity(intrusion) || intrusion > YQGeneratedRiverBridge.WalkSurfaceTopOffset - .024f) return false;
+        }
+        return true;
+    }
+
+    private static IEnumerator CheckNaturalBankRoutine(IReadOnlyList<Vector3> points, float width, float maximumGrade,
+        Func<Vector3, float> ground, Func<Vector3, bool> dry, Action<bool> completed)
+    {
+        // note: Match the exact unworn grounded ribbon's 1m rows, width columns and triangle split. No terrain edits or raised substitute floor can make a steep connector pass.
+        if (points == null || points.Count < 2 || width <= 0f || float.IsNaN(maximumGrade) ||
+            float.IsInfinity(maximumGrade) || maximumGrade <= 0f || maximumGrade >= 90f)
+        { completed(false); yield break; }
+        float limit = Mathf.Cos(Mathf.Min(maximumGrade, 58f) * Mathf.Deg2Rad);
+        bool Triangle(Vector3 a, Vector3 b, Vector3 c)
+        {
+            Vector3 normal = Vector3.Cross(b - a, c - a);
+            return IsFinitePoint(a) && IsFinitePoint(b) && IsFinitePoint(c) && dry(a) && dry(b) && dry(c) &&
+                normal.sqrMagnitude > .00000001f && Mathf.Abs(normal.normalized.y) >= limit;
+        }
+        float started = Time.realtimeSinceStartup;
+        for (int segment = 1; segment < points.Count; segment++)
+        {
+            Vector3 a = points[segment - 1], b = points[segment], delta = new Vector3(b.x - a.x, 0f, b.z - a.z);
+            if (delta.sqrMagnitude < .0001f) continue;
+            Vector3 side = Vector3.Cross(Vector3.up, delta.normalized);
+            int rows = Mathf.Max(1, Mathf.CeilToInt(delta.magnitude)), columns = Mathf.Clamp(Mathf.CeilToInt(width), 2, 64);
+            Vector3 Point(float along, float across) { Vector3 p = Vector3.Lerp(a, b, along) + side * (width * (across - .5f)); p.y = ground(p) + .025f; return p; }
+            for (int row = 0; row < rows; row++)
+            for (int column = 0; column < columns; column++)
+            {
+                Vector3 al = Point(row / (float)rows, column / (float)columns), ar = Point(row / (float)rows, (column + 1f) / columns);
+                Vector3 bl = Point((row + 1f) / rows, column / (float)columns), br = Point((row + 1f) / rows, (column + 1f) / columns);
+                if (!Triangle(al, bl, ar) || !Triangle(ar, bl, br)) { completed(false); yield break; }
+                if (Time.realtimeSinceStartup - started >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                { yield return null; started = Time.realtimeSinceStartup; }
+            }
+        }
+        completed(true);
+    }
+
+    private static bool IsPhysicalRiverCrossing(YQRouteCrossingKindV2 kind) =>
+        kind == YQRouteCrossingKindV2.Bridge || kind == YQRouteCrossingKindV2.Causeway || kind == YQRouteCrossingKindV2.Ford;
+
+    private static bool IsDryBridgeBank(YQPreparedSpatialMaterializationV2 prepared, Vector2 point, float width)
+    {
+        // note: A shared approach can turn at a bank contact, so prove dry clearance in both horizontal axes as well as along the original deck rails.
+        float radius = Mathf.Max(.5f, width * .5f);
+        for (int i = 0; i < 5; i++)
+        {
+            Vector2 offset = i == 1 ? Vector2.right * radius : i == 2 ? Vector2.left * radius : i == 3 ? Vector2.up * radius : i == 4 ? Vector2.down * radius : Vector2.zero;
+            if (prepared.SampleTerrain(point.x + offset.x, point.y + offset.y).waterMask > .05f) return false;
+        }
+        // note: Native bank discovery, shared routing and landing checks must retain the terrain nodes that support the full physical ribbon; archived interpretations stay unchanged.
+        return !UsesNativeBridgeRoutes(prepared) || IsNativeBridgeRasterSupportDry(prepared, point, width);
+    }
+
+    private sealed class NativeBridgeRasterSupportCache
+    {
+        // note: Accepted query records are immutable. Keep recut-node facts only for their prepared owner's lifetime and bound retained memory.
+        private readonly Dictionary<Vector2Int, bool> survivingNodes = new Dictionary<Vector2Int, bool>();
+        internal bool Survives(YQPreparedSpatialMaterializationV2 prepared, Vector2Int node, float origin, float spacing)
+        {
+            lock (survivingNodes)
+            {
+                if (survivingNodes.TryGetValue(node, out bool surviving)) return surviving;
+                var sample = prepared.SampleTerrain(origin + node.x * spacing, origin + node.y * spacing);
+                // note: This is precisely the native channel restoration predicate; shallow shoreline nodes retain their existing support.
+                surviving = !(sample.waterMask >= .9f && sample.elevationNormalized < sample.waterSurfaceNormalized);
+                if (survivingNodes.Count < 65536) survivingNodes.Add(node, surviving);
+                return surviving;
+            }
+        }
+    }
+    private static readonly ConditionalWeakTable<YQPreparedSpatialMaterializationV2, NativeBridgeRasterSupportCache> NativeBridgeRasterSupport =
+        new ConditionalWeakTable<YQPreparedSpatialMaterializationV2, NativeBridgeRasterSupportCache>();
+
+    private static bool IsNativeBridgeRasterSupportDry(YQPreparedSpatialMaterializationV2 prepared, Vector2 point, float width)
+    {
+        // note: A worn bank ribbon reaches at most .55 times its accepted width. The extra .5m covers gaps between the existing <=1m segment samples, proving the continuous ribbon's supporting cells.
+        float radius = Mathf.Max(.5f, width * .55f) + .5f;
+        float minimum = WorldGridOrigin, maximum = minimum + YQGeneratedWorldTerrain.WorldSize;
+        if (point.x + radius < minimum || point.x - radius > maximum || point.y + radius < minimum || point.y - radius > maximum) return true;
+        // note: Only the finite authored origin heightfield has this grid. Outside-origin streaming retains its canonical terrain authority; crossing footprints test only their overlapping origin cells.
+        int lastCell = YQGeneratedWorldTerrain.HeightmapResolution - 2;
+        float spacing = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1);
+        int x0 = Mathf.Clamp(Mathf.FloorToInt((point.x - radius - minimum) / spacing), 0, lastCell);
+        int x1 = Mathf.Clamp(Mathf.FloorToInt((point.x + radius - minimum) / spacing), 0, lastCell);
+        int z0 = Mathf.Clamp(Mathf.FloorToInt((point.y - radius - minimum) / spacing), 0, lastCell);
+        int z1 = Mathf.Clamp(Mathf.FloorToInt((point.y + radius - minimum) / spacing), 0, lastCell);
+        var cache = NativeBridgeRasterSupport.GetValue(prepared, _ => new NativeBridgeRasterSupportCache());
+        for (int z = z0; z <= z1; z++)
+        for (int x = x0; x <= x1; x++)
+        {
+            float left = minimum + x * spacing, bottom = minimum + z * spacing;
+            float dx = Mathf.Max(left - point.x, 0f, point.x - left - spacing);
+            float dz = Mathf.Max(bottom - point.y, 0f, point.y - bottom - spacing);
+            if (dx * dx + dz * dz > radius * radius) continue;
+            if (!cache.Survives(prepared, new Vector2Int(x, z), minimum, spacing) ||
+                !cache.Survives(prepared, new Vector2Int(x + 1, z), minimum, spacing) ||
+                !cache.Survives(prepared, new Vector2Int(x, z + 1), minimum, spacing) ||
+                !cache.Survives(prepared, new Vector2Int(x + 1, z + 1), minimum, spacing)) return false;
+        }
+        return true;
+    }
+
+    private static bool CrossingDecksConflict(IReadOnlyList<Vector3> first, float firstWidth,
+        IReadOnlyList<Vector3> second, float secondWidth)
+    {
+        // note: Compare complete deck segments, not only anchors; crossed, curved and nearly parallel bridges all obey the same edge clearance.
+        // note: The collision shoulder extends one metre beyond each deck edge; include both shoulders in physical clearance.
+        float clearance = MinimumBridgeClearance + 2f + (firstWidth + secondWidth) * 0.5f;
+        for (int i = 1; i < first.Count; i++)
+        for (int j = 1; j < second.Count; j++)
+            if (CrossingSegmentDistanceSquared(
+                    new Vector2(first[i - 1].x, first[i - 1].z), new Vector2(first[i].x, first[i].z),
+                    new Vector2(second[j - 1].x, second[j - 1].z), new Vector2(second[j].x, second[j].z)) < clearance * clearance)
+                return true;
+        return false;
+    }
+
+    private static bool CrossingDecksIntersect(IReadOnlyList<Vector3> first, IReadOnlyList<Vector3> second)
+    {
+        for (int i = 1; i < first.Count; i++)
+        for (int j = 1; j < second.Count; j++)
+            if (CrossingSegmentDistanceSquared(
+                    new Vector2(first[i - 1].x, first[i - 1].z), new Vector2(first[i].x, first[i].z),
+                    new Vector2(second[j - 1].x, second[j - 1].z), new Vector2(second[j].x, second[j].z)) <= 0.0001f)
+                return true;
+        return false;
+    }
+
+    private static float CrossingSegmentDistanceSquared(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+    {
+        // note: Include true intersections and degenerate segments before comparing endpoint projections.
+        Vector2 ab = b - a, cd = d - c;
+        float cross = ab.x * cd.y - ab.y * cd.x;
+        if (Mathf.Abs(cross) > .000001f)
+        {
+            Vector2 ac = c - a;
+            float t = (ac.x * cd.y - ac.y * cd.x) / cross;
+            float u = (ac.x * ab.y - ac.y * ab.x) / cross;
+            if (t >= 0f && t <= 1f && u >= 0f && u <= 1f) return 0f;
+        }
+        float Point(Vector2 p, Vector2 x, Vector2 y)
+        {
+            Vector2 delta = y - x;
+            float t = delta.sqrMagnitude > .000001f ? Mathf.Clamp01(Vector2.Dot(p - x, delta) / delta.sqrMagnitude) : 0f;
+            return (p - x - delta * t).sqrMagnitude;
+        }
+        return Mathf.Min(Point(a, c, d), Point(b, c, d), Point(c, a, b), Point(d, a, b));
+    }
+
+    private static IEnumerator BuildDryBankConnectionRoutine(YQPreparedSpatialMaterializationV2 prepared, Vector3 from, Vector3 to,
+        float width, float baseY, float height, Action<List<Vector3>> completed, Action<string> failed = null)
+    {
+        // note: Bounded deterministic A* follows dry terrain around curved banks. It cannot shortcut back through the river or invent a second crossing.
+        float step = 2f;
+        bool nativeRoutes = UsesNativeBridgeRoutes(prepared);
+        Vector2 origin = new Vector2(from.x, from.z);
+        Vector2 destination = new Vector2(to.x, to.z);
+        Vector2 goddessCenter = default;
+        if (nativeRoutes)
+        {
+            // note: Shrine placement may relocate its summit to preserve accepted water and routes. Resolve that same immutable anchor once per bank search instead of protecting the preferred position.
+            if (!YQGeneratedWorldLayout.TryResolveDryGoddessSummit(prepared, out Vector3 summit))
+            { failed?.Invoke("bank routing has no accepted dry origin shrine anchor"); completed(null); yield break; }
+            goddessCenter = new Vector2(summit.x, summit.z);
+        }
+        // note: A protected endpoint cannot be repaired by bank routing; diagnose this pairing so the existing alternative-pairing search can try another entrance.
+        if (nativeRoutes &&
+            (!YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(origin, origin,
+                YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(width * .5f), goddessCenter) ||
+             !YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(destination, destination,
+                YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(width * .5f), goddessCenter)))
+        { failed?.Invoke("bank endpoint overlaps authored origin landmark reserve; from=" + origin + "; to=" + destination); completed(null); yield break; }
+        Vector2Int goal = new Vector2Int(Mathf.RoundToInt((to.x - from.x) / step), Mathf.RoundToInt((to.z - from.z) / step));
+        int margin = 48;
+        int minX = Mathf.Min(0, goal.x) - margin, maxX = Mathf.Max(0, goal.x) + margin;
+        int minZ = Mathf.Min(0, goal.y) - margin, maxZ = Mathf.Max(0, goal.y) + margin;
+        // note: Coarsen only oversized native search grids; every candidate edge still receives the original 1m full-width dry/reserve checks.
+        while (nativeRoutes && (long)(maxX - minX + 1) * (maxZ - minZ + 1) > 65536 && step < 8f)
+        {
+            step *= 2f;
+            goal = new Vector2Int(Mathf.RoundToInt((to.x - from.x) / step), Mathf.RoundToInt((to.z - from.z) / step));
+            margin = Mathf.CeilToInt(96f / step);
+            minX = Mathf.Min(0, goal.x) - margin; maxX = Mathf.Max(0, goal.x) + margin;
+            minZ = Mathf.Min(0, goal.y) - margin; maxZ = Mathf.Max(0, goal.y) + margin;
+        }
+        if ((long)(maxX - minX + 1) * (maxZ - minZ + 1) > 65536)
+        { failed?.Invoke("bank search bounds exceed 65536 cells; from=" + origin + "; to=" + destination); completed(null); yield break; }
+        // note: Neighbouring A* edges repeatedly sample the same immutable bank points. Cache exact coordinates only, with a bounded per-search lifetime; no quantization or route changes.
+        var drySamples = new Dictionary<Vector2, bool>();
+        bool Dry(Vector2 point)
+        {
+            if (drySamples.TryGetValue(point, out bool dry)) return dry;
+            dry = IsDryBridgeBank(prepared, point, width);
+            if (drySamples.Count < 65536) drySamples.Add(point, dry);
+            return dry;
+        }
+        bool SegmentDry(Vector2 a, Vector2 b)
+        {
+            // note: A shared crossing replaces an already-detoured road, so every full-width connector edge must preserve both authored origin landmarks.
+            if (nativeRoutes && !YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(a, b,
+                YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(width * .5f), goddessCenter)) return false;
+            int count = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(a, b)));
+            for (int i = 0; i <= count; i++) if (!Dry(Vector2.Lerp(a, b, i / (float)count))) return false;
+            return true;
+        }
+        Vector2 Point(Vector2Int cell) => origin + new Vector2(cell.x, cell.y) * step;
+        var open = new SortedSet<(float score, float remaining, int x, int z)>();
+        var cost = new Dictionary<Vector2Int, float>(); var previous = new Dictionary<Vector2Int, Vector2Int>();
+        var closed = new HashSet<Vector2Int>();
+        Vector2Int start = Vector2Int.zero; cost[start] = 0f; float initialDistance = Vector2.Distance(origin, destination);
+        open.Add((initialDistance, initialDistance, 0, 0));
+        Vector2Int[] directions = { Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down,
+            new Vector2Int(1, 1), new Vector2Int(1, -1), new Vector2Int(-1, 1), new Vector2Int(-1, -1) };
+        float sliceStarted = Time.realtimeSinceStartup;
+        while (open.Count > 0 && closed.Count < 16384)
+        {
+            // note: Bank routing shares the existing cooperative construction budget instead of becoming an indivisible startup search.
+            if (Time.realtimeSinceStartup - sliceStarted >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+            { yield return null; sliceStarted = Time.realtimeSinceStartup; }
+            var entry = open.Min; open.Remove(entry); var cell = new Vector2Int(entry.x, entry.z);
+            if (!closed.Add(cell)) continue;
+            Vector2 point = Point(cell);
+            if (Vector2.Distance(point, destination) <= step * 1.5f && SegmentDry(point, destination))
+            {
+                var reverse = new List<Vector2> { destination, point };
+                while (previous.TryGetValue(cell, out var parent))
+                {
+                    // note: Long accepted connectors reconstruct cooperatively without changing their predecessor order.
+                    if (Time.realtimeSinceStartup - sliceStarted >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                    { yield return null; sliceStarted = Time.realtimeSinceStartup; }
+                    cell = parent; reverse.Add(Point(cell));
+                }
+                reverse.Reverse(); var connection = new List<Vector3>(reverse.Count);
+                foreach (var p in reverse)
+                {
+                    // note: Per-point final elevation sampling obeys the same bank-search slice rather than hiding a long completion tail.
+                    if (Time.realtimeSinceStartup - sliceStarted >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                    { yield return null; sliceStarted = Time.realtimeSinceStartup; }
+                    connection.Add(new Vector3(p.x, baseY + prepared.SampleTerrain(p.x, p.y).elevationNormalized * height + .20f, p.y));
+                }
+                completed(connection); yield break;
+            }
+            foreach (var direction in directions)
+            {
+                Vector2Int next = cell + direction;
+                if (next.x < minX || next.x > maxX || next.y < minZ || next.y > maxZ || closed.Contains(next)) continue;
+                float nextCost = cost[cell] + direction.magnitude * step;
+                if (cost.TryGetValue(next, out float known) && known <= nextCost) continue;
+                // note: One expanded node can perform eight costly dry-corridor probes; yield between probes, retaining the exact search and tie order.
+                if (Time.realtimeSinceStartup - sliceStarted >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                { yield return null; sliceStarted = Time.realtimeSinceStartup; }
+                // note: An edge that cannot improve the known route needs no repeated terrain sampling; the search order and accepted costs are unchanged.
+                if (!SegmentDry(point, Point(next))) continue;
+                cost[next] = nextCost; previous[next] = cell;
+                float remaining = Vector2.Distance(Point(next), destination);
+                open.Add((nextCost + remaining, remaining, next.x, next.y));
+            }
+        }
+        // note: A rejected connection identifies whether its deterministic search budget or actual dry topology blocked the accepted layout.
+        failed?.Invoke("bank search exhausted; visited=" + closed.Count + "; frontier=" + open.Count + "; from=" + origin +
+            "; to=" + destination + "; fromDry=" + Dry(origin) + "; toDry=" + Dry(destination));
+        completed(null);
+    }
+
+    internal static IEnumerator BuildAcceptedOriginCrossingsRoutine(Transform worldRoot, Terrain terrain,
+        YQPreparedSpatialMaterializationV2 prepared, YQRuntimeWorldAssetRegistry registry)
+    {
+        // note: Initial terrain setup and streaming consume this one accepted bridge topology. World-root ownership matches the existing bootstrap bridge lifetime and prevents per-cell copies.
+        List<AcceptedCrossingSpan> spans = null;
+        yield return PrepareBridgeLayoutRoutine(prepared, terrain, value => spans = value);
+        // note: Startup can also retire its terrain while a shared layout is pending; cancellation never certifies an absent accepted deck.
+        if (worldRoot == null || terrain == null || terrain.terrainData == null) yield break;
+        if (spans == null) throw new InvalidOperationException("Accepted bridge layout was unavailable for a live origin terrain.");
+        yield return FinalizeNaturalBridgeLayoutRoutine(prepared, terrain, worldRoot);
+        spans = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout()).spans;
+        yield return BuildAcceptedCrossingsRoutine(worldRoot, spans, registry, null, _ => { }, terrain, prepared, worldRoot);
     }
 
     private static IEnumerator PrepareAcceptedCrossingSpansRoutine(
@@ -4147,19 +5283,35 @@ public static class YQContinuousWorldFeatureMaterializer
     {
         if (prepared == null)
             yield break;
+        List<AcceptedCrossingSpan> layout = null;
+        yield return PrepareBridgeLayoutRoutine(prepared, terrain, value => layout = value);
+        // note: A canceled owner returns no layout. A live owner still requires an actual accepted layout before its spans can be consumed.
+        if (terrain == null || terrain.terrainData == null) yield break;
+        if (layout == null) throw new InvalidOperationException("Accepted bridge layout was unavailable for a live streamed terrain.");
         float started = Time.realtimeSinceStartup;
-        for (int index = 0; index < prepared.CrossingCount; index++)
+        for (int index = 0; index < layout.Count; index++)
         {
-            YQSpatialMaterializationCrossingV2 crossing = prepared.GetCrossing(index);
-            // note: Keep the existing anchor-cell owner. Neighbor ribbons remain until streaming can guarantee this owner's lifetime there.
+            AcceptedCrossingSpan span = layout[index];
+            // note: World-owned decks stay resident across cell boundaries. Every intersected cell can reuse their physical proof and remove its ordinary river-crossing ribbon.
             Vector2Int owner = new Vector2Int(
-                Mathf.FloorToInt((crossing.x - WorldGridOrigin) / Mathf.Max(1f, cellSize)),
-                Mathf.FloorToInt((crossing.z - WorldGridOrigin) / Mathf.Max(1f, cellSize)));
-            if (owner == coordinate && (crossing.kind == YQRouteCrossingKindV2.Bridge || crossing.kind == YQRouteCrossingKindV2.Causeway))
+                Mathf.FloorToInt((span.anchor.x - WorldGridOrigin) / Mathf.Max(1f, cellSize)),
+                Mathf.FloorToInt((span.anchor.y - WorldGridOrigin) / Mathf.Max(1f, cellSize)));
+            float minX = WorldGridOrigin + coordinate.x * cellSize, minZ = WorldGridOrigin + coordinate.y * cellSize;
+            bool intersects = owner == coordinate;
+            bool Touches(IReadOnlyList<Vector3> path)
             {
-                // note: Reject an unresolved accepted crossing before removing its road; another successful bridge cannot mask the missing owner.
-                if (!TryBuildCrossingSpan(prepared, crossing, terrain, out AcceptedCrossingSpan span, out string failure))
-                    throw new InvalidOperationException("Accepted crossing " + crossing.crossingId + " cannot materialize: " + failure);
+                if (path == null) return false;
+                for (int point = 1; point < path.Count; point++)
+                    if (TryClipSegmentToBounds(path[point - 1].x, path[point - 1].z, path[point].x, path[point].z,
+                        minX - span.width * .5f, minX + cellSize + span.width * .5f,
+                        minZ - span.width * .5f, minZ + cellSize + span.width * .5f, out _, out _)) return true;
+                return false;
+            }
+            // note: Removing the old wet ribbon and publishing both dry connectors are dependencies even in cells outside the shorter deck.
+            intersects |= Touches(span.routeContacts) || Touches(span.points);
+            foreach (var connection in span.bankConnections) intersects |= Touches(connection);
+            if (intersects)
+            {
                 spans.Add(span);
                 RecordSubstage(substageTelemetry, "crossingSpanSearch", started);
                 yield return null;
@@ -4176,18 +5328,421 @@ public static class YQContinuousWorldFeatureMaterializer
 
     private static IEnumerator BuildAcceptedCrossingsRoutine(
         Transform parent, List<AcceptedCrossingSpan> spans, YQRuntimeWorldAssetRegistry registry,
-        Action<string, float> substageTelemetry, Action<int> completed)
+        Action<string, float> substageTelemetry, Action<int> completed, Terrain contactTerrain,
+        YQPreparedSpatialMaterializationV2 prepared, Transform sharedWorldRoot = null)
     {
+        // note: Bridges keep the existing world-root lifetime from bootstrap; streamed cells reuse their exact accepted identity rather than generating a second deck under a chunk.
+        Transform worldRoot = sharedWorldRoot != null ? sharedWorldRoot : parent.parent != null ? parent.parent : parent;
         int built = 0;
         for (int index = 0; index < spans.Count; index++)
         {
-            // note: Deck and omitted ribbon publish under the same hidden cell root, so a failed build cannot expose a road gap.
             AcceptedCrossingSpan span = spans[index];
-            yield return YQGeneratedRiverBridge.BuildRoutine(parent, span.points, span.width, registry, substageTelemetry);
+            if (UsesNativeBridgeRoutes(prepared))
+            {
+                var layout = BridgeLayouts.GetValue(prepared, _ => new AcceptedBridgeLayout());
+                while (layout.finalizing) yield return null;
+                layout.materializationStarted = true;
+                foreach (var current in layout.spans)
+                    if (current.crossingId == span.crossingId) { span = current; break; }
+            }
+            AcceptedCrossingSpan bridge = span.bridge ?? span;
+            yield return EnsureAcceptedCrossingRootRoutine(worldRoot, bridge, registry, contactTerrain, substageTelemetry, prepared);
+            if (!ReferenceEquals(bridge, span))
+                yield return EnsureAcceptedCrossingRootRoutine(worldRoot, span, registry, contactTerrain, substageTelemetry, prepared);
             built++;
             yield return null;
         }
         completed?.Invoke(built);
+    }
+
+    private static IEnumerator EnsureAcceptedCrossingRootRoutine(Transform worldRoot, AcceptedCrossingSpan span,
+        YQRuntimeWorldAssetRegistry registry, Terrain contactTerrain, Action<string, float> telemetry,
+        YQPreparedSpatialMaterializationV2 prepared)
+    {
+        string name = "AcceptedRiverCrossing_" + SafeSiteName(span.crossingId);
+        Transform existing = worldRoot.Find(name);
+        // note: A second worker may meet an in-flight construction; wait for its explicit completion receipt rather than cloning it.
+        while (existing != null && existing.GetComponent<YQStreamedFeatureOverlayTarget>() == null)
+        { yield return null; existing = worldRoot.Find(name); }
+        if (existing != null)
+        {
+            // note: Identity reuse still requires the published physical geometry; an empty or mismatched root cannot count as a completed crossing.
+            var receipt = existing.GetComponent<YQStreamedFeatureOverlayTarget>();
+            if (receipt.featureId != span.crossingId || existing.GetComponentsInChildren<Renderer>(true).Length == 0 ||
+                existing.GetComponentsInChildren<MeshCollider>(true).Length == 0)
+                throw new InvalidOperationException("Accepted crossing geometry lost: " + span.crossingId);
+            yield break;
+        }
+
+        var root = new GameObject(name); root.transform.SetParent(worldRoot, false);
+        // note: World-owned crossings remain private until their complete visual and collision geometry is available.
+        root.SetActive(false);
+        bool complete = false;
+        try
+        {
+            if (span.bridge == null || ReferenceEquals(span.bridge, span))
+            {
+                // note: Native channel layouts are prepared before road grading. Fit the derived deck between the finished banks instead of dipping its tread into the canonical riverbed; keep the cached horizontal layout and archived decks unchanged.
+                IReadOnlyList<Vector3> deck = span.points;
+                Func<Vector3, float> ground = point => contactTerrain.transform.position.y +
+                    prepared.SampleTerrain(point.x, point.z).elevationNormalized * contactTerrain.terrainData.size.y;
+                if (UsesNativeBridgeRoutes(prepared))
+                {
+                    // note: The fixed authored terrain is the finished datum inside the origin. Outside it, retain the accepted canonical datum instead of querying whichever neighboring tile happens to be loaded first.
+                    Terrain authored = YQPlayerFollowingSemanticChunkStreamer.Active?.AuthoredTerrain ?? contactTerrain;
+                    Vector3 origin = authored.transform.position, size = authored.terrainData.size;
+                    var finishedHeight = GetNativeBridgeHeightProjection(prepared, size.y);
+                    ground = point =>
+                        point.x >= origin.x && point.x <= origin.x + size.x && point.z >= origin.z && point.z <= origin.z + size.z
+                            ? authored.SampleHeight(point) + origin.y
+                            : origin.y + finishedHeight(point.x, point.z) * size.y;
+                    if (span.naturalDeck)
+                    {
+                        // note: This exact profile already passed the same fitter against final terrain; reject changed support instead of silently moving its frozen route endpoints.
+                        if (!NaturalBridgeGroundMatches(span.points, span.width, ground))
+                            throw new InvalidOperationException("Finalized natural bridge terrain changed: " + span.crossingId);
+                    }
+                    else
+                    {
+                    deck = BuildNativeBridgeDeckProfile(span.points, ground);
+                    // note: A finished bank crest can sit between closely spaced route/bank samples. Raise neighboring tread samples into the accepted route's grade envelope rather than retaining a short drop that launches the capsule above its support reach.
+                    deck = ConstrainNativeBridgeDeckGrade(deck, prepared.GetRoute(span.routeIndex).maximumGradeDegrees);
+                    // note: The tread must also clear its full footprint and descend onto real dry approaches. A centre-only fit left a high entrance step and terrain protruding through the opposite bank.
+                    yield return FitNativeBridgeApproachesRoutine(span, prepared, authored, deck, value => deck = value);
+                    }
+                }
+                // note: Keep archived crossing geometry unchanged; native accepted roads publish the width-constrained profile through the same bridge owner and asset registry.
+                yield return UsesNativeBridgeRoutes(prepared)?YQGeneratedRiverBridge.BuildNativeRoutine(root.transform,deck,span.width,registry,telemetry,ground):
+                    YQGeneratedRiverBridge.BuildRoutine(root.transform,deck,span.width,registry,telemetry,ground);
+            }
+            if (span.bankConnections.Count > 0)
+            {
+                Material material = FindMaterial(registry, "road", "dirt", "path") ?? BuildFallbackRoadMaterial();
+                // note: Native shared approaches use the same approved texture and soft verge as ordinary ground roads; their physical mesh remains unchanged.
+                if (UsesNativeBridgeRoutes(prepared)) BindGroundedRoadSurface(material, contactTerrain);
+                RegisterCellResource(root.transform, material);
+                // note: World-owned bank paths can extend beyond the initial terrain. Sample their accepted surface there instead of clipping away the approach at that tile's edge.
+                foreach (var connection in span.bankConnections)
+                    if (BuildSharedBridgeBankPath(root.transform, connection, span.width, material, contactTerrain, prepared, span.naturalDeck) == null)
+                        throw new InvalidOperationException("Shared bridge bank path has no physical ribbon: " + span.crossingId);
+                yield return null;
+            }
+            if (root.GetComponentsInChildren<Renderer>(true).Length == 0 || root.GetComponentsInChildren<MeshCollider>(true).Length == 0)
+                throw new InvalidOperationException("Accepted crossing has no complete visual/collision geometry: " + span.crossingId);
+            var target = root.AddComponent<YQStreamedFeatureOverlayTarget>(); target.featureId = span.crossingId; target.objectId = name;
+            root.SetActive(true);
+            complete = true;
+        }
+        finally { if (!complete && root != null) UnityEngine.Object.Destroy(root); }
+    }
+
+    private static GameObject BuildSharedBridgeBankPath(Transform parent, List<Vector3> points, float width,
+        Material material, Terrain terrain, YQPreparedSpatialMaterializationV2 prepared, bool exactFootprint = false)
+    {
+        // note: Keep one tessellated mesh/collider owner; the same accepted projection already supplies world-owned bridge elevations.
+        float baseY = terrain.transform.position.y, height = terrain.terrainData.size.y;
+        var finishedHeight = UsesNativeBridgeRoutes(prepared) ? GetNativeBridgeHeightProjection(prepared, height) : null;
+        return BuildGroundedRoadRibbon(parent, "SharedBridgeBankPath", points, width, material, terrain, null,
+            point => baseY + (finishedHeight != null ? finishedHeight(point.x, point.y) :
+                prepared.SampleTerrain(point.x, point.y).elevationNormalized) * height, exactFootprint);
+    }
+
+    internal static List<Vector3> BuildNativeBridgeDeckProfile(IReadOnlyList<Vector3> source, Func<Vector3, float> sampleHeight)
+    {
+        // note: Bank interpolation removes the bed-following trough; finished terrain crests and accepted water clearance remain lower bounds everywhere along the deck. This projection never changes the accepted records or the shared layout cache.
+        if (source == null || source.Count < 2 || sampleHeight == null)
+            throw new InvalidOperationException("Native bridge needs two finished bank contacts.");
+        float[] distances = new float[source.Count];
+        for (int index = 1; index < source.Count; index++)
+            distances[index] = distances[index - 1] + Vector2.Distance(new Vector2(source[index - 1].x, source[index - 1].z), new Vector2(source[index].x, source[index].z));
+        float[] floors = new float[source.Count];
+        for (int index = 0; index < source.Count; index++)
+        {
+            floors[index] = sampleHeight(source[index]) + .20f;
+            if (float.IsNaN(floors[index]) || float.IsInfinity(floors[index]))
+                throw new InvalidOperationException("Native bridge has invalid finished terrain at " + source[index]);
+        }
+        float start = floors[0], end = floors[floors.Length - 1];
+        if (distances[distances.Length - 1] < .001f)
+            throw new InvalidOperationException("Native bridge has invalid finished bank contacts.");
+        var result = new List<Vector3>(source.Count);
+        for (int index = 0; index < source.Count; index++)
+        {
+            Vector3 point = source[index];
+            point.y = Mathf.Max(point.y, Mathf.Max(floors[index], Mathf.Lerp(start, end, distances[index] / distances[distances.Length - 1])));
+            result.Add(point);
+        }
+        return result;
+    }
+
+    internal static List<Vector3> ConstrainNativeBridgeDeckGrade(IReadOnlyList<Vector3> source, float maximumGradeDegrees)
+    {
+        // note: Two ordered sweeps form the minimal upward grade envelope along horizontal arclength. Terrain and accepted water clearance stay lower bounds, while source geometry/cache and traversal order remain unchanged.
+        if (source == null || source.Count < 2 || float.IsNaN(maximumGradeDegrees) ||
+            float.IsInfinity(maximumGradeDegrees) || maximumGradeDegrees <= 0f || maximumGradeDegrees >= 90f)
+            throw new InvalidOperationException("Native bridge requires a finite accepted route grade.");
+        float grade = Mathf.Tan(maximumGradeDegrees * Mathf.Deg2Rad);
+        var result = new List<Vector3>(source.Count);
+        var lengths = new float[source.Count];
+        for (int index = 0; index < source.Count; index++)
+        {
+            Vector3 point = source[index];
+            if (float.IsNaN(point.y) || float.IsInfinity(point.y))
+                throw new InvalidOperationException("Native bridge has invalid finished tread height.");
+            result.Add(point);
+            if (index > 0)
+                lengths[index] = Vector2.Distance(new Vector2(point.x, point.z), new Vector2(source[index - 1].x, source[index - 1].z));
+        }
+        for (int index = 1; index < result.Count; index++)
+        {
+            Vector3 point = result[index];
+            point.y = Mathf.Max(point.y, result[index - 1].y - grade * lengths[index]);
+            result[index] = point;
+        }
+        for (int index = result.Count - 2; index >= 0; index--)
+        {
+            Vector3 point = result[index];
+            point.y = Mathf.Max(point.y, result[index + 1].y - grade * lengths[index + 1]);
+            result[index] = point;
+        }
+        return result;
+    }
+
+    internal static float ResolveNativeBridgeEndpointApproachLimit(float terrainHeight, float width, float maximumGradeDegrees)
+    {
+        if (float.IsNaN(terrainHeight) || float.IsInfinity(terrainHeight) || terrainHeight <= 0f ||
+            float.IsNaN(width) || float.IsInfinity(width) || width <= 0f ||
+            float.IsNaN(maximumGradeDegrees) || float.IsInfinity(maximumGradeDegrees) || maximumGradeDegrees <= 0f || maximumGradeDegrees >= 90f)
+            throw new InvalidOperationException("Native bridge approach extent requires finite terrain, width and grade.");
+        // note: Terrain elevations are normalized to one height scale. Allow descent from that full height plus water clearance, and the bounded fourfold shoulder miter; retain the existing bank-discovery envelope as the minimum.
+        float limit = Mathf.Max(512f, (terrainHeight + 1.5f) / Mathf.Tan(maximumGradeDegrees * Mathf.Deg2Rad) + 4f * (width + 2f));
+        if (float.IsNaN(limit) || float.IsInfinity(limit))
+            throw new InvalidOperationException("Native bridge approach extent is not finite.");
+        return limit;
+    }
+
+    internal static float MeasureNativeBridgeSegmentFloor(Vector3 first, Vector3 last, float width,
+        Func<Vector3, float> sampleHeight)
+    {
+        // note: Measure the complete shoulder corridor between retained route samples, including terrain crests off the centreline; sample order cannot affect this upper bound.
+        Vector3 delta = last - first; delta.y = 0f;
+        if (sampleHeight == null || !IsFinitePoint(first) || !IsFinitePoint(last) ||
+            float.IsNaN(width) || float.IsInfinity(width) || width <= 0f || delta.sqrMagnitude < .000001f)
+            throw new InvalidOperationException("Native bridge footprint requires a finite nonzero corridor.");
+        Vector3 side = new Vector3(-delta.z, 0f, delta.x).normalized;
+        float halfWidth = Mathf.Max(1.2f, width * .5f) + 1f;
+        int lengthSteps = Mathf.Max(1, Mathf.CeilToInt(delta.magnitude * 2f));
+        int widthSteps = Mathf.Max(1, Mathf.CeilToInt(halfWidth * 4f));
+        float highest = float.NegativeInfinity;
+        for (int along = 0; along <= lengthSteps; along++)
+            for (int across = 0; across <= widthSteps; across++)
+            {
+                Vector3 point = Vector3.Lerp(first, last, (float)along / lengthSteps) +
+                    side * Mathf.Lerp(-halfWidth, halfWidth, (float)across / widthSteps);
+                float height = sampleHeight(point);
+                if (float.IsNaN(height) || float.IsInfinity(height))
+                    throw new InvalidOperationException("Native bridge footprint has invalid finished terrain at " + point);
+                highest = Mathf.Max(highest, height);
+            }
+        return highest;
+    }
+
+    private static IEnumerator FitNativeBridgeApproachesRoutine(AcceptedCrossingSpan span,
+        YQPreparedSpatialMaterializationV2 prepared, Terrain authored, IReadOnlyList<Vector3> core,
+        Action<List<Vector3>> completed)
+    {
+        // note: Landward ramps follow the same accepted road projection and retain every bend. Only version-8 derived presentation changes; cached crossing intervals and accepted records remain untouched.
+        List<Vector2> projected = span.fitRoute ?? YQGeneratedWorldEnvironment.GetAcceptedRouteCenterline(prepared, span.routeIndex);
+        float fitStart = span.fitRoute != null ? span.fitStart : span.startDistance;
+        float fitEnd = span.fitRoute != null ? span.fitEnd : span.endDistance;
+        if (projected.Count < 2)
+            throw new InvalidOperationException("Native bridge approaches require the accepted route projection.");
+        var route = new Vector3[projected.Count]; var distances = new float[projected.Count];
+        for (int index = 0; index < projected.Count; index++)
+        {
+            route[index] = new Vector3(projected[index].x, 0f, projected[index].y);
+            if (index > 0) distances[index] = distances[index - 1] + Vector2.Distance(projected[index - 1], projected[index]);
+        }
+        Vector3 origin = authored.transform.position, size = authored.terrainData.size;
+        var finishedHeight = GetNativeBridgeHeightProjection(prepared, size.y);
+        // note: Grading is complete before fitting. Retry the same fixed datum without resampling unchanged core and shoulder coordinates; this cache belongs only to this fit invocation.
+        var sampledHeights = new Dictionary<Vector2, float>();
+        float Sample(Vector3 point)
+        {
+            // note: A cancelled candidate cannot resume a native sample on its retired terrain owner.
+            if (authored == null || authored.terrainData == null)
+                throw new InvalidOperationException("Native bridge terrain retired during fitting.");
+            var key = new Vector2(point.x, point.z);
+            if (sampledHeights.TryGetValue(key, out float height)) return height;
+            height = point.x >= origin.x && point.x <= origin.x + size.x &&
+                point.z >= origin.z && point.z <= origin.z + size.z ? authored.SampleHeight(point) + origin.y :
+                origin.y + finishedHeight(point.x, point.z) * size.y;
+            // note: A wet route approach becomes part of the bridge deck; keep the same water clearance while extending to dry land.
+            YQSpatialTerrainSampleV2 terrainSample = prepared.SampleTerrain(point.x, point.z);
+            if (terrainSample.waterFeatureIndex >= 0 && terrainSample.waterMask > .05f)
+                height = Mathf.Max(height, origin.y + terrainSample.waterSurfaceNormalized * size.y + .32f);
+            sampledHeights.Add(key, height);
+            return height;
+        }
+        float started = Time.realtimeSinceStartup;
+        string failure = "no settled dry approach";
+        // note: Bank discovery proves a dry contact, not sufficient descent length. Bound its derived ramp by the accepted polyline and a finite terrain-height/grade budget without changing the accepted plan or bank-discovery limit.
+        float endpointApproachLimit = ResolveNativeBridgeEndpointApproachLimit(size.y, span.width,
+            prepared.GetRoute(span.routeIndex).maximumGradeDegrees);
+        float startLimit = Mathf.Max(0f, fitStart + (span.fitRoute != null ? 0f : endpointApproachLimit));
+        float endLimit = Mathf.Max(0f, distances[distances.Length - 1] - fitEnd + (span.fitRoute != null ? 0f : endpointApproachLimit));
+        float startExtension = Mathf.Min(4f, startLimit), endExtension = Mathf.Min(4f, endLimit);
+        while (true)
+        {
+            // note: Expose bounded candidate work without presenting a fitted or accepted bridge before its landing checks pass.
+            YQStartupLoadingScreen.SetGenerationSubstep("Fitting bridge entrances: " + startExtension.ToString("0") +
+                "m / " + endExtension.ToString("0") + "m (limits " + startLimit.ToString("0") + "m / " + endLimit.ToString("0") + "m)");
+            var before = new List<float>(); var after = new List<float>();
+            float start = fitStart - startExtension, end = fitEnd + endExtension;
+            for (float along = start; along < fitStart - .001f; along += 2f) before.Add(along);
+            for (float along = fitEnd + 2f; along < end - .001f; along += 2f) after.Add(along);
+            after.Add(end);
+            foreach (float along in distances)
+                if (along > start && along < fitStart - .001f) before.Add(along);
+                else if (along > fitEnd + .001f && along < end) after.Add(along);
+            before.Sort(); after.Sort();
+            var profile = new List<Vector3>();
+            void AddApproach(float along)
+            {
+                Vector3 point = SampleCrossingRoute(route, distances, along, true);
+                if (profile.Count > 0 && Vector2.Distance(new Vector2(point.x,point.z),
+                    new Vector2(profile[profile.Count - 1].x,profile[profile.Count - 1].z)) < .001f) return;
+                // note: Keep every wet route station on the raised deck; endpoint checks below require both ramps to land on a full-width dry bank.
+                point.y = Sample(point) + .025f - YQGeneratedRiverBridge.WalkSurfaceTopOffset;
+                profile.Add(point);
+            }
+            foreach (float along in before) AddApproach(along);
+            int firstCore = profile.Count; profile.AddRange(core);
+            foreach (float along in after) AddApproach(along);
+            bool startDry = IsDryBridgeBank(prepared, new Vector2(profile[0].x, profile[0].z), span.width + 2f);
+            bool endDry = IsDryBridgeBank(prepared, new Vector2(profile[profile.Count - 1].x, profile[profile.Count - 1].z), span.width + 2f);
+            if (!startDry || !endDry)
+            {
+                failure = "bridge approach has not reached both full-width dry banks; startDry=" + startDry +
+                    "; endDry=" + endDry + "; startExtension=" + startExtension.ToString("0.0") +
+                    "; endExtension=" + endExtension.ToString("0.0");
+                float dryStart = startDry ? startExtension : Mathf.Min(startLimit, startExtension + 4f);
+                float dryEnd = endDry ? endExtension : Mathf.Min(endLimit, endExtension + 4f);
+                if (!startDry && dryStart <= startExtension || !endDry && dryEnd <= endExtension)
+                {
+                    failure += "; accepted approach extent exhausted; startLimit=" + startLimit.ToString("0.0") +
+                        "; endLimit=" + endLimit.ToString("0.0");
+                    break;
+                }
+                startExtension = dryStart; endExtension = dryEnd;
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                yield return null; started = Time.realtimeSinceStartup;
+                continue;
+            }
+            // note: A cropped endpoint may stop inside a true corner's full-width miter. Extend only that endpoint along the same accepted route before fitting; internal folds remain strict geometry failures.
+            if (!YQNativeBridgeTread.HasEndpointMiterRunout(profile, span.width, out bool extendStart, out bool extendEnd))
+            {
+                float runoutStart = extendStart ? Mathf.Min(startLimit, startExtension + 4f) : startExtension;
+                float runoutEnd = extendEnd ? Mathf.Min(endLimit, endExtension + 4f) : endExtension;
+                failure = "endpoint bend has insufficient full-width miter runout; startExtension=" + startExtension.ToString("0.0") +
+                    "; endExtension=" + endExtension.ToString("0.0") + "; extendStart=" + extendStart + "; extendEnd=" + extendEnd;
+                if (extendStart && runoutStart <= startExtension || extendEnd && runoutEnd <= endExtension)
+                {
+                    failure += "; accepted approach extent exhausted; startLimit=" + startLimit.ToString("0.0") +
+                        "; endLimit=" + endLimit.ToString("0.0");
+                    break;
+                }
+                startExtension = runoutStart; endExtension = runoutEnd;
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                yield return null; started = Time.realtimeSinceStartup;
+                continue;
+            }
+            var floors = new float[profile.Count];
+            for (int index = 0; index < floors.Length; index++) floors[index] = profile[index].y;
+            // note: Measure terrain relative to the sloped tread, then lift both ends by the required clearance. Assigning the segment's absolute crest to both ends created a step even on a valid linear uphill road.
+            for (int index = 1; index < profile.Count; index++)
+            {
+                Vector3 first = profile[index - 1], last = profile[index], delta = last - first; delta.y = 0f;
+                float lift = MeasureNativeBridgeSegmentFloor(first, last, span.width, point =>
+                {
+                    float t = Mathf.Clamp01(((point.x - first.x) * delta.x + (point.z - first.z) * delta.z) / delta.sqrMagnitude);
+                    return Sample(point) - Mathf.Lerp(first.y, last.y, t);
+                }) +
+                    .025f - YQGeneratedRiverBridge.WalkSurfaceTopOffset;
+                floors[index - 1] = Mathf.Max(floors[index - 1], first.y + lift); floors[index] = Mathf.Max(floors[index], last.y + lift);
+                if (Time.realtimeSinceStartup - started >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                {
+                    // note: Completed footprint measurements are real fitting progress; the watchdog still requires the unchanged final acceptance gates.
+                    YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                    yield return null; started = Time.realtimeSinceStartup;
+                }
+            }
+            for (int index = 0; index < profile.Count; index++)
+            { Vector3 point = profile[index]; point.y = floors[index]; profile[index] = point; }
+            profile = ConstrainNativeBridgeDeckGrade(profile, prepared.GetRoute(span.routeIndex).maximumGradeDegrees);
+            // note: Triangle altitudes across the wider shoulder, rather than centreline distances, bind the native tread grade before the settled-bank check.
+            try
+            {
+                profile = YQNativeBridgeTread.FitProfile(profile,span.width,prepared.GetRoute(span.routeIndex).maximumGradeDegrees);
+            }
+            catch (InvalidOperationException exception)
+            {
+                // note: Retain the geometry rejection and identify its owning crossing and bounded approach candidate.
+                throw new InvalidOperationException("Native bridge tread rejected: " + span.crossingId +
+                    "; startExtension=" + startExtension.ToString("0.0") + "; endExtension=" + endExtension.ToString("0.0") +
+                    "; profileStations=" + profile.Count + "; " + exception.Message, exception);
+            }
+            float startStep = profile[0].y + YQGeneratedRiverBridge.WalkSurfaceTopOffset - Sample(profile[0]);
+            float endStep = profile[profile.Count - 1].y + YQGeneratedRiverBridge.WalkSurfaceTopOffset - Sample(profile[profile.Count - 1]);
+            if (startStep <= .25f && endStep <= .25f)
+            {
+                completed(profile); yield break;
+            }
+            failure = "dry approach has not settled onto the finished road; startStep=" + startStep.ToString("0.000") +
+                "; endStep=" + endStep.ToString("0.000") + "; startExtension=" + startExtension.ToString("0.0") +
+                "; endExtension=" + endExtension.ToString("0.0") + "; startApproachStations=" + firstCore;
+            // note: Test the final fractional endpoint once, and stop when a failing side has no remaining geometry. A settled opposite side never moves solely to consume the search budget.
+            float nextStart = startStep > .25f ? Mathf.Min(startLimit, startExtension + 4f) : startExtension;
+            float nextEnd = endStep > .25f ? Mathf.Min(endLimit, endExtension + 4f) : endExtension;
+            if (startStep > .25f && nextStart <= startExtension || endStep > .25f && nextEnd <= endExtension)
+            {
+                failure += "; accepted approach extent exhausted; startLimit=" + startLimit.ToString("0.0") +
+                    "; endLimit=" + endLimit.ToString("0.0");
+                break;
+            }
+            startExtension = nextStart; endExtension = nextEnd;
+            YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+            yield return null; started = Time.realtimeSinceStartup;
+        }
+        throw new InvalidOperationException("Native bridge approaches rejected: " + span.crossingId + "; " + failure);
+    }
+
+    private static IEnumerator FitBridgeBankPathsToTerrainRoutine(Transform root, Terrain terrain)
+    {
+        // note: Derived bank routing chooses horizontal connectivity; actual published terrain owns every edge's height. Center-only canonical elevations created elevated, intersecting approach colliders on restored roads.
+        float started = Time.realtimeSinceStartup;
+        foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
+        {
+            Mesh mesh = filter.sharedMesh;
+            if (mesh == null) throw new InvalidOperationException("Bridge bank path has no mesh.");
+            Vector3[] vertices = mesh.vertices;
+            for (int index = 0; index < vertices.Length; index++)
+            {
+                Vector3 point = filter.transform.TransformPoint(vertices[index]);
+                if (!YQGeneratedWorldTerrain.TrySamplePlacementHeight(terrain, point, null, out float height))
+                    throw new InvalidOperationException("Bridge bank path has no accepted terrain sample at " + point);
+                point.y = height + .025f;
+                vertices[index] = filter.transform.InverseTransformPoint(point);
+                if (Time.realtimeSinceStartup - started >= YQGeneratedRiverBridge.CooperativeSliceSeconds)
+                { yield return null; started = Time.realtimeSinceStartup; }
+            }
+            mesh.vertices = vertices; mesh.RecalculateBounds(); mesh.RecalculateNormals();
+            var collider = filter.GetComponent<MeshCollider>();
+            if (collider == null) throw new InvalidOperationException("Bridge bank path has no collider.");
+            collider.sharedMesh = null; collider.sharedMesh = mesh;
+            yield return null;
+            started = Time.realtimeSinceStartup;
+        }
     }
 
     private static bool TryBuildCrossingSpan(
@@ -4210,7 +5765,9 @@ public static class YQContinuousWorldFeatureMaterializer
         if (routeIndex < 0 || waterIndex < 0)
             return false;
         YQSpatialMaterializationRouteV2 route = prepared.GetRoute(routeIndex);
-        int count = prepared.GetRoutePointCount(routeIndex);
+        List<Vector2> projectedRoute = UsesNativeBridgeRoutes(prepared)
+            ? YQGeneratedWorldEnvironment.GetAcceptedRouteCenterline(prepared, routeIndex) : null;
+        int count = projectedRoute?.Count ?? prepared.GetRoutePointCount(routeIndex);
         if (count < 2 || route.width <= 0f)
             return false;
         Vector3[] routePoints = new Vector3[count];
@@ -4220,11 +5777,13 @@ public static class YQContinuousWorldFeatureMaterializer
         Vector2 crossingPoint = new Vector2(crossing.x, crossing.z);
         for (int index = 0; index < count; index++)
         {
-            YQSpatialMaterializationRoutePointV2 point = prepared.GetRoutePoint(routeIndex, index);
-            routePoints[index] = new Vector3(point.x, point.surfaceElevationNormalized, point.z);
+            var point = projectedRoute == null
+                ? new Vector2(prepared.GetRoutePoint(routeIndex, index).x, prepared.GetRoutePoint(routeIndex, index).z)
+                : projectedRoute[index];
+            routePoints[index] = new Vector3(point.x, projectedRoute == null ? prepared.GetRoutePoint(routeIndex, index).surfaceElevationNormalized : 0f, point.y);
             if (index == 0) continue;
             Vector2 first = new Vector2(routePoints[index - 1].x, routePoints[index - 1].z);
-            Vector2 delta = new Vector2(point.x, point.z) - first;
+            Vector2 delta = point - first;
             float length = delta.magnitude;
             distances[index] = distances[index - 1] + length;
             if (length < 0.001f) continue;
@@ -4238,7 +5797,19 @@ public static class YQContinuousWorldFeatureMaterializer
         }
         float searchRadius = Mathf.Max(16f, Mathf.Max(crossing.requiredSpan, prepared.GetWater(waterIndex).nominalWidth) * 1.5f);
         if (bestDistanceSquared > searchRadius * searchRadius)
-        { failure = "crossing anchor is outside its accepted route"; return false; }
+        {
+            if (projectedRoute == null) { failure = "crossing anchor is outside its accepted route"; return false; }
+            // note: Site gates and landmark detours move the physical corridor. First prove the persisted anchor still belongs to its original accepted route, then search the same referenced water around its nearest physical-route station.
+            float acceptedDistance = float.PositiveInfinity;
+            for (int point = 1; point < prepared.GetRoutePointCount(routeIndex); point++)
+            {
+                var a = prepared.GetRoutePoint(routeIndex, point - 1); var b = prepared.GetRoutePoint(routeIndex, point);
+                Vector2 segmentStart = new Vector2(a.x, a.z), delta = new Vector2(b.x - a.x, b.z - a.z);
+                float t = Mathf.Clamp01(Vector2.Dot(crossingPoint - segmentStart, delta) / Mathf.Max(.000001f, delta.sqrMagnitude));
+                acceptedDistance = Mathf.Min(acceptedDistance, (crossingPoint - segmentStart - delta * t).sqrMagnitude);
+            }
+            if (acceptedDistance > searchRadius * searchRadius) { failure = "crossing anchor is outside its original accepted route"; return false; }
+        }
         // note: Find the referenced wet interval near the accepted anchor before walking either direction to dry banks.
         float wetDistance = -1f;
         for (float offset = 0f; offset <= searchRadius && wetDistance < 0f; offset += 1f)
@@ -4246,9 +5817,17 @@ public static class YQContinuousWorldFeatureMaterializer
             for (int side = -1; side <= 1; side += 2)
             {
                 float along = Mathf.Clamp(crossingDistance + side * offset, 0f, distances[count - 1]);
-                Vector3 point = SampleCrossingRoute(routePoints, distances, along);
+                Vector3 point = SampleCrossingRoute(routePoints, distances, along, projectedRoute != null);
                 YQSpatialTerrainSampleV2 sample = prepared.SampleTerrain(point.x, point.z);
-                if (sample.waterFeatureIndex == waterIndex && sample.waterMask > 0.05f)
+                // note: Use the compiler's full accepted river/road/shoulder contact corridor. A crossing at a lake seam can be owned by this river even when the sampler selects the connected lake.
+                float referencedDistanceSquared = DistanceToWaterFeatureSquared(
+                    prepared,
+                    waterIndex,
+                    new Vector2(point.x, point.z), out float localWaterWidth);
+                float contactRadius = Mathf.Max(prepared.GetWater(waterIndex).nominalWidth, localWaterWidth) * 0.5f +
+                    route.width * 0.5f + route.shoulderWidth + 7f;
+                bool referencedWaterContact = referencedDistanceSquared <= contactRadius * contactRadius;
+                if ((sample.waterFeatureIndex == waterIndex && sample.waterMask > 0.05f) || referencedWaterContact)
                 { wetDistance = along; break; }
             }
         }
@@ -4269,10 +5848,41 @@ public static class YQContinuousWorldFeatureMaterializer
         // note: Nominal width can understate a connected wet corridor; expand only a failed directional search to the hard limit while retaining the full-width dry-bank predicate.
         const float maximumApproachLimit = 512f;
         float approachLimit = Mathf.Min(maximumApproachLimit, Mathf.Max(32f, approachWaterWidth * 4f));
+        // note: Native approach fitting proves the shoulder as well as the deck. Discover its banks with the same width so a narrow dry contact cannot permanently reject every landward extension; archived decks keep their existing contacts.
+        float bankWidth = UsesNativeBridgeRoutes(prepared) ? route.width + 2f : route.width;
+        Func<Vector3, Vector3, bool> settledBank = null;
+        if (UsesNativeBridgeRoutes(prepared))
+        {
+            // note: Extrapolated contacts can reach an authored landmark even when the finite road detours around it. Keep searching until the full shoulder clears the same actual origin reserves as shared routing.
+            if (!YQGeneratedWorldLayout.TryResolveDryGoddessSummit(prepared, out Vector3 summit))
+            { failure = "native crossing has no accepted dry origin shrine anchor"; return false; }
+            Vector2 goddessCenter = new Vector2(summit.x, summit.z);
+            float heightScale = terrain.terrainData.size.y;
+            var finishedHeight = GetNativeBridgeHeightProjection(prepared, heightScale);
+            // note: Dryness alone can select a steep cross-slope or a short dry tongue. A native flat tread needs its real shoulder to meet the same finished road/water surface at the landing.
+            settledBank = (point, tangent) =>
+            {
+                Vector2 bankPoint = new Vector2(point.x, point.z);
+                if (!YQGeneratedWorldLayout.IsOriginLandmarkRouteCorridorClear(bankPoint, bankPoint,
+                    YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(bankWidth * .5f), goddessCenter)) return false;
+                // note: A larger discrete cardinal stencil does not contain the narrower connector's sample positions. Prove both widths so a discovered bank is actually usable by its shared dry-bank path.
+                if (!IsDryBridgeBank(prepared, new Vector2(point.x, point.z), route.width)) return false;
+                Vector2 side = new Vector2(-tangent.z, tangent.x).normalized;
+                float center = finishedHeight(point.x, point.z) * heightScale;
+                if (float.IsNaN(center) || float.IsInfinity(center)) return false;
+                for (int rail = -2; rail <= 2; rail++)
+                {
+                    Vector2 offset = side * (bankWidth * .25f * rail);
+                    float sample = finishedHeight(point.x + offset.x, point.z + offset.y) * heightScale;
+                    if (float.IsNaN(sample) || float.IsInfinity(sample) || sample - center > .20f) return false;
+                }
+                return true;
+            };
+        }
         bool startBankFound = TryFindCrossingBank(prepared, routePoints, distances, wetDistance, -1f,
-            route.width, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float start);
+            bankWidth, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float start, settledBank);
         bool endBankFound = TryFindCrossingBank(prepared, routePoints, distances, wetDistance, 1f,
-            route.width, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float end);
+            bankWidth, crossing.requiredSpan, approachLimit, maximumApproachLimit, out float end, settledBank);
         if (!startBankFound || !endBankFound)
         {
             // note: Preserve enough local geometry in rejection diagnostics to distinguish a genuinely unbanked crossing from an undersized endpoint search.
@@ -4297,14 +5907,15 @@ public static class YQContinuousWorldFeatureMaterializer
         float previous = float.NegativeInfinity;
         float baseY = terrain.transform.position.y;
         float height = terrain.terrainData.size.y;
+        var nativeHeight = UsesNativeBridgeRoutes(prepared) ? GetNativeBridgeHeightProjection(prepared, height) : null;
         foreach (float along in samples)
         {
             if (along - previous < 0.001f) continue;
             previous = along;
-            Vector3 point = SampleCrossingRoute(routePoints, distances, along);
+            Vector3 point = SampleCrossingRoute(routePoints, distances, along, nativeHeight != null);
             YQSpatialTerrainSampleV2 sample = prepared.SampleTerrain(point.x, point.z);
-            // note: Deck elevation clears the accepted road profile as well as water and terrain; only presentation height changes.
-            float elevation = baseY + Mathf.Max(point.y, sample.elevationNormalized) * height + 0.20f;
+            // note: Ground approaches on the canonical surface; an elevated planning control is not physical support for a flying bank contact.
+            float elevation = baseY + (nativeHeight != null ? nativeHeight(point.x, point.z) : sample.elevationNormalized) * height + 0.20f;
             if (sample.waterFeatureIndex >= 0 && sample.waterMask > 0.05f)
                 elevation = Mathf.Max(elevation, baseY + sample.waterSurfaceNormalized * height + 0.32f);
             points.Add(new Vector3(point.x, elevation, point.z));
@@ -4312,7 +5923,7 @@ public static class YQContinuousWorldFeatureMaterializer
         span = new AcceptedCrossingSpan
         {
             crossingId = crossing.crossingId, routeIndex = routeIndex, startDistance = start, endDistance = end,
-            width = route.width, points = points
+            width = route.width, points = points, routeContacts = points
         };
         failure = null;
         return points.Count >= 2;
@@ -4322,14 +5933,25 @@ public static class YQContinuousWorldFeatureMaterializer
         YQPreparedSpatialMaterializationV2 prepared,
         int waterIndex,
         Vector2 point)
+        => DistanceToWaterFeatureSquared(prepared, waterIndex, point, out _);
+
+    private static float DistanceToWaterFeatureSquared(
+        YQPreparedSpatialMaterializationV2 prepared,
+        int waterIndex,
+        Vector2 point,
+        out float localWidth)
     {
+        // note: Interpolate width at the nearest accepted water segment exactly as the planning crossing predicate does.
+        localWidth = 0f;
         int pointCount = prepared.GetWaterPointCount(waterIndex);
         if (pointCount <= 0)
             return float.PositiveInfinity;
 
         YQSpatialMaterializationWaterPointV2 first = prepared.GetWaterPoint(waterIndex, 0);
+        localWidth = first.width;
         Vector2 previous = new Vector2(first.x, first.z);
-        float closestSquared = (point - previous).sqrMagnitude;
+        float closestSquared = pointCount == 1 ? (point - previous).sqrMagnitude : float.PositiveInfinity;
+        float previousWidth = first.width;
         for (int index = 1; index < pointCount; index++)
         {
             YQSpatialMaterializationWaterPointV2 currentRecord = prepared.GetWaterPoint(waterIndex, index);
@@ -4339,10 +5961,46 @@ public static class YQContinuousWorldFeatureMaterializer
             float t = denominator > 0.0001f
                 ? Mathf.Clamp01(Vector2.Dot(point - previous, segment) / denominator)
                 : 0f;
-            closestSquared = Mathf.Min(closestSquared, (point - (previous + segment * t)).sqrMagnitude);
+            float squared = (point - (previous + segment * t)).sqrMagnitude;
+            if (squared < closestSquared)
+            {
+                closestSquared = squared;
+                localWidth = Mathf.Lerp(previousWidth, currentRecord.width, t);
+            }
             previous = current;
+            previousWidth = currentRecord.width;
         }
         return closestSquared;
+    }
+
+    private static Vector3 SampleCrossingRoute(Vector3[] points, float[] distances, float along, bool nativePrecision)
+    {
+        if (!nativePrecision) return SampleCrossingRoute(points, distances, along);
+        // note: Round native samples once after double interpolation; float cancellation on long legs invented horizontal bends larger than the final coordinate's precision.
+        int last = points.Length - 1;
+        if (along < 0f || along > distances[last])
+        {
+            int endpoint = along < 0f ? 0 : last, neighbor = endpoint == 0 ? 1 : last - 1;
+            int step = endpoint == 0 ? 1 : -1;
+            while (neighbor >= 0 && neighbor <= last && Mathf.Abs(distances[neighbor] - distances[endpoint]) < .001f)
+                neighbor += step;
+            if (neighbor < 0 || neighbor > last) return points[endpoint];
+            double dx = (double)points[endpoint].x - points[neighbor].x, dz = (double)points[endpoint].z - points[neighbor].z;
+            double length = Math.Sqrt(dx * dx + dz * dz);
+            if (length == 0d) return points[endpoint];
+            double extension = Math.Abs((double)along - distances[endpoint]) / length;
+            return new Vector3((float)(points[endpoint].x + dx * extension), points[endpoint].y,
+                (float)(points[endpoint].z + dz * extension));
+        }
+        int index = Array.BinarySearch(distances, along);
+        if (index >= 0) return points[index];
+        index = ~index;
+        if (index <= 0) return points[0];
+        if (index >= points.Length) return points[last];
+        double t = ((double)along - distances[index - 1]) / Math.Max(.001d, (double)distances[index] - distances[index - 1]);
+        Vector3 a = points[index - 1], b = points[index];
+        return new Vector3((float)(a.x + ((double)b.x - a.x) * t), (float)(a.y + ((double)b.y - a.y) * t),
+            (float)(a.z + ((double)b.z - a.z) * t));
     }
 
     private static Vector3 SampleCrossingRoute(Vector3[] points, float[] distances, float along)
@@ -4376,6 +6034,12 @@ public static class YQContinuousWorldFeatureMaterializer
     private static bool TryFindCrossingBank(YQPreparedSpatialMaterializationV2 prepared,
         Vector3[] points, float[] distances, float wetDistance, float direction, float width, float requiredSpan,
         float approachLimit, float maximumApproachLimit, out float bank)
+        => TryFindCrossingBank(prepared, points, distances, wetDistance, direction, width, requiredSpan,
+            approachLimit, maximumApproachLimit, out bank, null);
+
+    private static bool TryFindCrossingBank(YQPreparedSpatialMaterializationV2 prepared,
+        Vector3[] points, float[] distances, float wetDistance, float direction, float width, float requiredSpan,
+        float approachLimit, float maximumApproachLimit, out float bank, Func<Vector3, Vector3, bool> settledBank)
     {
         bank = wetDistance;
         float dryRun = 0f;
@@ -4383,26 +6047,32 @@ public static class YQContinuousWorldFeatureMaterializer
         float total = distances[distances.Length - 1];
         float searchLimit = Mathf.Max(0f, approachLimit);
         float hardLimit = Mathf.Max(searchLimit, maximumApproachLimit);
+        // note: A full-width native landing can lie beyond the old 512m horizon on an accepted road. Search at most one kilometre from the wet contact; tangent extension still obeys the independent endpoint limit.
+        float nativeSearchReach = Mathf.Max(hardLimit, 1024f);
         // note: Search the requested direction first, then extend that same dry-run state once so connected banks outside nominal width remain discoverable.
         float minimum = -searchLimit;
         float maximum = total + searchLimit;
+        // note: A qualified native landing search is bounded from its wet contact, not by the length of a multi-kilometre road. Archived bank discovery retains its existing endpoint bounds.
+        if (settledBank != null) { minimum = Mathf.Max(minimum, wetDistance - nativeSearchReach); maximum = Mathf.Min(maximum, wetDistance + nativeSearchReach); }
         while (true)
         {
             bool withinBound = direction < 0f ? bank > minimum : bank < maximum;
             if (!withinBound)
             {
-                if (searchLimit >= hardLimit)
+                if (searchLimit >= hardLimit || settledBank != null && Mathf.Abs(bank - wetDistance) >= nativeSearchReach)
                     return false;
                 searchLimit = hardLimit;
                 minimum = -searchLimit;
                 maximum = total + searchLimit;
+                if (settledBank != null) { minimum = Mathf.Max(minimum, wetDistance - nativeSearchReach); maximum = Mathf.Min(maximum, wetDistance + nativeSearchReach); }
                 continue;
             }
 
             float next = Mathf.Clamp(bank + direction, minimum, maximum);
-            Vector3 point = SampleCrossingRoute(points, distances, next);
-            Vector3 tangent = SampleCrossingRoute(points, distances, next + 0.1f) -
-                SampleCrossingRoute(points, distances, next - 0.1f);
+            bool nativePrecision = settledBank != null;
+            Vector3 point = SampleCrossingRoute(points, distances, next, nativePrecision);
+            Vector3 tangent = SampleCrossingRoute(points, distances, next + 0.1f, nativePrecision) -
+                SampleCrossingRoute(points, distances, next - 0.1f, nativePrecision);
             Vector2 side = new Vector2(-tangent.z, tangent.x).normalized;
             bool dry = true;
             // note: Require two continuous dry metres across the deck width, not merely a dry center sample beside a diagonal bank.
@@ -4412,6 +6082,8 @@ public static class YQContinuousWorldFeatureMaterializer
                 YQSpatialTerrainSampleV2 sample = prepared.SampleTerrain(point.x + offset.x, point.z + offset.y);
                 if (sample.waterFeatureIndex >= 0 && sample.waterMask > 0.05f) { dry = false; break; }
             }
+            dry &= IsDryBridgeBank(prepared, new Vector2(point.x, point.z), width);
+            if (dry && settledBank != null) dry = settledBank(point, tangent);
             dryRun = dry && previousDry ? dryRun + Mathf.Abs(next - bank) : 0f;
             previousDry = dry;
             bank = next;
@@ -4438,6 +6110,142 @@ public static class YQContinuousWorldFeatureMaterializer
         }
     }
 
+    private sealed class AuthoredWaterCoverage
+    {
+        internal readonly Dictionary<string, Renderer[]> surfaces = new Dictionary<string, Renderer[]>(StringComparer.Ordinal);
+    }
+    private static readonly ConditionalWeakTable<Transform, AuthoredWaterCoverage> AuthoredWaterSurfaces = new ConditionalWeakTable<Transform, AuthoredWaterCoverage>();
+
+    private static bool HasPublishedAuthoredWaterCoverage(Transform parent, Terrain terrain,
+        YQPreparedSpatialMaterializationV2 prepared, Vector2Int coordinate, float cellSize, int onlyWaterIndex = -1)
+    {
+        if (prepared == null || parent == null || terrain == null) return false;
+        var streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        if (streamer == null || streamer.AuthoredTerrain != terrain) return false;
+        Vector3 origin = terrain.transform.position, size = terrain.terrainData.size;
+        float x = WorldGridOrigin + coordinate.x * cellSize, z = WorldGridOrigin + coordinate.y * cellSize;
+        if (x < origin.x || z < origin.z || x + cellSize > origin.x + size.x || z + cellSize > origin.z + size.z) return false;
+        Transform world = parent.root;
+        // note: Cache only authored physical water receipts. The weak key expires with this materialization; streamed ribbons can never satisfy their own retention check.
+        AuthoredWaterCoverage coverage = AuthoredWaterSurfaces.GetValue(world, root =>
+        {
+            var result = new AuthoredWaterCoverage();
+            foreach (var target in root.GetComponentsInChildren<YQStreamedFeatureOverlayTarget>(true))
+            {
+                var renderers = target.GetComponentsInChildren<Renderer>(true);
+                var water = new List<Renderer>();
+                foreach (var renderer in renderers)
+                    if (renderer.name == "CompiledHydrologySurface" || renderer.name == "CuratedEllipticalWaterSurface") water.Add(renderer);
+                if (water.Count > 0 && !string.IsNullOrEmpty(target.featureId)) result.surfaces[target.featureId] = water.ToArray();
+            }
+            return result;
+        });
+        var indices = new List<int>();
+        if (onlyWaterIndex >= 0) indices.Add(onlyWaterIndex);
+        else YQContinuousWorldFeatureAuthority.GetAcceptedWaterIndicesForCell(prepared, coordinate, cellSize, indices);
+        if (indices.Count == 0) return false;
+        foreach (int index in indices)
+        {
+            string hydrologyId = prepared.GetWater(index).hydrologyId;
+            if (!coverage.surfaces.TryGetValue(hydrologyId, out var renderers) ||
+                Array.TrueForAll(renderers, renderer => renderer == null))
+            {
+                // note: A first cell can bind before the authored water coroutine finishes. Refresh a missing identity instead of permanently caching that incomplete hierarchy.
+                foreach (var target in world.GetComponentsInChildren<YQStreamedFeatureOverlayTarget>(true))
+                {
+                    if (target.featureId != hydrologyId) continue;
+                    var published = new List<Renderer>();
+                    foreach (var renderer in target.GetComponentsInChildren<Renderer>(true))
+                        if (renderer.name == "CompiledHydrologySurface" || renderer.name == "CuratedEllipticalWaterSurface") published.Add(renderer);
+                    if (published.Count > 0) coverage.surfaces[hydrologyId] = published.ToArray();
+                }
+                if (!coverage.surfaces.TryGetValue(hydrologyId, out renderers)) return false;
+            }
+            bool present = false;
+            foreach (var renderer in renderers)
+            {
+                // note: Render-only culling preserves authored physical coverage; it must not cause a second streamed river to be built over the retained owner.
+                if (renderer == null || !renderer.gameObject.activeInHierarchy) continue;
+                Bounds bounds = renderer.bounds;
+                var filter = renderer.GetComponent<MeshFilter>();
+                present |= filter != null && filter.sharedMesh != null && filter.sharedMesh.vertexCount > 0 &&
+                    bounds.max.x >= x && bounds.min.x <= x + cellSize && bounds.max.z >= z && bounds.min.z <= z + cellSize;
+            }
+            if (!present) return false;
+        }
+        return true;
+    }
+
+    private struct WaterClipVertex
+    {
+        internal Vector3 position;
+        internal Vector2 uv;
+        internal Color colour;
+        internal static WaterClipVertex Lerp(WaterClipVertex a, WaterClipVertex b, float t) => new WaterClipVertex
+        { position = Vector3.LerpUnclamped(a.position, b.position, t), uv = Vector2.LerpUnclamped(a.uv, b.uv, t), colour = Color.LerpUnclamped(a.colour, b.colour, t) };
+    }
+
+    internal static void ClipWaterSurfaceToTerrain(Mesh mesh, Transform meshTransform, Terrain terrain)
+    {
+        DrainRibbonRoutine(ClipWaterSurfaceToTerrainRoutine(mesh, meshTransform, terrain, false));
+    }
+
+    private static IEnumerator ClipWaterSurfaceToTerrainRoutine(Mesh mesh, Transform meshTransform, Terrain terrain, bool cooperative)
+    {
+
+        if (mesh == null || meshTransform == null || terrain == null || terrain.terrainData == null) yield break;
+        // note: Exact shared boundaries prevent padded neighboring ribbons and origin water from drawing on top of one another; interpolate all shader attributes at each cut.
+        Vector3 origin = terrain.transform.position, size = terrain.terrainData.size;
+        Vector3[] source = mesh.vertices; int[] indices = mesh.triangles; Vector2[] sourceUV = mesh.uv; Color[] sourceColours = mesh.colors;
+        // note: Most local water meshes already fit their owner; retain their shared vertices and avoid rebuilding those surfaces.
+        bool contained = true;
+        foreach (Vector3 local in source)
+        {
+            Vector3 world = meshTransform.TransformPoint(local);
+            if (world.x < origin.x || world.x > origin.x + size.x || world.z < origin.z || world.z > origin.z + size.z)
+            { contained = false; break; }
+        }
+        if (contained) yield break;
+        var vertices = new List<Vector3>(); var uvs = new List<Vector2>(); var colours = new List<Color>(); var triangles = new List<int>();
+        var polygon = new List<WaterClipVertex>(7); var clipped = new List<WaterClipVertex>(7);
+        WaterClipVertex Read(int index) => new WaterClipVertex { position = meshTransform.TransformPoint(source[index]),
+            uv = sourceUV.Length == source.Length ? sourceUV[index] : Vector2.zero,
+            colour = sourceColours.Length == source.Length ? sourceColours[index] : new Color(0f, .5f, 1f, 1f) };
+        double sliceStarted = Time.realtimeSinceStartupAsDouble;
+        for (int triangle = 0; triangle + 2 < indices.Length; triangle += 3)
+        {
+            if (cooperative && (triangle & 63) == 0 && Time.realtimeSinceStartupAsDouble - sliceStarted >= .0015d)
+            { yield return null; sliceStarted = Time.realtimeSinceStartupAsDouble; }
+            polygon.Clear(); polygon.Add(Read(indices[triangle])); polygon.Add(Read(indices[triangle + 1])); polygon.Add(Read(indices[triangle + 2]));
+            for (int edge = 0; edge < 4 && polygon.Count > 0; edge++)
+            {
+                clipped.Clear();
+                float Distance(Vector3 point) => edge == 0 ? point.x - origin.x : edge == 1 ? origin.x + size.x - point.x : edge == 2 ? point.z - origin.z : origin.z + size.z - point.z;
+                for (int i = 0; i < polygon.Count; i++)
+                {
+                    var current = polygon[i]; var previous = polygon[(i + polygon.Count - 1) % polygon.Count];
+                    float cd = Distance(current.position), pd = Distance(previous.position);
+                    if ((cd >= 0f) != (pd >= 0f)) clipped.Add(WaterClipVertex.Lerp(previous, current, pd / (pd - cd)));
+                    if (cd >= 0f) clipped.Add(current);
+                }
+                var swap = polygon; polygon = clipped; clipped = swap;
+            }
+            if (polygon.Count < 3) continue;
+            int start = vertices.Count;
+            foreach (var vertex in polygon)
+            {
+                // note: Floating-point interpolation may leave a cut a few micrometres past the plane; publish exact closed-rectangle coordinates.
+                Vector3 point = vertex.position;
+                point.x = Mathf.Clamp(point.x, origin.x, origin.x + size.x);
+                point.z = Mathf.Clamp(point.z, origin.z, origin.z + size.z);
+                vertices.Add(meshTransform.InverseTransformPoint(point)); uvs.Add(vertex.uv); colours.Add(vertex.colour);
+            }
+            for (int i = 1; i + 1 < polygon.Count; i++) { triangles.Add(start); triangles.Add(start + i); triangles.Add(start + i + 1); }
+        }
+        mesh.Clear(); mesh.indexFormat = vertices.Count > 65535 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+        mesh.SetVertices(vertices); mesh.SetUVs(0, uvs); mesh.SetColors(colours); mesh.SetTriangles(triangles, 0); mesh.RecalculateBounds(); mesh.RecalculateNormals();
+    }
+
     private static int BuildAcceptedAreaWaterPatches(
         Transform parent,
         Terrain terrain,
@@ -4445,6 +6253,11 @@ public static class YQContinuousWorldFeatureMaterializer
         Vector2Int coordinate,
         float cellSize,
         Material material)
+        => BuildAcceptedAreaWaterPatchesCore(parent, terrain, prepared, coordinate, cellSize, material, null);
+
+    private static int BuildAcceptedAreaWaterPatchesCore(
+        Transform parent, Terrain terrain, YQPreparedSpatialMaterializationV2 prepared,
+        Vector2Int coordinate, float cellSize, Material material, HashSet<int> retainedWaterIndices)
     {
         if (parent == null || terrain == null || terrain.terrainData == null || prepared == null || material == null)
             return 0;
@@ -4455,6 +6268,7 @@ public static class YQContinuousWorldFeatureMaterializer
         float maxZ = minZ + cellSize;
         for (int waterIndex = 0; waterIndex < prepared.WaterCount; waterIndex++)
         {
+            if (retainedWaterIndices != null && retainedWaterIndices.Contains(waterIndex)) continue;
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
             if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland && water.kind != YQHydrologyKindV2.Coastline)
                 continue;
@@ -4466,13 +6280,22 @@ public static class YQContinuousWorldFeatureMaterializer
                 out Vector2 center, out Vector2 longAxis, out float longRadius, out float shortRadius);
             Vector2 shortAxis = new Vector2(-longAxis.y, longAxis.x);
             float radius = Mathf.Max(longRadius, shortRadius);
-            if (center.x + radius < minX || center.x - radius > maxX || center.y + radius < minZ || center.y - radius > maxZ)
+            if (water.connectedBasin == null &&
+                (center.x + radius < minX || center.x - radius > maxX || center.y + radius < minZ || center.y - radius > maxZ))
                 continue;
             var first = prepared.GetWaterPoint(waterIndex, 0);
             float surfaceNormalized = water.waterLevelNormalized > 0f ? water.waterLevelNormalized : first.waterSurfaceNormalized;
-            float surfaceY = terrain.transform.position.y + terrain.terrainData.size.y * Mathf.Clamp01(surfaceNormalized) + 0.045f;
+            float surfaceY = terrain.transform.position.y + terrain.terrainData.size.y * Mathf.Clamp01(surfaceNormalized) + 0.005f;
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
+            if (water.connectedBasin != null)
+            {
+                // note: Cell water clips the accepted component without reflooding, preserving dry holes and identical shared shoreline crossings.
+                var positions = new List<Vector2>();
+                water.connectedBasin.AppendClippedTriangles(minX, minZ, maxX, maxZ, positions, triangles);
+                foreach (Vector2 position in positions)
+                    vertices.Add(parent.InverseTransformPoint(new Vector3(position.x, surfaceY, position.y)));
+            }
             var polygon = new List<Vector2>(8);
             var clipped = new List<Vector2>(8);
             const int segments = 96;
@@ -4481,7 +6304,7 @@ public static class YQContinuousWorldFeatureMaterializer
                 float angle = i * Mathf.PI * 2f / segments;
                 return center + longAxis * (Mathf.Cos(angle) * longRadius) + shortAxis * (Mathf.Sin(angle) * shortRadius);
             }
-            for (int segment = 0; segment < segments; segment++)
+            for (int segment = 0; water.connectedBasin == null && segment < segments; segment++)
             {
                 polygon.Clear(); polygon.Add(center); polygon.Add(Rim(segment)); polygon.Add(Rim(segment + 1));
                 for (int edge = 0; edge < 4; edge++)
@@ -4505,9 +6328,10 @@ public static class YQContinuousWorldFeatureMaterializer
                 for (int i = 1; i + 1 < polygon.Count; i++)
                 { triangles.Add(start); triangles.Add(start + i + 1); triangles.Add(start + i); }
             }
-            if (vertices.Count < 4)
+            if (water.connectedBasin != null ? triangles.Count == 0 : vertices.Count < 4)
                 continue;
-            Mesh mesh = new Mesh { name = "ContinuousAreaWaterMesh_" + waterIndex + "_" + coordinate.x + "_" + coordinate.y };
+            Mesh mesh = new Mesh { name = "ContinuousAreaWaterMesh_" + waterIndex + "_" + coordinate.x + "_" + coordinate.y,
+                indexFormat = water.connectedBasin != null ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16 };
             mesh.SetVertices(vertices);
             // note: Area water has no left/right bank axis; the shader requires a midpoint value to keep its whole surface visible.
             Color[] colours = new Color[vertices.Count];
@@ -4547,6 +6371,11 @@ public static class YQContinuousWorldFeatureMaterializer
     }
 
     private static bool TryGetAcceptedRiverPoints(YQPreparedSpatialMaterializationV2 prepared, Vector2Int coordinate, float cellSize, Terrain terrain, out List<Vector3> points, out float width, out List<int> spanBreaks, out List<float> pointWidths)
+        => TryGetAcceptedRiverPointsCore(prepared, coordinate, cellSize, terrain, out points, out width, out spanBreaks, out pointWidths, null);
+
+    private static bool TryGetAcceptedRiverPointsCore(YQPreparedSpatialMaterializationV2 prepared, Vector2Int coordinate,
+        float cellSize, Terrain terrain, out List<Vector3> points, out float width, out List<int> spanBreaks,
+        out List<float> pointWidths, HashSet<int> retainedWaterIndices, List<Vector3> bankOffsets = null)
     {
         points = new List<Vector3>();
         width = 0f;
@@ -4566,6 +6395,7 @@ public static class YQContinuousWorldFeatureMaterializer
         for (int acceptedIndex = 0; acceptedIndex < acceptedWaterIndices.Count; acceptedIndex++)
         {
             int waterIndex = acceptedWaterIndices[acceptedIndex];
+            if (retainedWaterIndices != null && retainedWaterIndices.Contains(waterIndex)) continue;
             YQSpatialMaterializationWaterV2 water = prepared.GetWater(waterIndex);
             // note: Area waters use a fitted surface patch below; they are not linear ribbons even when their source has multiple control points.
             if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland || water.kind == YQHydrologyKindV2.Coastline)
@@ -4608,7 +6438,14 @@ public static class YQContinuousWorldFeatureMaterializer
             // note: Preserve accepted control-point width variation, not just one nominal width for the entire river identity.
             for (int emitted = before; emitted < points.Count; emitted++)
             {
+                // note: The terrain and origin ribbon already resolve overlapping falls and receiving bodies through this sampler. Raw fall heights otherwise create a second swimmable sheet above the tutorial river.
+                Vector3 resolvedPoint = points[emitted];
+                var waterSample = prepared.SampleTerrain(resolvedPoint.x, resolvedPoint.z);
+                if (waterSample.waterFeatureIndex >= 0)
+                    resolvedPoint.y = baseY + waterSample.waterSurfaceNormalized * height + .005f;
+                points[emitted] = resolvedPoint;
                 float closest = float.PositiveInfinity;
+                Vector3 acceptedOffset = Vector3.zero;
                 Vector2 sample = new Vector2(points[emitted].x, points[emitted].z);
                 for (int segmentIndex = firstSegment; segmentIndex <= lastSegment; segmentIndex++)
                 {
@@ -4620,7 +6457,12 @@ public static class YQContinuousWorldFeatureMaterializer
                     if (distance >= closest) continue;
                     closest = distance;
                     pointWidths[emitted] = Mathf.Max(water.nominalWidth, Mathf.Lerp(first.width, second.width, t));
+                    if (bankOffsets != null)
+                        acceptedOffset = Vector3.Lerp(prepared.GetAcceptedChannelBankOffset(waterIndex, segmentIndex),
+                            prepared.GetAcceptedChannelBankOffset(waterIndex, segmentIndex + 1), t);
                 }
+                // note: Carry the original accepted frame through clipping; the mesh must not derive a different corner from this cell's shortened span.
+                bankOffsets?.Add(acceptedOffset);
             }
         }
         List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation> waterContinuations = new List<YQContinuousWorldFeatureAuthority.AcceptedTerminalContinuation>();
@@ -4633,6 +6475,10 @@ public static class YQContinuousWorldFeatureMaterializer
             width = Mathf.Max(width, continuation.width);
             AppendTerminalContinuationPoints(points, continuation, coordinate, cellSize, baseY, height, 0f);
             CompleteAcceptedRibbonFeature(points, pointWidths, spanBreaks, before, continuation.width);
+            // note: The existing terminal ray owns a straight constant-width frame independently of clipped cell points.
+            if (bankOffsets != null)
+                for (int emitted = before; emitted < points.Count; emitted++)
+                    bankOffsets.Add(new Vector3(-continuation.direction.y, 0f, continuation.direction.x) * continuation.width * .5f);
         }
         return points.Count >= 2;
     }
@@ -4662,31 +6508,41 @@ public static class YQContinuousWorldFeatureMaterializer
             YQSpatialMaterializationRouteV2 route = prepared.GetRoute(routeIndex);
             width = Mathf.Max(width, route.width);
             int pointCount = prepared.GetRoutePointCount(routeIndex);
-            // note: Exclude only decks built by this same cell transaction; other cells retain their ordinary road until bridge residency has an explicit dependency.
+            // note: Exclude the complete wet interval in every intersected cell; world-owned bridge residency is guaranteed before this cell publishes.
             List<AcceptedCrossingSpan> routeCrossings = new List<AcceptedCrossingSpan>();
             if (crossingSpans != null)
                 for (int index = 0; index < crossingSpans.Count; index++)
                     if (crossingSpans[index].routeIndex == routeIndex) routeCrossings.Add(crossingSpans[index]);
             routeCrossings.Sort((left, right) => left.startDistance.CompareTo(right.startDistance));
+            List<Vector2> physicalRoute = routeCrossings.Count > 0 && UsesNativeBridgeRoutes(prepared)
+                ? YQGeneratedWorldEnvironment.GetAcceptedRouteCenterline(prepared, routeIndex) : null;
+            if (physicalRoute != null) pointCount = physicalRoute.Count;
             float routeDistance = 0f;
             int firstSegment = 0;
             int lastSegment = pointCount - 2;
-            if (prepared.TryGetRouteSegmentRangeForCell(
+            if (physicalRoute == null && prepared.TryGetRouteSegmentRangeForCell(
                     routeIndex, coordinate, cellSize,
                     out int indexedFirstSegment, out int indexedLastSegment))
             {
                 firstSegment = indexedFirstSegment;
                 lastSegment = indexedLastSegment;
             }
-            else if (pointCount > 1 &&
+            else if (physicalRoute == null && pointCount > 1 &&
                      Mathf.Abs(cellSize - YQSemanticWorldAuthority.CellSizeMeters) <= 0.01f)
             {
                 continue;
             }
             for (int pointIndex = routeCrossings.Count > 0 ? 0 : firstSegment; pointIndex <= lastSegment; pointIndex++)
             {
-                YQSpatialMaterializationRoutePointV2 first = prepared.GetRoutePoint(routeIndex, pointIndex);
-                YQSpatialMaterializationRoutePointV2 second = prepared.GetRoutePoint(routeIndex, pointIndex + 1);
+                YQSpatialMaterializationRoutePointV2 first = prepared.GetRoutePoint(routeIndex, Mathf.Min(pointIndex, prepared.GetRoutePointCount(routeIndex) - 1));
+                YQSpatialMaterializationRoutePointV2 second = prepared.GetRoutePoint(routeIndex, Mathf.Min(pointIndex + 1, prepared.GetRoutePointCount(routeIndex) - 1));
+                if (physicalRoute != null)
+                {
+                    first.x = physicalRoute[pointIndex].x; first.z = physicalRoute[pointIndex].y;
+                    second.x = physicalRoute[pointIndex + 1].x; second.z = physicalRoute[pointIndex + 1].y;
+                    first.surfaceElevationNormalized = prepared.SampleTerrain(first.x, first.z).elevationNormalized;
+                    second.surfaceElevationNormalized = prepared.SampleTerrain(second.x, second.z).elevationNormalized;
+                }
                 // note: Non-crossing cells retain their indexed extraction and exact endpoint values; only owned decks need arc-length clipping.
                 if (routeCrossings.Count == 0)
                 {
@@ -4974,7 +6830,14 @@ public static class YQContinuousWorldFeatureMaterializer
         return startT <= endT;
     }
 
-    private static int BuildRibbonSpans(
+    private static int BuildRibbonSpans(Transform parent, string name, List<Vector3> points, List<int> spanBreaks,
+        float width, Material material, bool water, float cellSize, IReadOnlyList<float> pointWidths = null, Terrain contactTerrain = null)
+    {
+        // note: Retain the historical private entry point used by existing publication callers and Editor contract probes; all spans still share one builder.
+        return BuildRibbonSpansCore(parent, name, points, spanBreaks, width, material, water, cellSize, pointWidths, contactTerrain, null);
+    }
+
+    private static int BuildRibbonSpansCore(
         Transform parent,
         string name,
         List<Vector3> points,
@@ -4984,17 +6847,41 @@ public static class YQContinuousWorldFeatureMaterializer
         bool water,
         float cellSize,
         IReadOnlyList<float> pointWidths = null,
-        Terrain contactTerrain = null)
+        Terrain contactTerrain = null,
+        IReadOnlyList<Vector3> bankOffsets = null,
+        YQPreparedSpatialMaterializationV2 nativeWater = null)
     {
+        int built = 0;
+        DrainRibbonRoutine(BuildRibbonSpansRoutine(parent, name, points, spanBreaks, width, material, water, cellSize, pointWidths, contactTerrain, bankOffsets, nativeWater, value => built = value, false));
+        return built;
+    }
+
+    private static IEnumerator BuildRibbonSpansRoutine(
+        Transform parent,
+        string name,
+        List<Vector3> points,
+        List<int> spanBreaks,
+        float width,
+        Material material,
+        bool water,
+        float cellSize,
+        IReadOnlyList<float> pointWidths,
+        Terrain contactTerrain,
+        IReadOnlyList<Vector3> bankOffsets,
+        YQPreparedSpatialMaterializationV2 nativeWater, Action<int> completed, bool cooperative)
+    {
+
         if (points == null || points.Count < 2)
-            return 0;
+            yield break;
         // note: A malformed width stream fails publication instead of borrowing a neighboring feature's appearance.
         if (pointWidths != null && pointWidths.Count != points.Count)
-            return 0;
+            yield break;
+        if (bankOffsets != null && bankOffsets.Count != points.Count) yield break;
         int built = 0;
         float spanWidth = width;
         List<Vector3> span = new List<Vector3>();
         List<float> spanWidths = new List<float>();
+        var spanOffsets = bankOffsets != null ? new List<Vector3>() : null;
         int spanIndex = 0;
         int nextBreak = 0;
         for (int index = 0; index < points.Count; index++)
@@ -5007,11 +6894,16 @@ public static class YQContinuousWorldFeatureMaterializer
             bool inferredBreak = span.Count > 0 && Vector3.Distance(span[span.Count - 1], point) > discontinuity;
             if (explicitBreak || inferredBreak)
             {
-                if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths) != null)
-                    built++;
+                if (span.Count >= 2)
+                {
+                    GameObject ribbon = null;
+                    yield return BuildRibbonCoreWithJoinsRoutine(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths, spanOffsets, nativeWater, value => ribbon = value, cooperative);
+                    if (ribbon != null) built++;
+                }
                 spanIndex++;
                 span.Clear();
                 spanWidths.Clear();
+                spanOffsets?.Clear();
                 while (nextBreak < (spanBreaks != null ? spanBreaks.Count : 0) && index >= spanBreaks[nextBreak])
                     nextBreak++;
             }
@@ -5021,11 +6913,16 @@ public static class YQContinuousWorldFeatureMaterializer
             {
                 span.Add(point);
                 spanWidths.Add(pointWidths != null ? pointWidths[index] : width);
+                spanOffsets?.Add(bankOffsets[index]);
             }
         }
-        if (span.Count >= 2 && BuildRibbon(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths) != null)
-            built++;
-        return built;
+        if (span.Count >= 2)
+        {
+            GameObject ribbon = null;
+            yield return BuildRibbonCoreWithJoinsRoutine(parent, name + "_Span" + spanIndex, span, spanWidth, material, water, contactTerrain, spanWidths, spanOffsets, nativeWater, value => ribbon = value, cooperative);
+            if (ribbon != null) built++;
+        }
+        completed?.Invoke(built);
     }
 
     private static int BuildSampledSiteConnector(
@@ -5065,19 +6962,76 @@ public static class YQContinuousWorldFeatureMaterializer
             128f, null, terrain);
     }
 
-    private static GameObject BuildRibbon(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain = null, IReadOnlyList<float> widths = null)
+    private static void DrainRibbonRoutine(IEnumerator routine)
     {
-        using (RibbonMeshBuildMarker.Auto())
-            return BuildRibbonCore(parent, name, points, width, material, water, contactTerrain, widths);
+        // note: Only compatibility calls drain without frame yields; nested kernels retain their normal disposal and cancellation cleanup.
+        var pending = new Stack<IEnumerator>(); pending.Push(routine);
+        try
+        {
+            while (pending.Count > 0)
+            {
+                var current = pending.Peek();
+                if (!current.MoveNext()) { pending.Pop(); (current as IDisposable)?.Dispose(); }
+                else if (current.Current is IEnumerator nested) pending.Push(nested);
+            }
+        }
+        finally { while (pending.Count > 0) (pending.Pop() as IDisposable)?.Dispose(); }
     }
 
-    private static GameObject BuildRibbonCore(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths)
+    private sealed class MeasuredWaterRoutine : IEnumerator, IDisposable
     {
+        private readonly IEnumerator inner;
+        private readonly Action<string, float> telemetry;
+        internal MeasuredWaterRoutine(IEnumerator inner, Action<string, float> telemetry) { this.inner = inner; this.telemetry = telemetry; }
+        // note: Wrap only nested work, preserving the streamer's scheduling and charging actual MoveNext CPU rather than time spent waiting between frames.
+        public object Current => inner.Current is IEnumerator nested ? new MeasuredWaterRoutine(nested, telemetry) : inner.Current;
+        public bool MoveNext()
+        {
+            float started = Time.realtimeSinceStartup;
+            try { return inner.MoveNext(); }
+            finally { telemetry?.Invoke("riverRibbonBuild", Mathf.Max(0f, Time.realtimeSinceStartup - started)); }
+        }
+        public void Reset() => throw new NotSupportedException();
+        public void Dispose() => (inner as IDisposable)?.Dispose();
+    }
+
+    private static GameObject BuildRibbon(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain = null, IReadOnlyList<float> widths = null, IReadOnlyList<Vector3> bankOffsets = null)
+    {
+        using (RibbonMeshBuildMarker.Auto())
+            return BuildRibbonCore(parent, name, points, width, material, water, contactTerrain, widths, bankOffsets);
+    }
+
+    private static GameObject BuildRibbonCore(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths, IReadOnlyList<Vector3> bankOffsets = null)
+        => BuildRibbonCoreWithJoins(parent, name, points, width, material, water, contactTerrain, widths, bankOffsets, null);
+
+    private static GameObject BuildRibbonWithJoins(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths, IReadOnlyList<Vector3> bankOffsets, YQPreparedSpatialMaterializationV2 nativeWater)
+    {
+        // note: Keep the existing mesh-build profiler scope around the native replacement path as well as legacy ribbons.
+        using (RibbonMeshBuildMarker.Auto())
+            return BuildRibbonCoreWithJoins(parent, name, points, width, material, water, contactTerrain, widths, bankOffsets, nativeWater);
+    }
+
+    private static GameObject BuildRibbonCoreWithJoins(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths, IReadOnlyList<Vector3> bankOffsets, YQPreparedSpatialMaterializationV2 nativeWater)
+    {
+        // note: Compatibility callers retain the exact geometry kernel; production streamed water advances that kernel through its existing publication iterator owner.
+        GameObject result = null;
+        DrainRibbonRoutine(BuildRibbonCoreWithJoinsRoutine(parent, name, points, width, material, water, contactTerrain, widths, bankOffsets, nativeWater, value => result = value, false));
+        return result;
+    }
+
+    private static IEnumerator BuildRibbonCoreWithJoinsRoutine(Transform parent, string name, List<Vector3> points, float width, Material material, bool water, Terrain contactTerrain, IReadOnlyList<float> widths, IReadOnlyList<Vector3> bankOffsets, YQPreparedSpatialMaterializationV2 nativeWater, Action<GameObject> completed, bool cooperative)
+    {
+        Mesh mesh = null;
+        GameObject root = null;
+        bool delivered = false;
+        try
+        {
         if (points == null || points.Count < 2 || parent == null || material == null)
-            return null;
+            yield break;
+        if (bankOffsets != null && (bankOffsets.Count != points.Count || !water)) yield break;
         // note: Grounded roads need samples across their width as well as along the route; water retains its accepted level.
         if (!water && contactTerrain != null)
-            return BuildGroundedRoadRibbon(parent, name, points, width, material, contactTerrain, widths);
+        { completed?.Invoke(BuildGroundedRoadRibbon(parent, name, points, width, material, contactTerrain, widths)); yield break; }
         if (!water && contactTerrain != null)
         {
             // note: Match the heightfield's two-metre detail rather than bridging terrain undulations with eight-metre route triangles.
@@ -5108,7 +7062,7 @@ public static class YQContinuousWorldFeatureMaterializer
         {
             // note: Reject non-finite source points before they can poison a mesh; malformed persisted geometry must fail closed as a missing span.
             if (!IsFinitePoint(points[index]))
-                return null;
+                yield break;
             Vector3 previousDirection = index > 0
                 ? new Vector3(points[index].x - points[index - 1].x, 0f, points[index].z - points[index - 1].z).normalized
                 : Vector3.zero;
@@ -5120,7 +7074,13 @@ public static class YQContinuousWorldFeatureMaterializer
                 direction = nextDirection.sqrMagnitude >= 0.0001f ? nextDirection : previousDirection;
             float localWidth = widths != null ? widths[index] : width;
             Vector3 side = Vector3.Cross(Vector3.up, direction).normalized * localWidth * 0.5f;
-            if (index > 0 && index + 1 < count && previousDirection.sqrMagnitude >= 0.0001f && nextDirection.sqrMagnitude >= 0.0001f)
+            if (bankOffsets != null)
+            {
+                // note: New accepted finite and terminal banks arrive from their canonical frame, preserving exact edges at bends and cell borders.
+                side = bankOffsets[index];
+                if (!IsFinitePoint(side)) yield break;
+            }
+            else if (index > 0 && index + 1 < count && previousDirection.sqrMagnitude >= 0.0001f && nextDirection.sqrMagnitude >= 0.0001f)
             {
                 // note: Use a capped miter at bends so a near-reversal cannot turn a normal path width into a long triangular spike.
                 Vector3 miter = Vector3.Cross(Vector3.up, direction).normalized;
@@ -5158,8 +7118,15 @@ public static class YQContinuousWorldFeatureMaterializer
             triangles[triangle + 3] = vertex + 1;
             triangles[triangle + 4] = vertex + 2;
             triangles[triangle + 5] = vertex + 3;
+            if (bankOffsets != null)
+            {
+                // note: The canonical frame has the opposite lateral orientation to the historical streamed miter; use the origin surface's upward winding.
+                triangles[triangle] = vertex + 1; triangles[triangle + 1] = vertex + 2; triangles[triangle + 2] = vertex;
+                triangles[triangle + 3] = vertex + 3; triangles[triangle + 4] = vertex + 2; triangles[triangle + 5] = vertex + 1;
+            }
         }
-        Mesh mesh = new Mesh { name = name + "_Mesh" };
+        if (cooperative) yield return null;
+        mesh = new Mesh { name = name + "_Mesh" };
         mesh.vertices = vertices;
         mesh.uv = uvs;
         if (water)
@@ -5167,10 +7134,13 @@ public static class YQContinuousWorldFeatureMaterializer
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
-        GameObject root = new GameObject(name);
-        root.transform.SetParent(parent, false);
+        if (water && nativeWater != null)
+            for (int join = 0; join < nativeWater.NativeJoinCount; join++)
+                yield return nativeWater.GetNativeJoin(join).ApplyToMeshRoutine(mesh, parent, contactTerrain, -1, false, null, cooperative);
+        root = new GameObject(name);
         YQContinuousWorldOwnedResources resources = root.AddComponent<YQContinuousWorldOwnedResources>();
         resources.Register(mesh);
+        root.transform.SetParent(parent, false);
         MeshFilter filter = root.AddComponent<MeshFilter>();
         MeshRenderer renderer = root.AddComponent<MeshRenderer>();
         filter.sharedMesh = mesh;
@@ -5179,6 +7149,7 @@ public static class YQContinuousWorldFeatureMaterializer
         renderer.receiveShadows = false;
         if (water)
         {
+            yield return ClipWaterSurfaceToTerrainRoutine(mesh, root.transform, contactTerrain, cooperative);
             root.AddComponent<YQWaterSurfaceMotion>().Configure(filter, renderer, YQHydrologyKindV2.River, 1.2f);
             MeshCollider collider = root.AddComponent<MeshCollider>();
             collider.sharedMesh = mesh;
@@ -5189,24 +7160,92 @@ public static class YQContinuousWorldFeatureMaterializer
             MeshCollider collider = root.AddComponent<MeshCollider>();
             collider.sharedMesh = mesh;
         }
-        return root;
+        completed?.Invoke(root);
+        delivered = true;
+
+        }
+        finally
+        {
+            // note: A cancelled cell cannot strand a native mesh before its owned-resource component is created.
+            if (!delivered)
+            {
+                if (root != null) { if (Application.isPlaying) UnityEngine.Object.Destroy(root); else UnityEngine.Object.DestroyImmediate(root); }
+                else if (mesh != null) { if (Application.isPlaying) UnityEngine.Object.Destroy(mesh); else UnityEngine.Object.DestroyImmediate(mesh); }
+            }
+        }
+    }
+
+    private static bool HasNativeChannelJoinDemand(YQPreparedSpatialMaterializationV2 prepared, Terrain terrain, HashSet<int> retained)
+    {
+        if (prepared == null || terrain == null || terrain.terrainData == null) return false;
+        Vector3 minimum = terrain.transform.position, maximum = minimum + terrain.terrainData.size;
+        for (int join = 0; join < prepared.NativeJoinCount; join++)
+        for (int channel = 0; channel < prepared.WaterCount; channel++)
+            if ((retained == null || !retained.Contains(channel)) && prepared.GetNativeJoin(join).IntersectsChannelRectangle(
+                channel, minimum.x, minimum.z, maximum.x, maximum.z)) return true;
+        return false;
+    }
+
+    private static int BuildNativeChannelJoins(Transform parent, YQPreparedSpatialMaterializationV2 prepared,
+        Terrain terrain, Material material, HashSet<int> retained)
+    {
+        int built = 0;
+        DrainRibbonRoutine(BuildNativeChannelJoinsRoutine(parent, prepared, terrain, material, retained, value => built = value, false));
+        return built;
+    }
+
+    private static IEnumerator BuildNativeChannelJoinsRoutine(Transform parent, YQPreparedSpatialMaterializationV2 prepared,
+        Terrain terrain, Material material, HashSet<int> retained, Action<int> completed, bool cooperative)
+    {
+
+        // note: Publish each accepted channel patch once per cell, independently of ribbon span breaks, before motion caches its vertices.
+        if (parent == null || prepared == null || terrain == null || terrain.terrainData == null || material == null) yield break;
+        Vector3 minimum = terrain.transform.position, maximum = minimum + terrain.terrainData.size;
+        int built = 0;
+        for (int join = 0; join < prepared.NativeJoinCount; join++)
+        for (int channel = 0; channel < prepared.WaterCount; channel++)
+        {
+            var patch = prepared.GetNativeJoin(join);
+            if ((retained != null && retained.Contains(channel)) || !patch.IntersectsChannelRectangle(
+                channel, minimum.x, minimum.z, maximum.x, maximum.z)) continue;
+            var root = new GameObject("ContinuousNativeJoin_" + join + "_" + prepared.GetWater(channel).hydrologyId);
+            root.transform.SetParent(parent, false);
+            var mesh = new Mesh { name = root.name + "_Mesh" };
+            root.AddComponent<YQContinuousWorldOwnedResources>().Register(mesh);
+            yield return patch.ApplyToMeshRoutine(mesh, root.transform, terrain, channel, true, null, cooperative);
+            yield return ClipWaterSurfaceToTerrainRoutine(mesh, root.transform, terrain, cooperative);
+            var filter = root.AddComponent<MeshFilter>(); filter.sharedMesh = mesh;
+            var renderer = root.AddComponent<MeshRenderer>(); renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; renderer.receiveShadows = false;
+            root.AddComponent<YQWaterSurfaceMotion>().Configure(filter, renderer, prepared.GetWater(channel).kind, 1.2f);
+            var collider = root.AddComponent<MeshCollider>(); collider.sharedMesh = mesh; collider.enabled = false;
+            built++;
+            if (cooperative) yield return null;
+        }
+        completed?.Invoke(built);
     }
 
     private static GameObject BuildGroundedRoadRibbon(Transform parent, string name, List<Vector3> points,
-        float width, Material material, Terrain terrain, IReadOnlyList<float> widths)
+        float width, Material material, Terrain terrain, IReadOnlyList<float> widths, Func<Vector2, float> worldHeight = null,
+        bool preserveAcceptedFootprint = false)
     {
         // note: Clip each tessellated triangle to its terrain owner instead of retaining ungrounded vertices beyond a cell edge.
         var vertices = new List<Vector3>();
         var uvs = new List<Vector2>();
         var normals = new List<Vector3>();
+        var colours = new List<Color>();
         var triangles = new List<int>();
+        var vertexByPosition = new Dictionary<Vector2, int>();
+        var polygonIndices = new List<int>(7);
         Vector3 origin = terrain.GetPosition(), size = terrain.terrainData.size;
+        Vector3 currentStart = Vector3.zero, currentEnd = Vector3.zero;
+        float currentStartWidth = width, currentEndWidth = width;
         var polygon = new List<Vector3>(7);
         var clipped = new List<Vector3>(7);
         void Emit(Vector3 a, Vector3 b, Vector3 c)
         {
             polygon.Clear(); polygon.Add(a); polygon.Add(b); polygon.Add(c);
-            for (int edge = 0; edge < 4; edge++)
+            for (int edge = 0; worldHeight == null && edge < 4; edge++)
             {
                 clipped.Clear();
                 float Distance(Vector3 point) => edge == 0 ? point.x - origin.x : edge == 1 ? origin.x + size.x - point.x :
@@ -5221,20 +7260,36 @@ public static class YQContinuousWorldFeatureMaterializer
                 var swap = polygon; polygon = clipped; clipped = swap;
             }
             if (polygon.Count < 3) return;
-            int start = vertices.Count;
+            polygonIndices.Clear();
             foreach (Vector3 point in polygon)
             {
-                Vector2 xz = new Vector2(Mathf.Clamp(point.x, origin.x, origin.x + size.x),
-                    Mathf.Clamp(point.z, origin.z, origin.z + size.z));
-                if (!YQGeneratedWorldEnvironment.TrySampleLivedPathSurface(terrain, xz, out Vector3 grounded, out _)) return;
+                Vector2 xz = worldHeight != null ? new Vector2(point.x, point.z) :
+                    new Vector2(Mathf.Clamp(point.x, origin.x, origin.x + size.x), Mathf.Clamp(point.z, origin.z, origin.z + size.z));
+                // note: Adjacent triangles reuse the exact same terrain sample and vertex; the former six copies each repeated native height/normal queries and tangent work.
+                if (vertexByPosition.TryGetValue(xz, out int existingIndex)) { polygonIndices.Add(existingIndex); continue; }
+                if (!YQGeneratedWorldEnvironment.TrySampleLivedPathSurface(terrain, xz, out Vector3 grounded, out Vector3 normal))
+                {
+                    if (worldHeight == null) return;
+                    // note: Only world-owned accepted approaches have this sampler. Cell-owned roads retain their terrain clipping contract.
+                    grounded = new Vector3(xz.x, worldHeight(xz) + .025f, xz.y);
+                    normal = Vector3.up;
+                    if (!IsFinitePoint(grounded)) throw new InvalidOperationException("Accepted bank surface is not finite at " + xz);
+                }
+                int vertexIndex = vertices.Count;
+                vertexByPosition.Add(xz, vertexIndex); polygonIndices.Add(vertexIndex);
                 vertices.Add(parent.InverseTransformPoint(grounded));
                 uvs.Add(xz * 0.25f);
                 // note: Clipped triangles have separate vertices. Use the terrain's continuous normals instead of introducing a lighting seam on every triangle.
-                Vector3 normal = terrain.terrainData.GetInterpolatedNormal((xz.x - origin.x) / size.x, (xz.y - origin.z) / size.z);
-                normals.Add(parent.InverseTransformDirection(terrain.transform.TransformDirection(normal)).normalized);
+                normals.Add(parent.InverseTransformDirection(normal).normalized);
+                Vector2 delta = new Vector2(currentEnd.x - currentStart.x, currentEnd.z - currentStart.z);
+                float t = Mathf.Clamp01(Vector2.Dot(xz - new Vector2(currentStart.x, currentStart.z), delta) / Mathf.Max(.0001f, delta.sqrMagnitude));
+                float halfWidth = Mathf.Lerp(currentStartWidth, currentEndWidth, t) * .5f;
+                float distance = Vector2.Distance(xz, new Vector2(currentStart.x, currentStart.z) + delta * t);
+                float coverage = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(halfWidth * .68f, halfWidth, distance));
+                colours.Add(new Color(1f, 1f, 1f, coverage));
             }
             for (int i = 1; i + 1 < polygon.Count; i++)
-            { triangles.Add(start); triangles.Add(start + i); triangles.Add(start + i + 1); }
+            { triangles.Add(polygonIndices[0]); triangles.Add(polygonIndices[i]); triangles.Add(polygonIndices[i + 1]); }
         }
         for (int segment = 0; segment + 1 < points.Count; segment++)
         {
@@ -5244,9 +7299,20 @@ public static class YQContinuousWorldFeatureMaterializer
             if (direction.sqrMagnitude < 0.0001f) continue;
             Vector3 side = Vector3.Cross(Vector3.up, direction.normalized);
             float aw = widths != null ? widths[segment] : width, bw = widths != null ? widths[segment + 1] : width;
+            currentStart = a; currentEnd = b; currentStartWidth = aw; currentEndWidth = bw;
             int rows = Mathf.Max(1, Mathf.CeilToInt(direction.magnitude));
             int columns = Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(aw, bw)), 2, 64);
-            Vector3 Point(float along, float across) => Vector3.Lerp(a, b, along) + side * Mathf.Lerp(aw, bw, along) * (across - 0.5f);
+            // note: A fallback remains within its accepted footprint, with continuous world-space width and slight wear rather than an identical ruler-like strip.
+            Vector3 Point(float along, float across)
+            {
+                Vector3 center = Vector3.Lerp(a, b, along);
+                Vector2 xz = new Vector2(center.x, center.z);
+                float localWidth = Mathf.Lerp(aw, bw, along);
+                // note: Cosmetic wear must not erase a required cell's last accepted road sliver.
+                if (preserveAcceptedFootprint) return center + side * (localWidth * (across - .5f));
+                float offset = (Mathf.PerlinNoise(center.x * .043f + 17f, center.z * .043f + 31f) - .5f) * localWidth * .12f;
+                return center + side * (offset + localWidth * YQGeneratedWorldEnvironment.LivedPathWidthScale(xz) * (across - .5f));
+            }
             for (int row = 0; row < rows; row++)
             for (int column = 0; column < columns; column++)
             {
@@ -5257,11 +7323,16 @@ public static class YQContinuousWorldFeatureMaterializer
                 Emit(al, bl, ar); Emit(ar, bl, br);
             }
         }
-        if (triangles.Count == 0) return null;
+        // note: Retry only an empty worn ribbon with its original accepted width; keep the same route, terrain clipping and grounding gates.
+        if (triangles.Count == 0)
+            return preserveAcceptedFootprint ? null : BuildGroundedRoadRibbon(parent, name, points, width,
+                material, terrain, widths, worldHeight, true);
         var mesh = new Mesh { name = name + "_Mesh", indexFormat = vertices.Count > 65535 ?
             UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16 };
         mesh.SetVertices(vertices); mesh.SetUVs(0, uvs); mesh.SetTriangles(triangles, 0);
-        mesh.SetNormals(normals);
+        mesh.SetColors(colours);
+        if (worldHeight == null) mesh.SetNormals(normals);
+        else mesh.RecalculateNormals();
         // note: Authored ground materials contain normal maps, which require valid tangents on the generated ribbon.
         mesh.RecalculateBounds(); mesh.RecalculateTangents();
         var root = new GameObject(name);
@@ -5364,6 +7435,24 @@ public static class YQContinuousWorldFeatureMaterializer
         return material;
     }
 
+    private static void BindGroundedRoadSurface(Material roadMaterial, Terrain terrain)
+    {
+        // note: The approved packed-earth textures stay bound while the verge fades into the same underlying terrain.
+        Shader vergeShader = Shader.Find("YourQuest/Grounded Path");
+        if (vergeShader != null) roadMaterial.shader = vergeShader;
+        // note: Reuse the approved packed-earth terrain texture on the ribbon instead of a prefab's foliage/stone atlas.
+        foreach (TerrainLayer layer in terrain.terrainData.terrainLayers)
+        {
+            if (layer == null || !layer.name.EndsWith("_LivedPath", StringComparison.Ordinal) || layer.diffuseTexture == null) continue;
+            if (roadMaterial.HasProperty("_BaseMap")) roadMaterial.SetTexture("_BaseMap", layer.diffuseTexture);
+            roadMaterial.mainTexture = layer.diffuseTexture;
+            roadMaterial.mainTextureScale = Vector2.one;
+            if (roadMaterial.HasProperty("_BaseColor")) roadMaterial.SetColor("_BaseColor", new Color(.58f, .48f, .36f, 1f));
+            if (roadMaterial.HasProperty("_BumpMap")) roadMaterial.SetTexture("_BumpMap", layer.normalMapTexture);
+            break;
+        }
+    }
+
     private static Material BuildFallbackRoadMaterial()
     {
         Shader shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
@@ -5421,7 +7510,8 @@ public static class YQContinuousWorldFeatureMaterializer
                     match = true;
             if (!match)
                 continue;
-            Material material = entry.material;
+            // note: Resolve only the matching metadata entry, keeping unrelated pack textures out of residency.
+            Material material = entry.material != null ? entry.material : registry.ResolveMaterial(entry.assetPath);
             Renderer sourceRenderer = null;
             GameObject prefab = material == null ? registry.ResolvePrefab(entry.assetPath) : null;
             if (material == null && prefab != null)

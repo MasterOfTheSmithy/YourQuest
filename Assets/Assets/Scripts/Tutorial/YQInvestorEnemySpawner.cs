@@ -337,7 +337,8 @@ public sealed class YQInvestorEnemySpawner : MonoBehaviour
             return false;
         if (hitTransform.GetComponentInParent<YQInvestorEnemy>() != null)
             return false;
-        if (hitTransform.GetComponentInParent<YQInvestorPlayerMotor>() != null)
+        // note: Player body colliders remain actor-owned while ragdoll physics temporarily detaches their hierarchy.
+        if (YQInvestorPlayerMotor.ResolveFromCollider(collider) != null)
             return false;
         if (hitTransform.GetComponentInParent<EntityInfo>() != null)
             return false;

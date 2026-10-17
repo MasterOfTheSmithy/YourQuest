@@ -3,6 +3,22 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class YQOriginSitePortal : MonoBehaviour
 {
+    private static Bounds reviewedInteriorBounds;
+    private static bool hasReviewedInterior;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetInterior() => hasReviewedInterior = false;
+
+    public static void RegisterReviewedInterior(Bounds bounds)
+    {
+        // note: This transient physical bound identifies the loaded origin interior, without adding a player or save authority.
+        reviewedInteriorBounds = bounds;
+        reviewedInteriorBounds.Expand(new Vector3(0f, 3f, 0f));
+        hasReviewedInterior = true;
+    }
+
+    public static bool IsInsideReviewedInterior(Vector3 position) =>
+        hasReviewedInterior && reviewedInteriorBounds.Contains(position);
+
     private static float nextAllowedTransitionTime;
 
     private Vector3 destination;
@@ -45,7 +61,8 @@ public sealed class YQOriginSitePortal : MonoBehaviour
             return;
 
         YQInvestorPlayerMotor motor =
-            other.GetComponentInParent<YQInvestorPlayerMotor>();
+            // note: Physics-body detachment preserves portal ownership on the same player.
+            YQInvestorPlayerMotor.ResolveFromCollider(other);
 
         if (motor == null || !motor.IsAuthoritative)
             return;

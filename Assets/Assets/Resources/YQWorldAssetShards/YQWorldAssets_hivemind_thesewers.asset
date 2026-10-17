@@ -1,0 +1,3455 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_thesewers
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Materials/M_Sewer_Floor_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Materials/M_Sewer_Mud_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Materials/M_Sewer_Mud_01b.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Meshes/Kit_Concrete/Floor/Materials/MI_SMI_Sewer_Floor_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 673f857f55b685e46b5015dddf8aa75e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Meshes/Kit_Concrete/Floor/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 3d43d8e3893202d44a38f580681c9200, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Meshes/Mud/Materials/MI_Sewer_Mud_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8876f0326c3ab7a449b752f871942c22, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Meshes/Mud/Materials/M_Sewer_Mud_01b.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e64164231e8e84e4d91d90a5928478ef, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Meshes/Mud/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f4b5a876b5d9e3d44b9eecd435ad7b4d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Brick_01a.prefab
+    prefab: {fileID: 1030985294, guid: abc00000000000749606687153068759, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brick_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 95b58cf79dacca343b4cfdbfa9269a36, type: 2}
+    - transformPath: SM_Brick_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 95b58cf79dacca343b4cfdbfa9269a36, type: 2}
+    - transformPath: SM_Brick_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 95b58cf79dacca343b4cfdbfa9269a36, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Brick_01b.prefab
+    prefab: {fileID: 1030985236, guid: abc00000000005657562292790040668, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brick_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53ea4dfceee4d894b9f6f149dc2d4191, type: 2}
+    - transformPath: SM_Brick_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53ea4dfceee4d894b9f6f149dc2d4191, type: 2}
+    - transformPath: SM_Brick_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53ea4dfceee4d894b9f6f149dc2d4191, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Brick_01c.prefab
+    prefab: {fileID: 1031098374, guid: abc00000000012315224017111294117, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brick_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Brick_01d.prefab
+    prefab: {fileID: 1031098404, guid: abc00000000001842720138610989394, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brick_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+    - transformPath: SM_Brick_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9420c65027ea414880ee38db1d3bff8, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_01a.prefab
+    prefab: {fileID: 1030994793, guid: abc00000000012626576116106916430, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_01b.prefab
+    prefab: {fileID: 1031069424, guid: abc00000000017971749341547868245, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_02a.prefab
+    prefab: {fileID: 1031012410, guid: abc00000000008826234717401508243, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_02b.prefab
+    prefab: {fileID: 1030995287, guid: abc00000000016993174797403150792, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_02b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_02b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_03a.prefab
+    prefab: {fileID: 1031081168, guid: abc00000000005886842603237470308, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_03b.prefab
+    prefab: {fileID: 1030996177, guid: abc00000000006596388924181915775, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_03b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_03b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_04a.prefab
+    prefab: {fileID: 1031080634, guid: abc00000000011410555716031889121, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_04a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_04a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_04a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_04a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_04a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_04a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_05a.prefab
+    prefab: {fileID: 1031120029, guid: abc00000000008034242615710033418, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_05a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_05b.prefab
+    prefab: {fileID: 1031120059, guid: abc00000000011849371584218239825, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_05b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_05b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_06a.prefab
+    prefab: {fileID: 1030994823, guid: abc00000000006592323080741785599, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_06a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_06b.prefab
+    prefab: {fileID: 1030998444, guid: abc00000000005882776759797340132, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_06b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_06b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cable_Set_07a.prefab
+    prefab: {fileID: 1031066228, guid: abc00000000011755311077429391648, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cable_Set_07a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_07a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_07a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_07a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_07a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+    - transformPath: SM_Cable_Set_07a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 40c687074be8ce647b261956cecc7108, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cardboard_01a.prefab
+    prefab: {fileID: 1031000477, guid: abc00000000014605303846963580406, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cardboard_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cardboard_02a.prefab
+    prefab: {fileID: 1030996336, guid: abc00000000002686673658327215611, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cardboard_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b1b23d30ecc78354aba2d164cbff3c94, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Cardboard_02a_1.prefab
+    prefab: {fileID: 1031029695, guid: abc00000000012618620965031329099, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cardboard_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+    - transformPath: SM_Cardboard_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 06ff81aabf756ad458252c9a2fa537ab, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01a.prefab
+    prefab: {fileID: 1030981101, guid: abc00000000000423312930243199179, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b.prefab
+    prefab: {fileID: 1030975587, guid: abc00000000002174241567175548480, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd22678bd3ca9cf4b91d6b040ab92f83, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd22678bd3ca9cf4b91d6b040ab92f83, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd22678bd3ca9cf4b91d6b040ab92f83, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd22678bd3ca9cf4b91d6b040ab92f83, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b_1.prefab
+    prefab: {fileID: 1030994166, guid: abc00000000002265213619874517380, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b_2.prefab
+    prefab: {fileID: 1031000754, guid: abc00000000009226383869025590303, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21d0e99cb3c060243b482419d3831746, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b_3.prefab
+    prefab: {fileID: 1031003997, guid: abc00000000015260416432156870214, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9712afb156687e14a90421f9b833f963, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b_4.prefab
+    prefab: {fileID: 1031004568, guid: abc00000000014094707792012972641, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a2c80748a1a1d4438dc6b12acd52757, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01b_5.prefab
+    prefab: {fileID: 1031107877, guid: abc00000000000307033498096359576, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d30ffb6662598074fbe7dfcfd50fdaa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01c.prefab
+    prefab: {fileID: 1031111217, guid: abc00000000016250342084239040841, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01d.prefab
+    prefab: {fileID: 1031111247, guid: abc00000000003215181782272917646, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2d57934243900924ca95ae5051dfa64b, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Gateway_01.prefab
+    prefab: {fileID: 1030995317, guid: abc00000000013858328194034463117, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Gateway_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Gateway_02.prefab
+    prefab: {fileID: 1030976742, guid: abc00000000006859023051198731302, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Gateway_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_Gateway_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Industrial_Tank_01.prefab
+    prefab: {fileID: 1031022201, guid: abc00000000010808980283947663539, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Industrial_Tank_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+    - transformPath: SM_Industrial_Tank_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+    - transformPath: SM_Industrial_Tank_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+    - transformPath: SM_Industrial_Tank_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+    - transformPath: SM_Industrial_Tank_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+    - transformPath: SM_Industrial_Tank_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6846337e9491ae84c9eaafa7245d1f49, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_branch_01.prefab
+    prefab: {fileID: 1031125393, guid: abc00000000013057804269664500204, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_branch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_branch_02.prefab
+    prefab: {fileID: 1031125423, guid: abc00000000010265033931554599591, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_branch_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_branch_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_connection_01.prefab
+    prefab: {fileID: 1031125453, guid: abc00000000014495779084743592472, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_connection_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_connection_02.prefab
+    prefab: {fileID: 1030995469, guid: abc00000000008583345219330705699, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_connection_02_1.prefab
+    prefab: {fileID: 1030995555, guid: abc00000000009496190607371173283, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b15b8b87467484546bb6fe5425a00e31, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_connection_02_2.prefab
+    prefab: {fileID: 1031019776, guid: abc00000000015408624472784060056, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_curv_01.prefab
+    prefab: {fileID: 1031125511, guid: abc00000000006929400870655149348, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_curv_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_curv_02.prefab
+    prefab: {fileID: 1031125541, guid: abc00000000001410243316022899007, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_curv_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_curv_03.prefab
+    prefab: {fileID: 1031125571, guid: abc00000000009087761082032308454, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_curv_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_curv_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_straight_01.prefab
+    prefab: {fileID: 1030995355, guid: abc00000000006472190970928400066, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_straight_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_straight_02.prefab
+    prefab: {fileID: 1031065734, guid: abc00000000004377232848845878921, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_straight_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_straight_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_turning_01.prefab
+    prefab: {fileID: 1030995865, guid: abc00000000005437731055299821297, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_IronPipe_turning_01_1.prefab
+    prefab: {fileID: 1031019862, guid: abc00000000017282240381614488557, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IronPipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_IronPipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LargePipe_branch_01.prefab
+    prefab: {fileID: 1031071487, guid: abc00000000015866284489039241577, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LargePipe_branch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_branch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_branch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_branch_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_branch_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_branch_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LargePipe_connection_01.prefab
+    prefab: {fileID: 1031009357, guid: abc00000000012906948877659417233, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LargePipe_connection_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LargePipe_connection_02.prefab
+    prefab: {fileID: 1031112303, guid: abc00000000009336703138937923146, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LargePipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LargePipe_straight_01.prefab
+    prefab: {fileID: 1031009327, guid: abc00000000007736619537822093571, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LargePipe_straight_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_straight_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_straight_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_straight_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_straight_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_straight_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LargePipe_turning_01.prefab
+    prefab: {fileID: 1031011978, guid: abc00000000016422135278973999130, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LargePipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+    - transformPath: SM_LargePipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 272821655da57194280d917e9e564236, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LeftHandle_01.prefab
+    prefab: {fileID: 1031086013, guid: abc00000000006054707468915210818, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeftHandle_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftHandle_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftHandle_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftHandle_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftHandle_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftHandle_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Metal_Can_01a.prefab
+    prefab: {fileID: 1030996430, guid: abc00000000002084003893132631698, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Metal_Can_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Metal_Can_01b.prefab
+    prefab: {fileID: 1030996372, guid: abc00000000011691532247851967705, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Metal_Can_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+    - transformPath: SM_Metal_Can_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b158e24d97f149c4dba65cfb84155435, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Old_Mattress_01.prefab
+    prefab: {fileID: 1030991218, guid: abc00000000003501432211162504498, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Old_Mattress_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+    - transformPath: SM_Old_Mattress_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+    - transformPath: SM_Old_Mattress_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+    - transformPath: SM_Old_Mattress_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+    - transformPath: SM_Old_Mattress_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+    - transformPath: SM_Old_Mattress_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 325ebd917da656048a7c4301846ae80d, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_branch_01.prefab
+    prefab: {fileID: 1031003840, guid: abc00000000007845504355913522652, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_branch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_branch_01_1.prefab
+    prefab: {fileID: 1031125685, guid: abc00000000016561732602460030280, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_branch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_branch_02.prefab
+    prefab: {fileID: 1031003782, guid: abc00000000002937548750276550743, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_branch_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_branch_02_1.prefab
+    prefab: {fileID: 1031125715, guid: abc00000000008006934072346292303, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_branch_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_branch_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_connection_01.prefab
+    prefab: {fileID: 1031125745, guid: abc00000000017011368240735439240, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_connection_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_connection_02.prefab
+    prefab: {fileID: 1031001461, guid: abc00000000007468915926021662547, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_connection_02_1.prefab
+    prefab: {fileID: 1031001722, guid: abc00000000015877233599771617363, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_connection_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_connection_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_curv_01.prefab
+    prefab: {fileID: 1031006451, guid: abc00000000012331378915941823124, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_curv_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_curv_01_1.prefab
+    prefab: {fileID: 1031125803, guid: abc00000000014895153529723717072, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_curv_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_curv_02.prefab
+    prefab: {fileID: 1031125833, guid: abc00000000014690095802279926063, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_curv_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_curv_03.prefab
+    prefab: {fileID: 1031125863, guid: abc00000000001534463505675169110, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_curv_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_curv_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_straight_01.prefab
+    prefab: {fileID: 1031001403, guid: abc00000000008865299999643673618, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_straight_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_straight_01_1.prefab
+    prefab: {fileID: 1031001664, guid: abc00000000004196494989283307258, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_straight_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_straight_02.prefab
+    prefab: {fileID: 1031010356, guid: abc00000000000026084280653458009, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_straight_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_straight_02_1.prefab
+    prefab: {fileID: 1031065904, guid: abc00000000006023996423007583525, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_straight_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_straight_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_turning_01.prefab
+    prefab: {fileID: 1031001519, guid: abc00000000011952379926027675777, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed5de7bebf15ee1449d30b67a76221db, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_turning_01_1.prefab
+    prefab: {fileID: 1031001808, guid: abc00000000002142799959431275709, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efbb4183352cb724c9cf829252876b15, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_PlasticPipe_turning_01_2.prefab
+    prefab: {fileID: 1031004682, guid: abc00000000007259883450875448278, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_PlasticPipe_turning_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+    - transformPath: SM_PlasticPipe_turning_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d472e2b56a2b6e418bd2d992d86df35, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Rag_01a.prefab
+    prefab: {fileID: 1030980397, guid: abc00000000013819136709001884014, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rag_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0152fb1610a16e4fa4f852baf1e5a52, type: 2}
+    - transformPath: SM_Rag_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0152fb1610a16e4fa4f852baf1e5a52, type: 2}
+    - transformPath: SM_Rag_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0152fb1610a16e4fa4f852baf1e5a52, type: 2}
+    - transformPath: SM_Rag_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0152fb1610a16e4fa4f852baf1e5a52, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Rag_01b.prefab
+    prefab: {fileID: 1030980311, guid: abc00000000005459058695631116661, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rag_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac8753a47d888994f9df1f8bdb14f601, type: 2}
+    - transformPath: SM_Rag_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac8753a47d888994f9df1f8bdb14f601, type: 2}
+    - transformPath: SM_Rag_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac8753a47d888994f9df1f8bdb14f601, type: 2}
+    - transformPath: SM_Rag_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac8753a47d888994f9df1f8bdb14f601, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_RightHandle_01.prefab
+    prefab: {fileID: 1030999093, guid: abc00000000001446735614154782935, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RightHandle_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightHandle_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightHandle_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightHandle_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightHandle_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightHandle_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Bars_01a.prefab
+    prefab: {fileID: 1031074918, guid: abc00000000000642350730114183181, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Bars_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+    - transformPath: SM_Sewer_Bars_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+    - transformPath: SM_Sewer_Bars_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+    - transformPath: SM_Sewer_Bars_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+    - transformPath: SM_Sewer_Bars_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+    - transformPath: SM_Sewer_Bars_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0042c39fa71ac1643b8d8a579afd22ca, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Floor_01a.prefab
+    prefab: {fileID: 1031070156, guid: abc00000000004052858613443215849, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Floor_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    - transformPath: SM_Sewer_Floor_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    - transformPath: SM_Sewer_Floor_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    - transformPath: SM_Sewer_Floor_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    - transformPath: SM_Sewer_Floor_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+    - transformPath: SM_Sewer_Floor_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c7a6a531fbf564b4c8dddd897a434ca9, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Light_Wall_Fixture_01a.prefab
+    prefab: {fileID: 1030996306, guid: abc00000000010363578777558373858, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91822b700f3342b4d8d6e525f06dbb0d, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Light_Wall_Fixture_01a_1.prefab
+    prefab: {fileID: 1031058444, guid: abc00000000015943244291942320586, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c205bb691cbaa441a29e13ab17c8a5f, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Light_Wall_Fixture_01a_2.prefab
+    prefab: {fileID: 1031058865, guid: abc00000000001066745956954263057, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: df2eaac0f6e12d54bb8ac196ea58f8e5, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Mud_01a.prefab
+    prefab: {fileID: 1030982815, guid: abc00000000013835990987917975481, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Mud_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    - transformPath: SM_Sewer_Mud_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    - transformPath: SM_Sewer_Mud_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    - transformPath: SM_Sewer_Mud_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    - transformPath: SM_Sewer_Mud_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+    - transformPath: SM_Sewer_Mud_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8abcf13cbf3fbcd41ad20be6f72fe221, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Mud_01b.prefab
+    prefab: {fileID: 1031091860, guid: abc00000000002469027696614930546, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Mud_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    - transformPath: SM_Sewer_Mud_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    - transformPath: SM_Sewer_Mud_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    - transformPath: SM_Sewer_Mud_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    - transformPath: SM_Sewer_Mud_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+    - transformPath: SM_Sewer_Mud_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b721366bb9c1ba44ba9b1181e7b75768, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Stairs_01a.prefab
+    prefab: {fileID: 1030972824, guid: abc00000000011000027736145921697, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Stairs_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+    - transformPath: SM_Sewer_Stairs_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+    - transformPath: SM_Sewer_Stairs_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+    - transformPath: SM_Sewer_Stairs_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+    - transformPath: SM_Sewer_Stairs_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+    - transformPath: SM_Sewer_Stairs_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61a9647c05444af4896c8a2ef9219f5d, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Tube_01a.prefab
+    prefab: {fileID: 1030989252, guid: abc00000000011799590095257894613, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Tube_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Tube_01b.prefab
+    prefab: {fileID: 1030989522, guid: abc00000000006454416869816942798, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Tube_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+    - transformPath: SM_Sewer_Tube_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: da36b81656c26c44eba877af834cec47, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Trash_Bag_01a.prefab
+    prefab: {fileID: 1030996270, guid: abc00000000003172313545646756857, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Trash_Bag_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Trash_Bag_02a.prefab
+    prefab: {fileID: 1031012120, guid: abc00000000014322901526692750936, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Trash_Bag_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+    - transformPath: SM_Trash_Bag_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c26819ac9f165b04f8d848f7ee872926, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_01a.prefab
+    prefab: {fileID: 1031009611, guid: abc00000000014340276143001515112, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_02a.prefab
+    prefab: {fileID: 1031120642, guid: abc00000000011122150791696364617, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_03a.prefab
+    prefab: {fileID: 1031120672, guid: abc00000000005338101750155806578, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_03a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_03a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_04a.prefab
+    prefab: {fileID: 1031010043, guid: abc00000000016879007038041969083, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_04a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_04a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_04a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_04a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_04a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_04a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_05a.prefab
+    prefab: {fileID: 1031120732, guid: abc00000000014268724366906133548, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_05a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_05a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_05a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_05a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_05a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_05a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_06a.prefab
+    prefab: {fileID: 1031009809, guid: abc00000000010778814439128242477, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_06a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_06a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_06a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_06a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_06a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_06a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_06b.prefab
+    prefab: {fileID: 1031120796, guid: abc00000000003779509296292510662, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_06b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Ventilation_Set_07a.prefab
+    prefab: {fileID: 1031010074, guid: abc00000000017715911395986427830, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ventilation_Set_07a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_07a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_07a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_07a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_07a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+    - transformPath: SM_Ventilation_Set_07a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 732b901e4fdbb824ab94094ca20827e3, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Crumpled_Paper_01a.prefab
+    prefab: {fileID: 1030993848, guid: abc00000000016587008053677754983, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Crumpled_Paper_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Crumpled_Paper_01b.prefab
+    prefab: {fileID: 1030980281, guid: abc00000000006922258851406793388, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Crumpled_Paper_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Crumpled_Paper_01c.prefab
+    prefab: {fileID: 1030993906, guid: abc00000000000505307539390705141, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Crumpled_Paper_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Crumpled_Paper_01d.prefab
+    prefab: {fileID: 1030993936, guid: abc00000000011555500601520480354, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Crumpled_Paper_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Crumpled_Paper_01e.prefab
+    prefab: {fileID: 1030993966, guid: abc00000000001243414798246475435, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Crumpled_Paper_01e_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01e_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01e_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+    - transformPath: SM_Crumpled_Paper_01e_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9b7c01ed4f85cad429d2df518519ffa6, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Electrical_Cabinet_01a.prefab
+    prefab: {fileID: 1030999153, guid: abc00000000002031673102410698281, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electrical_Cabinet_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+    - transformPath: SM_Electrical_Cabinet_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+    - transformPath: SM_Electrical_Cabinet_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+    - transformPath: SM_Electrical_Cabinet_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+    - transformPath: SM_Electrical_Cabinet_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+    - transformPath: SM_Electrical_Cabinet_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75526645777941047acdcf95bea2f558, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Electrical_Cabinet_02a.prefab
+    prefab: {fileID: 1030996063, guid: abc00000000017874569617122740424, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electrical_Cabinet_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Electrical_Cabinet_02b.prefab
+    prefab: {fileID: 1031012940, guid: abc00000000009707629537121097875, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electrical_Cabinet_02b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+    - transformPath: SM_Electrical_Cabinet_02b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a0e2e32a786584d4b9edf17e72c8774c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Electrical_Cabinet_03a.prefab
+    prefab: {fileID: 1030999123, guid: abc00000000002381410496070436423, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electrical_Cabinet_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+    - transformPath: SM_Electrical_Cabinet_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+    - transformPath: SM_Electrical_Cabinet_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+    - transformPath: SM_Electrical_Cabinet_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+    - transformPath: SM_Electrical_Cabinet_03a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+    - transformPath: SM_Electrical_Cabinet_03a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a39856c6dd6519144b7d672ec55dfc23, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_LeftDoor_01.prefab
+    prefab: {fileID: 1031085981, guid: abc00000000012265146098585173936, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeftDoor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftDoor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftDoor_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftDoor_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftDoor_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_LeftDoor_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_RightDoor_01.prefab
+    prefab: {fileID: 1030980943, guid: abc00000000010118595756135012553, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RightDoor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightDoor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightDoor_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightDoor_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightDoor_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+    - transformPath: SM_RightDoor_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9c0deece14f09164688fc70131b23c93, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Light_Wall_Fixture_On.prefab
+    prefab: {fileID: 1031072637, guid: abc00000000004362461581977763835, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+    - transformPath: SM_Sewer_Light_Wall_Fixture_On_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0545b0c505b490b4a93dfbbc1f90c9ed, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Tube_Door_01b.prefab
+    prefab: {fileID: 1030989313, guid: abc00000000001659688532587085249, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Tube_Door_01b_1.prefab
+    prefab: {fileID: 1031007084, guid: abc00000000007696919042077307517, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Door_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Tube_Gate_01a.prefab
+    prefab: {fileID: 1030982571, guid: abc00000000008884765771649185267, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+    - transformPath: SM_Sewer_Tube_Gate_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4522c0bca3087345b1541cb0476461c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Arch_01a.prefab
+    prefab: {fileID: 1030972206, guid: abc00000000016133839415387848384, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+    - transformPath: SM_Sewer_Wall_Arch_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 320c16dde063a2b4c8e5b33d26140cc7, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Beam_01a.prefab
+    prefab: {fileID: 1031088114, guid: abc00000000007421506705927787161, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae42af0900054c045be829668c6d2c0c, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Beam_01b.prefab
+    prefab: {fileID: 1030983100, guid: abc00000000016121964427809962322, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 84f8bf3cbeef60543923bdc47aba9664, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Beam_01c.prefab
+    prefab: {fileID: 1030971896, guid: abc00000000007836547563834308891, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 552ad5051eb84e6478f0f88261317e08, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Beam_01d.prefab
+    prefab: {fileID: 1031078811, guid: abc00000000001490062508279461980, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+    - transformPath: SM_Sewer_Wall_Beam_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 365c907d9783c8a4c966f560cd7c86d2, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Brick_01a.prefab
+    prefab: {fileID: 1030993544, guid: abc00000000018286966070543241041, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Brick_01b.prefab
+    prefab: {fileID: 1030993604, guid: abc00000000014471837102035034634, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Brick_01c.prefab
+    prefab: {fileID: 1031071373, guid: abc00000000015259763360286379283, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Brick_01d.prefab
+    prefab: {fileID: 1030993574, guid: abc00000000006737738471336676468, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+    - transformPath: SM_Sewer_Wall_Brick_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe76c34293c5b7c47bab1ade7b7e082f, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Cinder_01a.prefab
+    prefab: {fileID: 1031000507, guid: abc00000000002556807336526715311, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Cinder_01b.prefab
+    prefab: {fileID: 1031095984, guid: abc00000000000198090450188612372, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Cinder_01c.prefab
+    prefab: {fileID: 1031118800, guid: abc00000000002730835622187337405, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Cinder_01d.prefab
+    prefab: {fileID: 1031118830, guid: abc00000000015426140819985749034, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+    - transformPath: SM_Sewer_Wall_Cinder_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2db021201e33bb54088728c532ebb970, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Concrete_01a.prefab
+    prefab: {fileID: 1031066086, guid: abc00000000007368003999068365933, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Concrete_01b.prefab
+    prefab: {fileID: 1031118889, guid: abc00000000000123815626445921798, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01b_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Concrete_01c.prefab
+    prefab: {fileID: 1031118920, guid: abc00000000012152322960175796703, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01c_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+  - assetPath: Assets/HIVEMIND/TheSewers/HDRP(Default)/Art/Prefabs/SM_Sewer_Wall_Concrete_01d.prefab
+    prefab: {fileID: 1031070298, guid: abc00000000010837470174512217944, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+    - transformPath: SM_Sewer_Wall_Concrete_01d_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cded831f44ea1b24abbfc39435a45556, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

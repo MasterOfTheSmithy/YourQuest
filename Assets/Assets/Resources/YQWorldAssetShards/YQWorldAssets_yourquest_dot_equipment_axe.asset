@@ -1,0 +1,197 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_axe
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Axe_Starforged_Orrery.prefab
+    prefab: {fileID: 8689266084013494589, guid: 904e29bec7e674040aecd9e612428893, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Axe_Worldtree_Sovereign.prefab
+    prefab: {fileID: 7017834027198988004, guid: ccda4dc3278d4ba4ebe576b4eb6bc563, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Boarding_Hook_Axe.prefab
+    prefab: {fileID: 5324033251974565884, guid: e83873b71e75c63468248313d3ecafc7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Briar_Bearded_Axe.prefab
+    prefab: {fileID: 2093031499464919441, guid: 3ca1c3a76af01534d9de5d4d8722a9c7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Crescent_War_Axe.prefab
+    prefab: {fileID: 1460033407961312054, guid: 732adee6a6cb5a04ab28c149013ce47e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Drakespine_Cleaver.prefab
+    prefab: {fileID: 4488259220201504790, guid: 206b21bf9fd35b74d80167c08b61f2cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Frontier_Double_Bit.prefab
+    prefab: {fileID: 4150117749030790848, guid: 54c2608bab8d2814591ab47e89ca545e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Moonreaver_Crescent_Axe.prefab
+    prefab: {fileID: 6439422125481190604, guid: 37fb6aa7cb576dc4497f9f5ed7692e37, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Tempest_Crown.prefab
+    prefab: {fileID: 5414215911635404227, guid: 441267ca1866a8140b5eec01897b5a05, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Verdant_Cleaver.prefab
+    prefab: {fileID: 5294216877689913334, guid: 9b22a19a0e1cca1469a87ec2d5e6ec78, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Woodsman_Wedge_Axe.prefab
+    prefab: {fileID: 2507174191443634583, guid: c168d94e25473994ea5d6e477d372fbc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_darkness.prefab
+    prefab: {fileID: 3989789756834826832, guid: 12369c90fe149b84b9f258c227bde30f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_fire.prefab
+    prefab: {fileID: 1397174247152189857, guid: 9d1d786f8f0c2374d8bee7308d68012b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_forged.prefab
+    prefab: {fileID: 8016940942330058378, guid: 98c2c27d1798dcc4593244815dbe836f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_frost.prefab
+    prefab: {fileID: 4685238968998155379, guid: 9408913d557736547a9b8dd96070fe87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_light.prefab
+    prefab: {fileID: 6435724791713315630, guid: 65fe941e3ecf5b0459fa4ba76147d816, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_grip_organic.prefab
+    prefab: {fileID: 1691182479051503072, guid: f85855a2c18eef6448e9592d14306882, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_darkness.prefab
+    prefab: {fileID: 7905867417122869097, guid: d1987d7f2bb02f14dba262b33f095193, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_fire.prefab
+    prefab: {fileID: 8423513982484480598, guid: 5de41f02f56d8184abfd86f68dba912e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_forged.prefab
+    prefab: {fileID: 2152443694939955064, guid: a97407ed2c3488c4d9c9b95bd2823be9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_frost.prefab
+    prefab: {fileID: 4957868501147148720, guid: addeec1e86f4a2544bd61563c4201149, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_light.prefab
+    prefab: {fileID: 2662003190569005311, guid: 9959a8804361be249828b60f69434218, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_haft_organic.prefab
+    prefab: {fileID: 5907085293450019086, guid: 3929a57cba9ffac4c97d84227bd1e895, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_darkness.prefab
+    prefab: {fileID: 1262389343939347953, guid: 0dfa966923d2a454db2a0a441720573d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_fire.prefab
+    prefab: {fileID: 9206469218711759016, guid: 04fdc238438757443aebc8a7b03fea18, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_forged.prefab
+    prefab: {fileID: 1021591480209157093, guid: bccc6205a524dd34fa8c0457d3def709, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_frost.prefab
+    prefab: {fileID: 1404046267621975872, guid: a2f906e522553564a9c38e5012b0a3b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_light.prefab
+    prefab: {fileID: 8006432445240860055, guid: b7c092180a199834aa289e40a1ccfd65, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_head_organic.prefab
+    prefab: {fileID: 8695316579055035671, guid: 46a22206e70b24445a4f15fd5c86852a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_mixed_dark_light_forged.prefab
+    prefab: {fileID: 1253328468818177872, guid: d8682cbcc04ef5043aefb9a63dff1aed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/yqmod1_weapon_axe_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 8528974277177037505, guid: 740d72855eb05c2488de1e541624b256, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Briar_Bearded_Axe_Parts.prefab
+    prefab: {fileID: 6608228541321348450, guid: 63db0a7f9a77757479f1ed46f0d9c2bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Woodsman_Wedge_Axe_Parts.prefab
+    prefab: {fileID: 9023204304425185532, guid: 8c102327ae68b754f8ae01706affb698, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Crescent_War_Axe_Parts.prefab
+    prefab: {fileID: 6789171994212256162, guid: 2c4bff34a238e524dae1ba1fa618c4a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Frontier_Double_Bit_Parts.prefab
+    prefab: {fileID: 6006769602637746812, guid: 80cdddcf8085414499e6837a522d5da0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Boarding_Hook_Axe_Parts.prefab
+    prefab: {fileID: 585482494789625436, guid: cac56ec7df47357498ca41da7064a266, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Drakespine_Cleaver_Parts.prefab
+    prefab: {fileID: 854607872178329225, guid: aa105d238d75d764ca7b98960307ffb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Moonreaver_Crescent_Axe_Parts.prefab
+    prefab: {fileID: 2704474997981439703, guid: e861e99bad1613741b2294d53b834f4b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Axe_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7225462213102609726, guid: e028a996872548f48af82d85bd7af97a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Axe_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 2891221743847718918, guid: 8cd504312d572d44998ffe07507151cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Verdant_Cleaver_Parts.prefab
+    prefab: {fileID: 815013012128242173, guid: e0618add550a5144a9d852e94c514575, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/Tempest_Crown_Parts.prefab
+    prefab: {fileID: 8245785767503713406, guid: 12dcf606cb346864ca3a80479118ec82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/axe_monster_crafted_assembled.prefab
+    prefab: {fileID: 187481774071927400, guid: 50d57d2c322fb4043bb81a4b69ee3be1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/mimic_bound_wood_axe_haft.prefab
+    prefab: {fileID: 1568075207497550044, guid: be84a92c9bdf9db40b0edf88009a5a97, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/axe/mimic_tooth_axe_head.prefab
+    prefab: {fileID: 5881249381907023644, guid: 72bbf35abdaa7d74b971dbdc429892ad, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

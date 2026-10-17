@@ -1,0 +1,281 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_cloak
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Dragonbound_Female.prefab
+    prefab: {fileID: 1204759308273327621, guid: 969a2cde15b5656468f4447d132e119c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Dragonbound_Male.prefab
+    prefab: {fileID: 1612832058872184664, guid: 71c80174e5ea0d345b70fac99395aca9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Eclipse_Female.prefab
+    prefab: {fileID: 3629241003956233198, guid: 26ba7095b3016094baedc2b73e6297fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Eclipse_Male.prefab
+    prefab: {fileID: 5863918367766109680, guid: 63bf61629855c0d4ca0a164cbb02f63e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Field_Female.prefab
+    prefab: {fileID: 3139660947741283611, guid: a6812e188d4a6924b9672decf2930d17, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Field_Male.prefab
+    prefab: {fileID: 5056370164967258931, guid: 3fdfa0a11f68f0a4b9e61e3d267a299f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Lamellar_Female.prefab
+    prefab: {fileID: 2972146706683994437, guid: d7141626aec5a0f42b3cd609ef7e930d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Lamellar_Male.prefab
+    prefab: {fileID: 6529695375313749242, guid: e86748af4eb3962479360f08d042659b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Ranger_Female.prefab
+    prefab: {fileID: 673728462308789443, guid: f64c30a5ec0d4f7418e725b61eca5046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Ranger_Male.prefab
+    prefab: {fileID: 6200153782363964126, guid: 2db9281d1131612478a6dedeb14b2087, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Sentinel_Female.prefab
+    prefab: {fileID: 1661307125572303690, guid: f2647138db7de7e4da1eefc4c0c25b3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Sentinel_Male.prefab
+    prefab: {fileID: 4877964988141238537, guid: 076af42b5f1ac0643b8c12c66b6a3816, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2332564819785217237, guid: 46d5a65704bbb5d4db1c5cf305453ea5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 7840755443298165438, guid: 1a081dd98a753fe498e695772fcb9428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Traveler_Female.prefab
+    prefab: {fileID: 4719630250807855595, guid: 57093298258359f418537d4c8702edec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Traveler_Male.prefab
+    prefab: {fileID: 4406057033809812809, guid: 66a05a6d1ce575343a878e36543cee7c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 7195848281259361095, guid: c60b070ea87458743a222b4e61c5327c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 6139637944920427936, guid: cc18dbeda69dfa64289c915d9fccff97, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_core.prefab
+    prefab: {fileID: 2228670931513933896, guid: 274f5fac0c2cbae4c834cefbda296bff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mixed_darkness_light.prefab
+    prefab: {fileID: 7471837865963106904, guid: 1cd4c9ad69cc1454eb8d74684b0bd420, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mixed_organic_fire.prefab
+    prefab: {fileID: 3757911632985625829, guid: 752d8ae3d60c63e44b41e1a4bd2b576f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_darkness.prefab
+    prefab: {fileID: 5294868728207787665, guid: 9f93abbc9c7ee2349bbb7a7da5afe33e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_fire.prefab
+    prefab: {fileID: 4031981382368911012, guid: 790eb9c199753014b919faf0ab9d1f55, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_forged.prefab
+    prefab: {fileID: 1650715219380513957, guid: 5d89430954ce84341ae1d1b8f1103bcb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_frost.prefab
+    prefab: {fileID: 5107268717991936703, guid: 3895ee00464244f44bfe7b9b814d227a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_light.prefab
+    prefab: {fileID: 8842292801258049704, guid: 8bdcea365396eea49ae08f7d1eb3073c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_motif_organic.prefab
+    prefab: {fileID: 8513565456201460012, guid: 3440e787d8cf30f4cac705ebee6f8459, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_darkness.prefab
+    prefab: {fileID: 5543659015027367508, guid: abe97f26132bf294d8c4d36adceaf12f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_fire.prefab
+    prefab: {fileID: 9102414153577379380, guid: 6c5fb658de25af449aba4883fb68e4c3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_forged.prefab
+    prefab: {fileID: 892720450274425623, guid: 50e5d4dcabe611e429027d1f28a40524, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_frost.prefab
+    prefab: {fileID: 3583774989277599980, guid: ffb48ec6daf059d46bd5eb13ecafd970, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_light.prefab
+    prefab: {fileID: 2198656625633051647, guid: c82902ad9aa65d9438ca0268fd187060, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_female_mount_organic.prefab
+    prefab: {fileID: 5436782768334244906, guid: 51ccdf4171fce1c4e91500f5ee70ccfc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_core.prefab
+    prefab: {fileID: 8129836744142199824, guid: 7de53a42b6d8e9e4db93e4fe22121141, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mixed_darkness_light.prefab
+    prefab: {fileID: 8158631240508831706, guid: e840a9128bd7f494da9b43b7a7f04e3d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mixed_organic_fire.prefab
+    prefab: {fileID: 2141285682949011255, guid: 687035747ba342742bc90f25d318a4ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_darkness.prefab
+    prefab: {fileID: 5481762512002255265, guid: c663b80ae6a7297419a55c3dca575aec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_fire.prefab
+    prefab: {fileID: 3356736535254585538, guid: 28c3ea1431b817a44aee2090eab3185c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_forged.prefab
+    prefab: {fileID: 2598954973914114119, guid: 94cece179e9dbd8478996dde6985def2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_frost.prefab
+    prefab: {fileID: 8502206680999180598, guid: b8063cc8985b16c43a82eb1e02e6198f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_light.prefab
+    prefab: {fileID: 2522044879995439231, guid: 0e5d446a4bebe2647abbe30ff84f4745, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_motif_organic.prefab
+    prefab: {fileID: 5792287401866394986, guid: 2462f78d58fc2ed43921e0abe5067ec8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_darkness.prefab
+    prefab: {fileID: 8435287753113664824, guid: c96f91919bd38154b86f939a914eaaba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_fire.prefab
+    prefab: {fileID: 828428770164734433, guid: 216541c7287cacb4aa9291672aadcbf2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_forged.prefab
+    prefab: {fileID: 1607277148766713646, guid: 0522cddb0730bd54ca154d7c1768e97f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_frost.prefab
+    prefab: {fileID: 524242031574489105, guid: e8114aa0188cf09449917193e528dfa1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_light.prefab
+    prefab: {fileID: 1635063592946106085, guid: 61c3fc871562e2043bf7bd93ce200638, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/yqmod1_wearables_cloak_male_mount_organic.prefab
+    prefab: {fileID: 2412588406130939273, guid: 99b321f3efdfc6141aff541078e152a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Field_Male_Parts.prefab
+    prefab: {fileID: 2288300869102713019, guid: 8dc9f13bf339d1140b3902044558af59, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Field_Female_Parts.prefab
+    prefab: {fileID: 8315071264775830607, guid: c31299367d921e24e9aaa9acc59ca93f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Ranger_Male_Parts.prefab
+    prefab: {fileID: 7612876959693166473, guid: 7393e1af95313244b999635f0c17240c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Ranger_Female_Parts.prefab
+    prefab: {fileID: 9060971015541804668, guid: f0273c8698cbd3845b037ed9c2331868, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 6353973047207525431, guid: f86d95124cf985448b02161469ae0de0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 245544365476699552, guid: f951e177ee7f708428a7fb4af398ff0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Traveler_Male_Parts.prefab
+    prefab: {fileID: 7512706336352210188, guid: 2228c34dab538b84f86f0ce3ad8f6417, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Traveler_Female_Parts.prefab
+    prefab: {fileID: 2418877309607742405, guid: ffc255daf72be644d83bdfba720fc658, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 3918657542897901008, guid: 1a719174ce9e65b4a9280fe5afd833f3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 5625313146386954154, guid: 7f9a7804df134b944a2251398ad4fdf1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 8980784403983831126, guid: 0b02d864c43093c4292bd66a45ab4520, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 4684275928309723552, guid: 1623c28c955ded14b9f9aa5c950065ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 5139856513436546222, guid: 8f5641ac2251592498ff273ba3f8fc7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 7654316268350309883, guid: a4b990285e3c5a44f95d6422dfe2160a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 8349337570450630584, guid: c459ba2b362122c4c8a0e75e7b49a535, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 3031960696929994328, guid: a52a43dc17ec08d43b2069c16b5de23e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 3577946924871690558, guid: 049142114f9bcb44592bec253d0146f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/cloak/Cloak_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 6513163090492828025, guid: 7319cab843c95b0478e04a2724f8f630, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

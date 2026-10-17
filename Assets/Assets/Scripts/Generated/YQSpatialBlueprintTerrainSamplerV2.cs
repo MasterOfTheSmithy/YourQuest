@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public struct YQSpatialTerrainSampleV2
@@ -10,9 +13,13 @@ public struct YQSpatialTerrainSampleV2
     public float waterSurfaceNormalized;
     public int waterFeatureIndex;
     public float bankSupportMask;
+    public float connectedBasinSupportMask;
     public float routeMask;
     public float siteReserveMask;
     public float caveMassMask;
+    internal bool constrainFinalChannelElevation;
+    internal float minimumChannelElevation;
+    internal float maximumChannelElevation;
 }
 
 /// <summary>
@@ -23,6 +30,81 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
 {
     private const float DefaultSurface = 0.36f;
     private const float ApproximateTerrainHeightMetres = YQGeneratedWorldTerrain.TerrainHeight;
+    private static string cachedMaterializedInput;
+    private static YQSpatialBlueprintTerrainSamplerV2 cachedMaterializedSampler;
+    private static string cachedTerrainInput;
+    private static YQSpatialBlueprintTerrainSamplerV2 cachedTerrainSampler;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetMaterializedCache()
+    {
+        cachedMaterializedInput = null;
+        cachedMaterializedSampler = null;
+        cachedTerrainInput = null; cachedTerrainSampler = null;
+    }
+
+    private static string MaterializedInput(GeneratedWorldPlanRecord plan) =>
+        plan.worldSeed + "|" + plan.spatialPlanV2.generationVersion + "|" + JsonUtility.ToJson(plan.spatialPlanV2.blueprint);
+
+    internal static IEnumerator WarmMaterializedWaterRoutine(GeneratedWorldPlanRecord plan,
+        Func<bool> isCurrent, Action<bool, string> completed)
+    {
+        bool success = false;
+        string failure = "Materialized water preparation was cancelled.";
+        Task<Tuple<YQSpatialBlueprintTerrainSamplerV2, YQSpatialBlueprintTerrainSamplerV2, string>> work = null;
+        var cancellation = new CancellationTokenSource();
+        try
+        {
+            // note: Validation and Unity serialization stay on the main thread. The worker owns only a detached numeric sampler; it cannot publish world state, read assets, or write the live blueprint.
+            if (plan == null || isCurrent == null || !isCurrent()) yield break;
+            string sourceInput = MaterializedInput(plan);
+            // note: Match the saved nullable location branches used by startup replay and exact-input validation caching.
+            GeneratedWorldPlanRecord snapshot = YQSpatialMaterializationCompilerV2.StartupPreparation.CopySavedPlan(plan);
+            if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(snapshot, out failure)) yield break;
+            // note: Canonical null-to-empty collections have identical geometry. Normalize only the detached warmup copy, retaining the exact original source for the stale-input guard.
+            snapshot.spatialPlanV2.blueprint.EnsureCollections();
+            string input = MaterializedInput(snapshot);
+            if (cachedMaterializedSampler != null && string.Equals(input, cachedMaterializedInput, StringComparison.Ordinal))
+            { success = true; failure = string.Empty; yield break; }
+            work = Task.Run(() =>
+            {
+                // note: Source-array/basin construction is numeric work too; keeping it before the cache lookup repeated seconds of work on otherwise warm queries.
+                if (!TryPrepareBlueprint(snapshot.spatialPlanV2.blueprint,
+                    snapshot.spatialPlanV2.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion,
+                    out var numericSampler, out string sourceFailure))
+                    return Tuple.Create<YQSpatialBlueprintTerrainSamplerV2, YQSpatialBlueprintTerrainSamplerV2, string>(null, null, sourceFailure);
+                var terrainSource = numericSampler.CopyTerrainSource();
+                bool ready = CompleteMaterializedWater(snapshot, ref numericSampler, out string reason, cancellation.Token);
+                return Tuple.Create(ready ? numericSampler : null, terrainSource, reason);
+            }, cancellation.Token);
+            while (!work.IsCompleted)
+            {
+                if (!isCurrent()) yield break;
+                yield return null;
+            }
+            if (!isCurrent() || !string.Equals(sourceInput, MaterializedInput(plan), StringComparison.Ordinal))
+            { failure = "The accepted water inputs changed during preparation."; yield break; }
+            if (work.IsFaulted)
+            { failure = "Materialized water preparation failed: " + work.Exception.GetBaseException().Message; yield break; }
+            if (work.IsCanceled) yield break;
+            var result = work.Result;
+            failure = result.Item3;
+            if (result.Item1 == null) yield break;
+            // note: Cache only completed numeric geometry with an exact input snapshot. TryPrepare still repeats its existing accepted-artifact validation before reuse.
+            cachedMaterializedSampler = result.Item1;
+            cachedMaterializedInput = input;
+            cachedTerrainInput = input; cachedTerrainSampler = result.Item2;
+            success = true;
+        }
+        finally
+        {
+            cancellation.Cancel();
+            if (work != null && !work.IsCompleted)
+                _ = work.ContinueWith(finished => { _ = finished.Exception; cancellation.Dispose(); }, TaskScheduler.Default);
+            else cancellation.Dispose();
+            completed?.Invoke(success, failure);
+        }
+    }
 
     private struct PreparedPoint
     {
@@ -62,6 +144,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         public float depth;
         public int pointStart;
         public int pointCount;
+        public YQPreparedConnectedBasinV2 basin;
     }
 
     private struct PreparedRoute
@@ -88,6 +171,30 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
     private readonly PreparedRoute[] routes;
     private readonly PreparedPoint[] routePoints;
     private readonly PreparedReserve[] reserves;
+    private readonly YQPreparedConnectedBasinV2[] joinedLakes;
+    private readonly bool usesNativeReaches;
+    private readonly List<YQNativeWaterJoinPatchV2> nativeJoins = new List<YQNativeWaterJoinPatchV2>();
+    private YQChannelFootprintIndexV2 channelFootprint;
+    // note: Readiness uses the same immutable lake and channel union as placement; no accepted records or query caches change.
+    internal bool CoversVegetationRectangle(YQPreparedConnectedBasinV2 basin, Bounds bounds)
+        => basin != null && basin.CoversVegetationRectangle(bounds, channelFootprint);
+    internal bool TryFindVegetationDryCandidate(Bounds bounds, out Vector2 candidate)
+    {
+        // note: A bounded geometric candidate rescues thin dry remnants missed by hashed scatter. The caller still applies every grounding, habitat, route, and reserve check.
+        for (int index = 0; index < waters.Length; index++)
+        {
+            var basin = GetMaterializedBasin(index);
+            if (basin == null || basin.InspectVegetationRectangle(bounds, channelFootprint, out candidate) ||
+                float.IsNaN(candidate.x) || float.IsNaN(candidate.y)) continue;
+            if (Sample(candidate.x, candidate.y).waterMask < .12f) return true;
+        }
+        candidate = default; return false;
+    }
+    public int NativeJoinCount => nativeJoins.Count;
+    public YQNativeWaterJoinPatchV2 GetNativeJoin(int index) => nativeJoins[index];
+    internal bool UsesSharedChannelProjection { get; }
+    internal bool UsesCanonicalChannelBanks { get; }
+    internal bool UsesCanonicalWetFootprint { get; }
 
     private YQSpatialBlueprintTerrainSamplerV2(
         PreparedRegion[] regions,
@@ -107,6 +214,25 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         this.routes = routes;
         this.routePoints = routePoints;
         this.reserves = reserves;
+        joinedLakes = new YQPreparedConnectedBasinV2[waters.Length];
+        // note: Pin the new shared projection to its persisted domain version, leaving accepted native-version-2 and legacy-version-1 worlds on their prior streaming behavior.
+        for (int index = 0; index < waters.Length; index++)
+        {
+            if (waters[index].basin != null && waters[index].basin.Version >= YQPreparedConnectedBasinV2.NativeChannelReachVersion)
+                usesNativeReaches = true;
+            if (waters[index].basin != null && waters[index].basin.Version >= YQPreparedConnectedBasinV2.SharedChannelProjectionVersion)
+                UsesSharedChannelProjection = true;
+            if (waters[index].basin != null && waters[index].basin.Version >= YQPreparedConnectedBasinV2.CanonicalChannelBanksVersion)
+                UsesCanonicalChannelBanks = true;
+            if (waters[index].basin != null && waters[index].basin.Version >= YQPreparedConnectedBasinV2.CanonicalWetFootprintVersion)
+                UsesCanonicalWetFootprint = true;
+        }
+    }
+
+    private YQSpatialBlueprintTerrainSamplerV2 CopyTerrainSource()
+    {
+        // note: Source arrays are immutable after blueprint preparation. Separate join/mask buffers preserve the original height-source semantics and avoid reconstructing connected basins at every bind.
+        return new YQSpatialBlueprintTerrainSamplerV2(regions, fields, fieldPoints, waters, waterPoints, routes, routePoints, reserves);
     }
 
     public static bool TryPrepare(
@@ -115,14 +241,192 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         out string failure)
     {
         sampler = null;
-        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(
-                plan,
-                out failure))
+        // note: A cache hit still requires the complete existing acceptance gate, but must not rebuild the derived source arrays and connected basins before reuse.
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure)) return false;
+        // note: Preserve the source preparation's existing collection initialization before comparing numeric inputs; normalization cannot cause a false cold rebuild.
+        plan.spatialPlanV2.blueprint.EnsureCollections();
+        string input = MaterializedInput(plan);
+        if (cachedMaterializedSampler != null && string.Equals(input, cachedMaterializedInput, StringComparison.Ordinal))
         {
-            return false;
+            sampler = cachedMaterializedSampler;
+            return true;
         }
+        if (!TryPrepareBlueprint(plan.spatialPlanV2.blueprint,
+            plan.spatialPlanV2.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion,
+            out sampler, out failure)) return false;
+        var terrainSource = sampler.CopyTerrainSource();
+        if (!CompleteMaterializedWater(plan, ref sampler, out failure, CancellationToken.None)) return false;
+        cachedTerrainSampler = terrainSource; cachedTerrainInput = MaterializedInput(plan);
+        cachedMaterializedSampler = sampler;
+        cachedMaterializedInput = MaterializedInput(plan);
+        return true;
+    }
 
+    private static bool CompleteMaterializedWater(GeneratedWorldPlanRecord plan,
+        ref YQSpatialBlueprintTerrainSamplerV2 sampler, out string failure, CancellationToken cancellation)
+    {
+        failure = string.Empty;
+        cancellation.ThrowIfCancellationRequested();
         YQSpatialBlueprintV2 blueprint = plan.spatialPlanV2.blueprint;
+        // note: Freeze the native join only after routes/reserves and the seed detail profile are known; preparation never edits accepted records.
+        var finalBed = YQGeneratedWorldTerrain.CreatePreparedV2HeightSampler(plan, sampler);
+        for (int index = 0; index < sampler.waters.Length; index++)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var basin = sampler.waters[index].basin;
+            if (basin == null || basin.Version < YQPreparedConnectedBasinV2.JoinedNativeLakeVersion) continue;
+            var domain = blueprint.hydrology[index].connectedDomain;
+            if (!YQPreparedConnectedBasinV2.TryProjectNativeLake(basin, domain.seedX, domain.seedZ,
+                finalBed.SampleNormalized, out sampler.joinedLakes[index], out failure))
+            { sampler = null; return false; }
+        }
+        var channels = new List<int>();
+        for (int index = 0; index < sampler.waters.Length; index++)
+            if (sampler.waters[index].kind == YQHydrologyKindV2.River || sampler.waters[index].kind == YQHydrologyKindV2.Waterfall)
+                channels.Add(index);
+        bool nativeReaches = false;
+        foreach (var water in sampler.waters)
+            if (water.basin != null && water.basin.Version >= YQPreparedConnectedBasinV2.NativeChannelReachVersion) nativeReaches = true;
+        if (nativeReaches)
+        {
+            if (!sampler.PrepareNativeReaches(channels.ToArray(), finalBed.SampleNormalized, out failure, cancellation))
+            { sampler = null; return false; }
+        }
+        else
+        {
+            // note: Archived version-7 worlds keep their bounded join projection exactly; only new version-8 domains opt into complete finite reaches.
+            for (int index = 0; index < sampler.joinedLakes.Length; index++)
+                if (sampler.joinedLakes[index] != null && sampler.waters[index].basin.Version >= YQPreparedConnectedBasinV2.NativeChannelJoinVersion)
+                    sampler.nativeJoins.Add(new YQNativeWaterJoinPatchV2(sampler.joinedLakes[index], channels.ToArray(), sampler.SampleNativeChannelNode));
+        }
+        if (sampler.nativeJoins.Count > 0) sampler.PrepareChannelFootprint();
+        cancellation.ThrowIfCancellationRequested();
+        return true;
+    }
+
+    private bool PrepareNativeReaches(int[] channels, Func<float, float, float> sourceBed, out string failure, CancellationToken cancellation)
+    {
+        // note: Representation tiles cover accepted bank segments and their native interpolation support. Global coordinates, channel order and source heights determine every tile independently of traversal or render-cell arrival.
+        const float tileSize = 256f, support = 4f;
+        var tiles = new Dictionary<Vector2Int, HashSet<int>>();
+        foreach (int channel in channels)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var water = waters[channel];
+            for (int point = 1; point < water.pointCount; point++)
+            {
+                var a = waterPoints[water.pointStart + point - 1]; var b = waterPoints[water.pointStart + point];
+                Vector3 sideA = GetAcceptedChannelBankOffset(channel, point - 1), sideB = GetAcceptedChannelBankOffset(channel, point);
+                float minX = Mathf.Min(a.x - Mathf.Abs(sideA.x), b.x - Mathf.Abs(sideB.x)) - support;
+                float maxX = Mathf.Max(a.x + Mathf.Abs(sideA.x), b.x + Mathf.Abs(sideB.x)) + support;
+                float minZ = Mathf.Min(a.z - Mathf.Abs(sideA.z), b.z - Mathf.Abs(sideB.z)) - support;
+                float maxZ = Mathf.Max(a.z + Mathf.Abs(sideA.z), b.z + Mathf.Abs(sideB.z)) + support;
+                for (int z = Mathf.FloorToInt(minZ / tileSize); z <= Mathf.FloorToInt(maxZ / tileSize); z++)
+                for (int x = Mathf.FloorToInt(minX / tileSize); x <= Mathf.FloorToInt(maxX / tileSize); x++)
+                {
+                    Vector2 first = new Vector2(a.x, a.z), second = new Vector2(b.x, b.z);
+                    Vector2 offsetA = new Vector2(sideA.x, sideA.z), offsetB = new Vector2(sideB.x, sideB.z);
+                    if (!TriangleTouchesRectangle(first - offsetA, second - offsetB, first + offsetA,
+                        x * tileSize - support, z * tileSize - support, (x + 1) * tileSize + support, (z + 1) * tileSize + support) &&
+                        !TriangleTouchesRectangle(first + offsetA, second - offsetB, second + offsetB,
+                        x * tileSize - support, z * tileSize - support, (x + 1) * tileSize + support, (z + 1) * tileSize + support)) continue;
+                    var key = new Vector2Int(x, z);
+                    if (!tiles.TryGetValue(key, out var owners)) { owners = new HashSet<int>(); tiles.Add(key, owners); }
+                    owners.Add(channel);
+                }
+            }
+        }
+        var ordered = new List<Vector2Int>(tiles.Keys);
+        ordered.Sort((a, b) => a.y != b.y ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x));
+        foreach (var tile in ordered)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var owners = new List<int>(tiles[tile]); owners.Sort();
+            nativeJoins.Add(new YQNativeWaterJoinPatchV2(129, tile.x * tileSize, tile.y * tileSize, 2f,
+                sourceBed, joinedLakes, owners.ToArray(), SampleNativeChannelNode));
+        }
+        return YQNativeWaterJoinPatchV2.TryFreezeConnectedReaches(nativeJoins, out failure);
+    }
+
+    private static bool TriangleTouchesRectangle(Vector2 a, Vector2 b, Vector2 c, float minX, float minZ, float maxX, float maxZ)
+    {
+        // note: Exact separating axes discard dry corners of kilometre-long diagonal reach bounds without dropping their native support halo.
+        if (Mathf.Max(a.x, Mathf.Max(b.x, c.x)) < minX || Mathf.Min(a.x, Mathf.Min(b.x, c.x)) > maxX ||
+            Mathf.Max(a.y, Mathf.Max(b.y, c.y)) < minZ || Mathf.Min(a.y, Mathf.Min(b.y, c.y)) > maxZ) return false;
+        bool Separated(Vector2 first, Vector2 second)
+        {
+            Vector2 axis = new Vector2(first.y - second.y, second.x - first.x);
+            float pa = Vector2.Dot(axis, a), pb = Vector2.Dot(axis, b), pc = Vector2.Dot(axis, c);
+            float center = axis.x * (minX + maxX) * .5f + axis.y * (minZ + maxZ) * .5f;
+            float radius = Mathf.Abs(axis.x) * (maxX - minX) * .5f + Mathf.Abs(axis.y) * (maxZ - minZ) * .5f;
+            return Mathf.Max(pa, Mathf.Max(pb, pc)) < center - radius || Mathf.Min(pa, Mathf.Min(pb, pc)) > center + radius;
+        }
+        return !Separated(a, b) && !Separated(b, c) && !Separated(c, a);
+    }
+
+    private void PrepareChannelFootprint()
+    {
+        // note: Freeze finite accepted bank quads outside native replacements and append their exact wet polygons. This cache cannot alter source heights or accepted records.
+        var triangles = new List<YQChannelFootprintIndexV2.Triangle>();
+        for (int index = 0; index < waters.Length; index++)
+        {
+            var water = waters[index];
+            if (water.kind != YQHydrologyKindV2.River && water.kind != YQHydrologyKindV2.Waterfall) continue;
+            if (usesNativeReaches) continue;
+            for (int point = 1; point < water.pointCount; point++)
+            {
+                var first = waterPoints[water.pointStart + point - 1]; var second = waterPoints[water.pointStart + point];
+                Vector3 offsetA = GetAcceptedChannelBankOffset(index, point - 1), offsetB = GetAcceptedChannelBankOffset(index, point);
+                Vector2 a = new Vector2(first.x, first.z), b = new Vector2(second.x, second.z);
+                Vector2 sideA = new Vector2(offsetA.x, offsetA.z), sideB = new Vector2(offsetB.x, offsetB.z);
+                YQChannelFootprintIndexV2.AddSourceTriangle(triangles, a - sideA, b - sideB, a + sideA, index, nativeJoins);
+                YQChannelFootprintIndexV2.AddSourceTriangle(triangles, a + sideA, b - sideB, b + sideB, index, nativeJoins);
+            }
+        }
+        for (int join = 0; join < nativeJoins.Count; join++) nativeJoins[join].AppendChannelFootprint(triangles, nativeJoins, join + 1);
+        channelFootprint = new YQChannelFootprintIndexV2(triangles);
+    }
+
+    internal bool TryMeasureMaterializedChannelDistance(float x, float z, out int waterIndex, out float distance)
+    {
+        waterIndex = -1; distance = float.PositiveInfinity;
+        return channelFootprint != null && channelFootprint.TryMeasure(x, z, out waterIndex, out distance);
+    }
+
+    internal static bool TryPrepareTerrainSource(GeneratedWorldPlanRecord plan,
+        out YQSpatialBlueprintTerrainSamplerV2 sampler, out string failure)
+    {
+        sampler = null;
+        // note: Height publication needs accepted source geometry, not another materialized water cache. Retain the same router/validation gate while omitting the rebuildable join preparation.
+        if (!YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out failure)) return false;
+        plan.spatialPlanV2.blueprint.EnsureCollections();
+        string input = MaterializedInput(plan);
+        if (cachedTerrainSampler != null && string.Equals(input, cachedTerrainInput, StringComparison.Ordinal))
+        { sampler = cachedTerrainSampler; return true; }
+        if (!TryPrepareBlueprint(plan.spatialPlanV2.blueprint,
+            plan.spatialPlanV2.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion,
+            out sampler, out failure)) return false;
+        cachedTerrainSampler = sampler; cachedTerrainInput = MaterializedInput(plan);
+        return true;
+    }
+
+    internal static YQSpatialBlueprintTerrainSamplerV2 PrepareDraftGeology(YQSpatialBlueprintV2 draft)
+    {
+        // note: The compiler alone samples its unaccepted geological stage; this cannot admit unvalidated hydrology or sites to the runtime path.
+        var geology = new YQSpatialBlueprintV2 { worldSize = draft.worldSize,
+            regions = draft.regions, terrainFields = draft.terrainFields };
+        if (!TryPrepareBlueprint(geology, false, out var sampler, out string failure))
+            throw new InvalidOperationException(failure);
+        return sampler;
+    }
+
+    internal float SampleDraftGeology(float x, float z) => EvaluateRawSurface(x, z, out _);
+
+    private static bool TryPrepareBlueprint(YQSpatialBlueprintV2 blueprint, bool connectedDomains,
+        out YQSpatialBlueprintTerrainSamplerV2 sampler, out string failure)
+    {
+        sampler = null;
+        failure = string.Empty;
         blueprint.EnsureCollections();
 
         PreparedRegion[] preparedRegions =
@@ -180,6 +484,10 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             if (source == null)
                 continue;
             int pointStart = waterPointCursor;
+            YQPreparedConnectedBasinV2 domain = null;
+            if (connectedDomains && source.hasConnectedDomain &&
+                !YQPreparedConnectedBasinV2.TryPrepare(source.connectedDomain, source.waterLevelNormalized, out domain, out failure))
+                return false;
             CopyPoints(source.controlPoints, preparedWaterPoints,
                 ref waterPointCursor);
             // note: Keep accepted hydrology coordinates shared with waterfalls and road crossings; moving only rivers disconnects their dependent features.
@@ -203,7 +511,8 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 width = YQSpatialMaterializationCompilerV2.ResolveWaterWidth(source.kind, source.nominalWidth),
                 depth = YQSpatialMaterializationCompilerV2.ResolveWaterDepth(source.kind, source.nominalDepth),
                 pointStart = pointStart,
-                pointCount = waterPointCursor - pointStart
+                pointCount = waterPointCursor - pointStart,
+                basin = domain
             };
         }
 
@@ -297,6 +606,39 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
 
     public YQSpatialTerrainSampleV2 Sample(float worldX, float worldZ)
     {
+        var sample = SampleTerrainSource(worldX, worldZ);
+        // note: Placement and materialization consume the same derived native wet polygons; retain the height-source mask separately to avoid geometry feeding back into detail/smoothing.
+        for (int index = 0; index < joinedLakes.Length; index++)
+        {
+            var basin = joinedLakes[index];
+            if (basin == null) continue;
+            if (sample.waterFeatureIndex == index)
+            { sample.waterMask = 0f; sample.waterFeatureIndex = -1; sample.waterSurfaceNormalized = 0f; }
+            if (basin.TrySampleBed(worldX, worldZ, out _, out bool inside) && inside)
+            { sample.waterMask = 1f; sample.waterFeatureIndex = index; sample.waterSurfaceNormalized = waters[index].level; }
+        }
+        bool sourceChannelCleared = false;
+        foreach (var join in nativeJoins)
+        {
+            if (!join.Contains(worldX, worldZ)) continue;
+            if ((!usesNativeReaches || !sourceChannelCleared) && sample.waterFeatureIndex >= 0 && (waters[sample.waterFeatureIndex].kind == YQHydrologyKindV2.River ||
+                waters[sample.waterFeatureIndex].kind == YQHydrologyKindV2.Waterfall))
+            { sample.waterMask = 0f; sample.waterFeatureIndex = -1; sample.waterSurfaceNormalized = 0f; }
+            // note: Closed neighbouring reach tiles share edges. Clear the old source once, so a dry incident triangle cannot erase a wet polygon owned by the adjacent tile.
+            sourceChannelCleared = true;
+            if (sample.waterMask < .999f && join.TrySample(worldX, worldZ, out int owner, out float level))
+            { sample.waterMask = 1f; sample.waterFeatureIndex = owner; sample.waterSurfaceNormalized = level; }
+        }
+        return sample;
+    }
+
+    public YQPreparedConnectedBasinV2 GetMaterializedBasin(int index)
+        => joinedLakes[index] ?? waters[index].basin;
+
+    internal YQPreparedConnectedBasinV2 GetTerrainSourceBasin(int index) => waters[index].basin;
+
+    internal YQSpatialTerrainSampleV2 SampleTerrainSource(float worldX, float worldZ)
+    {
         float height = EvaluateRawSurface(worldX, worldZ,
             out float ruggedness);
         float waterMask = 0f;
@@ -306,6 +648,9 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         float bankSupportMask = 0f;
         float waterTerrainBlendMask = 0f;
         bool waterTerrainCore = false;
+        float connectedBasinSupportMask = 0f;
+        float connectedBasinBed = 0f;
+        bool connectedBasinNativeBed = false;
         var riverEnvelope = new YQContinuousWorldFeatureAuthority.AcceptedWaterTerrainEnvelope();
 
         for (int index = 0; index < waters.Length; index++)
@@ -313,6 +658,32 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             PreparedWater water = waters[index];
             if (water.pointCount <= 0)
             {
+                continue;
+            }
+
+            if (water.basin != null)
+            {
+                // note: Connected water uses its accepted geological bed, including dry islands; it never acquires a radial lake trench.
+                if (!water.basin.TrySampleBed(worldX, worldZ, out float basinBed, out bool insideBasin)) continue;
+                float shore = water.basin.SignedShoreDistance(worldX, worldZ);
+                float support = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+                if (insideBasin || shore <= support + 2f)
+                {
+                    height = basinBed;
+                    connectedBasinSupportMask = 1f;
+                    connectedBasinBed = basinBed;
+                    connectedBasinNativeBed = water.basin.Version >= YQPreparedConnectedBasinV2.NativeDiagonalVersion;
+                }
+                if (insideBasin)
+                {
+                    waterMask = 1f;
+                    waterFeatureIndex = index;
+                    waterSurface = water.level;
+                    waterBed = basinBed;
+                    waterTerrainBlendMask = 1f;
+                    waterTerrainCore = true;
+                    bankSupportMask = 0f;
+                }
                 continue;
             }
 
@@ -328,8 +699,9 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             float radius = Mathf.Max(
                 1.5f,
                 Mathf.Max(water.width, pointWidth) * 0.5f);
+            float ribbonOutside = float.PositiveInfinity;
             if (water.pointCount > 1 && water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland)
-                SampleRibbonFootprint(water, worldX, worldZ, out distance, out radius, out pointElevation);
+                SampleRibbonFootprint(water, worldX, worldZ, out distance, out radius, out pointElevation, out ribbonOutside);
             // note: Area meshes use an ellipse, so their bed must use the identical footprint rather than a polyline trench.
             if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland)
             {
@@ -341,6 +713,9 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             float bankPadding = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
             float footprintTransition = Mathf.Max(8f, radius * .6f);
             float footprintMask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(radius + bankPadding, radius + bankPadding + footprintTransition, distance));
+            if (UsesCanonicalWetFootprint && (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall))
+                // note: Water exclusion follows actual accepted triangles, while bank-support metadata still protects the separate dry grade.
+                footprintMask = ribbonOutside <= .001f ? 1f : 0f;
             // note: Terrain shoulders must finish their full blend even outside the semantic wet footprint; stopping here produced a vertical edge at the mask boundary.
             bool ownsWater = footprintMask > waterMask;
             // note: Expose the actual shoreline band for the final construction pass, where pads and roads may otherwise cut away its support.
@@ -353,16 +728,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland)
             {
                 // note: A receiving lake owns the confluence datum. Ease the river into that level over a bank-width transition instead of leaving a vertical seam.
-                for (int lakeIndex = 0; lakeIndex < waters.Length; lakeIndex++)
-                {
-                    var lake = waters[lakeIndex];
-                    if (lake.pointCount == 0 || (lake.kind != YQHydrologyKindV2.Lake && lake.kind != YQHydrologyKindV2.Wetland)) continue;
-                    SampleAreaWaterFootprint(lake, worldX, worldZ, out float lakeDistance, out float lakeRadius);
-                    float shoreDistance = Mathf.Max(0f, lakeDistance - lakeRadius - bankPadding);
-                    float blend = 1f - Mathf.SmoothStep(0f, 1f, shoreDistance / Mathf.Max(20f, radius * 2f));
-                    float lakeLevel = lake.level > 0f ? lake.level : waterPoints[lake.pointStart].elevation;
-                    featureSurface = Mathf.Lerp(featureSurface, lakeLevel, blend);
-                }
+                featureSurface = ResolveReceivingSurface(worldX, worldZ, radius, featureSurface);
             }
             float depth = Mathf.Max(.6f, water.depth);
             float crossSection = Mathf.Clamp01(distance / Mathf.Max(.5f, radius - bankPadding));
@@ -399,7 +765,13 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             if (water.kind == YQHydrologyKindV2.River || water.kind == YQHydrologyKindV2.Waterfall)
             {
                 // note: Finite and streamed rivers use the identical cut/fill bank profile; keep the wet mask above independent of this wider dry terrain transition.
-                riverEnvelope.Add(ApproximateTerrainHeightMetres, featureSurface, depth, radius, distance);
+                if (UsesCanonicalWetFootprint)
+                {
+                    // note: A native interpolation cushion cannot own dry land beyond the rendered triangle footprint.
+                    riverEnvelope.AddCanonicalChannel(ApproximateTerrainHeightMetres, featureSurface, depth, radius, distance, ribbonOutside);
+                }
+                else
+                    riverEnvelope.Add(ApproximateTerrainHeightMetres, featureSurface, depth, radius, distance);
                 continue;
             }
             bool featureCore = distance <= radius + bankPadding + 2f;
@@ -419,12 +791,11 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 shorelineMask);
         }
 
-        if (riverEnvelope.Influenced && (!waterTerrainCore || riverEnvelope.HasWetCore))
+        bool applyRiverEnvelope = riverEnvelope.Influenced && (!waterTerrainCore || riverEnvelope.HasWetCore);
+        if (applyRiverEnvelope)
         {
             // note: One projection joins river banks continuously; a dry river shoulder cannot replace an accepted lake's wet basin.
             height = riverEnvelope.Project(height);
-            waterBed = height;
-            waterTerrainBlendMask = 1f;
         }
 
         float routeMask = 0f;
@@ -479,7 +850,17 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         }
         height = Mathf.Lerp(height, reserveElevation, reserveMask * 0.96f);
         // note: Generic route/reserve flattening must not remove an accepted channel's bed or enclosing banks; explicit crossing construction remains a later responsibility.
-        height = Mathf.Lerp(height, waterBed, waterTerrainBlendMask);
+        // note: Preserve the original final water owner, but constrain the current road/reserve surface instead of restoring its earlier height. Reapplying the lake blend here would change dry shores even where no road or reserve acted.
+        if (applyRiverEnvelope)
+            height = riverEnvelope.Project(height);
+        else
+            height = Mathf.Lerp(height, waterBed, waterTerrainBlendMask);
+        // note: The accepted bed owns both sides of a connected shore. Generic reserve/road flattening and dry channel shoulders must not move that contour; explicitly wet channel cuts retain their existing projection.
+        if (connectedBasinSupportMask > 0f && !riverEnvelope.HasWetCore)
+            height = connectedBasinBed;
+        else if (connectedBasinSupportMask > 0f && connectedBasinNativeBed)
+            // note: Channel apertures may cut the new accepted basin, but a river's above-water bank projection must never fill its wet bed or raise its shared shore; stored version-1 geometry retains its previous projection.
+            height = Mathf.Min(height, connectedBasinBed);
 
         float caveMask = 0f;
         for (int index = 0; index < fields.Length; index++)
@@ -516,9 +897,14 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             waterSurfaceNormalized = Mathf.Clamp01(waterSurface),
             waterFeatureIndex = waterFeatureIndex,
             bankSupportMask = bankSupportMask,
+            connectedBasinSupportMask = connectedBasinSupportMask,
             routeMask = Mathf.Clamp01(routeMask),
             siteReserveMask = Mathf.Clamp01(reserveMask),
-            caveMassMask = Mathf.Clamp01(caveMask)
+            caveMassMask = Mathf.Clamp01(caveMask),
+            // note: New finite native reaches retain the existing accepted channel interval through final detail/smoothing. Rebuildable sample metadata does not change serialized controls or historical terrain.
+            constrainFinalChannelElevation = usesNativeReaches && applyRiverEnvelope && connectedBasinSupportMask <= 0f,
+            minimumChannelElevation = usesNativeReaches && applyRiverEnvelope ? riverEnvelope.Project(0f) : 0f,
+            maximumChannelElevation = usesNativeReaches && applyRiverEnvelope ? riverEnvelope.Project(1f) : 1f
         };
     }
 
@@ -585,7 +971,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
             bool roundedRelief = field.kind == YQTerrainFieldKindV2.HillCluster || field.kind == YQTerrainFieldKindV2.RidgeChain;
             if (roundedRelief)
                 fieldRadius = Mathf.Max(fieldRadius, Mathf.Abs(targetElevation - height) * ApproximateTerrainHeightMetres * 3f);
-            if (field.kind == YQTerrainFieldKindV2.Escarpment)
+            if (field.kind == YQTerrainFieldKindV2.Escarpment || field.kind == YQTerrainFieldKindV2.BasinRim)
             {
                 // note: Keep a rock shelf's steepest exposed face below a natural walking-world grade while retaining its authored high ground.
                 float riseMetres = Mathf.Abs(targetElevation - height) * ApproximateTerrainHeightMetres;
@@ -600,7 +986,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 float naturalRun = fallMetres / Mathf.Max(.1f, Mathf.Tan(24f * Mathf.Deg2Rad));
                 fieldRadius = Mathf.Max(fieldRadius, naturalRun);
             }
-            float mask = FalloffMask(distance, fieldRadius, roundedRelief || field.kind == YQTerrainFieldKindV2.Escarpment ? 1f : field.falloff);
+            float mask = FalloffMask(distance, fieldRadius, roundedRelief || field.kind == YQTerrainFieldKindV2.Escarpment || field.kind == YQTerrainFieldKindV2.BasinRim ? 1f : field.falloff);
             if (mask <= 0f)
                 continue;
 
@@ -614,6 +1000,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 case YQTerrainFieldKindV2.RidgeChain:
                 case YQTerrainFieldKindV2.HillCluster:
                 case YQTerrainFieldKindV2.Escarpment:
+                case YQTerrainFieldKindV2.BasinRim:
                     height = Mathf.Lerp(
                         height,
                         Mathf.Max(height, targetElevation),
@@ -647,6 +1034,8 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
 
     private static int ResolveCausalPhase(YQTerrainFieldKindV2 kind)
     {
+        // note: Enclosing relief follows the geological valley/basin cut, avoiding a low corridor that silently breaches a draft lake before its explicit spill is selected.
+        if (kind == YQTerrainFieldKindV2.BasinRim) return 6;
         switch (kind)
         {
             case YQTerrainFieldKindV2.BaseSurface:
@@ -683,11 +1072,107 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         return fade;
     }
 
+    public bool TrySampleAcceptedChannelSurface(float x, float z, float referenceLevel,
+        out int channelIndex, out float surface)
+    {
+        bool native = false; channelIndex = -1; surface = 0f;
+        if (float.IsNaN(x) || float.IsInfinity(x) || float.IsNaN(z) || float.IsInfinity(z) ||
+            float.IsNaN(referenceLevel) || float.IsInfinity(referenceLevel)) return false;
+        foreach (var join in nativeJoins)
+        {
+            if (!join.Contains(x, z)) continue;
+            native = true;
+            if (join.TrySample(x, z, out channelIndex, out surface)) return true;
+        }
+        if (native) return false;
+        return TrySampleTerrainSourceChannelSurface(x, z, referenceLevel, out channelIndex, out surface);
+    }
+
+    private YQNativeChannelNodeV2 SampleNativeChannelNode(int index, float x, float z)
+    {
+        // note: The accepted ribbon still supplies reach intent and the source level profile; only native contact and shared lake-edge ownership are derived after terrain interpolation.
+        var water = waters[index];
+        SampleRibbonFootprint(water, x, z, out _, out float radius, out float elevation, out float outside);
+        return new YQNativeChannelNodeV2 { surface = ResolveReceivingSurface(x, z, radius, elevation), core = outside <= .001f };
+    }
+
+    public bool TrySampleTerrainSourceChannelSurface(float x, float z, float referenceLevel,
+        out int channelIndex, out float surface)
+    {
+        // note: Query canonical ribbon triangles independently of the winning semantic mask. Lake ownership cannot hide a channel opening; terrain padding and rounded endpoint caps are not water coverage. Final materialized meshes still require their own verification.
+        channelIndex = -1;
+        surface = 0f;
+        if (float.IsNaN(x) || float.IsInfinity(x) || float.IsNaN(z) || float.IsInfinity(z) ||
+            float.IsNaN(referenceLevel) || float.IsInfinity(referenceLevel)) return false;
+        float nearestLevel = float.PositiveInfinity;
+        for (int index = 0; index < waters.Length; index++)
+        {
+            var water = waters[index];
+            if (water.pointCount < 2 || (water.kind != YQHydrologyKindV2.River && water.kind != YQHydrologyKindV2.Waterfall)) continue;
+            SampleRibbonFootprint(water, x, z, out _, out float radius, out float elevation, out float outside);
+            if (outside > .001f) continue;
+            float level = ResolveReceivingSurface(x, z, radius, elevation);
+            float difference = Mathf.Abs(level - referenceLevel);
+            if (difference >= nearestLevel) continue;
+            nearestLevel = difference;
+            channelIndex = index;
+            surface = level;
+        }
+        return channelIndex >= 0;
+    }
+
+    internal Vector3 GetAcceptedChannelBankOffset(int waterIndex, int pointIndex)
+    {
+        // note: All terrain and surface owners consume the same immutable control frame and effective width. Subdivision interpolates this offset, never recalculates a tangent.
+        var water = waters[waterIndex];
+        var point = waterPoints[water.pointStart + pointIndex];
+        float radius = Mathf.Max(.75f, Mathf.Max(water.width, point.width) * .5f);
+        return new Vector3(point.waterSide.x * radius, 0f, point.waterSide.y * radius);
+    }
+
+    internal void AccumulateAcceptedChannelEnvelope(int waterIndex, float x, float z, float terrainHeight,
+        bool wetOnly, ref YQContinuousWorldFeatureAuthority.AcceptedWaterTerrainEnvelope envelope)
+    {
+        // note: The existing streaming owner consumes this sampler's immutable ribbon footprint and receiving datum. It must not reconstruct a radial channel or an unblended surface from control points.
+        if (waterIndex < 0 || waterIndex >= waters.Length) return;
+        var water = waters[waterIndex];
+        if (water.pointCount < 2 || (water.kind != YQHydrologyKindV2.River && water.kind != YQHydrologyKindV2.Waterfall)) return;
+        SampleRibbonFootprint(water, x, z, out float distance, out float radius, out float surface, out float outside);
+        float padding = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+        if (wetOnly && (UsesCanonicalWetFootprint ? outside > .001f : distance > radius + padding + 2f)) return;
+        surface = ResolveReceivingSurface(x, z, radius, surface);
+        if (UsesCanonicalWetFootprint)
+            envelope.AddCanonicalChannel(terrainHeight, surface, Mathf.Max(.6f, water.depth), radius, distance, outside);
+        else
+            envelope.Add(terrainHeight, surface, Mathf.Max(.6f, water.depth), radius, distance);
+    }
+
+    private float ResolveReceivingSurface(float x, float z, float radius, float surface)
+    {
+        // note: Coverage diagnostics and terrain projection use the same receiving-level fade, retaining the existing feature order and arithmetic for accepted versions.
+        float padding = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+        for (int lakeIndex = 0; lakeIndex < waters.Length; lakeIndex++)
+        {
+            var lake = waters[lakeIndex];
+            if (lake.pointCount == 0 || (lake.kind != YQHydrologyKindV2.Lake && lake.kind != YQHydrologyKindV2.Wetland)) continue;
+            SampleAreaWaterFootprint(lake, x, z, out float distance, out float lakeRadius, Mathf.Max(20f, radius * 2f) + padding);
+            float shoreDistance = Mathf.Max(0f, distance - lakeRadius - padding);
+            float blend = 1f - Mathf.SmoothStep(0f, 1f, shoreDistance / Mathf.Max(20f, radius * 2f));
+            float level = lake.level > 0f ? lake.level : waterPoints[lake.pointStart].elevation;
+            surface = Mathf.Lerp(surface, level, blend);
+        }
+        return surface;
+    }
+
     private void SampleRibbonFootprint(PreparedWater water, float x, float z, out float distance, out float radius, out float elevation)
+        => SampleRibbonFootprint(water, x, z, out distance, out radius, out elevation, out _);
+
+    private void SampleRibbonFootprint(PreparedWater water, float x, float z, out float distance, out float radius, out float elevation, out float outsideDistance)
     {
         // note: Barycentric sampling follows the exact two triangles rendered for each river segment, including their varying elevations and widths.
         Vector2 query = new Vector2(x, z);
         float best = float.PositiveInfinity;
+        outsideDistance = float.PositiveInfinity;
         distance = radius = elevation = 0f;
         for (int i = 1; i < water.pointCount; i++)
         {
@@ -707,6 +1192,7 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
                 float outside = Vector2.Distance(query, p * weights.x + q * weights.y + r * weights.z);
                 if (outside >= best) continue;
                 best = outside;
+                outsideDistance = outside;
                 float along = weights.y + (triangle == 1 ? weights.z : 0f);
                 float across = triangle == 0 ? weights.z : weights.x + weights.z;
                 radius = Mathf.Lerp(ra, rb, along);
@@ -741,8 +1227,23 @@ public sealed class YQSpatialBlueprintTerrainSamplerV2
         return result;
     }
 
-    private void SampleAreaWaterFootprint(PreparedWater water, float x, float z, out float distance, out float radius)
+    private void SampleAreaWaterFootprint(PreparedWater water, float x, float z, out float distance, out float radius, float fadeDistance = 0f)
     {
+        if (water.basin != null)
+        {
+            // note: Existing confluence fades consume signed distance from the accepted contour instead of fitting another shore.
+            radius = Mathf.Max(1f, water.width * .5f);
+            float dx = Mathf.Max(0f, Mathf.Max(water.basin.MinimumX - x, x - water.basin.MaximumX));
+            float dz = Mathf.Max(0f, Mathf.Max(water.basin.MinimumZ - z, z - water.basin.MaximumZ));
+            if (dx * dx + dz * dz > fadeDistance * fadeDistance)
+            {
+                // note: Beyond the caller's complete fade range every shoreline contribution is zero; skip detailed contour walks for distant heightmap samples without limiting wide channels.
+                distance = radius + Mathf.Sqrt(dx * dx + dz * dz);
+                return;
+            }
+            distance = Mathf.Max(0f, radius + water.basin.SignedShoreDistance(x, z));
+            return;
+        }
         // note: Match TryBuildPreparedAreaWaterBasin and its mesh's 0.94 inset, including elongated multi-point lakes.
         Vector2 center = Vector2.zero;
         for (int i = 0; i < water.pointCount; i++)

@@ -1,0 +1,45 @@
+{
+  "utc": "2026-10-03T17:34:30.2673253Z",
+  "evidence": "Current full-source symbol compilation and PE metadata; no player build or Play test",
+  "configurations": [
+    {
+      "configuration": "public-full",
+      "pass": true,
+      "types": [
+        "YQDeveloperConsoleGate"
+      ],
+      "developmentMethods": []
+    },
+    {
+      "configuration": "opted-in-development-full",
+      "pass": true,
+      "types": [
+        "YQDeveloperAnimationPreview",
+        "YQDeveloperBrowserEntry",
+        "YQDeveloperCommandRegistry",
+        "YQDeveloperVariable",
+        "YQDeveloperCommandResult",
+        "YQDeveloperConsole",
+        "YQDeveloperConsoleGate",
+        "YQDeveloperTestSession"
+      ],
+      "developmentMethods": [
+        "DevelopmentSetStat",
+        "DevelopmentSetSkill",
+        "DevelopmentItem",
+        "DevelopmentNotify",
+        "DevelopmentSetNpcAffinity",
+        "DevelopmentCreateResident",
+        "DevelopmentRestoreVitals"
+      ]
+    },
+    {
+      "configuration": "development-no-optin-full",
+      "pass": true,
+      "types": [
+        "YQDeveloperConsoleGate"
+      ],
+      "developmentMethods": []
+    }
+  ]
+}

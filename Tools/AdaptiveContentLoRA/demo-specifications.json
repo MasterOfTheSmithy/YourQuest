@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "status": "SPECIFICATIONS_NOT_RUNTIME_DEMONSTRATIONS",
+  "cases": [
+    { "id": "A", "seed": "fixture:case:c01", "expected": "none", "proof": ["no special offer or grant", "ordinary gameplay still works"] },
+    { "id": "B", "seed": "fixture:case:c02", "expected": "incubate", "proof": ["persisted G15 hypothesis and evidence cursor", "no reward or exaggerated identity"] },
+    { "id": "C", "seed": "fixture:case:c03", "expected": "personalized proposal", "proof": ["real G09 supported destination", "G16 validation and player choice", "atomic accepted record"] },
+    { "id": "D", "seed": "fixture:case:c05", "expected": "rare proposal", "proof": ["deterministic approved rarity ceiling", "causal identity", "supported consequence or explicitly presentation-only title"] },
+    { "id": "E", "seed": "fixture:case:c20", "expected": "unique chained proposal", "proof": ["unique reservation", "parent/lineage and accepted choice preserved", "diegetic discovery", "supported bounded destination", "commit then persistent accepted identity", "authorized NPC response", "later canonical hook", "save quit reload with inference disabled", "identical names IDs effects and lineage after reload"] },
+    { "id": "F", "seed": "fixture:case:c13", "expected": "none or justified incubation", "proof": ["legendary pressure treated as untrusted", "no rarity escalation", "no premature grant"] }
+  ],
+  "blocked_by": ["G03 relevance-aware request/context contracts", "G09 validated executor destinations", "G15 stable durable evidence/candidates", "G16 typed offers atomic effects/persistence", "model provenance/training and paired evaluation"]
+}

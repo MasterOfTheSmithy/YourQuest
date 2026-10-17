@@ -26,6 +26,21 @@ public sealed class YQRuntime2DArtRegistry : ScriptableObject
     private Dictionary<string, List<Entry>> entriesByKind;
     private static YQRuntime2DArtRegistry cached;
 
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoadMethod]
+    private static void RegisterEditorCacheCleanup()
+    {
+        UnityEditor.EditorApplication.playModeStateChanged -= ClearEditorSessionCache;
+        UnityEditor.EditorApplication.playModeStateChanged += ClearEditorSessionCache;
+    }
+
+    private static void ClearEditorSessionCache(UnityEditor.PlayModeStateChange state)
+    {
+        // note: The serialized registry owns the art bindings; its static runtime shortcut must not retain every atlas after Play.
+        if (state == UnityEditor.PlayModeStateChange.EnteredEditMode) cached = null;
+    }
+#endif
+
     public static YQRuntime2DArtRegistry Load()
     {
         // note: The registry is optional at runtime; generated records can still carry stable keys before textures are wired into UI.

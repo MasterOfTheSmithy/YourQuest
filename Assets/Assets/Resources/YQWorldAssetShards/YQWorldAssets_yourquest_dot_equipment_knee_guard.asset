@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_knee_guard
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Dragonbound_Female.prefab
+    prefab: {fileID: 2910076295637920691, guid: 35944fec31c704147b5a9bc36934f546, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Dragonbound_Male.prefab
+    prefab: {fileID: 3513070919597228404, guid: e3e12231dccfc57499fbec2b5f9c0e41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Eclipse_Female.prefab
+    prefab: {fileID: 5530164715472336699, guid: f30b5f261ad4ac64b80f65dedff15fe9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Eclipse_Male.prefab
+    prefab: {fileID: 37256386719954521, guid: 8f5674cf80b99374b8613131d110f2eb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Field_Female.prefab
+    prefab: {fileID: 1745287779202892644, guid: f81ae625f8e8f454a9b9776fb9b42927, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Field_Male.prefab
+    prefab: {fileID: 2585799238676856341, guid: 5fb018e4ef3964746b1d1b07292eb228, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Lamellar_Female.prefab
+    prefab: {fileID: 7230494150456796828, guid: f6b8b6766808b7648a6084e110526cde, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Lamellar_Male.prefab
+    prefab: {fileID: 7327628063584546152, guid: 4096ccfcebd17ad4bb1209c10bdf40d3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Ranger_Female.prefab
+    prefab: {fileID: 3198814961819753498, guid: 7756c2a64cd716342832332c750c489b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Ranger_Male.prefab
+    prefab: {fileID: 2668555671925924037, guid: 2978a9504c062bc4d835d6c77078a0f4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Sentinel_Female.prefab
+    prefab: {fileID: 7746487867984739094, guid: c37fd536530998945ae67969490f1c02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Sentinel_Male.prefab
+    prefab: {fileID: 6994414375062036713, guid: a921b286a3312844daf0ffc43dcc482b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2491248183049172665, guid: 12c42c9f00b1fa94a88e1cfab3534a00, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 6636887267101300536, guid: 22aee3c33b5818d4e90a7ce3aeb44ada, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Traveler_Female.prefab
+    prefab: {fileID: 1494402180096120748, guid: 8b5ee642ccaee4a4ba6153f21bfde4f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Traveler_Male.prefab
+    prefab: {fileID: 7123924775808318662, guid: 56710aa1f10bbdf4db3f70a05a24fa48, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 3303421943522059140, guid: ecb0a45c6f7da394b8a1206ba47581bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 6278848648544259820, guid: 7c817b5f0dd99b9489fb3941f0e86515, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Field_Male_Parts.prefab
+    prefab: {fileID: 6775134313824285805, guid: e5a45624d36c2944da38ac4a9a94931e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Field_Female_Parts.prefab
+    prefab: {fileID: 8983588769571152007, guid: c4a4c0816f99e8c4ba898c89aab8a39c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Ranger_Male_Parts.prefab
+    prefab: {fileID: 1322771157143691080, guid: 20dce5862a9e6a84fb0b45e4003a266d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7289855478808752257, guid: 1dea195046511eb4691290c51cc36e22, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 6402003143357238297, guid: 0cf231e026176ce47849f4a5c7603a24, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 6331789759900635634, guid: 4d09e066e54e6ec4ab3faaa4cb0d8dc5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Traveler_Male_Parts.prefab
+    prefab: {fileID: 2650690876282254535, guid: b862c8736fbdd5244b075ec2404dad0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Traveler_Female_Parts.prefab
+    prefab: {fileID: 6441572593631306973, guid: fe6855f5a684b194a8a5d8576401989c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 1453663061292731905, guid: c854cf3d61a943649bec58ece111d5e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 8307437655301889514, guid: 6c5996af76fcc4e40b4b96f4a1ec2b5b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 9000447424423434871, guid: 8bb862069410b354a93da64f360f8f9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 5153863586309057296, guid: 83fd3885c54d7264fbbd6913b7439dfc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 3974367265630718962, guid: da33012de1074294a9735a0c76977bce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 6490615957808830066, guid: 05e1ed064544289428b75d1546d834a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 7225657832846759486, guid: b16a64bcb7b152d479d99992e9c60bb1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 975591444826138556, guid: 17d84014d5db18c4c8f2792473c0d12e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 2968761323037232734, guid: e30589386c9ab074bac7c2e097579b08, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/knee_guard/Knee_Guard_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 3506843624160304174, guid: fc2925a27566c0d448d5b0741d9b2c3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

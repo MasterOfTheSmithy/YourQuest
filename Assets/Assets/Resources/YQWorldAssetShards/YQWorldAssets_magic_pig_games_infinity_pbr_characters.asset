@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_magic_pig_games_infinity_pbr_characters
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/_Prefabs/Chests/ChestOrnateMedium.prefab
+    prefab: {fileID: 142250, guid: 42a760dea9b2a40c88d0a3f29b1f80cd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/_Prefabs/Chests/ChestSimpleSmall.prefab
+    prefab: {fileID: 139070, guid: 3ffde9aae851a4c629e82eb695925f11, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Female (v4).prefab
+    prefab: {fileID: 1031538201245074993, guid: fd29e2d3f6e994629b646987c9d25c89, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Male (v4).prefab
+    prefab: {fileID: 3613065226687655457, guid: 4852210a18df241f5869d1ff2a0dbfed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Male (v4.1).prefab
+    prefab: {fileID: 1844303886972908079, guid: 5f37e1a1603554e53ad14386e3f74949, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Male (v4.1.1).prefab
+    prefab: {fileID: 3363108460247933538, guid: 2195ed6bed794409eb682cfa75fc541c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

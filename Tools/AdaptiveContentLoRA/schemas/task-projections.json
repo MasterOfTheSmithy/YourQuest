@@ -1,0 +1,95 @@
+{
+  "version": "0.2.0",
+  "fields": {
+    "BEHAVIOR_INTERPRETATION": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state"
+    ],
+    "ABSTAIN_INCUBATE": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state",
+      "world_context",
+      "available_capabilities",
+      "rarity_constraints"
+    ],
+    "OPPORTUNITY_PROPOSAL": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state",
+      "world_context",
+      "known_entities",
+      "available_capabilities",
+      "existing_content",
+      "rarity_constraints"
+    ],
+    "IDENTITY_GENERATION": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state",
+      "world_context",
+      "known_entities",
+      "available_capabilities",
+      "existing_content",
+      "rarity_constraints",
+      "naming_context"
+    ],
+    "UNIQUE_OPPORTUNITY": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state",
+      "world_context",
+      "known_entities",
+      "available_capabilities",
+      "existing_content",
+      "rarity_constraints"
+    ],
+    "OPPORTUNITY_CHAIN": [
+      "task",
+      "negative_constraints",
+      "player_evidence",
+      "behavior_summary",
+      "player_state",
+      "world_context",
+      "known_entities",
+      "available_capabilities",
+      "existing_content",
+      "rarity_constraints"
+    ],
+    "NPC_WORLD_REACTION": [
+      "task",
+      "negative_constraints",
+      "player_state",
+      "world_context",
+      "known_entities",
+      "existing_content"
+    ],
+    "LORE_ENRICHMENT": [
+      "task",
+      "negative_constraints",
+      "world_context",
+      "known_entities",
+      "existing_content"
+    ],
+    "NPC_NAME_GENERATION": [
+      "task",
+      "negative_constraints",
+      "naming_context",
+      "world_context",
+      "known_entities",
+      "existing_content"
+    ]
+  },
+  "policy": "Labels, expected outputs, family/split/source metadata never enter model input."
+}

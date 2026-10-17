@@ -1,0 +1,2909 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_hauntedvillage
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Dirt.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 16931068de4afb44bb710204358c6d63, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Floor_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 9974af42d8c49114bb7385e0567e2a3c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Floor_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 7bed200dba39b42459ef81bc92f68f9f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 4cdac0ec541afeb4480f5975ca408459, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1beca1b9135f9f347a6a49dca740db3a, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e09d7569cd36f4242a19d213ac832b5e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_04.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1efea10b1d2b19c48b9ba7746fec2023, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_05.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 670a0fd8d75bbfb42afaf54432fca9d6, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_06.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 87ce7dab9aad9ae499a9d6d1dd42744e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_07.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1085a88d7d0ab1c4e82c4af2505e304a, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_08.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 6299213ed1b96264a8af9dbd9f2434f6, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Rock_09.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8762f7b01c9e0794bab48466f658c170, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Materials/M_Terrain.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0f726a7e7f327844487e33e60ddf8c54, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Hills/Materials/MI_Mountain_Grass.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 3a8a0a61598f4ab42a2d64bbb423f0c8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Houses/Materials/MI_Floor_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8f4a1a5cfa2f2f04984905da67d7326f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Houses/Materials/MI_Floor_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: ac15c89723cfe8542b4ec5304c2e75e4, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Materials/MI_Dirt.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: d69bc9c08229ac44a8888ddeeb93e31e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Mountains/Materials/MI_Mountain_Grass.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1d771c61316840f4da431df5b3c3934e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Dirt.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 74cb1127cf3a1be4290aed7a1f29c6c6, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0d05e74bf1e8498408f95517fe335772, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8a64d39759d977b4db9d80865b498c4b, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f742635b3f3d9f3439173af3d9faa729, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_04.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 57cd778efc6c92640b8691e02ea6e7c1, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_05.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1c4f97ecb1e80f64c9e9d3eafb38e05a, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_06.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 91b4181a919f85a49be6c545b61cb4d8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_07.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: ecde15dfe8bd74842abb58d789cfff88, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_08.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 41940a10d8edf1844a0cc5c56ca46960, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Meshes/Props/Materials/MI_Rock_09.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8f6ddd2162d362840a4d9d0e01c1a6a6, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_Dead_M_01.prefab
+    prefab: {fileID: 2677990132124189780, guid: b992a124a20093a42bd77516e97eb195, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_Dead_M_02.prefab
+    prefab: {fileID: 9215860334182201878, guid: 91f7cd9e01715e44083d5be9d81bab0b, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_Dead_XL_01.prefab
+    prefab: {fileID: 8143749933382745444, guid: 551c1d0830e5f334ebad507b0a7cac5c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_Log_01.prefab
+    prefab: {fileID: 4738445869212903835, guid: 2994b731186abd6498157747be41e192, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 35014b15a335e8f429ea370a0f6b0e34, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 35014b15a335e8f429ea370a0f6b0e34, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_L_01.prefab
+    prefab: {fileID: 5604173080217441457, guid: f02572e0c7aceb44bbadcb11eb1267ab, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_L_02.prefab
+    prefab: {fileID: 3321528635738906459, guid: 15dda193d753ca44e9aada5833d8072e, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_L_03.prefab
+    prefab: {fileID: 4215663594792227976, guid: 89934f930a1190542944c49122ff9a68, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_M_01.prefab
+    prefab: {fileID: 8525796800039246481, guid: 3cac2b61d4b63f44690a45b397156e16, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_Stump_01.prefab
+    prefab: {fileID: 2757309133086955300, guid: 9fa5666ab6fd5d34b8abe24af4a6ce15, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XL_01.prefab
+    prefab: {fileID: 1905990229079525534, guid: 2957d4fd3e209014a83ed13eb7637bb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XL_02.prefab
+    prefab: {fileID: 1243451313859496663, guid: 3d3bd78a24eac374892058bfd32c0000, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XL_03.prefab
+    prefab: {fileID: 3667268970448968437, guid: 5d5f5404c7f7fb941bc85e45c0c7c199, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_L_01.prefab
+    prefab: {fileID: 4115481336831004673, guid: 6dc502fe0fd41b2448ccf55c182e170d, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_L_02.prefab
+    prefab: {fileID: 5044979756078808980, guid: d7cd3ca5d7568db4092119dc91fd55cd, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_M_01.prefab
+    prefab: {fileID: 4541577243970673917, guid: 5b23e16e8bca987418f000562f89dd51, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_S_01.prefab
+    prefab: {fileID: 2376206784372887067, guid: 41ed8892639a7c4439a8dc05e2431e92, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_XL_01.prefab
+    prefab: {fileID: 7182155333936569807, guid: f5ba4e9d3749ccb4ba7b24684ac2ba1c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_SilverFir_XL_02.prefab
+    prefab: {fileID: 2076729652790784786, guid: 8670c017edd8bff488fe4dcdf07e9072, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Bags_01.prefab
+    prefab: {fileID: 1030972926, guid: abc00000000013618306091388369694, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bags_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+    - transformPath: SM_Bags_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Bags_02.prefab
+    prefab: {fileID: 1030972940, guid: abc00000000018097835440932658085, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bags_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+    - transformPath: SM_Bags_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Bags_03.prefab
+    prefab: {fileID: 1030972886, guid: abc00000000011440173716611404636, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bags_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+    - transformPath: SM_Bags_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3833e1ba3829c3147891ce07f8b769ff, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Barrel_1.prefab
+    prefab: {fileID: 1030972872, guid: abc00000000011290166295717357653, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barrel_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 22550ec759733954b879959672edbc94, type: 2}
+    - transformPath: SM_Barrel_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 22550ec759733954b879959672edbc94, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Basket.prefab
+    prefab: {fileID: 1030972858, guid: abc00000000014816668280188628447, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Basket_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7131f377046062b4293cd808aa0c212c, type: 2}
+    - transformPath: SM_Basket_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7131f377046062b4293cd808aa0c212c, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_01.prefab
+    prefab: {fileID: 1030978590, guid: abc00000000017755750465042894502, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_02.prefab
+    prefab: {fileID: 1030978604, guid: abc00000000006308311534169074701, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_03.prefab
+    prefab: {fileID: 1030978618, guid: abc00000000004760266177783719652, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_04.prefab
+    prefab: {fileID: 1030978632, guid: abc00000000009085053811072421251, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_05.prefab
+    prefab: {fileID: 1030978646, guid: abc00000000012494435177226283322, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_06.prefab
+    prefab: {fileID: 1030978660, guid: abc00000000016973964526770571713, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_07.prefab
+    prefab: {fileID: 1030978674, guid: abc00000000016396089649576725240, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_08.prefab
+    prefab: {fileID: 1030978688, guid: abc00000000012168181849794383991, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_08_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_08_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_09.prefab
+    prefab: {fileID: 1030978702, guid: abc00000000008172543999516414910, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_09_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_09_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_10.prefab
+    prefab: {fileID: 1030978716, guid: abc00000000002765199802520729300, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_10_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_10_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Large_11.prefab
+    prefab: {fileID: 1030978730, guid: abc00000000017893941037031534973, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Large_11_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_Beam_Large_11_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_01.prefab
+    prefab: {fileID: 1030978744, guid: abc00000000008682472602170490894, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_02.prefab
+    prefab: {fileID: 1030978758, guid: abc00000000018385215960637700373, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_03.prefab
+    prefab: {fileID: 1030972636, guid: abc00000000011324564573514378060, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_04.prefab
+    prefab: {fileID: 1030978784, guid: abc00000000005890603750140772427, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_05.prefab
+    prefab: {fileID: 1030978798, guid: abc00000000004737322495828118530, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_06.prefab
+    prefab: {fileID: 1030978812, guid: abc00000000003270888830427062473, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_07.prefab
+    prefab: {fileID: 1030978826, guid: abc00000000007641532387073121728, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_08.prefab
+    prefab: {fileID: 1030978840, guid: abc00000000015406314415077394575, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_08_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_08_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_09.prefab
+    prefab: {fileID: 1030978854, guid: abc00000000009860583591276995510, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_09_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_09_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_10.prefab
+    prefab: {fileID: 1030978868, guid: abc00000000010596299466134029628, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_10_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_10_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Small_11.prefab
+    prefab: {fileID: 1030978882, guid: abc00000000016870038488583708293, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Small_11_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+    - transformPath: SM_Beam_Small_11_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 886171da624ad0b478435fe11eb67c26, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Support_01.prefab
+    prefab: {fileID: 1030979439, guid: abc00000000014516493701874619706, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Support_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+    - transformPath: SM_Beam_Support_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Support_02.prefab
+    prefab: {fileID: 1030979453, guid: abc00000000000549278977709356481, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Support_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+    - transformPath: SM_Beam_Support_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_Support_03.prefab
+    prefab: {fileID: 1030979425, guid: abc00000000018418148174225061624, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_Support_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+    - transformPath: SM_Beam_Support_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7195c3e6e59ccef4998a44010ed71bd9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_XL_01.prefab
+    prefab: {fileID: 1030978982, guid: abc00000000013226312465697120171, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Beam_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_XL_02.prefab
+    prefab: {fileID: 1030978996, guid: abc00000000007594988169497420192, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Beam_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_XL_03.prefab
+    prefab: {fileID: 1030979010, guid: abc00000000015436699448468688809, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Beam_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Beam_XL_04.prefab
+    prefab: {fileID: 1030979024, guid: abc00000000002401539146502565614, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_XL_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Beam_XL_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Big_Pot.prefab
+    prefab: {fileID: 1030972776, guid: abc00000000008423682467347276293, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Big_Pot_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1ac32d585c8d1e744abc3a6960b56b85, type: 2}
+    - transformPath: SM_Big_Pot_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1ac32d585c8d1e744abc3a6960b56b85, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Box.prefab
+    prefab: {fileID: 1030972790, guid: abc00000000016046054027493975012, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f074c74d2ef8087448e8f1c96dc8ed4e, type: 2}
+    - transformPath: SM_Box_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f074c74d2ef8087448e8f1c96dc8ed4e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Boxes_01.prefab
+    prefab: {fileID: 1030972804, guid: abc00000000010790986902541375166, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boxes_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+    - transformPath: SM_Boxes_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Boxes_02.prefab
+    prefab: {fileID: 1030972818, guid: abc00000000009018892323879036101, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boxes_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+    - transformPath: SM_Boxes_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Boxes_03.prefab
+    prefab: {fileID: 1030972832, guid: abc00000000001118902788665631612, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boxes_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+    - transformPath: SM_Boxes_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 30b4aca8254a94e45a18afb8e66c3695, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Brazier.prefab
+    prefab: {fileID: 1030979186, guid: abc00000000016973404469936617484, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brazier_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21943c022a4026849bc936b0c675b89a, type: 2}
+    - transformPath: SM_Brazier_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21943c022a4026849bc936b0c675b89a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Brazier_02.prefab
+    prefab: {fileID: 1030978924, guid: abc00000000010688376932599102849, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brazier_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4452997d77fb54f42ba5f28e3124b755, type: 2}
+    - transformPath: SM_Brazier_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4452997d77fb54f42ba5f28e3124b755, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cart_01.prefab
+    prefab: {fileID: 1030972556, guid: abc00000000005379224447731613171, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cart_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cart_01_Unbuilt.prefab
+    prefab: {fileID: 1030979274, guid: abc00000000001882931051146059453, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cart_01_Unbuilt_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_Unbuilt_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_Unbuilt_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_Unbuilt_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+    - transformPath: SM_Cart_01_Unbuilt_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e70a67b78edeaf4428bf1243897a3ff7, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cart_02.prefab
+    prefab: {fileID: 1030972542, guid: abc00000000014921676762445389864, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cart_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 3995f5247bee3444db4f2c522ddb43d8, type: 2}
+    - transformPath: SM_Cart_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_Cart_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Cart_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 3995f5247bee3444db4f2c522ddb43d8, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cart_02_Unbuilt.prefab
+    prefab: {fileID: 1030972980, guid: abc00000000005950031143581862558, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cart_02_Unbuilt_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3995f5247bee3444db4f2c522ddb43d8, type: 2}
+    - transformPath: SM_Cart_02_Unbuilt_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3995f5247bee3444db4f2c522ddb43d8, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Coffin.prefab
+    prefab: {fileID: 1030976790, guid: abc00000000001594336679743419802, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Coffin_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7b4ee881bc790a041b768f73c05cb6d0, type: 2}
+    - transformPath: SM_Coffin_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7b4ee881bc790a041b768f73c05cb6d0, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cross.prefab
+    prefab: {fileID: 1030977078, guid: abc00000000004375726166300607443, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cross_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 22f61d2dcbabbd84aad09447e74c0dd9, type: 2}
+    - transformPath: SM_Cross_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 22f61d2dcbabbd84aad09447e74c0dd9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Dirt.prefab
+    prefab: {fileID: 1030980579, guid: abc00000000008517696886696739934, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Dirt_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16931068de4afb44bb710204358c6d63, type: 2}
+    - transformPath: SM_Dirt_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16931068de4afb44bb710204358c6d63, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Dirt_Splines_0.prefab
+    prefab: {fileID: 1032026377, guid: abc00000000014790494554930818016, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Dirt_Splines_0_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16931068de4afb44bb710204358c6d63, type: 2}
+    - transformPath: SM_Dirt_Splines_0_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16931068de4afb44bb710204358c6d63, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Fireplace_02.prefab
+    prefab: {fileID: 1031007555, guid: abc00000000012776357510189468995, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fireplace_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42465f677ad29284da877e0751415110, type: 2}
+    - transformPath: SM_Fireplace_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6c1989de5224bde4a8fef6b19838f863, type: 2}
+    - transformPath: SM_Fireplace_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42465f677ad29284da877e0751415110, type: 2}
+    - transformPath: SM_Fireplace_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6c1989de5224bde4a8fef6b19838f863, type: 2}
+    - transformPath: SM_Fireplace_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42465f677ad29284da877e0751415110, type: 2}
+    - transformPath: SM_Fireplace_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6c1989de5224bde4a8fef6b19838f863, type: 2}
+    - transformPath: SM_Fireplace_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42465f677ad29284da877e0751415110, type: 2}
+    - transformPath: SM_Fireplace_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6c1989de5224bde4a8fef6b19838f863, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_HangingBag_01.prefab
+    prefab: {fileID: 1030979038, guid: abc00000000012706626626415794043, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HangingBag_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 34f13c7835abb2f4db0398dcd0e65813, type: 2}
+    - transformPath: SM_HangingBag_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 34f13c7835abb2f4db0398dcd0e65813, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_HangingBag_02.prefab
+    prefab: {fileID: 1030979052, guid: abc00000000003710339378688168048, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HangingBag_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 34f13c7835abb2f4db0398dcd0e65813, type: 2}
+    - transformPath: SM_HangingBag_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 34f13c7835abb2f4db0398dcd0e65813, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Haybale.prefab
+    prefab: {fileID: 1030973528, guid: abc00000000014379821761753782219, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Haybale_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e59e65b542923464da30a1499f22ec19, type: 2}
+    - transformPath: SM_Haybale_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e59e65b542923464da30a1499f22ec19, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsMerged.prefab
+    prefab: {fileID: 1030974646, guid: abc00000000007677686256670365816, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsMerged_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 107b3203213a740438d3b6d3e9460e9e, type: 2}
+    - transformPath: SM_LogsMerged_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 107b3203213a740438d3b6d3e9460e9e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Medium_Pot_01.prefab
+    prefab: {fileID: 1030975722, guid: abc00000000008952625889052277222, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Medium_Pot_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+    - transformPath: SM_Medium_Pot_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Medium_Pot_02.prefab
+    prefab: {fileID: 1030975736, guid: abc00000000010352314562946422349, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Medium_Pot_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+    - transformPath: SM_Medium_Pot_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Medium_Pot_03.prefab
+    prefab: {fileID: 1030975750, guid: abc00000000006794265677675118116, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Medium_Pot_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+    - transformPath: SM_Medium_Pot_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94edd1c3f10fad947be0f58b1e77e28f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Mill.prefab
+    prefab: {fileID: 1030981192, guid: abc00000000013616113304589134683, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mill_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d89eed211c3d574aaba7aa28c8b9840, type: 2}
+    - transformPath: SM_Mill_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c1f0d85fc8d80a4698fd2a0dfbd5815, type: 2}
+    - transformPath: SM_Mill_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bd4d94e0161e14f408f1a5f33ce41e67, type: 2}
+    - transformPath: SM_Mill_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 5078e4c1369eaf648a828a665ba1740e, type: 2}
+    - transformPath: SM_Mill_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6d89eed211c3d574aaba7aa28c8b9840, type: 2}
+    - transformPath: SM_Mill_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c1f0d85fc8d80a4698fd2a0dfbd5815, type: 2}
+    - transformPath: SM_Mill_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bd4d94e0161e14f408f1a5f33ce41e67, type: 2}
+    - transformPath: SM_Mill_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 5078e4c1369eaf648a828a665ba1740e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Mill_Wind.prefab
+    prefab: {fileID: 1030976806, guid: abc00000000002937552029556187888, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mill_Wind_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 642645d3ccea58b4792ba9b469175b6c, type: 2}
+    - transformPath: SM_Mill_Wind_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 642645d3ccea58b4792ba9b469175b6c, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Moon.prefab
+    prefab: {fileID: 1030977981, guid: 95c323d333e9b5a4f9466d29ef6a8d57, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Sphere
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e392093b6c7bb6488a5c4275988f04c, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Mountain_C.prefab
+    prefab: {fileID: 1030977823, guid: abc00000000003615645591284168090, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mountain_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2309e0c3e2d1da4d865a2115a2b9492, type: 2}
+    - transformPath: SM_Mountain_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2309e0c3e2d1da4d865a2115a2b9492, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Pumpkin.prefab
+    prefab: {fileID: 1031005672, guid: abc00000000015836928811472177443, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pumpkin
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ceea699cbdfe1504b8ad632db808c057, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Fountain.prefab
+    prefab: {fileID: 1030972582, guid: abc00000000013682205497181000317, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Fountain_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94bf46b3696cffd4d8b9681df5a1b816, type: 2}
+    - transformPath: SM_Small_Fountain_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 94bf46b3696cffd4d8b9681df5a1b816, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Pot_01.prefab
+    prefab: {fileID: 1030975806, guid: abc00000000008169293828126026776, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Pot_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+    - transformPath: SM_Small_Pot_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Pot_02.prefab
+    prefab: {fileID: 1030975792, guid: abc00000000002256859962713140003, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Pot_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+    - transformPath: SM_Small_Pot_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Pot_03.prefab
+    prefab: {fileID: 1030980553, guid: abc00000000005666241328867002074, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Pot_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+    - transformPath: SM_Small_Pot_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Pot_04.prefab
+    prefab: {fileID: 1030975764, guid: abc00000000011675237831312717613, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Pot_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+    - transformPath: SM_Small_Pot_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Small_Pot_05.prefab
+    prefab: {fileID: 1030975778, guid: abc00000000010127473949904184580, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Small_Pot_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+    - transformPath: SM_Small_Pot_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e78b6f7c2154904cadd17dd1c0207e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Stairs_Below.prefab
+    prefab: {fileID: 1030979407, guid: abc00000000016119347529407874877, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Below_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+    - transformPath: SM_Stairs_Below_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Structure_01.prefab
+    prefab: {fileID: 1030980806, guid: abc00000000010847134744948936566, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Structure_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6edb526a36469f045b0a5aa9b4e34542, type: 2}
+    - transformPath: SM_Structure_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6edb526a36469f045b0a5aa9b4e34542, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Structure_02.prefab
+    prefab: {fileID: 1030972116, guid: abc00000000005724365890989236061, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Structure_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bece6d0613e0ac742983386f738a723f, type: 2}
+    - transformPath: SM_Structure_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bece6d0613e0ac742983386f738a723f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tent.prefab
+    prefab: {fileID: 1030975820, guid: abc00000000015147019042667111238, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tent_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0553910b1a39b9e41babe43a5c207058, type: 2}
+    - transformPath: SM_Tent_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0553910b1a39b9e41babe43a5c207058, type: 2}
+    - transformPath: SM_Tent_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0553910b1a39b9e41babe43a5c207058, type: 2}
+    - transformPath: SM_Tent_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0553910b1a39b9e41babe43a5c207058, type: 2}
+    - transformPath: SM_Tent_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0553910b1a39b9e41babe43a5c207058, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_01.prefab
+    prefab: {fileID: 1030972678, guid: abc00000000016087667852436160143, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efc9081e62462ef42a292012effc0ec9, type: 2}
+    - transformPath: SM_Tomb_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: efc9081e62462ef42a292012effc0ec9, type: 2}
+    - transformPath: SM_Tomb_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: efc9081e62462ef42a292012effc0ec9, type: 2}
+    - transformPath: SM_Tomb_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: efc9081e62462ef42a292012effc0ec9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_02.prefab
+    prefab: {fileID: 1030972692, guid: abc00000000002776158631487284084, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: db3bf91f541bba441ab97b1ebc61ab8e, type: 2}
+    - transformPath: SM_Tomb_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: db3bf91f541bba441ab97b1ebc61ab8e, type: 2}
+    - transformPath: SM_Tomb_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: db3bf91f541bba441ab97b1ebc61ab8e, type: 2}
+    - transformPath: SM_Tomb_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: db3bf91f541bba441ab97b1ebc61ab8e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_03.prefab
+    prefab: {fileID: 1030972706, guid: abc00000000004043655939963926429, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cd795b7dfdab924428d038ee7d874820, type: 2}
+    - transformPath: SM_Tomb_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cd795b7dfdab924428d038ee7d874820, type: 2}
+    - transformPath: SM_Tomb_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cd795b7dfdab924428d038ee7d874820, type: 2}
+    - transformPath: SM_Tomb_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cd795b7dfdab924428d038ee7d874820, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_04.prefab
+    prefab: {fileID: 1030972720, guid: abc00000000010510257262185642250, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2cff31e37e89e9468574ee168317f07, type: 2}
+    - transformPath: SM_Tomb_04_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b2cff31e37e89e9468574ee168317f07, type: 2}
+    - transformPath: SM_Tomb_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2cff31e37e89e9468574ee168317f07, type: 2}
+    - transformPath: SM_Tomb_04_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b2cff31e37e89e9468574ee168317f07, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_06.prefab
+    prefab: {fileID: 1030972734, guid: abc00000000001018379526729077832, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83c83c0170bf4194fa16fd273b2bcd63, type: 2}
+    - transformPath: SM_Tomb_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83c83c0170bf4194fa16fd273b2bcd63, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_07.prefab
+    prefab: {fileID: 1030972748, guid: abc00000000014325386230693848657, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d06cfa06740c66f48986b4f6f73adf2e, type: 2}
+    - transformPath: SM_Tomb_07_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: d06cfa06740c66f48986b4f6f73adf2e, type: 2}
+    - transformPath: SM_Tomb_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d06cfa06740c66f48986b4f6f73adf2e, type: 2}
+    - transformPath: SM_Tomb_07_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: d06cfa06740c66f48986b4f6f73adf2e, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tomb_Big.prefab
+    prefab: {fileID: 1030972762, guid: abc00000000015340298224776986380, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_Big_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1aad37a424c8bba429a0ac7ae0309cfe, type: 2}
+    - transformPath: SM_Tomb_Big_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1aad37a424c8bba429a0ac7ae0309cfe, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wheels.prefab
+    prefab: {fileID: 1030974698, guid: abc00000000002349414180533254953, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wheels_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Wheels_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wheel_Single.prefab
+    prefab: {fileID: 1030973342, guid: abc00000000010469487890368303125, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wheel_Single_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+    - transformPath: SM_Wheel_Single_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17faa5c902d9bb8459ab61f6bdc890d6, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WindStructure_01.prefab
+    prefab: {fileID: 1030972610, guid: abc00000000006129297757521938320, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WindStructure_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dda392be3f6b6af4781922c68ef35373, type: 2}
+    - transformPath: SM_WindStructure_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dda392be3f6b6af4781922c68ef35373, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WindStructure_02.prefab
+    prefab: {fileID: 1030981462, guid: abc00000000001264341079215400987, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WindStructure_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dda392be3f6b6af4781922c68ef35373, type: 2}
+    - transformPath: SM_WindStructure_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dda392be3f6b6af4781922c68ef35373, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Woodcut.prefab
+    prefab: {fileID: 1030981320, guid: abc00000000002279188493450720942, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Woodcut_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6283b4a95361df346b326cdbe2b2a5c2, type: 2}
+    - transformPath: SM_Woodcut_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6283b4a95361df346b326cdbe2b2a5c2, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_01.prefab
+    prefab: {fileID: 1030976180, guid: abc00000000001725383418969139232, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_02.prefab
+    prefab: {fileID: 1030979507, guid: abc00000000007356707715168839211, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_03.prefab
+    prefab: {fileID: 1030979521, guid: abc00000000017668793518442844130, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_04.prefab
+    prefab: {fileID: 1030979535, guid: abc00000000006618600456313068917, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_05.prefab
+    prefab: {fileID: 1030979549, guid: abc00000000013035551768329157164, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_06.prefab
+    prefab: {fileID: 1030979563, guid: abc00000000004253556896890567143, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_07.prefab
+    prefab: {fileID: 1030979577, guid: abc00000000014978678469683836270, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodenBeam_08.prefab
+    prefab: {fileID: 1030979481, guid: abc00000000007744837040368682289, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenBeam_08_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_WoodenBeam_08_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodStructure.prefab
+    prefab: {fileID: 1030976664, guid: abc00000000013948258713702959937, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodStructure_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_WoodStructure_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EagleFern/Materials/M_EagleFern_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EagleFern/Meshes/Materials/MI_EagleFern_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e1270346f21005a4190987ff9f1c2328, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Atlas_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Bark_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Bark_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Detail_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Detail_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 35014b15a335e8f429ea370a0f6b0e34, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Materials/M_EuropeanBeech_Detail_NW_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: dc5142c951f01874b944480e6346bf8f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Atlas_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a1d4b691af3d40549a78de7a74d08370, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Bark_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b7e7309c583c32048a0b67f3024a1ffc, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Bark_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: dfd86d24caf5bee49850c0873507e72e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Detail_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1e2917aa3367f7242b531965a89c57c4, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Detail_NW_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 412e3cb803e26f74997c3c247e3fda13, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/EuropeanBeech/Meshes/Materials/MI_EuropeanBeech_Detail_NW_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 353a6494b9b7a4748acc194d42e10b98, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/SilverFir/Materials/M_SilverFir_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 545c9f6b45d638242b9256d8331abf3b, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/SilverFir/Materials/M_SilverFir_Bark_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b9cef3a8434139c488adeea1372d6992, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/SilverFir/Meshes/Materials/MI_SilverFir_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 243d6d62b79fdeb44ac7484a8b8fde99, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/SilverFir/Meshes/Materials/MI_SilverFir_Bark_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e7a7c1d7db4efef4e971a5911ff6f0d7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildCarot/Materials/M_WildCarrot_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildCarot/Meshes/Materials/MI_WildCarrot_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 4e22094ca1dbeb84b93b669263c336cc, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildGrass/Materials/M_WildGrass_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildGrass/Materials/M_WildGrass_Atlas_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildGrass/Meshes/Materials/MI_WildGrass_Atlas_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0e11c3958fe215140ae17d456bfb56c5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Terrain/Scanned_Foliage/Foliage/WildGrass/Meshes/Materials/MI_WildGrass_Atlas_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 664de444beccfb045996b8a638db62ba, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EagleFern_M_01.prefab
+    prefab: {fileID: 2059076955484388465, guid: 1c1faca73e2b42f458c42603fafa17e5, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EagleFern_S_01.prefab
+    prefab: {fileID: 7032824104464622260, guid: 848c5f4336db9e940a7817781a9612b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EagleFern_S_02.prefab
+    prefab: {fileID: 354567687913143184, guid: cbf53c8408598ab458bf914ade7b0e19, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EagleFern_S_04.prefab
+    prefab: {fileID: 1832122318066436277, guid: cbb63acb424caa24980e9772a6a3e303, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_S_01.prefab
+    prefab: {fileID: 5379448863964629427, guid: 1914b1254a3b3794e85c0fae73a591a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_S_02.prefab
+    prefab: {fileID: 2830799442431495262, guid: 9a84edd83298af6468614d3752ffce4c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XS_01.prefab
+    prefab: {fileID: 970467380009775546, guid: 4366acfd402d27146a2328b0a0019338, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XS_02.prefab
+    prefab: {fileID: 3878780808421229926, guid: 29061fb3951e82a45a88b5a892aa3539, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_EuropeanBeech_XS_03.prefab
+    prefab: {fileID: 8458399033571344698, guid: c012a476157efb149a201a478a1c2fbb, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_LeaveDerbis_M_01.prefab
+    prefab: {fileID: 3436418038952093028, guid: 5158ad7e34d79be47aca55cec65cfaa0, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_LeaveDerbis_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_LeaveDerbis_M_02.prefab
+    prefab: {fileID: 8081706874245954507, guid: 0fe0bdc557a640348bbbbccc9116161f, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_LeaveDerbis_S_01.prefab
+    prefab: {fileID: 8666089453671125356, guid: 456bbf7cb90344e44b2b101520d35fa1, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_LeaveDerbis_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_LeaveDerbis_S_02.prefab
+    prefab: {fileID: 873710733007238087, guid: 3a92abf99412ea94c866b7357957c826, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_LeaveDerbis_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 103e7c08745efbf45925a8e0f9abdd89, type: 2}
+    - transformPath: SM_LeaveDerbis_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildCarrot_M_01.prefab
+    prefab: {fileID: 4158173061135992245, guid: d072dff097a67c848bc425a188b0a0df, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildCarrot_M_02.prefab
+    prefab: {fileID: 8063700879520478887, guid: 13e4d45eb56231749ac0ddb31bf4f5d3, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildCarrot_S_01.prefab
+    prefab: {fileID: 6893641814979138752, guid: 57a4caab27e2ee94e8f743db59474591, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_L_01.prefab
+    prefab: {fileID: 6787532272827318931, guid: 3e3c03deb9bc2544387835ba4be2cff8, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+    - transformPath: SM_WildGrass_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_M_01.prefab
+    prefab: {fileID: 3061303382039478412, guid: 88f87be81b2f6d64fb0e5088a6b7086b, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+    - transformPath: SM_WildGrass_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_M_02.prefab
+    prefab: {fileID: 4988593869054665853, guid: eff0ed3a6ce7a96438c02e5f99fee7a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    - transformPath: SM_WildGrass_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_S_01.prefab
+    prefab: {fileID: 1419490252747528924, guid: 8e0c5add122b8da44bacf1576694c8c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    - transformPath: SM_WildGrass_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_S_02.prefab
+    prefab: {fileID: 6689808800368355944, guid: dd06fcc0471cc9e4fa6af852507633d1, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    - transformPath: SM_WildGrass_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/Foliage/SM_WildGrass_S_03.prefab
+    prefab: {fileID: 1267015073391431785, guid: 872ee403ecbd9c44c9d81d23f4c0f538, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    - transformPath: SM_WildGrass_S_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Cabin_01.prefab
+    prefab: {fileID: 1030972102, guid: abc00000000001261417383089964494, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cabin_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c235152d45ad3b3478cbfe20b881efb8, type: 2}
+    - transformPath: SM_Cabin_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c235152d45ad3b3478cbfe20b881efb8, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Door_C.prefab
+    prefab: {fileID: 1030980453, guid: abc00000000007041811747187730999, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ecff9891bb595fd4e96f2bdeffd9fd81, type: 2}
+    - transformPath: SM_Door_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ecff9891bb595fd4e96f2bdeffd9fd81, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Fence_A.prefab
+    prefab: {fileID: 1030980467, guid: abc00000000008467388104964863024, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+    - transformPath: SM_Fence_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Fence_B.prefab
+    prefab: {fileID: 1030981030, guid: abc00000000003619666116772729403, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+    - transformPath: SM_Fence_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Fence_C.prefab
+    prefab: {fileID: 1030981044, guid: abc00000000010529570746036248690, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+    - transformPath: SM_Fence_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1908555412cf68540a7d146a21a0f870, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Floor_01.prefab
+    prefab: {fileID: 1030980698, guid: abc00000000011946437338008160937, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9974af42d8c49114bb7385e0567e2a3c, type: 2}
+    - transformPath: SM_Floor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9974af42d8c49114bb7385e0567e2a3c, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Floor_02.prefab
+    prefab: {fileID: 1030980712, guid: abc00000000001601392084801045602, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7bed200dba39b42459ef81bc92f68f9f, type: 2}
+    - transformPath: SM_Floor_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7bed200dba39b42459ef81bc92f68f9f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Floor_03.prefab
+    prefab: {fileID: 1030980832, guid: abc00000000009736050355236592299, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9974af42d8c49114bb7385e0567e2a3c, type: 2}
+    - transformPath: SM_Floor_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9974af42d8c49114bb7385e0567e2a3c, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_House_01_Stairs.prefab
+    prefab: {fileID: 1030979365, guid: abc00000000004236003650069574284, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_House_01_Stairs_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cffaeb69e6aa5804d952a0d476300d23, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cffaeb69e6aa5804d952a0d476300d23, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cffaeb69e6aa5804d952a0d476300d23, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cffaeb69e6aa5804d952a0d476300d23, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cffaeb69e6aa5804d952a0d476300d23, type: 2}
+    - transformPath: SM_House_01_Stairs_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 03a049f99981d094184042f25fcf61e4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_02.prefab
+    prefab: {fileID: 1030976678, guid: abc00000000018196477054919581210, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_LogsPath_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_02_Splines_5.prefab
+    prefab: {fileID: 1032026442, guid: abc00000000009988727167625830177, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_02_Splines_5_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_LogsPath_02_Splines_5_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_02_Splines_6.prefab
+    prefab: {fileID: 1032026455, guid: abc00000000005393248084375962394, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_02_Splines_6_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_LogsPath_02_Splines_6_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_02_Splines_7.prefab
+    prefab: {fileID: 1032026468, guid: abc00000000015961060377961843043, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_02_Splines_7_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+    - transformPath: SM_LogsPath_02_Splines_7_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 17e57092ed30f9b43a1ee9fe8988d9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_Splines_2.prefab
+    prefab: {fileID: 1032026403, guid: abc00000000003175097741291482361, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_Splines_2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_LogsPath_Splines_2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_Splines_3.prefab
+    prefab: {fileID: 1032026416, guid: abc00000000014560551019515632240, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_Splines_3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_LogsPath_Splines_3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_LogsPath_Splines_4.prefab
+    prefab: {fileID: 1032026429, guid: abc00000000004937660838010615863, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LogsPath_Splines_4_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+    - transformPath: SM_LogsPath_Splines_4_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e658912fab74d864b850ed1d1127435a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Mountain_04.prefab
+    prefab: {fileID: 1031005145, guid: abc00000000018436674492772112239, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mountain_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6321ef1fe3434d34b88f13e8ecf9f0dc, type: 2}
+    - transformPath: SM_Mountain_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6321ef1fe3434d34b88f13e8ecf9f0dc, type: 2}
+    - transformPath: SM_Mountain_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6321ef1fe3434d34b88f13e8ecf9f0dc, type: 2}
+    - transformPath: SM_Mountain_04_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6321ef1fe3434d34b88f13e8ecf9f0dc, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_RoofCurved.prefab
+    prefab: {fileID: 1030981428, guid: abc00000000013079079869122535728, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RoofCurved_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_RoofCurved_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_RoofCurved_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_RoofSmall.prefab
+    prefab: {fileID: 1030980960, guid: abc00000000011054038779598025612, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RoofSmall_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_RoofSmall_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_RoofTriangle.prefab
+    prefab: {fileID: 1030980988, guid: abc00000000001302686557498411799, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RoofTriangle_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 55d57ecfa9355b945a0bfcb4a07a43c9, type: 2}
+    - transformPath: SM_RoofTriangle_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 55d57ecfa9355b945a0bfcb4a07a43c9, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_02.prefab
+    prefab: {fileID: 1030980942, guid: abc00000000000468358015002118584, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Cut.prefab
+    prefab: {fileID: 1030981058, guid: abc00000000000788401460097974722, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Cut_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Cut_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Cut_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Cut_02.prefab
+    prefab: {fileID: 1030981414, guid: abc00000000008127872931891425675, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Cut_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Cut_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Cut_Mirror.prefab
+    prefab: {fileID: 1030981234, guid: abc00000000018193187952687905992, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Cut_Mirror_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Cut_Mirror_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Cut_Mirror_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Medium.prefab
+    prefab: {fileID: 1030981016, guid: abc00000000004153204598130228151, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Medium_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Medium_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Small.prefab
+    prefab: {fileID: 1030976492, guid: abc00000000004965459630883857775, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+    - transformPath: SM_Roof_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9585a5682372c8946860fb33ef2cd660, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Small_1.prefab
+    prefab: {fileID: 1031978843, guid: abc00000000014935780839765053463, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 384b120535f4aa947b3f807e5e22db09, type: 2}
+    - transformPath: SM_Roof_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 384b120535f4aa947b3f807e5e22db09, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Support.prefab
+    prefab: {fileID: 1030980766, guid: abc00000000005182313158982884383, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Support_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 262d2f4c7c95b3d45a684b6a2e617de6, type: 2}
+    - transformPath: SM_Roof_Support_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 262d2f4c7c95b3d45a684b6a2e617de6, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Roof_Support_Half.prefab
+    prefab: {fileID: 1030980780, guid: abc00000000000452041439741793929, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Support_Half_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 262d2f4c7c95b3d45a684b6a2e617de6, type: 2}
+    - transformPath: SM_Roof_Support_Half_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 262d2f4c7c95b3d45a684b6a2e617de6, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Shelf_01.prefab
+    prefab: {fileID: 1030979200, guid: abc00000000010227329065090639939, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Shelf_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: afe9e13af3fb4554a88de44e9616d8cd, type: 2}
+    - transformPath: SM_Shelf_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: afe9e13af3fb4554a88de44e9616d8cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Shelf_02.prefab
+    prefab: {fileID: 1030979338, guid: abc00000000009544822203895833272, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Shelf_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4dc8de8a5b4c814bbafd84eea08bb19, type: 2}
+    - transformPath: SM_Shelf_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4dc8de8a5b4c814bbafd84eea08bb19, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Table_02.prefab
+    prefab: {fileID: 1030980375, guid: abc00000000003446719666223698856, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Table_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e8c76c9874eec694ab6de3c8b97bee0a, type: 2}
+    - transformPath: SM_Table_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e8c76c9874eec694ab6de3c8b97bee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Table_Cloth.prefab
+    prefab: {fileID: 1030980361, guid: abc00000000017265464920998316898, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Table_Cloth_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed92cea97c115104c8789edd72c12435, type: 2}
+    - transformPath: SM_Table_Cloth_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ed92cea97c115104c8789edd72c12435, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Tower.prefab
+    prefab: {fileID: 1030980846, guid: abc00000000010683712676352061864, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tower_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 487cf2ba3ab0a0d468dde9d95f513658, type: 2}
+    - transformPath: SM_Tower_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 487cf2ba3ab0a0d468dde9d95f513658, type: 2}
+    - transformPath: SM_Tower_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 487cf2ba3ab0a0d468dde9d95f513658, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall.prefab
+    prefab: {fileID: 1030980594, guid: abc00000000017827325732577814477, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4fa7747cf2a0aa541a5b6f261d203960, type: 2}
+    - transformPath: SM_Wall_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4fa7747cf2a0aa541a5b6f261d203960, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_02.prefab
+    prefab: {fileID: 1031008403, guid: abc00000000008463448101296003194, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_02_1.prefab
+    prefab: {fileID: 1031504693, guid: abc00000000000435323177912667922, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1441378a7652f844992859cfcec3120, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_03.prefab
+    prefab: {fileID: 1031008412, guid: abc00000000018284835566804858819, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_Door_02.prefab
+    prefab: {fileID: 1031008439, guid: abc00000000013091237949394195981, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+    - transformPath: SM_Wall_Door_02
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_Door_02_1.prefab
+    prefab: {fileID: 1031981861, guid: abc00000000008754577681257264017, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6648d2b26536c414cb7d9cf6b7ea816f, type: 2}
+    - transformPath: SM_Wall_Door_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6648d2b26536c414cb7d9cf6b7ea816f, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_Half.prefab
+    prefab: {fileID: 1030980740, guid: abc00000000016979902726729497907, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Half_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1a66cbc6d46daa45bd29be562acfd6a, type: 2}
+    - transformPath: SM_Wall_Half_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1a66cbc6d46daa45bd29be562acfd6a, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_Window.prefab
+    prefab: {fileID: 1030980670, guid: abc00000000012594866326605015764, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Window_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c188deb946b9eca45a2d0bcecc4eaa72, type: 2}
+    - transformPath: SM_Wall_Window_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c188deb946b9eca45a2d0bcecc4eaa72, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_Wall_Window_02.prefab
+    prefab: {fileID: 1031008559, guid: abc00000000016399473995144652937, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 551701d9540064645b0763415f2a1c38, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 551701d9540064645b0763415f2a1c38, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 551701d9540064645b0763415f2a1c38, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f0ebc011e5c057540aaf016b17666592, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Wall_Window_02_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 551701d9540064645b0763415f2a1c38, type: 2}
+  - assetPath: Assets/HIVEMIND/HauntedVillage/HDRP (Default)/Art/Prefabs/SM_WoodPath_Splines_1.prefab
+    prefab: {fileID: 1032026390, guid: abc00000000016662490446058117644, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPath_Splines_1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+    - transformPath: SM_WoodPath_Splines_1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e674cd3c2a917d468a04a16323154cd, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

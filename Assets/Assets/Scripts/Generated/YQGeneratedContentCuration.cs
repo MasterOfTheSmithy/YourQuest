@@ -983,17 +983,8 @@ public static class YQGeneratedContentCuration
 
     private static string[] BuildSkillTags(SkillRecord skill)
     {
-        if (skill == null)
-            return Array.Empty<string>();
-
-        List<string> tags = new List<string>(4);
-        if (!string.IsNullOrWhiteSpace(skill.type))
-            tags.Add(skill.type.Trim().ToLowerInvariant());
-        if (skill.isSpell)
-            tags.Add("spell");
-        if (!string.IsNullOrWhiteSpace(skill.context))
-            tags.Add(skill.context.Trim().ToLowerInvariant());
-        return tags.ToArray();
+        // note: Keep this local entry point while sharing the skill-tag projection.
+        return SkillSimilarity.BuildSkillTags(skill);
     }
 
     private static float MinConfidenceForKind(string kind)

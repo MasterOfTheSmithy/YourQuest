@@ -36,7 +36,13 @@ public enum LLMGenerationCategory
     // note: Verification has its own bounded route; preserve all previously serialized role values.
     DialogueVerification = 10,
     // note: Append a separate Goddess reviewer so NPC qualification and existing serialized roles stay independent.
-    GoddessVerification = 11
+    GoddessVerification = 11,
+    // note: Append content roles; existing assets and queued category numbers remain compatible.
+    Equipment = 12,
+    Consumable = 13,
+    SkillSpell = 14,
+    TitleClass = 15,
+    Lore = 16
 }
 
 [Serializable]
@@ -45,24 +51,44 @@ public sealed class LLMGenerationProfile
     public LLMGenerationCategory category = LLMGenerationCategory.Default;
     // note: An empty override preserves the configured single-model backend; Ollama roles resolve independently for each request.
     public string ollamaModel = string.Empty;
+    // note: Empty GGUF settings inherit the asset defaults. Overrides belong to the existing single queue, not another loader.
+    public string ggufModelPath = string.Empty;
+    public int contextSizeTokens = 0;
+    public int gpuLayerCount = -1;
+    public int reasoningBudget = -1;
+    public int modelBlockCount = 0;
+    public string systemPrompt = string.Empty;
+    public bool suppressLegacyDirectToken = false;
+    public float minP = -1f;
     // note: Runtime-default roles can select the server that best fits them without changing the legacy backend of explicit assets.
     [JsonIgnore] public bool useBackendOverride;
     [JsonIgnore] public YQLlmBackend backendOverride = YQLlmBackend.Ollama;
     [Range(64, 6800)] public int maxOutputTokens = 512;
-    [Range(0.05f, 1.5f)] public float temperature = 0.7f;
+    [Range(0f, 1.5f)] public float temperature = 0.7f;
     [Range(0.05f, 1f)] public float topP = 0.8f;
-    [Range(1, 100)] public int topK = 20;
+    [Range(0, 100)] public int topK = 20;
     [Range(0f, 2f)] public float presencePenalty = 1.5f;
     [Range(0.8f, 2.5f)] public float repeatPenalty = 1.0f;
     public bool preferJson = false;
     public bool directMode = true;
     public bool reasoningMode = false;
+    // note: A role can request CPU placement before residency arbitration; an explicit request override still wins.
+    public bool cpuOnly = false;
+    // note: CPU is an explicit model exception, bound to its exact GGUF path or Ollama tag; cpuOnly alone is not permission.
+    public string cpuSuitableModel = string.Empty;
     public string[] stopSequences = Array.Empty<string>();
 }
 
 [CreateAssetMenu(menuName = "YourQuest/LLM Runtime Config")]
 public sealed class LLMRuntimeConfig : ScriptableObject
 {
+    // note: Explicit Editor launch isolation is immutable for this process and never changes a saved config or a player build.
+#if UNITY_EDITOR
+    public static readonly bool BenchmarkIsolationActive = Array.IndexOf(Environment.GetCommandLineArgs(), "-yqLlmBenchmarkIsolation") >= 0;
+#else
+    public static readonly bool BenchmarkIsolationActive = false;
+#endif
+
     [Header("Backend")]
     // note: Explicit assets retain the owned llama.cpp default; the runtime factory below selects the screened local Ollama roles.
     public YQLlmBackend backend = YQLlmBackend.LlamaCpp;
@@ -77,8 +103,17 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Range(1, 4)] public int serverParallelSlots = 1;
     [Range(-1, 80)] public int gpuLayerCount = -1;
     // note: Reserve growth space above the already resident game; fitting chooses partial GPU layers when the 8 GB device cannot hold the whole model.
-    [Range(512, 8192)] public int targetGpuHeadroomMb = 768;
+    [Range(1536, 8192)] public int targetGpuHeadroomMb = 1536;
     public bool enableFlashAttention = true;
+    public bool useQuantizedKvCache = false;
+    public bool requireOwnedLlamaServer = false;
+    [NonSerialized] public bool cpuInferenceApproved;
+    public int modelBlockCount = 0;
+    public int reasoningBudget = -1;
+    // note: Recurrent models need bounded host checkpoints for actual prefix reuse; zero preserves legacy no-snapshot behavior.
+    public int promptCacheRamMb = 0;
+    public int promptCheckpointCount = 2;
+    public int promptCheckpointMinTokens = 256;
     public bool keepKvCacheInSystemRam = false;
     public bool closeOwnedServerOnQuit = true;
     // note: Release VRAM after a quiet period while leaving externally managed servers untouched.
@@ -88,6 +123,13 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     [Range(1, 5)] public int startupRecoveryAttempts = 1;
     [Range(1, 5)] public int helpProbeTimeoutSeconds = 2;
     public string extraLlamaServerArguments = string.Empty;
+
+    [Header("Bounded Model Reuse")]
+    // note: Reuse only the active slot on an owned, capability-checked server; no host snapshots are retained.
+    public bool enablePromptPrefixReuse = true;
+    public bool retainVerifiedCpuHelpers = true;
+    [Range(256, 4096)] public int maximumCpuHelperResidentMb = 2048;
+    [Range(2048, 16384)] public int minimumFreeSystemMemoryMb = 4096;
 
     [Header("Frame-Friendly Inference")]
     public bool preserveGameResponsiveness = true;
@@ -99,6 +141,9 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     public bool staggerResponseHandoffAcrossFrames = true;
     // note: A bounded high-priority burst gives player-facing work preference without starving queued background curation.
     [Range(1, 8)] public int maxConsecutiveHighPriorityRequests = 3;
+    // note: Give a player time to reply before restartable background work replaces the conversational model; ageing bounds this extra wait.
+    [Range(0, 10)] public float playerReplyGraceSeconds = 3f;
+    [Range(0, 30)] public float maximumBackgroundGraceWaitSeconds = 12f;
 
     [Header("Ollama")]
     public string ollamaModel = "llama3.1";
@@ -128,31 +173,55 @@ public sealed class LLMRuntimeConfig : ScriptableObject
 
     [Header("Bounded Content Repair")]
     public bool enableBoundedRepair = false;
+    // note: User-authorized practical presentation mode is distinct from semantic qualification; structured gameplay acceptance never reads this flag.
+    public bool enableBestEffortSpeech = false;
+    public string bestEffortSpeechModelSha256 = string.Empty;
+    public bool BestEffortSpeechAvailable => enableBoundedRepair && enableBestEffortSpeech &&
+        !string.IsNullOrWhiteSpace(bestEffortSpeechModelSha256) &&
+        GetBackend(LLMGenerationCategory.GoddessCommentary) == YQLlmBackend.LlamaCpp;
     // note: Verification is enabled only after source-bound qualification and remains pinned to that model digest.
     public bool dialogueVerifierQualified = false;
     public string dialogueVerifierModelDigest = string.Empty;
+    public string dialogueVerifierContractHash = string.Empty;
+    // note: Model identity alone cannot qualify a changed prompt, sampler or reasoning transport.
+    public string DialogueVerificationContractHash => YQRepairEpisode.Hash("local_review_chat_v3_span_patch" + YQSpeechPatch.ContractHash +
+        YQDialogueGrounding.BuildPatchPrompt("{}", string.Empty, string.Empty) +
+        JsonConvert.SerializeObject(GetProfile(LLMGenerationCategory.DialogueVerification)) +
+        JsonConvert.SerializeObject(new { route = GetBackend(LLMGenerationCategory.DialogueVerification), ggufModelPath, llamaServerExecutablePath,
+            dialogueVerifierModelDigest, contextSizeTokens, contextSafetyTokens, hardPromptCharacterLimit,
+            emitQwenDirectModeToken, qwenDirectModeToken, preserveGameResponsiveness, promptBatchSize, reservedCpuThreads }));
+    public bool HasQualifiedDialogueVerifier => enableBoundedRepair && SupportsQualification(LLMGenerationCategory.DialogueVerification) &&
+        dialogueVerifierQualified && !string.IsNullOrWhiteSpace(dialogueVerifierModelDigest) &&
+        string.Equals(dialogueVerifierContractHash, DialogueVerificationContractHash, StringComparison.Ordinal);
     public bool goddessVerifierQualified = false;
     public string goddessVerifierModelDigest = string.Empty;
     public string goddessVerifierContractHash = string.Empty;
-    // note: Structured speech is qualified independently; failed free-prose classifiers never authorize this lane.
+    // note: Full authored speech and its reviewer are qualified independently and pinned to this profile and protocol.
     public bool goddessSpeechPlanQualified = false;
     public string goddessSpeechPlanModelDigest = string.Empty;
     public string goddessSpeechPlanContractHash = string.Empty;
     public bool goddessSpeechPlanCpuOnly = false;
     public string GoddessSpeechPlanContractHash => YQRepairEpisode.Hash(YQGoddessSpeechPlan.ContractHash +
         JsonConvert.SerializeObject(GetProfile(LLMGenerationCategory.GoddessCommentary)) +
-        JsonConvert.SerializeObject(new { backend, contextSizeTokens, contextSafetyTokens, hardPromptCharacterLimit,
+        JsonConvert.SerializeObject(new { backend, route = GetBackend(LLMGenerationCategory.GoddessCommentary), ggufModelPath, llamaServerExecutablePath, contextSizeTokens, contextSafetyTokens, hardPromptCharacterLimit,
             emitQwenDirectModeToken, qwenDirectModeToken, goddessSpeechPlanModelDigest, goddessSpeechPlanCpuOnly, preserveGameResponsiveness, promptBatchSize, reservedCpuThreads,
             closeOwnedServerWhenIdle, ownedServerIdleTimeoutSeconds, ollamaApiUrl, YQGoddessSpeechPlan.ContextTokens }));
-    public bool HasQualifiedGoddessSpeechPlan => enableBoundedRepair && backend == YQLlmBackend.Ollama &&
+    public bool HasQualifiedGoddessSpeechPlan => enableBoundedRepair && SupportsQualification(LLMGenerationCategory.GoddessCommentary) &&
         goddessSpeechPlanQualified && !string.IsNullOrWhiteSpace(goddessSpeechPlanModelDigest) &&
         string.Equals(goddessSpeechPlanContractHash, GoddessSpeechPlanContractHash, StringComparison.Ordinal);
     public string GoddessVerificationContractHash => YQRepairEpisode.Hash(YQGoddessGrounding.ReviewContractHash +
-        JsonConvert.SerializeObject(GetProfile(LLMGenerationCategory.GoddessVerification)));
+        JsonConvert.SerializeObject(GetProfile(LLMGenerationCategory.GoddessVerification)) +
+        JsonConvert.SerializeObject(new { backend, route = GetBackend(LLMGenerationCategory.GoddessVerification), ggufModelPath, llamaServerExecutablePath, contextSizeTokens, contextSafetyTokens, hardPromptCharacterLimit,
+            emitQwenDirectModeToken, qwenDirectModeToken, goddessVerifierModelDigest, goddessSpeechPlanCpuOnly,
+            preserveGameResponsiveness, promptBatchSize, reservedCpuThreads, YQGoddessGrounding.ReviewContextTokens }));
     // note: Explicit assets must opt in to the same model/prompt qualification; a stale contract cannot authorize speech.
-    public bool HasQualifiedGoddessVerifier => enableBoundedRepair && backend == YQLlmBackend.Ollama &&
+    public bool HasQualifiedGoddessVerifier => enableBoundedRepair && SupportsQualification(LLMGenerationCategory.GoddessVerification) &&
         goddessVerifierQualified && !string.IsNullOrWhiteSpace(goddessVerifierModelDigest) &&
         string.Equals(goddessVerifierContractHash, GoddessVerificationContractHash, StringComparison.Ordinal);
+
+    // note: Existing serialized digest fields remain compatible; GGUF routes interpret them as the independently qualified file SHA-256.
+    private bool SupportsQualification(LLMGenerationCategory category) =>
+        GetBackend(category) == YQLlmBackend.Ollama || GetBackend(category) == YQLlmBackend.LlamaCpp;
 
     [Header("Profiles")]
     public LLMGenerationProfile[] generationProfiles = CreateDefaultProfiles();
@@ -161,7 +230,7 @@ public sealed class LLMRuntimeConfig : ScriptableObject
     {
         LLMRuntimeConfig config = CreateInstance<LLMRuntimeConfig>();
         config.generationProfiles = CreateDefaultProfiles();
-        // note: Keep the qualified Goddess lane on Ollama while routing canonical records to the configured Qwen3.5 llama.cpp model.
+        // note: Preserve the gated Goddess/reviewer routes while canonical records use the configured local control model.
         config.backend = YQLlmBackend.Ollama;
         if (System.IO.Directory.Exists("D:\\OllamaModels")) config.ollamaModelsDirectory = "D:\\OllamaModels";
         config.enableBoundedRepair = true;
@@ -173,21 +242,146 @@ public sealed class LLMRuntimeConfig : ScriptableObject
         SetBackendOverride(config, LLMGenerationCategory.StructuredState, YQLlmBackend.LlamaCpp);
         SetBackendOverride(config, LLMGenerationCategory.Progression, YQLlmBackend.LlamaCpp);
         config.GetProfile(LLMGenerationCategory.Dialogue).ollamaModel = "hf.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF:Q4_K_M";
-        config.GetProfile(LLMGenerationCategory.DialogueVerification).ollamaModel = "yourquest-qwen3-4b:latest";
-        config.GetProfile(LLMGenerationCategory.GoddessCommentary).ollamaModel = "smaller-test:latest";
-        // note: Short, temporary summaries use the installed fast tier; persistent state remains on the control model.
+        // note: Qualify the NPC reviewer independently on the same reasoning-capable transport as Goddess review.
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).ollamaModel = "yourquest-qwen35-chat:latest";
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).directMode = false;
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).reasoningMode = true;
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).cpuOnly = false;
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).maxOutputTokens = 2048;
+        config.GetProfile(LLMGenerationCategory.GoddessCommentary).ollamaModel = "yourquest-qwen35-chat:latest";
+        // note: The tiny helper failed live reconstruction despite valid grammar; keep it available for explicit experiments while default summaries use the control model.
+        SetBackendOverride(config, LLMGenerationCategory.Summarization, YQLlmBackend.LlamaCpp);
         config.GetProfile(LLMGenerationCategory.Summarization).ollamaModel = "small-test:latest";
-        // note: Fourteen source-bound offline scenarios qualified this CPU route; a literal contract pin prevents settings or protocol changes from self-qualifying.
-        config.goddessSpeechPlanModelDigest = "1dcf59c4b2d0b233363c689818a1c48dfd65e5c96f1594ba57f6d851e84f869e";
-        config.goddessSpeechPlanCpuOnly = true;
-        config.goddessSpeechPlanQualified = true;
-        // note: Renewed against fourteen real CPU replies and the current canonical composition validators on 2026-10-05.
-        config.goddessSpeechPlanContractHash = "481a106b51c2ba41b904d81d9d711f66c64e7f51caa6d9cef85699bd61961ff4";
-        config.GetProfile(LLMGenerationCategory.GoddessVerification).ollamaModel = "yourquest-qwen3-4b:latest";
+        config.GetProfile(LLMGenerationCategory.Summarization).cpuOnly = false;
+        // note: Qualification is renewed against free prose and independent review; a literal pin prevents settings from self-qualifying.
+        config.goddessSpeechPlanModelDigest = "525e6ea01e8d23b5858ba7f64f3fb407052d469af616cb6dea88f50708a6ec61";
+        config.goddessSpeechPlanCpuOnly = false;
+        config.goddessSpeechPlanQualified = false;
+        config.goddessSpeechPlanContractHash = string.Empty;
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).ollamaModel = "yourquest-qwen35-chat:latest";
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).directMode = false;
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).reasoningMode = true;
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).maxOutputTokens = 2048;
+        config.goddessVerifierModelDigest = "525e6ea01e8d23b5858ba7f64f3fb407052d469af616cb6dea88f50708a6ec61";
         // note: Expanded semantic checks did not qualify a verifier; keep activation gated.
         config.dialogueVerifierQualified = false;
-        config.dialogueVerifierModelDigest = string.Empty;
+        config.dialogueVerifierModelDigest = "525e6ea01e8d23b5858ba7f64f3fb407052d469af616cb6dea88f50708a6ec61";
+        ConfigureScreenedLocalRoles(config);
         return config;
+    }
+
+    private static void ConfigureScreenedLocalRoles(LLMRuntimeConfig config)
+    {
+        // note: Provision verified live copies on the NVMe SSD with Install-LiveRuntime.ps1. Never fall back to the HDD archive or a different same-named GGUF.
+        const string root = @"C:\Ai\YourQuestRuntime\Models";
+        const string engine = @"C:\Ai\YourQuestRuntime\Runtime\b10828-cuda13.3\llama-server.exe";
+        string control = System.IO.Path.Combine(root, "Qwen3.5-4B-Q4_K_M.gguf");
+        if (!System.IO.File.Exists(engine) || !System.IO.File.Exists(control) ||
+            !System.IO.File.Exists(System.IO.Path.Combine(root, "LFM2-1.2B-RAG-Q4_K_M.gguf")))
+        {
+            config.enableRuntimeLlm = false;
+            Debug.LogError("[LLMRuntimeConfig] Verified SSD runtime is missing. Provision C:\\Ai\\YourQuestRuntime with Tools/LLM8GBBenchmark/Install-LiveRuntime.ps1.");
+            return;
+        }
+        config.llamaServerExecutablePath = engine;
+        config.ggufModelPath = control;
+        config.targetGpuHeadroomMb = 1536;
+        config.useQuantizedKvCache = true;
+        config.requireOwnedLlamaServer = true;
+        config.promptCacheRamMb = 256;
+        config.emitQwenDirectModeToken = false;
+        config.ownedServerIdleTimeoutSeconds = 120;
+
+        void Route(LLMGenerationCategory role, string file, int context, float temperature,
+            float topP = .8f, int topK = 20, bool thinking = false, float repeat = 1f)
+        {
+            string path = System.IO.Path.Combine(root, file);
+            if (!System.IO.File.Exists(path)) return;
+            var profile = config.GetProfile(role);
+            SetBackendOverride(config, role, YQLlmBackend.LlamaCpp);
+            profile.ggufModelPath = path;
+            profile.contextSizeTokens = context;
+            profile.gpuLayerCount = 999;
+            profile.temperature = temperature;
+            profile.topP = topP;
+            profile.topK = topK;
+            profile.presencePenalty = 0;
+            profile.repeatPenalty = repeat;
+            profile.directMode = !thinking;
+            profile.reasoningMode = thinking;
+            profile.reasoningBudget = thinking ? 768 : 0;
+            // note: Counts identify the tested GGUF architecture; placement is always full GPU.
+            profile.modelBlockCount = file.StartsWith("Spark-", StringComparison.Ordinal) ? 36 :
+                file.StartsWith("granite-", StringComparison.Ordinal) ? 40 :
+                file.StartsWith("MiniCPM5-2B", StringComparison.Ordinal) ? 42 :
+                file.StartsWith("LFM2.5-2.6B", StringComparison.Ordinal) ? 30 :
+                file.StartsWith("LFM2-1.2B", StringComparison.Ordinal) ? 16 :
+                file.StartsWith("Qwen-3.5-2b", StringComparison.Ordinal) ? 25 :
+                file.StartsWith("Qwen3.5-2B", StringComparison.Ordinal) ? 24 : 33;
+            profile.suppressLegacyDirectToken = true;
+            profile.cpuOnly = false;
+        }
+
+        // note: Composite transactions retain the control. NPC, equipment and skill specialists failed integration semantics and are not promoted.
+        foreach (var role in new[] { LLMGenerationCategory.Default, LLMGenerationCategory.OriginGeneration,
+            LLMGenerationCategory.WorldGeneration, LLMGenerationCategory.QuestGeneration,
+            LLMGenerationCategory.StructuredState, LLMGenerationCategory.Progression,
+            LLMGenerationCategory.NpcPopulation, LLMGenerationCategory.Equipment, LLMGenerationCategory.SkillSpell,
+            LLMGenerationCategory.TitleClass, LLMGenerationCategory.Consumable, LLMGenerationCategory.Lore })
+            Route(role, "Qwen3.5-4B-Q4_K_M.gguf", 12288, .28f);
+        // note: GPU retesting favored Qwen over LFM for titles/classes; MiniCPM invented lore history, so neither is promoted as a specialist.
+        Route(LLMGenerationCategory.Summarization, "LFM2-1.2B-RAG-Q4_K_M.gguf", 8192, 0);
+        // note: All speech lanes now use the supported full-GPU transport; configuring a lane never grants semantic qualification.
+        Route(LLMGenerationCategory.GoddessCommentary, "Qwen3.5-4B-Q4_K_M.gguf", 12288, .28f);
+        Route(LLMGenerationCategory.GoddessVerification, "Qwen3.5-4B-Q4_K_M.gguf", 12288, 0);
+        Route(LLMGenerationCategory.DialogueVerification, "Qwen3.5-4B-Q4_K_M.gguf", 12288, 0);
+        // note: The screened local control stays resident for authoring and one practical correction; no Spark/Qwen swap on each NPC turn.
+        Route(LLMGenerationCategory.Dialogue, "Qwen3.5-4B-Q4_K_M.gguf", 12288, .28f);
+        config.enableBestEffortSpeech = true;
+        config.bestEffortSpeechModelSha256 = "3874209241c9a397e2f62cd3f70f80fd2dfbf0dfccb6838416bdb48a714e8630";
+        config.GetProfile(LLMGenerationCategory.GoddessVerification).maxOutputTokens = 400;
+        config.GetProfile(LLMGenerationCategory.DialogueVerification).maxOutputTokens = 400;
+        config.GetProfile(LLMGenerationCategory.Dialogue).systemPrompt =
+            "Speak only as the NPC identified in the supplied context. The player is a different person. " +
+            "Use accepted facts as facts; rumors, proposals, plans and unknowns remain uncertain. " +
+            "Do not invent observations, completed actions, player speech, history or promises. Follow the requested output contract.";
+        // note: Granite failed the Goddess semantic cases; retain the pre-existing gated route instead of promoting that candidate.
+    }
+
+    public LLMRuntimeConfig CreateRequestConfig(LLMGenerationCategory category)
+    {
+        var profile = GetProfile(category);
+        // note: Freeze launch settings for the whole request, including retries/cancellation, without mutating a shared asset.
+        var copy = Instantiate(this);
+        copy.hideFlags = HideFlags.HideAndDontSave;
+        string selectedModel = GetBackend(category) == YQLlmBackend.LlamaCpp
+            ? (string.IsNullOrWhiteSpace(profile.ggufModelPath) ? ggufModelPath : profile.ggufModelPath)
+            : profile.ollamaModel;
+        copy.cpuInferenceApproved = profile.cpuOnly && !string.IsNullOrWhiteSpace(profile.cpuSuitableModel) &&
+            string.Equals(profile.cpuSuitableModel, selectedModel, StringComparison.OrdinalIgnoreCase);
+        if (GetBackend(category) != YQLlmBackend.LlamaCpp) return copy;
+        copy.ggufModelPath = selectedModel;
+        if (profile.contextSizeTokens > 0) copy.contextSizeTokens = Mathf.Clamp(profile.contextSizeTokens, 2048, 32768);
+        copy.gpuLayerCount = copy.cpuInferenceApproved ? 0 : 999;
+        copy.reasoningBudget = profile.reasoningBudget;
+        copy.modelBlockCount = profile.modelBlockCount;
+        if (profile.suppressLegacyDirectToken) copy.emitQwenDirectModeToken = false;
+        return copy;
+    }
+
+    public static LLMGenerationCategory ContentCategory(string kind)
+    {
+        // note: Callers already know the requested contract; no classifier or inference of intent is needed.
+        switch ((kind ?? string.Empty).Trim().ToLowerInvariant())
+        {
+            case "skill": case "spell": return LLMGenerationCategory.SkillSpell;
+            case "title": case "class": return LLMGenerationCategory.TitleClass;
+            case "item": case "equipment": return LLMGenerationCategory.Equipment;
+            case "consumable": return LLMGenerationCategory.Consumable;
+            case "lore": return LLMGenerationCategory.Lore;
+            case "quest": return LLMGenerationCategory.QuestGeneration;
+            default: return LLMGenerationCategory.Progression;
+        }
     }
 
     public LLMGenerationProfile GetProfile(LLMGenerationCategory category)
@@ -205,6 +399,8 @@ public sealed class LLMRuntimeConfig : ScriptableObject
         // note: Older explicit assets used StructuredState for progression; retain that profile until they configure the new role.
         if (category == LLMGenerationCategory.Progression)
             return GetProfile(LLMGenerationCategory.StructuredState);
+        if (category >= LLMGenerationCategory.Equipment && category <= LLMGenerationCategory.Lore)
+            return GetProfile(LLMGenerationCategory.Progression);
 
         return DefaultProfile(category);
     }
@@ -244,7 +440,12 @@ public sealed class LLMRuntimeConfig : ScriptableObject
             DefaultProfile(LLMGenerationCategory.Summarization),
             DefaultProfile(LLMGenerationCategory.Progression),
             DefaultProfile(LLMGenerationCategory.DialogueVerification),
-            DefaultProfile(LLMGenerationCategory.GoddessVerification)
+            DefaultProfile(LLMGenerationCategory.GoddessVerification),
+            DefaultProfile(LLMGenerationCategory.Equipment),
+            DefaultProfile(LLMGenerationCategory.Consumable),
+            DefaultProfile(LLMGenerationCategory.SkillSpell),
+            DefaultProfile(LLMGenerationCategory.TitleClass),
+            DefaultProfile(LLMGenerationCategory.Lore)
         };
     }
 
@@ -313,6 +514,11 @@ public sealed class LLMRuntimeConfig : ScriptableObject
                 profile.reasoningMode = true;
                 break;
             case LLMGenerationCategory.Progression:
+            case LLMGenerationCategory.Equipment:
+            case LLMGenerationCategory.Consumable:
+            case LLMGenerationCategory.SkillSpell:
+            case LLMGenerationCategory.TitleClass:
+            case LLMGenerationCategory.Lore:
             case LLMGenerationCategory.StructuredState:
                 profile.maxOutputTokens = 900;
                 profile.temperature = 0.28f;

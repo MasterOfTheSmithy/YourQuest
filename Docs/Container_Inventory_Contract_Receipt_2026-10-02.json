@@ -1,0 +1,98 @@
+{
+  "generatedAtUtc": "2026-10-03T01:01:35.1102850Z",
+  "evidence": "EDITOR DETACHED CONTRACT FIXTURES; NOT production PlaySafe flow",
+  "status": "PASS",
+  "results": [
+    {
+      "check": "profile configuration and rarity order",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "wardrobe, cupboard, barrel, crate and cache semantics",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "low/high region level and reward profile",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "seed and items deterministic independently of player",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "transfer, partial stacks and strict compatibility",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "capacity, stack limit, invalid quantity and stale revision",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "failed publication rolls back items, gold, counters and revisions",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "ownership, locks, living hostile and equipped player gates",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "hostile equipment references become single corpse loot",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "paired commit, reload, reopen and streamed view rebind",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "explicit restock, replay protection and deposited contents",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "missing metadata, empty loot and invalid modular combination",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "schema 7 migration retains consumed rewards and accepted state",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "authored Unique/Mythical eligibility and durable claims",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "typed NPC/site context and physical corpse view rebind",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "console inspection, regeneration gate and paired snapshot restoration",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    },
+    {
+      "check": "reviewed storage identity/collider regression",
+      "status": "PASS",
+      "detail": "Detached real-owner contract fixture."
+    }
+  ],
+  "notVerified": [
+    "ordinary visible PlaySafe interactions",
+    "full production streaming/unload/reload",
+    "production hostile animation/body equipment binding",
+    "multiplayer/reconnect authority (not present)"
+  ]
+}

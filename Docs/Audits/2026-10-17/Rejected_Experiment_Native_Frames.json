@@ -1,0 +1,413 @@
+{
+  "evidence": "Stored native Play Mode profiler frames; deep profiling disabled; inclusive subtree durations overlap and first recorded frame may be partial",
+  "first": 0,
+  "last": 2,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 161.4832,
+      "costs": [
+        {
+          "Key": "Main Thread",
+          "Value": 161.48320007324219
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 108.91389656066895
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 105.64710235595703
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 94.725906372070313
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 94.72540283203125
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 89.522201538085938
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 89.5208969116211
+        },
+        {
+          "Key": "YQ.Stream.Population",
+          "Value": 85.868705749511719
+        },
+        {
+          "Key": "YQ.Population.ContinuationContext",
+          "Value": 84.240802764892578
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 47.686898231506348
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 4.6876997947692871
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 4.6873002052307129
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 4.0963999032974243
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 4.0591999292373657
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 4.02020001411438
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 3.948199987411499
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 3.9463999271392822
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.7776000499725342
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.7765998840332031
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.2658998966217041
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.7393999099731445
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 2.7391998767852783
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 2.4447000026702881
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 2.3947000503540039
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 2.3503000736236572
+        },
+        {
+          "Key": "Unaccounted time between: Profiler.SessionMetadata and PlayerLoop",
+          "Value": 2.0030999183654785
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 1.9500999450683594
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 1.6877000331878662
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: YQ_MinimapCamera",
+          "Value": 1.4778000116348267
+        },
+        {
+          "Key": "Mono.JIT",
+          "Value": 1.399399995803833
+        }
+      ]
+    },
+    {
+      "frame": 1,
+      "ms": 1922.29663,
+      "costs": [
+        {
+          "Key": "Loading.ReadObject",
+          "Value": 7003.5990842580795
+        },
+        {
+          "Key": "IntegrateAllThreadedObjects",
+          "Value": 5165.0584580898285
+        },
+        {
+          "Key": "Loading.CheckConsistency [Editor Only]",
+          "Value": 3439.897567987442
+        },
+        {
+          "Key": "Main Thread",
+          "Value": 1922.296630859375
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 1910.9353158473969
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 1907.370849609375
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 1897.199462890625
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 1897.1983642578125
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 1890.4542236328125
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 1890.453369140625
+        },
+        {
+          "Key": "YQ.Stream.Population",
+          "Value": 1886.70263671875
+        },
+        {
+          "Key": "YQ.Population.AnimationWarm.Discovery",
+          "Value": 1847.212890625
+        },
+        {
+          "Key": "Loading.AwakeFromLoad",
+          "Value": 1724.4330940246582
+        },
+        {
+          "Key": "Loading.LoadFileHeaders",
+          "Value": 892.26849937438965
+        },
+        {
+          "Key": "Loading.ReadObjectThreaded",
+          "Value": 874.32399487495422
+        },
+        {
+          "Key": "ReadObjectFromSerializedFile",
+          "Value": 873.96419382095337
+        },
+        {
+          "Key": "AsyncReadManager.SyncRequest",
+          "Value": 424.70060014724731
+        },
+        {
+          "Key": "File.Open",
+          "Value": 420.84349966049194
+        },
+        {
+          "Key": "YQ.Population.ContinuationContext",
+          "Value": 39.428001403808594
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 9.34220004081726
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 4.5173001289367676
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 4.5163002014160156
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 4.4074000120162964
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 4.370400071144104
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 4.3284999132156372
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 3.978600025177002
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 3.9779000282287598
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.5638999938964844
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 3.5562999248504639
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 3.5548000335693359
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.8717999458312988
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 2.8712999820709229
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 2.6698999404907227
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 1.9444999694824219
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 1.8447999954223633
+        }
+      ]
+    },
+    {
+      "frame": 2,
+      "ms": 148.1258,
+      "costs": [
+        {
+          "Key": "Main Thread",
+          "Value": 148.12579345703125
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 145.22349739074707
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 141.86009216308594
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 131.45640563964844
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 131.4556884765625
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 126.80950164794922
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 126.80840301513672
+        },
+        {
+          "Key": "YQ.Stream.Population",
+          "Value": 124.03849792480469
+        },
+        {
+          "Key": "YQ.Population.AnimationWarm.Discovery",
+          "Value": 85.986396789550781
+        },
+        {
+          "Key": "YQ.Population.ContinuationContext",
+          "Value": 37.981399536132813
+        },
+        {
+          "Key": "AsyncReadManager.SyncRequest",
+          "Value": 9.4398999214172363
+        },
+        {
+          "Key": "File.Open",
+          "Value": 9.3302998542785645
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 4.05049991607666
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 4.0159001350402832
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 3.9761000871658325
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 3.9553000926971436
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 3.9546000957489014
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 3.5264999866485596
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 3.5250000953674316
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.3627998828887939
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.0265998840332031
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.0255999565124512
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 2.4810999631881714
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.0509998798370361
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 2.0506999492645264
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 1.9452999830245972
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 1.6634000539779663
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: YQ_MinimapCamera",
+          "Value": 1.534000039100647
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 1.4075000286102295
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 1.36899995803833
+        }
+      ]
+    }
+  ],
+  "activationTrace": {
+    "armedSite": "settlement:frontier:e01e53ee036fa2c55210c3c333a3fcf9dcdd374f29fff49760c98e3f1c8ccf14",
+    "completedSite": null,
+    "callbackReturned": false,
+    "completionNativeFrameBeforeCommit": 0,
+    "rawProfilerPath": "C:\\Users\\Garri\\YourQuest\\outputs\\OriginLag_20261009\\native-population-activation-20261017_035941_180.data",
+    "samples": []
+  }
+}

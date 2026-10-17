@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_shield
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Buckler.prefab
+    prefab: {fileID: 2145337127911035730, guid: bdbbed4e2d676fd428d3be2e01fedd86, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_DragonWing.prefab
+    prefab: {fileID: 7667100574102900710, guid: 6811781f2ddae734da1e663fc61b9176, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_EclipseCrescent.prefab
+    prefab: {fileID: 5603531532736984173, guid: e8363410f57382d4e8827c4a8bdfeeb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Heater.prefab
+    prefab: {fileID: 3245299661468871655, guid: d9b8d8955e12df041b32207ff96428a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Kite.prefab
+    prefab: {fileID: 1467677903290154130, guid: 5b75919a4478db246b3887495561eba8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Pavise.prefab
+    prefab: {fileID: 8050514090730050277, guid: d4a6f3fbd0f4c694b8727bf74fa83879, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Round.prefab
+    prefab: {fileID: 6417741034913918713, guid: d7eb82d79d251624996d6fae5efebeff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Starforged_Orrery.prefab
+    prefab: {fileID: 5524452855031755418, guid: 084016472d6fa8b488864e4966d74f53, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Worldtree_Sovereign.prefab
+    prefab: {fileID: 469452848832411491, guid: 134fd010e5a75b746bba5b92feb4b3d6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Round_Parts.prefab
+    prefab: {fileID: 6643737436359554665, guid: cc7022c2aa149bc4e9146eec93a7c576, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Kite_Parts.prefab
+    prefab: {fileID: 6264283239361186246, guid: 13db4b755c133f34e90bcc6df077bea6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Heater_Parts.prefab
+    prefab: {fileID: 3970405280497007762, guid: 41aa58e223f824644ac0ceebfa914b4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Pavise_Parts.prefab
+    prefab: {fileID: 2724447345861972299, guid: 339d08e686a3a9648864fabe6591f958, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Buckler_Parts.prefab
+    prefab: {fileID: 2600701888622640341, guid: 02ee4395dde3c794fa5c45add325c8b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_DragonWing_Parts.prefab
+    prefab: {fileID: 8145936330675218325, guid: f148afb78eb11394b8f8114b9a1e2720, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_EclipseCrescent_Parts.prefab
+    prefab: {fileID: 4653676296192382452, guid: edf02dc505bb27a4dba898ef22ea4067, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 6947733905890070584, guid: 000406b0b0f5ecd40be031c23b7be5a4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shield/Shield_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3547976699289913858, guid: 816697db6a658bb40829200718102f80, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

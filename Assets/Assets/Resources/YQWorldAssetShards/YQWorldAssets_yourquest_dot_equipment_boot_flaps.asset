@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_boot_flaps
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Dragonbound_Female.prefab
+    prefab: {fileID: 1246313650995486081, guid: 9360fc5f59ee89041a34a5510b4e6199, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Dragonbound_Male.prefab
+    prefab: {fileID: 6418664125822983453, guid: 92c73c9896ec6b340a1152f3d8b9641f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Eclipse_Female.prefab
+    prefab: {fileID: 4404818643139826486, guid: 829fb0ad288b2474c973f1bfb508e2fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Eclipse_Male.prefab
+    prefab: {fileID: 1415974604313396350, guid: a0025a269d10d874cbea95a302726b60, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Field_Female.prefab
+    prefab: {fileID: 2455260964607802535, guid: 94739e5baf9901d4e96371e213f1574a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Field_Male.prefab
+    prefab: {fileID: 3321798595229501979, guid: c457777326e4dc745a86d416594afbc6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Lamellar_Female.prefab
+    prefab: {fileID: 5552204929515441678, guid: e66c5e505528a7549a40cef79f316d38, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Lamellar_Male.prefab
+    prefab: {fileID: 7425991124762308191, guid: c934860969d9b7749a0e2aa0a26ac931, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Ranger_Female.prefab
+    prefab: {fileID: 1451175622606333323, guid: 86fa18cb297f25d4fbd5c0b324f8a819, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Ranger_Male.prefab
+    prefab: {fileID: 3056106842977146048, guid: fc974f548fc21a14a9b63b25498320ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Sentinel_Female.prefab
+    prefab: {fileID: 1135419038650427861, guid: f75cc14908244944c8d01443731b20a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Sentinel_Male.prefab
+    prefab: {fileID: 5238575694173231478, guid: bc296edd6edffb44296284afd6113c1a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2153780522583211240, guid: 9700142c408d17d419c5e09b7c2ede15, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 4914928911946290943, guid: e7528edb1256ec846ab627edef9f2dd9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Traveler_Female.prefab
+    prefab: {fileID: 2641477627480356858, guid: c6bf1392f7208444d8eebdc324807c66, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Traveler_Male.prefab
+    prefab: {fileID: 8741040782961722004, guid: f6763d1971a015141a91c326a1a86be6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 1905511072464248935, guid: 6cedbd92f04b8bc4481bfb494b699b6e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 6178270158662184332, guid: 91a90a35b3db158429db17cc3d771d51, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Field_Male_Parts.prefab
+    prefab: {fileID: 2284401976614084294, guid: 7ddc2d57c2d70774b960ae0c53fb2166, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Field_Female_Parts.prefab
+    prefab: {fileID: 3330877362348245110, guid: 8da874ff88c04b340850cf84ab4b5e2e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Ranger_Male_Parts.prefab
+    prefab: {fileID: 8128824539651101880, guid: 60347c930e898ef418280118ac45e805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Ranger_Female_Parts.prefab
+    prefab: {fileID: 1957258039632948564, guid: 0f2e89f9eba97064fa8fe75df4cee571, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 6766571374517675513, guid: a7b71c65ad839084c8df97531038ba27, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 3835637216871399498, guid: 994f84ede38845543af3945cdca5fcab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Traveler_Male_Parts.prefab
+    prefab: {fileID: 4880706347997625709, guid: 38912ad3bb40ba246b8f7c5a277912f5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Traveler_Female_Parts.prefab
+    prefab: {fileID: 7664174957558483524, guid: 0018239ce1d992f40b142b778855f21a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 6524088617897420154, guid: a183bb0372c245343969237dab366efe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 5220690274340688559, guid: 32350b8918ec90b479b9f09ccdc8787d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 2568141926467278329, guid: 53939067216cae440bfb102c4bc9bf94, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 7638307551839867878, guid: a172de96d644d9642a05bc67d0f025e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 8075319995332128675, guid: e4bd1340c4f658e45b464bef3600e0bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 2256984284219840425, guid: 49063b3cff1d8e143825c53b0c37fd7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 3873305319520733528, guid: bada22a39faf63443b13716f0110a9a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 8238832643084774497, guid: 90cd44de78abfbf4e9662c8aefacf11b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7607153234782131739, guid: 7c649a2e8fa77344396908a6551f58de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/boot_flaps/Boot_Flaps_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 6996318694113622049, guid: ebceda2ed0697c844b19889ce4e7a257, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

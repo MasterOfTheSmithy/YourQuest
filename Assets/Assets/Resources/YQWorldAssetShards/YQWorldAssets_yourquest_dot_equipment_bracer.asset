@@ -1,0 +1,281 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_bracer
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Dragonbound_Female.prefab
+    prefab: {fileID: 7201399232666458627, guid: 9a2be9cc6c858ac4a8ea1d9e02d4ed2a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Dragonbound_Male.prefab
+    prefab: {fileID: 9210504085670154342, guid: 475133cbc0200af4ea09effee1302430, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Eclipse_Female.prefab
+    prefab: {fileID: 2899179218514436095, guid: cad0dbbcba8e3cf4694c60ec9916ab34, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Eclipse_Male.prefab
+    prefab: {fileID: 7926036286574319422, guid: 8f7451a59bee99e48ab217b7b8d8baba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Field_Female.prefab
+    prefab: {fileID: 3170689977149372693, guid: 0ce3f87175a9ddd42baff0f599e1d8db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Field_Male.prefab
+    prefab: {fileID: 496766784983630145, guid: 5188c873d81db36458e152f1a185ae79, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Lamellar_Female.prefab
+    prefab: {fileID: 7875055661527611775, guid: 775580be0ad00d14984871d611dde4ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Lamellar_Male.prefab
+    prefab: {fileID: 7505653613492403850, guid: d84db43f2cb42c6489b63618b16daa12, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Ranger_Female.prefab
+    prefab: {fileID: 2751122999625471696, guid: cc3cfddad93650d4399d79b08885ec78, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Ranger_Male.prefab
+    prefab: {fileID: 1811699845328500672, guid: 33e906b8fe87a544d8e5098862906aa7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Sentinel_Female.prefab
+    prefab: {fileID: 192426834106434420, guid: 73fb3d418756e714b959f024471eda9d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Sentinel_Male.prefab
+    prefab: {fileID: 415344729276865394, guid: c6e1a5462e7fbe5479889855cf514b12, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 8136239695780734144, guid: b8260a2db224a834cbee5a11dc9cc888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 2955171050848744320, guid: 6807f7b858cd0aa4ea9f8636c1e856a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Traveler_Female.prefab
+    prefab: {fileID: 6285989450366352156, guid: c745a80156802b54b88a2dbaf59de371, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Traveler_Male.prefab
+    prefab: {fileID: 3783750869332193386, guid: d36bd5b7f86fb864a8f7c904e3c92b83, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 2907964814189161215, guid: 21526674a91e5ab4a9dd7aa85052674d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3324218204827473447, guid: 6454a09968eb14144859121205d81b36, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_core.prefab
+    prefab: {fileID: 4845759957675856576, guid: f5fb3af85db3f9a4b90c03f5332cd02d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mixed_darkness_light.prefab
+    prefab: {fileID: 7820420708163556724, guid: 61e2ea5539b47a7428738ac40f868f05, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mixed_organic_fire.prefab
+    prefab: {fileID: 2752112508205054788, guid: e5aa0b3e6536eb94c8ab4101f831e944, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_darkness.prefab
+    prefab: {fileID: 3326282623557795441, guid: ad08c2353583c4247b9df138c96e5890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_fire.prefab
+    prefab: {fileID: 737632403131123851, guid: e8994e4ab2529ec44a14f3d010950064, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_forged.prefab
+    prefab: {fileID: 8435465171661066226, guid: 0cab4d32aeabe8542a9ce6f2be5777d4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_frost.prefab
+    prefab: {fileID: 6032386905625540888, guid: 487e381a18727ed40a5d05126e109b70, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_light.prefab
+    prefab: {fileID: 896896194937315277, guid: 8e1d0a4f3da0ae842a5eb37fcd318b1c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_motif_organic.prefab
+    prefab: {fileID: 7100002451318775913, guid: defd970ed649c0f40a0b1b684e3d29f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_darkness.prefab
+    prefab: {fileID: 6095914323156388494, guid: 97082591dbb45504fa988d3abbc1dbd6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_fire.prefab
+    prefab: {fileID: 8729247995017425509, guid: 1e290d0f673b91a408df4be2d364c8c3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_forged.prefab
+    prefab: {fileID: 3323239399646491303, guid: 560571fb53707e54c809ae4ad3e9c495, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_frost.prefab
+    prefab: {fileID: 3633690273282331118, guid: ee4834e4ea05c0f48a834904ebad373d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_light.prefab
+    prefab: {fileID: 133974442153399518, guid: 5fbfd0a5ca5d3ba44950d1d4fdb2a8e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_female_mount_organic.prefab
+    prefab: {fileID: 4932456487811847716, guid: 74b78d2ce5fbe0f4f8310b7966d54f2c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_core.prefab
+    prefab: {fileID: 3094377218526326182, guid: 2d5e0e361ac27cc4784375a49861c828, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mixed_darkness_light.prefab
+    prefab: {fileID: 3511957105003914770, guid: faa25931190d6ff4381203574b24c578, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mixed_organic_fire.prefab
+    prefab: {fileID: 8818774586932344112, guid: dea5b9355a2678c48b35309a73457e23, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_darkness.prefab
+    prefab: {fileID: 2385725717893647855, guid: c2afc1db2173e4f4e9c702f0f313d1cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_fire.prefab
+    prefab: {fileID: 5756626708007127578, guid: 96265ff9efc518d4cb93eeda8e8291c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_forged.prefab
+    prefab: {fileID: 6209158475705637834, guid: 908cb7b6fa71a3842a0980af0929ff3d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_frost.prefab
+    prefab: {fileID: 8586267748457142301, guid: 7b36938ccb68c404e8704ae8c546a7b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_light.prefab
+    prefab: {fileID: 1370902629501697096, guid: ac7613678e4edc345b15c8dc0dcc9f86, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_motif_organic.prefab
+    prefab: {fileID: 5902330116021114545, guid: 01fc70705730bf74d927f45fd1ff05e7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_darkness.prefab
+    prefab: {fileID: 3496913633851298659, guid: 50532ce3f189add4191e9ec7d8dd2071, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_fire.prefab
+    prefab: {fileID: 4470401760683555585, guid: ad7f7f94068d8ac4c9a304c315c6f92c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_forged.prefab
+    prefab: {fileID: 8852891954536718770, guid: 689060f4fa817c7438b6b6cd4f295222, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_frost.prefab
+    prefab: {fileID: 694701322688019357, guid: e4665923bd371d244afed8152bb2d48d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_light.prefab
+    prefab: {fileID: 4262225496816220066, guid: 682a0be4544bd974e8e25140601c87af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/yqmod1_wearables_bracer_male_mount_organic.prefab
+    prefab: {fileID: 1518778122985631668, guid: a2465a08209ea1e4a83cd6b09866e540, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Field_Male_Parts.prefab
+    prefab: {fileID: 4888782775116823572, guid: 57700fa8d99b90746b3ba148da05b77b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Field_Female_Parts.prefab
+    prefab: {fileID: 5040022628466221771, guid: a339a698720e1af40beb45fb364fa9d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Ranger_Male_Parts.prefab
+    prefab: {fileID: 2075510661134347596, guid: ac3f536040bec314a90d28d212b99787, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Ranger_Female_Parts.prefab
+    prefab: {fileID: 682115820635456451, guid: 39ce875b51deab445a0bb191ff24a4c7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 793527970765091277, guid: d72e4cb05e9ba5542a1590d6c3bbdcb4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 7306719474370675551, guid: e38e917507a8cd642b80c66b2672a390, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Traveler_Male_Parts.prefab
+    prefab: {fileID: 6253967842312799535, guid: dd341b45cdb7cc04ea1debb113a856c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Traveler_Female_Parts.prefab
+    prefab: {fileID: 45749335547196244, guid: 186d0bce90b38c04bbfbf116f34609c2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 2905833197221502877, guid: 2e242e9552d2a194a9247c82e9d09bdd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 860175818712477655, guid: 1b0192ce92a4bcc4ba11bc061d755243, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 3091997138786480576, guid: a324ab7cb9d35e446b25b70f49aed7de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 6100545090462248233, guid: 4a9341e128ace304ead877d3b988fe10, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 8031673096179034653, guid: 8d43310534f8b2949a89a9959f4a749f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 7806046605638445740, guid: 3328a014d3ab5be4aa53109690d2f5de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 8597669970919376126, guid: 5b92ba5e45b315f4e9b526b4ca8742da, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 4103931903393423729, guid: f06afbefdcc57484ab892c34025f4941, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7042968213427853572, guid: 6db984addb897824a8b3197d77e21751, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bracer/Bracer_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 2077447738830455911, guid: 2c147eeb16560864895fe1c7d334a543, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

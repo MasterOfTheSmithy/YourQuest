@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_draught
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Artisan.prefab
+    prefab: {fileID: 4496287539724306246, guid: 539c425d459138746a58af3e6816a892, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Court.prefab
+    prefab: {fileID: 4032283306741349313, guid: 775a093c5c0e1b9419ea4acf0b982753, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Dragonbound.prefab
+    prefab: {fileID: 5483848120698660397, guid: 70a3be4fd14ba06439062292576a1011, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Eclipse.prefab
+    prefab: {fileID: 7400297140775051394, guid: 182692d0eba08b34998e4672aec249a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Field.prefab
+    prefab: {fileID: 3324637955377258923, guid: 81ad361dfe5022744bb28c23f34b6a04, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Merchant.prefab
+    prefab: {fileID: 6736011535420210436, guid: e8629d78717bfb04dabd21f211348086, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Ranger.prefab
+    prefab: {fileID: 3754661630056335395, guid: 62d7711cab2b3b84d93b8d443d2d8f05, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Starforged_Orrery.prefab
+    prefab: {fileID: 2670861917932232660, guid: 630772182901ef443b017edc7f2a5ed2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1565184987460020463, guid: 3fe38bdbca51f5740b1423ed29f26f18, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_core.prefab
+    prefab: {fileID: 6914152895703855132, guid: b56d57a30cea5614589f09138919e2fb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mixed_darkness_light.prefab
+    prefab: {fileID: 7169540318496973479, guid: d53a0418d072fce4ba8e5d41883111ab, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mixed_organic_fire.prefab
+    prefab: {fileID: 6121140372220192905, guid: 3297b3108f53d0840a1065e0d4495a05, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_darkness.prefab
+    prefab: {fileID: 7678609500719779774, guid: 82b3f9b5932a3f5419145cbceebd1193, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_fire.prefab
+    prefab: {fileID: 5769879064331848284, guid: 309bab746da279a4c87906ce75b688bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_forged.prefab
+    prefab: {fileID: 1105618907430760345, guid: 461532269f72a5347ab8d65a6363ae9b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_frost.prefab
+    prefab: {fileID: 4486815504037087714, guid: 5408b2e22ada29345a11427e66b00bed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_light.prefab
+    prefab: {fileID: 8176927608468865034, guid: 50ce33c5f517ba749994ea7381f56298, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_motif_organic.prefab
+    prefab: {fileID: 7629377289433530165, guid: 6df9cef6c6e7f66448c1ed6ec0a45978, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_darkness.prefab
+    prefab: {fileID: 4061801278798034203, guid: cdb2ef11fa5421347a98cf6261db9740, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_fire.prefab
+    prefab: {fileID: 5162039232648386810, guid: eecea9329c3f3164a8cedfb34345e911, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_forged.prefab
+    prefab: {fileID: 9011238746344037802, guid: b6170b34bbb2df044bb46d327225f4b5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_frost.prefab
+    prefab: {fileID: 4900437162047635209, guid: ed115cce33e93c543b2aefbae5943dbf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_light.prefab
+    prefab: {fileID: 2174986972912031555, guid: 2c56490778be9824481329fcc1304d1e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/yqmod1_consumables_draught_mount_organic.prefab
+    prefab: {fileID: 510876161434100216, guid: c80f0f5ba35bdb14fa366b69d539ae1a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Field_Parts.prefab
+    prefab: {fileID: 5130738727120403185, guid: 8a4b3d51e1de62a44b300066fd5d3dd8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Merchant_Parts.prefab
+    prefab: {fileID: 7661813869035674779, guid: 884d5a1786db68c48b8d7f7bfaad92fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Ranger_Parts.prefab
+    prefab: {fileID: 4539336751482746810, guid: a2436cb8bac4a8d48bec45ea724f012f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Artisan_Parts.prefab
+    prefab: {fileID: 6997707364449901433, guid: 44de5047c8f93c34bad3d9227d773ad2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Court_Parts.prefab
+    prefab: {fileID: 5458921205164377574, guid: ac5415603708d78488ca6e74432c531d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Dragonbound_Parts.prefab
+    prefab: {fileID: 7482564873757678549, guid: 87c6db5175fa17e4183aa83063c55c0b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Eclipse_Parts.prefab
+    prefab: {fileID: 1989396454000637656, guid: a98abd51a123f8043a9dc7d0feb0d22f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7659414208458087230, guid: 10fe256fb9a28844e8654e7480b919de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/draught/Draught_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3976692004359398459, guid: 3a4514ef3f81bdd4e915fb05673e2de2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

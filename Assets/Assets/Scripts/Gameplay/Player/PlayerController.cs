@@ -1009,37 +1009,8 @@ public class PlayerController : MonoBehaviour
     private static bool IsLocomotionAudioName(
         string value)
     {
-        if (string.IsNullOrWhiteSpace(
-                value))
-        {
-            return false;
-        }
-
-        return
-            value.Contains(
-                "footstep") ||
-            value.Contains(
-                "foot_step") ||
-            value.Contains(
-                "footsteps") ||
-            value.Contains(
-                "foot_steps") ||
-            value.Contains(
-                "wetfoot") ||
-            value.Contains(
-                "wet_foot") ||
-            value.Contains(
-                "walking") ||
-            value.Contains(
-                "walk_loop") ||
-            value.Contains(
-                "walkloop") ||
-            value.Contains(
-                "running") ||
-            value.Contains(
-                "run_loop") ||
-            value.Contains(
-                "runloop");
+        // note: Player audio and the imported-demo firewall share the same name filter.
+        return YQImportedDemoAudioFirewall.IsLocomotionAudioName(value);
     }
 
     private static string NormalizeAudioName(

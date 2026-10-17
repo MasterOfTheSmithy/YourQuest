@@ -1,0 +1,366 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: medieval_kingdom
+  semanticStyleKey: medieval_kingdom
+  sourceSignature: fnv1a32_f4921c69
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: e54b6d8b48d72ac428b3d76773fb96f1, type: 2}
+  sourceInstanceCount: 75856
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_medieval_kingdom_residential_01
+    displayName: Medieval Kingdom Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -559.0508, y: -2.130005, z: 722.1138}
+    localBoundsCenter: {x: 0, y: 285.57867, z: 0}
+    localBoundsSize: {x: 7307.9883, y: 571.15735, z: 7018.085}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p91_p81_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_service_02
+    displayName: Medieval Kingdom Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0, y: 0.0004272461, z: -0.00048828125}
+    localBoundsCenter: {x: 0, y: 293.90784, z: 0}
+    localBoundsSize: {x: 11952.026, y: 587.8157, z: 8719.417}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p90_p80_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_civic_03
+    displayName: Medieval Kingdom Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 221.68457, y: -2.130005, z: 1357.8472}
+    localBoundsCenter: {x: 0, y: 303.43536, z: 0}
+    localBoundsSize: {x: 5256.9355, y: 606.8707, z: 5231.6514}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p91_p80_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_circulation_04
+    displayName: Medieval Kingdom Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 814.9502, y: 0, z: 695.0654}
+    localBoundsCenter: {x: 0, y: 284.73007, z: 0}
+    localBoundsSize: {x: 10095.698, y: 569.46014, z: 6975.5234}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p90_p81_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_poi_05
+    displayName: Medieval Kingdom Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2698.1548, y: -2.130005, z: 3460.558}
+    localBoundsCenter: {x: 0, y: 288.7787, z: 0}
+    localBoundsSize: {x: 145.9148, y: 577.5574, z: 100.186035}
+    sourceInstanceCount: 4632
+    authoredBuildingCount: 0
+    authoredDressingCount: 4632
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p89_p81_p00
+    - yq_cell_medieval_kingdom_p90_p81_p01
+    - yq_cell_medieval_kingdom_p90_p81_p02
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_residential_06
+    displayName: Medieval Kingdom Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2788.293, y: -0.63900757, z: 3346.9033}
+    localBoundsCenter: {x: 0, y: 295.25616, z: 0}
+    localBoundsSize: {x: 175.93677, y: 590.5123, z: 150.6753}
+    sourceInstanceCount: 3269
+    authoredBuildingCount: 0
+    authoredDressingCount: 3269
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p90_p79_p00
+    - yq_cell_medieval_kingdom_p90_p80_p01
+    - yq_cell_medieval_kingdom_p91_p79_p00
+    - yq_cell_medieval_kingdom_p91_p80_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_service_07
+    displayName: Medieval Kingdom Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2770.305, y: -2.130005, z: 3524.5298}
+    localBoundsCenter: {x: 0, y: 269.7989, z: 0}
+    localBoundsSize: {x: 183.14502, y: 539.5978, z: 216.22168}
+    sourceInstanceCount: 10169
+    authoredBuildingCount: 0
+    authoredDressingCount: 10169
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p90_p82_p00
+    - yq_cell_medieval_kingdom_p90_p83_p00
+    - yq_cell_medieval_kingdom_p91_p81_p01
+    - yq_cell_medieval_kingdom_p91_p82_p00
+    - yq_cell_medieval_kingdom_p91_p82_p01
+    - yq_cell_medieval_kingdom_p91_p82_p02
+    - yq_cell_medieval_kingdom_p91_p82_p03
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_civic_08
+    displayName: Medieval Kingdom Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2853.393, y: -2.130005, z: 3634.3088}
+    localBoundsCenter: {x: 0, y: 268.05124, z: 0}
+    localBoundsSize: {x: 194.93457, y: 536.1025, z: 58.771973}
+    sourceInstanceCount: 9480
+    authoredBuildingCount: 0
+    authoredDressingCount: 9480
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p91_p83_p00
+    - yq_cell_medieval_kingdom_p91_p83_p01
+    - yq_cell_medieval_kingdom_p91_p83_p02
+    - yq_cell_medieval_kingdom_p92_p83_p00
+    - yq_cell_medieval_kingdom_p92_p83_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_circulation_09
+    displayName: Medieval Kingdom Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2894.972, y: -2.130005, z: 3424.046}
+    localBoundsCenter: {x: 0, y: 267.13983, z: 0}
+    localBoundsSize: {x: 124.979004, y: 534.27966, z: 187.94434}
+    sourceInstanceCount: 8429
+    authoredBuildingCount: 0
+    authoredDressingCount: 8429
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p92_p80_p00
+    - yq_cell_medieval_kingdom_p92_p80_p01
+    - yq_cell_medieval_kingdom_p92_p81_p01
+    - yq_cell_medieval_kingdom_p92_p81_p02
+    - yq_cell_medieval_kingdom_p92_p81_p03
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_poi_10
+    displayName: Medieval Kingdom Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2942.0874, y: 505.44043, z: 3292.0347}
+    localBoundsCenter: {x: 0, y: 4.3077087, z: 0}
+    localBoundsSize: {x: 21.367432, y: 8.6154175, z: 28.608887}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p92_p79_p00
+    - yq_cell_medieval_kingdom_p93_p79_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_residential_11
+    displayName: Medieval Kingdom Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2951.8755, y: -2.130005, z: 3560.6694}
+    localBoundsCenter: {x: 0, y: 269.58453, z: 0}
+    localBoundsSize: {x: 201.30273, y: 539.16907, z: 107.78027}
+    sourceInstanceCount: 12267
+    authoredBuildingCount: 0
+    authoredDressingCount: 12267
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p92_p82_p00
+    - yq_cell_medieval_kingdom_p92_p82_p01
+    - yq_cell_medieval_kingdom_p92_p82_p02
+    - yq_cell_medieval_kingdom_p92_p82_p03
+    - yq_cell_medieval_kingdom_p93_p82_p00
+    - yq_cell_medieval_kingdom_p93_p82_p01
+    - yq_cell_medieval_kingdom_p93_p83_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_service_12
+    displayName: Medieval Kingdom Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 2966.028, y: -2.130005, z: 3402.7627}
+    localBoundsCenter: {x: 0, y: 268.47778, z: 0}
+    localBoundsSize: {x: 205.40674, y: 536.95557, z: 226.04785}
+    sourceInstanceCount: 12677
+    authoredBuildingCount: 0
+    authoredDressingCount: 12677
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p92_p81_p00
+    - yq_cell_medieval_kingdom_p93_p80_p00
+    - yq_cell_medieval_kingdom_p93_p80_p01
+    - yq_cell_medieval_kingdom_p93_p80_p02
+    - yq_cell_medieval_kingdom_p93_p81_p01
+    - yq_cell_medieval_kingdom_p93_p81_p02
+    - yq_cell_medieval_kingdom_p94_p80_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_civic_13
+    displayName: Medieval Kingdom Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 3031.9055, y: -2.130005, z: 3481.9878}
+    localBoundsCenter: {x: 0, y: 268.2, z: 0}
+    localBoundsSize: {x: 192.3247, y: 536.4, z: 137.41138}
+    sourceInstanceCount: 4819
+    authoredBuildingCount: 0
+    authoredDressingCount: 4819
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p93_p81_p00
+    - yq_cell_medieval_kingdom_p94_p81_p00
+    - yq_cell_medieval_kingdom_p94_p82_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_circulation_14
+    displayName: Medieval Kingdom Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 5558.295, y: 511.09854, z: 3426.7996}
+    localBoundsCenter: {x: 0, y: 17.276825, z: 0}
+    localBoundsSize: {x: 57.79492, y: 34.55365, z: 78.552734}
+    sourceInstanceCount: 7
+    authoredBuildingCount: 0
+    authoredDressingCount: 7
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p119_p80_p00
+    - yq_cell_medieval_kingdom_p119_p81_p00
+    - yq_cell_medieval_kingdom_p120_p81_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_poi_15
+    displayName: Medieval Kingdom Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 5750.102, y: 545.1781, z: 3383.1365}
+    localBoundsCenter: {x: 0, y: 0.23706055, z: 0}
+    localBoundsSize: {x: 0.1811142, y: 0.4741211, z: 0.20505905}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p122_p80_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_medieval_kingdom_residential_16
+    displayName: Medieval Kingdom Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 5790.37, y: 515.0702, z: 3445.4387}
+    localBoundsCenter: {x: 0, y: 4.5998535, z: 0}
+    localBoundsSize: {x: 100.793945, y: 9.199707, z: 43.259766}
+    sourceInstanceCount: 102
+    authoredBuildingCount: 0
+    authoredDressingCount: 102
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_medieval_kingdom_p122_p81_p00
+    - yq_cell_medieval_kingdom_p123_p81_p00
+    cellContractsV2: []

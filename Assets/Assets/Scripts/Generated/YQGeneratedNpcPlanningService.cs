@@ -1271,7 +1271,7 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         if (_attemptCount > 0) return true;
         var player = YQInvestorPlayerMotor.ActiveMotor;
         if (player == null || !player.IsAuthoritative ||
-            !YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out _)) return false;
+            !YQSpatialMaterializationResolverV2.TryGetQueryProjection(plan, out var prepared, out _)) return false;
         float lead = LLMClient.Instance != null
             ? LLMClient.Instance.GetPlanningLeadTimeSeconds(LLMGenerationCategory.NpcPopulation, "GeneratedNpcPopulation") : 600f;
         float visible = YQPlayerFollowingSemanticChunkStreamer.Active != null
@@ -2014,6 +2014,8 @@ public sealed class YQGeneratedNpcPlanningService : MonoBehaviour
         return new YQLlmRequest {
             prompt = prompt, debugTag = tag, category = LLMGenerationCategory.NpcPopulation,
             priority = locked ? YQLlmRequestPriority.StartupExclusive : YQLlmRequestPriority.Background,
+            // note: Unaccepted background population may yield to a conversation; startup ownership remains uninterrupted.
+            allowPlayerFacingPreemption = !locked,
             exclusiveOwner = locked ? InitialGenerationOwner : null,
             requireJson = true, deferJsonValidationToCaller = true, protectPrompt = true, optionsOverride = options,
             bindPlayerStateRevision = false, bindWorldStateRevision = false, maxRetries = 0, ownerStillCurrent = current

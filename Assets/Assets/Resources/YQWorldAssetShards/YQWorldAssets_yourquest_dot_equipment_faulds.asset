@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_faulds
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Dragonbound_Female.prefab
+    prefab: {fileID: 2740367698401901636, guid: f27887dffbcdabe4aa6f039e9cb480df, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Dragonbound_Male.prefab
+    prefab: {fileID: 529607035880851646, guid: 1efb9d1b1a0e5614199fb1ceda5b7676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Eclipse_Female.prefab
+    prefab: {fileID: 4912003905870733200, guid: 04e249ba0b0bc744294adab7806b73ee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Eclipse_Male.prefab
+    prefab: {fileID: 3851641555866319215, guid: d57eb3014530d1e40bd3552b4a3ef4b8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Field_Female.prefab
+    prefab: {fileID: 2203114704778792413, guid: 1556a64ea2aa72b42a80c2d2ae153118, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Field_Male.prefab
+    prefab: {fileID: 4315523249881561684, guid: 154799b105d285b4194dfad65e5dfc41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Lamellar_Female.prefab
+    prefab: {fileID: 1892704915777362356, guid: bcd11d0b904ce7b47b79eedaab3f335b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Lamellar_Male.prefab
+    prefab: {fileID: 7237944772782255501, guid: 8e358321f0967aa4a80d8922491dca46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Ranger_Female.prefab
+    prefab: {fileID: 4440984696036648160, guid: cf5f24bd18e57a646bc49e62608303fb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Ranger_Male.prefab
+    prefab: {fileID: 3731432021798644531, guid: c1f96a6e5a44fcc4ba94b9d2c2220302, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Sentinel_Female.prefab
+    prefab: {fileID: 2299517979958426801, guid: ad68bb5e9712dd84e95794bbe9f54137, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Sentinel_Male.prefab
+    prefab: {fileID: 5035382009747220603, guid: 13daedaa713b75049a763faa5254f70c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2775149284062604545, guid: e5d613ca733e9364da46ffed1083e243, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 1277076633502275874, guid: 5cbf5b72994ca1543a6077b2fef37e1e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Traveler_Female.prefab
+    prefab: {fileID: 7034616919359637842, guid: a54880fbeb52a164aa5c97acf4764a4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Traveler_Male.prefab
+    prefab: {fileID: 8181699388478950496, guid: b9a1e5e66b4801349a0041a827afe632, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 5572272651220696931, guid: 314e57c200af1d34c9343f82077e5bca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 6903026571307665182, guid: d7322af301acdef4f80f31513fa64f10, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Field_Male_Parts.prefab
+    prefab: {fileID: 1939364251233048641, guid: fd4709fee0940064c89194b36b7845c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Field_Female_Parts.prefab
+    prefab: {fileID: 4032914786399252758, guid: 618295dd564070a4e8b58901d5ef6093, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Ranger_Male_Parts.prefab
+    prefab: {fileID: 8353918704963295062, guid: daef6f40c34d2ae4795b4f17da51afcc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Ranger_Female_Parts.prefab
+    prefab: {fileID: 9139201143954205248, guid: 98818855a5df8ba449f7b9b916f801ae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 6917917053867559597, guid: db44d6c4da6bec041ae0488626020af0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 404470576202671343, guid: cee21d9d670e7004c9e2d0e53e6a8478, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Traveler_Male_Parts.prefab
+    prefab: {fileID: 3061135884923665634, guid: f376227c0750b9847b571f57b823bad2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Traveler_Female_Parts.prefab
+    prefab: {fileID: 4678503427136722758, guid: 3274c869c7c4e9a42be2aaf36176e6e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 151978564553594862, guid: dbed5f21dd6f4c040bfee124826728b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 3051807571494303611, guid: 1b4f7de9a05877b4fb5b62d837d40343, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 6246159790210096097, guid: 03ae21731d19ba246955c8880086e8d3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 3164318619632001454, guid: 556d0b879ce80784b97027d25fbe224a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 6679785328173414487, guid: d594025bb61ea8f48a6f79073df8bb4d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 6111978061821990532, guid: 875ffcaca042d914981c7e2a2bb0922b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 1596773326412360865, guid: da251f05400db2a49a4f0af636452ac8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 6796541055169510712, guid: 766955ddd1dd9d4479cb583c24ed1e23, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 116461568365770148, guid: 464be9a4e2450394ca03db9d04752a52, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/faulds/Faulds_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 2269010032325542859, guid: 3d23b71439fec934d979a8674221810d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

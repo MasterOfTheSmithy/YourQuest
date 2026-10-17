@@ -1,0 +1,801 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_hdrp
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks/M_PropMaster_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 6f3111a1f8a9b3b45afeab43b93209df, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks/M_PropMaster_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 6ffc57a6d13f651408614161f63fc17d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks/M_PropMaster_Rock_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5aa455789749fb74ebc21d5b55489304, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks/M_PropMaster_Rock_04.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0d8c8655c0fe01447a57d24488b47372, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks/M_PropMaster_Rock_05.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5917b8e038e987d4f811f2192b586728, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Rocks_Triplanar/M_Rock_Moss_06.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 2042fc951b4ce8747b300577f13663d1, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Vegetation/M_Foliage_Grass_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 104b2d77e00c46546b322307dc77d9c3, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Vegetation/M_Foliage_Grass_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 74c83c33620b19f498da9348ccb100b7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Materials/Vegetation/M_Foliage__Grass_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0de2a98b88180074cb485da5c091c90e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_PropMaster_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b7c2099b135e4d6439af94d75e14f562, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_PropMaster_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0a0b5fc59ad71f049b181ca2274fdbb1, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_PropMaster_Rock_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c38851e895199d2489547e64c1b7bc3c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_PropMaster_Rock_04.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 72c29c3c804d7124ea8be1cbc4231781, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_PropMaster_Rock_05.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c97bef2175bf0f84584069af8fc787ac, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Rocks/Materials/MI_Rock_Moss_06.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 455d9ec2d35204041ab06b493cf92153, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Vegetation/Materials/MI_Foliage_Grass_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 86ab2759eb0b5c341b540b72329b7835, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Vegetation/Materials/MI_Foliage_Grass_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f64a60c07846c9948b0930e2cc95a10c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Meshes/Vegetation/Materials/MI_Foliage__Grass_03.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c362c09104436004b95618b9a8e20b24, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_LeafTree_01.prefab
+    prefab: {fileID: 1030971941, guid: abc00000000016940957463950468085, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeafTree_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+    - transformPath: SM_LeafTree_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6d7075e85f67e1849b6fb9744b83eaa2, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_LeafTree_01_1.prefab
+    prefab: {fileID: 1030971948, guid: abc00000000002601091044172312009, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b194aae0c363d7141a54357bb6ffd280, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_LeafTree_01_2.prefab
+    prefab: {fileID: 1030973742, guid: abc00000000004067524709573368066, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 801a47f15ff4e2741884ce4957f666e0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_LeafTree_01_3.prefab
+    prefab: {fileID: 1030973782, guid: abc00000000005220805963886021963, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 037c72a7a6736ec42b1cd66e890886c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_LeafTree_01_4.prefab
+    prefab: {fileID: 1030973808, guid: abc00000000010654766787259627596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+    - transformPath: SM_LeafTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 037c72a7a6736ec42b1cd66e890886c4, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_01.prefab
+    prefab: {fileID: 1030971913, guid: abc00000000002407024989274991802, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a982edabf417ca449880cd9a95cebf9c, type: 2}
+    - transformPath: SM_MountainTree_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_01_1.prefab
+    prefab: {fileID: 1030975570, guid: abc00000000012088432941105175506, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_02.prefab
+    prefab: {fileID: 1030971957, guid: abc00000000006886554338819280193, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 9f069fbe1819e2546a8cc5252a1b7505, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_02_1.prefab
+    prefab: {fileID: 1030973247, guid: abc00000000001630222474728254973, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf7e62926403a864ba284a9849785c75, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 9f069fbe1819e2546a8cc5252a1b7505, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_03.prefab
+    prefab: {fileID: 1030975605, guid: abc00000000006308679461625433720, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9d66c958a84ca6b4db217c877dc85b20, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 9f069fbe1819e2546a8cc5252a1b7505, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_MountainTree_04.prefab
+    prefab: {fileID: 1030975218, guid: abc00000000013829146384486425215, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MountainTree_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6b3829d097b7ddc44aa8c82f21fdc9f2, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_01.prefab
+    prefab: {fileID: 1030972200, guid: abc00000000009708788637038583716, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4cdac0ec541afeb4480f5975ca408459, type: 2}
+    - transformPath: SM_Rock_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4cdac0ec541afeb4480f5975ca408459, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_02.prefab
+    prefab: {fileID: 1030972214, guid: abc00000000004189631082406333375, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1beca1b9135f9f347a6a49dca740db3a, type: 2}
+    - transformPath: SM_Rock_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1beca1b9135f9f347a6a49dca740db3a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_03.prefab
+    prefab: {fileID: 1030972228, guid: abc00000000011867148848415742822, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e09d7569cd36f4242a19d213ac832b5e, type: 2}
+    - transformPath: SM_Rock_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e09d7569cd36f4242a19d213ac832b5e, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_04.prefab
+    prefab: {fileID: 1030972242, guid: abc00000000015693783110448739969, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1efea10b1d2b19c48b9ba7746fec2023, type: 2}
+    - transformPath: SM_Rock_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1efea10b1d2b19c48b9ba7746fec2023, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_05.prefab
+    prefab: {fileID: 1030972256, guid: abc00000000015360791463041605816, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 670a0fd8d75bbfb42afaf54432fca9d6, type: 2}
+    - transformPath: SM_Rock_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 670a0fd8d75bbfb42afaf54432fca9d6, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_06.prefab
+    prefab: {fileID: 1030972270, guid: abc00000000016043298324236412483, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87ce7dab9aad9ae499a9d6d1dd42744e, type: 2}
+    - transformPath: SM_Rock_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87ce7dab9aad9ae499a9d6d1dd42744e, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_07.prefab
+    prefab: {fileID: 1030972384, guid: abc00000000006221910858727556858, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1085a88d7d0ab1c4e82c4af2505e304a, type: 2}
+    - transformPath: SM_Rock_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1085a88d7d0ab1c4e82c4af2505e304a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_08.prefab
+    prefab: {fileID: 1030972370, guid: abc00000000017577506069936284293, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_08_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6299213ed1b96264a8af9dbd9f2434f6, type: 2}
+    - transformPath: SM_Rock_08_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6299213ed1b96264a8af9dbd9f2434f6, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Rock_09.prefab
+    prefab: {fileID: 1030972284, guid: abc00000000011303767047486605628, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_09_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8762f7b01c9e0794bab48466f658c170, type: 2}
+    - transformPath: SM_Rock_09_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8762f7b01c9e0794bab48466f658c170, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_01.prefab
+    prefab: {fileID: 1030974452, guid: abc00000000000724016532771742491, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6ccfc38b80990740bf3109213132ad5, type: 2}
+    - transformPath: SM_Ruin_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 718f4ec6963f9754480729e28aedddce, type: 2}
+    - transformPath: SM_Ruin_01
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1052de6c48d1c1740812b567fe72dbf0, type: 2}
+    - transformPath: SM_Ruin_01
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 8561bd61e480c8d4688ab1c76b5ad116, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_01.prefab
+    prefab: {fileID: 1030972687, guid: abc00000000008173528273478538251, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_02.prefab
+    prefab: {fileID: 1030972708, guid: abc00000000009924175435434065536, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_03.prefab
+    prefab: {fileID: 1030972757, guid: abc00000000009772344014706223497, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_04.prefab
+    prefab: {fileID: 1030972722, guid: abc00000000015567850488321226702, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_05.prefab
+    prefab: {fileID: 1030973275, guid: abc00000000004441290048565157063, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_06.prefab
+    prefab: {fileID: 1030972694, guid: abc00000000007234060386675057676, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_07.prefab
+    prefab: {fileID: 1030972701, guid: abc00000000002466279640052626901, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_08.prefab
+    prefab: {fileID: 1030972778, guid: abc00000000005738118163010734282, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stick_09.prefab
+    prefab: {fileID: 1030972750, guid: abc00000000005150813661526766803, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stick_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Woodlog_01.prefab
+    prefab: {fileID: 1030973981, guid: abc00000000011270678413333589830, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Woodlog_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 61c583654dcb36d4db3b6ddfd15f928c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Terrain/M_Terrain.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: aff1486d6e2b92b4db7a16ff2bf24fdc, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_AngelStatue_02.prefab
+    prefab: {fileID: 1030974612, guid: abc00000000008075543166242022545, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d08b41d24c17f8d4890f93d46b6e9498, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4f6e7579cfabeda46a03aeafbd71ca6e, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b7b1b26dd4621d44eae6a87f40d39a58, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 801a47f15ff4e2741884ce4957f666e0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_AngelStatue_02_1.prefab
+    prefab: {fileID: 1030975774, guid: abc00000000002717774887027599949, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d08b41d24c17f8d4890f93d46b6e9498, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4f6e7579cfabeda46a03aeafbd71ca6e, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b7b1b26dd4621d44eae6a87f40d39a58, type: 2}
+    - transformPath: SM_AngelStatue_02
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 6d7075e85f67e1849b6fb9744b83eaa2, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Fern_01.prefab
+    prefab: {fileID: 1030972356, guid: abc00000000013381191946591602216, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fern_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21891b9e50f68a94987c674c71077bb0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Flower_01.prefab
+    prefab: {fileID: 1030973114, guid: abc00000000006225239267477201202, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc7210d8ac7e900468068841100237a0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Flower_02.prefab
+    prefab: {fileID: 1031078034, guid: abc00000000003614727424063681401, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc7210d8ac7e900468068841100237a0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Flower_03.prefab
+    prefab: {fileID: 1031082031, guid: abc00000000015000180702287831280, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Flower_04.prefab
+    prefab: {fileID: 1031081156, guid: abc00000000005377290520782814903, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af4f50833d35b5349b56e7c4d0220632, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Grass_01.prefab
+    prefab: {fileID: 1030974160, guid: abc00000000006172857038398828553, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 104b2d77e00c46546b322307dc77d9c3, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Grass_02.prefab
+    prefab: {fileID: 1030973051, guid: abc00000000008267815160481349698, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Grass_03.prefab
+    prefab: {fileID: 1030974256, guid: abc00000000004574041297171143307, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74c83c33620b19f498da9348ccb100b7, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Grass_04.prefab
+    prefab: {fileID: 1031118473, guid: abc00000000003634573410367662732, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Grass_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0de2a98b88180074cb485da5c091c90e, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_01.prefab
+    prefab: {fileID: 1030974591, guid: abc00000000003592261930460991225, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0ccf3a208066aa54d92bd9bc55a1425c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_02.prefab
+    prefab: {fileID: 1030974598, guid: abc00000000006202773773874511026, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0ccf3a208066aa54d92bd9bc55a1425c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_03.prefab
+    prefab: {fileID: 1030974605, guid: abc00000000005527258382703215483, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0ccf3a208066aa54d92bd9bc55a1425c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_04.prefab
+    prefab: {fileID: 1031089157, guid: abc00000000004395079406482043964, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0ccf3a208066aa54d92bd9bc55a1425c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_05.prefab
+    prefab: {fileID: 1031082059, guid: abc00000000010668818428931722629, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0ccf3a208066aa54d92bd9bc55a1425c, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_06.prefab
+    prefab: {fileID: 1030974181, guid: abc00000000014066882045380965502, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60cb5478d7cc1fc429b381d2ed875bd4, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_HeatherFlower_07.prefab
+    prefab: {fileID: 1031116135, guid: abc00000000005354825027180124727, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HeatherFlower_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 359cb5ddad53d004f87dc51ae41f2fd5, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_01.prefab
+    prefab: {fileID: 1030973086, guid: abc00000000015623014983518656054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_02.prefab
+    prefab: {fileID: 1030973044, guid: abc00000000009124733894846821405, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_03.prefab
+    prefab: {fileID: 1030973100, guid: abc00000000007857236586370179060, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_04.prefab
+    prefab: {fileID: 1030973037, guid: abc00000000016379261475319881875, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_05.prefab
+    prefab: {fileID: 1030973065, guid: abc00000000015591335217068537226, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2ef77a44ab566264a9e6ae509cbed80a, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_06.prefab
+    prefab: {fileID: 1030973072, guid: abc00000000000959720111867192017, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc7210d8ac7e900468068841100237a0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Plant_07.prefab
+    prefab: {fileID: 1030973107, guid: abc00000000006099457481611972808, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plant_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc7210d8ac7e900468068841100237a0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_02.prefab
+    prefab: {fileID: 1030974465, guid: abc00000000005588973211078279824, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8561bd61e480c8d4688ab1c76b5ad116, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_03.prefab
+    prefab: {fileID: 1030974479, guid: abc00000000000308975674865220761, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6ccfc38b80990740bf3109213132ad5, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_04.prefab
+    prefab: {fileID: 1030974472, guid: abc00000000015002407925703412254, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5532f05fefe0044aa24b2c131cdc50f, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_05.prefab
+    prefab: {fileID: 1030975654, guid: abc00000000007916319945289475287, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1052de6c48d1c1740812b567fe72dbf0, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Ruin_06.prefab
+    prefab: {fileID: 1030975661, guid: abc00000000012824275550926447196, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ruin_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 718f4ec6963f9754480729e28aedddce, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Stair_02.prefab
+    prefab: {fileID: 1030971989, guid: abc00000000005947409133406678189, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stair_0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac7487108754cf4e958aa328cda59cd, type: 2}
+  - assetPath: Assets/HIVEMIND/HDRP/TheMessengerMountain/Art/Prefabs/SM_Waterfall_01.prefab
+    prefab: {fileID: 1030975430, guid: abc00000000007010671972616946369, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Waterfall_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 35b93c5f835cf0847bbc95be00fe17b3, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

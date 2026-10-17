@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_gauntlets
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Dragonbound_Female.prefab
+    prefab: {fileID: 7647625155355422651, guid: 1133361e71999a342afa600a5d5269a8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Dragonbound_Male.prefab
+    prefab: {fileID: 6965083414244697508, guid: 6e58c9178c607394cb68b8f6d27e9f32, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Eclipse_Female.prefab
+    prefab: {fileID: 1962920928996737909, guid: d600303fdf68a6a4f912259a077c2055, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Eclipse_Male.prefab
+    prefab: {fileID: 2872053863770187983, guid: 435eea1d84c115445be4da79ae35cecd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Field_Female.prefab
+    prefab: {fileID: 2010287703477263997, guid: 7d5d4504ced090a48bdbb4a6d8673bf4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Field_Male.prefab
+    prefab: {fileID: 977428742000943460, guid: 9b26ef749ed0a0f4f9773a726dc816ec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Lamellar_Female.prefab
+    prefab: {fileID: 3809404674399033367, guid: f4d08b67f096bc241a1501559ce37473, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Lamellar_Male.prefab
+    prefab: {fileID: 1173204664167763228, guid: 041ea85a719430a4fb8da2913baac354, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Ranger_Female.prefab
+    prefab: {fileID: 8379434377139062117, guid: 0c979e30467a84b4b9c8b3bda42c86ae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Ranger_Male.prefab
+    prefab: {fileID: 5403496576148477053, guid: 358751ab1edb7cc4cb2fdcca7feb09fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Sentinel_Female.prefab
+    prefab: {fileID: 2903436897925581595, guid: e72444ed03bd8ce4eb42890505e88b3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Sentinel_Male.prefab
+    prefab: {fileID: 9105913187669600664, guid: 0fa4c6e2631200d4b871be92ba251085, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 3801241488021742317, guid: 543977b7b934386429cf7ea3e67a59a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 1881174862392882871, guid: 62105d5f98c6c974f9b1cac9c1559eaa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Traveler_Female.prefab
+    prefab: {fileID: 5284920937913197295, guid: 65079eff70447bb4fb1099dd6b958da4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Traveler_Male.prefab
+    prefab: {fileID: 2925778407438269834, guid: 130f0cc54e55b264d961d93d931fd7a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 7321010134534691979, guid: 068660b1a4c08934ca9efee7d8e1072b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 5584393569786198403, guid: bb0c29e24e65c8347a061849c9565372, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Field_Male_Parts.prefab
+    prefab: {fileID: 5031646801498139811, guid: 3b490f4dfce56b84a8e789d9217c3740, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Field_Female_Parts.prefab
+    prefab: {fileID: 5805904024349766733, guid: 8ebe439c64dd6414da6acc8d7d4f21cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Ranger_Male_Parts.prefab
+    prefab: {fileID: 9223171495711257913, guid: f25feb5d67747ee4e84b42e9076cf7b1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Ranger_Female_Parts.prefab
+    prefab: {fileID: 8316354170501991311, guid: b0da825fa65cc494897dbbb2107417f0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 7642756978437396231, guid: 162a4939124bc6e4494abc4eb149e0bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 6275972380488697811, guid: afd8d5d6f1590f64590a9aa41e710d46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Traveler_Male_Parts.prefab
+    prefab: {fileID: 5000365768043380550, guid: 1d7199ebf89511a4491916dd8367a7a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Traveler_Female_Parts.prefab
+    prefab: {fileID: 1419292059605901925, guid: 020cd0776ae7e874e9f9f9429567a9b6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 1492878268917921966, guid: d11757b2e0030e844b7bb02eb1ef7408, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 2885434492211523165, guid: 67984140f17cf4a4992301bd1330b046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 5722223158190470115, guid: f5ae047dde5e9fb45a6a0ebd813c7a6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 1054344883515356873, guid: 17fb3bc99a0733844ac537d7977326cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 660257474244493053, guid: 3cf49c88c1df3764d98c020254366325, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 4325466116529688718, guid: a3ffd874069779f46b896e4fc5f5bae8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 2438376741063084982, guid: 92ea0c9851004c04eae6f6da157593b0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 8900320487287860739, guid: fc5fcc23c3ebb244eb5efc6748583dda, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 5366543355762616130, guid: eab0fc4b7295c314db7c855f0266d6dc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gauntlets/Gauntlets_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 2870959046957734703, guid: 907506ab3175e0c49a9a8d88ed517d7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "status": "OFFLINE_EXECUTABLE_MODEL_STAGES_BLOCKED",
+  "entrypoint": "node Tools/AdaptiveContentLoRA/run-offline.mjs",
+  "scope": "Original pending-review fixtures, CPU validation, local prompt preparation, readable review pack and explicit refusal guards only.",
+  "executable_now": ["rebuild owned artifacts", "25 development regressions", "validate every candidate and preserve existing family membership", "validate initial train distribution and task coverage", "prepare train-only teacher prompts without invoking a teacher", "guidance checks", "verify export/pair guards", "parse and whitespace verification"],
+  "review_entrypoint": "review/REVIEW_PACK.md",
+  "current_dataset": "data/seed.v0.2.0.jsonl",
+  "deprecated_dataset": "data/seed.v0.1.0.jsonl",
+  "bounded_pilot_plan": "../../Docs/AdaptiveContentLoRA/BOUNDED_LOCAL_PILOT.md",
+  "pilot_budget": {"spending_usd": 0, "optimization_limit_minutes": 50, "training_phase_limit_minutes": 75, "entire_gpu_experiment_limit_minutes": 110, "executed": false},
+  "gates_in_order": [
+    {"gate": "representative_then_complete_human_review", "status": "PENDING", "requires": ["rights", "causal interpretation", "rarity", "mechanical implications", "semantic naming overlap", "all training targets approved or revised"]},
+    {"gate": "runtime_projection_binding", "status": "BLOCKED", "requires": ["complete G09 executor contracts", "durable G15 evidence IDs and provenance", "typed G16 offer and accepted-record persistence", "G03 dependency/token-budget contracts"]},
+    {"gate": "source_and_environment_canary", "status": "BLOCKED", "requires": ["matching base weight and tokenizer revision for deployed GGUF", "pinned runnable libraries", "authorized isolated hardware", "zero-adapter export/load compatibility"]},
+    {"gate": "bounded_pilot", "status": "NOT_RUN", "requires": ["reviewed rights-approved train split", "matched source provenance", "training script after canary", "measured memory fit", "validation-only tuning"]},
+    {"gate": "paired_quality_evaluation", "status": "NOT_RUN", "requires": ["independent actual hidden inputs authored and sealed", "identical projected inputs and sampling", "base versus adapter", "blind causal-quality review", "complete telemetry"]},
+    {"gate": "runtime_demonstrations_A_F", "status": "NOT_RUN", "requires": ["existing scheduler invariants", "resource budgets", "proposal-only validation/commit", "save quit reload with inference disabled", "unchanged accepted identity and effects", "authorized later NPC response"]}
+  ],
+  "prohibited_in_this_phase": ["inference", "training", "downloads", "installs", "paid teacher calls", "G08/runtime/settings/save mutation", "new mechanics or model scheduler", "base-model switch"],
+  "recommendation": "REVISE_NOT_YET_TESTABLE_KEEP_BASE",
+  "warning": "No fixture PASS, completed review form or completed training run can imply ADOPT. Model phases require measured baseline benefit and deterministic runtime proofs."
+}

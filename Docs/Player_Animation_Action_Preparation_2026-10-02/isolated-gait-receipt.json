@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-02T13:49:12.5228793Z",
+  "evidence": "Editor sampling on the normalized approved production body; production motor and gear require the separate PlaySafe witness",
+  "checks": [
+    "approved production body binds the repaired controller",
+    "motor retains displacement ownership",
+    "relaxed idle keeps the torso upright",
+    "walk has visible fore/aft foot travel above 25 cm",
+    "walk has a substantial upper-leg stride",
+    "run has visible fore/aft foot travel above 25 cm",
+    "run has a substantial upper-leg stride",
+    "back has visible fore/aft foot travel above 25 cm",
+    "back has a substantial upper-leg stride"
+  ],
+  "samples": [
+    {
+      "idleLayers": 0,
+      "rightUpperArm": "(-0.2064, -0.3628, -0.0493, 0.9074)",
+      "rightLowerArm": "(-0.6203, -0.1970, -0.0505, 0.7575)"
+    },
+    {
+      "idleLayers": 1,
+      "rightUpperArm": "(-0.2064, -0.3628, -0.0493, 0.9074)",
+      "rightLowerArm": "(-0.6203, -0.1970, -0.0505, 0.7575)"
+    },
+    {
+      "idleLayers": 2,
+      "rightUpperArm": "(-0.0175, -0.4453, 0.0767, 0.8919)",
+      "rightLowerArm": "(-0.2062, -0.0813, -0.1254, 0.9670)"
+    },
+    {
+      "gait": "idle",
+      "torsoLeanDegrees": 0.957157552
+    },
+    {
+      "gait": "idle",
+      "footTravelMetres": 0.009301668,
+      "upperLegArcDegrees": 0.9379443
+    },
+    {
+      "gait": "walk",
+      "footTravelMetres": 0.6303302,
+      "upperLegArcDegrees": 41.89802
+    },
+    {
+      "gait": "run",
+      "footTravelMetres": 0.9656197,
+      "upperLegArcDegrees": 64.3112
+    },
+    {
+      "gait": "back",
+      "footTravelMetres": 0.6259471,
+      "upperLegArcDegrees": 35.8791122
+    },
+    {
+      "walkFootSpeed": 1.13940346,
+      "runFootSpeed": 4.92555761,
+      "backFootSpeed": 0.729535639
+    }
+  ],
+  "error": null
+}

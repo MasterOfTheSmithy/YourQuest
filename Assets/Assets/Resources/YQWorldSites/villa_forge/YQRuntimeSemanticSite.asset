@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: villa_forge
+  semanticStyleKey: villa_forge
+  sourceSignature: fnv1a32_87e9aa7e
+  topology: 4
+  streamingSite: {fileID: 11400000, guid: e72e2cb904f33cd4783bcad1b8bb4316, type: 2}
+  sourceInstanceCount: 1077
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_villa_forge_approach_01
+    displayName: Villa Forge Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -8.139259, y: 1.6177979, z: 0}
+    localBoundsCenter: {x: 0, y: 8.772667, z: 0}
+    localBoundsSize: {x: 100.2838, y: 17.545334, z: 97.296555}
+    sourceInstanceCount: 780
+    authoredBuildingCount: 0
+    authoredDressingCount: 780
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_villa_forge_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_villa_forge_core_02
+    displayName: Villa Forge Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 17.978018, y: 8.430822, z: 42.554817}
+    localBoundsCenter: {x: 0, y: 1.1890001, z: 0}
+    localBoundsSize: {x: 1.062645, y: 2.3780003, z: 0.65587616}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_villa_forge_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_villa_forge_perimeter_03
+    displayName: Villa Forge Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 47.475594, y: 0, z: 1.692318}
+    localBoundsCenter: {x: 0, y: 12.343132, z: 0}
+    localBoundsSize: {x: 21.61113, y: 24.686264, z: 90.00001}
+    sourceInstanceCount: 296
+    authoredBuildingCount: 0
+    authoredDressingCount: 296
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_villa_forge_p1_p0_p00
+    cellContractsV2: []

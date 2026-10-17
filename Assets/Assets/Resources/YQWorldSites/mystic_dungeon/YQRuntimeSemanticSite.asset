@@ -1,0 +1,293 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: mystic_dungeon
+  semanticStyleKey: mystic_dungeon
+  sourceSignature: fnv1a32_24576e10
+  topology: 2
+  streamingSite: {fileID: 11400000, guid: cc754e69057018447b75b39197b462b5, type: 2}
+  sourceInstanceCount: 18468
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_mystic_dungeon_entrance_01
+    displayName: Mystic Dungeon Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -37.600006, y: -0.000009536743, z: -108.274445}
+    localBoundsCenter: {x: 0, y: 9.555693, z: 0}
+    localBoundsSize: {x: 66.64993, y: 19.111385, z: 67.93936}
+    sourceInstanceCount: 2923
+    authoredBuildingCount: 0
+    authoredDressingCount: 2923
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p0_p0_p00
+    - yq_cell_mystic_dungeon_p0_p0_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_chamber_02
+    displayName: Mystic Dungeon Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -33.477352, y: -0.000009536743, z: -48.00237}
+    localBoundsCenter: {x: 0, y: 12.1628, z: 0}
+    localBoundsSize: {x: 64.659454, y: 24.3256, z: 69.7342}
+    sourceInstanceCount: 1673
+    authoredBuildingCount: 0
+    authoredDressingCount: 1673
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_corridor_03
+    displayName: Mystic Dungeon Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -29.084784, y: -0.000009536743, z: 19.499115}
+    localBoundsCenter: {x: 0, y: 13.483865, z: 0}
+    localBoundsSize: {x: 50.65618, y: 26.96773, z: 72.20752}
+    sourceInstanceCount: 1616
+    authoredBuildingCount: 0
+    authoredDressingCount: 1616
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_encounter_04
+    displayName: Mystic Dungeon Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -27.931969, y: -0.000009536743, z: 80.56022}
+    localBoundsCenter: {x: 0, y: 15.762439, z: 0}
+    localBoundsSize: {x: 48.722965, y: 31.524878, z: 67.24158}
+    sourceInstanceCount: 1476
+    authoredBuildingCount: 0
+    authoredDressingCount: 1476
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p0_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_poi_05
+    displayName: Mystic Dungeon Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -8.529474, y: 17.400124, z: 121.71437}
+    localBoundsCenter: {x: 0, y: 3.4101582, z: 0}
+    localBoundsSize: {x: 12.908878, y: 6.8203163, z: 6.9170227}
+    sourceInstanceCount: 182
+    authoredBuildingCount: 0
+    authoredDressingCount: 182
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p0_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_entrance_06
+    displayName: Mystic Dungeon Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 22.098886, y: 2.8998861, z: -87.97504}
+    localBoundsCenter: {x: 0, y: 11.925329, z: 0}
+    localBoundsSize: {x: 61.514706, y: 23.850658, z: 27.024487}
+    sourceInstanceCount: 1358
+    authoredBuildingCount: 0
+    authoredDressingCount: 1358
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_chamber_07
+    displayName: Mystic Dungeon Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 22.356766, y: -0.000009536743, z: 17.764729}
+    localBoundsCenter: {x: 0, y: 14.508228, z: 0}
+    localBoundsSize: {x: 64.08361, y: 29.016457, z: 69.8}
+    sourceInstanceCount: 2360
+    authoredBuildingCount: 0
+    authoredDressingCount: 2360
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_corridor_08
+    displayName: Mystic Dungeon Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 25.568153, y: 17.099922, z: 126.6492}
+    localBoundsCenter: {x: 0, y: 5.2764263, z: 0}
+    localBoundsSize: {x: 69.91424, y: 10.552853, z: 31.189903}
+    sourceInstanceCount: 594
+    authoredBuildingCount: 0
+    authoredDressingCount: 594
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_encounter_09
+    displayName: Mystic Dungeon Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 25.981445, y: 2.6998825, z: 81.47206}
+    localBoundsCenter: {x: 0, y: 13.803373, z: 0}
+    localBoundsSize: {x: 68.178314, y: 27.606747, z: 69.568085}
+    sourceInstanceCount: 3235
+    authoredBuildingCount: 0
+    authoredDressingCount: 3235
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p3_p00
+    - yq_cell_mystic_dungeon_p1_p3_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_poi_10
+    displayName: Mystic Dungeon Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 25.971428, y: 1.5623026, z: -46.16913}
+    localBoundsCenter: {x: 0, y: 12.738123, z: 0}
+    localBoundsSize: {x: 69.36998, y: 25.476246, z: 69.54477}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_entrance_11
+    displayName: Mystic Dungeon Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 31.648504, y: 17.750233, z: -46.03737}
+    localBoundsCenter: {x: 0, y: 3.5795097, z: 0}
+    localBoundsSize: {x: 46.49887, y: 7.1590195, z: 56.16301}
+    sourceInstanceCount: 35
+    authoredBuildingCount: 0
+    authoredDressingCount: 35
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p1_p1_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_chamber_12
+    displayName: Mystic Dungeon Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 60.830345, y: 11.409931, z: -47.18138}
+    localBoundsCenter: {x: 0, y: 6.5696754, z: 0}
+    localBoundsSize: {x: 10.372307, y: 13.139351, z: 55.83855}
+    sourceInstanceCount: 306
+    authoredBuildingCount: 0
+    authoredDressingCount: 306
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_corridor_13
+    displayName: Mystic Dungeon Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 61.7113, y: 22.505444, z: 103.626114}
+    localBoundsCenter: {x: 0, y: 2.5736656, z: 0}
+    localBoundsSize: {x: 18.42733, y: 5.147331, z: 24.48468}
+    sourceInstanceCount: 147
+    authoredBuildingCount: 0
+    authoredDressingCount: 147
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p2_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mystic_dungeon_encounter_14
+    displayName: Mystic Dungeon Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 63.12496, y: 22.428986, z: 117.0784}
+    localBoundsCenter: {x: 0, y: 2.6118946, z: 0}
+    localBoundsSize: {x: 15.600002, y: 5.223789, z: 15.227325}
+    sourceInstanceCount: 63
+    authoredBuildingCount: 0
+    authoredDressingCount: 63
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mystic_dungeon_p2_p4_p00
+    cellContractsV2: []

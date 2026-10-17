@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_seal
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Artisan.prefab
+    prefab: {fileID: 346125901945071468, guid: 7f4de79801af2714dbbca649f8c34bd6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Court.prefab
+    prefab: {fileID: 2521497910960245797, guid: a1e95161eb905b04a80651a5cc7cfc45, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Dragonbound.prefab
+    prefab: {fileID: 5656425172648503715, guid: bbfbb5f59c80d2949b9aa282ed1e626a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Eclipse.prefab
+    prefab: {fileID: 8902541270549148697, guid: 51f4eb081513e8a44bcb4dba3193b262, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Field.prefab
+    prefab: {fileID: 5143900459358704812, guid: d8ee5c06b325b754189bd5faa7f1b29d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Merchant.prefab
+    prefab: {fileID: 6497830395918326568, guid: 1d0f520b905e7384f965c0f1e8d632a6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Ranger.prefab
+    prefab: {fileID: 8725500286528987129, guid: 40d7018c01d902d46a98c4f345b6cf19, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Starforged_Orrery.prefab
+    prefab: {fileID: 4938412724842813579, guid: b44a0934846bc2d488e1776986efe4f1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Worldtree_Sovereign.prefab
+    prefab: {fileID: 4131991096325981885, guid: 034e2a178fc90424ca8f1d8cae0fe8f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_core.prefab
+    prefab: {fileID: 7252526357833613376, guid: de81a931fdd5f6f4087b80d61fb9fdef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mixed_darkness_light.prefab
+    prefab: {fileID: 4215954711450294418, guid: 59c37bff1bc2d2446bb41a19f896fd92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mixed_organic_fire.prefab
+    prefab: {fileID: 599867850331419409, guid: 0e8ef740ec9fe004aac746d314696faa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_darkness.prefab
+    prefab: {fileID: 4283295707389407197, guid: c91b34044da3eee48bd690da42fadbb5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_fire.prefab
+    prefab: {fileID: 633862854716221263, guid: 32418a93dd32212489f522cdd41167d1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_forged.prefab
+    prefab: {fileID: 1785830028803736710, guid: a27b0019b8ece2b4dbf8d5a6767cec28, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_frost.prefab
+    prefab: {fileID: 1148705796461925171, guid: 756e36a2d0169b241a67c9fe0c2bee58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_light.prefab
+    prefab: {fileID: 1633388950056956301, guid: 33c8b681f4d72ef4a92832f57b774a82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_motif_organic.prefab
+    prefab: {fileID: 5650586344471339820, guid: 33f550823b625504bbaf7f65e46ef6b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_darkness.prefab
+    prefab: {fileID: 2485751959140005778, guid: 33d6dc195e98cfd47a0c1f47748d0905, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_fire.prefab
+    prefab: {fileID: 635774790406389518, guid: 49d80de576e81d842a624a9b95296879, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_forged.prefab
+    prefab: {fileID: 3503443296497664595, guid: 5c8ac8cde1286fb4794bb2c3d20a91a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_frost.prefab
+    prefab: {fileID: 8156195350642506922, guid: 709359fd552287f42ae099e3107265a9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_light.prefab
+    prefab: {fileID: 625608356972213059, guid: 3908df8148554904bb620a110698f5fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/yqmod1_accessories_seal_mount_organic.prefab
+    prefab: {fileID: 1397824678139665993, guid: b2bccfcd0f695e14d8898e2877e1f2f7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Field_Parts.prefab
+    prefab: {fileID: 7379947555794306925, guid: 78567504ca0f23947a8b0826caaba2b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Merchant_Parts.prefab
+    prefab: {fileID: 1265364423805783534, guid: dfa883137bd8c1045b99cd854cd682d6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Ranger_Parts.prefab
+    prefab: {fileID: 8116066926714645816, guid: ecba6dc9053f65a4f882bc9575f58f03, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Artisan_Parts.prefab
+    prefab: {fileID: 2174629980156759884, guid: 7a7731521b2e2234da149201c7c691d9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Court_Parts.prefab
+    prefab: {fileID: 6760678221928880090, guid: 149ceee9015bee24a939a18b605a20c8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Dragonbound_Parts.prefab
+    prefab: {fileID: 2088959925279903355, guid: f63c5d62ad458344aa1743b07b1fd536, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Eclipse_Parts.prefab
+    prefab: {fileID: 426150598594658272, guid: 284ff3ded9eca9247b589aef1019e469, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 5850395379073976604, guid: 9b543388c7134a54e824b38179cd3955, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/seal/Seal_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3018622527444328204, guid: 84bb35a67bb65eb459b59ad1d74d0b4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

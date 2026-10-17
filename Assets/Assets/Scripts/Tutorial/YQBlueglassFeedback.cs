@@ -35,8 +35,8 @@ public sealed class YQBlueglassFeedback : MonoBehaviour
 
     public static void Request(YQBlueglassCue cue, bool controller)
     {
-        // note: Mouse/keyboard interactions also receive tactile feedback when a supported controller is connected and haptics are enabled.
-        if (Gamepad.current == null || !Gamepad.current.enabled || !HapticsEnabled || !Application.isFocused) return;
+        // note: Mouse hover and clicks must not issue synchronous device commands to an idle controller; retain pulses for controller-owned input.
+        if (!controller || Gamepad.current == null || !Gamepad.current.enabled || !HapticsEnabled || !Application.isFocused) return;
         if (_instance == null)
         {
             // note: Exactly one UI-only pulse arbiter; no new gameplay or save owner.

@@ -1,0 +1,710 @@
+{
+  "version": "0.1.0",
+  "main_numbering": "exact 29-section user goal",
+  "naming_numbering": "Exact sections from owner appendix reproduced by parent; original headings preserved",
+  "completion_policy": "OFFLINE_IMPLEMENTED is never production acceptance; pending rows remain incomplete",
+  "main": [
+    {
+      "id": "M01",
+      "requirement": "Production behavior-to-meaning-to-opportunity improvement",
+      "evidence": [
+        "preregistration.json"
+      ],
+      "status": "PENDING_PAIRED_RUNTIME_PROOF"
+    },
+    {
+      "id": "M02",
+      "requirement": "Actual model/runtime/contracts/hardware audit",
+      "evidence": [
+        "audit.json",
+        "../../Docs/AdaptiveContentLoRA/AUDIT.md"
+      ],
+      "status": "SOURCE_AUDITED_UPSTREAM_PROVENANCE_UNRESOLVED"
+    },
+    {
+      "id": "M03",
+      "requirement": "Interpreter/proposal only; deterministic authority",
+      "evidence": [
+        "core.mjs",
+        "schemas/output.schema.json"
+      ],
+      "status": "OFFLINE_GATES_IMPLEMENTED_RUNTIME_BLOCKED"
+    },
+    {
+      "id": "M04",
+      "requirement": "Distinct ordinary/emerging/personal/rare/unique/legendary decisions",
+      "evidence": [
+        "catalog.mjs",
+        "preregistration.json"
+      ],
+      "status": "FIXTURES_PENDING_REVIEW"
+    },
+    {
+      "id": "M05",
+      "requirement": "Discovered causal identity, not action-count rewards",
+      "evidence": [
+        "catalog.mjs",
+        "review/review-pack.jsonl"
+      ],
+      "status": "PENDING_HUMAN_AND_MODEL_COMPARISON"
+    },
+    {
+      "id": "M06",
+      "requirement": "Original/licensed sources only",
+      "evidence": [
+        "../../Docs/AdaptiveContentLoRA/RIGHTS.md",
+        "schemas/record.schema.json"
+      ],
+      "status": "POLICY_AND_EXPORT_GATE_IMPLEMENTED"
+    },
+    {
+      "id": "M07",
+      "requirement": "Versioned structured dataset and compact projections",
+      "evidence": [
+        "schemas/record.schema.json",
+        "schemas/task-projections.json"
+      ],
+      "status": "OFFLINE_IMPLEMENTED"
+    },
+    {
+      "id": "M08",
+      "requirement": "All eight task families",
+      "evidence": [
+        "catalog.mjs",
+        "reports/dataset-check.json"
+      ],
+      "status": "OFFLINE_COVERED_PENDING_REVIEW"
+    },
+    {
+      "id": "M09",
+      "requirement": "Heavy abstention/incubation; restrained rarity distribution",
+      "evidence": [
+        "reports/dataset-manifest.json"
+      ],
+      "status": "SMALL_SEED_AND_200_RECORD_EXPANSION_PLAN_ONLY"
+    },
+    {
+      "id": "M10",
+      "requirement": "Twelve negative categories",
+      "evidence": [
+        "catalog.mjs",
+        "tests.mjs",
+        "../../Docs/AdaptiveContentLoRA/FAILURES.md"
+      ],
+      "status": "OFFLINE_FIXTURES_AND_DEVELOPMENT_GATES"
+    },
+    {
+      "id": "M11",
+      "requirement": "Diverse causal structures including peaceful paths",
+      "evidence": [
+        "catalog.mjs"
+      ],
+      "status": "FIXTURES_PENDING_REPRESENTATIVE_REVIEW"
+    },
+    {
+      "id": "M12",
+      "requirement": "Schema IDs bounded explanations explicit deferral",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs"
+      ],
+      "status": "OFFLINE_IMPLEMENTED_NOT_RUNTIME_SCHEMA"
+    },
+    {
+      "id": "M13",
+      "requirement": "Seeds, checked synthetic expansion, adversarial and sanitized trace stages",
+      "evidence": [
+        "catalog.mjs",
+        "cli.mjs",
+        "../../Docs/AdaptiveContentLoRA/RIGHTS.md"
+      ],
+      "status": "SEEDS_AND_LOCAL_PIPELINE_NO_TEACHER_OR_TRACES"
+    },
+    {
+      "id": "M14",
+      "requirement": "Family splits and untuned hidden test",
+      "evidence": [
+        "family-seal.json",
+        "core.mjs"
+      ],
+      "status": "PUBLIC_FAMILIES_SEALED_HIDDEN_RESERVED_UNAUTHORED"
+    },
+    {
+      "id": "M15",
+      "requirement": "Measured PEFT pilot and reproducible training records",
+      "evidence": [
+        "training-pilot.NOT_RUN.json"
+      ],
+      "status": "NOT_RUN_BLOCKED"
+    },
+    {
+      "id": "M16",
+      "requirement": "No raw chain-of-thought",
+      "evidence": [
+        "schema.mjs",
+        "catalog.mjs"
+      ],
+      "status": "POLICY_AND_SOURCE_FLAG_IMPLEMENTED"
+    },
+    {
+      "id": "M17",
+      "requirement": "Identical held-out base versus adapter evaluation",
+      "evidence": [
+        "cli.mjs",
+        "reports/baseline.json",
+        "reports/adapter.json"
+      ],
+      "status": "HARNESS_IMPLEMENTED_MODELS_NOT_RUN"
+    },
+    {
+      "id": "M18",
+      "requirement": "All 25 specified evaluation cases",
+      "evidence": [
+        "catalog.mjs",
+        "reports/dataset-check.json"
+      ],
+      "status": "C01_C25_PUBLIC_FIXTURES_COVERED_NOT_HIDDEN_PROOF"
+    },
+    {
+      "id": "M19",
+      "requirement": "Causal interpretation quality gate",
+      "evidence": [
+        "preregistration.json",
+        "review/review-form.template.json"
+      ],
+      "status": "PENDING_BLIND_HUMAN_REVIEW_AND_PAIRED_RESULTS"
+    },
+    {
+      "id": "M20",
+      "requirement": "Explicit rarity inflation metric",
+      "evidence": [
+        "core.mjs",
+        "preregistration.json"
+      ],
+      "status": "OFFLINE_METRIC_DEFINED_NOT_MEASURED"
+    },
+    {
+      "id": "M21",
+      "requirement": "Existing G03 scheduler and persisted model-off content",
+      "evidence": [
+        "audit.json",
+        "demo-specifications.json"
+      ],
+      "status": "INTEGRATION_BLOCKED_NO_RUNTIME_EDITS"
+    },
+    {
+      "id": "M22",
+      "requirement": "Measured lowest-risk stable adapter loading",
+      "evidence": [
+        "training-pilot.NOT_RUN.json",
+        "audit.json"
+      ],
+      "status": "CLI_SUPPORT_FOUND_COMPATIBILITY_NOT_TESTED"
+    },
+    {
+      "id": "M23",
+      "requirement": "Keep base unless comparable evidence justifies change",
+      "evidence": [
+        "audit.json"
+      ],
+      "status": "PRESERVED_NO_CHALLENGER_INVOCATION"
+    },
+    {
+      "id": "M24",
+      "requirement": "Twenty deliverables with truthful completion state",
+      "evidence": [
+        "../../Docs/AdaptiveContentLoRA/README.md"
+      ],
+      "status": "CPU_ARTIFACTS_ONLY_ADAPTER_AND_RUNTIME_PENDING"
+    },
+    {
+      "id": "M25",
+      "requirement": "All adoption criteria",
+      "evidence": [
+        "preregistration.json"
+      ],
+      "status": "NOT_ELIGIBLE"
+    },
+    {
+      "id": "M26",
+      "requirement": "Reject/revise failure conditions",
+      "evidence": [
+        "../../Docs/AdaptiveContentLoRA/FAILURES.md",
+        "core.mjs"
+      ],
+      "status": "OFFLINE_TAXONOMY_AND_GATES"
+    },
+    {
+      "id": "M27",
+      "requirement": "No G08 changes/domain redesign/new mechanics/swarm/vectorDB",
+      "evidence": [
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md"
+      ],
+      "status": "PRESERVED_ISOLATED_TOOLING_ONLY"
+    },
+    {
+      "id": "M28",
+      "requirement": "Six final demonstrations including model-off unique chain",
+      "evidence": [
+        "demo-specifications.json"
+      ],
+      "status": "SPECIFIED_NOT_RUN"
+    },
+    {
+      "id": "M29",
+      "requirement": "Measured improvement completion gate or retain base",
+      "evidence": [
+        "preregistration.json",
+        "audit.json"
+      ],
+      "status": "INCOMPLETE_KEEP_BASE"
+    }
+  ],
+  "naming": [
+    {
+      "id": "N01",
+      "original_section": 1,
+      "requirement": "PURPOSE",
+      "source_heading": "## 1. PURPOSE",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "PARTIAL_CATEGORY_SCHEMA_SEEDS_PENDING_REVIEW"
+    },
+    {
+      "id": "N02",
+      "original_section": 2,
+      "requirement": "CORE NAMING EQUATION",
+      "source_heading": "# 2. CORE NAMING EQUATION",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "SEMANTIC_KERNEL_AND_REASONS_PENDING_CAUSAL_REVIEW"
+    },
+    {
+      "id": "N03",
+      "original_section": 3,
+      "requirement": "NAMING AXES",
+      "source_heading": "# 3. NAMING AXES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "OFFLINE_AXES_RARITY_SCHEMA"
+    },
+    {
+      "id": "N04",
+      "original_section": 4,
+      "requirement": "RARITY CONTROLS LANGUAGE",
+      "source_heading": "# 4. RARITY CONTROLS LANGUAGE",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "CEILING_GATE_STYLE_REVIEW_REQUIRED"
+    },
+    {
+      "id": "N05",
+      "original_section": 5,
+      "requirement": "CONTENT-TYPE GRAMMARS",
+      "source_heading": "# 5. CONTENT-TYPE GRAMMARS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "GRAMMARS_PARTIAL_SEEDS_PENDING"
+    },
+    {
+      "id": "N06",
+      "original_section": 6,
+      "requirement": "TITLES",
+      "source_heading": "# 6. TITLES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "PRESENTATION_TITLE_FIXTURES_RUNTIME_EFFECTS_BLOCKED"
+    },
+    {
+      "id": "N07",
+      "original_section": 7,
+      "requirement": "CLASSES",
+      "source_heading": "# 7. CLASSES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "CLASS_EVIDENCE_AND_DESTINATION_FIXTURES_PENDING"
+    },
+    {
+      "id": "N08",
+      "original_section": 8,
+      "requirement": "CLASS EVOLUTIONS",
+      "source_heading": "# 8. CLASS EVOLUTIONS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "TITLE_ANCESTRY_FIXTURE_CLASS_EVOLUTION_PENDING"
+    },
+    {
+      "id": "N09",
+      "original_section": 9,
+      "requirement": "UNIQUE CLASSES",
+      "source_heading": "# 9. UNIQUE CLASSES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "UNIQUE_CLASS_FIXTURES_AND_RUNTIME_BLOCKED"
+    },
+    {
+      "id": "N10",
+      "original_section": 10,
+      "requirement": "ITEMS",
+      "source_heading": "# 10. ITEMS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "ITEM_FIXTURE_EQUIPMENT_ARTIFACT_EXPANSION_PENDING"
+    },
+    {
+      "id": "N11",
+      "original_section": 11,
+      "requirement": "QUESTS",
+      "source_heading": "# 11. QUESTS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "QUEST_FIXTURES_PENDING_SITUATION_REVIEW"
+    },
+    {
+      "id": "N12",
+      "original_section": 12,
+      "requirement": "UNIQUE OPPORTUNITY NAMES",
+      "source_heading": "# 12. UNIQUE OPPORTUNITY NAMES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "UNIQUE_QUEST_FIXTURES_PENDING_CONTEXT_REVIEW"
+    },
+    {
+      "id": "N13",
+      "original_section": 13,
+      "requirement": "LEGENDARY CHAINS",
+      "source_heading": "# 13. LEGENDARY CHAINS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "CHAIN_LINEAGE_FIXTURES_RUNTIME_NOT_RUN"
+    },
+    {
+      "id": "N14",
+      "original_section": 14,
+      "requirement": "MOTIF MEMORY",
+      "source_heading": "# 14. MOTIF MEMORY",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "MOTIF_METADATA_LEXICAL_COUNTS_REVIEW_REQUIRED"
+    },
+    {
+      "id": "N15",
+      "original_section": 15,
+      "requirement": "CULTURAL NAMING",
+      "source_heading": "# 15. CULTURAL NAMING",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "SUPPLIED_CULTURE_CONTEXT_FIXTURE"
+    },
+    {
+      "id": "N16",
+      "original_section": 16,
+      "requirement": "CHARACTER / NPC NAMES",
+      "source_heading": "# 16. CHARACTER / NPC NAMES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "DEDICATED_NPC_TASK_PARTS_FIXTURE"
+    },
+    {
+      "id": "N17",
+      "original_section": 17,
+      "requirement": "PLACE NAMES",
+      "source_heading": "# 17. PLACE NAMES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "PLACE_FIXTURE_GEOGRAPHIC_SEMANTICS_REVIEW"
+    },
+    {
+      "id": "N18",
+      "original_section": 18,
+      "requirement": "FACTION NAMES",
+      "source_heading": "# 18. FACTION NAMES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "FACTION_FIXTURE_ORGANIZATIONAL_REVIEW"
+    },
+    {
+      "id": "N19",
+      "original_section": 19,
+      "requirement": "ANTI-GENERIC FILTER",
+      "source_heading": "# 19. ANTI-GENERIC FILTER",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "LEXICAL_FREQUENCY_ADVISORY_NOT_BAN"
+    },
+    {
+      "id": "N20",
+      "original_section": 20,
+      "requirement": "LENGTH BUDGETS",
+      "source_heading": "# 20. LENGTH BUDGETS",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "SOFT_BUDGET_WARNINGS"
+    },
+    {
+      "id": "N21",
+      "original_section": 21,
+      "requirement": "DUPLICATE DETECTION",
+      "source_heading": "# 21. DUPLICATE DETECTION",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "EXACT_NORMALIZED_TOKEN_PHONETIC_CHECKS_REVIEW_REQUIRED"
+    },
+    {
+      "id": "N22",
+      "original_section": 22,
+      "requirement": "SEMANTIC DUPLICATE DETECTION",
+      "source_heading": "# 22. SEMANTIC DUPLICATE DETECTION",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "EXISTING_SEMANTIC_PROJECTION_AND_HUMAN_DEDUP_REQUIRED"
+    },
+    {
+      "id": "N23",
+      "original_section": 23,
+      "requirement": "PERSISTENCE",
+      "source_heading": "# 23. PERSISTENCE",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "PERSISTENCE_NOT_RUN"
+    },
+    {
+      "id": "N24",
+      "original_section": 24,
+      "requirement": "NAME + MECHANIC CONSISTENCY",
+      "source_heading": "# 24. NAME + MECHANIC CONSISTENCY",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "EXPLICIT_TERM_GATE_SEMANTIC_REVIEW_REQUIRED"
+    },
+    {
+      "id": "N25",
+      "original_section": 25,
+      "requirement": "THREE-STAGE NAME GENERATION",
+      "source_heading": "# 25. THREE-STAGE NAME GENERATION",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "MULTI_CANDIDATE_IMPORTANT_NAME_FIXTURES_NO_FABRICATED_SCORES"
+    },
+    {
+      "id": "N26",
+      "original_section": 26,
+      "requirement": "GENERATED NAME RECORD",
+      "source_heading": "# 26. GENERATED NAME RECORD",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "OFFLINE_NAME_RECORD_PROPOSALS_RUNTIME_PERSISTENCE_BLOCKED"
+    },
+    {
+      "id": "N27",
+      "original_section": 27,
+      "requirement": "TRAINING EXAMPLES",
+      "source_heading": "# 27. TRAINING EXAMPLES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "SAME_MECHANIC_DIFFERENT_HISTORY_PAIR_PENDING_REVIEW"
+    },
+    {
+      "id": "N28",
+      "original_section": 28,
+      "requirement": "NAMING EVALUATION",
+      "source_heading": "# 28. NAMING EVALUATION",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "NAMING_METRICS_AND_REVIEW_FORM_NOT_EVALUATED"
+    },
+    {
+      "id": "N29",
+      "original_section": 29,
+      "requirement": "FAILURE EXAMPLES",
+      "source_heading": "# 29. FAILURE EXAMPLES",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "ADVERSARIAL_IMPLICATION_AND_GRANDEUR_REVIEW"
+    },
+    {
+      "id": "N30",
+      "original_section": 30,
+      "requirement": "TARGET FEEL",
+      "source_heading": "# 30. TARGET FEEL",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "PENDING_AUTHORED_FOR_HISTORY_HUMAN_REVIEW"
+    },
+    {
+      "id": "N31",
+      "original_section": 31,
+      "requirement": "FINAL ACCEPTANCE",
+      "source_heading": "# 31. FINAL ACCEPTANCE",
+      "evidence": [
+        "schema.mjs",
+        "core.mjs",
+        "catalog.mjs",
+        "../../Docs/AdaptiveContentLoRA/ARCHITECTURE.md",
+        "preregistration.json"
+      ],
+      "status": "NOT_ACCEPTED_HELDOUT_RUNTIME_PROOF_PENDING"
+    }
+  ],
+  "naming_source": {
+    "status": "ORIGINAL_NUMBERED_TEXT_AVAILABLE",
+    "title": "YourQuest Adaptive Naming Schematic",
+    "message_id": "Sentinel_3d3e5191419c8191884be587f20e9b5f",
+    "chat": "Dot",
+    "date_utc": "2026-10-01 approximately 15:01",
+    "retrieval": "Parent supplied original owner message visible in parent conversation; no Jarvis/hidden-store read performed here",
+    "path": "Docs/AdaptiveContentLoRA/NAMING_APPENDIX_SOURCE.md",
+    "utf8_sha256": "1fc2e0ad474f03e2a52bdb677091058f795cd6c4ac36fccd9fb17afb3c75f7e6",
+    "use": "Authoritative requirements only; source examples are not training rows"
+  }
+}

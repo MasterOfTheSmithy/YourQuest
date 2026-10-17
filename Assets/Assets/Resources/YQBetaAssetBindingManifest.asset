@@ -1,0 +1,364 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6c5d9e4b2a4f54a7a1d1a2b8f3c6e9, type: 3}
+  m_Name: YQBetaAssetBindingManifest
+  m_EditorClassIdentifier: Assembly-CSharp::YQBetaAssetBindingManifest
+  schemaVersion: beta-asset-binding-1.0.0
+  bindingVersion: beta-binding-1.0.0
+  primaryFamilyKey: medieval_viking_village
+  sourceIdentity: world_asset_intake_v3+runtime-world-sites-1.0.0+beta-binding-1.0.0
+  generatedUtc: 2026-09-16T20:17:10.9607352Z
+  capabilities:
+  - capabilityId: actor:human_female
+    semanticFamilyId: human_female
+    sourceCatalogId: YQRuntimeWorldAssetRegistry
+    kind: 2
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 0
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 1.8807495, y: 2.0196393, z: 1.4196738}
+      groundDatum: renderer_bounds_min_y=-0.125
+      pivotDatum: prefab_root_local_origin
+      colliderCount: 0
+      entranceProfile: actor_entry_not_applicable
+      interiorProfile: actor_not_enterable
+      navigationProfile: humanoid_agent_reviewed
+      cameraClearanceProfile: humanoid_camera_anchor
+      shaderMaterialProfile: missing_material_slots=20
+      semanticCompatibility:
+      - actor
+      - human
+      - humanoid
+      - rigged
+    stableAssetKeys:
+    - assets_magic_pig_games_(infinity_pbr)_characters_human_-_humans__prefabs_characters_human_female_(v4).prefab
+    assetPaths:
+    - Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Female (v4).prefab
+    supportedTags:
+    - actor
+    - human
+    - humanoid
+    - rigged
+    notes:
+    - Source material gaps are repaired by the approved runtime URP material binder
+      before presentation.
+    - Source collider absence is handled by the approved actor/equipment physics
+      binder before interaction.
+  - capabilityId: actor:human_male
+    semanticFamilyId: human_male
+    sourceCatalogId: YQRuntimeWorldAssetRegistry
+    kind: 2
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 0
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 1.8807487, y: 2.055979, z: 1.4327594}
+      groundDatum: renderer_bounds_min_y=-0.144
+      pivotDatum: prefab_root_local_origin
+      colliderCount: 0
+      entranceProfile: actor_entry_not_applicable
+      interiorProfile: actor_not_enterable
+      navigationProfile: humanoid_agent_reviewed
+      cameraClearanceProfile: humanoid_camera_anchor
+      shaderMaterialProfile: missing_material_slots=16
+      semanticCompatibility:
+      - actor
+      - human
+      - humanoid
+      - rigged
+    stableAssetKeys:
+    - assets_magic_pig_games_(infinity_pbr)_characters_human_-_humans__prefabs_characters_human_male_(v4).prefab
+    assetPaths:
+    - Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human
+      Male (v4).prefab
+    supportedTags:
+    - actor
+    - human
+    - humanoid
+    - rigged
+    notes:
+    - Source material gaps are repaired by the approved runtime URP material binder
+      before presentation.
+    - Source collider absence is handled by the approved actor/equipment physics
+      binder before interaction.
+  - capabilityId: effect:procedural_families
+    semanticFamilyId: runtime_vfx_families
+    sourceCatalogId: project_owned_runtime
+    kind: 5
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 1
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 0, y: 0, z: 0}
+      groundDatum: runtime_owned
+      pivotDatum: runtime_owned
+      colliderCount: 0
+      entranceProfile: not_applicable
+      interiorProfile: not_enterable
+      navigationProfile: effect_only
+      cameraClearanceProfile: runtime_owned
+      shaderMaterialProfile: project_owned_runtime_binding
+      semanticCompatibility:
+      - effect
+      - melee
+      - spell
+      - shield
+      - heal
+    stableAssetKeys:
+    - runtime_vfx_families
+    assetPaths: []
+    supportedTags:
+    - effect
+    - melee
+    - spell
+    - shield
+    - heal
+    notes:
+    - Supported project-owned effect family runtime alternative; visual families
+      remain explicit semantic keys.
+  - capabilityId: equipment:weapon_melee
+    semanticFamilyId: weapon_melee
+    sourceCatalogId: YQRuntimeWorldAssetRegistry
+    kind: 3
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 0
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 0.051838897, y: 0.40384203, z: 1.5286226}
+      groundDatum: renderer_bounds_min_y=-0.195
+      pivotDatum: prefab_root_local_origin
+      colliderCount: 0
+      entranceProfile: not_applicable
+      interiorProfile: equipment_not_enterable
+      navigationProfile: static_equipment_collision
+      cameraClearanceProfile: first_person_safe
+      shaderMaterialProfile: bound_material_slots=1;urp_review_required
+      semanticCompatibility:
+      - equipment
+      - weapon
+      - melee
+      - first_person_safe
+    stableAssetKeys:
+    - assets_magic_pig_games_(infinity_pbr)_weapons_&_armor_weapon_objects_swords_sword003_prefab_sword003.prefab
+    assetPaths:
+    - Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor/Weapon Objects/Swords/Sword003/Prefab/Sword003.prefab
+    supportedTags:
+    - equipment
+    - weapon
+    - melee
+    - first_person_safe
+    notes:
+    - Source collider absence is handled by the approved actor/equipment physics
+      binder before interaction.
+  - capabilityId: site:hallowed_depths
+    semanticFamilyId: hallowed_depths
+    sourceCatalogId: YQRuntimeWorldSiteCatalog
+    kind: 1
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 0
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 99.3022, y: 27.817516, z: 35.496418}
+      groundDatum: authored_foundation_y=-0.158
+      pivotDatum: authored_footprint_center=(0.00, 13.27, 0.00)
+      colliderCount: 2542
+      entranceProfile: reviewed_site_sockets
+      interiorProfile: reviewed_enterable_interior
+      navigationProfile: reviewed_site_navigation
+      cameraClearanceProfile: reviewed_streaming_camera_clearance
+      shaderMaterialProfile: reviewed_runtime_materials
+      semanticCompatibility:
+      - transition
+      - interior
+      - subterranean
+      - encounter
+    stableAssetKeys:
+    - hallowed_depths
+    assetPaths:
+    - YQWorldSites/hallowed_depths/YQRuntimeSemanticSite
+    supportedTags:
+    - transition
+    - interior
+    - subterranean
+    - encounter
+    notes:
+    - Reviewed site manifest owns geometry, cells, sockets and physical placement
+      evidence.
+    - Site remains a bounded transition/interior ingredient; seamless exterior placement
+      is not claimed.
+  - capabilityId: site:medieval_viking_village
+    semanticFamilyId: medieval_viking_village
+    sourceCatalogId: YQRuntimeWorldSiteCatalog
+    kind: 0
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 0
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 137.28975, y: 19.242691, z: 116.452065}
+      groundDatum: authored_foundation_y=0
+      pivotDatum: authored_footprint_center=(-25.65, 9.22, 0.76)
+      colliderCount: 1051
+      entranceProfile: reviewed_site_sockets
+      interiorProfile: not_enterable
+      navigationProfile: reviewed_site_navigation
+      cameraClearanceProfile: reviewed_streaming_camera_clearance
+      shaderMaterialProfile: reviewed_runtime_materials
+      semanticCompatibility:
+      - origin
+      - settlement
+      - service
+      - encounter
+      - landmark
+    stableAssetKeys:
+    - medieval_viking_village
+    assetPaths:
+    - YQWorldSites/medieval_viking_village/YQRuntimeSemanticSite
+    supportedTags:
+    - origin
+    - settlement
+    - service
+    - encounter
+    - landmark
+    notes:
+    - Reviewed site manifest owns geometry, cells, sockets and physical placement
+      evidence.
+  - capabilityId: water:surface
+    semanticFamilyId: runtime_water_surface
+    sourceCatalogId: project_owned_runtime
+    kind: 4
+    releaseEligible: 1
+    runtimeVerified: 1
+    usesRuntimeAlternative: 1
+    compatibility:
+      recommendedScale: {x: 1, y: 1, z: 1}
+      footprintSize: {x: 0, y: 0, z: 0}
+      groundDatum: runtime_owned
+      pivotDatum: runtime_owned
+      colliderCount: 0
+      entranceProfile: terrain_handoff
+      interiorProfile: not_enterable
+      navigationProfile: terrain_boundary
+      cameraClearanceProfile: runtime_owned
+      shaderMaterialProfile: project_owned_runtime_binding
+      semanticCompatibility:
+      - water
+      - surface
+      - terrain_handoff
+    stableAssetKeys:
+    - runtime_water_surface
+    assetPaths: []
+    supportedTags:
+    - water
+    - surface
+    - terrain_handoff
+    notes:
+    - Supported project-owned water surface runtime alternative; no arbitrary vendor
+      path is exposed.
+  appearanceCapabilities:
+  - capabilityId: appearance:human_male
+    actorFamilyId: human_male
+    rigId: Human_v4_Humanoid
+    headFamilyId: human_head
+    materialFamilyId: human_urp
+    releaseEligible: 1
+    runtimeVerified: 1
+    supportedMorphs: []
+    notes:
+    - No unimplemented morph promises; empty morph list means the beta binding uses
+      the supported authored shape only.
+  - capabilityId: appearance:human_female
+    actorFamilyId: human_female
+    rigId: Human_v4_Humanoid
+    headFamilyId: human_head
+    materialFamilyId: human_urp
+    releaseEligible: 1
+    runtimeVerified: 1
+    supportedMorphs: []
+    notes:
+    - No unimplemented morph promises; empty morph list means the beta binding uses
+      the supported authored shape only.
+  - capabilityId: appearance:humanoid_hostile
+    actorFamilyId: humanoid_hostile
+    rigId: Human_v4_Humanoid
+    headFamilyId: supported_hostile_head
+    materialFamilyId: supported_hostile_material
+    releaseEligible: 0
+    runtimeVerified: 0
+    supportedMorphs: []
+    notes:
+    - No unimplemented morph promises; empty morph list means the beta binding uses
+      the supported authored shape only.
+  mechanicCapabilities:
+  - capabilityId: mechanic:melee_swing
+    mechanicKey: melee_swing
+    animationIntent: melee
+    effectFamily: physical
+    audioFamily: melee
+    implementationAvailable: 1
+    notes:
+    - Capability is a supported semantic family; it does not grant arbitrary generated
+      behavior.
+  - capabilityId: mechanic:spell_pulse
+    mechanicKey: spell_pulse
+    animationIntent: cast
+    effectFamily: arcane
+    audioFamily: magic
+    implementationAvailable: 1
+    notes:
+    - Capability is a supported semantic family; it does not grant arbitrary generated
+      behavior.
+  - capabilityId: effect:shield
+    mechanicKey: shield
+    animationIntent: cast
+    effectFamily: shield
+    audioFamily: magic
+    implementationAvailable: 1
+    notes:
+    - Capability is a supported semantic family; it does not grant arbitrary generated
+      behavior.
+  - capabilityId: effect:heal
+    mechanicKey: heal
+    animationIntent: cast
+    effectFamily: heal
+    audioFamily: magic
+    implementationAvailable: 1
+    notes:
+    - Capability is a supported semantic family; it does not grant arbitrary generated
+      behavior.
+  - capabilityId: effect:projectile
+    mechanicKey: projectile
+    animationIntent: cast
+    effectFamily: projectile
+    audioFamily: magic
+    implementationAvailable: 1
+    notes:
+    - Capability is a supported semantic family; it does not grant arbitrary generated
+      behavior.
+  migrationFixtures:
+  - fromVersion: runtime-world-sites-1.0.0
+    toVersion: beta-asset-binding-1.0.0
+    stableBindingKey: site:medieval_viking_village
+    expectedResolution: medieval_viking_village
+    replayOnly: 1
+  - fromVersion: reviewed-site-binding-3
+    toVersion: beta-binding-1.0.0
+    stableBindingKey: site:medieval_viking_village
+    expectedResolution: medieval_viking_village
+    replayOnly: 1

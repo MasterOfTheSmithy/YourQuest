@@ -1,0 +1,97 @@
+{
+  "schema_version": "0.1.0",
+  "audit_date_utc": "2026-10-01",
+  "scope": "read-only source/hardware audit followed by isolated CPU-only artifacts",
+  "source_verification_is_not_runtime_certification": true,
+  "model": {
+    "configured_path": "C:\\Ai\\Text Models\\Qwen3.5-4B-Q4_K_M.gguf",
+    "configured_by": "Assets/Assets/Scripts/LLM/LLMRuntimeConfig.cs:59",
+    "sha256": "5d4978a0065869fb353034a4fe41aec32ea47722399a617ee049c23c6ba1843c",
+    "bytes": 2707513856,
+    "format": "GGUF v3",
+    "architecture": "qwen35",
+    "file_type": 15,
+    "quantization": "Q4_K_M",
+    "tensor_count": 426,
+    "blocks": 32,
+    "hidden_size": 2560,
+    "ffn_size": 9216,
+    "attention_heads": 16,
+    "kv_heads": 4,
+    "full_attention_interval": 4,
+    "native_context_metadata": 262144,
+    "quantized_by_metadata": "Unsloth",
+    "general_name_metadata": "Unsloth_Gguf_Krds59_6",
+    "upstream_weights_revision": null,
+    "upstream_tokenizer_revision": null,
+    "loaded_server_identity": "NOT_VERIFIED"
+  },
+  "tokenizer": {
+    "model": "gpt2", "pre": "qwen35", "token_entries": 248320, "merges": 247587,
+    "eos_token_id": 248046, "padding_token_id": 248055,
+    "gguf_tokenizer_metadata_serialization_sha256_including_chat_template": "4e899bfef94025b46e5e1fe0dcd37265892d3cc8e41657ff94a8a86da4c99088",
+    "chat_template_utf8_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+    "warning": "This GGUF metadata fingerprint is not an identified Hugging Face tokenizer file/revision hash."
+  },
+  "backend": {
+    "path": "C:\\Ai\\llama.cpp\\llama-server.exe", "version": "0.1.2-dev", "build": 10516, "commit": "b95502ba9aa0eb73a2f4fc8878d7fbe6a847a0b9",
+    "launcher_sha256": "5a3cbd5613c45ef2d53d3afc6734fd9e67229c0066c2415626ddc7c18901d36c",
+    "impl_sha256": "b4590de3b49eb7c2bb4d1e4774760f202828d5749c37eec34347398c45779550",
+    "llama_dll_sha256": "fdabe60bdb0673411688572f752939de80d50d998331e4efe94fe28f24fc504d",
+    "adapter_cli_documented_and_help_present": true, "qwen35_adapter_conversion_tested": false,
+    "stable_startup_adapter_loading_preferred_conditionally": true
+  },
+  "runtime": {
+    "host": "127.0.0.1", "port": 11435, "context_tokens": 12288, "parallel": 1, "gpu_layers": -1,
+    "gpu_headroom_mib": 3072, "inference_workers": 4, "batch": 128, "microbatch": 32,
+    "progression_output_tokens": 420, "progression_timeout_seconds": 40, "progression_retries": 0,
+    "startup_timeout_seconds": 30, "idle_shutdown_seconds": 45, "max_queue": 24,
+    "prompt_transport": "single user message via /v1/chat/completions",
+    "direct_task_template_kwargs": { "enable_thinking": false },
+    "legacy_soft_switch": "/no_think; not supported as a Qwen3.5 soft switch",
+    "json_schema_on_current_progression_request": false,
+    "existing_fallback": "Ollama compatibility llama3.1; this phase neither invoked nor changed it",
+    "health_probe": "read-only /v1/models timed out; no server launched",
+    "adapter_extra_args_hazard": "nonempty extraServerArgs bypasses existing live-presentation CPU safeguard; requires owning configuration review"
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 5060", "vram_total_mib": 8151, "driver": "610.88", "cuda_path_version": "12.8",
+    "initial_vram_used_mib": 7247, "refresh_after_reported_unity_close": { "date_utc": "2026-10-01", "vram_used_mib": 744, "vram_free_mib": 7152, "gpu_utilization_percent": 1, "remaining_unity_process_working_set_bytes": 15876096 },
+    "cpu": "AMD Ryzen 7 5800X", "logical_processors": 16,
+    "physical_ram_bytes": 34234060800, "initial_available_ram_bytes": 11526443008,
+    "initial_disk_free_bytes": { "C": 72694784000, "D": 93127196672 },
+    "training_environment_status": "NOT_RUNNABLE_VERIFIED; launcher failed, direct Python execution denied; WSL not installed",
+    "discovered_package_metadata_only": { "torch": "2.11.0+cu128", "transformers": "5.5.3", "peft": "0.18.1", "bitsandbytes": "0.50.0", "accelerate": "1.14.0", "safetensors": "0.8.0" }
+  },
+  "provenance_search": {
+    "status": "UNRESOLVED_NO_EXACT_MATCH",
+    "current_published_q4_k_m_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+    "file_history_exposed_upload_commit": "720bb03",
+    "historical_hash_retrieval": "not accessible through available web tool; direct metadata API fetch failed under current network",
+    "exact_local_hash_search": "no indexed results",
+    "narrow_local_search": "no adjacent Qwen3.5/download/manifest/checksum non-GGUF files; no matching default HF cache directory",
+    "weights_downloaded": false,
+    "conclusion": "A GGUF content hash identifies the quantized file, not source safetensors/tokenizer. Matching provenance is required before training."
+  },
+  "source_hashes_captured_in_first_audit_not_a_live_lock": {
+    "Assets/Assets/Scripts/LLM/LLMRuntimeConfig.cs": "ee245ad5554604e9d83fd273a5f22a696f26535b0e90450c983c33118279a79f",
+    "Assets/Assets/Scripts/LLM/LLMClient.cs": "de3a11eb5551596c500a05a538665cd7d25bbb9a232d95ec2d4f119c02bdb801",
+    "Assets/Assets/Scripts/LLM/LLMContextCompiler.cs": "63995fcd11a149cebf29320eff767160188501fff9fb939cccc2c698c9ac29be",
+    "Assets/Assets/Scripts/LLM/YQLlmRequest.cs": "f720316915f589585dd02d5287b1d246a518a5c43749ee8701e7ad55b21ff31c",
+    "Assets/Assets/Scripts/LLM/YQContentProposalBoundary.cs": "f7fd80701f8c8edffd68bf113c5a5db25305dca9c0a39cfb7f48081aced70ef5"
+  },
+  "contracts_read": ["G03", "G09", "G11", "G12", "G13", "G14", "G15", "G16", "G19", "G20"],
+  "save_schema_source_constant": 7,
+  "production_readiness": "BLOCKED_BY_PROVENANCE_TRAINING_CAPACITY_AND_OWNING_DOMAIN_CONTRACTS",
+  "recommendation": "REVISE_NOT_YET_TESTABLE_KEEP_BASE_MODEL",
+  "official_sources": [
+    "https://huggingface.co/Qwen/Qwen3.5-4B",
+    "https://huggingface.co/docs/transformers/main/en/model_doc/qwen3_5",
+    "https://unsloth.ai/docs/models/qwen3.5/fine-tune",
+    "https://huggingface.co/docs/peft/developer_guides/quantization",
+    "https://huggingface.co/docs/bitsandbytes/main/en/installation",
+    "https://github.com/ggml-org/llama.cpp/blob/b95502ba9/convert_lora_to_gguf.py",
+    "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/blob/main/Qwen3.5-4B-Q4_K_M.gguf",
+    "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/commits/main/Qwen3.5-4B-Q4_K_M.gguf"
+  ]
+}

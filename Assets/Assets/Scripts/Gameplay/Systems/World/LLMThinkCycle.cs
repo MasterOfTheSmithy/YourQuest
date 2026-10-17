@@ -59,6 +59,24 @@ public class LLMThinkCycle : MonoBehaviour
 
     // Prevent retry spirals
     private bool inRepair = false;
+    private YQRepairEpisode activeRepair;
+
+    private void OnDisable()
+    {
+        // note: A disabled world thinker retires only its own admitted requests, including a queued correction.
+        var retired = activeRepair;
+        activeRepair = null;
+        inRepair = false;
+        retired?.Finish("Superseded");
+        LLMClient.Instance?.CancelRepairEpisode(retired);
+    }
+
+    private void FinishReaction(string disposition)
+    {
+        inRepair = false;
+        activeRepair?.Finish(disposition);
+        activeRepair = null;
+    }
 
     private void Awake()
     {
@@ -116,7 +134,20 @@ public class LLMThinkCycle : MonoBehaviour
         TryThink();
     }
 
+    // note: Attribute the periodic preparation cost without changing event admission, model scheduling, or accepted world mutations.
+    private static readonly Unity.Profiling.ProfilerMarker ThinkPreparationMarker =
+        new Unity.Profiling.ProfilerMarker("YQ.WorldReaction.PrepareThink");
+    private static readonly Unity.Profiling.ProfilerMarker SituationSnapshotMarker =
+        new Unity.Profiling.ProfilerMarker("YQ.WorldReaction.SituationSnapshot");
+    private static readonly Unity.Profiling.ProfilerMarker PromptContextMarker =
+        new Unity.Profiling.ProfilerMarker("YQ.WorldReaction.PromptContext");
+
     private void TryThink()
+    {
+        using (ThinkPreparationMarker.Auto()) TryThinkCore();
+    }
+
+    private void TryThinkCore()
     {
         ResolveReferences();
         if (inRepair) return;
@@ -127,7 +158,9 @@ public class LLMThinkCycle : MonoBehaviour
         var acc = EventAccumulator.Instance;
         if (acc == null) return;
 
-        var events = acc.GetEvents();
+        // note: Freeze exact event occurrences so applying this reply cannot consume actions recorded during inference.
+        EventAccumulator.EventWindow window = acc.CaptureWindow(int.MaxValue);
+        var events = window.events;
         if (events == null || events.Count == 0) return;
 
         float sig = 0f;
@@ -138,7 +171,7 @@ public class LLMThinkCycle : MonoBehaviour
 
         if (LLMClient.Instance == null)
         {
-            TryApplyDeterministicFallback(acc, events, "LLM unavailable");
+            TryApplyDeterministicFallback(acc, window, "LLM unavailable");
             return;
         }
 
@@ -171,12 +204,15 @@ public class LLMThinkCycle : MonoBehaviour
         string task = BuildInstruction(sig, !string.IsNullOrWhiteSpace(situation));
         string schema = PromptContextBuilder.WrapJsonSchema(WorldDeltaSchemaWithExamples());
 
-        string prompt = PromptContextBuilder.BuildContext(
-            taskInstruction: task,
-            outputSchemaBlock: schema,
-            recentSummary: combinedRecent,
-            behaviorLedger: ledger
-        );
+        string prompt;
+        // note: Compact prompt rendering can still traverse accepted collections; measure it separately from model inference.
+        using (PromptContextMarker.Auto())
+            prompt = PromptContextBuilder.BuildContext(
+                taskInstruction: task,
+                outputSchemaBlock: schema,
+                recentSummary: combinedRecent,
+                behaviorLedger: ledger
+            );
 
         if (logPrompt)
             Debug.Log(prompt);
@@ -189,13 +225,18 @@ public class LLMThinkCycle : MonoBehaviour
         }
 
         // note: World deltas are structured state changes, never generic skill text.
-        LLMClient.Instance.Submit(new YQLlmRequest
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        System.Func<bool> current = () => this != null && isActiveAndEnabled && worldDeltaApplier != null &&
+            ReferenceEquals(EventAccumulator.Instance, acc) && YQServiceLifecycle.IsCurrent(epoch);
+        var request = new YQLlmRequest
         {
             prompt = prompt,
             debugTag = "WorldDeltaGeneration",
             category = LLMGenerationCategory.StructuredState,
             priority = YQLlmRequestPriority.Background,
             requireJson = true,
+            bindPlayerStateRevision = false,
+            ownerStillCurrent = current,
             // note: Live world reactions yield to dialogue/startup and fail into the deterministic applier instead of monopolizing the local model.
             maxRetries = 0,
             optionsOverride = new Dictionary<string, object>
@@ -203,20 +244,26 @@ public class LLMThinkCycle : MonoBehaviour
                 { "num_predict", 600 },
                 { "request_timeout_seconds", 45 }
             }
-        }, result =>
+        };
+        activeRepair = LLMClient.Instance.CreateRepairEpisode(request, "world-reaction:" + window.fingerprint, 0);
+        activeRepair?.Bind(request);
+        inRepair = true;
+        LLMClient.Instance.Submit(request, result =>
         {
+            if (!current()) { FinishReaction("Superseded"); return; }
             if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
                 result.outcome == YQLlmTerminalOutcome.Superseded ||
                 result.outcome == YQLlmTerminalOutcome.Evicted))
             {
                 // note: A stale world response cannot trigger fallback mutation against the replacement profile's event accumulator.
-                inRepair = false;
+                FinishReaction("Superseded");
                 return;
             }
             string raw = result.success ? result.text : null;
             if (string.IsNullOrWhiteSpace(raw))
             {
-                TryApplyDeterministicFallback(acc, events, string.IsNullOrWhiteSpace(result.error) ? "empty LLM response" : result.error);
+                TryApplyDeterministicFallback(acc, window, string.IsNullOrWhiteSpace(result.error) ? "empty LLM response" : result.error);
+                FinishReaction("FallbackUsed");
                 return;
             }
 
@@ -227,7 +274,8 @@ public class LLMThinkCycle : MonoBehaviour
             {
                 Debug.Log("[WORLD SHIFT] World updated.");
                 if (clearEventsAfterApply)
-                    TryClearEvents(acc);
+                    acc.AcknowledgeWindow(window);
+                FinishReaction("OriginalAccepted");
                 return;
             }
 
@@ -236,106 +284,65 @@ public class LLMThinkCycle : MonoBehaviour
             // If applier says no-op, do not spam repair; just wait for better evidence
             if (!string.IsNullOrEmpty(err) && err.ToLowerInvariant().Contains("no-op"))
             {
-                TryApplyDeterministicFallback(acc, events, "LLM returned no-op");
+                TryApplyDeterministicFallback(acc, window, "LLM returned no-op");
+                FinishReaction("FallbackUsed");
                 return;
             }
 
-            // ? One repair attempt max; and do not overlap with queued LLM requests.
-            inRepair = true;
-
-            // If LLM is currently busy due to the other think cycle, retry repair shortly.
-            if (requireIdleLLM && LLMClient.Instance.IsBusy)
-            {
-                inRepair = false;
-                nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-                return;
-            }
-
-            RetryOnce(schema, raw, err, acc, events);
+            // note: The queue is necessarily busy inside this callback. Submit the correction behind player-facing work instead of discarding it.
+            RetryOnce(prompt, raw, err, acc, window, current, result.repairRequestKey);
         });
     }
 
-    private void RetryOnce(string schema, string raw, string error, EventAccumulator acc, IReadOnlyList<ActionEvent> events)
+    private void RetryOnce(string originalPrompt, string raw, string error, EventAccumulator acc,
+        EventAccumulator.EventWindow window, System.Func<bool> current, string parentKey)
     {
-        // ? If something else grabbed the LLM before we start repair, back off.
-        if (LLMClient.Instance == null)
+        // note: Admission is serialized by LLMClient. A callback must not wait for its own active dispatch to become idle.
+        if (LLMClient.Instance == null || !current())
         {
-            inRepair = false;
+            FinishReaction("TransportUnavailable");
             return;
         }
-
-        if (LLMClient.Instance.HasPendingHighPriorityRequests)
-        {
-            inRepair = false;
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
-        }
-
-        if (requireIdleLLM && LLMClient.Instance.IsBusy)
-        {
-            inRepair = false;
-            nextThinkTime = Time.time + Mathf.Max(0.1f, busyRetryDelay);
-            return;
-        }
-
-        var sb = new StringBuilder();
-        sb.AppendLine("Return ONLY a single valid JSON object. No markdown. No headings. No explanation.");
-        sb.AppendLine("You MUST match the schema exactly.");
-        sb.AppendLine();
-        sb.AppendLine($"CONFIDENCE RULE: confidence must be a number 0.0 to 1.0 (NOT percent). Must be >= {minConfidenceToApply:0.00}");
-        sb.AppendLine();
-        sb.AppendLine("ARRAY RULE: flags/factions/locations/regionStyles MUST be arrays of OBJECTS (not strings).");
-        sb.AppendLine("If you have no changes for a category, use an empty array [].");
-        sb.AppendLine();
-        sb.AppendLine("Correct EXAMPLES:");
-        sb.AppendLine(@"""flags"": [ { ""key"": ""tension"", ""op"": ""inc"", ""value"": 1 } ]");
-        sb.AppendLine(@"""factions"": [ { ""factionId"": ""the_archives"", ""name"": ""The Archives"", ""op"": ""attitude_inc"", ""value"": -0.05, ""text"": ""Rumors spread in the stacks."" } ]");
-        sb.AppendLine(@"""locations"": [ { ""locationId"": ""library_hall"", ""name"": ""Library Hall"", ""regionId"": ""region_library"", ""op"": ""state_set"", ""value"": ""alert"", ""text"": ""Footsteps hush; lanterns turn."" } ]");
-        sb.AppendLine(@"""regionStyles"": []");
-        sb.AppendLine();
-        sb.AppendLine("Schema:");
-        sb.AppendLine(schema);
-        sb.AppendLine();
-        sb.AppendLine("Parse error to fix:");
-        sb.AppendLine(error);
-        sb.AppendLine();
-        sb.AppendLine("Bad previous output (for reference only):");
-        sb.AppendLine(raw);
 
         // note: A repair remains a bounded structured-state request and cannot silently become generic generation.
-        LLMClient.Instance.Submit(new YQLlmRequest
+        var correction = new YQLlmRequest
         {
-            prompt = sb.ToString(),
+            prompt = YQRepairEpisode.RepairPrompt(originalPrompt, error, raw),
             debugTag = "WorldDeltaRepair",
             category = LLMGenerationCategory.StructuredState,
             priority = YQLlmRequestPriority.Background,
             requireJson = true,
             maxRetries = 0,
+            bindPlayerStateRevision = false,
+            ownerStillCurrent = current,
+            parentRequestKey = parentKey,
             // note: Repair is smaller than first-pass generation and must remain bounded behind player-facing work.
             optionsOverride = new Dictionary<string, object>
             {
                 { "num_predict", 500 },
                 { "request_timeout_seconds", 40 }
             }
-        }, result =>
+        };
+        activeRepair?.Bind(correction);
+        LLMClient.Instance.Submit(correction, result =>
         {
+            if (!current()) { FinishReaction("Superseded"); return; }
             string repaired = result.success ? result.text : null;
             if (!result.success && (result.outcome == YQLlmTerminalOutcome.Cancelled ||
                 result.outcome == YQLlmTerminalOutcome.Superseded ||
                 result.outcome == YQLlmTerminalOutcome.Evicted))
             {
                 // note: Repair terminal states are observable but never fall back into a different profile's world state.
-                inRepair = false;
+                FinishReaction("Superseded");
                 return;
             }
             if (logRawResponse)
                 Debug.Log("[LLMThinkCycle] REPAIRED:\n" + repaired);
 
-            inRepair = false;
-
             if (string.IsNullOrWhiteSpace(repaired))
             {
-                TryApplyDeterministicFallback(acc, events, string.IsNullOrWhiteSpace(result.error) ? "empty LLM repair" : result.error);
+                TryApplyDeterministicFallback(acc, window, string.IsNullOrWhiteSpace(result.error) ? "empty LLM repair" : result.error);
+                FinishReaction("FallbackUsed");
                 return;
             }
 
@@ -343,17 +350,20 @@ public class LLMThinkCycle : MonoBehaviour
             {
                 Debug.Log("[WORLD SHIFT] World updated (repaired).");
                 if (clearEventsAfterApply)
-                    TryClearEvents(acc);
+                    acc.AcknowledgeWindow(window);
+                FinishReaction("RepairedAccepted");
                 return;
             }
 
             Debug.LogWarning("[LLMThinkCycle] Repair failed: " + err2);
-            TryApplyDeterministicFallback(acc, events, "LLM repair failed");
+            TryApplyDeterministicFallback(acc, window, "LLM repair failed");
+            FinishReaction("FallbackUsed");
         });
     }
 
-    private bool TryApplyDeterministicFallback(EventAccumulator acc, IReadOnlyList<ActionEvent> events, string source)
+    private bool TryApplyDeterministicFallback(EventAccumulator acc, EventAccumulator.EventWindow window, string source)
     {
+        var events = window?.events;
         if (!applyDeterministicFallback || worldDeltaApplier == null || events == null || events.Count == 0)
             return false;
 
@@ -420,7 +430,7 @@ public class LLMThinkCycle : MonoBehaviour
         {
             Debug.Log("[WORLD SHIFT] World updated by deterministic fallback.");
             if (clearEventsAfterApply)
-                TryClearEvents(acc);
+                acc.AcknowledgeWindow(window);
             return true;
         }
 
@@ -600,6 +610,12 @@ public class LLMThinkCycle : MonoBehaviour
 
     private string SafeSituationSnapshot()
     {
+        // note: Separate the usually cached local snapshot from compact world-context rendering.
+        using (SituationSnapshotMarker.Auto()) return SafeSituationSnapshotCore();
+    }
+
+    private string SafeSituationSnapshotCore()
+    {
         try
         {
             ResolveReferences();
@@ -689,13 +705,6 @@ public class LLMThinkCycle : MonoBehaviour
     { ""regionId"": ""region_library"", ""styleKey"": ""victorian_mansion"", ""reason"": ""A sustained canonical transformation made the archive physically dominant."" }
   ]
 }";
-    }
-
-    private void TryClearEvents(EventAccumulator acc)
-    {
-        var m = acc.GetType().GetMethod("ClearEvents");
-        if (m != null)
-            m.Invoke(acc, null);
     }
 
     private static string Truncate(string s, int maxChars)

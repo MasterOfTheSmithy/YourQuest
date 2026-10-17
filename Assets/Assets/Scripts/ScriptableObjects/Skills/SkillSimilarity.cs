@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class SkillSimilarity
@@ -6,6 +7,22 @@ public static class SkillSimilarity
     // Explicit thresholds so other systems stop guessing
     public const float STRONG_MATCH = 0.78f;
     public const float WEAK_MATCH = 0.45f;
+
+    // note: One tag projection keeps skill matching and curation decisions aligned.
+    internal static string[] BuildSkillTags(SkillRecord skill)
+    {
+        if (skill == null)
+            return Array.Empty<string>();
+
+        List<string> tags = new List<string>(4);
+        if (!string.IsNullOrWhiteSpace(skill.type))
+            tags.Add(skill.type.Trim().ToLowerInvariant());
+        if (skill.isSpell)
+            tags.Add("spell");
+        if (!string.IsNullOrWhiteSpace(skill.context))
+            tags.Add(skill.context.Trim().ToLowerInvariant());
+        return tags.ToArray();
+    }
 
     public static float Score(
         string aName, string aDesc, string[] aTags,

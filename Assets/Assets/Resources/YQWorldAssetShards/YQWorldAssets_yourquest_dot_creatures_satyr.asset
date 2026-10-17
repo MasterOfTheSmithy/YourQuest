@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_satyr
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/SatyrV2.prefab
+    prefab: {fileID: 967736253700920645, guid: cce4b7de2cd26ca418bb389d18760eae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/SatyrV2_Broad.prefab
+    prefab: {fileID: 5984034589836342606, guid: d296f8dae34da8e4887fbbd6e4feaeee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/SatyrV2_Darklight.prefab
+    prefab: {fileID: 1482764327802991537, guid: a89b90064d38ffe4c82c5b7f37bd92a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/SatyrV2_Emberstone.prefab
+    prefab: {fileID: 8840103146422673033, guid: c53555b292c78824a8df1923f26e78ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_fire_horn_L.prefab
+    prefab: {fileID: 7862231494113338767, guid: 27aae794378b8404082a4b09b465ee2c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_fire_horn_R.prefab
+    prefab: {fileID: 4412719886434375752, guid: dd976ec12969d694288c836c53000840, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_frost_horn_L.prefab
+    prefab: {fileID: 7244398780426562286, guid: 3b9ebec386eeb3b499da1efbbe889b26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_frost_horn_R.prefab
+    prefab: {fileID: 2725079671047472871, guid: b29cfb458678fca4ba62db4136c7b6c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_earth_horn_L.prefab
+    prefab: {fileID: 9105462342703370053, guid: 087eefc5bf1c36043a98becbffdfb4da, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_earth_horn_R.prefab
+    prefab: {fileID: 5009746088758527697, guid: 193663aeea063f545aa31db55804d3f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_nature_horn_L.prefab
+    prefab: {fileID: 737005854005264091, guid: 2e2d913fdb85bd7498d9a6412524b3de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_nature_horn_R.prefab
+    prefab: {fileID: 8474320408195493147, guid: aedbaf1eb7761c1409aa9d425216a171, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_darkness_horn_L.prefab
+    prefab: {fileID: 3652787331040639415, guid: b6ef5f22160cf5446956792df1e5c8ed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_darkness_horn_R.prefab
+    prefab: {fileID: 3089226127020679111, guid: cafd653b6fc566240a4f23a0d4e020a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_light_horn_L.prefab
+    prefab: {fileID: 6206066627981017725, guid: ee0d5a6abc4425846aad6ec5eb955d31, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_standard_light_horn_R.prefab
+    prefab: {fileID: 8360272730815221270, guid: 7d0473d2377d61040be76c13a3346904, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_fire_horn_L.prefab
+    prefab: {fileID: 4207977137484931471, guid: 3d2312d631d8472429fd5d199fcbb4ce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_fire_horn_R.prefab
+    prefab: {fileID: 2629189662253037023, guid: 881e41d3f9a1e9348a66ab51646ead15, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_frost_horn_L.prefab
+    prefab: {fileID: 1364992546030300258, guid: dbb51deafb93e14459adfa5ca984c2f9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_frost_horn_R.prefab
+    prefab: {fileID: 3808148160706384856, guid: 0da97858040a83141b623784cb2266f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_earth_horn_L.prefab
+    prefab: {fileID: 211378613476455164, guid: 6fd7f8eaa020d2f49bc23dabbfb01f87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_earth_horn_R.prefab
+    prefab: {fileID: 3650863754803953941, guid: d72991a0b05a8bb45be0508fabc78501, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_nature_horn_L.prefab
+    prefab: {fileID: 5914316671321413728, guid: 910531543b03fb44389374a594b9a233, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_nature_horn_R.prefab
+    prefab: {fileID: 6070915613084968370, guid: 451ec979651c9c845849c861472b3b0e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_darkness_horn_L.prefab
+    prefab: {fileID: 5200131777575323356, guid: 57d8359956a8d6e47b5430dfb315dc8a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_darkness_horn_R.prefab
+    prefab: {fileID: 2741191899315656512, guid: e781a60e94719d643982610b0e63a9b9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_light_horn_L.prefab
+    prefab: {fileID: 5977692912333229791, guid: d65b6862ee3e34e4dae0b8f64b9c5463, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/satyr/satyr_broad_light_horn_R.prefab
+    prefab: {fileID: 8208389264558935456, guid: f5a69f32901a8e843af3f23f8b0fd713, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,187 @@
+{
+  "observedAtUtc": "2026-10-07T20:48:57.3948744Z",
+  "testRoot": "E:\\GPT LLM TEST",
+  "evidence": "Local file size and SHA-256 compared with pinned download manifest; no inference or installation performed.",
+  "selectedFiles": [
+    {
+      "filename": "Qwen3.5-4B-Q4_K_M.gguf",
+      "localPath": "E:\\GPT LLM TEST\\Qwen3.5-4B-Q4_K_M.gguf",
+      "expectedSizeBytes": 2834975040,
+      "sizeBytes": 2834975040,
+      "expectedSha256": "3874209241c9a397e2f62cd3f70f80fd2dfbf0dfccb6838416bdb48a714e8630",
+      "sha256": "3874209241c9a397e2f62cd3f70f80fd2dfbf0dfccb6838416bdb48a714e8630",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:14.3396195Z",
+      "verifiedAtUtc": "2026-10-07T20:47:04.2938662Z",
+      "hashSeconds": 15.918
+    },
+    {
+      "filename": "LFM2.5-2.6B-QAD-Q4_0.gguf",
+      "localPath": "E:\\GPT LLM TEST\\LFM2.5-2.6B-QAD-Q4_0.gguf",
+      "expectedSizeBytes": 1593894944,
+      "sizeBytes": 1593894944,
+      "expectedSha256": "a247afd6414918eac8e520a9e6137dc271235461ecbe1180462221d5b8d40b03",
+      "sha256": "a247afd6414918eac8e520a9e6137dc271235461ecbe1180462221d5b8d40b03",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:31:57.4363852Z",
+      "verifiedAtUtc": "2026-10-07T20:47:12.9890614Z",
+      "hashSeconds": 8.666
+    },
+    {
+      "filename": "LFM2.5-2.6B-Q6_K.gguf",
+      "localPath": "E:\\GPT LLM TEST\\LFM2.5-2.6B-Q6_K.gguf",
+      "expectedSizeBytes": 2221615104,
+      "sizeBytes": 2221615104,
+      "expectedSha256": "2e74b1a0979a4a1936a408445147d103b8f15b2e2ec31c65fa0166f9069c250d",
+      "sha256": "2e74b1a0979a4a1936a408445147d103b8f15b2e2ec31c65fa0166f9069c250d",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:32:50.8744578Z",
+      "verifiedAtUtc": "2026-10-07T20:47:25.0753166Z",
+      "hashSeconds": 12.085
+    },
+    {
+      "filename": "Spark-X2.5-4B-Q4_K_M.gguf",
+      "localPath": "E:\\GPT LLM TEST\\Spark-X2.5-4B-Q4_K_M.gguf",
+      "expectedSizeBytes": 2600224352,
+      "sizeBytes": 2600224352,
+      "expectedSha256": "adfcfa19a4ed6a5985da8bf565fe15f8e1a7e131d79bae2d19d48d1c40109428",
+      "sha256": "adfcfa19a4ed6a5985da8bf565fe15f8e1a7e131d79bae2d19d48d1c40109428",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T18:26:11.2776586Z",
+      "verifiedAtUtc": "2026-10-07T20:47:39.2044196Z",
+      "hashSeconds": 14.128
+    },
+    {
+      "filename": "SmallThinker-4B-A0.6B-Instruct.Q4_K_S.gguf",
+      "localPath": "E:\\GPT LLM TEST\\SmallThinker-4B-A0.6B-Instruct.Q4_K_S.gguf",
+      "expectedSizeBytes": 2491948128,
+      "sizeBytes": 2491948128,
+      "expectedSha256": "f75612a1ad02248a1f902082030d04cd26f856237cd104acc43a3cf4b2582526",
+      "sha256": "f75612a1ad02248a1f902082030d04cd26f856237cd104acc43a3cf4b2582526",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:12.4922823Z",
+      "verifiedAtUtc": "2026-10-07T20:47:53.1492331Z",
+      "hashSeconds": 13.944
+    },
+    {
+      "filename": "gemma-4-E2B_q4_0-it.gguf",
+      "localPath": "E:\\GPT LLM TEST\\gemma-4-E2B_q4_0-it.gguf",
+      "expectedSizeBytes": 3349516256,
+      "sizeBytes": 3349516256,
+      "expectedSha256": "fa401b55b07ee70a54c6dae3903c783a6e65064312529ea57175cb5f8dec6634",
+      "sha256": "fa401b55b07ee70a54c6dae3903c783a6e65064312529ea57175cb5f8dec6634",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:32.3502382Z",
+      "verifiedAtUtc": "2026-10-07T20:47:57.9188515Z",
+      "hashSeconds": 4.769
+    },
+    {
+      "filename": "LFM2.5-2.6B-Q3.8-TBrilliance-NEO-Q6_K.gguf",
+      "localPath": "E:\\GPT LLM TEST\\LFM2.5-2.6B-Q3.8-TBrilliance-NEO-Q6_K.gguf",
+      "expectedSizeBytes": 2221648608,
+      "sizeBytes": 2221648608,
+      "expectedSha256": "51bd4955fb8faf8cc27c3b6f3e511e40a90cb830e8f0cda36d6125c47d4346b5",
+      "sha256": "51bd4955fb8faf8cc27c3b6f3e511e40a90cb830e8f0cda36d6125c47d4346b5",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:32:57.7185218Z",
+      "verifiedAtUtc": "2026-10-07T20:48:09.9989338Z",
+      "hashSeconds": 12.079
+    },
+    {
+      "filename": "Spark-X2.5-4B-abliterated-FIT-MINI-2.26GiB-Q4_K_S.gguf",
+      "localPath": "E:\\GPT LLM TEST\\Spark-X2.5-4B-abliterated-FIT-MINI-2.26GiB-Q4_K_S.gguf",
+      "expectedSizeBytes": 2426554816,
+      "sizeBytes": 2426554816,
+      "expectedSha256": "f1780c336d44c6c77fe484c3fda41bf30f4b5d653a4fc591e3f676d33c205173",
+      "sha256": "f1780c336d44c6c77fe484c3fda41bf30f4b5d653a4fc591e3f676d33c205173",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:13.7747606Z",
+      "verifiedAtUtc": "2026-10-07T20:48:23.6099803Z",
+      "hashSeconds": 13.61
+    },
+    {
+      "filename": "Qwen3.5-4B-EmperoAI-Qwen3.8-Distill-Heretic-Abliterated-MTP-GGUF-Q4_K_M.gguf",
+      "localPath": "E:\\GPT LLM TEST\\Qwen3.5-4B-EmperoAI-Qwen3.8-Distill-Heretic-Abliterated-MTP-GGUF-Q4_K_M.gguf",
+      "expectedSizeBytes": 2790000800,
+      "sizeBytes": 2790000800,
+      "expectedSha256": "7b95847ce1684f98d96f13bad2daaeffcfd2f95ea2ff3821ee68943590a10159",
+      "sha256": "7b95847ce1684f98d96f13bad2daaeffcfd2f95ea2ff3821ee68943590a10159",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:24.9049837Z",
+      "verifiedAtUtc": "2026-10-07T20:48:39.2157151Z",
+      "hashSeconds": 15.605
+    },
+    {
+      "filename": "APUS-OpenJev-v1-4B-Q4_K_M.gguf",
+      "localPath": "E:\\GPT LLM TEST\\APUS-OpenJev-v1-4B-Q4_K_M.gguf",
+      "expectedSizeBytes": 2708804768,
+      "sizeBytes": 2708804768,
+      "expectedSha256": "3e77f041b48a6b28081071dc4dca8b047c10acf0a4b9b9b48603cef6b06ee186",
+      "sha256": "3e77f041b48a6b28081071dc4dca8b047c10acf0a4b9b9b48603cef6b06ee186",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:22.5279642Z",
+      "verifiedAtUtc": "2026-10-07T20:48:54.4078786Z",
+      "hashSeconds": 15.191
+    },
+    {
+      "filename": "cudart-llama-bin-win-cuda-13.3-x64.zip",
+      "localPath": "E:\\GPT LLM TEST\\cudart-llama-bin-win-cuda-13.3-x64.zip",
+      "expectedSizeBytes": 390970417,
+      "sizeBytes": 390970417,
+      "expectedSha256": "1462a050eb4c684921ba51dcc4cc488a036674c3e73e9945ee705b854808d03e",
+      "sha256": "1462a050eb4c684921ba51dcc4cc488a036674c3e73e9945ee705b854808d03e",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:45.7622703Z",
+      "verifiedAtUtc": "2026-10-07T20:48:56.5427148Z",
+      "hashSeconds": 2.134
+    },
+    {
+      "filename": "llama-b10828-bin-win-cuda-13.3-x64.zip",
+      "localPath": "E:\\GPT LLM TEST\\llama-b10828-bin-win-cuda-13.3-x64.zip",
+      "expectedSizeBytes": 149775273,
+      "sizeBytes": 149775273,
+      "expectedSha256": "1c9a7b9eb595671491fa950a23e869485fe35e1bf87e1697a8228a24a28bf774",
+      "sha256": "1c9a7b9eb595671491fa950a23e869485fe35e1bf87e1697a8228a24a28bf774",
+      "sizeMatches": true,
+      "checksumMatches": true,
+      "lastWriteUtc": "2026-10-07T20:33:34.5020801Z",
+      "verifiedAtUtc": "2026-10-07T20:48:57.3624153Z",
+      "hashSeconds": 0.819
+    }
+  ],
+  "extraFiles": [
+    {
+      "filename": "nsfw-6b-q2_k.gguf",
+      "localPath": "E:\\GPT LLM TEST\\nsfw-6b-q2_k.gguf",
+      "sizeBytes": 2376638400,
+      "status": "PRESENT_NOT_CHECKSUM_VERIFIED",
+      "sha256": null
+    },
+    {
+      "filename": "Qwen3-4B-Hivemind-Inst-Hrtic-Ablit-Uncensored-Q4_K_M-imat.gguf",
+      "localPath": "E:\\GPT LLM TEST\\Qwen3-4B-Hivemind-Inst-Hrtic-Ablit-Uncensored-Q4_K_M-imat.gguf",
+      "sizeBytes": 2497280448,
+      "status": "PRESENT_NOT_CHECKSUM_VERIFIED",
+      "sha256": null
+    },
+    {
+      "filename": "Spark-X2.5-4B-Q4_K_M (1).gguf",
+      "localPath": "E:\\GPT LLM TEST\\Spark-X2.5-4B-Q4_K_M (1).gguf",
+      "sizeBytes": 2600224352,
+      "status": "PRESENT_NOT_CHECKSUM_VERIFIED",
+      "sha256": null
+    }
+  ],
+  "allSelectedFilesVerified": true
+}

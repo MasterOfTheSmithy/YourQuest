@@ -8,6 +8,21 @@ public static class YQBlueglassStyle
     private static Dictionary<string, Sprite> _sprites;
     private static GUIStyle _guiButton;
 
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoadMethod]
+    private static void RegisterEditorCacheCleanup()
+    {
+        UnityEditor.EditorApplication.playModeStateChanged -= ClearEditorSessionCache;
+        UnityEditor.EditorApplication.playModeStateChanged += ClearEditorSessionCache;
+    }
+
+    private static void ClearEditorSessionCache(UnityEditor.PlayModeStateChange state)
+    {
+        // note: Drop session-only atlas references; a later UI request resolves the same imported sprites again.
+        if (state == UnityEditor.PlayModeStateChange.EnteredEditMode) _sprites = null;
+    }
+#endif
+
     public static Sprite Sprite(string name)
     {
         if (_sprites == null)

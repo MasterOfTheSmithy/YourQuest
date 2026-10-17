@@ -66,7 +66,7 @@ public sealed partial class YQDeveloperCommandRegistry
 #else
     private const bool _fixture = false;
 #endif
-    public string Target => _npcId == null ? "PLAYER " + (Manager?.state?.playerId ?? "unavailable") : "NPC " + _npcId;
+    public string Target => _actorId != null ? ActorTargetLabel() : _npcId == null ? "PLAYER " + (Manager?.state?.playerId ?? "unavailable") : "NPC " + _npcId;
     private PlayerStateManager Manager
     {
         get
@@ -115,6 +115,7 @@ public sealed partial class YQDeveloperCommandRegistry
     {
         RegisterContainerCommands();
         RegisterBrowserCommands();
+        RegisterToolkitCommands();
         Register("help", 0, 8, false, "help [command] : list syntax, supported operations and ranges", Help);
         Register("console key", 1, 1, false, "console key <InputSystem Key name> : default Backquote, saved developer preference", a =>
         {
@@ -122,14 +123,14 @@ public sealed partial class YQDeveloperCommandRegistry
                 UnityEngine.InputSystem.Keyboard.current?[key] == null || BindKey == null) return Fail("Unknown keyboard key or UI unavailable. Example: console key F2.");
             BindKey(key); return Ok("Console key=" + key + " (developer preference only).");
         });
-        Register("target player", 0, 0, false, "target player", a => { _npcId = null; return Ok(Target); });
+        Register("target player", 0, 0, false, "target player", a => { _npcId = null; _actorId = null; return Ok(Target); });
         Register("target npc", 1, 1, false, "target npc <npcId> : target a persisted NPC, not a scene object name", a =>
-        { var npc = FindNpc(a[0]); if (npc == null) return Fail("Unknown NPC ID. Use target list."); _npcId = npc.npcId; return Ok(Target + " / " + npc.name); });
+        { var npc = FindNpc(a[0]); if (npc == null) return Fail("Unknown NPC ID. Use target list."); _actorId = null; _npcId = npc.npcId; return Ok(Target + " / " + npc.name); });
         Register("target list", 0, 0, false, "target list : player and persisted NPC IDs", a =>
             Ok(Targets()));
-        Register("target inspect", 0, 0, false, "target inspect : identity/capabilities", a => _npcId == null ? Ok(Target + "; stat list, skill list, item list, quest list") : NpcInspect());
-        Register("stat list", 0, 0, false, "stat list : actual names, units and console safety ranges", a => Ok(_npcId == null ?
-            string.Join("\n", YQDeveloperVariable.Stats.Select(v => v.Name + " [" + v.Min + ".." + v.Max + "] " + v.Unit + (v.Integer ? " integer" : ""))) : "affinityToPlayer [-1..1] normalized affinity; NPC stats/XP/skills/inventory are not modeled."));
+        Register("target inspect", 0, 0, false, "target inspect : identity/capabilities", a => _actorId != null ? InspectActor() : _npcId == null ? Ok(Target + "; stat list, skill list, item list, quest list") : NpcInspect());
+        Register("stat list", 0, 0, false, "stat list : actual names, units and console safety ranges", a => Ok(TargetsPlayer ?
+            string.Join("\n", YQDeveloperVariable.Stats.Select(v => v.Name + " [" + v.Min + ".." + v.Max + "] " + v.Unit + (v.Integer ? " integer" : ""))) : _npcId != null ? "affinityToPlayer [-1..1] normalized affinity; NPC stats/XP/skills/inventory are not modeled." : "Selected actor has no editable stat contract."));
         Register("stat get", 1, 1, false, "stat get <name>", StatGet);
         Register("stat set", 2, 2, true, "stat set <name> <value> : SESSION edit", a => StatEdit(a, false));
         Register("stat add", 2, 2, true, "stat add <name> <delta> : XP uses normal level-up service", a => StatEdit(a, true));
@@ -212,19 +213,19 @@ public sealed partial class YQDeveloperCommandRegistry
     public static List<string> Tokenize(string text)
     {
         if (text == null || text.Length > 1024) throw new ArgumentException("Command length must be 0..1024 characters.");
-        var tokens = new List<string>(); var token = new StringBuilder(); bool quoted = false;
+        var tokens = new List<string>(); var token = new StringBuilder(); bool quoted = false, started = false;
         for (int index = 0; index < text.Length; index++)
         {
             char c = text[index];
             // note: Guided descriptions and IDs round-trip quotes/backslashes without allowing executable input.
             if (quoted && c == '\\' && index + 1 < text.Length && (text[index + 1] == '"' || text[index + 1] == '\\'))
             { token.Append(text[++index]); continue; }
-            if (c == '"') { quoted = !quoted; continue; }
-            if (char.IsWhiteSpace(c) && !quoted) { if (token.Length > 0) { tokens.Add(token.ToString()); token.Clear(); } }
-            else token.Append(c);
+            if (c == '"') { quoted = !quoted; started = true; continue; }
+            if (char.IsWhiteSpace(c) && !quoted) { if (started) { tokens.Add(token.ToString()); token.Clear(); started = false; } }
+            else { token.Append(c); started = true; }
         }
         if (quoted) throw new ArgumentException("Unclosed double quote.");
-        if (token.Length > 0) tokens.Add(token.ToString());
+        if (started) tokens.Add(token.ToString());
         return tokens;
     }
 
@@ -237,6 +238,7 @@ public sealed partial class YQDeveloperCommandRegistry
     private void RequirePlayer()
     {
         if (_npcId != null) throw new ArgumentException("Target " + _npcId + " has no player progression/inventory contract; use target player.");
+        if (_actorId != null) throw new ArgumentException("Selected scene actor has no player progression/inventory contract; use target player.");
         if (State == null) throw new ArgumentException("Player state owner unavailable.");
         State.EnsureCollections();
     }
@@ -261,6 +263,7 @@ public sealed partial class YQDeveloperCommandRegistry
     }
     private YQDeveloperCommandResult StatEdit(Arguments a, bool add)
     {
+        if (_actorId != null && ResolveTargetActor() == null) return Fail("Selected actor unloaded. Refresh Actors before editing.");
         float value = a.Number(1);
         if (_npcId != null)
         {
@@ -376,6 +379,12 @@ public sealed partial class YQDeveloperCommandRegistry
         {
             Add("minConfidence", "proposal probability", 0, 1, false, ()=>p.minConfidence, v=>p.minConfidence=v);
             Add("minSkillConfidence", "proposal probability", 0, 1, false, ()=>p.minSkillConfidence, v=>p.minSkillConfidence=v);
+            Add("minQuestConfidence", "proposal probability (also item offers)", 0, 1, false, ()=>p.minQuestConfidence, v=>p.minQuestConfidence=v);
+            Add("minTitleConfidence", "proposal probability", 0, 1, false, ()=>p.minTitleConfidence, v=>p.minTitleConfidence=v);
+            Add("minClassConfidence", "proposal probability", 0, 1, false, ()=>p.minClassConfidence, v=>p.minClassConfidence=v);
+            Add("minQuestEvidenceScore", "normalized evidence score", 0, 1, false, ()=>p.minQuestEvidenceScore, v=>p.minQuestEvidenceScore=v);
+            Add("requirePlayerEvidenceForQuests", "boolean 0/1", 0, 1, true, ()=>p.requirePlayerEvidenceForQuests ? 1 : 0, v=>p.requirePlayerEvidenceForQuests=v==1);
+            Add("gateQuestsToMeaningfulContext", "boolean 0/1", 0, 1, true, ()=>p.gateQuestsToMeaningfulContext ? 1 : 0, v=>p.gateQuestsToMeaningfulContext=v==1);
             Add("minSkillEvidenceScore", "normalized evidence score", 0, 1, false, ()=>p.minSkillEvidenceScore, v=>p.minSkillEvidenceScore=v);
             Add("duplicateSkillThreshold", "similarity 0..1", 0, 1, false, ()=>p.duplicateSkillThreshold, v=>p.duplicateSkillThreshold=v);
             Add("upgradeSkillThreshold", "similarity 0..1", 0, 1, false, ()=>p.upgradeSkillThreshold, v=>p.upgradeSkillThreshold=v);
@@ -399,6 +408,8 @@ public sealed partial class YQDeveloperCommandRegistry
             (setting.Name == "skillCooldown" && value < 420) ||
             ((setting.Name == "requirePlayerEvidenceForSkills" || setting.Name == "gateSkillsToCalmLowThreat" || setting.Name == "minSkillEvidenceScore" ||
                 setting.Name == "minConfidence" || setting.Name == "minSkillConfidence") && value == 0);
+        bypass |= value == 0 && (setting.Name == "minQuestConfidence" || setting.Name == "minTitleConfidence" || setting.Name == "minClassConfidence" ||
+            setting.Name == "minQuestEvidenceScore" || setting.Name == "requirePlayerEvidenceForQuests" || setting.Name == "gateQuestsToMeaningfulContext");
         if (bypass && !force) return Fail("Lowering a production floor or disabling a requirement needs explicit --force.");
         Session();
         var thinker = Thinker;
@@ -435,7 +446,7 @@ public sealed partial class YQDeveloperCommandRegistry
         var choices = new List<string>(_commands.Select(c => c.Path));
         if (_npcId != null)
             foreach (string op in new[] { "get", "set", "add" }) choices.Add("stat " + op + " affinityToPlayer");
-        else
+        else if (TargetsPlayer)
             foreach (var variable in YQDeveloperVariable.Stats)
                 foreach (string op in new[] { "get", "set", "add" }) choices.Add("stat " + op + " " + variable.Name);
         foreach (var setting in Settings()) choices.Add("progression set " + setting.Name);
@@ -449,6 +460,11 @@ public sealed partial class YQDeveloperCommandRegistry
         foreach (var offer in State?.pendingOffers ?? new List<PendingProgressionOfferRecord>())
             if (offer != null && offer.IsPending) choices.Add("offer accept " + QuoteArgument(offer.offerId));
         foreach (string id in _encounters.Keys) choices.Add("spawn monster " + QuoteArgument(id));
+        foreach (var actor in _actors) if (actor.Value != null) choices.Add("target actor " + actor.Key);
+        foreach (var template in WorldManager?.State?.generatedWorldPlan?.generatedNpcs ?? new List<GeneratedNpcPlanRecord>())
+            if (template != null && string.IsNullOrEmpty(template.encampmentId)) choices.Add("spawn npc " + QuoteArgument(template.npcId));
+        foreach (string kind in ItemKinds) choices.Add("item create " + kind);
+        foreach (var quest in State?.quests ?? new List<QuestRecord>()) if (quest != null) choices.Add("quest activate " + QuoteArgument(quest.questId));
         return choices.Distinct().Where(c => c.StartsWith(prefix ?? "", StringComparison.OrdinalIgnoreCase)).OrderBy(c => c).Take(40).ToArray();
     }
     private static YQDeveloperCommandResult Ok(string text) => new YQDeveloperCommandResult(true, text);

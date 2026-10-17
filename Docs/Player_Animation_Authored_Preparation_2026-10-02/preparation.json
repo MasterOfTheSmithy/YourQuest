@@ -1,0 +1,30 @@
+{
+  "status": "READY_FOR_INTEGRATION",
+  "utc": "2026-10-02T10:29:50.7365401Z",
+  "mode": "isolated Unity Editor asset evaluation and rendered pose review",
+  "productionCompile": "PENDING",
+  "productionRuntime": "PENDING",
+  "controllerGuid": "151a16946511aff48bf0a723cb3119c7",
+  "files": [
+    {
+      "path": "Assets\\Assets\\Art\\PlayerAnimation\\Quaternius\\UAL1_Standard.fbx",
+      "sha256": "21B32D912DA3CB93426D974FB945E86F5B2E86970ACD2CE89905E0FBF9F1DCC2",
+      "bytes": 23754684
+    },
+    {
+      "path": "Assets\\Assets\\Art\\PlayerAnimation\\Quaternius\\UAL2_Standard.fbx",
+      "sha256": "D26D0E9F4A202D473194C056045143095A605A53BA1D823EF24055BE4B86851D",
+      "bytes": 24778332
+    },
+    {
+      "path": "Assets\\Assets\\Resources\\Player\\YQPlayer.controller",
+      "sha256": "92C106F1CD71BFACA5D313A70EB4C41E196EC085CE42D51B8A16AA54C8030F25",
+      "bytes": 19706152
+    },
+    {
+      "path": "Assets\\Assets\\Resources\\Player\\YQFirstPersonArms.asset",
+      "sha256": "9093899BB605B0F8100E4EF53DDEFB3C31A98C7E02071AD1CBDB3B07D4DD9A7A",
+      "bytes": 15291919
+    }
+  ]
+}

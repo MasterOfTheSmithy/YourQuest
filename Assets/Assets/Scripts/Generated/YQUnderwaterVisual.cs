@@ -1,162 +1,234 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 using UnityEngine.Rendering.Universal;
 using Unity.Profiling;
 
-// note: Provide a lightweight camera overlay when the authoritative player is below a generated water surface.
+// note: Camera immersion and player splashes share the streamed surface query; presentation never moves the player or owns breath.
 [DisallowMultipleComponent]
 public sealed class YQUnderwaterVisual : MonoBehaviour
 {
     private static readonly ProfilerMarker G08UpdateMarker = new ProfilerMarker("G08FrameCost.YQUnderwaterVisual.Update()");
     private Camera targetCamera;
-    private MeshRenderer[] waterRenderers;
     private Image overlay;
-    private float nextProbe;
     private GameObject canvasObject;
-    // note: Retain immutable mesh arrays once; Unity's mesh getters allocate a full copy on every call.
-    private readonly Dictionary<MeshRenderer, (Vector3[] vertices, int[] triangles)> meshSamples = new();
+    private AudioLowPassFilter underwaterFilter;
+    private bool ownsFilter;
+    private bool originalFilterEnabled;
+    private float originalCutoff;
+    private float originalResonance;
+    private float immersion;
+    private ParticleSystem droplets;
+    private ParticleSystem foam;
+    private Material particleMaterial;
+    private Texture2D particleTexture;
+    private float nextSplash;
+    private Vector3 lastPlayerPosition;
+    private YQInvestorPlayerMotor lastMotor;
+    private bool previouslyWet;
 
-    // note: Attach one presentation component to the generated root so it follows the single world transaction and never duplicates per water body.
     public static void Attach(Transform generatedRoot)
     {
-        if (generatedRoot == null || generatedRoot.GetComponentInChildren<YQUnderwaterVisual>(true) != null)
-            return;
+        if (generatedRoot == null || generatedRoot.GetComponentInChildren<YQUnderwaterVisual>(true) != null) return;
         GameObject host = new GameObject("YQ_UnderwaterVisual");
         host.transform.SetParent(generatedRoot, false);
         host.AddComponent<YQUnderwaterVisual>();
     }
 
-    // note: Resolve the camera and water surfaces after scene/player startup has completed, keeping the build coroutine independent of UI timing.
-    private void Start()
+    private void EnsureCamera(Camera camera)
     {
-        targetCamera = Camera.main;
-        waterRenderers = GetComponentsInParent<Transform>(true).Length > 0
-            ? transform.root.GetComponentsInChildren<MeshRenderer>(true)
-            : new MeshRenderer[0];
-        foreach (var water in waterRenderers)
-        {
-            if (water.name != "CompiledHydrologySurface" && water.name != "CuratedEllipticalWaterSurface") continue;
-            var filter = water.GetComponent<MeshFilter>();
-            if (filter != null && filter.sharedMesh != null)
-                meshSamples[water] = (filter.sharedMesh.vertices, filter.sharedMesh.triangles);
-        }
-        CreateOverlay();
-    }
-
-    // note: Build a screen-space tint without post-processing dependencies so the cue works in the current URP setup and in development scenes.
-    private void CreateOverlay()
-    {
-        if (targetCamera == null)
-            return;
-        // note: Water absorption and contact blending read opaque depth from the same authoritative gameplay camera.
+        if (camera == targetCamera && overlay != null) return;
+        ReleaseCamera();
+        targetCamera = camera;
+        if (targetCamera == null) return;
         targetCamera.GetUniversalAdditionalCameraData().requiresDepthTexture = true;
         canvasObject = new GameObject("YQ_UnderwaterCanvas");
         canvasObject.transform.SetParent(targetCamera.transform, false);
         Canvas canvas = canvasObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceCamera;
-        canvas.worldCamera = targetCamera;
-        canvas.planeDistance = 0.05f;
-        canvas.sortingOrder = 30000;
-        canvasObject.AddComponent<CanvasScaler>();
-        canvasObject.AddComponent<GraphicRaycaster>();
-        GameObject imageObject = new GameObject("YQ_UnderwaterTint");
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        // note: Tint the world beneath the existing HUD so oxygen values stay sharp and readable underwater.
+        canvas.sortingOrder = 4100;
+        GameObject imageObject = new GameObject("YQ_UnderwaterTint", typeof(RectTransform));
         imageObject.transform.SetParent(canvasObject.transform, false);
         overlay = imageObject.AddComponent<Image>();
         overlay.raycastTarget = false;
-        overlay.color = new Color(0.04f, 0.22f, 0.32f, 0f);
+        overlay.color = new Color(.025f, .18f, .25f, 0f);
         RectTransform rect = overlay.rectTransform;
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        // note: Unity's listener low-pass filters the complete heard mix, including sources created by future streamed content.
+        AudioListener listener = targetCamera.GetComponent<AudioListener>();
+        if (listener != null)
+        {
+            underwaterFilter = listener.GetComponent<AudioLowPassFilter>();
+            ownsFilter = underwaterFilter == null;
+            if (ownsFilter) underwaterFilter = listener.gameObject.AddComponent<AudioLowPassFilter>();
+            originalFilterEnabled = underwaterFilter.enabled;
+            originalCutoff = underwaterFilter.cutoffFrequency;
+            originalResonance = underwaterFilter.lowpassResonanceQ;
+            if (ownsFilter) underwaterFilter.enabled = false;
+        }
     }
 
-    // note: Probe at a low cadence and use renderer bounds in XZ to avoid per-frame mesh scans or physics queries on water without colliders.
-    // note: Attribute this project-owned callback during the focused G08 frame-budget witness.
     private void Update()
     {
         using (G08UpdateMarker.Auto())
-            UpdateCore();
-    }
-
-    private void UpdateCore()
-    {
-        if (Time.unscaledTime < nextProbe)
-            return;
-        nextProbe = Time.unscaledTime + 0.1f;
-        if (targetCamera == null)
-            targetCamera = Camera.main;
-        if (overlay == null && targetCamera != null) CreateOverlay();
-        if (overlay == null || targetCamera == null || waterRenderers == null)
-            return;
-
-        float deepest = 0f;
-        Vector3 cameraPosition = targetCamera.transform.position;
-        for (int index = 0; index < waterRenderers.Length; index++)
         {
-            MeshRenderer water = waterRenderers[index];
-            if (water == null || !water.enabled || !water.gameObject.activeInHierarchy || !meshSamples.ContainsKey(water))
-                continue;
-            if (!TrySampleWaterHeight(water, cameraPosition, out float surfaceHeight) ||
-                cameraPosition.y >= surfaceHeight)
-                continue;
-            deepest = Mathf.Max(deepest, Mathf.Clamp01((surfaceHeight - cameraPosition.y) * 0.12f));
+            YQInvestorPlayerMotor motor = YQInvestorPlayerMotor.ActiveMotor;
+            EnsureCamera(motor != null ? motor.playerCamera : Camera.main);
+            bool gameplay = motor != null && !YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked;
+            Vector3 position = targetCamera != null ? targetCamera.transform.position : Vector3.zero;
+            float height = 0f;
+            bool submerged = gameplay && YQWaterSurfaceMotion.TryGetWaterHeight(position, out height) && position.y < height - .04f;
+            float target = submerged ? Mathf.Clamp01((height - position.y) * .18f + .25f) : 0f;
+            immersion = Mathf.MoveTowards(immersion, target, Time.unscaledDeltaTime * 2.5f);
+            if (overlay != null)
+            {
+                // note: Gentle fluctuating absorption provides a readable underwater cue without changing camera aim or applying a second camera controller.
+                float wave = .012f * Mathf.Sin(Time.unscaledTime * 2.4f);
+                overlay.color = new Color(.025f, .18f + wave, .25f + wave, immersion * .38f);
+            }
+            if (underwaterFilter != null)
+            {
+                if (immersion > .001f)
+                {
+                    underwaterFilter.enabled = true;
+                    underwaterFilter.cutoffFrequency = Mathf.Lerp(22000f, 750f + 180f * Mathf.Sin(Time.unscaledTime * 2.1f), Mathf.Clamp01(immersion * 4f));
+                    underwaterFilter.lowpassResonanceQ = 1.35f;
+                }
+                else RestoreFilter();
+            }
+            if (gameplay && Time.deltaTime > 0f) UpdateMovementSplash(motor);
         }
-
-        Color tint = overlay.color;
-        float targetAlpha = deepest > 0f ? Mathf.Lerp(0.16f, 0.34f, deepest) : 0f;
-        // note: This probe runs every tenth of a second; dry land clears immediately so an old tint cannot linger after leaving water.
-        tint.a = targetAlpha;
-        overlay.color = tint;
     }
 
-    // note: Sample the actual water triangles at the camera's X/Z instead of using a long river's broad renderer bounds as a false volume.
-    private bool TrySampleWaterHeight(MeshRenderer water, Vector3 world, out float surfaceHeight)
+    private void UpdateMovementSplash(YQInvestorPlayerMotor motor)
     {
-        surfaceHeight = 0f;
-        Bounds bounds = water.bounds;
-        if (world.x < bounds.min.x || world.x > bounds.max.x || world.z < bounds.min.z || world.z > bounds.max.z)
-            return false;
-        if (!meshSamples.TryGetValue(water, out var samples))
-            return false;
-
-        int[] triangles = samples.triangles;
-        if (triangles == null || triangles.Length < 3)
-            return false;
-        Vector3[] vertices = samples.vertices;
-        Matrix4x4 localToWorld = water.transform.localToWorldMatrix;
-        // note: Resolve only the triangle containing the camera so concave banks and elliptical lakes do not report water outside their footprint.
-        for (int index = 0; index <= triangles.Length - 3; index += 3)
+        Vector3 current = motor.transform.position;
+        if (lastMotor != motor)
         {
-            Vector3 a = localToWorld.MultiplyPoint3x4(vertices[triangles[index]]);
-            Vector3 b = localToWorld.MultiplyPoint3x4(vertices[triangles[index + 1]]);
-            Vector3 c = localToWorld.MultiplyPoint3x4(vertices[triangles[index + 2]]);
-            float minX = Mathf.Min(a.x, Mathf.Min(b.x, c.x)) - 0.08f;
-            float maxX = Mathf.Max(a.x, Mathf.Max(b.x, c.x)) + 0.08f;
-            float minZ = Mathf.Min(a.z, Mathf.Min(b.z, c.z)) - 0.08f;
-            float maxZ = Mathf.Max(a.z, Mathf.Max(b.z, c.z)) + 0.08f;
-            if (world.x < minX || world.x > maxX || world.z < minZ || world.z > maxZ)
-                continue;
-
-            float denominator = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z);
-            if (Mathf.Abs(denominator) < 0.0001f)
-                continue;
-            float u = ((b.z - c.z) * (world.x - c.x) + (c.x - b.x) * (world.z - c.z)) / denominator;
-            float v = ((c.z - a.z) * (world.x - c.x) + (a.x - c.x) * (world.z - c.z)) / denominator;
-            float w = 1f - u - v;
-            if (u < -0.02f || v < -0.02f || w < -0.02f)
-                continue;
-            surfaceHeight = a.y * u + b.y * v + c.y * w;
-            return true;
+            lastMotor = motor;
+            lastPlayerPosition = current;
+            previouslyWet = false;
         }
-        return false;
+        bool wet = YQWaterSurfaceMotion.TryGetWaterHeight(current, out float height) && current.y < height + .1f && current.y > height - 2.4f;
+        float speed = (current - lastPlayerPosition).magnitude / Mathf.Max(.001f, Time.deltaTime);
+        lastPlayerPosition = current;
+        bool entry = wet && !previouslyWet;
+        previouslyWet = wet;
+        if (!wet || (!entry && speed < .15f) || Time.time < nextSplash) return;
+        EnsureSplashParticles();
+        if (droplets == null || foam == null) return;
+        nextSplash = Time.time + (motor.IsSwimming ? .28f : .20f);
+        Vector3 origin = new Vector3(current.x, height + .035f, current.z);
+        int count = entry ? 18 : Mathf.Clamp(Mathf.RoundToInt(speed * 3f), 3, 12);
+        // note: Emit into two persistent, capped world-space pools; locomotion never instantiates a new VFX object per step.
+        for (int index = 0; index < count; index++)
+        {
+            float angle = index * 2.399963f;
+            Vector3 side = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+            var emit = new ParticleSystem.EmitParams
+            {
+                position = origin + side * .18f,
+                velocity = side * (.35f + speed * .09f) + Vector3.up * (entry ? 1.7f : .7f),
+                startSize = .045f + (index % 3) * .015f,
+                startLifetime = .45f + (index % 3) * .08f,
+                startColor = new Color(.8f, .94f, 1f, .78f)
+            };
+            droplets.Emit(emit, 1);
+        }
+        var ripple = new ParticleSystem.EmitParams { position = origin, velocity = Vector3.zero, startSize = entry ? .85f : .48f, startLifetime = 1.2f, startColor = new Color(.88f, .98f, 1f, .5f) };
+        foam.Emit(ripple, 1);
     }
 
+    private void EnsureSplashParticles()
+    {
+        if (droplets != null) return;
+        Shader shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        if (shader == null) shader = Shader.Find("Sprites/Default");
+        if (shader == null) return;
+        // note: Native blood splashes and lit fish-splash assets are unsuitable for transparent URP water droplets; this tiny runtime foam mask is presentation geometry.
+        particleTexture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
+        var pixels = new Color[32 * 32];
+        for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++)
+        {
+            float radius = new Vector2((x - 15.5f) / 15.5f, (y - 15.5f) / 15.5f).magnitude;
+            float alpha = Mathf.Clamp01((1f - radius) * 8f) * Mathf.Clamp01((radius - .55f) * 8f);
+            pixels[y * 32 + x] = new Color(1f, 1f, 1f, alpha);
+        }
+        particleTexture.SetPixels(pixels);
+        particleTexture.Apply(false, true);
+        particleMaterial = new Material(shader) { name = "YQ_RuntimeWaterFoam" };
+        particleMaterial.mainTexture = particleTexture;
+        if (particleMaterial.HasProperty("_Surface")) particleMaterial.SetFloat("_Surface", 1f);
+        if (particleMaterial.HasProperty("_Blend")) particleMaterial.SetFloat("_Blend", 0f);
+        if (particleMaterial.HasProperty("_SrcBlend")) particleMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        if (particleMaterial.HasProperty("_DstBlend")) particleMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        if (particleMaterial.HasProperty("_ZWrite")) particleMaterial.SetFloat("_ZWrite", 0f);
+        particleMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        particleMaterial.renderQueue = 3000;
+        droplets = CreateParticlePool("YQ_PlayerWaterDroplets", false);
+        foam = CreateParticlePool("YQ_PlayerWaterWake", true);
+    }
+
+    private ParticleSystem CreateParticlePool(string label, bool flat)
+    {
+        GameObject host = new GameObject(label);
+        host.transform.SetParent(transform, false);
+        ParticleSystem system = host.AddComponent<ParticleSystem>();
+        system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        var main = system.main;
+        main.playOnAwake = false;
+        main.loop = true;
+        main.maxParticles = flat ? 48 : 192;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = flat ? 0f : .28f;
+        var emission = system.emission;
+        emission.enabled = false;
+        var shape = system.shape;
+        shape.enabled = false;
+        var color = system.colorOverLifetime;
+        color.enabled = true;
+        Gradient fade = new Gradient();
+        fade.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) }, new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) });
+        color.color = fade;
+        var size = system.sizeOverLifetime;
+        size.enabled = flat;
+        size.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, .5f, 1f, 2f));
+        ParticleSystemRenderer renderer = host.GetComponent<ParticleSystemRenderer>();
+        renderer.sharedMaterial = particleMaterial;
+        renderer.renderMode = ParticleSystemRenderMode.Billboard;
+        renderer.alignment = flat ? ParticleSystemRenderSpace.World : ParticleSystemRenderSpace.View;
+        if (flat) { main.startRotation3D = true; main.startRotationX = Mathf.PI * .5f; }
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
+        system.Play();
+        return system;
+    }
+
+    private void RestoreFilter()
+    {
+        if (underwaterFilter == null) return;
+        underwaterFilter.cutoffFrequency = originalCutoff;
+        underwaterFilter.lowpassResonanceQ = originalResonance;
+        underwaterFilter.enabled = ownsFilter ? false : originalFilterEnabled;
+    }
+
+    private void ReleaseCamera()
+    {
+        RestoreFilter();
+        if (ownsFilter && underwaterFilter != null) Destroy(underwaterFilter);
+        underwaterFilter = null;
+        if (canvasObject != null) Destroy(canvasObject);
+        canvasObject = null;
+        overlay = null;
+    }
+
+    private void OnDisable() { immersion = 0f; if (overlay != null) overlay.color = Color.clear; RestoreFilter(); }
     private void OnDestroy()
     {
-        // note: The canvas is parented to the camera, so world teardown must explicitly remove it to prevent stale blue overlays.
-        if (canvasObject != null) Destroy(canvasObject);
-        meshSamples.Clear();
+        ReleaseCamera();
+        if (particleMaterial != null) Destroy(particleMaterial);
+        if (particleTexture != null) Destroy(particleTexture);
     }
 }

@@ -8,24 +8,40 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class YourQuestProgressionOfferUI : MonoBehaviour
 {
+    public static YourQuestProgressionOfferUI Instance { get; private set; }
     private Canvas _canvas;
     private TMP_Text _title;
     private TMP_Text _body;
     private TMP_Text _footer;
     private PendingProgressionOfferRecord _current;
+    private PlayerState _presentedPlayer;
     private string _suppressedStartupOfferId = string.Empty;
 
     private void Awake()
     {
+        Instance = this;
         BuildUi();
         if (_canvas != null)
             _canvas.enabled = false;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    public PendingProgressionOfferRecord GetVisibleOffer(PlayerState player)
+    {
+        // note: Speech can choose only the exact offer actually on screen for this player, never a stale toast or a hidden queued offer.
+        return isActiveAndEnabled && _canvas != null && _canvas.enabled && ReferenceEquals(player, _presentedPlayer) &&
+            _current != null && _current.IsPending && ReferenceEquals(_current, player?.GetActiveOffer()) ? _current : null;
     }
 
 
     public void ForceHideFromBootstrap()
     {
         _current = null;
+        _presentedPlayer = null;
         PendingProgressionOfferRecord offer = PlayerStateManager.Instance != null && PlayerStateManager.Instance.state != null
             ? PlayerStateManager.Instance.state.GetActiveOffer()
             : null;
@@ -64,12 +80,8 @@ public sealed class YourQuestProgressionOfferUI : MonoBehaviour
         if (psm == null || psm.state == null || _current == null)
             return;
 
-        string message;
-        if (psm.state.AcceptOffer(_current.offerId, out message))
-        {
-            GeneratedRpgContentService.Instance?.SetInventoryMessage(message);
-            psm.Save();
-        }
+        // note: Keyboard choices use the same durable paired decision as speech; a failed save keeps the offer pending.
+        CommitCurrent(psm, "accept");
     }
 
     private void DeclineCurrent()
@@ -78,17 +90,23 @@ public sealed class YourQuestProgressionOfferUI : MonoBehaviour
         if (psm == null || psm.state == null || _current == null)
             return;
 
-        string message;
-        if (psm.state.DeclineOffer(_current.offerId, out message))
-        {
-            GeneratedRpgContentService.Instance?.SetInventoryMessage(message);
-            psm.Save();
-        }
+        CommitCurrent(psm, "decline");
+    }
+
+    private void CommitCurrent(PlayerStateManager psm, string decision)
+    {
+        string message = string.Empty;
+        string failure = "The profile save is unavailable.";
+        var owner = YQProfileSaveSystem.Instance;
+        bool committed = owner != null && owner.TryCommitOfferDecision(psm.state, _current.offerId,
+            YQProfileSaveSystem.CaptureOfferTerms(_current), decision, out message, out failure);
+        GeneratedRpgContentService.Instance?.SetInventoryMessage(committed ? message : "Choice not saved: " + failure);
     }
 
     private void Render()
     {
         PlayerStateManager psm = PlayerStateManager.Instance;
+        _presentedPlayer = psm != null ? psm.state : null;
         _current = psm != null && psm.state != null ? psm.state.GetActiveOffer() : null;
         bool suppressedStartupOffer = _current != null &&
                                       !string.IsNullOrWhiteSpace(_suppressedStartupOfferId) &&
@@ -118,7 +136,7 @@ public sealed class YourQuestProgressionOfferUI : MonoBehaviour
         if (_current.isUpgrade && !string.IsNullOrWhiteSpace(_current.upgradeTargetName))
             sb.Append("   •   " + Safe(_current.upgradeTargetName, _current.upgradeTargetId));
         _body.text = sb.ToString();
-        _footer.text = "R Accept   •   F Decline";
+        _footer.text = "Say yes / no   •   R Accept   •   F Decline";
     }
 
     private void BuildUi()

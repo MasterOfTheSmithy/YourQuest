@@ -56,6 +56,7 @@ public sealed class DialogueBoxUI : MonoBehaviour
     private Button _closeButton;
     private EntityInfo _activeEntity;
     private NpcDialogueAgent _activeAgent;
+    private int _deliveryEpoch;
     private bool _isOpen;
     private bool _pausedByUs;
     private float _previousTimeScale = 1f;
@@ -283,7 +284,9 @@ public sealed class DialogueBoxUI : MonoBehaviour
             if (entityRoot && (hitTransform == entityRoot || hitTransform.IsChildOf(entityRoot)))
                 continue;
 
-            if (player && (hitTransform == player || hitTransform.IsChildOf(player)))
+            // note: The existing player's detached ragdoll body remains self for dialogue visibility.
+            if (player && (hitTransform == player || hitTransform.IsChildOf(player) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(col)?.transform == player))
                 continue;
 
             blockingHit = hits[i];
@@ -327,6 +330,9 @@ public sealed class DialogueBoxUI : MonoBehaviour
 
     private void Close()
     {
+        // note: This UI's explicit delivery proof expires on close; retire the same pending conversation owner.
+        _deliveryEpoch++;
+        _activeAgent?.CancelPendingTurn();
         _isOpen = false;
         _root.SetActive(false);
         RestoreTimeScaleIfNeeded();
@@ -359,15 +365,24 @@ public sealed class DialogueBoxUI : MonoBehaviour
         FocusInput();
         if (_sendButton != null) _sendButton.interactable = false;
 
+        // note: Actual input submission supplies a current player/speaker/UI receipt; unguarded editor/developer calls remain presentation-only.
+        int deliveryEpoch = ++_deliveryEpoch;
+        var deliveredAgent = _activeAgent;
+        var deliveredPlayer = PlayerStateManager.Instance?.state;
+        string deliveredNpcId = deliveredAgent.NpcId;
+        bool DeliveryCurrent() => _isOpen && deliveryEpoch == _deliveryEpoch && deliveredAgent != null &&
+            deliveredAgent.isActiveAndEnabled && ReferenceEquals(_activeAgent, deliveredAgent) &&
+            ReferenceEquals(deliveredPlayer, PlayerStateManager.Instance?.state) && deliveredNpcId == deliveredAgent.NpcId;
         _activeAgent.SendPlayerMessage(playerText, npcReply =>
         {
+            if (!DeliveryCurrent()) return;
             if (_sendButton != null) _sendButton.interactable = true;
             string npcName = _activeEntity != null ? _activeEntity.displayName : (_activeAgent != null ? _activeAgent.NpcName : "NPC");
             string reply = string.IsNullOrWhiteSpace(npcReply) ? "<no response>" : npcReply.Trim();
             _npcResponseText.text = $"<color=#FFD36F><b>{Escape(npcName)}:</b></color>\n{Escape(reply)}";
             RebuildTranscriptFromAgent();
             FocusInput();
-        });
+        }, DeliveryCurrent);
     }
 
     private void PauseTime()

@@ -1,0 +1,202 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: pirate_island
+  semanticStyleKey: pirate_island
+  sourceSignature: fnv1a32_3a0fff7d
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 54fff30d682271843a9fc926f9f2bdba, type: 2}
+  sourceInstanceCount: 5655
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_pirate_island_residential_01
+    displayName: Pirate Island Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -260.00293, y: 29.322876, z: 166.49771}
+    localBoundsCenter: {x: 0, y: 5.8020096, z: 0}
+    localBoundsSize: {x: 12.130112, y: 11.604019, z: 16.511135}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p0_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_service_02
+    displayName: Pirate Island Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -79.88162, y: -0.0000076293945, z: 349.33154}
+    localBoundsCenter: {x: 0, y: 34.877033, z: 0}
+    localBoundsSize: {x: 86.61739, y: 69.75407, z: 86.92239}
+    sourceInstanceCount: 7
+    authoredBuildingCount: 0
+    authoredDressingCount: 7
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p1_p7_p00
+    - yq_cell_pirate_island_p2_p7_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_civic_03
+    displayName: Pirate Island Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -60.21869, y: 17.348488, z: 109.76147}
+    localBoundsCenter: {x: 0, y: 22.164513, z: 0}
+    localBoundsSize: {x: 165.94794, y: 44.329025, z: 67.53264}
+    sourceInstanceCount: 347
+    authoredBuildingCount: 0
+    authoredDressingCount: 347
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p1_p5_p00
+    - yq_cell_pirate_island_p2_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_circulation_04
+    displayName: Pirate Island Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 54.38174, y: 16.896507, z: 222.35599}
+    localBoundsCenter: {x: 0, y: 9.6382065, z: 0}
+    localBoundsSize: {x: 132.99966, y: 19.276413, z: 85.957825}
+    sourceInstanceCount: 1027
+    authoredBuildingCount: 0
+    authoredDressingCount: 1027
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p2_p6_p00
+    - yq_cell_pirate_island_p3_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_poi_05
+    displayName: Pirate Island Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 46.257774, y: 17.358482, z: 116.62385}
+    localBoundsCenter: {x: 0, y: 9.308378, z: 0}
+    localBoundsSize: {x: 203.11444, y: 18.616756, z: 164.3995}
+    sourceInstanceCount: 3636
+    authoredBuildingCount: 0
+    authoredDressingCount: 3636
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p2_p4_p00
+    - yq_cell_pirate_island_p3_p4_p00
+    - yq_cell_pirate_island_p3_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_residential_06
+    displayName: Pirate Island Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 161.49887, y: 17.720276, z: 122.9012}
+    localBoundsCenter: {x: 0, y: 12.210453, z: 0}
+    localBoundsSize: {x: 101.555374, y: 24.420906, z: 137.17429}
+    sourceInstanceCount: 561
+    authoredBuildingCount: 0
+    authoredDressingCount: 561
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p4_p4_p00
+    - yq_cell_pirate_island_p4_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_service_07
+    displayName: Pirate Island Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 189.40323, y: 15.885494, z: 225.06694}
+    localBoundsCenter: {x: 0, y: 46.223946, z: 0}
+    localBoundsSize: {x: 153.32957, y: 92.44789, z: 99.26776}
+    sourceInstanceCount: 70
+    authoredBuildingCount: 0
+    authoredDressingCount: 70
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p4_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_civic_08
+    displayName: Pirate Island Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 209.03787, y: 64.49928, z: -375.52124}
+    localBoundsCenter: {x: 0, y: 0.45083618, z: 0}
+    localBoundsSize: {x: 4.248596, y: 0.90167236, z: 34.542984}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p4_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_pirate_island_circulation_09
+    displayName: Pirate Island Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 209.47203, y: 64.9935, z: -241.20355}
+    localBoundsCenter: {x: 0, y: 0.12876892, z: 0}
+    localBoundsSize: {x: 0.50154877, y: 0.25753784, z: 1.9564791}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_pirate_island_p4_p1_p00
+    cellContractsV2: []

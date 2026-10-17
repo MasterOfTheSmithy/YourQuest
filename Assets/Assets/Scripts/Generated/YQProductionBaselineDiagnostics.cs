@@ -97,6 +97,7 @@ public sealed class YQProductionBaselineDiagnostics : MonoBehaviour
     private DialogueThinkService _dialogueThinkService;
     private YQQuestCompletionDirector _questCompletionDirector;
     private string _lastSignature = string.Empty;
+    private string _lastHeartbeat = string.Empty;
     private float _nextReportTime;
     private Vector2Int _firstObservedChunk = new Vector2Int(int.MinValue, int.MinValue);
     private bool _hasTraversed;
@@ -122,11 +123,28 @@ public sealed class YQProductionBaselineDiagnostics : MonoBehaviour
     // note: Reports are sampled periodically so the baseline stays readable while the runtime remains cheap.
     private void Update()
     {
+        // note: Title input and scrolling must not wait on repeated full validation of the saved world; explicit captures and gameplay admission still validate normally.
+        if (YQTitleScreenUI.Instance != null && YQTitleScreenUI.StartupPresentationActive)
+            return;
+
         if (Time.unscaledTime < _nextReportTime)
             return;
 
         _nextReportTime = Time.unscaledTime + Mathf.Max(0.1f, reportIntervalSeconds);
-        CaptureAndReport(false);
+        // note: Automatic observation must not revalidate/normalize the entire accepted world or run scene-wide searches on a gameplay frame. Explicit reports and acceptance checks below still capture the full authoritative snapshot.
+        YQProfileSaveSystem profile = YQProfileSaveSystem.Instance;
+        LLMClient model = LLMClient.Instance;
+        YQPlayerFollowingSemanticChunkStreamer streamer = YQPlayerFollowingSemanticChunkStreamer.Active;
+        string heartbeat = "profile=" + (profile != null ? profile.ActiveProfileId : "<none>") +
+            " released=" + YourQuestTutorialAutoBootstrap.GameplayPresentationReleased +
+            " model=" + (model != null ? model.RuntimeState.ToString() : "unavailable") +
+            " pending=" + (model != null ? model.PendingRequestCount : 0) +
+            " chunk=" + (streamer != null ? streamer.CurrentChunk.ToString() : "<none>");
+        if (!string.Equals(heartbeat, _lastHeartbeat, StringComparison.Ordinal))
+        {
+            _lastHeartbeat = heartbeat;
+            Debug.Log("[YQProductionHeartbeat] Observed status only; no validation receipt. " + heartbeat);
+        }
     }
 
     // note: Editor regression and support tooling can request one immediate report without changing runtime state.

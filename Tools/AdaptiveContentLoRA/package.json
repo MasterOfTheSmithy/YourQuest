@@ -1,0 +1,14 @@
+{
+  "name": "yourquest-adaptive-content-offline",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node cli.mjs build",
+    "offline": "node run-offline.mjs",
+    "check": "node cli.mjs check",
+    "test": "node --test tests.mjs",
+    "evaluate": "node cli.mjs evaluate"
+  },
+  "engines": { "node": ">=20" }
+}

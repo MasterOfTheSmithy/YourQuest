@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: mountain_temple
+  semanticStyleKey: mountain_temple
+  sourceSignature: fnv1a32_5de698ac
+  topology: 4
+  streamingSite: {fileID: 11400000, guid: 5970716a398908340aed1c516a1f3808, type: 2}
+  sourceInstanceCount: 7964
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_mountain_temple_approach_01
+    displayName: Mountain Temple Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -169.34103, y: 4.553976, z: -41.81922}
+    localBoundsCenter: {x: 0, y: 0.1324563, z: 0}
+    localBoundsSize: {x: 0.54026794, y: 0.2649126, z: 6.1461945}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mountain_temple_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mountain_temple_core_02
+    displayName: Mountain Temple Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 106.04294, y: 4.451252, z: 1.3389969}
+    localBoundsCenter: {x: 0, y: 18.54666, z: 0}
+    localBoundsSize: {x: 34.639877, y: 37.09332, z: 64.85417}
+    sourceInstanceCount: 4088
+    authoredBuildingCount: 0
+    authoredDressingCount: 4088
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mountain_temple_p2_p0_p00
+    - yq_cell_mountain_temple_p2_p0_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_mountain_temple_perimeter_03
+    displayName: Mountain Temple Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 139.6123, y: -0.15780067, z: 2.0989342}
+    localBoundsCenter: {x: 0, y: 19.40829, z: 0}
+    localBoundsSize: {x: 53.86868, y: 38.81658, z: 60.218056}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mountain_temple_p3_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_mountain_temple_support_04
+    displayName: Mountain Temple Support
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 143.76277, y: -0.000009536743, z: 8.194023}
+    localBoundsCenter: {x: 0, y: 10.795022, z: 0}
+    localBoundsSize: {x: 51.696808, y: 21.590044, z: 46.54017}
+    sourceInstanceCount: 1374
+    authoredBuildingCount: 0
+    authoredDressingCount: 1374
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_mountain_temple_p2_n1_p00
+    - yq_cell_mountain_temple_p3_p0_p01
+    cellContractsV2: []

@@ -1,0 +1,737 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_ancientdesertruins
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Barb.prefab
+    prefab: {fileID: 1031173264, guid: abc00000000008191149915804116854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Bench.prefab
+    prefab: {fileID: 1030972532, guid: abc00000000013782433643290634477, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BoxCap.prefab
+    prefab: {fileID: 1030974811, guid: abc00000000007361441464377967364, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BoxOpen.prefab
+    prefab: {fileID: 1030974789, guid: abc00000000004234803285260344740, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BoxS.prefab
+    prefab: {fileID: 1030974567, guid: abc00000000013382986735097172999, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick1.prefab
+    prefab: {fileID: 1031173352, guid: abc00000000006422438612102730597, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick10.prefab
+    prefab: {fileID: 1031173544, guid: abc00000000016370852322015051327, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick11.prefab
+    prefab: {fileID: 1031173566, guid: abc00000000005601626014314909158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick12.prefab
+    prefab: {fileID: 1031173588, guid: abc00000000007001314688209054285, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick13.prefab
+    prefab: {fileID: 1031173610, guid: abc00000000003443265802937750052, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick14.prefab
+    prefab: {fileID: 1031173632, guid: abc00000000009777775490135578819, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick2.prefab
+    prefab: {fileID: 1030980260, guid: abc00000000015397591909067921118, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick3.prefab
+    prefab: {fileID: 1030980422, guid: abc00000000006930136645676970647, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick4.prefab
+    prefab: {fileID: 1031173414, guid: abc00000000005984438669419610704, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick5.prefab
+    prefab: {fileID: 1030980504, guid: abc00000000005167855023934659161, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick6.prefab
+    prefab: {fileID: 1031173456, guid: abc00000000014007070742924874770, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick7.prefab
+    prefab: {fileID: 1031173478, guid: abc00000000013331555351753579227, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick8.prefab
+    prefab: {fileID: 1031173500, guid: abc00000000011985595562312047876, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Brick9.prefab
+    prefab: {fileID: 1031173522, guid: abc00000000013533359443720580909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet1.prefab
+    prefab: {fileID: 1031173654, guid: abc00000000004773770144193414242, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet10.prefab
+    prefab: {fileID: 1031173852, guid: abc00000000006047831309676761902, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet11.prefab
+    prefab: {fileID: 1030980546, guid: abc00000000006159552337788686503, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet12.prefab
+    prefab: {fileID: 1031173894, guid: abc00000000008952322675898587116, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet2.prefab
+    prefab: {fileID: 1031173676, guid: abc00000000015118815397400529577, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet3.prefab
+    prefab: {fileID: 1031173698, guid: abc00000000007277104118429260960, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet4.prefab
+    prefab: {fileID: 1031173720, guid: abc00000000009805277596350688871, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet5.prefab
+    prefab: {fileID: 1031173742, guid: abc00000000002083655095434406382, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet6.prefab
+    prefab: {fileID: 1031173764, guid: abc00000000012170321155773190645, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet7.prefab
+    prefab: {fileID: 1031173786, guid: abc00000000000140528394079727276, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet8.prefab
+    prefab: {fileID: 1031173808, guid: abc00000000010252401814434360563, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BricksSet9.prefab
+    prefab: {fileID: 1031173830, guid: abc00000000009481710246297419626, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenSeparateVase1.prefab
+    prefab: {fileID: 1031173916, guid: abc00000000017115323701430842447, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenSeparateVase2.prefab
+    prefab: {fileID: 1031173938, guid: abc00000000017034583312144684084, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenSeparateVase3.prefab
+    prefab: {fileID: 1030976092, guid: abc00000000007081033842867735901, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenSeparateVase4.prefab
+    prefab: {fileID: 1030976050, guid: abc00000000013547635165089451722, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenVase1.prefab
+    prefab: {fileID: 1031174000, guid: abc00000000007710657046150631178, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_BrokenVase2.prefab
+    prefab: {fileID: 1030975982, guid: abc00000000011525786014658837585, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building1.prefab
+    prefab: {fileID: 1031172748, guid: abc00000000001255497280006485262, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building2.prefab
+    prefab: {fileID: 1031172770, guid: abc00000000010958240638473694741, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building3.prefab
+    prefab: {fileID: 1031170000, guid: abc00000000003897589251350372428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building4.prefab
+    prefab: {fileID: 1030979942, guid: abc00000000016910372501686318411, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cactus01.prefab
+    prefab: {fileID: 1031174042, guid: abc00000000013141210508836578801, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cactus02.prefab
+    prefab: {fileID: 1031174064, guid: abc00000000015560470778420596138, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cactus03.prefab
+    prefab: {fileID: 1031174086, guid: abc00000000009712850406593738547, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Corner1.prefab
+    prefab: {fileID: 1031174128, guid: abc00000000014877991267261486107, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cover1.prefab
+    prefab: {fileID: 1031174238, guid: abc00000000016152986677048615667, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cover2.prefab
+    prefab: {fileID: 1031174260, guid: abc00000000007248694918052840744, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cover3.prefab
+    prefab: {fileID: 1031174282, guid: abc00000000000750398528733507505, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Cover4.prefab
+    prefab: {fileID: 1031174304, guid: abc00000000003201338564767643670, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris1.prefab
+    prefab: {fileID: 1031174326, guid: abc00000000008653536165987455269, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris2.prefab
+    prefab: {fileID: 1031174348, guid: abc00000000004174006816443166878, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris3.prefab
+    prefab: {fileID: 1031174370, guid: abc00000000015534662909738781527, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris4.prefab
+    prefab: {fileID: 1031174392, guid: abc00000000013207316175527586064, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris5.prefab
+    prefab: {fileID: 1031174414, guid: abc00000000007927318639314527001, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris6.prefab
+    prefab: {fileID: 1031161556, guid: abc00000000016627776361196702162, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris7.prefab
+    prefab: {fileID: 1031146454, guid: abc00000000008342359497221048731, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Debris8.prefab
+    prefab: {fileID: 1031130552, guid: abc00000000006606510168415592644, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_DoorFrame.prefab
+    prefab: {fileID: 1031174556, guid: abc00000000009442294116001078360, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Floor1.prefab
+    prefab: {fileID: 1030975878, guid: abc00000000010576315290102970870, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass1.prefab
+    prefab: {fileID: 1031174753, guid: abc00000000012511767414097523094, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ladder.prefab
+    prefab: {fileID: 1030972055, guid: abc00000000012927115809729100961, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Mountain1.prefab
+    prefab: {fileID: 1030971921, guid: abc00000000004785666813346299421, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Pallet.prefab
+    prefab: {fileID: 1030972920, guid: abc00000000001122100278120419939, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_PalletBricks.prefab
+    prefab: {fileID: 1030976316, guid: abc00000000016666739471303956269, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_RockySand.prefab
+    prefab: {fileID: 1030975095, guid: abc00000000009789117919139793837, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine1.prefab
+    prefab: {fileID: 1030973428, guid: abc00000000010655514908548378833, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine2.prefab
+    prefab: {fileID: 1030973362, guid: abc00000000006840385940040172426, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine3.prefab
+    prefab: {fileID: 1030974406, guid: abc00000000007628312198291517075, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine4.prefab
+    prefab: {fileID: 1030973340, guid: abc00000000017553031383051365876, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine5.prefab
+    prefab: {fileID: 1030973554, guid: abc00000000000373784617818456605, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine6.prefab
+    prefab: {fileID: 1030974024, guid: abc00000000006872065706490291254, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine7.prefab
+    prefab: {fileID: 1030974873, guid: abc00000000012417796530290690319, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Ruine8.prefab
+    prefab: {fileID: 1030973510, guid: abc00000000004653014502286417472, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Sand.prefab
+    prefab: {fileID: 1030974463, guid: abc00000000008493714240517632955, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Sand2.prefab
+    prefab: {fileID: 1030974485, guid: abc00000000017613948889004998467, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_SandSide.prefab
+    prefab: {fileID: 1031175244, guid: abc00000000009418581661133522510, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Shelf1.prefab
+    prefab: {fileID: 1030977168, guid: abc00000000011157038995133707852, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Shovel.prefab
+    prefab: {fileID: 1030972250, guid: abc00000000003210729794340554360, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase1.prefab
+    prefab: {fileID: 1030976028, guid: abc00000000009453645411718532835, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase2.prefab
+    prefab: {fileID: 1031175398, guid: abc00000000002903437324188673496, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase3.prefab
+    prefab: {fileID: 1030976004, guid: abc00000000003481312201382519969, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase4.prefab
+    prefab: {fileID: 1030975960, guid: abc00000000010636526849831928966, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase5.prefab
+    prefab: {fileID: 1030978719, guid: abc00000000004218290109852252255, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Vase6.prefab
+    prefab: {fileID: 1030977462, guid: abc00000000015559139099810340548, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall1.prefab
+    prefab: {fileID: 1031175500, guid: abc00000000011290277043146073214, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper1.prefab
+    prefab: {fileID: 1031175747, guid: abc00000000008226990170197756912, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WaterTank.prefab
+    prefab: {fileID: 1030989825, guid: abc00000000014437630295413333142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WoodenBoxes01.prefab
+    prefab: {fileID: 1030975646, guid: abc00000000012996766546185055451, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WoodenBoxes02.prefab
+    prefab: {fileID: 1030976254, guid: abc00000000005649649863851086928, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WoodenBoxes03.prefab
+    prefab: {fileID: 1030975828, guid: abc00000000004833066218366135385, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall1_low.prefab
+    prefab: {fileID: 1031176075, guid: abc00000000011361573718954012618, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall1_low_1.prefab
+    prefab: {fileID: 1031528583, guid: abc00000000007687133246507422754, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall2_low.prefab
+    prefab: {fileID: 1031176097, guid: abc00000000004657182419578465849, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall2_low_1.prefab
+    prefab: {fileID: 1031528769, guid: abc00000000018093755813776006597, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall3_low.prefab
+    prefab: {fileID: 1031176119, guid: abc00000000007149861377622928304, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall3_low_1.prefab
+    prefab: {fileID: 1031528625, guid: abc00000000004495335849150436212, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall4_low.prefab
+    prefab: {fileID: 1031176141, guid: abc00000000011278687372006301967, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall4_low_1.prefab
+    prefab: {fileID: 1031529975, guid: abc00000000004847964787682908023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall5_low.prefab
+    prefab: {fileID: 1031176163, guid: abc00000000002578805565631307094, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall5_low_1.prefab
+    prefab: {fileID: 1031528439, guid: abc00000000004392954557906269270, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall6_low.prefab
+    prefab: {fileID: 1031176185, guid: abc00000000013742994762387331237, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_planksmall6_low_1.prefab
+    prefab: {fileID: 1031529233, guid: abc00000000002774169983496837113, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick1_low.prefab
+    prefab: {fileID: 1030980176, guid: abc00000000014498035192026933888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick2_low.prefab
+    prefab: {fileID: 1031176227, guid: abc00000000001704580029733884771, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick3_low.prefab
+    prefab: {fileID: 1031176249, guid: abc00000000003513312876712074842, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick3_low_1.prefab
+    prefab: {fileID: 1031528951, guid: abc00000000013124494066159843890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick4_low.prefab
+    prefab: {fileID: 1031176271, guid: abc00000000005497061433390191221, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick4_low_1.prefab
+    prefab: {fileID: 1031528501, guid: abc00000000015632251229920927817, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick5_low.prefab
+    prefab: {fileID: 1031176293, guid: abc00000000000003440336429660684, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plankthick5_low_1.prefab
+    prefab: {fileID: 1031528727, guid: abc00000000007354888408706719224, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Barb_Splines_1.prefab
+    prefab: {fileID: 1031568998, guid: abc00000000017154135769240679121, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Barb_Splines_2.prefab
+    prefab: {fileID: 1031569006, guid: abc00000000013339006800732472714, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building10.prefab
+    prefab: {fileID: 1030980690, guid: abc00000000015925932211471464050, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building1P1.prefab
+    prefab: {fileID: 1031172956, guid: abc00000000012055806438912934935, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building1P2.prefab
+    prefab: {fileID: 1031172978, guid: abc00000000017103082991611591324, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building1P3.prefab
+    prefab: {fileID: 1031173000, guid: abc00000000011548108405338694885, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building2P1.prefab
+    prefab: {fileID: 1031173022, guid: abc00000000014496507755548040068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building2P2.prefab
+    prefab: {fileID: 1031173044, guid: abc00000000003010933930989561375, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building2P3.prefab
+    prefab: {fileID: 1031173066, guid: abc00000000009044966494120841286, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building5.prefab
+    prefab: {fileID: 1031172832, guid: abc00000000015757091247373664514, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building5P2.prefab
+    prefab: {fileID: 1031173110, guid: abc00000000010452932120409565008, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building5P3.prefab
+    prefab: {fileID: 1031173132, guid: abc00000000009636348474924613465, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building5P4.prefab
+    prefab: {fileID: 1031173154, guid: abc00000000001419341286348323806, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building6.prefab
+    prefab: {fileID: 1030973406, guid: abc00000000014290657581972608457, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building7.prefab
+    prefab: {fileID: 1031172874, guid: abc00000000000214557064909116096, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building7P1.prefab
+    prefab: {fileID: 1031173176, guid: abc00000000009512745051979360169, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building7P2.prefab
+    prefab: {fileID: 1031173198, guid: abc00000000017614443872481796450, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building7P3.prefab
+    prefab: {fileID: 1031173220, guid: abc00000000007302358069207791531, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building7P4.prefab
+    prefab: {fileID: 1031173242, guid: abc00000000012981202122368109484, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building8.prefab
+    prefab: {fileID: 1030973384, guid: abc00000000007979339092913388943, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Building9.prefab
+    prefab: {fileID: 1030973532, guid: abc00000000002433608269112989878, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Chair.prefab
+    prefab: {fileID: 1030973970, guid: abc00000000013297240178136726284, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Corner2.prefab
+    prefab: {fileID: 1031174150, guid: abc00000000001296203871858471824, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_CornerInterior.prefab
+    prefab: {fileID: 1031174172, guid: abc00000000003164334856353647534, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_CornerUpper1.prefab
+    prefab: {fileID: 1031174194, guid: abc00000000018438954718314472831, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_CornerUpper2.prefab
+    prefab: {fileID: 1031174216, guid: abc00000000017729408397370027364, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_CornerUpper3.prefab
+    prefab: {fileID: 1031174905, guid: abc00000000000830709680045830797, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Door1.prefab
+    prefab: {fileID: 1031168698, guid: abc00000000017638471881275473266, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Door2.prefab
+    prefab: {fileID: 1030980238, guid: abc00000000010558691098868966585, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_DoorDouble.prefab
+    prefab: {fileID: 1031172410, guid: abc00000000003565007383779889210, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_DoorFrameBig.prefab
+    prefab: {fileID: 1031174580, guid: abc00000000009268506129371860418, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_DoorLeft.prefab
+    prefab: {fileID: 1031174604, guid: abc00000000016360185306769686358, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_DoorRight.prefab
+    prefab: {fileID: 1031172712, guid: abc00000000005470950133916812861, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_FenceTube.prefab
+    prefab: {fileID: 1030973316, guid: abc00000000005514087540887855202, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Fence_Splines_0.prefab
+    prefab: {fileID: 1031568977, guid: abc00000000011268647799749975618, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Floor2.prefab
+    prefab: {fileID: 1031174709, guid: abc00000000005453546436143270365, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Floor3.prefab
+    prefab: {fileID: 1031174731, guid: abc00000000015407095905420218548, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass2.prefab
+    prefab: {fileID: 1031174775, guid: abc00000000007388998560137822589, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass3.prefab
+    prefab: {fileID: 1031174797, guid: abc00000000010707001399336568532, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass4.prefab
+    prefab: {fileID: 1031174819, guid: abc00000000007016671452668943475, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass5.prefab
+    prefab: {fileID: 1031174841, guid: abc00000000006245979884532002538, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Grass6.prefab
+    prefab: {fileID: 1031174863, guid: abc00000000010060827378063386929, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Landscape.prefab
+    prefab: {fileID: 7131003564496054487, guid: 67898092cac2d03478f727feb4f00893, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Mountain2.prefab
+    prefab: {fileID: 1030971900, guid: abc00000000011283947902018134070, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Mountain3.prefab
+    prefab: {fileID: 1030971942, guid: abc00000000016829678725818533135, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Shelf2.prefab
+    prefab: {fileID: 1030977146, guid: abc00000000009984945596499475719, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Table.prefab
+    prefab: {fileID: 1030978908, guid: abc00000000017403752444523991223, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall10.prefab
+    prefab: {fileID: 1031175700, guid: abc00000000015546777702962284706, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall11.prefab
+    prefab: {fileID: 1031175725, guid: abc00000000004243102366847720427, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall2.prefab
+    prefab: {fileID: 1031175522, guid: abc00000000007892213426696830341, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall3.prefab
+    prefab: {fileID: 1031175544, guid: abc00000000001618474404247151676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall4.prefab
+    prefab: {fileID: 6141110060924742872, guid: dbf68c6ad062d9c4c931b855713af83a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall5.prefab
+    prefab: {fileID: 1031175586, guid: abc00000000003426168771639618738, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall6.prefab
+    prefab: {fileID: 1031175608, guid: abc00000000000815656928226098937, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall7.prefab
+    prefab: {fileID: 1031175630, guid: abc00000000012201110206450248816, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall8.prefab
+    prefab: {fileID: 1031175653, guid: abc00000000012951082512876431039, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_Wall9.prefab
+    prefab: {fileID: 1031175677, guid: abc00000000002181856205176288870, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper10.prefab
+    prefab: {fileID: 1031175945, guid: abc00000000010531071607992269456, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper2.prefab
+    prefab: {fileID: 1031175769, guid: abc00000000017223277417925382907, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper3.prefab
+    prefab: {fileID: 1031175791, guid: abc00000000017898792809096678450, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper4.prefab
+    prefab: {fileID: 1031175813, guid: abc00000000003918093390444338437, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper5.prefab
+    prefab: {fileID: 1031175835, guid: abc00000000016091098441704211388, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper6.prefab
+    prefab: {fileID: 1031175857, guid: abc00000000017050844062402292151, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper7.prefab
+    prefab: {fileID: 1031175879, guid: abc00000000007316157006893581310, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper8.prefab
+    prefab: {fileID: 1031175901, guid: abc00000000002034370430956794113, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_WallUpper9.prefab
+    prefab: {fileID: 1031175923, guid: abc00000000001701378783549659960, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plank1_low.prefab
+    prefab: {fileID: 1031175987, guid: abc00000000014390000909923345211, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plank2_low.prefab
+    prefab: {fileID: 1031176009, guid: abc00000000004564007571342170648, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plank3_low.prefab
+    prefab: {fileID: 1031176031, guid: abc00000000015541329693780448289, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/AncientDesertRuins/Art/Prefabs/SM_wood_plank4_low.prefab
+    prefab: {fileID: 1031176053, guid: abc00000000003243279134960870014, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

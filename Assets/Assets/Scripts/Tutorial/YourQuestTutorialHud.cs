@@ -4,6 +4,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public sealed class YourQuestTutorialHud : MonoBehaviour
@@ -20,6 +21,10 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     private TMP_Text _characterBodyText;
     private TMP_Text _promptText;
     private TMP_Text _inventoryToastText;
+    private TMP_Text _goddessSpeechText;
+    private string _goddessSpeechProfile = string.Empty;
+    private string _lastGoddessSpeech = string.Empty;
+    private float _goddessSpeechUntil;
     private YQBlueglassMeter _healthFill;
     private YQBlueglassMeter _staminaFill;
     private YQBlueglassMeter _manaFill;
@@ -31,6 +36,29 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
     private RawImage _playerBadgeImage;
     private RawImage _questIconImage;
     private RectTransform _questBanner;
+    private RectTransform _breathPanel;
+    private YQBlueglassMeter _breathFill;
+    private TMP_Text _breathValueText;
+    private TMP_Text _wayfindingText;
+    private GeneratedWorldPlanRecord _wayfindingPlan;
+    private string _wayfindingHash;
+    private string _wayfindingContinuationHash;
+    private long _wayfindingRevision;
+    private float _nextWayfindingTime;
+    private readonly List<TravelAnchor> _travelAnchors = new();
+    private readonly Dictionary<string, string> _travelNames = new(System.StringComparer.Ordinal);
+    private readonly StringBuilder _travelText = new(256);
+    private static readonly string[] TravelCardinals = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
+    private struct TravelAnchor
+    {
+        internal string name;
+        internal int category;
+        internal Vector2 position;
+        internal Vector2 approach;
+        internal float radius;
+        internal bool concealed;
+        internal bool hasApproach;
+    }
 
     private const float ReferenceRefreshInterval = 0.75f;
     private readonly RaycastHit[] _interactionHits = new RaycastHit[16];
@@ -135,6 +163,17 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         float currentMana = _vitals != null ? _vitals.CurrentMana : maxMana;
 
         SetBar(_healthFill, _healthValueText, currentHealth, maxHealth);
+        UpdateTravelWayfinding();
+        // note: The existing HUD observes the authoritative motor's transient breath; it never owns oxygen or drowning damage.
+        YQInvestorPlayerMotor waterMotor = YQInvestorPlayerMotor.ActiveMotor;
+        bool showBreath = waterMotor != null && (waterMotor.IsHeadUnderwater || waterMotor.BreathRemainingSeconds < waterMotor.BreathCapacitySeconds - .1f);
+        if (_breathPanel != null) _breathPanel.gameObject.SetActive(showBreath);
+        if (showBreath && _breathFill != null)
+        {
+            SetBar(_breathFill, _breathValueText, waterMotor.BreathRemainingSeconds, waterMotor.BreathCapacitySeconds);
+            _breathFill.color = waterMotor.BreathRemainingSeconds <= 10f ? new Color(1f, .43f, .25f) : YQUITheme.StreamBlue;
+            _breathValueText.text = waterMotor.BreathRemainingSeconds <= 0f ? "DROWNING" : Mathf.CeilToInt(waterMotor.BreathRemainingSeconds) + "s";
+        }
         SetBar(_staminaFill, _staminaValueText, currentStamina, maxStamina);
         SetBar(_manaFill, _manaValueText, currentMana, maxMana);
         // note: Experience is the accepted level-relative counter, not a guessed cumulative threshold.
@@ -211,6 +250,24 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         _inventoryToastText.transform.parent.gameObject.SetActive(showToast);
         if (showToast)
             SetTextIfChanged(_inventoryToastText, Escape(_lastInventoryMessage));
+
+        // note: Observe only the existing director's delivered, profile-owned line. Rendering does not generate speech or publish state.
+        if (_goddessSpeechProfile != state.playerId)
+        {
+            _goddessSpeechProfile = state.playerId;
+            _lastGoddessSpeech = string.Empty;
+            _goddessSpeechUntil = 0;
+        }
+        string goddessLine = _director != null && _director.LastDirectorMessageProfileId == state.playerId
+            ? _director.LastDirectorMessage : string.Empty;
+        if (!string.IsNullOrWhiteSpace(goddessLine) && goddessLine != _lastGoddessSpeech)
+        {
+            _lastGoddessSpeech = goddessLine;
+            _goddessSpeechUntil = Time.unscaledTime + Mathf.Clamp(goddessLine.Length / 18f + 2f, 7f, 24f);
+            SetTextIfChanged(_goddessSpeechText, Escape(goddessLine));
+        }
+        _goddessSpeechText.transform.parent.gameObject.SetActive(!string.IsNullOrWhiteSpace(_lastGoddessSpeech) &&
+            Time.unscaledTime <= _goddessSpeechUntil);
     }
 
     private static string BuildQuestHint(QuestRecord quest)
@@ -488,6 +545,16 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         _characterBodyText.overflowMode=TextOverflowModes.Ellipsis;
         ApplyFloatingTextContrast(_characterBodyText);
 
+        // note: Surface recovery remains visible briefly so the one-minute underwater budget and urgent final seconds are readable.
+        _breathPanel = CreatePanel(canvasGo.transform, "BreathPanel", new Vector2(.5f, 0f), new Vector2(660, 58), new Vector2(0f, 120f), YQUITheme.PanelSoft);
+        CreateBar(_breathPanel, "AIR", new Vector2(16f, -14f), YQUITheme.StreamBlue, out _breathFill, out _breathValueText, 16f);
+        _breathPanel.gameObject.SetActive(false);
+        _wayfindingText = CreateText(canvasGo.transform, "TravelWayfinding", 18f, FontStyles.Normal, TextAlignmentOptions.TopLeft, new Vector2(120f, -254f), new Vector2(670f, 102f));
+        _wayfindingText.maxVisibleLines = 3;
+        _wayfindingText.overflowMode = TextOverflowModes.Ellipsis;
+        _wayfindingText.color = YQUITheme.Pearl;
+        ApplyFloatingTextContrast(_wayfindingText);
+
         // note: The compact tracker contains the accepted name, next objective and progress; long narrative remains in the journal.
         RectTransform objectivePanel=CreatePanel(canvasGo.transform,"ObjectivePanel",new Vector2(1,1),new Vector2(590,224),new Vector2(-28,-28),YQUITheme.Panel);
         _questBanner=objectivePanel;
@@ -517,11 +584,106 @@ public sealed class YourQuestTutorialHud : MonoBehaviour
         _inventoryToastText=CreateTextStretch(toastPanel,"InventoryToastText",21,FontStyles.Normal,TextAlignmentOptions.Center);
         _inventoryToastText.margin=new Vector4(12,4,12,4);
 
+        // note: Gameplay Goddess speech uses this same HUD canvas and its existing startup/modal visibility gates.
+        RectTransform goddessPanel = CreatePanel(canvasGo.transform, "GoddessSpeech", new Vector2(.5f, 0),
+            new Vector2(840, 164), new Vector2(0, 150), YQUITheme.PanelSoft);
+        YQBlueglassStyle.Panel(goddessPanel.GetComponent<Image>());
+        CreateText(goddessPanel, "GoddessLabel", 17, FontStyles.Bold, TextAlignmentOptions.TopLeft,
+            new Vector2(18, -10), new Vector2(800, 24)).text = "Goddess";
+        _goddessSpeechText = CreateText(goddessPanel, "GoddessLine", 21, FontStyles.Normal, TextAlignmentOptions.TopLeft,
+            new Vector2(18, -38), new Vector2(804, 118));
+        SetTextWrapping(_goddessSpeechText);
+        goddessPanel.gameObject.SetActive(false);
+
         RectTransform crosshairRoot = CreatePanel(canvasGo.transform, "CrosshairRoot", new Vector2(0.5f, 0.5f), new Vector2(24f, 24f), Vector2.zero, new Color(0f, 0f, 0f, 0f));
         _crosshairVertical = CreateCrosshairSegment(crosshairRoot, "CrosshairVertical", new Vector2(2f, 16f));
         _crosshairHorizontal = CreateCrosshairSegment(crosshairRoot, "CrosshairHorizontal", new Vector2(16f, 2f));
         // note: The hotbar observes this HUD's release gates and equips through the existing profile-owned loadout.
         canvasGo.AddComponent<YQBlueglassAbilityHotbar>();
+    }
+
+    private void UpdateTravelWayfinding()
+    {
+        if (_wayfindingText == null || Time.unscaledTime < _nextWayfindingTime) return;
+        _nextWayfindingTime = Time.unscaledTime + 1f;
+        WorldState world = _worldStateManager != null ? _worldStateManager.State : null;
+        GeneratedWorldPlanRecord plan = world?.generatedWorldPlan;
+        GeneratedSpatialWorldPlanV2Record artifact = plan?.spatialPlanV2;
+        string hash = artifact?.contentHash;
+        string continuationHash = artifact?.acceptedContinuation?.contentHash;
+        long revision = artifact?.acceptedContinuation?.revision ?? 0;
+        // note: Revalidate the accepted projection only when its owner/hash/revision changes; ordinary direction updates do no full-artifact hashing.
+        if (!ReferenceEquals(plan, _wayfindingPlan) || hash != _wayfindingHash || continuationHash != _wayfindingContinuationHash || revision != _wayfindingRevision)
+        {
+            _wayfindingPlan = plan;
+            _wayfindingHash = hash;
+            _wayfindingContinuationHash = continuationHash;
+            _wayfindingRevision = revision;
+            _travelAnchors.Clear();
+            _travelNames.Clear();
+            if (plan != null && YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out YQPreparedSpatialMaterializationV2 prepared, out _))
+            {
+                if (plan.settlements != null) foreach (GeneratedSettlementRecord site in plan.settlements) if (site != null && !string.IsNullOrEmpty(site.settlementId)) _travelNames[site.settlementId] = site.displayName;
+                if (plan.encampments != null) foreach (GeneratedEncampmentRecord site in plan.encampments) if (site != null && !string.IsNullOrEmpty(site.encampmentId)) _travelNames[site.encampmentId] = site.displayName;
+                if (plan.semanticAuthority?.siteReservations != null)
+                    foreach (GeneratedSemanticSiteReservationRecord site in plan.semanticAuthority.siteReservations) if (site != null && !string.IsNullOrEmpty(site.siteId)) _travelNames[site.siteId] = site.displayName;
+                for (int index = 0; index < prepared.SiteCount; index++)
+                {
+                    YQSpatialMaterializationSiteV2 site = prepared.GetSite(index);
+                    int category = site.kind == YQSiteKindV2.Settlement ? 0 : site.kind == YQSiteKindV2.HostileSite ? 1 : -1;
+                    if (category < 0) continue;
+                    string name = null;
+                    if (!string.IsNullOrEmpty(site.sourceSemanticId)) _travelNames.TryGetValue(site.sourceSemanticId, out name);
+                    if (string.IsNullOrWhiteSpace(name) && !string.IsNullOrEmpty(site.siteId)) _travelNames.TryGetValue(site.siteId, out name);
+                    _travelAnchors.Add(new TravelAnchor { name = string.IsNullOrWhiteSpace(name) ? (category == 0 ? "Settlement" : "Hostile area") : name, category = category, position = new Vector2(site.x, site.z), approach = new Vector2(site.frontageX, site.frontageZ), hasApproach = !string.IsNullOrEmpty(site.frontageRouteId) && site.routeAccess > 0f, radius = site.reservedRadius, concealed = site.concealed || site.behindFeature });
+                }
+                for (int index = 0; index < prepared.WaterCount; index++)
+                {
+                    YQSpatialMaterializationWaterV2 water = prepared.GetWater(index);
+                    if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Coastline) continue;
+                    if (prepared.GetWaterPointCount(index) == 0) continue;
+                    _travelAnchors.Add(new TravelAnchor { name = water.kind == YQHydrologyKindV2.Lake ? "Lake" : "Coast", category = 2, position = prepared.GetWaterAreaCenter(index) });
+                }
+            }
+        }
+        YQInvestorPlayerMotor motor = YQInvestorPlayerMotor.ActiveMotor;
+        if (motor == null) { SetTextIfChanged(_wayfindingText, string.Empty); return; }
+        Vector2 position = new Vector2(motor.transform.position.x, motor.transform.position.z);
+        _travelText.Clear();
+        for (int category = 0; category < 3; category++)
+        {
+            int nearest = -1;
+            float distance = float.PositiveInfinity;
+            for (int index = 0; index < _travelAnchors.Count; index++)
+            {
+                TravelAnchor anchor = _travelAnchors[index];
+                if (anchor.category != category) continue;
+                // note: Hostile/concealed destinations reuse existing map knowledge rather than revealing undiscovered encounters or inventing discovery records.
+                if ((category == 1 || anchor.concealed) && !IsKnownTravelPoint(world, anchor.position)) continue;
+                float candidate = (anchor.position - position).sqrMagnitude;
+                if (candidate >= distance) continue;
+                distance = candidate;
+                nearest = index;
+            }
+            if (nearest < 0) continue;
+            TravelAnchor selected = _travelAnchors[nearest];
+            bool approach = selected.hasApproach && distance > Mathf.Pow(selected.radius + 15f, 2f);
+            Vector2 delta = (approach ? selected.approach : selected.position) - position;
+            int bearing = (Mathf.RoundToInt(Mathf.Atan2(delta.x, delta.y) * Mathf.Rad2Deg / 45f) + 8) % 8;
+            if (_travelText.Length > 0) _travelText.Append('\n');
+            _travelText.Append(Escape(SafeLine(selected.name))).Append(approach ? " approach" : string.Empty).Append("  \u00B7  ").Append(TravelCardinals[bearing]).Append("  \u00B7  ").Append(Mathf.RoundToInt(delta.magnitude)).Append(" m");
+        }
+        SetTextIfChanged(_wayfindingText, _travelText.ToString());
+    }
+
+    private static bool IsKnownTravelPoint(WorldState world, Vector2 point)
+    {
+        // note: The existing minimap's 64x64 saved fog grid covers only the authored envelope; never clamp distant sites onto a discovered edge cell.
+        float half = YQGeneratedWorldTerrain.WorldSize * .5f;
+        if (world?.globalFlags == null || point.x < -half || point.x > half || point.y < -half || point.y > half) return false;
+        int x = Mathf.Clamp(Mathf.FloorToInt(Mathf.InverseLerp(-half, half, point.x) * 64f), 0, 63);
+        int y = Mathf.Clamp(Mathf.FloorToInt(Mathf.InverseLerp(-half, half, point.y) * 64f), 0, 63);
+        return world.globalFlags.TryGetValue("generated_map:fog:v1:" + x + ":" + y, out float known) && known > .5f;
     }
 
     private static RectTransform CreatePanel(Transform parent, string name, Vector2 anchor, Vector2 size, Vector2 anchoredPosition, Color color)

@@ -1,0 +1,1001 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_horrorhospital
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Materials/M_Modular_Floor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 4d3883b4c51b17847a6461354d3ece17, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Meshes/Modular_kit/Materials/M_Modular_Floor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 230a3fdb1eefe724ba2c7aa9491944f7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Air_Conditioner_01a.prefab
+    prefab: {fileID: 1030973882, guid: abc00000000007887979088672947451, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Air_Conditioner_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Cutlery1.prefab
+    prefab: {fileID: 1030974052, guid: abc00000000002435012184452279206, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cutlery1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery1_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery1_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Cutlery2.prefab
+    prefab: {fileID: 1030974082, guid: abc00000000009434317327288011021, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cutlery2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Cutlery3.prefab
+    prefab: {fileID: 1030974112, guid: abc00000000007886271970902655972, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cutlery3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_Cutlery3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Desk_Lamp_01a.prefab
+    prefab: {fileID: 1030975441, guid: abc00000000002856268563034982492, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Desk_Lamp_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2ad3821473e84e4b969aef21b2da872, type: 2}
+    - transformPath: SM_Desk_Lamp_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2ad3821473e84e4b969aef21b2da872, type: 2}
+    - transformPath: SM_Desk_Lamp_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2ad3821473e84e4b969aef21b2da872, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Electrosurgical_Unit_01a.prefab
+    prefab: {fileID: 1030986747, guid: abc00000000017984736896544006729, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electrosurgical_Unit_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c164676589cd304cbda60fc82efddff, type: 2}
+    - transformPath: SM_Electrosurgical_Unit_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c164676589cd304cbda60fc82efddff, type: 2}
+    - transformPath: SM_Electrosurgical_Unit_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c164676589cd304cbda60fc82efddff, type: 2}
+    - transformPath: SM_Electrosurgical_Unit_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c164676589cd304cbda60fc82efddff, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Fluoresent_Light_Tube_01a_1.prefab
+    prefab: {fileID: 1030994136, guid: abc00000000017515065995088146715, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+    - transformPath: SM_Fluoresent_Light_Tube_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f86a6897ae637d4f97113e4887beee1, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_IV_Stand_01a.prefab
+    prefab: {fileID: 1030975471, guid: abc00000000000787178546866355806, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_IV_Stand_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e61718a9e8ccbda48ae01f67b0234b1d, type: 2}
+    - transformPath: SM_IV_Stand_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e61718a9e8ccbda48ae01f67b0234b1d, type: 2}
+    - transformPath: SM_IV_Stand_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e61718a9e8ccbda48ae01f67b0234b1d, type: 2}
+    - transformPath: SM_IV_Stand_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e61718a9e8ccbda48ae01f67b0234b1d, type: 2}
+    - transformPath: SM_IV_Stand_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e61718a9e8ccbda48ae01f67b0234b1d, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Lamp1.prefab
+    prefab: {fileID: 1030994518, guid: abc00000000015848839726158823200, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4854b05825144641a97a544ec4ad832, type: 2}
+    - transformPath: SM_Lamp1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4854b05825144641a97a544ec4ad832, type: 2}
+    - transformPath: SM_Lamp1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e4854b05825144641a97a544ec4ad832, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_LightBlockerCube.prefab
+    prefab: {fileID: 1030971902, guid: e35f326b72036d04592d0dcc4fbafe5c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Cube
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 033d60ca6072c264a8118d0876275cff, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01a.prefab
+    prefab: {fileID: 1030972606, guid: abc00000000008164968256104044054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01a_1.prefab
+    prefab: {fileID: 1030994548, guid: abc00000000015493519775643552150, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01b.prefab
+    prefab: {fileID: 1030972452, guid: abc00000000003042199402144343549, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01b_1.prefab
+    prefab: {fileID: 1030994578, guid: abc00000000014502215888740174401, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01d.prefab
+    prefab: {fileID: 1030994608, guid: abc00000000002669872294675464435, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01e.prefab
+    prefab: {fileID: 1030984251, guid: abc00000000001899180726538523498, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01e
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01e_1.prefab
+    prefab: {fileID: 1030994638, guid: abc00000000008801416977253010306, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01e
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01f.prefab
+    prefab: {fileID: 1030984337, guid: abc00000000005714028220069907889, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01f
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01f_1.prefab
+    prefab: {fileID: 1030994668, guid: abc00000000000839695722435286317, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01f
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01g.prefab
+    prefab: {fileID: 1030984165, guid: abc00000000012212324609389241128, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01g
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01g_1.prefab
+    prefab: {fileID: 1030994698, guid: abc00000000013367637263591375100, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01g
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01h.prefab
+    prefab: {fileID: 1030994728, guid: abc00000000002222748076591792743, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01h
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_01i.prefab
+    prefab: {fileID: 1030994758, guid: abc00000000012947869649385061870, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_01i
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_Framing.prefab
+    prefab: {fileID: 1030972482, guid: abc00000000006913257342984915878, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_Framing
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Ceiling_Framing_1.prefab
+    prefab: {fileID: 1030992355, guid: abc00000000006200510639363842598, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Ceiling_Framing
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 494c88e5957fc4048ae592138ade91a2, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Floor_01a.prefab
+    prefab: {fileID: 1030974314, guid: abc00000000006025482355660999069, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Floor_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4d3883b4c51b17847a6461354d3ece17, type: 2}
+    - transformPath: SM_Modular_Floor_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4d3883b4c51b17847a6461354d3ece17, type: 2}
+    - transformPath: SM_Modular_Floor_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4d3883b4c51b17847a6461354d3ece17, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Pill_Bottle_01a.prefab
+    prefab: {fileID: 1030986459, guid: abc00000000014939058230405556060, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pill_Bottle_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Pill_Bottle_01b.prefab
+    prefab: {fileID: 1030986429, guid: abc00000000010031102624768584151, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pill_Bottle_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+    - transformPath: SM_Pill_Bottle_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9cb55a75d2f552d47beb1a485110e54e, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_light.prefab
+    prefab: {fileID: 1030975321, guid: abc00000000006577985139851500666, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7cd7675be8b142840de28805534a9, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7cd7675be8b142840de28805534a9, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7cd7675be8b142840de28805534a9, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7cd7675be8b142840de28805534a9, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_light_1.prefab
+    prefab: {fileID: 1030995295, guid: abc00000000013719543903869137682, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_light_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_piece1.prefab
+    prefab: {fileID: 1030975351, guid: abc00000000009687750157223372949, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_piece1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece1_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_piece2.prefab
+    prefab: {fileID: 1030975381, guid: abc00000000018431750872465715086, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_piece2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece2_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_piece3.prefab
+    prefab: {fileID: 1030975411, guid: abc00000000001455005371465818503, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_piece3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece3_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Lamp_01a_piece4.prefab
+    prefab: {fileID: 1030975291, guid: abc00000000017390810657368345920, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Lamp_01a_piece4_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece4_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece4_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+    - transformPath: SM_Surgical_Lamp_01a_piece4_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f57d7ffa9ccf8b49a620253194c5a06, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_tray1.prefab
+    prefab: {fileID: 1030974142, guid: abc00000000008602343118441482342, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_tray1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_tray1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_tray1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_tray2.prefab
+    prefab: {fileID: 1030974172, guid: abc00000000010002031792335627469, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_tray2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_tray2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+    - transformPath: SM_tray2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 324dd3c9faeda9646bb412e541f3667b, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_CableMesh.prefab
+    prefab: {fileID: 5771682995435183447, guid: 68670d804c3ead447ae22759099f3031, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 925c33dbcf7e05f47981569a392b2aa0, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_01b.prefab
+    prefab: {fileID: 1030994196, guid: abc00000000015380473936017223736, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_01d.prefab
+    prefab: {fileID: 1030994256, guid: abc00000000011886831321391360742, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_01d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_02a.prefab
+    prefab: {fileID: 1030977979, guid: abc00000000008275606364686368702, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_02e.prefab
+    prefab: {fileID: 1030994344, guid: abc00000000013119474436635546098, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_02e_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02e_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02e_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02e_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_02f.prefab
+    prefab: {fileID: 1030994374, guid: abc00000000006039693654229039417, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_02f_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02f_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02f_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02f_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_02g.prefab
+    prefab: {fileID: 1030994404, guid: abc00000000011057291795564160432, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_02g_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02g_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02g_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_02g_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hallway_Door_Frame2.prefab
+    prefab: {fileID: 1030991988, guid: abc00000000000531642124207146732, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hallway_Door_Frame2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_Frame2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_Frame2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+    - transformPath: SM_Hallway_Door_Frame2_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: feddf6f0685756e4b8229636041ed4f4, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Hospital_Bed_NN_01a.prefab
+    prefab: {fileID: 1030972086, guid: abc00000000000147480387429085577, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33e940f506cc26b46b1171956a61b0ad, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b46ba7681c907d64681e4b2b4b749505, type: 2}
+    - transformPath: SM_Hospital_Bed_NN_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d9da0be640f8a5044904d9fde33d10a5, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Wall_01a.prefab
+    prefab: {fileID: 1030994863, guid: abc00000000009737610904651566923, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Wall_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Wall_01b.prefab
+    prefab: {fileID: 1030994893, guid: abc00000000011488539541583916224, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Wall_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Wall_01c.prefab
+    prefab: {fileID: 1030994923, guid: abc00000000007117895984937856969, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Wall_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Modular_Wall_01d.prefab
+    prefab: {fileID: 1030994953, guid: abc00000000012529479756681285390, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Modular_Wall_01d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+    - transformPath: SM_Modular_Wall_01d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 554595df74db9464b8261e0c52e94c4a, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Room_Door_01a.prefab
+    prefab: {fileID: 1030979738, guid: abc00000000006294499958396883934, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Room_Door_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Room_Door_02a.prefab
+    prefab: {fileID: 1030995179, guid: abc00000000011146042732228077297, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Room_Door_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Room_Door_02a_Beam.prefab
+    prefab: {fileID: 1030995209, guid: abc00000000009895398176658190184, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Room_Door_02a_Beam_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_Beam_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_Beam_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_02a_Beam_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Room_Door_Frame_3.prefab
+    prefab: {fileID: 1030977601, guid: abc00000000013252193690567558067, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Room_Door_Frame_3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_Frame_3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_Frame_3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+    - transformPath: SM_Room_Door_Frame_3_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 80c5772a50f688a45b61b70be264e028, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Steel_Cabinet_01a.prefab
+    prefab: {fileID: 1030975529, guid: abc00000000015028779632871896096, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Steel_Cabinet_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e677d6d835534a42963082fb2e8f58e, type: 2}
+    - transformPath: SM_Steel_Cabinet_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e677d6d835534a42963082fb2e8f58e, type: 2}
+    - transformPath: SM_Steel_Cabinet_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e677d6d835534a42963082fb2e8f58e, type: 2}
+    - transformPath: SM_Steel_Cabinet_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e677d6d835534a42963082fb2e8f58e, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Surgical_Table_01a.prefab
+    prefab: {fileID: 1030976492, guid: abc00000000009076699750251458541, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Surgical_Table_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f572e9d0b4bd5c34d8311cd6e8dc3447, type: 2}
+    - transformPath: SM_Surgical_Table_01a_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: aa97cdbece49d924d8bdabc6c0e7b43d, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Tool_Cabinet_01a.prefab
+    prefab: {fileID: 1030975617, guid: abc00000000001117805219039116105, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tool_Cabinet_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4887352dd71d22d418f94ed693b2ec44, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4887352dd71d22d418f94ed693b2ec44, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4887352dd71d22d418f94ed693b2ec44, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4887352dd71d22d418f94ed693b2ec44, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4887352dd71d22d418f94ed693b2ec44, type: 2}
+  - assetPath: Assets/HIVEMIND/HorrorHospital/HDRP(Default)/Art/Prefabs/SM_Tool_Cabinet_01a_1.prefab
+    prefab: {fileID: 1030980076, guid: abc00000000005595853635469570325, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tool_Cabinet_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0426dfa9a3092af499e6738f19768f4e, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0426dfa9a3092af499e6738f19768f4e, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0426dfa9a3092af499e6738f19768f4e, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0426dfa9a3092af499e6738f19768f4e, type: 2}
+    - transformPath: SM_Tool_Cabinet_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0426dfa9a3092af499e6738f19768f4e, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

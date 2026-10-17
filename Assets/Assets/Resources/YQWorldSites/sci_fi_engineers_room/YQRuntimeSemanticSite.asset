@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: sci_fi_engineers_room
+  semanticStyleKey: sci_fi_engineers_room
+  sourceSignature: fnv1a32_e3515f20
+  topology: 7
+  streamingSite: {fileID: 11400000, guid: 584d5c2060743594ba8f19615d0f824e, type: 2}
+  sourceInstanceCount: 309
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_sci_fi_engineers_room_entrance_01
+    displayName: Sci Fi Engineers Room Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.0000038146973, y: 0, z: 0}
+    localBoundsCenter: {x: 0, y: 2.542282, z: 0}
+    localBoundsSize: {x: 9.524567, y: 5.084564, z: 18.111229}
+    sourceInstanceCount: 309
+    authoredBuildingCount: 0
+    authoredDressingCount: 309
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - habitation
+    - industry
+    - poi
+    - scifisectors
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_sci_fi_engineers_room_p0_p0_p00
+    cellContractsV2: []

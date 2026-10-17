@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "previous_canonical_sha256": "be13ff32eedff22072055f99ebf66f8b3653e7fdef0f0953254269ca26ac3a4d",
+  "previous_dataset_canonical_sha256": "5f54b5ba9f521ca9526e8f7546a0820667ea19302d5fe5e3e241485dbef1d39c",
+  "revision_scope": "Authorized quality repair: preserve every existing family assignment; append original train families only. No hidden inputs authored.",
+  "sealed_before_synthetic_expansion": true,
+  "hidden_test_status": "RESERVED_NOT_AUTHORED_NOT_EVALUATED",
+  "hidden_test_owner": "parent_or_independent_reviewer_after_training_inputs_are_frozen",
+  "families": {
+    "tree_identity": "train", "failed_lock_farming": "train", "guarded_execution": "validation",
+    "long_horizon_rescue": "train", "changed_commitment": "validation", "competing_methods": "train",
+    "first_route_discovery": "regression", "ordinary_accomplishment": "train", "missing_destination": "adversarial",
+    "dead_contact": "adversarial", "legendary_pressure": "adversarial", "quiet_craft": "train",
+    "social_restitution": "validation", "offroad_exploration": "train", "combat_method": "train",
+    "title_evolution": "regression", "declined_offer": "regression", "accepted_chain": "validation",
+    "contradictory_canon": "adversarial", "missing_canon": "adversarial", "unique_collision": "adversarial",
+    "dramatic_injection": "adversarial", "low_diversity_volume": "train", "animal_protection": "train",
+    "ordinary_misc": "train", "incubation_misc": "train", "authorized_recognition": "regression",
+    "canonical_enrichment": "train", "same_mechanic_distinct_history": "train", "culture_names": "review_only",
+    "geographic_names": "review_only", "faction_names": "review_only", "item_names": "train",
+    "exceptional_legendary_chain": "review_only", "unsupported_naming": "adversarial",
+    "development_only": "development",
+    "witnessed_instrument_return": "train", "ordinary_apothecary_names": "train",
+    "soil_rotation_experiments": "train", "shared_ration_uncertainty": "train",
+    "reclaimed_kiln_fuel": "train", "borrowed_seed_measure": "train",
+    "patient_meal_service": "train", "reserve_seed_custody": "train",
+    "kiln_cooling_responsibility": "train", "livestock_trade_restraint": "train",
+    "observatory_margin_records": "train", "clockwork_history_intersection": "train"
+  },
+  "reserved_hidden_families": ["heldout_01", "heldout_02", "heldout_03", "heldout_04", "heldout_05", "heldout_06", "heldout_07", "heldout_08", "heldout_09", "heldout_10", "heldout_11", "heldout_12"],
+  "rules": [
+    "Never randomly split rows or move a counterfactual/paraphrase across families.",
+    "Synthetic prompts cannot receive validation, regression, adversarial or hidden examples.",
+    "This public seal reserves hidden families; it is not a completed hidden test set.",
+    "A reviewer must author and seal actual hidden inputs before evaluation and never use their results for tuning.",
+    "New scenario families require a reviewed versioned seal change before expansion."
+  ]
+}

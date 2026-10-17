@@ -16,6 +16,13 @@ public static class YQGeneratedWorldQuery
         return plan == null ? null : YQSemanticWorldAuthority.QueryCell(plan, coordinate);
     }
 
+    internal static GeneratedSemanticCellPlanRecord GetPreparedSemanticCellPlan(
+        GeneratedWorldPlanRecord plan, Vector2Int coordinate, GeneratedSemanticWorldAuthorityRecord authority)
+    {
+        // note: Bound streaming uses the existing gameplay query boundary with its already installed authority; ordinary unloaded callers retain full source validation.
+        return YQSemanticWorldAuthority.QueryPreparedCell(plan, coordinate, authority);
+    }
+
     // note: Return a bounded semantic neighborhood so callers cannot expand an unloaded query into an unbounded scan.
     public static System.Collections.Generic.List<GeneratedSemanticCellPlanRecord> GetSemanticNeighborhood(
         GeneratedWorldPlanRecord plan,
@@ -35,6 +42,13 @@ public static class YQGeneratedWorldQuery
         return plan == null
             ? new System.Collections.Generic.List<GeneratedSemanticSiteReservationRecord>()
             : YQSemanticWorldAuthority.GetSitesForCell(plan, coordinate);
+    }
+
+    internal static System.Collections.Generic.List<GeneratedSemanticSiteReservationRecord> GetPreparedSemanticSites(
+        GeneratedWorldPlanRecord plan, Vector2Int coordinate, GeneratedSemanticWorldAuthorityRecord authority)
+    {
+        // note: Site lookup shares the same configuration-bound graph as prepared cell lookup and cannot synthesize alternate content.
+        return YQSemanticWorldAuthority.GetPreparedSitesForCell(plan, coordinate, authority);
     }
 
     // note: Resolve basin-owned water networks without allowing a consumer to roll an independent edge-water result.
@@ -143,7 +157,7 @@ public static class YQGeneratedWorldQuery
         YQPreparedSpatialMaterializationV2 preparedV2 = null;
         bool useV2 = YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan);
         // note: An active V2 world never answers gameplay queries from obsolete V1 coordinates if projection fails.
-        if (useV2 && !YQSpatialMaterializationResolverV2.TryGetPrepared(
+        if (useV2 && !YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                 plan, out preparedV2, out _))
             return null;
 
@@ -209,7 +223,7 @@ public static class YQGeneratedWorldQuery
         YQPreparedSpatialMaterializationV2 preparedV2 = null;
         bool useV2 = YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan);
         // note: Ambush selection must fail visibly at its caller instead of targeting a different spatial graph.
-        if (useV2 && !YQSpatialMaterializationResolverV2.TryGetPrepared(
+        if (useV2 && !YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                 plan, out preparedV2, out _))
             return null;
 
@@ -242,7 +256,7 @@ public static class YQGeneratedWorldQuery
         YQPreparedSpatialMaterializationV2 preparedV2 = null;
         if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
-            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+            if (!YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                 plan,
                 out preparedV2,
                 out _))
@@ -277,7 +291,7 @@ public static class YQGeneratedWorldQuery
             !YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
             return source;
 
-        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+        if (!YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                 plan,
                 out YQPreparedSpatialMaterializationV2 prepared,
                 out _))

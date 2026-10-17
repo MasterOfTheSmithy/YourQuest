@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "status": "QUARANTINED_VERIFIED",
+  "utc": "2026-10-16T05:29:21.7157342Z",
+  "workspaceRoot": "C:\\Users\\Garri\\YourQuest",
+  "files": [
+    {
+      "source": "start",
+      "destination": "Quarantine/2026-10-16/root/start.quarantined",
+      "sha256": "53752274fcab3b4bdfb4afe2776bfda163b6d437fc6bbf1600f7edd1aceaf298",
+      "bytes": 38,
+      "originalGitStatus": "?? start"
+    },
+    {
+      "source": "continue",
+      "destination": "Quarantine/2026-10-16/root/continue.quarantined",
+      "sha256": "4bfc50d978f5da68e39a324f94e74489dedf3bace9a79c460dcdfae1ee01eb08",
+      "bytes": 32,
+      "originalGitStatus": "?? continue"
+    },
+    {
+      "source": "testchange.txt",
+      "destination": "Quarantine/2026-10-16/root/testchange.txt.quarantined",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "originalGitStatus": "tracked_clean"
+    },
+    {
+      "source": "Run_Project_Dump.bat",
+      "destination": "Quarantine/2026-10-16/root/Run_Project_Dump.bat.quarantined",
+      "sha256": "256ec1597b046550238edf12f881ec145ed24643e1ca0fc8b18eb30c0f7a3e4e",
+      "bytes": 1675,
+      "originalGitStatus": "tracked_clean"
+    }
+  ],
+  "reason": "Four explicitly reviewed inactive root artifacts only; exact bytes preserved, no active Tools or Assets moves."
+}

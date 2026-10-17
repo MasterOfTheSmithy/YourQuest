@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "source": "catalog.mjs hand-authored fixtures",
+  "schema_sha256": "410d3d854b6cc5cf8ce6b3cb1aa2c365243f5fb187ec9c453a9396f1edd3ca1a",
+  "output_schema_sha256": "d9db75d4f477159edaba5c013327e43f5f3beea0a5884f41cc2918b57557db03",
+  "dataset_sha256": "d3a8c60b5252ab7c73eb487cf38956e15479f363a054a08106f34c23d5bcc65d",
+  "family_seal_sha256": "ccb7309cdce715e93e12eb70ab7a8e56e370b036693e4105b18b0b4404ab208a",
+  "training_ready": false,
+  "runtime_capabilities_certified": false,
+  "current_dataset_path": "data/seed.v0.2.0.jsonl",
+  "archived_dataset_policy": "v0.1.0 retained for provenance/membership verification only; superseded targets are invalid for training/review.",
+  "target_expansion_distribution": {
+    "total": 200,
+    "none": 70,
+    "incubate": 50,
+    "personalized": 48,
+    "rare": 24,
+    "unique": 7,
+    "legendary_chain": 1
+  },
+  "actual_distribution": {
+    "none": 24,
+    "incubate": 16,
+    "personalized": 12,
+    "rare": 8,
+    "unique": 3,
+    "legendary_chain": 1
+  }
+}

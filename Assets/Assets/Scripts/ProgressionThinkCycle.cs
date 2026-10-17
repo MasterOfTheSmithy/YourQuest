@@ -256,9 +256,9 @@ public class ProgressionThinkCycle : MonoBehaviour
         {
             // note: The existing math/cooldown admission above remains authoritative for whether to ask for an offer.
             PlayerState frozen = FreezePlayerState(psm.state);
-            YQLlmRequest binding = new YQLlmRequest { debugTag = "ProgressionDecision", category = LLMGenerationCategory.Progression };
+            YQLlmRequest binding = new YQLlmRequest { debugTag = "ProgressionDecision", category = LLMRuntimeConfig.ContentCategory(preferred) };
             activeRepair = LLMClient.Instance.CreateRepairEpisode(binding, "progression:" + window.fingerprint, 40d);
-            SubmitProgressionRepair(psm.state, frozen, acc, window, situation, prompt, prompt, activeRepair, null);
+            SubmitProgressionRepair(psm.state, frozen, acc, window, situation, prompt, prompt, activeRepair, null, binding.category, preferred);
             return;
         }
 
@@ -267,7 +267,9 @@ public class ProgressionThinkCycle : MonoBehaviour
         {
             prompt = prompt,
             debugTag = "ProgressionDecision",
-            category = LLMGenerationCategory.Progression,
+            // note: The existing progression judge chooses the role; proposal validation and application retain ownership.
+            category = LLMRuntimeConfig.ContentCategory(preferred),
+            jsonSchema = YQLlmJsonSchema.BuildProgression(preferred),
             priority = YQLlmRequestPriority.Background,
             requireJson = true,
             // note: One compact decision is sufficient; progression backs off deterministically instead of retrying a slow local request.
@@ -320,10 +322,11 @@ public class ProgressionThinkCycle : MonoBehaviour
 
     private void SubmitProgressionRepair(PlayerState owner, PlayerState frozen, EventAccumulator accumulator,
         EventAccumulator.EventWindow window, string situation, string originalPrompt, string prompt,
-        YQRepairEpisode episode, string parentKey)
+        YQRepairEpisode episode, string parentKey, LLMGenerationCategory generationCategory, string preferredKind)
     {
         YQLlmRequest request = new YQLlmRequest {
-            prompt = prompt, debugTag = "ProgressionDecisionRepair", category = LLMGenerationCategory.Progression,
+            prompt = prompt, debugTag = "ProgressionDecisionRepair", category = generationCategory,
+            jsonSchema = YQLlmJsonSchema.BuildProgression(preferredKind),
             priority = YQLlmRequestPriority.Background, requireJson = true, maxRetries = 0,
             parentRequestKey = parentKey,
             ownerStillCurrent = () => this != null && isActiveAndEnabled && ReferenceEquals(owner, PlayerStateManager.Instance?.state),
@@ -374,7 +377,7 @@ public class ProgressionThinkCycle : MonoBehaviour
             {
                 string diagnostic = result.success ? evaluation.evidenceDiagnostic : result.error;
                 SubmitProgressionRepair(owner, frozen, accumulator, window, situation, originalPrompt,
-                    YQRepairEpisode.RepairPrompt(originalPrompt, diagnostic, raw), episode, result.repairRequestKey);
+                    YQRepairEpisode.RepairPrompt(originalPrompt, diagnostic, raw), episode, result.repairRequestKey, generationCategory, preferredKind);
                 return;
             }
             EndProgressionRepair(episode, "Unresolved", owner, window);
@@ -836,6 +839,8 @@ public class ProgressionThinkCycle : MonoBehaviour
         sb.AppendLine();
 
         sb.AppendLine("HARD RULES:");
+        // note: Route and response agree on the admitted proposal type; NONE preserves the judge's right to decline.
+        sb.AppendLine("- This request admits decision=" + preferredCategory + " or decision=none only. Do not substitute another category.");
         sb.AppendLine("- Rewards must be proportional to evidence. No god-gifts.");
         sb.AppendLine("- Prefer offers, upgrades, and sidegrades over automatic grants.");
         sb.AppendLine("- If behavior is spammy/repetitive, prefer SMALLER rewards or NONE.");

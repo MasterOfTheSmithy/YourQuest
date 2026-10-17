@@ -12,7 +12,7 @@ public sealed class YQOriginGenerationService : MonoBehaviour
 
     [Header("Origin LLM")]
     public bool enableLlmOriginGeneration = true;
-    public int originNumPredict = 760;
+    public int originNumPredict = 1000;
     [Range(0f, 1f)] public float originTemperature = 0.35f;
     private const string InitialGenerationOwner =
     "InitialWorldGeneration";
@@ -60,7 +60,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
 
     public bool TryRequestOrigin(PlayerState state, string mode, IReadOnlyList<string> answers, Action<YQOriginGenerationDto> onReady)
     {
-        if (!enableLlmOriginGeneration || LLMClient.Instance == null || state == null)
+        // note: The explicit benchmark uses the questionnaire's existing deterministic fallback without a rejected model episode.
+        if (LLMRuntimeConfig.BenchmarkIsolationActive || !enableLlmOriginGeneration || LLMClient.Instance == null || state == null)
             return false;
 
         int requestSequence = ++_originRequestSequence;
@@ -72,7 +73,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             // note: Origin generation should be a compact player readout, not a long-form essay.
             // note: Keep origin compact so optional presentation cannot chew through the response budget.
             // note: The model authors identity-bearing fields only; deterministic normalization supplies stable mechanical boilerplate after acceptance.
-            { "num_predict", Mathf.Clamp(originNumPredict, 650, 900) },
+            // note: Leave room for three concrete item descriptions and bounded evidence quotes without truncating canonical JSON.
+            { "num_predict", Mathf.Clamp(originNumPredict, 900, 1250) },
             // note: Strict grammar protects mechanics, allowing enough sampling range for personal prose without destabilizing the origin contract.
             { "temperature", Mathf.Clamp(originTemperature, 0.48f, 0.68f) },
             { "top_p", 0.92f },
@@ -132,8 +134,17 @@ public sealed class YQOriginGenerationService : MonoBehaviour
                 out YQOriginGenerationDto dto,
                 out string error))
         {
+            // note: Repair only a rejected required identity field; freeze the other unaccepted canonical fields and run the complete origin validator again.
+            string missingIdentity = error == "missing titleName" ? "titleName" : error == "missing className" ? "className" : null;
+            if (episode != null && episode.CanSubmit(false) && missingIdentity != null &&
+                TryParseRootIgnoringBrokenGoddessVoice(ExtractFirstJsonObject(raw), out JObject identityRoot, out _))
+            {
+                SubmitOriginIdentityRepair(identityRoot, missingIdentity, originRequest, episode, state, requestSequence, requestedPlayerId,
+                    seed, prompt, onReady, accept, result.repairRequestKey, error, null);
+                return;
+            }
             // note: Only the observed canonical loadout failure is merged; valid identity/ability/quest fields stay frozen.
-            if (episode != null && episode.CanSubmit(false) && error == "loadout needs at least three named, described items" &&
+            if (episode != null && episode.CanSubmit(false) && error.StartsWith("loadout needs at least three named, described items", StringComparison.Ordinal) &&
                 TryParseRootIgnoringBrokenGoddessVoice(ExtractFirstJsonObject(raw), out JObject unaccepted, out _))
             {
                 PromoteNestedQuestProperty(unaccepted, "loadout");
@@ -231,6 +242,65 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         return true;
     }
 
+    private void SubmitOriginIdentityRepair(JObject unaccepted, string field, YQLlmRequest originalRequest, YQRepairEpisode episode,
+        PlayerState state, int sequence, string playerId, string seed, string originalPrompt,
+        Action<YQOriginGenerationDto> onReady, Action<YQLlmRequestResult, string, string> accept, string parentKey,
+        string diagnostic, string previousOutput)
+    {
+        // note: A one-field patch cannot replace the generated ability, quest or loadout; its physical calls share the original three-call repair budget.
+        string task = originalPrompt + "\nREQUIRED ORIGIN IDENTITY REPAIR\nReturn only a nonempty " + field +
+            " appropriate to this player's answers and the frozen proposal. Do not return or change other fields.\nUNACCEPTED_PROPOSAL_JSON\n" + unaccepted.ToString(Formatting.None);
+        string repairPrompt = YQRepairEpisode.RepairPrompt(task, diagnostic, previousOutput);
+        var request = new YQLlmRequest {
+            prompt = repairPrompt, debugTag = "OriginGenerationIdentityRepair", category = LLMGenerationCategory.OriginGeneration,
+            priority = YQLlmRequestPriority.StartupExclusive, exclusiveOwner = originalRequest.exclusiveOwner,
+            requireJson = true, maxRetries = 0, parentRequestKey = parentKey, ownerStillCurrent = originalRequest.ownerStillCurrent,
+            jsonSchema = new Dictionary<string, object> {
+                { "type", "object" }, { "additionalProperties", false }, { "required", new [] { field } },
+                { "properties", new Dictionary<string, object> { { field, new Dictionary<string, object> { { "type", "string" }, { "minLength", 1 }, { "maxLength", 120 } } } } }
+            },
+            optionsOverride = new Dictionary<string, object> { { "num_predict", 96 }, { "temperature", 0.48f },
+                { "top_p", 0.86f }, { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(seed) } }
+        };
+        episode.Bind(request);
+        LLMClient.Instance.Submit(request, result =>
+        {
+            if (this == null || !isActiveAndEnabled || sequence != _originRequestSequence || episode.IsTerminal ||
+                !CanApplyOriginResult(state, PlayerStateManager.Instance?.state, playerId)) return;
+            if (result.outcome == YQLlmTerminalOutcome.Cancelled || result.outcome == YQLlmTerminalOutcome.Superseded || result.outcome == YQLlmTerminalOutcome.Evicted)
+            { episode.Finish("Superseded"); return; }
+            string merged = null, error = result.error;
+            if (result.success && TryMergeOriginIdentityRepair(unaccepted, field, result.text, out merged, out error))
+            { accept(result, merged, repairPrompt); return; }
+            if (episode.CanSubmit(false) && !(error ?? string.Empty).StartsWith("ContextOverflow", StringComparison.Ordinal))
+            {
+                SubmitOriginIdentityRepair(unaccepted, field, originalRequest, episode, state, sequence, playerId, seed,
+                    originalPrompt, onReady, accept, result.repairRequestKey, error, result.text);
+                return;
+            }
+            LastOriginGenerationMessage = "Origin identity repair exhausted: " + error;
+            episode.Finish("FallbackUsed");
+            onReady?.Invoke(null);
+        });
+    }
+
+    private static bool TryMergeOriginIdentityRepair(JObject original, string field, string raw, out string merged, out string error)
+    {
+        merged = null; error = "Return only the missing titleName or className as nonempty text.";
+        if (original == null || (field != "titleName" && field != "className")) return false;
+        try
+        {
+            JObject patch = JObject.Parse(raw ?? string.Empty, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
+            if (patch.Count != 1 || patch[field]?.Type != JTokenType.String) return false;
+            string value = patch.Value<string>(field)?.Trim();
+            if (string.IsNullOrWhiteSpace(value) || value.Length > 120) return false;
+            // note: Only the failed field is writable. Acceptance and canonical publication remain with the existing full origin parser and mutation boundary.
+            JObject result = (JObject)original.DeepClone(); result[field] = value;
+            merged = result.ToString(Formatting.None); error = string.Empty; return true;
+        }
+        catch (JsonException) { return false; }
+    }
+
     private void SubmitOriginLoadoutRepair(JObject unaccepted, YQLlmRequest originalRequest, YQRepairEpisode episode,
         PlayerState state, int sequence, string playerId, string seed, string mode, string originalPrompt,
         Action<YQOriginGenerationDto> onReady, Action<YQLlmRequestResult, string, string> accept, string parentKey,
@@ -242,7 +312,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             priority = YQLlmRequestPriority.StartupExclusive, exclusiveOwner = originalRequest.exclusiveOwner,
             requireJson = true, maxRetries = 0, parentRequestKey = parentKey,
             ownerStillCurrent = originalRequest.ownerStillCurrent,
-            optionsOverride = new Dictionary<string, object> { { "num_predict", 480 }, { "temperature", 0.48f },
+            jsonSchema = YQOriginLoadoutRepair.BuildSchema(),
+            optionsOverride = new Dictionary<string, object> { { "num_predict", 650 }, { "temperature", 0.48f },
                 { "top_p", 0.86f }, { "request_timeout_seconds", 75 },
                 { "seed", YQGoddessGenerationDialogue.VoiceSamplingSeed(seed) } }
         };
@@ -316,14 +387,18 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         recent.AppendLine("- Armor forms: cuirass, helm, gloves, boots, belt, cloak.");
         recent.AppendLine("- VFX families: physical, fire, frost, storm, poison, heal, shield, shadow, earth, air, arcane, blood.");
         recent.AppendLine("- Visual assets are bound later from item form and VFX family; never output Unity asset paths.");
+        // note: Keep item authoring aligned with the deterministic grant policy, including player-evidence-only rarity overrides.
+        recent.AppendLine("ITEM_AUTHORING_RULES");
+        recent.AppendLine(YQItemAuthoringPolicy.PromptRules);
         string task =
             "Generate one deterministic, player-facing origin package from the committed character and questionnaire evidence. " +
             "Invent every name from this player; do not reuse labels, examples, fallback identities, or region names. " +
             "Character creation affects tone, pronouns, stimulus, and equipment, while questionnaire behavior remains the main evidence. " +
             "The first quest must introduce manifested gear, equipping gear, and speaking with Archivist Vey inside the Goddess-threshold witch house. " +
             "directionKey is exactly one of merchant, lumberjack, hero, demonlord, arcanist, warden, wanderer, stillness, custom; choose the best evidence match and never combine keys. " +
-            "Return exactly three distinct loadout entries with supported slots and player-derived names/descriptions. " +
-            "Omit unspecified mechanical boilerplate; deterministic normalization supplies it. Keep every description under twelve words. Return one compact JSON object.";
+            "Return exactly three distinct loadout entries with supported slots, distinct names and concrete player-derived descriptions. " +
+            "Omit unspecified mechanical boilerplate; deterministic normalization supplies it. Keep ability/quest descriptions under twelve words " +
+            "and item descriptions to one natural sentence of roughly six to twenty words. Return one compact JSON object.";
 
         string schema =
     PromptContextBuilder.WrapJsonSchema(
@@ -348,17 +423,17 @@ public sealed class YQOriginGenerationService : MonoBehaviour
         "{" +
         "\"slot\":\"weapon\"," +
         "\"nameHint\":\"...\"," +
-        "\"descriptionHint\":\"...\"" +
+        "\"descriptionHint\":\"...\",\"rarityHint\":\"\",\"intentEvidence\":\"\"" +
         "}," +
         "{" +
         "\"slot\":\"offhand\"," +
         "\"nameHint\":\"...\"," +
-        "\"descriptionHint\":\"...\"" +
+        "\"descriptionHint\":\"...\",\"rarityHint\":\"\",\"intentEvidence\":\"\"" +
         "}," +
         "{" +
         "\"slot\":\"boots\"," +
         "\"nameHint\":\"...\"," +
-        "\"descriptionHint\":\"...\"" +
+        "\"descriptionHint\":\"...\",\"rarityHint\":\"\",\"intentEvidence\":\"\"" +
         "}" +
         "]," +
         "\"goddessVoice\":{" +
@@ -736,6 +811,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             item.role = TrimTo(item.role, 100);
             item.nameHint = TrimTo(item.nameHint, 90);
             item.descriptionHint = TrimTo(item.descriptionHint, 260);
+            item.rarityHint = TrimTo(item.rarityHint, 20);
+            item.intentEvidence = TrimTo(item.intentEvidence, 800);
         }
     }
 
@@ -762,34 +839,49 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             error = "missing ability.name";
         else if (dto.quest == null || string.IsNullOrWhiteSpace(dto.quest.name))
             error = "missing quest.name";
-        else if (!HasUsableGeneratedLoadout(dto.loadout))
-            error = "loadout needs at least three named, described items";
+        else if (!HasUsableGeneratedLoadout(dto.loadout, out string loadoutDiagnostic))
+            error = "loadout needs at least three named, described items; " + loadoutDiagnostic;
 
         return string.IsNullOrWhiteSpace(error);
     }
 
     private static bool HasUsableGeneratedLoadout(
-        YQOriginGeneratedItemDto[] loadout)
+        YQOriginGeneratedItemDto[] loadout, out string diagnostic)
     {
+        diagnostic = string.Empty;
         if (loadout == null || loadout.Length < 3)
+        {
+            diagnostic = "loadout contains fewer than three entries";
             return false;
+        }
 
         int usable = 0;
+        var failures = new List<string>();
+        // note: Three repeated slots/names previously passed validation but collapsed into fewer manifested items.
+        var slots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         for (int i = 0; i < loadout.Length; i++)
         {
             YQOriginGeneratedItemDto item = loadout[i];
-            if (item == null ||
-                !IsSupportedLoadoutSlot(item.slot) ||
-                string.IsNullOrWhiteSpace(item.nameHint) ||
-                string.IsNullOrWhiteSpace(item.descriptionHint))
+            // note: Keep the acceptance order and unique-item accounting; report the rejected index instead of repeating a count error.
+            string failure = item == null ? "item is null" :
+                !IsSupportedLoadoutSlot(item.slot) ? "slot is unsupported" :
+                item.slot == "consumable" ? "consumables do not count toward the three equipped items" :
+                YQItemAuthoringPolicy.HintDiagnostic(item.slot, item.nameHint, item.descriptionHint);
+            if (string.IsNullOrEmpty(failure) && !slots.Add(item.slot)) failure = "slot duplicates an earlier item";
+            if (string.IsNullOrEmpty(failure) && !names.Add(YQItemAuthoringPolicy.Compact(item.nameHint))) failure = "nameHint duplicates an earlier item";
+            if (!string.IsNullOrEmpty(failure))
             {
+                if (failures.Count < 6) failures.Add("loadout[" + i + "]: " + failure);
                 continue;
             }
 
             usable++;
         }
 
-        return usable >= 3;
+        if (usable >= 3) return true;
+        diagnostic = "Only " + usable + " usable distinct equipped items. " + string.Join("; ", failures);
+        return false;
     }
 
     private static bool IsSupportedLoadoutSlot(
@@ -970,9 +1062,10 @@ public sealed class YQOriginGenerationService : MonoBehaviour
 
         try
         {
+            // note: Deferred transport validation still rejects ambiguous canonical fields at the domain boundary.
             root =
                 JObject.Parse(
-                    json);
+                    json, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
 
             return true;
         }
@@ -984,8 +1077,8 @@ public sealed class YQOriginGenerationService : MonoBehaviour
             {
                 try
                 {
-                    // note: A response ending on a complete value may be repaired only by closing its still-open JSON containers; invented content is never supplied.
-                    root = JObject.Parse(completedJson);
+                    // note: Closing complete containers supplies no content and cannot bypass duplicate-key rejection.
+                    root = JObject.Parse(completedJson, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
                     return true;
                 }
                 catch
@@ -1008,9 +1101,10 @@ public sealed class YQOriginGenerationService : MonoBehaviour
 
             try
             {
+                // note: Removing optional voice never permits conflicting retained origin fields.
                 root =
                     JObject.Parse(
-                        repairedJson);
+                        repairedJson, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
 
                 return true;
             }
@@ -1498,4 +1592,7 @@ public sealed class YQOriginGeneratedItemDto
     public string role;
     public string nameHint;
     public string descriptionHint;
+    // note: Optional proposal-only fields; absent fields retain ordinary weighted rarity and do not migrate accepted saves.
+    public string rarityHint;
+    public string intentEvidence;
 }

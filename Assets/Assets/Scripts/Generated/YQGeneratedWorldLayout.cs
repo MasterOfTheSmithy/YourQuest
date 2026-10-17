@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public static class YQGeneratedWorldLayout
@@ -16,11 +17,11 @@ public static class YQGeneratedWorldLayout
 
     // note: The authored summit datum is shared by terrain grading, statue placement, reservations, and route clearance.
     public static readonly Vector3 OriginGoddessSummitOffset =
-        new Vector3(30.6f, 0f, 14.6f);
+        new Vector3(46f, 0f, 6f);
 
-    // note: Keep the authored WitchHouse on the north side of the origin reserve, clear of near-spawn cave anchors while remaining close to Vey's start.
+    // note: Vey's furnished house shares the dry eastern shrine clearing, clear of the origin river and its concealed cave approach.
     public static readonly Vector3 OriginWitchHouseOffset =
-        new Vector3(0f, 0f, 30f);
+        new Vector3(62f, 0f, 28f);
 
     private const float OriginLandmarkReserveRadius = 7f;
     private const float OriginLandmarkRouteMargin = 1f;
@@ -125,6 +126,81 @@ public static class YQGeneratedWorldLayout
             YQGeneratedWorldTerrain.OriginWorldPosition;
     }
 
+    private sealed class ResolvedOriginSummit
+    {
+        // note: Only immutable query results are retained; the weak owner key releases this record with its accepted projection.
+        internal readonly bool accepted;
+        internal readonly Vector3 summit;
+        internal ResolvedOriginSummit(YQPreparedSpatialMaterializationV2 prepared)
+        {
+            accepted = TryResolveDryGoddessSummitUncached(prepared, out summit);
+        }
+    }
+
+    private static readonly ConditionalWeakTable<YQPreparedSpatialMaterializationV2, ResolvedOriginSummit> ResolvedOriginSummits =
+        new ConditionalWeakTable<YQPreparedSpatialMaterializationV2, ResolvedOriginSummit>();
+
+    internal static bool TryResolveDryGoddessSummit(
+        YQPreparedSpatialMaterializationV2 prepared, out Vector3 summit)
+    {
+        // note: Route extraction and every shared-bank search must reuse the same deterministic reserve instead of rescanning all accepted routes.
+        if (prepared == null) return TryResolveDryGoddessSummitUncached(null, out summit);
+        ResolvedOriginSummit resolved = ResolvedOriginSummits.GetValue(prepared, value => new ResolvedOriginSummit(value));
+        summit = resolved.summit;
+        return resolved.accepted;
+    }
+
+    private static bool TryResolveDryGoddessSummitUncached(
+        YQPreparedSpatialMaterializationV2 prepared, out Vector3 summit)
+    {
+        Vector3 origin = GetVeyOriginAnchor();
+        Vector3 preferred = origin + OriginGoddessSummitOffset;
+        summit = preferred;
+        if (prepared == null) return false;
+        // note: Relocate presentation within its existing origin reserve; never move accepted rivers, routes or sites to accommodate the shrine.
+        if (ClearsOrigin(preferred)) return true;
+        for (float radius = 8f; radius <= OriginReserveRadius * 2f; radius += 8f)
+        for (int direction = 0; direction < 32; direction++)
+        {
+            float angle = direction * Mathf.PI * 2f / 32f;
+            Vector3 candidate = preferred + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius;
+            if (!ClearsOrigin(candidate)) continue;
+            summit = candidate;
+            return true;
+        }
+        return false;
+
+        bool ClearsOrigin(Vector3 candidate)
+        {
+            Vector2 point = new Vector2(candidate.x, candidate.z);
+            // note: A twenty-metre dry envelope includes the statue, title dressing, player approach and Vey's nearby standing space.
+            if (Vector2.Distance(point, new Vector2(origin.x, origin.z)) > OriginReserveRadius - 20f ||
+                Vector2.Distance(point, new Vector2(origin.x + OriginWitchHouseOffset.x, origin.z + OriginWitchHouseOffset.z)) < 24f)
+                return false;
+            if (YQContinuousWorldFeatureAuthority.TryMeasureAcceptedWaterDistance(
+                    prepared, candidate.x, candidate.z, out _, out float bank, out bool wet) && (wet || bank < 20f))
+                return false;
+            for (int route = 0; route < prepared.RouteCount; route++)
+            for (int index = 0; index + 1 < prepared.GetRoutePointCount(route); index++)
+            {
+                var a = prepared.GetRoutePoint(route, index);
+                var b = prepared.GetRoutePoint(route, index + 1);
+                float clearance = OriginLandmarkReserveRadius + Mathf.Max(a.width, b.width) * .5f + OriginLandmarkRouteMargin;
+                if (DistancePointToSegmentSquared(point, new Vector2(a.x, a.z), new Vector2(b.x, b.z)) < clearance * clearance)
+                    return false;
+            }
+            for (int index = 0; index < prepared.SiteCount; index++)
+            {
+                var site = prepared.GetSite(index);
+                // note: The shrine is an occupant of the canonical origin reserve, not a competing generated site; other site reserves remain protected.
+                if (string.Equals(site.siteId, "site:origin", StringComparison.Ordinal)) continue;
+                if (Vector2.Distance(point, new Vector2(site.x, site.z)) < site.reservedRadius + OriginLandmarkReserveRadius)
+                    return false;
+            }
+            return true;
+        }
+    }
+
     public static Vector3 GetRegionCenter(
         GeneratedWorldPlanRecord plan,
         GeneratedRegionRecord region)
@@ -134,7 +210,7 @@ public static class YQGeneratedWorldLayout
 
         if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
-            if (YQSpatialMaterializationResolverV2.TryGetPrepared(
+            if (YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                     plan,
                     out YQPreparedSpatialMaterializationV2 prepared,
                     out string failure) &&
@@ -192,6 +268,26 @@ public static class YQGeneratedWorldLayout
         return position;
     }
 
+    internal static bool TryGetPreparedSettlementHorizontalAnchor(
+        YQPreparedSpatialMaterializationV2 prepared, GeneratedSettlementRecord settlement, out Vector3 anchor)
+    {
+        anchor = Vector3.zero;
+        if (settlement == null || prepared == null ||
+            !prepared.TryGetSiteBySemanticId(settlement.settlementId, out var site) ||
+            site.kind != YQSiteKindV2.Settlement)
+            return false;
+        // note: Use the same accepted horizontal authority as GetSettlementAnchor. Returning false preserves the original error-reporting path for missing or relocated anchors without invoking a callback inside a batched count.
+        anchor = new Vector3(site.x, 0f, site.z);
+        if (runtimeSettlementAnchors.TryGetValue(settlement.settlementId, out Vector3 runtimeAnchor))
+        {
+            float dx = runtimeAnchor.x - anchor.x;
+            float dz = runtimeAnchor.z - anchor.z;
+            if (!(dx * dx + dz * dz <= 0.01f))
+                return false;
+        }
+        return true;
+    }
+
     public static Vector3 GetSettlementAnchor(
         GeneratedWorldPlanRecord plan,
         GeneratedSettlementRecord settlement)
@@ -201,7 +297,7 @@ public static class YQGeneratedWorldLayout
 
         if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
-            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+            if (!YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                     plan,
                     out YQPreparedSpatialMaterializationV2 prepared,
                     out string failure) ||
@@ -339,16 +435,42 @@ public static class YQGeneratedWorldLayout
             placementSeed + "|settlement_final");
     }
 
+    internal static float GetNativeOriginTerrainSupportHalfWidth(float corridorHalfWidth)
+    {
+        // note: Native worn ribbons and their <=1m routing samples need a complete supporting height-grid cell outside the fixed foundation. The extra metre reconciles the legacy 14m hut reserve with its actual 15m protected pad; physical route widths stay unchanged.
+        float gridDiagonal = Mathf.Sqrt(2f) * YQGeneratedWorldTerrain.WorldSize /
+            (YQGeneratedWorldTerrain.HeightmapResolution - 1);
+        return Mathf.Max(0f, corridorHalfWidth) * 1.1f + .5f + 1f + gridDiagonal;
+    }
+
+    internal static bool IsOriginLandmarkRouteCorridorClear(Vector2 start, Vector2 end, float corridorHalfWidth, Vector2 goddessCenter)
+    {
+        // note: Shared bank paths preserve the same full authored corridor as road detours; endpoints alone cannot detect a chord through a reserve.
+        Vector2 origin = new Vector2(YQGeneratedWorldTerrain.OriginWorldPosition.x, YQGeneratedWorldTerrain.OriginWorldPosition.z);
+        Vector2 witchHouseCenter = origin + new Vector2(OriginWitchHouseOffset.x, OriginWitchHouseOffset.z);
+        float goddessRadius = OriginLandmarkReserveRadius + Mathf.Max(0f, corridorHalfWidth) + OriginLandmarkRouteMargin;
+        float witchHouseRadius = OriginWitchHouseReserveRadius + Mathf.Max(0f, corridorHalfWidth) + OriginWitchHouseRouteMargin;
+        return !SegmentIntersectsCircle(start, end, goddessCenter, goddessRadius) &&
+            !SegmentIntersectsCircle(start, end, witchHouseCenter, witchHouseRadius);
+    }
+
     public static bool TryBuildOriginLandmarkDetour(
         Vector2 start,
         Vector2 end,
         float corridorHalfWidth,
         out Vector2[] waypoints)
     {
+        // note: Existing callers retain the preferred shrine pose; native projections use the resolved-center overload.
+        return TryBuildOriginLandmarkDetour(start, end, corridorHalfWidth, out waypoints, new Vector2(YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginGoddessSummitOffset.x, YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginGoddessSummitOffset.z));
+    }
+
+    internal static bool TryBuildOriginLandmarkDetour(
+        Vector2 start,
+        Vector2 end,
+        float corridorHalfWidth,
+        out Vector2[] waypoints, Vector2 goddessCenter)
+    {
         waypoints = null;
-        Vector2 goddessCenter = new Vector2(
-            YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginGoddessSummitOffset.x,
-            YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginGoddessSummitOffset.z);
         float goddessRadius = OriginLandmarkReserveRadius +
             Mathf.Max(0f, corridorHalfWidth) +
             OriginLandmarkRouteMargin;
@@ -463,6 +585,14 @@ public static class YQGeneratedWorldLayout
         List<Vector2> controlPoints,
         float corridorHalfWidth)
     {
+        // note: Keep archived control filtering tied to its original preferred shrine position.
+        FilterOriginLandmarkRouteControlPoints(controlPoints, corridorHalfWidth, new Vector2(YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginGoddessSummitOffset.x, YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginGoddessSummitOffset.z));
+    }
+
+    internal static void FilterOriginLandmarkRouteControlPoints(
+        List<Vector2> controlPoints,
+        float corridorHalfWidth, Vector2 goddessCenter)
+    {
         if (controlPoints == null || controlPoints.Count < 3)
             return;
 
@@ -472,7 +602,7 @@ public static class YQGeneratedWorldLayout
         for (int index = 1; index < sourceCount - 1; index++)
         {
             if (!IsOriginLandmarkRouteControlPointInsideReserve(
-                    controlPoints[index], corridorHalfWidth))
+                    controlPoints[index], corridorHalfWidth, goddessCenter))
             {
                 controlPoints[writeIndex++] = controlPoints[index];
             }
@@ -487,12 +617,17 @@ public static class YQGeneratedWorldLayout
         Vector2 point,
         float corridorHalfWidth)
     {
+        // note: Compatibility reserve queries preserve their original center and clearance arithmetic.
+        return IsOriginLandmarkRouteControlPointInsideReserve(point, corridorHalfWidth, new Vector2(YQGeneratedWorldTerrain.OriginWorldPosition.x + OriginGoddessSummitOffset.x, YQGeneratedWorldTerrain.OriginWorldPosition.z + OriginGoddessSummitOffset.z));
+    }
+
+    internal static bool IsOriginLandmarkRouteControlPointInsideReserve(
+        Vector2 point,
+        float corridorHalfWidth, Vector2 goddessCenter)
+    {
         Vector2 origin = new Vector2(
             YQGeneratedWorldTerrain.OriginWorldPosition.x,
             YQGeneratedWorldTerrain.OriginWorldPosition.z);
-        Vector2 goddessCenter = origin + new Vector2(
-            OriginGoddessSummitOffset.x,
-            OriginGoddessSummitOffset.z);
         float goddessRadius = OriginLandmarkReserveRadius +
             Mathf.Max(0f, corridorHalfWidth) +
             OriginLandmarkRouteMargin;
@@ -614,7 +749,7 @@ public static class YQGeneratedWorldLayout
 
         if (YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan))
         {
-            if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+            if (!YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                     plan,
                     out YQPreparedSpatialMaterializationV2 prepared,
                     out string failure) ||

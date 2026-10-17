@@ -1,0 +1,2406 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_caveofhiddentomb
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/Materials/MI_Ground_WA.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c8f388837565c7142b4d83e49b322d93, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/Materials/MI_Ground_WA_TempleFloor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: d6dfe95d2b3d2e943a90e9e3e06a6e1e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: fe6ed4a326774ee4dba9555a031f3797, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA_002.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA_003.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA_Mud.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA_Mud_002.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_Ground_WA_TempleFloor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Ground/M_MineWall.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/A/Materials/MI_Rock_A.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 2ae994f57959efa438433e86a1a1abda, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/A/M_Rock_A.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/B/Materials/MI_Rock_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 2fd0b489a232af648a424affe4b48bc5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/B/M_Rock_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/C/Materials/MI_Rock_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 81d94df436ae3704dbde448482225d98, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/C/M_Rock_C.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/D/Materials/MI_Rock_D.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e378eb8db9923e84181c65a44a600f78, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/D/M_Rock_D.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/E/Materials/MI_Rock_E.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 12a5fbd020cc754418d3b1618cc407b9, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/E/M_Rock_E.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/F/Materials/MI_Rock_F.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e82673d1d8cfbeb45804c3f0ba283617, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/F/M_Rock_F.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/G/Materials/MI_Rock_G.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8acec03f0920616438d9a1aa688e7d65, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Rock/G/M_Rock_G.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/RockWall/A/M_RockWall_A_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/RockWall/B/M_RockWall_B_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/RockWall/C/M_RockWall_C_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/RockWall/D/M_RockWall_D_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/RockWall/E/M_RockWall_E_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/A/Materials/MI_Stone_A.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 3a239c8e45c13d1438fcb40feff65d2f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/A/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 3897917f923bfa74ea745f6c3db0bc83, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/A/M_Stone_A.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/B/Materials/MI_Stone_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 9b94fb532a3c1ad4e800c836eeafd7a5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/B/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 33607c1b911a5cc4cbdd7e4ba951d970, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/B/M_Stone_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/C/Materials/MI_Stone_C.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0aad8ca9ae7d3644ea2654377a04a40c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/C/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a345804f55bfa3447b0bd5e4dda324a3, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/C/M_Stone_C.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/D/Materials/MI_Stone_D.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 16c233a3b866f484892b521bce9f1e46, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/D/Materials/No
+      Name.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 97f2bc305a362164cba5b279ce5bf4c7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/Stone/D/M_Stone_D.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePattern/G/M_StonePattern_G_simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePattern/H/M_StonePattern_H_simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePattern/StonePattern/M_StonePattern_simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePattern/TempleStoneGround/M_StonePattern_F_Edge.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePattern/TempleStoneGround/M_StonePattern_F_Simple.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/A/M_StonePlate_A.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/B/M_StonePlate_B.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/C/M_StonePlate_C.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/D/M_StonePlate_D.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/E/M_StonePlate_E.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/F/M_StonePlate_F.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/G/M_StonePlate_G.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Assets/StonePlate/H/M_StonePlate_H.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Boulder_A.prefab
+    prefab: {fileID: 1030972813, guid: abc00000000004956713312530703404, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boulder_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 244ba6c397648a44689410476a9d4a6b, type: 2}
+    - transformPath: SM_Boulder_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 244ba6c397648a44689410476a9d4a6b, type: 2}
+    - transformPath: SM_Boulder_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 244ba6c397648a44689410476a9d4a6b, type: 2}
+    - transformPath: SM_Boulder_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 244ba6c397648a44689410476a9d4a6b, type: 2}
+    - transformPath: SM_Boulder_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 244ba6c397648a44689410476a9d4a6b, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Boulder_B.prefab
+    prefab: {fileID: 1030972547, guid: abc00000000014621462514801664999, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boulder_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 93837a5e24778fa44a08cea7d632cc8a, type: 2}
+    - transformPath: SM_Boulder_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 93837a5e24778fa44a08cea7d632cc8a, type: 2}
+    - transformPath: SM_Boulder_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 93837a5e24778fa44a08cea7d632cc8a, type: 2}
+    - transformPath: SM_Boulder_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 93837a5e24778fa44a08cea7d632cc8a, type: 2}
+    - transformPath: SM_Boulder_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 93837a5e24778fa44a08cea7d632cc8a, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Boulder_C.prefab
+    prefab: {fileID: 1030971938, guid: abc00000000006899840013885382510, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boulder_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f6d6251785aa5a479ca76372fbc02b4, type: 2}
+    - transformPath: SM_Boulder_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f6d6251785aa5a479ca76372fbc02b4, type: 2}
+    - transformPath: SM_Boulder_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f6d6251785aa5a479ca76372fbc02b4, type: 2}
+    - transformPath: SM_Boulder_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f6d6251785aa5a479ca76372fbc02b4, type: 2}
+    - transformPath: SM_Boulder_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6f6d6251785aa5a479ca76372fbc02b4, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Boulder_D.prefab
+    prefab: {fileID: 1030971964, guid: abc00000000001488256242141954089, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Boulder_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9dafc4e6735b5024bb890d8a50953b79, type: 2}
+    - transformPath: SM_Boulder_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9dafc4e6735b5024bb890d8a50953b79, type: 2}
+    - transformPath: SM_Boulder_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9dafc4e6735b5024bb890d8a50953b79, type: 2}
+    - transformPath: SM_Boulder_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9dafc4e6735b5024bb890d8a50953b79, type: 2}
+    - transformPath: SM_Boulder_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9dafc4e6735b5024bb890d8a50953b79, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_FirePit_A.prefab
+    prefab: {fileID: 1030973039, guid: abc00000000001267701337396074764, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FirePit_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b87fb5c8232d4b04a9a896a854f95c67, type: 2}
+    - transformPath: SM_FirePit_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b87fb5c8232d4b04a9a896a854f95c67, type: 2}
+    - transformPath: SM_FirePit_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b87fb5c8232d4b04a9a896a854f95c67, type: 2}
+    - transformPath: SM_FirePit_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b87fb5c8232d4b04a9a896a854f95c67, type: 2}
+    - transformPath: SM_FirePit_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b87fb5c8232d4b04a9a896a854f95c67, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_FireWood.prefab
+    prefab: {fileID: 1031220618, guid: abc00000000009532008561416526890, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FireWood_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38c0fc294518c574b91f493f0d44897a, type: 2}
+    - transformPath: SM_FireWood_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38c0fc294518c574b91f493f0d44897a, type: 2}
+    - transformPath: SM_FireWood_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38c0fc294518c574b91f493f0d44897a, type: 2}
+    - transformPath: SM_FireWood_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38c0fc294518c574b91f493f0d44897a, type: 2}
+    - transformPath: SM_FireWood_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38c0fc294518c574b91f493f0d44897a, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_FireWood_1.prefab
+    prefab: {fileID: 1031220836, guid: abc00000000014261635206867265730, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FireWood_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1a35030ce8d67294facd001b49669fb0, type: 2}
+    - transformPath: SM_FireWood_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1a35030ce8d67294facd001b49669fb0, type: 2}
+    - transformPath: SM_FireWood_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1a35030ce8d67294facd001b49669fb0, type: 2}
+    - transformPath: SM_FireWood_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1a35030ce8d67294facd001b49669fb0, type: 2}
+    - transformPath: SM_FireWood_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1a35030ce8d67294facd001b49669fb0, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_A.prefab
+    prefab: {fileID: 1030972227, guid: abc00000000005823514002359406168, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_RockWall_A.prefab
+    prefab: {fileID: 1030973561, guid: abc00000000006118547249393292526, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockWall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+    - transformPath: SM_RockWall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+    - transformPath: SM_RockWall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+    - transformPath: SM_RockWall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+    - transformPath: SM_RockWall_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0c7e83c3a1e791d4db5f8471e70437fa, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_RockWall_B.prefab
+    prefab: {fileID: 1030973065, guid: abc00000000016205213309732076789, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockWall_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+    - transformPath: SM_RockWall_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+    - transformPath: SM_RockWall_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+    - transformPath: SM_RockWall_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+    - transformPath: SM_RockWall_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 15413758f0350b847a89aa47b8b92dfe, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_RockWall_C.prefab
+    prefab: {fileID: 1030973262, guid: abc00000000004175420548038613420, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockWall_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+    - transformPath: SM_RockWall_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+    - transformPath: SM_RockWall_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+    - transformPath: SM_RockWall_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+    - transformPath: SM_RockWall_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dda6c7b6d1fe0a4b86908671ae92fe3, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_RockWall_D.prefab
+    prefab: {fileID: 1030972121, guid: abc00000000016943320568587847083, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockWall_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+    - transformPath: SM_RockWall_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+    - transformPath: SM_RockWall_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+    - transformPath: SM_RockWall_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+    - transformPath: SM_RockWall_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 363f8241144722c4380801abf0daf798, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_RockWall_E.prefab
+    prefab: {fileID: 1030972950, guid: abc00000000008808662298152300386, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockWall_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+    - transformPath: SM_RockWall_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+    - transformPath: SM_RockWall_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+    - transformPath: SM_RockWall_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+    - transformPath: SM_RockWall_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16def0bc4163c0b4a9d18cb235e213e8, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_A.prefab
+    prefab: {fileID: 1030973292, guid: abc00000000004595663221840188358, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+    - transformPath: SM_Rock_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+    - transformPath: SM_Rock_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+    - transformPath: SM_Rock_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+    - transformPath: SM_Rock_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b6f0e739f1afc5048bf322b3414433ec, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_B.prefab
+    prefab: {fileID: 1030972601, guid: abc00000000011594968364675920173, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+    - transformPath: SM_Rock_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+    - transformPath: SM_Rock_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+    - transformPath: SM_Rock_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+    - transformPath: SM_Rock_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aac8995f754e124479dae198f1068aab, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_C.prefab
+    prefab: {fileID: 1030972330, guid: abc00000000010047204483267387140, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+    - transformPath: SM_Rock_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+    - transformPath: SM_Rock_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+    - transformPath: SM_Rock_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+    - transformPath: SM_Rock_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5f80e9809ca728244a69931e54c77074, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_D.prefab
+    prefab: {fileID: 1030973091, guid: abc00000000002176590496076342563, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+    - transformPath: SM_Rock_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+    - transformPath: SM_Rock_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+    - transformPath: SM_Rock_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+    - transformPath: SM_Rock_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c174c2befbe14d429f766028e2bfef5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_E.prefab
+    prefab: {fileID: 1030973317, guid: abc00000000005585971862230204634, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+    - transformPath: SM_Rock_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+    - transformPath: SM_Rock_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+    - transformPath: SM_Rock_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+    - transformPath: SM_Rock_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60c75d044f6ed8b4b871507f73bd13b0, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_F.prefab
+    prefab: {fileID: 1030972982, guid: abc00000000003429954581696290785, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+    - transformPath: SM_Rock_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+    - transformPath: SM_Rock_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+    - transformPath: SM_Rock_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+    - transformPath: SM_Rock_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b423404b04d75bd4b92fc8152d7553de, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Rock_G.prefab
+    prefab: {fileID: 1030973500, guid: abc00000000008089024361489229336, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_G_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+    - transformPath: SM_Rock_G_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+    - transformPath: SM_Rock_G_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+    - transformPath: SM_Rock_G_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+    - transformPath: SM_Rock_G_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ffe2b1ab4d455b945ac76f07c384a9fb, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Sculpt_A.prefab
+    prefab: {fileID: 1030972173, guid: abc00000000000339813791122755584, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sculpt_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 672ff8cc7de4c8e479ab9406a36d11a3, type: 2}
+    - transformPath: SM_Sculpt_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 672ff8cc7de4c8e479ab9406a36d11a3, type: 2}
+    - transformPath: SM_Sculpt_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 672ff8cc7de4c8e479ab9406a36d11a3, type: 2}
+    - transformPath: SM_Sculpt_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 672ff8cc7de4c8e479ab9406a36d11a3, type: 2}
+    - transformPath: SM_Sculpt_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 672ff8cc7de4c8e479ab9406a36d11a3, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Sculpt_B.prefab
+    prefab: {fileID: 1030972864, guid: abc00000000017035910702876779915, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sculpt_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd899e6e3ba53464cb200ab9f28a6933, type: 2}
+    - transformPath: SM_Sculpt_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd899e6e3ba53464cb200ab9f28a6933, type: 2}
+    - transformPath: SM_Sculpt_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd899e6e3ba53464cb200ab9f28a6933, type: 2}
+    - transformPath: SM_Sculpt_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd899e6e3ba53464cb200ab9f28a6933, type: 2}
+    - transformPath: SM_Sculpt_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fd899e6e3ba53464cb200ab9f28a6933, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_A.prefab
+    prefab: {fileID: 1030972416, guid: abc00000000004374687155857891501, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dd7f2d79f7d2974e8820c241aa0b86a, type: 2}
+    - transformPath: SM_Stalacite_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dd7f2d79f7d2974e8820c241aa0b86a, type: 2}
+    - transformPath: SM_Stalacite_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dd7f2d79f7d2974e8820c241aa0b86a, type: 2}
+    - transformPath: SM_Stalacite_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dd7f2d79f7d2974e8820c241aa0b86a, type: 2}
+    - transformPath: SM_Stalacite_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dd7f2d79f7d2974e8820c241aa0b86a, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_B.prefab
+    prefab: {fileID: 1030972521, guid: abc00000000015822126086731711302, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe7becbd606856642821b7fd3847b5fb, type: 2}
+    - transformPath: SM_Stalacite_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe7becbd606856642821b7fd3847b5fb, type: 2}
+    - transformPath: SM_Stalacite_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe7becbd606856642821b7fd3847b5fb, type: 2}
+    - transformPath: SM_Stalacite_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe7becbd606856642821b7fd3847b5fb, type: 2}
+    - transformPath: SM_Stalacite_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe7becbd606856642821b7fd3847b5fb, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_C.prefab
+    prefab: {fileID: 1030972652, guid: abc00000000009788093523600431391, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: beb30374e3520a041ba2a3ff47ea68aa, type: 2}
+    - transformPath: SM_Stalacite_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: beb30374e3520a041ba2a3ff47ea68aa, type: 2}
+    - transformPath: SM_Stalacite_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: beb30374e3520a041ba2a3ff47ea68aa, type: 2}
+    - transformPath: SM_Stalacite_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: beb30374e3520a041ba2a3ff47ea68aa, type: 2}
+    - transformPath: SM_Stalacite_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: beb30374e3520a041ba2a3ff47ea68aa, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_D.prefab
+    prefab: {fileID: 1030972757, guid: abc00000000000868743152671200664, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0c96c032b67b8b47812770885aed320, type: 2}
+    - transformPath: SM_Stalacite_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0c96c032b67b8b47812770885aed320, type: 2}
+    - transformPath: SM_Stalacite_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0c96c032b67b8b47812770885aed320, type: 2}
+    - transformPath: SM_Stalacite_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0c96c032b67b8b47812770885aed320, type: 2}
+    - transformPath: SM_Stalacite_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0c96c032b67b8b47812770885aed320, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_E.prefab
+    prefab: {fileID: 1030971884, guid: abc00000000014656417446587813729, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4a19d6f610009a48be9645d1d522783, type: 2}
+    - transformPath: SM_Stalacite_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4a19d6f610009a48be9645d1d522783, type: 2}
+    - transformPath: SM_Stalacite_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4a19d6f610009a48be9645d1d522783, type: 2}
+    - transformPath: SM_Stalacite_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4a19d6f610009a48be9645d1d522783, type: 2}
+    - transformPath: SM_Stalacite_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f4a19d6f610009a48be9645d1d522783, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stalacite_F.prefab
+    prefab: {fileID: 1030972201, guid: abc00000000016812434727121727578, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stalacite_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75788e03c2528ff42811ae5d1385fbbb, type: 2}
+    - transformPath: SM_Stalacite_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75788e03c2528ff42811ae5d1385fbbb, type: 2}
+    - transformPath: SM_Stalacite_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75788e03c2528ff42811ae5d1385fbbb, type: 2}
+    - transformPath: SM_Stalacite_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75788e03c2528ff42811ae5d1385fbbb, type: 2}
+    - transformPath: SM_Stalacite_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 75788e03c2528ff42811ae5d1385fbbb, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_A.prefab
+    prefab: {fileID: 1031220056, guid: abc00000000018136966501971557078, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_B.prefab
+    prefab: {fileID: 1031220030, guid: abc00000000013019883010527384509, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_C.prefab
+    prefab: {fileID: 1031220004, guid: abc00000000010487137838528659476, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_D.prefab
+    prefab: {fileID: 1031219978, guid: abc00000000001420823762789386931, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_E.prefab
+    prefab: {fileID: 1031219952, guid: abc00000000007268444134616244522, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+    - transformPath: SM_StonePattern_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 026b6e3f834ac4a4ca9ff688892f2d64, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_F.prefab
+    prefab: {fileID: 1031220442, guid: abc00000000004849183865032227185, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    - transformPath: SM_StonePattern_F_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+    - transformPath: SM_StonePattern_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    - transformPath: SM_StonePattern_F_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+    - transformPath: SM_StonePattern_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    - transformPath: SM_StonePattern_F_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+    - transformPath: SM_StonePattern_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    - transformPath: SM_StonePattern_F_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+    - transformPath: SM_StonePattern_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 72df1b25d0274bd4f99f1f71bb7e5c50, type: 2}
+    - transformPath: SM_StonePattern_F_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1c0e07ef280f71a449f00588d777255d, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_G.prefab
+    prefab: {fileID: 1031220468, guid: abc00000000003598539309462340072, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_G_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+    - transformPath: SM_StonePattern_G_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+    - transformPath: SM_StonePattern_G_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+    - transformPath: SM_StonePattern_G_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+    - transformPath: SM_StonePattern_G_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00bf060326dab114d81b1f3e42acece7, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePattern_H.prefab
+    prefab: {fileID: 1030973384, guid: abc00000000012584072911869586471, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePattern_H_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+    - transformPath: SM_StonePattern_H_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+    - transformPath: SM_StonePattern_H_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+    - transformPath: SM_StonePattern_H_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+    - transformPath: SM_StonePattern_H_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 83e7020a78147384aa93454118d44e95, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePatter_Outer.prefab
+    prefab: {fileID: 1031220494, guid: abc00000000012074005779335031260, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePatter_Outer_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+    - transformPath: SM_StonePatter_Outer_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+    - transformPath: SM_StonePatter_Outer_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+    - transformPath: SM_StonePatter_Outer_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+    - transformPath: SM_StonePatter_Outer_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 44c34de9821a0c743933004f5f9df254, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_A.prefab
+    prefab: {fileID: 1030972839, guid: abc00000000002407263336612789528, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+    - transformPath: SM_StonePlate_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+    - transformPath: SM_StonePlate_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+    - transformPath: SM_StonePlate_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+    - transformPath: SM_StonePlate_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae90eabad06afb4592b9e6d04bdf144, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_B.prefab
+    prefab: {fileID: 1030972680, guid: abc00000000014941573544909454371, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+    - transformPath: SM_StonePlate_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+    - transformPath: SM_StonePlate_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+    - transformPath: SM_StonePlate_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+    - transformPath: SM_StonePlate_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e1b1810b749f58f4d8d4b43a22a79395, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_C.prefab
+    prefab: {fileID: 1030971990, guid: abc00000000018350954911063316442, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+    - transformPath: SM_StonePlate_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+    - transformPath: SM_StonePlate_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+    - transformPath: SM_StonePlate_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+    - transformPath: SM_StonePlate_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bf77f64a726d8934faf496261d45a4da, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_D.prefab
+    prefab: {fileID: 1030972442, guid: abc00000000005913207339799480365, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+    - transformPath: SM_StonePlate_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+    - transformPath: SM_StonePlate_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+    - transformPath: SM_StonePlate_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+    - transformPath: SM_StonePlate_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 42cb258c770b2644ab9b004e99cf406c, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_E.prefab
+    prefab: {fileID: 1030973587, guid: abc00000000004365443458390947332, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+    - transformPath: SM_StonePlate_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+    - transformPath: SM_StonePlate_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+    - transformPath: SM_StonePlate_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+    - transformPath: SM_StonePlate_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 64308d39b9c590f4bada864d449b5e94, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_F.prefab
+    prefab: {fileID: 1030972147, guid: abc00000000011326613707542020255, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+    - transformPath: SM_StonePlate_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+    - transformPath: SM_StonePlate_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+    - transformPath: SM_StonePlate_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+    - transformPath: SM_StonePlate_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a2fa3544da399984c90d35e7265291ba, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_G.prefab
+    prefab: {fileID: 1030973116, guid: abc00000000017360646270673300166, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_G_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+    - transformPath: SM_StonePlate_G_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+    - transformPath: SM_StonePlate_G_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+    - transformPath: SM_StonePlate_G_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+    - transformPath: SM_StonePlate_G_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae3bd7cbd04fa1244af8e9edeee9d527, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_StonePlate_H.prefab
+    prefab: {fileID: 1030973236, guid: abc00000000015994446993723110233, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StonePlate_H_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+    - transformPath: SM_StonePlate_H_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+    - transformPath: SM_StonePlate_H_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+    - transformPath: SM_StonePlate_H_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+    - transformPath: SM_StonePlate_H_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c71b9796d34a0f24c86dc8a303eb0859, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stone_A.prefab
+    prefab: {fileID: 1030972892, guid: abc00000000009162203632334429924, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+    - transformPath: SM_Stone_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+    - transformPath: SM_Stone_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+    - transformPath: SM_Stone_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+    - transformPath: SM_Stone_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e17084633193b124a952006d59e5e0ff, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stone_B.prefab
+    prefab: {fileID: 1030972043, guid: abc00000000009871749953278875391, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+    - transformPath: SM_Stone_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+    - transformPath: SM_Stone_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+    - transformPath: SM_Stone_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+    - transformPath: SM_Stone_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 777922234b28ad941a60860dcb791afb, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stone_C.prefab
+    prefab: {fileID: 1030972495, guid: abc00000000003710943845884053158, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+    - transformPath: SM_Stone_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+    - transformPath: SM_Stone_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+    - transformPath: SM_Stone_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+    - transformPath: SM_Stone_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fce47ab68b3d3b245992870c60b950f9, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Stone_D.prefab
+    prefab: {fileID: 1030972304, guid: abc00000000002929157907611730369, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stone_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+    - transformPath: SM_Stone_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+    - transformPath: SM_Stone_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+    - transformPath: SM_Stone_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+    - transformPath: SM_Stone_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1e7adba1413e490498877656d48ecb7d, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Water_01.prefab
+    prefab: {fileID: 1031266115, guid: c387970431e95ce4098bac9a018a4928, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8292ba28528b5f4498492f8e9ef71127, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Arch_A.prefab
+    prefab: {fileID: 1031219902, guid: abc00000000010512194002061920249, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa8134763d2a29b4b9884e875fe91f01, type: 2}
+    - transformPath: SM_Arch_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa8134763d2a29b4b9884e875fe91f01, type: 2}
+    - transformPath: SM_Arch_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa8134763d2a29b4b9884e875fe91f01, type: 2}
+    - transformPath: SM_Arch_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa8134763d2a29b4b9884e875fe91f01, type: 2}
+    - transformPath: SM_Arch_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa8134763d2a29b4b9884e875fe91f01, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Arch_B.prefab
+    prefab: {fileID: 1030972920, guid: abc00000000013122705845475440050, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+    - transformPath: SM_Arch_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+    - transformPath: SM_Arch_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+    - transformPath: SM_Arch_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+    - transformPath: SM_Arch_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+    - transformPath: SM_Arch_B_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad552a15ce992b4ca3cab0a58e13163, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Arch_C.prefab
+    prefab: {fileID: 1030972785, guid: abc00000000012447190454304144507, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3339cd0cb6f1c3b439c7e81d35652ca1, type: 2}
+    - transformPath: SM_Arch_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3339cd0cb6f1c3b439c7e81d35652ca1, type: 2}
+    - transformPath: SM_Arch_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3339cd0cb6f1c3b439c7e81d35652ca1, type: 2}
+    - transformPath: SM_Arch_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3339cd0cb6f1c3b439c7e81d35652ca1, type: 2}
+    - transformPath: SM_Arch_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3339cd0cb6f1c3b439c7e81d35652ca1, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Bat.prefab
+    prefab: {fileID: 8577451831444630034, guid: e89acf9d16862634ca15f8123d3e0fcf, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bat
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d0b7900866be1804c865317ec2f1be72, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_A_1.prefab
+    prefab: {fileID: 1031127477, guid: abc00000000006432070233321751276, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_A_2.prefab
+    prefab: {fileID: 1031260529, guid: abc00000000003639299895211850663, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_A_3.prefab
+    prefab: {fileID: 1031261041, guid: abc00000000003527578867099926062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_B.prefab
+    prefab: {fileID: 1030972383, guid: abc00000000012373722089889265507, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+    - transformPath: SM_Ground_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9e8686ffe3f2be47bc420d2f321e3be, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_B_1.prefab
+    prefab: {fileID: 1031260504, guid: abc00000000004302113354826268515, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+    - transformPath: SM_Ground_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f1cd520e4a2826249ae1f6d78d546be8, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_B_2.prefab
+    prefab: {fileID: 1031260945, guid: abc00000000016198649341005960792, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+    - transformPath: SM_Ground_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47d1b51b906d37e42bd9a7b8f8220880, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_B_3.prefab
+    prefab: {fileID: 1031260993, guid: abc00000000016776524218199807265, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+    - transformPath: SM_Ground_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+    - transformPath: SM_Ground_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+    - transformPath: SM_Ground_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+    - transformPath: SM_Ground_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 040fe58f4f767b544b5af4888ea3dc1f, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Ground_B_4.prefab
+    prefab: {fileID: 1031261853, guid: abc00000000005484994792939664646, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ground_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+    - transformPath: SM_Ground_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f522a803b07708e4185bef5f0f1fd9fe, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Lightshaft.prefab
+    prefab: {fileID: 1031241861, guid: abc00000000015030198844726541965, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lightshaft_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Lightshaft_1.prefab
+    prefab: {fileID: 1031241943, guid: abc00000000008881002790777335825, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lightshaft_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+    - transformPath: SM_Lightshaft_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: dc0e0f88a7a5ede42adddcca342920bc, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Pillar_D_1.prefab
+    prefab: {fileID: 1031264760, guid: abc00000000008910407059525434828, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 730fca974307d9746a936f6c507ddf56, type: 2}
+    - transformPath: SM_Pillar_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 730fca974307d9746a936f6c507ddf56, type: 2}
+    - transformPath: SM_Pillar_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 730fca974307d9746a936f6c507ddf56, type: 2}
+    - transformPath: SM_Pillar_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 730fca974307d9746a936f6c507ddf56, type: 2}
+    - transformPath: SM_Pillar_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 730fca974307d9746a936f6c507ddf56, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_TempleFloor.prefab
+    prefab: {fileID: 1030972355, guid: abc00000000017553738664562203828, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TempleFloor_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+    - transformPath: SM_TempleFloor_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+    - transformPath: SM_TempleFloor_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+    - transformPath: SM_TempleFloor_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+    - transformPath: SM_TempleFloor_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4d59f644a975e846924028b0e112018, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_A.prefab
+    prefab: {fileID: 1030972626, guid: abc00000000012041427838679422469, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_A_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_B.prefab
+    prefab: {fileID: 1030972252, guid: abc00000000015439491455128665342, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_B_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_C.prefab
+    prefab: {fileID: 1030972278, guid: abc00000000006727434436927824567, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_C_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_D.prefab
+    prefab: {fileID: 1030972069, guid: abc00000000016350324618432840944, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_D_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_D_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_D_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_D_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_D_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_E.prefab
+    prefab: {fileID: 1030972017, guid: abc00000000004964871340208691065, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_E_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_E_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_E_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_E_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_E_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_F.prefab
+    prefab: {fileID: 1030972573, guid: abc00000000007575383183622210866, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_F_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_F_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_F_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_F_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_F_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_Long.prefab
+    prefab: {fileID: 1030973410, guid: abc00000000016739180046719785502, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_Long_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Long_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Long_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Long_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Long_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Long_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Long_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Long_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Long_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Long_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Vine_Mid.prefab
+    prefab: {fileID: 1030973007, guid: abc00000000006287128605415993138, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vine_Mid_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Mid_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Mid_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Mid_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Mid_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+    - transformPath: SM_Vine_Mid_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b84c8d310b0befd4386977cf0faa1923, type: 2}
+    - transformPath: SM_Vine_Mid_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ec059083b1bfd384ab6cd0674d47fdb5, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_Aztec_B.prefab
+    prefab: {fileID: 1030972095, guid: abc00000000007112950678139539936, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Aztec_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_B_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_Aztec_C.prefab
+    prefab: {fileID: 1030971912, guid: abc00000000007350727321798800617, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Aztec_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_C_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_Aztec_D.prefab
+    prefab: {fileID: 1030973210, guid: abc00000000002309109719531788078, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Aztec_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_D_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_Aztec_E.prefab
+    prefab: {fileID: 1030973474, guid: abc00000000002420830747643712679, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Aztec_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 725ddcf289c9dc54f8483cad2475d11d, type: 2}
+    - transformPath: SM_Wall_Aztec_E_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 61631a07520e2cf4187df9f9e1fed920, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_Aztec_F.prefab
+    prefab: {fileID: 1030973184, guid: abc00000000005213601085753613292, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Aztec_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b09c3cdf1b54fb74e8303936fffcd1bb, type: 2}
+    - transformPath: SM_Wall_Aztec_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b09c3cdf1b54fb74e8303936fffcd1bb, type: 2}
+    - transformPath: SM_Wall_Aztec_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b09c3cdf1b54fb74e8303936fffcd1bb, type: 2}
+    - transformPath: SM_Wall_Aztec_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b09c3cdf1b54fb74e8303936fffcd1bb, type: 2}
+    - transformPath: SM_Wall_Aztec_F_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b09c3cdf1b54fb74e8303936fffcd1bb, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Wall_A_flat.prefab
+    prefab: {fileID: 1030973142, guid: abc00000000012066928654541153161, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_A_flat_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04ad3a439aa4b504a9980f0b5ca558af, type: 2}
+    - transformPath: SM_Wall_A_flat_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04ad3a439aa4b504a9980f0b5ca558af, type: 2}
+    - transformPath: SM_Wall_A_flat_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04ad3a439aa4b504a9980f0b5ca558af, type: 2}
+    - transformPath: SM_Wall_A_flat_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04ad3a439aa4b504a9980f0b5ca558af, type: 2}
+    - transformPath: SM_Wall_A_flat_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 04ad3a439aa4b504a9980f0b5ca558af, type: 2}
+  - assetPath: Assets/HIVEMIND/CaveOfHiddenTomb/HDRP (Default)/Art/Prefabs/SM_Water_02.prefab
+    prefab: {fileID: 1031266425, guid: 35f86cc66a8645240ab24c68578b0cfd, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8c8f077cb33716d4393b2acd59c70a57, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

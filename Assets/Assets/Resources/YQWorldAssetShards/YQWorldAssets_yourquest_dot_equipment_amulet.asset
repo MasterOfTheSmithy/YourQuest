@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_amulet
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Artisan.prefab
+    prefab: {fileID: 3173168717241377709, guid: 966b0a2af76683d4c91c6016076def60, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Court.prefab
+    prefab: {fileID: 4669535868942142735, guid: d285f475f794f144b9dabd9bf9e8b4a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Dragonbound.prefab
+    prefab: {fileID: 3213372398023501552, guid: 5c68d6b445eb47840818cc509beca320, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Eclipse.prefab
+    prefab: {fileID: 6448595828985391366, guid: 32b74c381be7c8c43a0b90361d846117, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Field.prefab
+    prefab: {fileID: 3893487154790694388, guid: 1ddef8e26ef86954ba3c136d8301b4e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Merchant.prefab
+    prefab: {fileID: 7145177816306597042, guid: 7dc01c511ba7c92418e9c508fadf0128, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Ranger.prefab
+    prefab: {fileID: 8431398867424275308, guid: a228bf7b5ba5c8843b8c6983402a5c5a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Starforged_Orrery.prefab
+    prefab: {fileID: 1316233898546872931, guid: 0dd55947ec127b14f9c5fc469c59ef3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Worldtree_Sovereign.prefab
+    prefab: {fileID: 2217402702706132130, guid: d5e46c5d4433ece479b28604b20f8048, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_core.prefab
+    prefab: {fileID: 6910681065808676885, guid: 6334876c9c109d24d90eda7b472784d0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mixed_darkness_light.prefab
+    prefab: {fileID: 9128463197589025375, guid: 14a48a9bb0014cf42a8109e2bcfabace, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mixed_organic_fire.prefab
+    prefab: {fileID: 8896202467389653110, guid: 2328779a71b7c2748a42f33c239e2bfd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_darkness.prefab
+    prefab: {fileID: 6859253009116740344, guid: ec086f2f4eb35894fb1d17bfa674f59f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_fire.prefab
+    prefab: {fileID: 4968660787897205957, guid: 6ef7cc9ea5756d745acdc9b0644c0cac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_forged.prefab
+    prefab: {fileID: 8912428693198661216, guid: a2be6e89bdeca3846a077b4635bec2b6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_frost.prefab
+    prefab: {fileID: 2513140940126472728, guid: ea49dcf1ac6121a4180df61bbce929a2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_light.prefab
+    prefab: {fileID: 992768672128611963, guid: 4e1f0dc62bd283548b93d8641c86dc92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_motif_organic.prefab
+    prefab: {fileID: 512312267242916839, guid: 8841b1fc604f3c942a05834c86023897, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_darkness.prefab
+    prefab: {fileID: 6458704346722991980, guid: ee774c4285a873b4aaa6db78bb3c3675, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_fire.prefab
+    prefab: {fileID: 2535758234439240918, guid: 0e3eb21be052ec24f9ff41b21bcdb802, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_forged.prefab
+    prefab: {fileID: 2492310311417845811, guid: 6db69dad3fa4c634482132d8df2bfde7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_frost.prefab
+    prefab: {fileID: 3479499212823795501, guid: b880c0c55e3cca641a948f9cf9ad147d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_light.prefab
+    prefab: {fileID: 6759416557560497820, guid: f8c7a99d6b8984b49b5a197c1954bf20, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/yqmod1_accessories_amulet_mount_organic.prefab
+    prefab: {fileID: 4262362776801180883, guid: 16971d42ee79598408812aff1b0e2ec9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Field_Parts.prefab
+    prefab: {fileID: 1712243718416450031, guid: c3dc27d050182fa4cbd463a77d5daeda, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Merchant_Parts.prefab
+    prefab: {fileID: 3965280719056349987, guid: e34f7aecd3b0cca46a8ecfa1641d57fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Ranger_Parts.prefab
+    prefab: {fileID: 403517233866850840, guid: 161be0730f3570a4eb40bd208c68abb5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Artisan_Parts.prefab
+    prefab: {fileID: 306796713389525213, guid: 5b23ad38eb0d622409c7480f33cfd82e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Court_Parts.prefab
+    prefab: {fileID: 63933029136614238, guid: ef45c2387652e714fbd7e016af5d747d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Dragonbound_Parts.prefab
+    prefab: {fileID: 6054857182123949683, guid: 48fd5383b25be1b4eae5b45727e10e05, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Eclipse_Parts.prefab
+    prefab: {fileID: 2532987899725771546, guid: c6ff1e6c506873b4099ba5cdb6f82625, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 6386680901555654379, guid: ad4c184cc5414164bb488f9d78f3c75e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/amulet/Amulet_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 2779209138223813555, guid: 3e9ce67f30566b3498ea386b31bce867, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

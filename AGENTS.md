@@ -65,6 +65,8 @@ Add concise `// note:` comments to new or materially changed executable chunks e
 
 ## Verification loop
 
+For player animation work, start with `Docs/Player_Animation_Workflow.md` and run `Tools/player-animation-status.ps1`. The workflow identifies the real tools, action owners, source packs, visual acceptance checks, and current unresolved evidence. A controller-state or compilation PASS cannot establish good animation; inspect motion on the production body in both views.
+
 Inspect the final patch and affected references. Compile relevant executable C# after one coherent patch, inspect fresh diagnostics, and run focused regressions. Reproduce in `Assets/Assets/Scenes/YourQuest_PlaySafe.unity` when the runtime path requires it. Verify references and compatibility when serialized boundaries change. Documentation-only changes need the guidance validator, not a Unity build. Do not repeat successful checks without a relevant change, failure, or unresolved concern.
 
 Unity MCP capability names are installation-specific; verify them before use. If unavailable, use the fallback in `UNITY_MCP_GUIDE.md`. After three attempts at one root cause, stop and escalate with evidence.

@@ -59,6 +59,14 @@ public static class YQGeneratedWorldIntegrityValidator
         string passName,
         Action<Report> completed)
     {
+        // note: Callers without the existing reviewed source/terrain proof retain conservative per-renderer repair.
+        return ValidateAndRepairRoutine(root, worldSeed, passName, completed, null, null);
+    }
+
+    internal static IEnumerator ValidateAndRepairRoutine(GameObject root, string worldSeed, string passName,
+        Action<Report> completed, IReadOnlyDictionary<GameObject, YQReviewedCellFunctionContractV2> reviewedCells,
+        YQTerrainApproachV2.SampleHeight sample)
+    {
         Report report = new Report();
         if (root == null)
         {
@@ -68,6 +76,8 @@ public static class YQGeneratedWorldIntegrityValidator
         }
 
         yield return RepairLodGroupsRoutine(root, report);
+        var reviewedSupports = CollectReviewedLodSupports(root, reviewedCells, sample);
+        var reviewedMeshSupports = CollectReviewedMeshLodSupports(root, reviewedCells, sample);
 
         Camera gameplayCamera = Camera.main;
         int generatedVisibleLayer = Mathf.Clamp(root.layer, 0, 31);
@@ -91,7 +101,7 @@ public static class YQGeneratedWorldIntegrityValidator
                 pending.Push(current.GetChild(childIndex));
 
             Collider localCollider = current.GetComponent<Collider>();
-            if (localCollider != null && localCollider.enabled && !localCollider.isTrigger)
+            if (localCollider != null && !YQPhysicalChunkAdmissionBoundary.IsOwned(localCollider) && localCollider.enabled && !localCollider.isTrigger)
             {
                 // note: This independent coverage count prevents a decorative-only imported cell with no recognized floor names from passing collision acceptance by vacuous success.
                 report.enabledNonTriggerColliders++;
@@ -113,7 +123,7 @@ public static class YQGeneratedWorldIntegrityValidator
                     continue;
 
                 report.walkableSurfaces++;
-                ValidateWalkableSurface(renderer, report);
+                ValidateWalkableSurface(renderer, report, reviewedSupports, reviewedMeshSupports);
             }
 
             if (Time.realtimeSinceStartup - frameStartedAt >= FrameBudgetSeconds)
@@ -633,7 +643,10 @@ public static class YQGeneratedWorldIntegrityValidator
                             " support=" + DescribeTraversalCollider(measurement.supportCollider) +
                             " overlap=" + DescribeTraversalCollider(measurement.overlapCollider) +
                             " nearestReturnedSweep=" + DescribeTraversalCollider(measurement.sweepCollider) +
-                            " sweepPoint=" + measurement.sweepContactPoint + ". World acceptance blocked.");
+                            " sweepPoint=" + measurement.sweepContactPoint +
+                            " footprintPoint=" + measurement.footprintPoint + " footprintSupport=" + measurement.footprintHasSupport +
+                            " footprintDelta=" + measurement.footprintHeightDelta.ToString("F3") +
+                            " footprintSlope=" + measurement.footprintSlopeDegrees.ToString("F1") + ". World acceptance blocked.");
                 }
                 previous = measurement.feet;
                 hasPrevious = measurement.hasSupport;
@@ -665,7 +678,8 @@ public static class YQGeneratedWorldIntegrityValidator
     {
         // note: Dynamic entities are already excluded from hard clearance blockers, so use the same ownership boundary for capsule route measurements.
         return collider != null && (collider.GetComponentInParent<EntityInfo>() != null ||
-            collider.GetComponentInParent<YQInvestorPlayerMotor>() != null ||
+            // note: Detached ragdoll shapes still belong to the canonical player.
+            YQInvestorPlayerMotor.ResolveFromCollider(collider) != null ||
             collider.attachedRigidbody != null);
     }
 
@@ -737,6 +751,16 @@ public static class YQGeneratedWorldIntegrityValidator
             bool settlementSkirtAuthored = false;
             if (pointCount < 2)
                 continue;
+            if (YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(prepared))
+            {
+                // note: Native shared crossings redirect the physical corridor to both published dry banks and their reused bridge. Probe every realized leg with the unchanged support/capsule gates.
+                routePoints = YQGeneratedWorldEnvironment.GetAcceptedRouteCenterline(prepared, routeIndex);
+                YQContinuousWorldFeatureMaterializer.ApplySharedBridgeRoute(prepared, routeIndex, routePoints);
+                for (int point = 1; point < routePoints.Count; point++)
+                    // note: These points already include the road's landmark detour and the bridge owner's physical bank paths; probing a second invented detour would miss the published connectors.
+                    segments.Add(new RouteSampleSegment(route.routeId, routePoints[point - 1], routePoints[point], 0f, 0f));
+                continue;
+            }
             routePoints.Clear();
             for (int pointIndex = 0; pointIndex < pointCount; pointIndex++)
             {
@@ -1099,7 +1123,8 @@ public static class YQGeneratedWorldIntegrityValidator
                 obstacle.bounds.max.y <= groundHeight + 0.12f ||
                 HasProtectedRouteSemantic(obstacle.transform) ||
                 obstacle.GetComponentInParent<EntityInfo>() != null ||
-                obstacle.GetComponentInParent<YQInvestorPlayerMotor>() != null ||
+                // note: A detached player body must not become a terrain obstacle.
+                YQInvestorPlayerMotor.ResolveFromCollider(obstacle) != null ||
                 obstacle.attachedRigidbody != null)
             {
                 continue;
@@ -1274,7 +1299,8 @@ public static class YQGeneratedWorldIntegrityValidator
         }
     }
 
-    private static void ValidateWalkableSurface(Renderer renderer, Report report)
+    private static void ValidateWalkableSurface(Renderer renderer, Report report, HashSet<BoxCollider> reviewedSupports,
+        IReadOnlyDictionary<Renderer, MeshCollider> reviewedMeshSupports)
     {
         GameObject surface = renderer.gameObject;
         // note: Every generated deck variant is presentation over the fitted mesh; adding level block colliders changes its accepted sloped walk plane.
@@ -1320,9 +1346,17 @@ public static class YQGeneratedWorldIntegrityValidator
 
         if (valid == null)
         {
-            valid = AddSafeCollider(surface, renderer);
-            if (valid != null)
-                report.repairedColliders++;
+            // note: A listed visual LOD may already have one authored collision owner on its own LODGroup. Reuse it only when the same approved supportPath passed the existing full-width terrain-handoff proof; never borrow an arbitrary ancestor or replace an authored renderer collider.
+            valid = ReviewedLodSupport(renderer, reviewedSupports);
+            // note: Approved independent assemblies may own exact collision on LOD0; lower visual LODs must not create competing walk planes.
+            if (valid == null && reviewedMeshSupports != null && reviewedMeshSupports.TryGetValue(renderer, out var reviewedMesh) &&
+                UsableReviewedMesh(reviewedMesh)) valid = reviewedMesh;
+            if (valid == null)
+            {
+                valid = AddSafeCollider(surface, renderer);
+                if (valid != null)
+                    report.repairedColliders++;
+            }
         }
 
         if (valid == null)
@@ -1345,6 +1379,110 @@ public static class YQGeneratedWorldIntegrityValidator
             report.invalidLayers++;
         }
         report.validColliders++;
+    }
+
+    private static Dictionary<Renderer, MeshCollider> CollectReviewedMeshLodSupports(GameObject root,
+        IReadOnlyDictionary<GameObject, YQReviewedCellFunctionContractV2> cells, YQTerrainApproachV2.SampleHeight sample)
+    {
+        var supports = new Dictionary<Renderer, MeshCollider>();
+        if (root == null || cells == null || sample == null) return supports;
+        foreach (var entry in cells)
+        {
+            GameObject cell = entry.Key; var contract = entry.Value; var assembly = contract?.independentAssembly;
+            // note: Reuse the canonical grounding validator, including every contact and unchanged embedding limits; a tag or ancestor collider cannot certify a visual LOD.
+            if (cell == null || !cell.transform.IsChildOf(root.transform) || contract == null || contract.reviewState != YQSemanticSiteReviewState.Approved ||
+                assembly == null || assembly.terrainContactVersion != 1 || !assembly.completeStructuralDependencies ||
+                (cell.transform.lossyScale - Vector3.one).sqrMagnitude > 0.0001f ||
+                !YQFoundationTerrainContacts.TryValidate(cell.transform, contract, 0f, sample, out _)) continue;
+            var groups = new HashSet<LODGroup>();
+            foreach (var contact in assembly.terrainContacts)
+            {
+                if (!YQCellDoorBindingsV2.TryResolveUniquePath(cell.transform, contact.supportPath, out Transform support)) continue;
+                var collider = support.GetComponent<MeshCollider>(); var filter = support.GetComponent<MeshFilter>();
+                var group = support.parent != null ? support.parent.GetComponent<LODGroup>() : null;
+                if (group == null || !group.enabled || !groups.Add(group) || !group.transform.IsChildOf(cell.transform) ||
+                    !UsableReviewedMesh(collider) || filter == null || filter.sharedMesh != collider.sharedMesh ||
+                    support.GetComponents<Collider>().Length != 1) continue;
+                LOD[] lods = group.GetLODs(); var ownerRenderer = support.GetComponent<Renderer>();
+                // note: One direct LOD0 mesh must be the sole collision owner across this group. Authored multi-part or additional collision arrangements retain conservative validation.
+                if (lods.Length == 0 || lods[0].renderers == null || lods[0].renderers.Length != 1 ||
+                    lods[0].renderers[0] != ownerRenderer) continue;
+                Collider[] colliders = group.GetComponentsInChildren<Collider>(true);
+                if (colliders.Length != 1 || colliders[0] != collider) continue;
+                bool membersValid = true;
+                // note: The outer publication root is deliberately inactive; only disabled authored geometry inside the cell invalidates support ownership.
+                for (Transform current = support; current != null && current != cell.transform; current = current.parent)
+                    if (!current.gameObject.activeSelf) membersValid = false;
+                foreach (var lod in lods)
+                    foreach (var member in lod.renderers ?? new Renderer[0])
+                        // note: Imported LOD arrays may retain empty renderer slots; certify every actual visual member without inventing geometry for those slots.
+                        if (member != null && member.transform.parent != group.transform) membersValid = false;
+                if (!membersValid) continue;
+                foreach (var lod in lods)
+                    foreach (var member in lod.renderers ?? new Renderer[0])
+                        if (member != null) supports[member] = collider;
+            }
+        }
+        return supports;
+    }
+
+    private static bool UsableReviewedMesh(MeshCollider collider)
+    {
+        if (collider == null || !collider.enabled || collider.isTrigger || collider.convex || collider.sharedMesh == null) return false;
+        if (!collider.gameObject.activeSelf) return false;
+        var motor = YQInvestorPlayerMotor.ActiveMotor; int playerLayer = motor != null ? motor.gameObject.layer : 0;
+        if (Physics.GetIgnoreLayerCollision(collider.gameObject.layer, playerLayer)) return false;
+        var player = motor != null ? motor.GetComponent<CharacterController>() : null;
+        return player == null || !Physics.GetIgnoreCollision(player, collider);
+    }
+
+    private static HashSet<BoxCollider> CollectReviewedLodSupports(GameObject root,
+        IReadOnlyDictionary<GameObject, YQReviewedCellFunctionContractV2> cells, YQTerrainApproachV2.SampleHeight sample)
+    {
+        var supports = new HashSet<BoxCollider>();
+        if (cells == null || sample == null) return supports;
+        foreach (var entry in cells)
+        {
+            GameObject cell = entry.Key; var contract = entry.Value;
+            if (cell == null || !cell.transform.IsChildOf(root.transform) || contract == null ||
+                contract.reviewState != YQSemanticSiteReviewState.Approved || string.IsNullOrWhiteSpace(contract.sourceSignature)) continue;
+            foreach (var door in contract.doorBindings ?? new List<YQCellDoorBindingV2>())
+            {
+                var approach = door?.terrainApproach;
+                if (door == null || door.reviewState != YQSemanticSiteReviewState.Approved || approach == null ||
+                    !YQCellDoorBindingsV2.TryResolveUniquePath(cell.transform, approach.supportPath, out Transform support)) continue;
+                var group = support.GetComponent<LODGroup>(); var colliders = support.GetComponents<Collider>();
+                if (group == null || !group.enabled || support.GetComponent<Renderer>() != null || colliders.Length != 1 ||
+                    !(colliders[0] is BoxCollider box) || !UsableReviewedBox(box)) continue;
+                // note: Reuse the actual source-approved three rails, local top tolerance (0.03m), unit-scale, activeSelf and native terrain connection checks. No art-bounds slack, mesh readability assumption or new coverage tolerance is introduced.
+                if (YQTerrainApproachV2.TryValidateReviewedConnection(cell.transform, approach, sample, out _)) supports.Add(box);
+            }
+        }
+        return supports;
+    }
+
+    private static BoxCollider ReviewedLodSupport(Renderer renderer, HashSet<BoxCollider> supports)
+    {
+        Transform parent = renderer.transform.parent;
+        if (parent == null || supports == null || supports.Count == 0) return null;
+        var group = parent.GetComponent<LODGroup>(); var colliders = parent.GetComponents<Collider>();
+        if (group == null || !group.enabled || parent.GetComponent<Renderer>() != null || colliders.Length != 1 ||
+            !(colliders[0] is BoxCollider box) || !supports.Contains(box) || !UsableReviewedBox(box)) return null;
+        foreach (var lod in group.GetLODs())
+            foreach (var member in lod.renderers ?? new Renderer[0])
+                if (ReferenceEquals(member, renderer)) return box;
+        return null;
+    }
+
+    private static bool UsableReviewedBox(BoxCollider box)
+    {
+        if (box == null || !box.enabled || box.isTrigger || !box.gameObject.activeSelf ||
+            !IsValidBounds(new Bounds(box.center, box.size))) return false;
+        var motor = YQInvestorPlayerMotor.ActiveMotor;
+        int playerLayer = motor != null ? motor.gameObject.layer : 0;
+        if (Physics.GetIgnoreLayerCollision(box.gameObject.layer, playerLayer)) return false;
+        var player = motor != null ? motor.GetComponent<CharacterController>() : null;
+        return player == null || !Physics.GetIgnoreCollision(player, box);
     }
 
     private static Collider AddSafeCollider(GameObject surface, Renderer renderer)

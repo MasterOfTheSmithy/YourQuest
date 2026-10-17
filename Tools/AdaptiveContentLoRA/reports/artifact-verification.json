@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "verified_at_utc": "2026-10-01T17:14:31.754Z",
+  "status": "PASS_CPU_ARTIFACTS_ONLY",
+  "node_version": "v24.19.0",
+  "steps": [
+    {
+      "step": "build",
+      "status": "PASS",
+      "exit_code": 0,
+      "output_sha256": "6bc4681bcaf7345d901b7833a4046ffb118edaa24f4792fa9461dd9e5c5a3630",
+      "test_count": null
+    },
+    {
+      "step": "development_regressions",
+      "status": "PASS",
+      "exit_code": 0,
+      "output_sha256": "533374e22a72429378dd853752a1ab997e3ffacba73ed01e05ec316963c795f9",
+      "test_count": 25
+    },
+    {
+      "step": "candidate_validation",
+      "status": "PASS",
+      "exit_code": 0,
+      "output_sha256": "f03ed0c9baf71993bbb6b9f1e7aa215084f4680b4e98ae343000d1e377ae6beb",
+      "test_count": null
+    },
+    {
+      "step": "local_teacher_prompts",
+      "status": "PASS",
+      "exit_code": 0,
+      "output_sha256": "67307c4914acce8ad78d28e4cc28cec85ceb72b65b091c253aa26cf2fed5b238",
+      "test_count": null
+    },
+    {
+      "step": "repository_guidance",
+      "status": "PASS",
+      "exit_code": 0,
+      "output_sha256": "9ff48fcac7602b4b01d52a69c190c18509ea1ef84fcb5cb5c2eda634214e5660",
+      "test_count": null
+    },
+    {
+      "step": "training_export_guard",
+      "status": "EXPECTED_REFUSAL",
+      "exit_code": 1,
+      "output_sha256": "57ab27008a86c4d954c10b478a7690b5571893ede9ddc47b99eca29608e48235",
+      "test_count": null
+    },
+    {
+      "step": "paired_evaluation_guard",
+      "status": "EXPECTED_REFUSAL",
+      "exit_code": 1,
+      "output_sha256": "a878308eafe99cb3a7248a61316aa3f631c2892085cd38a84ce9a4c17f7d17f1",
+      "test_count": null
+    }
+  ],
+  "parsed_and_whitespace_checked_files": 51,
+  "dataset_sha256": "d3a8c60b5252ab7c73eb487cf38956e15479f363a054a08106f34c23d5bcc65d",
+  "family_seal_sha256": "ccb7309cdce715e93e12eb70ab7a8e56e370b036693e4105b18b0b4404ab208a",
+  "records": 64,
+  "training_eligible_count": 0,
+  "model_invocations": 0,
+  "teacher_invocations": 0,
+  "unity_checks": "NOT_RUN",
+  "training": "NOT_RUN",
+  "adapter": "NOT_CREATED",
+  "integration": "NOT_IMPLEMENTED",
+  "hidden_inputs": "RESERVED_NOT_AUTHORED",
+  "errors": []
+}

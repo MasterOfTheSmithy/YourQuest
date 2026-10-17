@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_tasset
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Dragonbound_Female.prefab
+    prefab: {fileID: 9031414815938677912, guid: e5fcda6304c3d90409eef1249f505ccd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Dragonbound_Male.prefab
+    prefab: {fileID: 3413431500449543241, guid: 6db1332df9d8a58478f05061c161b1bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Eclipse_Female.prefab
+    prefab: {fileID: 6603960612324320882, guid: 60645bc82b9e20b4a8e572346d5c2541, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Eclipse_Male.prefab
+    prefab: {fileID: 7332579503399732020, guid: 2c9456ae590a48a4b8d49f2650fe43f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Field_Female.prefab
+    prefab: {fileID: 4619502516821013004, guid: 365614db748ab8548a72b7f641a5fe89, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Field_Male.prefab
+    prefab: {fileID: 5892906098082312224, guid: 7a6cebee3ba82214490cbac72e291c3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Lamellar_Female.prefab
+    prefab: {fileID: 8503404296212067840, guid: 5a4af8335d220234490b8056724f4d65, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Lamellar_Male.prefab
+    prefab: {fileID: 6401415033533242309, guid: d157b2876cb163146b886b2fd09a467d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Ranger_Female.prefab
+    prefab: {fileID: 4199644603597917345, guid: 7180c70751ca3774bb247852792e7c13, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Ranger_Male.prefab
+    prefab: {fileID: 4738949108238297268, guid: 8d411562f0c92454da38ba100bc3666b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Sentinel_Female.prefab
+    prefab: {fileID: 6335565675824085997, guid: 012b7cba42947bf4fa1c11be1a336e6d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Sentinel_Male.prefab
+    prefab: {fileID: 6434369712138710492, guid: 2f11915a45db2ee4ba90501ada5a7072, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 8286746016438128901, guid: b346f49e759f24c429f8d9b62ff1a89e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 485203826403993800, guid: eb3fe29bedbdc604bb5545454e09e8db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Traveler_Female.prefab
+    prefab: {fileID: 6500540207150332615, guid: bd5b48f19788b3242bc43f45d24f511f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Traveler_Male.prefab
+    prefab: {fileID: 3727199265530906324, guid: 83a6439c0ea77d34a89e1bd8137b8f82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 4746982777581339002, guid: b3365b14f2652e74d8a85c907f036a6b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3315314652137766681, guid: c59207c94ef1840469290cdd7123d719, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Field_Male_Parts.prefab
+    prefab: {fileID: 3115407754718937406, guid: cdd92fa54befcb44ebb462f8a4efe8c2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Field_Female_Parts.prefab
+    prefab: {fileID: 383570863585486299, guid: 2b8989532290b7042a3930384d1f54ba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Ranger_Male_Parts.prefab
+    prefab: {fileID: 2578060141516191292, guid: 4cebbac3ab264224c8f066682aee36a4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7749740780117564939, guid: 4c4c18b40f9f4974c82ff8dc554737a3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 1882358588810742979, guid: 11f5270de1dddee4a81e555b5530aa84, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 6023950268577896913, guid: 8c6f05de30210d447b93360d8429c77a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Traveler_Male_Parts.prefab
+    prefab: {fileID: 7070299243622260344, guid: 190cfb4fc5a08874483d715a2b1473c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Traveler_Female_Parts.prefab
+    prefab: {fileID: 1427206287013195494, guid: 2bce0076b93fe34428c65b0b4e119435, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 7359666913433829353, guid: c9aa24cbaa8a5d549a47576d7e1c50e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 2583018343298764919, guid: 98206b23da784d645ad279779bbe9d34, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 5142973245176389312, guid: 86285ff8e78405b429616c77c996c1b6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 7291544269539357402, guid: cf01ad487a7d54a44ab68e19aabb2ca7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 4481947346677594164, guid: fa084e9b6cd89de4eb09aa89842f5349, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 9163258393727103116, guid: 67194df2a1b108c41b7a26e6536ae09d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 7826001291547879977, guid: 2762fa17f036bb743a2902e73d6c8a95, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 957796754424944742, guid: 71ff614fb12b00e4b895cbfeed5aa53c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 5738458150334336686, guid: a7d44689da2f02a4a9e3b46a5bf263db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tasset/Tasset_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 6773179453805826735, guid: a22829c73f2807c4bb38bab22520e6c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,3921 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_ruraltown
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Barn_Floor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Floor_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Floor_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Road.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Road_Side.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/Instances/M_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 68dfe7aac86cd654b948fac7d35d8fc5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Materials/M_Terrain.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8d5267c992930ec4db0f459e0959c634, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/Barn/Materials/MI_Barn_Floor.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0ddfd365b0a497f4ca557d4bb6aef868, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/House/Materials/MI_Floor_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 854c33241bf9f424183cb9ba8471f940, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/House/Materials/MI_Floor_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 7f61da48a6830974699232bc7c6efcd2, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/MergedSplines/Materials/MI_Road.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a4b85a370929459419fde2a8a9487d5f, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/MergedSplines/Materials/MI_Road_Side.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 5ab9814493a9d0940a1eb9ee61d16a70, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/Props/Materials/MI_Road.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0dbcc3578e9fabf4bbd2c3ac57eb831c, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/Props/Materials/MI_Road_Side.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 0874fc48d16ecea4bbad30f140c605f5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/Props/Materials/MI_Rock_01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 225bdf82c4f8a80429bbf3ed6419270b, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Meshes/Props/Materials/MI_Rock_02.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: d721fe8d3ea0b214884895c0b7e673a4, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Antenna.prefab
+    prefab: {fileID: 1030971894, guid: abc00000000008025244877970899434, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Antenna_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1851237cbdf275f49aaa15c198c58ee6, type: 2}
+    - transformPath: SM_Antenna_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1851237cbdf275f49aaa15c198c58ee6, type: 2}
+    - transformPath: SM_Antenna_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1851237cbdf275f49aaa15c198c58ee6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_BackgroundMountain.prefab
+    prefab: {fileID: 1030973441, guid: abc00000000009100363123688225256, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BackgroundMountain_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c8b85f30a817e43b313a9cf9857392, type: 2}
+    - transformPath: SM_BackgroundMountain_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c8b85f30a817e43b313a9cf9857392, type: 2}
+    - transformPath: SM_BackgroundMountain_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c8b85f30a817e43b313a9cf9857392, type: 2}
+    - transformPath: SM_BackgroundMountain_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c8b85f30a817e43b313a9cf9857392, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barrel_01.prefab
+    prefab: {fileID: 1030975563, guid: abc00000000000449322208676681965, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barrel_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Barrel_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Barrel_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Barrel_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Barrel_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Barrel_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Barrel_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Barrel_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barrel_02.prefab
+    prefab: {fileID: 1030981475, guid: abc00000000011651877909763789446, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barrel_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+    - transformPath: SM_Barrel_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+    - transformPath: SM_Barrel_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barrel_Open.prefab
+    prefab: {fileID: 1030978271, guid: abc00000000017626079404719279044, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barrel_Open_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+    - transformPath: SM_Barrel_Open_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+    - transformPath: SM_Barrel_Open_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 37cf555eec78c614aafc91a489b45ffe, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Beam_2m.prefab
+    prefab: {fileID: 1030973922, guid: abc00000000000415831006881233412, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_2m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+    - transformPath: SM_Beam_2m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+    - transformPath: SM_Beam_2m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Beam_4m.prefab
+    prefab: {fileID: 1030984014, guid: abc00000000014451715222227703354, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Beam_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+    - transformPath: SM_Beam_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+    - transformPath: SM_Beam_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63c2106046ca6584fa4f5a8cdeb93fbf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Bin.prefab
+    prefab: {fileID: 1030977116, guid: abc00000000017142112487476259968, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bin_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20d9515e13f8854eb0e2bc274dfcfdc, type: 2}
+    - transformPath: SM_Bin_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20d9515e13f8854eb0e2bc274dfcfdc, type: 2}
+    - transformPath: SM_Bin_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20d9515e13f8854eb0e2bc274dfcfdc, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_01.prefab
+    prefab: {fileID: 1030976819, guid: abc00000000010862631447684541522, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_02.prefab
+    prefab: {fileID: 1030972004, guid: abc00000000002162173725802366361, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_03.prefab
+    prefab: {fileID: 1030972022, guid: abc00000000007442171262015425424, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_04.prefab
+    prefab: {fileID: 1030972040, guid: abc00000000009769517996226620887, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_05.prefab
+    prefab: {fileID: 1030972058, guid: abc00000000016855605976640557854, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Box_06.prefab
+    prefab: {fileID: 1030972076, guid: abc00000000002888391252475294629, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Box_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+    - transformPath: SM_Box_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a5b6d6b632692048aaed769dccbe637, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_01.prefab
+    prefab: {fileID: 1031062518, guid: abc00000000012726859235981086167, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_02.prefab
+    prefab: {fileID: 1031101944, guid: abc00000000017634814841618058076, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_03.prefab
+    prefab: {fileID: 1031141338, guid: abc00000000005845732492229759909, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_04.prefab
+    prefab: {fileID: 1031180156, guid: abc00000000013819972687439006802, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_05.prefab
+    prefab: {fileID: 1031220158, guid: abc00000000005534555823463353371, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Braches_06.prefab
+    prefab: {fileID: 1031259600, guid: abc00000000010399512501769890704, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Braches_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+    - transformPath: SM_Braches_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2af91aa62490924409af920b19e7549e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Cloth_01.prefab
+    prefab: {fileID: 1030972382, guid: abc00000000016931956599906622531, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cloth_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d2f824d90684212479cfe68e2252c4e0, type: 2}
+    - transformPath: SM_Cloth_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d2f824d90684212479cfe68e2252c4e0, type: 2}
+    - transformPath: SM_Cloth_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d2f824d90684212479cfe68e2252c4e0, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Electric_Pole.prefab
+    prefab: {fileID: 1031471435, guid: abc00000000010541078005996265377, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Electric_Pole_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7291f4fd96be5514480283cc326d9f97, type: 2}
+    - transformPath: SM_Electric_Pole_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7291f4fd96be5514480283cc326d9f97, type: 2}
+    - transformPath: SM_Electric_Pole_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7291f4fd96be5514480283cc326d9f97, type: 2}
+    - transformPath: SM_Electric_Pole_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7291f4fd96be5514480283cc326d9f97, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_Dead_M_01.prefab
+    prefab: {fileID: 1030979667, guid: abc00000000001206304988545889534, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_Dead_M_02.prefab
+    prefab: {fileID: 1030979689, guid: abc00000000016254985445806198277, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_Dead_XL_01.prefab
+    prefab: {fileID: 1030971884, guid: abc00000000013243408785404958199, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_Dead_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_Log_01.prefab
+    prefab: {fileID: 1030977381, guid: abc00000000003769744192487942334, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 35014b15a335e8f429ea370a0f6b0e34, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 35014b15a335e8f429ea370a0f6b0e34, type: 2}
+    - transformPath: SM_EuropeanBeech_Log_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_L_01.prefab
+    prefab: {fileID: 1030973849, guid: abc00000000001864290288166493324, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_L_02.prefab
+    prefab: {fileID: 1031009221, guid: abc00000000017518264023766144327, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_L_03.prefab
+    prefab: {fileID: 1031009249, guid: abc00000000010198080389812662350, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_L_03_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_M_01.prefab
+    prefab: {fileID: 1030979826, guid: abc00000000017351616989501551219, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_Stump_01.prefab
+    prefab: {fileID: 1030977366, guid: abc00000000011414400165506211899, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 73aa10f18c463574e93450f4e82be75f, type: 2}
+    - transformPath: SM_EuropeanBeech_Stump_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2ce487e25df6c364a9f4aaa5ba7d01fa, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XL_01.prefab
+    prefab: {fileID: 1030979881, guid: abc00000000001096249565822034040, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XL_02.prefab
+    prefab: {fileID: 1031009277, guid: abc00000000012231957801027281667, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a9b5d3c9117be4c4d9ab248b7740f3a0, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_02_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 21e5470d57a41164ba265dfdb4db5334, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XL_03.prefab
+    prefab: {fileID: 1030979922, guid: abc00000000015641339167181143738, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XL_03_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: a8655fae4bffa804e8ad9a2ed30eab1e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fan_01.prefab
+    prefab: {fileID: 1030974290, guid: abc00000000009861367260836434746, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fan_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+    - transformPath: SM_Fan_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+    - transformPath: SM_Fan_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fan_In.prefab
+    prefab: {fileID: 1031439026, guid: abc00000000017046913670202897062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fan_In_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+    - transformPath: SM_Fan_In_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+    - transformPath: SM_Fan_In_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3559b9dcbc5d79d48acd5ec58ba133ee, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Guitar.prefab
+    prefab: {fileID: 1030976549, guid: abc00000000012118417085865258359, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Guitar_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5ff73b5bc3cff684f80aa38f34c81546, type: 2}
+    - transformPath: SM_Guitar_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5ff73b5bc3cff684f80aa38f34c81546, type: 2}
+    - transformPath: SM_Guitar_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5ff73b5bc3cff684f80aa38f34c81546, type: 2}
+    - transformPath: SM_Guitar_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5ff73b5bc3cff684f80aa38f34c81546, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Hay.prefab
+    prefab: {fileID: 1030973512, guid: abc00000000017760980773119374081, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hay_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b32678b922fb954489707e6a18d7cd53, type: 2}
+    - transformPath: SM_Hay_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b32678b922fb954489707e6a18d7cd53, type: 2}
+    - transformPath: SM_Hay_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 9fcbd3e046659b04380c60ca9fc26769, type: 2}
+    - transformPath: SM_Hay_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b32678b922fb954489707e6a18d7cd53, type: 2}
+    - transformPath: SM_Hay_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b32678b922fb954489707e6a18d7cd53, type: 2}
+    - transformPath: SM_Hay_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 9fcbd3e046659b04380c60ca9fc26769, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Hay_02.prefab
+    prefab: {fileID: 1030972268, guid: abc00000000004822268442906397790, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hay_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a93765379afe4ee4ba0f4359427d5885, type: 2}
+    - transformPath: SM_Hay_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a93765379afe4ee4ba0f4359427d5885, type: 2}
+    - transformPath: SM_Hay_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a93765379afe4ee4ba0f4359427d5885, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Hay_Pile.prefab
+    prefab: {fileID: 1030977154, guid: abc00000000011587189392218013772, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hay_Pile_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9380330cb1e59458b61be623d3a54b, type: 2}
+    - transformPath: SM_Hay_Pile_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: af9380330cb1e59458b61be623d3a54b, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Kettle.prefab
+    prefab: {fileID: 1030986169, guid: abc00000000004927306393010625516, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Kettle_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 43eb9eeccbb0a1e4cb33bd0958ca4a39, type: 2}
+    - transformPath: SM_Kettle_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 43eb9eeccbb0a1e4cb33bd0958ca4a39, type: 2}
+    - transformPath: SM_Kettle_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 43eb9eeccbb0a1e4cb33bd0958ca4a39, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Lamp.prefab
+    prefab: {fileID: 1031503628, guid: abc00000000006797332010751324563, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 660f8234a95eee84d8d26636f7e9e7e5, type: 2}
+    - transformPath: SM_Lamp_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 660f8234a95eee84d8d26636f7e9e7e5, type: 2}
+    - transformPath: SM_Lamp_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 660f8234a95eee84d8d26636f7e9e7e5, type: 2}
+    - transformPath: SM_Lamp_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 660f8234a95eee84d8d26636f7e9e7e5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_LampPost.prefab
+    prefab: {fileID: 7652066249418182226, guid: d30494c4b0a33204a9028f3f6007d35c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LampPost_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_LampPost_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9f2db69895c43444cb2ac333219ca07d, type: 2}
+    - transformPath: SM_LampPost_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_LampPost_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9f2db69895c43444cb2ac333219ca07d, type: 2}
+    - transformPath: SM_LampPost_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_LampPost_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9f2db69895c43444cb2ac333219ca07d, type: 2}
+    - transformPath: SM_LampPost_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_LampPost_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9f2db69895c43444cb2ac333219ca07d, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Lamp_02.prefab
+    prefab: {fileID: 4329277346760999232, guid: 1ea5704082a612e418db62f40da0db85, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lamp_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2b92b5cc638700143bc4f9c6b428aadb, type: 2}
+    - transformPath: SM_Lamp_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_Lamp_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2b92b5cc638700143bc4f9c6b428aadb, type: 2}
+    - transformPath: SM_Lamp_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_Lamp_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2b92b5cc638700143bc4f9c6b428aadb, type: 2}
+    - transformPath: SM_Lamp_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Lantern.prefab
+    prefab: {fileID: 1030975810, guid: abc00000000009577592741665352263, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Lantern_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 92d502e5f3dcc304885e7adfc0bec7ad, type: 2}
+    - transformPath: SM_Lantern_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 92d502e5f3dcc304885e7adfc0bec7ad, type: 2}
+    - transformPath: SM_Lantern_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 92d502e5f3dcc304885e7adfc0bec7ad, type: 2}
+    - transformPath: SM_Lantern_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 92d502e5f3dcc304885e7adfc0bec7ad, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Map.prefab
+    prefab: {fileID: 1030985997, guid: abc00000000017238064165517576473, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Map_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c5634cc85137efe4db8ccffe5c4e3212, type: 2}
+    - transformPath: SM_Map_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_Map_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c5634cc85137efe4db8ccffe5c4e3212, type: 2}
+    - transformPath: SM_Map_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_Map_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c5634cc85137efe4db8ccffe5c4e3212, type: 2}
+    - transformPath: SM_Map_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Picnic.prefab
+    prefab: {fileID: 1030977418, guid: abc00000000000752677275648889303, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Picnic_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9d84b06a16d9ea46a33469d843310ea, type: 2}
+    - transformPath: SM_Picnic_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9d84b06a16d9ea46a33469d843310ea, type: 2}
+    - transformPath: SM_Picnic_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d9d84b06a16d9ea46a33469d843310ea, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Pitchfork.prefab
+    prefab: {fileID: 1030973405, guid: abc00000000010077295822435234281, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pitchfork_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4da9e62bf160cd44f83c5d830260c5ef, type: 2}
+    - transformPath: SM_Pitchfork_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4da9e62bf160cd44f83c5d830260c5ef, type: 2}
+    - transformPath: SM_Pitchfork_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4da9e62bf160cd44f83c5d830260c5ef, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_1m.prefab
+    prefab: {fileID: 1030983652, guid: abc00000000017101054517014570690, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_1m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_1m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_1m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_4m.prefab
+    prefab: {fileID: 1030983634, guid: abc00000000004501203377574714333, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_Below_1m.prefab
+    prefab: {fileID: 1030983688, guid: abc00000000004664667118206915444, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_Below_1m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_Below_1m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_Below_1m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_Side.prefab
+    prefab: {fileID: 1030983670, guid: abc00000000017654327081155241573, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_Side_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_Side_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+    - transformPath: SM_Porch_Side_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ff51050770a9189439f392dfe395a469, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Rail_3m.prefab
+    prefab: {fileID: 1030983800, guid: abc00000000012559488758537000760, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rail_3m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dee50fbd5f5d0742a5c51d19a9121bf, type: 2}
+    - transformPath: SM_Rail_3m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dee50fbd5f5d0742a5c51d19a9121bf, type: 2}
+    - transformPath: SM_Rail_3m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5dee50fbd5f5d0742a5c51d19a9121bf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_RockCluster_01.prefab
+    prefab: {fileID: 1030973061, guid: abc00000000003494763203092068522, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockCluster_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 68dfe7aac86cd654b948fac7d35d8fc5, type: 2}
+    - transformPath: SM_RockCluster_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 68dfe7aac86cd654b948fac7d35d8fc5, type: 2}
+    - transformPath: SM_RockCluster_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 68dfe7aac86cd654b948fac7d35d8fc5, type: 2}
+    - transformPath: SM_RockCluster_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 68dfe7aac86cd654b948fac7d35d8fc5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_RockCluster_02.prefab
+    prefab: {fileID: 1030972878, guid: abc00000000001075502933508051185, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockCluster_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+    - transformPath: SM_RockCluster_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1f1eff0dfff15424181c4a9a926e7273, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_L_01.prefab
+    prefab: {fileID: 1031009325, guid: abc00000000006264877392217652874, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_L_02.prefab
+    prefab: {fileID: 1031009346, guid: abc00000000010080006360725859281, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_M_01.prefab
+    prefab: {fileID: 1031009367, guid: abc00000000014972953830511498521, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_M_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_S_01.prefab
+    prefab: {fileID: 1031009387, guid: abc00000000014208238075552695327, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_S_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_XL_01.prefab
+    prefab: {fileID: 1031009407, guid: abc00000000010816312911577100658, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_XL_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_XL_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_SilverFir_XL_02.prefab
+    prefab: {fileID: 1031009304, guid: abc00000000003736532129170593977, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SilverFir_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e662814028e139f48949326f46af1b0b, type: 2}
+    - transformPath: SM_SilverFir_XL_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 0f2301e1d458b9449af594fd9bb0ee0a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Sofa.prefab
+    prefab: {fileID: 1030977888, guid: abc00000000010344285443936220656, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Sofa_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16e5c406f2e4dd448b1c4ddf2b248cf6, type: 2}
+    - transformPath: SM_Sofa_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16e5c406f2e4dd448b1c4ddf2b248cf6, type: 2}
+    - transformPath: SM_Sofa_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 16e5c406f2e4dd448b1c4ddf2b248cf6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Stairs_01.prefab
+    prefab: {fileID: 1031008189, guid: abc00000000010286194390915798511, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a5bfef481aaa5f14b8a7160c8a448aa3, type: 2}
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD0
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a5bfef481aaa5f14b8a7160c8a448aa3, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD1
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a5bfef481aaa5f14b8a7160c8a448aa3, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD2
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a5bfef481aaa5f14b8a7160c8a448aa3, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+    - transformPath: SM_Stairs_01_LOD3
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 4d367b3ad739c804cb8811c71e9be80b, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Stairs_Porch_01.prefab
+    prefab: {fileID: 1030983598, guid: abc00000000009863587041324831414, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Porch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+    - transformPath: SM_Stairs_Porch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+    - transformPath: SM_Stairs_Porch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Stairs_Porch_02.prefab
+    prefab: {fileID: 1030983616, guid: abc00000000003365305952652996765, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Porch_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+    - transformPath: SM_Stairs_Porch_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+    - transformPath: SM_Stairs_Porch_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b0664b065ad12f94699883b768f8eddd, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Stairs_Rail.prefab
+    prefab: {fileID: 1030981777, guid: abc00000000014944541717508808890, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Rail_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Stairs_Rail_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Support.prefab
+    prefab: {fileID: 1030983706, guid: abc00000000012021873598363859354, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Support_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00cc7fd1a95b8b34396016615c3838aa, type: 2}
+    - transformPath: SM_Support_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00cc7fd1a95b8b34396016615c3838aa, type: 2}
+    - transformPath: SM_Support_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 00cc7fd1a95b8b34396016615c3838aa, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Tank.prefab
+    prefab: {fileID: 1030977956, guid: abc00000000002923434729120558605, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tank_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a1b3382b8d45a5b4cbdc3cfe535115c0, type: 2}
+    - transformPath: SM_Tank_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a1b3382b8d45a5b4cbdc3cfe535115c0, type: 2}
+    - transformPath: SM_Tank_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a1b3382b8d45a5b4cbdc3cfe535115c0, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_TopLight.prefab
+    prefab: {fileID: 7547077614941840511, guid: d6d8e29dd1b18834da190c9dcdfeb1f2, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TopLight_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_TopLight_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b827f23343c25754a89b253ae6392cb5, type: 2}
+    - transformPath: SM_TopLight_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_TopLight_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b827f23343c25754a89b253ae6392cb5, type: 2}
+    - transformPath: SM_TopLight_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7a2848ca9ca48a84e8f98ebee3a8f9c4, type: 2}
+    - transformPath: SM_TopLight_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b827f23343c25754a89b253ae6392cb5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wardrobe.prefab
+    prefab: {fileID: 1030986151, guid: abc00000000017051921371168737397, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wardrobe_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 82e0c249744a8f242849ec5897004ffa, type: 2}
+    - transformPath: SM_Wardrobe_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 82e0c249744a8f242849ec5897004ffa, type: 2}
+    - transformPath: SM_Wardrobe_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 82e0c249744a8f242849ec5897004ffa, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Well.prefab
+    prefab: {fileID: 1030972596, guid: abc00000000002232687152499593889, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Well_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c6668b31463a7649ac20d916b162339, type: 2}
+    - transformPath: SM_Well_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c6668b31463a7649ac20d916b162339, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_01.prefab
+    prefab: {fileID: 1030979467, guid: abc00000000013191379967334378261, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c3b51a4ca8f3bc3449086f148204d8b8, type: 2}
+    - transformPath: SM_Window_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c3b51a4ca8f3bc3449086f148204d8b8, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_02.prefab
+    prefab: {fileID: 1030983978, guid: abc00000000003488636608867168782, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: face7b5bff706064f97c86613e64b194, type: 2}
+    - transformPath: SM_Window_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de665246026eabd449306506bb6be533, type: 2}
+    - transformPath: SM_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: face7b5bff706064f97c86613e64b194, type: 2}
+    - transformPath: SM_Window_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de665246026eabd449306506bb6be533, type: 2}
+    - transformPath: SM_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: face7b5bff706064f97c86613e64b194, type: 2}
+    - transformPath: SM_Window_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de665246026eabd449306506bb6be533, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_Small.prefab
+    prefab: {fileID: 1030984158, guid: abc00000000013023851630360067657, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae957218313ca9c469e0a8098b8a2d5a, type: 2}
+    - transformPath: SM_Window_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae957218313ca9c469e0a8098b8a2d5a, type: 2}
+    - transformPath: SM_Window_Small_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ae957218313ca9c469e0a8098b8a2d5a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_Top.prefab
+    prefab: {fileID: 1030984048, guid: abc00000000015218467539518664261, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_Top_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 54aeeb3a1b3f885408f370851c922f68, type: 2}
+    - transformPath: SM_Window_Top_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 54aeeb3a1b3f885408f370851c922f68, type: 2}
+    - transformPath: SM_Window_Top_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 54aeeb3a1b3f885408f370851c922f68, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_WoodenCrate_01.prefab
+    prefab: {fileID: 1030972228, guid: abc00000000004958597091532707890, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodenCrate_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 852d3cfb81bb5ce4f87820d4673f77d5, type: 2}
+    - transformPath: SM_WoodenCrate_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 852d3cfb81bb5ce4f87820d4673f77d5, type: 2}
+    - transformPath: SM_WoodenCrate_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 852d3cfb81bb5ce4f87820d4673f77d5, type: 2}
+    - transformPath: SM_WoodenCrate_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 852d3cfb81bb5ce4f87820d4673f77d5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Arch_01.prefab
+    prefab: {fileID: 1030984122, guid: abc00000000004109517229662610729, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arch_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c54cf8acb90822f49b91d9189f79ba83, type: 2}
+    - transformPath: SM_Arch_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c54cf8acb90822f49b91d9189f79ba83, type: 2}
+    - transformPath: SM_Arch_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c54cf8acb90822f49b91d9189f79ba83, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Door_01.prefab
+    prefab: {fileID: 1030984318, guid: abc00000000002495159762319646933, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Door_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39dd2cff3daa2984eace14272d63374b, type: 2}
+    - transformPath: SM_Barn_Door_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39dd2cff3daa2984eace14272d63374b, type: 2}
+    - transformPath: SM_Barn_Door_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 39dd2cff3daa2984eace14272d63374b, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Door_Side.prefab
+    prefab: {fileID: 1030984498, guid: abc00000000014095144722597837645, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Door_Side_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e07884a381749fe4ea89591630a0ab0f, type: 2}
+    - transformPath: SM_Barn_Door_Side_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e07884a381749fe4ea89591630a0ab0f, type: 2}
+    - transformPath: SM_Barn_Door_Side_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e07884a381749fe4ea89591630a0ab0f, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Floor_01.prefab
+    prefab: {fileID: 1030984248, guid: abc00000000007737228684932890449, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Floor_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Floor_02.prefab
+    prefab: {fileID: 1030984266, guid: abc00000000003922099716424684042, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Floor_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Floor_03.prefab
+    prefab: {fileID: 1030971912, guid: abc00000000004710025974676028691, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Floor_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+    - transformPath: SM_Barn_Floor_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f47fc7f842da31f4e893229856ca225e, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Pillar_01.prefab
+    prefab: {fileID: 1030984570, guid: abc00000000014274859781634254333, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Pillar_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e18493f35d291e41bd0df0bad4a459a, type: 2}
+    - transformPath: SM_Barn_Pillar_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e18493f35d291e41bd0df0bad4a459a, type: 2}
+    - transformPath: SM_Barn_Pillar_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9e18493f35d291e41bd0df0bad4a459a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Pillar_02.prefab
+    prefab: {fileID: 1030984588, guid: abc00000000000950884561884403222, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Pillar_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae325611f022094ca14b6ec6d3c4b06, type: 2}
+    - transformPath: SM_Barn_Pillar_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae325611f022094ca14b6ec6d3c4b06, type: 2}
+    - transformPath: SM_Barn_Pillar_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aae325611f022094ca14b6ec6d3c4b06, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Pillar_03.prefab
+    prefab: {fileID: 1030984606, guid: abc00000000006107288796274521583, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Pillar_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 601effbda5dcae34483be6bb0a9ef099, type: 2}
+    - transformPath: SM_Barn_Pillar_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 601effbda5dcae34483be6bb0a9ef099, type: 2}
+    - transformPath: SM_Barn_Pillar_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 601effbda5dcae34483be6bb0a9ef099, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_03.prefab
+    prefab: {fileID: 1030984732, guid: abc00000000012782922864614137801, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_04.prefab
+    prefab: {fileID: 1030984768, guid: abc00000000018194506636357566222, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_04_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_05.prefab
+    prefab: {fileID: 1030984750, guid: abc00000000001217761135357669639, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+    - transformPath: SM_Barn_Roof_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ad3125969e3e564498148c02aa7025bc, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_6m_02.prefab
+    prefab: {fileID: 1030984176, guid: abc00000000005132036679548386154, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_6m_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+    - transformPath: SM_Barn_Roof_6m_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+    - transformPath: SM_Barn_Roof_6m_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_Beam.prefab
+    prefab: {fileID: 1030984714, guid: abc00000000004014783001900575131, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_Beam_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9513aa92e05e17142a9958fc3fd80531, type: 2}
+    - transformPath: SM_Barn_Roof_Beam_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9513aa92e05e17142a9958fc3fd80531, type: 2}
+    - transformPath: SM_Barn_Roof_Beam_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9513aa92e05e17142a9958fc3fd80531, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_Out.prefab
+    prefab: {fileID: 1030984624, guid: abc00000000005326586792384076246, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_Out_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20907138d46e4942b1b86d7ed4d2bae, type: 2}
+    - transformPath: SM_Barn_Roof_Out_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20907138d46e4942b1b86d7ed4d2bae, type: 2}
+    - transformPath: SM_Barn_Roof_Out_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c20907138d46e4942b1b86d7ed4d2bae, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Roof_Top.prefab
+    prefab: {fileID: 1030984696, guid: abc00000000012327932748505118899, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Roof_Top_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 77261369d620e4048acb81e83fdd8d20, type: 2}
+    - transformPath: SM_Barn_Roof_Top_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 77261369d620e4048acb81e83fdd8d20, type: 2}
+    - transformPath: SM_Barn_Roof_Top_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 77261369d620e4048acb81e83fdd8d20, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Structure_01.prefab
+    prefab: {fileID: 1030984642, guid: abc00000000011966570983581139150, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Structure_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d8d56f9ba9e994946888252dd632c51d, type: 2}
+    - transformPath: SM_Barn_Structure_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d8d56f9ba9e994946888252dd632c51d, type: 2}
+    - transformPath: SM_Barn_Structure_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d8d56f9ba9e994946888252dd632c51d, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Structure_02.prefab
+    prefab: {fileID: 1030984660, guid: abc00000000017311744209022090965, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Structure_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c27cc8f985d11034dbb208adaea05f05, type: 2}
+    - transformPath: SM_Barn_Structure_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c27cc8f985d11034dbb208adaea05f05, type: 2}
+    - transformPath: SM_Barn_Structure_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c27cc8f985d11034dbb208adaea05f05, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Structure_03.prefab
+    prefab: {fileID: 1030984678, guid: abc00000000003632780881934970124, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Structure_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0b5efa78c82701f45a4858a325f93bef, type: 2}
+    - transformPath: SM_Barn_Structure_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0b5efa78c82701f45a4858a325f93bef, type: 2}
+    - transformPath: SM_Barn_Structure_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0b5efa78c82701f45a4858a325f93bef, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_01.prefab
+    prefab: {fileID: 1030984390, guid: abc00000000002197355393176525193, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6de8ac10e3ae414181b13bcaa905ad6, type: 2}
+    - transformPath: SM_Barn_Wall_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6de8ac10e3ae414181b13bcaa905ad6, type: 2}
+    - transformPath: SM_Barn_Wall_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6de8ac10e3ae414181b13bcaa905ad6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_02.prefab
+    prefab: {fileID: 1030984372, guid: abc00000000004292313515259046338, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bcb5163a149bd4d42ab8ea6d919a120c, type: 2}
+    - transformPath: SM_Barn_Wall_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bcb5163a149bd4d42ab8ea6d919a120c, type: 2}
+    - transformPath: SM_Barn_Wall_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bcb5163a149bd4d42ab8ea6d919a120c, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_03.prefab
+    prefab: {fileID: 1030984354, guid: abc00000000000598539651948839947, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7311d79b4b33175448f43b0dd0e2216d, type: 2}
+    - transformPath: SM_Barn_Wall_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7311d79b4b33175448f43b0dd0e2216d, type: 2}
+    - transformPath: SM_Barn_Wall_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7311d79b4b33175448f43b0dd0e2216d, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_04.prefab
+    prefab: {fileID: 1030984336, guid: abc00000000018105815838854910988, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9b657a568caac6428a4e3911a15b5a4, type: 2}
+    - transformPath: SM_Barn_Wall_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9b657a568caac6428a4e3911a15b5a4, type: 2}
+    - transformPath: SM_Barn_Wall_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b9b657a568caac6428a4e3911a15b5a4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_05.prefab
+    prefab: {fileID: 1030984300, guid: abc00000000013338035092232480213, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 55636499349c460438e2ce1267e7b563, type: 2}
+    - transformPath: SM_Barn_Wall_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 55636499349c460438e2ce1267e7b563, type: 2}
+    - transformPath: SM_Barn_Wall_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 55636499349c460438e2ce1267e7b563, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_06.prefab
+    prefab: {fileID: 1030984480, guid: abc00000000007992861866791528398, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88665f842261a834282e430a45de6826, type: 2}
+    - transformPath: SM_Barn_Wall_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88665f842261a834282e430a45de6826, type: 2}
+    - transformPath: SM_Barn_Wall_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88665f842261a834282e430a45de6826, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Wall_Window.prefab
+    prefab: {fileID: 1030984408, guid: abc00000000007287699427438215948, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Wall_Window_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dc0ce48e3be373439b26778c5de1a98, type: 2}
+    - transformPath: SM_Barn_Wall_Window_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dc0ce48e3be373439b26778c5de1a98, type: 2}
+    - transformPath: SM_Barn_Wall_Window_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8dc0ce48e3be373439b26778c5de1a98, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Window.prefab
+    prefab: {fileID: 1030984426, guid: abc00000000010334155545241273513, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Window_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Window_Side_01.prefab
+    prefab: {fileID: 1030984444, guid: abc00000000011779043946523979369, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Window_Side_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_Side_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_Side_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Barn_Window_Side_02.prefab
+    prefab: {fileID: 1030984462, guid: abc00000000003054394157815710498, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Barn_Window_Side_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_Side_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+    - transformPath: SM_Barn_Window_Side_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca22c26c19707ce44a133b8045c24fb5, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Cabinet.prefab
+    prefab: {fileID: 1030986373, guid: abc00000000017929015102376423859, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Cabinet_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6c24ff6587b0ba34290d7f22b11edcc7, type: 2}
+    - transformPath: SM_Cabinet_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6c24ff6587b0ba34290d7f22b11edcc7, type: 2}
+    - transformPath: SM_Cabinet_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6c24ff6587b0ba34290d7f22b11edcc7, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Chair_01.prefab
+    prefab: {fileID: 1030976957, guid: abc00000000010369402934046641914, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chair_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f8c7684aae6574949b783db12c9e524c, type: 2}
+    - transformPath: SM_Chair_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f8c7684aae6574949b783db12c9e524c, type: 2}
+    - transformPath: SM_Chair_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f8c7684aae6574949b783db12c9e524c, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Chair_02.prefab
+    prefab: {fileID: 1030972620, guid: abc00000000001394531112058273409, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chair_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 20b2439ff60786647b8debb6bdc1ae6b, type: 2}
+    - transformPath: SM_Chair_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 20b2439ff60786647b8debb6bdc1ae6b, type: 2}
+    - transformPath: SM_Chair_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 20b2439ff60786647b8debb6bdc1ae6b, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Chair_03.prefab
+    prefab: {fileID: 1030976531, guid: abc00000000001061539464651139256, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chair_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eddd3f4ec27ac004baed2196c6929515, type: 2}
+    - transformPath: SM_Chair_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eddd3f4ec27ac004baed2196c6929515, type: 2}
+    - transformPath: SM_Chair_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eddd3f4ec27ac004baed2196c6929515, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Desk.prefab
+    prefab: {fileID: 1030976513, guid: abc00000000002102194570356099522, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Desk_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33fffc93ccaf3db4f8ea7791982aa933, type: 2}
+    - transformPath: SM_Desk_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33fffc93ccaf3db4f8ea7791982aa933, type: 2}
+    - transformPath: SM_Desk_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 33fffc93ccaf3db4f8ea7791982aa933, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Door_01.prefab
+    prefab: {fileID: 1030977334, guid: abc00000000006790571834125416237, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Door_02.prefab
+    prefab: {fileID: 1031008318, guid: abc00000000018238010764999236038, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Door_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+    - transformPath: SM_Door_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_S_01.prefab
+    prefab: {fileID: 1030979842, guid: abc00000000002995431709613086229, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_S_02.prefab
+    prefab: {fileID: 1030979855, guid: abc00000000011739432424855428366, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XS_01.prefab
+    prefab: {fileID: 1030979944, guid: abc00000000002064489860195034057, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XS_02.prefab
+    prefab: {fileID: 1030979957, guid: abc00000000003530923525596090114, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_XS_03.prefab
+    prefab: {fileID: 1030979970, guid: abc00000000004684204779908744011, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_XS_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1cc3b2e8f45f190429b1e546060971ea, type: 2}
+    - transformPath: SM_EuropeanBeech_XS_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 62d8406898de53347a15290de3e3b457, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_01.prefab
+    prefab: {fileID: 1031134438, guid: abc00000000010890742120931742386, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_02.prefab
+    prefab: {fileID: 1031134445, guid: abc00000000008280230277518222585, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03.prefab
+    prefab: {fileID: 1031133778, guid: abc00000000001218939482032820848, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2fc630897d8f8c149bdd7cc08754680a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_1.prefab
+    prefab: {fileID: 1031517615, guid: abc00000000005358022318213909871, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_10.prefab
+    prefab: {fileID: 1031517768, guid: abc00000000000830056964836096141, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_10_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_10_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_10_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_11.prefab
+    prefab: {fileID: 1031517785, guid: abc00000000017728755682160292708, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_11_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_11_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_11_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_12.prefab
+    prefab: {fileID: 1031517802, guid: abc00000000018438302003104738175, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_12_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_12_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_12_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_13.prefab
+    prefab: {fileID: 1031517819, guid: abc00000000012277495895709915942, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_13_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_13_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_13_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_14.prefab
+    prefab: {fileID: 1031517836, guid: abc00000000011495709957437593153, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_14_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_14_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_14_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_15.prefab
+    prefab: {fileID: 1031517853, guid: abc00000000010917835080243746680, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_15_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_15_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_15_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_16.prefab
+    prefab: {fileID: 1031517870, guid: abc00000000003606799241739442691, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_16_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_16_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_16_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_2.prefab
+    prefab: {fileID: 1031517632, guid: abc00000000016843596142772388564, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_21.prefab
+    prefab: {fileID: 1031517971, guid: abc00000000006843803597668484005, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_21_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_21_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_21_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_22.prefab
+    prefab: {fileID: 1031517988, guid: abc00000000002364274248124195614, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_22_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_22_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_22_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_23.prefab
+    prefab: {fileID: 1031518005, guid: abc00000000013724930341419810263, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_23_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_23_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_23_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_24.prefab
+    prefab: {fileID: 1031518022, guid: abc00000000011397583607208614800, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_24_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_24_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_24_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_25.prefab
+    prefab: {fileID: 1031518039, guid: abc00000000006117586070995555737, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_25_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_25_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_25_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_26.prefab
+    prefab: {fileID: 1031518056, guid: abc00000000014818043792877730898, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_26_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_26_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_26_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_27.prefab
+    prefab: {fileID: 1031518073, guid: abc00000000006532626928902077467, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_27_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_27_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_27_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_28.prefab
+    prefab: {fileID: 1031518090, guid: abc00000000004796777600096621380, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_28_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_28_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_28_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_29.prefab
+    prefab: {fileID: 1031518107, guid: abc00000000007118353722740653933, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_29_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_29_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_29_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_3.prefab
+    prefab: {fileID: 1031517649, guid: abc00000000013525593303573642621, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_30.prefab
+    prefab: {fileID: 1031518124, guid: abc00000000014529830798666375847, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_30_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_30_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_30_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_31.prefab
+    prefab: {fileID: 1031518141, guid: abc00000000014418109770554451246, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_31_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_31_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_31_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_4.prefab
+    prefab: {fileID: 1031517666, guid: abc00000000012382574627967822570, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_4_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_4_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_4_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_5.prefab
+    prefab: {fileID: 1031517683, guid: abc00000000013153266196104763507, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_5_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_5_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_5_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_6.prefab
+    prefab: {fileID: 1031517700, guid: abc00000000004248974437108988584, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_6_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_6_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_6_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_7.prefab
+    prefab: {fileID: 1031517717, guid: abc00000000016197422121499206961, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_7_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_7_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_7_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_8.prefab
+    prefab: {fileID: 1031517734, guid: abc00000000004984519477104809326, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_8_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_8_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_8_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Fence_03_Splines_9.prefab
+    prefab: {fileID: 1031517751, guid: abc00000000012706141978021091815, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fence_03_Splines_9_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_9_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+    - transformPath: SM_Fence_03_Splines_9_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5febf104fd9105d4db541f73f4e3f737, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Floor_2m.prefab
+    prefab: {fileID: 1030983522, guid: abc00000000014135516093037702627, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_2m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_2m_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_2m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_2m_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_2m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_2m_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Floor_4m.prefab
+    prefab: {fileID: 1030983486, guid: abc00000000010319694650996509129, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Floor_8m.prefab
+    prefab: {fileID: 1030983504, guid: abc00000000013655715806011070773, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_8m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_8m_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_8m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_8m_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+    - transformPath: SM_Floor_8m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4c66c21f33e91da4d833545913f12d04, type: 2}
+    - transformPath: SM_Floor_8m_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 416dcb09251e30241aafc5ab39e1d6a4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_LeaveDerbis_M_01.prefab
+    prefab: {fileID: 1031009435, guid: abc00000000005861316417145525211, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_M_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fcabc69570c4daf4392bb4c88b0b0e92, type: 2}
+    - transformPath: SM_LeaveDerbis_M_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_LeaveDerbis_M_02.prefab
+    prefab: {fileID: 1031009423, guid: abc00000000016960943808521108304, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_M_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fcabc69570c4daf4392bb4c88b0b0e92, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_LeaveDerbis_S_01.prefab
+    prefab: {fileID: 1031009429, guid: abc00000000007357929331176521613, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_S_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fcabc69570c4daf4392bb4c88b0b0e92, type: 2}
+    - transformPath: SM_LeaveDerbis_S_01
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_LeaveDerbis_S_02.prefab
+    prefab: {fileID: 1031009417, guid: abc00000000000358624188340789798, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LeaveDerbis_S_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fcabc69570c4daf4392bb4c88b0b0e92, type: 2}
+    - transformPath: SM_LeaveDerbis_S_02
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c7e17605e57a31a41b1248258ab2f842, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Painting_01.prefab
+    prefab: {fileID: 1030986427, guid: abc00000000016750972684063094049, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Painting_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Painting_02.prefab
+    prefab: {fileID: 1030986445, guid: abc00000000012155493600813226266, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Painting_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Painting_03.prefab
+    prefab: {fileID: 1030986463, guid: abc00000000004276561820689555299, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Painting_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+    - transformPath: SM_Painting_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e22db321054176947a99b109bd103dc7, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Paper_01.prefab
+    prefab: {fileID: 1030972792, guid: abc00000000001471792420201808665, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paper_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Paper_02.prefab
+    prefab: {fileID: 1030986301, guid: abc00000000010172250142083983826, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paper_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Paper_03.prefab
+    prefab: {fileID: 1030976587, guid: abc00000000001886833278108330395, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paper_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+    - transformPath: SM_Paper_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 91033d02d48f9fc4db3e519d48398649, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Pillar.prefab
+    prefab: {fileID: 1030990789, guid: abc00000000001192071775915216481, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillar_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Pillar_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillar_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Pillar_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillar_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Pillar_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillar_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_Roof_01.prefab
+    prefab: {fileID: 1030983724, guid: abc00000000010236937528987187940, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_Roof_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d60917642d95eba47969721350aac688, type: 2}
+    - transformPath: SM_Porch_Roof_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d60917642d95eba47969721350aac688, type: 2}
+    - transformPath: SM_Porch_Roof_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d60917642d95eba47969721350aac688, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Porch_Roof_02.prefab
+    prefab: {fileID: 1030983742, guid: abc00000000010946483849931633407, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Porch_Roof_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c1a493a9b6524468662309f5c116e9, type: 2}
+    - transformPath: SM_Porch_Roof_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c1a493a9b6524468662309f5c116e9, type: 2}
+    - transformPath: SM_Porch_Roof_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 53c1a493a9b6524468662309f5c116e9, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_01.prefab
+    prefab: {fileID: 1030986519, guid: abc00000000013709925307323885535, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+    - transformPath: SM_Road_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+    - transformPath: SM_Road_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_01_Splines_0.prefab
+    prefab: {fileID: 1031517598, guid: abc00000000013102004333248158377, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_01_Splines_0_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+    - transformPath: SM_Road_01_Splines_0_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+    - transformPath: SM_Road_01_Splines_0_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f6f6061ab578f3141b6753c5144d2f4c, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_Side.prefab
+    prefab: {fileID: 1030981525, guid: abc00000000007423295343988374331, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_Side_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_Side_Splines_17.prefab
+    prefab: {fileID: 1031517887, guid: abc00000000015346047223899715499, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_Side_Splines_17_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_17_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_17_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_17_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_Side_Splines_18.prefab
+    prefab: {fileID: 1031517908, guid: abc00000000016380350570372740180, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_Side_Splines_18_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_18_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_18_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_18_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_Side_Splines_19.prefab
+    prefab: {fileID: 1031517929, guid: abc00000000013062347731173994237, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_Side_Splines_19_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_19_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_19_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_19_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Road_Side_Splines_20.prefab
+    prefab: {fileID: 1031517950, guid: abc00000000008566329973407241757, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Road_Side_Splines_20_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_20_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_20_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+    - transformPath: SM_Road_Side_Splines_20_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0a0fdf13e2cb28d419f8a72d75315e49, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Roof.prefab
+    prefab: {fileID: 1030983760, guid: abc00000000008792341407539739847, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7c3cbb83bf953434da717555fdebe716, type: 2}
+    - transformPath: SM_Roof_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7c3cbb83bf953434da717555fdebe716, type: 2}
+    - transformPath: SM_Roof_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7c3cbb83bf953434da717555fdebe716, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Roof_5m_01.prefab
+    prefab: {fileID: 1030984230, guid: abc00000000008318499301875174690, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_5m_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+    - transformPath: SM_Roof_5m_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+    - transformPath: SM_Roof_5m_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Roof_5m_02.prefab
+    prefab: {fileID: 1030984212, guid: abc00000000017043149090583443561, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_5m_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+    - transformPath: SM_Roof_5m_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+    - transformPath: SM_Roof_5m_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c849af33d4d55284388c63b490236070, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Roof_6m_01.prefab
+    prefab: {fileID: 1030984194, guid: abc00000000008197235446436672825, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_6m_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+    - transformPath: SM_Roof_6m_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+    - transformPath: SM_Roof_6m_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 76bddba37076aff44a5036492e1b6891, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Roof_Frame.prefab
+    prefab: {fileID: 1030972210, guid: abc00000000002093385514784487829, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Frame_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1880cc0711c92da4d883dbcb9ef9ae65, type: 2}
+    - transformPath: SM_Roof_Frame_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1880cc0711c92da4d883dbcb9ef9ae65, type: 2}
+    - transformPath: SM_Roof_Frame_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1880cc0711c92da4d883dbcb9ef9ae65, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_01.prefab
+    prefab: {fileID: 1030974817, guid: abc00000000015261775094266358814, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_02.prefab
+    prefab: {fileID: 1030974799, guid: abc00000000001294560370101095589, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_03.prefab
+    prefab: {fileID: 1030974781, guid: abc00000000013083642719489393756, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_04.prefab
+    prefab: {fileID: 1030974763, guid: abc00000000000983383701334689051, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_05.prefab
+    prefab: {fileID: 1030974918, guid: abc00000000009268800565310342482, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Smallrocks_06.prefab
+    prefab: {fileID: 1030974650, guid: abc00000000000568342843428167321, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Smallrocks_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+    - transformPath: SM_Smallrocks_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7e20710765db5ca4ca009b0385381ebf, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Stool.prefab
+    prefab: {fileID: 1030972965, guid: abc00000000000461347809624088054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stool_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Stool_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Stool_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+    - transformPath: SM_Stool_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e74e1c894bccbd44fa0c181db1270463, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_TableDesk.prefab
+    prefab: {fileID: 1030976769, guid: abc00000000010889126483914127000, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TableDesk_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 360dfe3bd259a4f46be66485b1ca29b4, type: 2}
+    - transformPath: SM_TableDesk_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 360dfe3bd259a4f46be66485b1ca29b4, type: 2}
+    - transformPath: SM_TableDesk_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 360dfe3bd259a4f46be66485b1ca29b4, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Top_Wall1m.prefab
+    prefab: {fileID: 1030984104, guid: abc00000000009934408038901241083, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Top_Wall1m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+    - transformPath: SM_Top_Wall1m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+    - transformPath: SM_Top_Wall1m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Top_Wall7m.prefab
+    prefab: {fileID: 1030984086, guid: abc00000000007873952884846198625, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Top_Wall7m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+    - transformPath: SM_Top_Wall7m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+    - transformPath: SM_Top_Wall7m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2952b55dbf76c3249823c607a66e0db6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_3m.prefab
+    prefab: {fileID: 1030983888, guid: abc00000000018081218011265694692, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_3m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_3m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_3m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_4m.prefab
+    prefab: {fileID: 1030983870, guid: abc00000000011526461876587737649, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Arch.prefab
+    prefab: {fileID: 1030984140, guid: abc00000000005943116217000864192, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Arch_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38a39eef4b51b5b4987f38532c1e9774, type: 2}
+    - transformPath: SM_Wall_Arch_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38a39eef4b51b5b4987f38532c1e9774, type: 2}
+    - transformPath: SM_Wall_Arch_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 38a39eef4b51b5b4987f38532c1e9774, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Door_3m.prefab
+    prefab: {fileID: 1030983924, guid: abc00000000007677933307207655647, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_3m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_3m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_3m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Door_4m.prefab
+    prefab: {fileID: 1030983852, guid: abc00000000014092104203747202182, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_4m_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_4m_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_4m_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Door_Interior.prefab
+    prefab: {fileID: 1030984954, guid: abc00000000000953460430060469263, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_Interior_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_Interior_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_Interior_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Door_Interior_02.prefab
+    prefab: {fileID: 1030985843, guid: abc00000000013351287688346629280, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Door_Interior_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_Interior_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+    - transformPath: SM_Wall_Door_Interior_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0be74680cf66aa747a8819f2e7905f46, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_End.prefab
+    prefab: {fileID: 1030986847, guid: abc00000000001788779425014604479, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_End_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6bc8f343d06dd2c4f85d473baca521a6, type: 2}
+    - transformPath: SM_Wall_End_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6bc8f343d06dd2c4f85d473baca521a6, type: 2}
+    - transformPath: SM_Wall_End_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6bc8f343d06dd2c4f85d473baca521a6, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_Interior.prefab
+    prefab: {fileID: 1030984934, guid: abc00000000007366419969340604520, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Interior_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_Interior_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Wall_Interior_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Wall_L.prefab
+    prefab: {fileID: 1030986865, guid: abc00000000017967949488837568188, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_L_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 85ef49130bfbbba4ba624eebc7402460, type: 2}
+    - transformPath: SM_Wall_L_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 85ef49130bfbbba4ba624eebc7402460, type: 2}
+    - transformPath: SM_Wall_L_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 85ef49130bfbbba4ba624eebc7402460, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_WildCarrot_M_01.prefab
+    prefab: {fileID: 1030980125, guid: abc00000000001346457155344000514, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_WildCarrot_M_02.prefab
+    prefab: {fileID: 1030980138, guid: abc00000000018326767563652496073, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_M_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_M_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_WildCarrot_S_01.prefab
+    prefab: {fileID: 1030980151, guid: abc00000000010966599148653341360, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildCarrot_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+    - transformPath: SM_WildCarrot_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6e204c0b0efbc514d8d1784d80dc5716, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_Wall_01.prefab
+    prefab: {fileID: 1030983942, guid: abc00000000004003513746504892054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_Wall_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_Wall_02.prefab
+    prefab: {fileID: 1030983960, guid: abc00000000017327488966254743165, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_Wall_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  - assetPath: Assets/HIVEMIND/RuralTown/HDRP(Default)/Art/Prefabs/SM_Window_Wall_03.prefab
+    prefab: {fileID: 1030984066, guid: abc00000000002198747731743937492, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Window_Wall_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+    - transformPath: SM_Window_Wall_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4e4f2d7b05f93574abb46658b6b3e91a, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

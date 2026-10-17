@@ -1,0 +1,33 @@
+{
+  "recordedUtc": "2026-10-10T01:37:59.0317082Z",
+  "reason": "User requested a break and the earliest non-destructive stopping point.",
+  "unity": {
+    "scene": "YourQuest_PlaySafe",
+    "observedPlayMode": true,
+    "observedPaused": true,
+    "preservedControlJourney": "Sol61 Voice Control 20261009",
+    "consoleErrorCount": 6,
+    "observedErrorCategories": [
+      "Required content missing: accepted structural demand produced zero physical objects",
+      "Physical demand capacity exceeded: visible or required owners withheld; capacity=256; overflow=199"
+    ],
+    "evidence": "Fresh computer-use screenshots immediately before and after Unity pause; pause toolbar button visibly selected.",
+    "workerQuiescence": "NOT VERIFIED; pausing the Editor does not certify asynchronous work has drained."
+  },
+  "agents": "Both authorized subagents completed; no new assignments issued.",
+  "completedEvidence": [
+    "Coherent worker-observation runtime and Editor compile passed with zero errors/warnings.",
+    "Pose and hand native runs completed; each returned five assisted tensors, with no quality or acceptance credit.",
+    "Task model test processes were released and C staging cleaned before this stopping turn."
+  ],
+  "completedEvidenceLimit": "Prior completed receipts remain authoritative for their own scope; no model process or staging re-audit performed during this stopping turn.",
+  "profileSafety": "No actual offer-owner scenario has been invoked; initial complete profile backup was EditMode preparation only and does not admit a current transaction.",
+  "resume": [
+    "Reobserve current Unity and worker lifetime state.",
+    "Record and diagnose the six newly observed streaming errors before claiming playable acceptance.",
+    "Prepare assisted voice mute, allow existing controls to drain normally, and obtain a fresh complete read-only preflight.",
+    "Obtain a new full profile backup joined to a fresh quiescent capture before any actual offer-owner transaction.",
+    "Continue automated checks; human microphone, voice judgment and ordinary spoken-flow acceptance remain pending."
+  ],
+  "goalAcceptance": "INCOMPLETE; user-requested pause, not completion."
+}

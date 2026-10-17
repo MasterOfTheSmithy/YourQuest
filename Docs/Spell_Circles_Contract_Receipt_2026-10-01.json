@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-02T10:27:39.8350071Z",
+  "mode": "Unity Edit Mode detached contract checks",
+  "unity": "6000.3.2f1",
+  "assemblyHash": "8f26f9af44ceedc712b9b8595925e01d6fd4f15520273cb378ce47c7375b3a30",
+  "rulesHash": "d5983b6a67bf5a0dca3cd6f3e816257fd3b4c4fdc1eac1b580a5aa322b9f5f7e",
+  "combatHash": "e632b1684096a1bd642a7c4073b40c407ec3b650913efb33090a475f46001702",
+  "checks": [
+    "Fresh Unity compilation followed by Edit Mode contract checks",
+    "Legacy typed spell resolves Circle 4",
+    "Legacy mana cost remains 15",
+    "Existing save shape and accepted ID remain unchanged",
+    "Circle view clamps without mutating historical content",
+    "Circle baseline bounds 1-7",
+    "Circle independently increases cast time",
+    "Mana independently increases cast time",
+    "Delivered strength independently increases cast time",
+    "Malformed mana remains finite",
+    "Explicit free spell preserves its resource contract",
+    "Stamina cost is not misrepresented as mana",
+    "Detached spell acceptance succeeds",
+    "Accepted spell offer cannot exceed Circle 7",
+    "Typed spell offer uses the spell equipment slot",
+    "Detached skill acceptance succeeds",
+    "Ordinary skill tiers are unchanged",
+    "Cast time increases at Circle 1",
+    "Exactly 1 casting rings",
+    "Rings charge with cast progress at Circle 1",
+    "Cast time increases at Circle 2",
+    "Exactly 2 casting rings",
+    "Rings charge with cast progress at Circle 2",
+    "Cast time increases at Circle 3",
+    "Exactly 3 casting rings",
+    "Rings charge with cast progress at Circle 3",
+    "Cast time increases at Circle 4",
+    "Exactly 4 casting rings",
+    "Rings charge with cast progress at Circle 4",
+    "Cast time increases at Circle 5",
+    "Exactly 5 casting rings",
+    "Rings charge with cast progress at Circle 5",
+    "Cast time increases at Circle 6",
+    "Exactly 6 casting rings",
+    "Rings charge with cast progress at Circle 6",
+    "Cast time increases at Circle 7",
+    "Exactly 7 casting rings",
+    "Rings charge with cast progress at Circle 7"
+  ],
+  "samples": [
+    {
+      "circle": 1,
+      "manaCost": 15,
+      "strength": 16,
+      "castSeconds": 0.62,
+      "rings": 1
+    },
+    {
+      "circle": 2,
+      "manaCost": 15,
+      "strength": 20,
+      "castSeconds": 0.92,
+      "rings": 2
+    },
+    {
+      "circle": 3,
+      "manaCost": 15,
+      "strength": 24,
+      "castSeconds": 1.22,
+      "rings": 3
+    },
+    {
+      "circle": 4,
+      "manaCost": 15,
+      "strength": 28,
+      "castSeconds": 1.52,
+      "rings": 4
+    },
+    {
+      "circle": 5,
+      "manaCost": 15,
+      "strength": 32,
+      "castSeconds": 1.81999993,
+      "rings": 5
+    },
+    {
+      "circle": 6,
+      "manaCost": 15,
+      "strength": 36,
+      "castSeconds": 2.12,
+      "rings": 6
+    },
+    {
+      "circle": 7,
+      "manaCost": 15,
+      "strength": 40,
+      "castSeconds": 2.42,
+      "rings": 7
+    }
+  ],
+  "failure": null,
+  "runtime": "NOT TESTED: input wind-up, release, cancellation and visible first/third-person casting require PlaySafe"
+}

@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_arrow
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Arrow_Starforged_Orrery.prefab
+    prefab: {fileID: 8543923098903247067, guid: 5ade3be8a15ac144aa77f43f39a6b644, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Arrow_Worldtree_Sovereign.prefab
+    prefab: {fileID: 5356383364450174282, guid: be3c601181301a84ea12ad637c8d9510, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Drake_Arrow.prefab
+    prefab: {fileID: 7358788095214072724, guid: 633618569c49b244ea534478264fefb2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Duelist_Arrow.prefab
+    prefab: {fileID: 2847096887983384694, guid: 2d6bf2533dd6501488d1328b7e4cb42c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Eclipse_Arrow.prefab
+    prefab: {fileID: 4628704974531859817, guid: c4985511ea4003e4486dca988a622bdc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Field_Arrow.prefab
+    prefab: {fileID: 8409867013742702079, guid: bbe36aab30f11254b8820fa60ffb0539, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Frontier_Arrow.prefab
+    prefab: {fileID: 1122867740834521228, guid: b1db9a80c3a11d04bb6ba4e5999e4a4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Ranger_Arrow.prefab
+    prefab: {fileID: 1043451052699259889, guid: ca2f64d71ae7d204fbb4b81c4d336038, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Sentinel_Arrow.prefab
+    prefab: {fileID: 5526238917759016958, guid: 0f714196e11eab6429118f80571b8134, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_darkness.prefab
+    prefab: {fileID: 2349121161756634763, guid: 486addbb0fb2a8a4da3b4613c8031663, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_fire.prefab
+    prefab: {fileID: 3097195498982650242, guid: 7abcc84dcf1ddb34791f5f8392241a9d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_forged.prefab
+    prefab: {fileID: 4054616946212942817, guid: 1eadd8d10d918404e99222c9e628f24a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_frost.prefab
+    prefab: {fileID: 6566503498764712708, guid: f707bc54d90612345954872ccdc3bca1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_light.prefab
+    prefab: {fileID: 4718696381266844101, guid: 6d31fb86ae2a19c4380c7b107f742604, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_fletching_nock_organic.prefab
+    prefab: {fileID: 5283757318169480078, guid: 6ad65a815e9c1c04bb59a4773149bd43, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_darkness.prefab
+    prefab: {fileID: 7996185620829903623, guid: d4f1278b672fabf42b01ae03fc38955b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_fire.prefab
+    prefab: {fileID: 6544675332054525366, guid: 3ec0be5d785e80c4792e298c5617a4c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_forged.prefab
+    prefab: {fileID: 6642039151779074411, guid: f79c2b5f3b5017c47a09979cfd77961f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_frost.prefab
+    prefab: {fileID: 3513425474584663700, guid: 9726ec9afca32ec48af3e6e47dfd3cc9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_light.prefab
+    prefab: {fileID: 7653044392016208731, guid: 35556319d7a2f54428a2c3e7b535b1d1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_head_organic.prefab
+    prefab: {fileID: 6137240663656406620, guid: 8aecad1eeaae48d419fc96df409416d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_mixed_dark_light_forged.prefab
+    prefab: {fileID: 5202522976452611256, guid: c8e8ac71b140d0d4890d0fc1b88a6fec, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 6081997587975434046, guid: 128ffecd8944b264498b0f29478c8005, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_darkness.prefab
+    prefab: {fileID: 2048947387376686759, guid: 582015abe057b814fb6e72391654e0a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_fire.prefab
+    prefab: {fileID: 210212759289475210, guid: 29545deb8c2a07a4f90e1254047afe8b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_forged.prefab
+    prefab: {fileID: 5282227107933303529, guid: a124ca2030db42f45bac1e7044b7d7ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_frost.prefab
+    prefab: {fileID: 3222514515869507029, guid: da43959f3c255a24a821e4008d163b91, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_light.prefab
+    prefab: {fileID: 360855439996358355, guid: 9cc26d2397015804f9c5fbee8155396a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/yqmod1_weapon_arrow_shaft_organic.prefab
+    prefab: {fileID: 544593225938781238, guid: 9b986ae545690664d9fe289e9ea04052, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Field_Arrow_Parts.prefab
+    prefab: {fileID: 4951686189365477560, guid: 51b53839db2717541940ae998aad2e64, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Ranger_Arrow_Parts.prefab
+    prefab: {fileID: 551704268002585218, guid: 3c2e883e182440e42a66e79e92befc5d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Sentinel_Arrow_Parts.prefab
+    prefab: {fileID: 8854616501749930239, guid: 19de063124e308d4f9633a8d7a60799c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Duelist_Arrow_Parts.prefab
+    prefab: {fileID: 8412646344015512564, guid: 5bd54fbf8d6ade84cba53b644c7a5f3c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Frontier_Arrow_Parts.prefab
+    prefab: {fileID: 9086495784642088863, guid: b1b98777f59d28e4fb40b4d57fb09e18, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Drake_Arrow_Parts.prefab
+    prefab: {fileID: 6934162387407668066, guid: 7b81e0304cf023341869b7e506407751, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Eclipse_Arrow_Parts.prefab
+    prefab: {fileID: 7104676243515871669, guid: 826d8188436099c49b78e207e50bdd8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Arrow_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 3001130458643580370, guid: 748bd86bb79c35c40aa384f8f188d44f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/arrow/Arrow_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3790234919228888207, guid: ac65fdbde997e0b419fb15ef23438232, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

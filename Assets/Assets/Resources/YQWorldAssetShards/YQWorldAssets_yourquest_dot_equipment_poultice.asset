@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_poultice
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Artisan.prefab
+    prefab: {fileID: 4875532154302244475, guid: f7a578de1b586fe4ab8a3f1649f9b6b6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Court.prefab
+    prefab: {fileID: 4403793093644500081, guid: f5eaae5d2b6d0614e8ad6ed0ee225d48, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Dragonbound.prefab
+    prefab: {fileID: 6357731793810499104, guid: a201b5dd033bd0a41a2969d35a107fa6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Eclipse.prefab
+    prefab: {fileID: 8621255543416814875, guid: df94843291836ec42aa18fc4c23fa125, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Field.prefab
+    prefab: {fileID: 2018852228967554926, guid: 09e8082184976554592c9359ebc86739, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Merchant.prefab
+    prefab: {fileID: 8931106995694679821, guid: 6f02cbad5320f5d4db373d3aa59eb701, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Ranger.prefab
+    prefab: {fileID: 7705765883541505571, guid: 0718c5f223077f1469b561c07ed8b0e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Starforged_Orrery.prefab
+    prefab: {fileID: 383496910335159246, guid: d0ec393e5ec33ea468b52cddfc152f47, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1800010657986403006, guid: ce13268ab8d4c6245b99748c5758ca80, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_core.prefab
+    prefab: {fileID: 7172889371876465578, guid: f3100e4a731ab484ca65b96a722980c6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mixed_darkness_light.prefab
+    prefab: {fileID: 1874931351630453449, guid: 33e52e567ff92984ea1a1e94aa51f9e1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mixed_organic_fire.prefab
+    prefab: {fileID: 7858352926243041553, guid: 4a176e34746dfc347b0f2d9a42e760f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_darkness.prefab
+    prefab: {fileID: 783190811716592149, guid: c28595da390d79640a2fcd1b522c4803, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_fire.prefab
+    prefab: {fileID: 5178035931223700939, guid: c870b9bb3865d874f963132068f1976b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_forged.prefab
+    prefab: {fileID: 6419641522637236523, guid: 89cabde3b57dc16448ca40f542e07855, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_frost.prefab
+    prefab: {fileID: 1338215220900290966, guid: 94b06a1db869df14ea2cdbe47badc59e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_light.prefab
+    prefab: {fileID: 8408836858403823310, guid: da5cf1f336bbc9046abcbd88d0f60fb7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_motif_organic.prefab
+    prefab: {fileID: 4267881151328549014, guid: 0925aae0645b693418cb7b7bc06d1909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_darkness.prefab
+    prefab: {fileID: 3549114215006448264, guid: d956b01d212cb5e4da29f139858be357, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_fire.prefab
+    prefab: {fileID: 3563147992585413851, guid: fbb15f3b74b42314e8e66be9ed00dbf3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_forged.prefab
+    prefab: {fileID: 3857291010178843098, guid: 29498322d09ac1c44b9054d924dd8c6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_frost.prefab
+    prefab: {fileID: 6325271647526606723, guid: 9043bc8148d5ece4a9ead890a83edb4b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_light.prefab
+    prefab: {fileID: 7780418508634127102, guid: 40999458dc62f7e488d13a3b4f8d72fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/yqmod1_consumables_poultice_mount_organic.prefab
+    prefab: {fileID: 5823140824427096835, guid: 61a648089ee169747bb00d87dd7bbcd0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Field_Parts.prefab
+    prefab: {fileID: 3135629892306714165, guid: 89d4b93c8e564ec49a73265b316d27c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Merchant_Parts.prefab
+    prefab: {fileID: 8954111377486277181, guid: 80249cb00d6db504c80bcf8519ab9f90, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Ranger_Parts.prefab
+    prefab: {fileID: 6577912008567488625, guid: 6b8e7d65bdea5014e9c957e4322a63f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Artisan_Parts.prefab
+    prefab: {fileID: 8559895274574261476, guid: 3b270b8518bd2f84089120975b7465a5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Court_Parts.prefab
+    prefab: {fileID: 5832256465936910229, guid: f24da862bcb631546aef727ebcabcdd6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Dragonbound_Parts.prefab
+    prefab: {fileID: 4590875733220757592, guid: 6c9efad86420a874cbd6483b1296a191, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Eclipse_Parts.prefab
+    prefab: {fileID: 117461934196570847, guid: 1b28161f21d397843b6242c333bbbdd2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 8479466309349758288, guid: 816084458e65ccc4cbff6e13ee33ed65, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/poultice/Poultice_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 8330799553134675136, guid: 00480b80a148e14478739ff05624696a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

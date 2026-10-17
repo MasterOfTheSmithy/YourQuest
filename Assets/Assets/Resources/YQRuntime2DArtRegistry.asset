@@ -1,0 +1,709 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0b9da336b4457ba0b16f1675b334da, type: 3}
+  m_Name: YQRuntime2DArtRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntime2DArtRegistry
+  entries:
+  - key: item_weapon_blade
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/sword.png
+    tags:
+    - weapon
+    - blade
+    - sword
+    - melee
+    - attack
+    - main
+    - hand
+    weight: 1
+    texture: {fileID: 2800000, guid: cbd5cfeb2d395444385411ee3c4c7bcc, type: 3}
+  - key: item_weapon_axe
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/axe.png
+    tags:
+    - weapon
+    - axe
+    - melee
+    - strength
+    - chop
+    - lumberjack
+    weight: 1
+    texture: {fileID: 2800000, guid: 51fa903711ecfbf468c86212cb8ea6b1, type: 3}
+  - key: item_weapon_dagger
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/dagger.png
+    tags:
+    - weapon
+    - dagger
+    - rogue
+    - stealth
+    - precise
+    - dexterity
+    weight: 1
+    texture: {fileID: 2800000, guid: 62d652f4209e2904287faffa9d481516, type: 3}
+  - key: item_weapon_spear
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/spear.png
+    tags:
+    - weapon
+    - spear
+    - reach
+    - hunter
+    - guard
+    weight: 1
+    texture: {fileID: 2800000, guid: 1cdf63a9ecadfbf4ca7eb852efaa2c6a, type: 3}
+  - key: item_weapon_club
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/club.png
+    tags:
+    - weapon
+    - club
+    - blunt
+    - simple
+    - starter
+    weight: 1
+    texture: {fileID: 2800000, guid: 3c114c2c96260e144ba0b91941dd8762, type: 3}
+  - key: item_offhand_shield
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/shield.png
+    tags:
+    - offhand
+    - shield
+    - ward
+    - guard
+    - defense
+    - block
+    weight: 1
+    texture: {fileID: 2800000, guid: d329f3a2802f4d6489c0624b11d037be, type: 3}
+  - key: item_head_helmet
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/helmet.png
+    tags:
+    - armor
+    - head
+    - helmet
+    - guard
+    - defense
+    weight: 1
+    texture: {fileID: 2800000, guid: 42c924f470399cc4d8fa47584d83896c, type: 3}
+  - key: item_trinket_ring
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/ring.png
+    tags:
+    - trinket
+    - ring
+    - necklace
+    - charm
+    - focus
+    - magic
+    - mana
+    weight: 1
+    texture: {fileID: 2800000, guid: cd1236505785bc843800359af6be3ece, type: 3}
+  - key: item_consumable_potion
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/potion.png
+    tags:
+    - consumable
+    - tonic
+    - potion
+    - heal
+    - restore
+    - mana
+    - stamina
+    weight: 1
+    texture: {fileID: 2800000, guid: 92dc82ac919478e449697da4620bdc4e, type: 3}
+  - key: item_consumable_food
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/bread.png
+    tags:
+    - consumable
+    - ration
+    - food
+    - bread
+    - heal
+    - stamina
+    weight: 1
+    texture: {fileID: 2800000, guid: 96a1685cfc8070b42ba592e5a9cae2a5, type: 3}
+  - key: item_tool_pick
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/pick.png
+    tags:
+    - tool
+    - pick
+    - mining
+    - craft
+    - gather
+    weight: 1
+    texture: {fileID: 2800000, guid: 7888f2cabece2fc448a0657bbea1b1d8, type: 3}
+  - key: item_tool_hammer
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/hammer.png
+    tags:
+    - tool
+    - hammer
+    - craft
+    - forge
+    - repair
+    weight: 1
+    texture: {fileID: 2800000, guid: a4af359387a183f4ba2d8461a4967e87, type: 3}
+  - key: item_container_bag
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/bag.png
+    tags:
+    - bag
+    - loot
+    - inventory
+    - travel
+    weight: 1
+    texture: {fileID: 2800000, guid: ef8ba55c8e451964f95ade4cd7ec7ce7, type: 3}
+  - key: item_container_chest
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/chest.png
+    tags:
+    - chest
+    - loot
+    - reward
+    - treasure
+    weight: 1
+    texture: {fileID: 2800000, guid: 80e0a74c9fb1f6644b40303a384e6d18, type: 3}
+  - key: item_currency_coin
+    kind: item_icon
+    assetPath: Assets/HumbleBundleResources/coinsicons_windows/coinsicons/coins/01_a.PNG
+    tags:
+    - currency
+    - coin
+    - gold
+    - merchant
+    - reward
+    weight: 1
+    texture: {fileID: 2800000, guid: a958803ce20e8d5458804a9bdf00d8ef, type: 3}
+  - key: class_warrior
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_warrior.png
+    tags:
+    - warrior
+    - fighter
+    - weapon
+    - strength
+    - melee
+    weight: 1
+    texture: {fileID: 2800000, guid: 8c18fc69efb917e4e8d0717bafe5b616, type: 3}
+  - key: class_rogue
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_rogue.PNG
+    tags:
+    - rogue
+    - stealth
+    - dexterity
+    - trickster
+    - precise
+    weight: 1
+    texture: {fileID: 2800000, guid: 82862f7c5eecb744790316b5f163980d, type: 3}
+  - key: class_priest
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_priest.PNG
+    tags:
+    - priest
+    - heal
+    - faith
+    - light
+    - support
+    weight: 1
+    texture: {fileID: 2800000, guid: 962e06b2f1056144e9ca194e4c3a5fe2, type: 3}
+  - key: class_paladin
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_paladin.PNG
+    tags:
+    - paladin
+    - shield
+    - oath
+    - holy
+    - guard
+    weight: 1
+    texture: {fileID: 2800000, guid: 3c55a653b20632b4fa34dc19f0b00384, type: 3}
+  - key: class_necro
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_necro.png
+    tags:
+    - necro
+    - shadow
+    - death
+    - forbidden
+    - occult
+    weight: 1
+    texture: {fileID: 2800000, guid: 507bdbd29c4b481408aca21083dc5dca, type: 3}
+  - key: class_mage
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_mage.png
+    tags:
+    - mage
+    - spell
+    - arcane
+    - intelligence
+    - mana
+    weight: 1
+    texture: {fileID: 2800000, guid: c130f41b4c26c204eacbc6dac3eeceb2, type: 3}
+  - key: class_hunter
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_hunter.PNG
+    tags:
+    - hunter
+    - ranger
+    - bow
+    - wilderness
+    - tracking
+    weight: 1
+    texture: {fileID: 2800000, guid: 77e360956539ce44fa3d4e3abe10da96, type: 3}
+  - key: class_barbarian
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_barbarian.png
+    tags:
+    - barbarian
+    - rage
+    - strength
+    - wild
+    weight: 1
+    texture: {fileID: 2800000, guid: 60a06cef96a33e940b88d61126ae8473, type: 3}
+  - key: class_assassin
+    kind: class_badge
+    assetPath: Assets/HumbleBundleResources/rpgclassbadges_windows/rpgclassbadges/Badge_png/Badge_assassin.PNG
+    tags:
+    - assassin
+    - rogue
+    - stealth
+    - strike
+    weight: 1
+    texture: {fileID: 2800000, guid: 88f4ea0cdc83e604dad49a853bb20b4c, type: 3}
+  - key: profession_alchemy
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/alchemy.png
+    tags:
+    - alchemy
+    - potion
+    - reagent
+    - craft
+    weight: 1
+    texture: {fileID: 2800000, guid: 27d20a42f1ce67040a867352b4fa8fca, type: 3}
+  - key: profession_carpentry
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/carpentry.PNG
+    tags:
+    - carpentry
+    - wood
+    - craft
+    - lumberjack
+    weight: 1
+    texture: {fileID: 2800000, guid: e2e5362cef8274149868a28d67e02894, type: 3}
+  - key: profession_diplomacy
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/diplomacy.PNG
+    tags:
+    - diplomacy
+    - merchant
+    - social
+    - faction
+    weight: 1
+    texture: {fileID: 2800000, guid: ff0e8297d69a2a2498995b26abf5c27d, type: 3}
+  - key: profession_farming
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/farming.png
+    tags:
+    - farming
+    - nature
+    - food
+    - harvest
+    weight: 1
+    texture: {fileID: 2800000, guid: 699c13d18e749da41bec079c4f6c9f17, type: 3}
+  - key: profession_fishing
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/fishing.PNG
+    tags:
+    - fishing
+    - water
+    - patience
+    - gather
+    weight: 1
+    texture: {fileID: 2800000, guid: 0a07448df6e6f794ca533059ede817b1, type: 3}
+  - key: profession_hunting
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/hunting.PNG
+    tags:
+    - hunting
+    - tracker
+    - bow
+    - wilderness
+    weight: 1
+    texture: {fileID: 2800000, guid: 6830e8f8f7003644fb6a044c9a54a6c7, type: 3}
+  - key: profession_mining
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/mining.png
+    tags:
+    - mining
+    - stone
+    - ore
+    - gather
+    weight: 1
+    texture: {fileID: 2800000, guid: 1ca4d669ab2f04045a1ca67087f8e4f4, type: 3}
+  - key: profession_tailoring
+    kind: profession_badge
+    assetPath: Assets/HumbleBundleResources/rpgprofessionalbadges_windows/rpgprofessionalbadges/RpgProfessionsBadges_png/tailoring.png
+    tags:
+    - tailoring
+    - cloth
+    - armor
+    - craft
+    weight: 1
+    texture: {fileID: 2800000, guid: a1acbb812046a864b9f4fd28a1f29ed7, type: 3}
+  - key: faction_shield_blue_01
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/clanshields_windows/clanshields/ClanShields_png/b_01.png
+    tags:
+    - blue
+    - shield
+    - clan
+    - faction
+    - order
+    weight: 1
+    texture: {fileID: 2800000, guid: 76f2d11b157a6bb4a85f3fdf496ad88f, type: 3}
+  - key: faction_shield_blue_02
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/clanshields_windows/clanshields/ClanShields_png/b_02.png
+    tags:
+    - blue
+    - shield
+    - clan
+    - faction
+    - oath
+    weight: 1
+    texture: {fileID: 2800000, guid: cf5b4509dc638f04794ac567abc69577, type: 3}
+  - key: faction_shield_blue_03
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/clanshields_windows/clanshields/ClanShields_png/b_03.png
+    tags:
+    - blue
+    - shield
+    - clan
+    - faction
+    - merchant
+    weight: 1
+    texture: {fileID: 2800000, guid: fe4d93da59558364abe6eaa35fe76c36, type: 3}
+  - key: faction_banner_01
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/fantasybanners_windows/fantasybanners/Banners/Banner_01.png
+    tags:
+    - banner
+    - faction
+    - quest
+    - heraldry
+    weight: 1
+    texture: {fileID: 2800000, guid: de1354ed7cd4bd9438e1ec69b4f4d26d, type: 3}
+  - key: faction_banner_02
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/fantasybanners_windows/fantasybanners/Banners/Banner_02.png
+    tags:
+    - banner
+    - faction
+    - wild
+    - nature
+    weight: 1
+    texture: {fileID: 2800000, guid: d23a624ece0d0b44aae2e4216f0e9d68, type: 3}
+  - key: faction_banner_03
+    kind: faction_badge
+    assetPath: Assets/HumbleBundleResources/fantasybanners_windows/fantasybanners/Banners/Banner_03.png
+    tags:
+    - banner
+    - faction
+    - arcane
+    - mystery
+    weight: 1
+    texture: {fileID: 2800000, guid: e983e23a5641ad8408e52c4f3117a8c0, type: 3}
+  - key: portrait_h_warrior_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_warrior_male.png
+    tags:
+    - human
+    - warrior
+    - male
+    - fighter
+    weight: 1
+    texture: {fileID: 2800000, guid: a8845934eef0ff3428fc8ce2a1d27331, type: 3}
+  - key: portrait_h_warrior_female
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_warrior_female.png
+    tags:
+    - human
+    - warrior
+    - female
+    - fighter
+    weight: 1
+    texture: {fileID: 2800000, guid: 50cba5f9d8dd1cd47a23d3cc7812e724, type: 3}
+  - key: portrait_h_mage_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_mage_male.png
+    tags:
+    - human
+    - mage
+    - male
+    - scholar
+    weight: 1
+    texture: {fileID: 2800000, guid: 772cfb486d811f34da0d3ef6c2a103d1, type: 3}
+  - key: portrait_h_mage_female
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_mage_female.png
+    tags:
+    - human
+    - mage
+    - female
+    - scholar
+    weight: 1
+    texture: {fileID: 2800000, guid: fc9fd4f92fa8cb043b890ba7575b2176, type: 3}
+  - key: portrait_h_rogue_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_rogue_male.png
+    tags:
+    - human
+    - rogue
+    - male
+    - stealth
+    weight: 1
+    texture: {fileID: 2800000, guid: 0dd6b6bf24011e2409e20e3fcc19faff, type: 3}
+  - key: portrait_h_rogue_female
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_rogue_female.png
+    tags:
+    - human
+    - rogue
+    - female
+    - stealth
+    weight: 1
+    texture: {fileID: 2800000, guid: 6d65a35d6c414164e93712ad980e5510, type: 3}
+  - key: portrait_h_scout_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_scout_male.png
+    tags:
+    - human
+    - scout
+    - male
+    - hunter
+    weight: 1
+    texture: {fileID: 2800000, guid: e1bb46ef87716f840a3441998b2d5ad9, type: 3}
+  - key: portrait_h_miner_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_h_miner_male.png
+    tags:
+    - human
+    - miner
+    - male
+    - worker
+    weight: 1
+    texture: {fileID: 2800000, guid: bcb9e3664e4454a4191ec78154d7732b, type: 3}
+  - key: portrait_hermit
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_hermit.png
+    tags:
+    - hermit
+    - elder
+    - wanderer
+    - npc
+    weight: 1
+    texture: {fileID: 2800000, guid: 8a32182b8fde839488ae486eef2f7627, type: 3}
+  - key: portrait_forest_keeper
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_Forest_Keeper.png
+    tags:
+    - forest
+    - keeper
+    - nature
+    - npc
+    weight: 1
+    texture: {fileID: 2800000, guid: ae2f56b42c8ee3f458e408642f64883e, type: 3}
+  - key: portrait_elf_sentinel_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_elf_sentinel_male.png
+    tags:
+    - elf
+    - sentinel
+    - male
+    - ranger
+    weight: 1
+    texture: {fileID: 2800000, guid: 952043e7d6c60cd42824f5809b53036a, type: 3}
+  - key: portrait_elf_sentinel_female
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_elf_sentinel_female.png
+    tags:
+    - elf
+    - sentinel
+    - female
+    - ranger
+    weight: 1
+    texture: {fileID: 2800000, guid: 1856f93f586783f479d849ea7db330a3, type: 3}
+  - key: portrait_dwarf_warrior_male
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_Dwarf_warrior_male.png
+    tags:
+    - dwarf
+    - warrior
+    - male
+    weight: 1
+    texture: {fileID: 2800000, guid: 04a64ada22e665942a6a07a80bf023a2, type: 3}
+  - key: portrait_dwarf_warrior_female
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_Dwarf_warrior_female.png
+    tags:
+    - dwarf
+    - warrior
+    - female
+    weight: 1
+    texture: {fileID: 2800000, guid: 19ee9d55fc458fd4cb41dc20177e4063, type: 3}
+  - key: portrait_dark_knight
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/mobsavataricons_windows/mobsavataricons/dark_knight_01.png
+    tags:
+    - dark
+    - knight
+    - armored
+    - enemy
+    weight: 1
+    texture: {fileID: 2800000, guid: ef63e6331aad1f14aaaa6c5a3c62c340, type: 3}
+  - key: portrait_dragon
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/mobsavataricons_windows/mobsavataricons/dragon_01.png
+    tags:
+    - dragon
+    - boss
+    - fire
+    weight: 1
+    texture: {fileID: 2800000, guid: 71280babb9332424ba5b8118f9662703, type: 3}
+  - key: portrait_spectral
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_ghost.png
+    tags:
+    - spectral
+    - spirit
+    - ghost
+    - undead
+    weight: 1
+    texture: {fileID: 2800000, guid: 423a6b4d3ef6f5a4ab2bde0cc5ddb324, type: 3}
+  - key: portrait_lich
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_lich.png
+    tags:
+    - lich
+    - undead
+    - caster
+    weight: 1
+    texture: {fileID: 2800000, guid: 8949b27fc960ea140bec31b4a51e6820, type: 3}
+  - key: portrait_golem
+    kind: portrait
+    assetPath: Assets/HumbleBundleResources/fantasycharacters_windows/fantasycharacters/Tex_Metal_golem.png
+    tags:
+    - golem
+    - metal
+    - construct
+    weight: 1
+    texture: {fileID: 2800000, guid: 32476349a4a0be24a82e5167324cc99f, type: 3}
+  - key: quest_book
+    kind: quest_ui
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/book/book.png
+    tags:
+    - quest
+    - journal
+    - book
+    weight: 1
+    texture: {fileID: 2800000, guid: 77754f5dc8e39484bb8543b1ef8850dc, type: 3}
+  - key: quest_page
+    kind: quest_ui
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/book/page.png
+    tags:
+    - quest
+    - journal
+    - page
+    - parchment
+    weight: 1
+    texture: {fileID: 2800000, guid: 8b45eb6d74a8c4f4180399821dfba7c1, type: 3}
+  - key: quest_scroll
+    kind: quest_ui
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/scroll.png
+    tags:
+    - quest
+    - scroll
+    - lore
+    - read
+    weight: 1
+    texture: {fileID: 2800000, guid: 0cbc14c90d145684a9b5bc3e9f8b75bb, type: 3}
+  - key: quest_hourglass
+    kind: quest_ui
+    assetPath: Assets/HumbleBundleResources/questjournal_windows/questjournal/illustrations/png/hourglass.png
+    tags:
+    - quest
+    - wait
+    - time
+    - stillness
+    weight: 1
+    texture: {fileID: 2800000, guid: 40efe237a67407044a74af629d1ec27b, type: 3}
+  - key: map_tile_nature_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/nature/nature_tile_01.PNG
+    tags:
+    - map
+    - nature
+    - grass
+    - forest
+    weight: 1
+    texture: {fileID: 2800000, guid: 8660ec5ad1c392f4da0bbdce6f5e8023, type: 3}
+  - key: map_tile_autumn_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/autumn/autumn_tile_01.png
+    tags:
+    - map
+    - autumn
+    - forest
+    weight: 1
+    texture: {fileID: 2800000, guid: dd14817b1aca15a4c8547b451988a6c2, type: 3}
+  - key: map_tile_desert_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/desert/desert_tile_01.png
+    tags:
+    - map
+    - desert
+    - sand
+    weight: 1
+    texture: {fileID: 2800000, guid: 4afec76a369e61440ae93f53010299b9, type: 3}
+  - key: map_tile_ice_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/ice/ice_tile_01.png
+    tags:
+    - map
+    - ice
+    - snow
+    - frost
+    weight: 1
+    texture: {fileID: 2800000, guid: 8bd2de8ecb21f394db8377858778d752, type: 3}
+  - key: map_tile_lava_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/lava/lava_tile_01.png
+    tags:
+    - map
+    - lava
+    - fire
+    weight: 1
+    texture: {fileID: 2800000, guid: 55bbab6e7220b9340bec5be8d170f8e4, type: 3}
+  - key: map_tile_water_01
+    kind: map_tile
+    assetPath: Assets/HumbleBundleResources/maptiles_windows/maptiles/water/water_tile_01.png
+    tags:
+    - map
+    - water
+    - river
+    - lake
+    weight: 1
+    texture: {fileID: 2800000, guid: a2a6f2bcb29345349b3cc5989a5621f9, type: 3}

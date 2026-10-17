@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_npcs
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_v9b_ordinary.prefab
+    prefab: {fileID: 7479495604357755698, guid: 6194d9f7588fe0f41a6369527628d807, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_frost.prefab
+    prefab: {fileID: 8571283906012487281, guid: 037d86ad19b38ca4eab01dcb75b399df, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_accessory_belt.prefab
+    prefab: {fileID: 7565646677696507797, guid: 8a75f98dae8c2b44080683ac565cac58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_accessory_waist_hardware.prefab
+    prefab: {fileID: 2340356956441246775, guid: 6aa29a8326105944cb5e35e635736583, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_body_foot_L.prefab
+    prefab: {fileID: 6710567929535844350, guid: 998089ac769885c4d83782208e8c7db5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_body_foot_R.prefab
+    prefab: {fileID: 1690340957512486264, guid: d433a81a72b8f5242a1f98e1c36d686e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_body_hand_L.prefab
+    prefab: {fileID: 3643358129217637037, guid: 75aef091f06b2f240ba730031d8c5bf5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_body_hand_R.prefab
+    prefab: {fileID: 7864357736983298273, guid: 9fcfe859fa1347f489a2b113e3249f3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_body_neck.prefab
+    prefab: {fileID: 4902939213505050358, guid: b1b64ff1b2ce44b4780142a17e81ba73, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_crest_crown.prefab
+    prefab: {fileID: 4594543350603157586, guid: efffda9a3a5aa5740b3666cf74b71241, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_cuff_L.prefab
+    prefab: {fileID: 7444764287377708080, guid: 78e1056692373ef48b315a5dde8076dc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_cuff_R.prefab
+    prefab: {fileID: 2372153510094001136, guid: 24a79b70ab6b0894b9ef29810a3829c4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_head_core.prefab
+    prefab: {fileID: 3048122770675828830, guid: f0e29d5637b961944852dfa0b9eb1d7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_head_coverts.prefab
+    prefab: {fileID: 2350973627964471913, guid: d2da03a73e154304c8dbcbca6ad4aaf5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_head_ruff.prefab
+    prefab: {fileID: 404548735104764754, guid: a2f76eae0e757094a91107e7c8d4600b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_outfit_collar.prefab
+    prefab: {fileID: 5131851909198046448, guid: fbfb49ae9a661444985a22ac9c040a67, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_outfit_placket.prefab
+    prefab: {fileID: 6655249282713766842, guid: 36fba61ce41cbf246b09f943801f249e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_outfit_skirt.prefab
+    prefab: {fileID: 4872766872578996959, guid: 497ba43926aac79449083db6b03d26e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_outfit_trousers.prefab
+    prefab: {fileID: 4095997521224610680, guid: 9dbe7e34d03a01d428b373c1ddf55a09, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_outfit_tunic.prefab
+    prefab: {fileID: 494431141581137139, guid: 4ba4d1e19d540b34094cb4539ae7475d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_shoulder_L.prefab
+    prefab: {fileID: 7386139381606541354, guid: 39d25edf3e0558e4b880c80531285938, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_base_shoulder_R.prefab
+    prefab: {fileID: 5235303719223491465, guid: 25925d28af50a0c43bb613a52e6d1899, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_clasp_dark.prefab
+    prefab: {fileID: 29162147529170741, guid: 9f32a2b44d473b643997494ed1336388, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_clasp_light.prefab
+    prefab: {fileID: 6195505230840650289, guid: a25c4ef6f63bab743819e84b28be2f5a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/avian/yq_avian_m2_clasp_frost.prefab
+    prefab: {fileID: 7256300565728845813, guid: 97b16fca8f367d5488dbfa4f71dd400d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/dwarf/yq_dwarf_stonewright_revisionb_r1.prefab
+    prefab: {fileID: 344668514074187010, guid: a8fd3cc177133a4499073683d8b43cdc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/kitsune/yq_kitsune_adultfemale_v20.prefab
+    prefab: {fileID: 5085267714514244856, guid: 7a245a860a69e424a8d8571b24e35455, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/NPCs/bramblekin/yq_bramblekin_a_i16.prefab
+    prefab: {fileID: 1244282007079253246, guid: 3609ca07a0176464a8fa087efd9b16ae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

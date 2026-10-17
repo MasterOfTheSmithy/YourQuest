@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_manica
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Dragonbound_Female.prefab
+    prefab: {fileID: 1080715468732039230, guid: 573cfb5582dc6e8409ba4fefa00e8f3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Dragonbound_Male.prefab
+    prefab: {fileID: 6926418974695596802, guid: d97d053d8c819f442bbbe18d45327f35, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Eclipse_Female.prefab
+    prefab: {fileID: 168016204613781524, guid: cb6ca9f2688e3b244bef0962cbae3ea9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Eclipse_Male.prefab
+    prefab: {fileID: 9190437187364933771, guid: cec0bc458b5747640a99349b57ccbc6b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Field_Female.prefab
+    prefab: {fileID: 545723127471784788, guid: c1b16ea340017bb4a9d18d9a1e7c3a5b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Field_Male.prefab
+    prefab: {fileID: 6305296935053056403, guid: 555a4a8672454d64ab279b375eaa4431, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Lamellar_Female.prefab
+    prefab: {fileID: 8199850142032083793, guid: 46bcd975af7133543ba19478a03b0c3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Lamellar_Male.prefab
+    prefab: {fileID: 8181841107196961009, guid: 5543400776e678240b11d02f9c3b3a31, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Ranger_Female.prefab
+    prefab: {fileID: 3624436050030326466, guid: 74b853d8fc100f3418b81e1d0217cce9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Ranger_Male.prefab
+    prefab: {fileID: 2236506220229611042, guid: 99b4e87c25185bc4a85de067eb619020, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Sentinel_Female.prefab
+    prefab: {fileID: 5117977825684892148, guid: 04e251eedc770264b91a5297e6853d7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Sentinel_Male.prefab
+    prefab: {fileID: 6729337656648272503, guid: 559f9756dc8cdaf4ab429fcb09b014dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 2428797780772720159, guid: 92140121095b4bf4a8fe9a6a5598fdaa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 1610853108931126352, guid: cb38a9ddd455c3a4ea46b60ce477b3f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Traveler_Female.prefab
+    prefab: {fileID: 2034985760995514962, guid: bc881ae74ec869f4e8f285830d219c51, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Traveler_Male.prefab
+    prefab: {fileID: 8904231712456293465, guid: 066e483f5d2c9e74b96157b0ea2d4bd8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 7984564578363427108, guid: edc268335d3732f4dab9621a19d8c3cb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 1156499826831509193, guid: 645be4c7f136a3548b007c8b7afe4089, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Field_Male_Parts.prefab
+    prefab: {fileID: 2861358534041730943, guid: da7a6854d0b968946bcfdd6645c8b6ee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Field_Female_Parts.prefab
+    prefab: {fileID: 922020088332447123, guid: 7c004592aa4e566408125e8b72ee2cbb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Ranger_Male_Parts.prefab
+    prefab: {fileID: 6337441164768196000, guid: bfd09f355aff0aa4f9c7d6fb32dffb3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Ranger_Female_Parts.prefab
+    prefab: {fileID: 8726537896760554111, guid: 30b1cd78294c7d246a1a469cfa2ff6d9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 8831141905223977997, guid: 7842532063c2efd4f8f520b3ab17642e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 5229684214918573688, guid: e87f8a17f283f4c469a1ea68f70dd451, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Traveler_Male_Parts.prefab
+    prefab: {fileID: 7292788928789058764, guid: eaf93c946f92d75479d1938d70614b8b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Traveler_Female_Parts.prefab
+    prefab: {fileID: 5984059485493477616, guid: c10742e3f36ce6d47adab576d2e20e92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 3193414890276030668, guid: 8994ab47bfba6284e89190fd050428c6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 8973954297934803169, guid: 972e6204eaad25d46993d183152b97ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 4702418372925652384, guid: df057df65d6398145bb9a2f38293104f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 9009636600398375480, guid: 96bc5463b2422724990249aa5c524355, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 3126719145473379831, guid: 636b17f05da5bbc499b70d32e0eb0e1d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 3240873290280627840, guid: cca37f7648812ce4fb8826713691d34a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 8385290898193169709, guid: 89ff7520e1ac6b04685370e14671e4e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 2204439197241289663, guid: cb1d9ce8875911347adbebd8e8a64ce3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 9100338389134186220, guid: de05fd700828b9c4788d519c4eaf32e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/manica/Manica_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 175018080757576038, guid: ff726f5b79569504f94810c2a34f8194, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

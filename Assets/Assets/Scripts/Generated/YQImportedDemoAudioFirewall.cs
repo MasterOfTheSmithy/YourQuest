@@ -281,7 +281,7 @@ public static class YQImportedDemoAudioFirewall
                  source));
     }
 
-    private static bool IsLocomotionAudioName(
+    internal static bool IsLocomotionAudioName(
         string value)
     {
         if (string.IsNullOrWhiteSpace(

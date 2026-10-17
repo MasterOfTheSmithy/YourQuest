@@ -7,14 +7,19 @@ public sealed class YQSpatialSiteAccessQueryV2
 {
     private readonly float worldSize;
     private readonly List<YQHydrologyFeatureV2> waters;
+    private readonly YQPreparedConnectedBasinV2[] basins;
 
     internal YQSpatialSiteAccessQueryV2(
         float worldSize,
-        List<YQHydrologyFeatureV2> waters)
+        List<YQHydrologyFeatureV2> waters, YQPreparedConnectedBasinV2[] basins)
     {
         this.worldSize = worldSize;
         this.waters = waters;
+        this.basins = basins;
     }
+
+    // note: Draft bank candidates reuse this immutable accepted-shore projection instead of preparing or fitting different geometry per placement attempt.
+    internal YQPreparedConnectedBasinV2 GetConnectedBasin(int waterIndex) => basins[waterIndex];
 
     public bool TryMeasure(
         string siteId,
@@ -48,6 +53,14 @@ public sealed class YQSpatialSiteAccessQueryV2
         double nearest = double.MaxValue;
         for (int index = 0; index < waters.Count; index++)
         {
+            if (basins[index] != null)
+            {
+                // note: Score access to the real connected shore, keeping islands dry instead of reserving an entire nominal-width circle.
+                double signed = basins[index].SignedShoreDistance(siteX, siteZ);
+                centerInsideWater |= signed < -.001d;
+                if (Math.Max(0d, signed) < nearest) { nearest = Math.Max(0d, signed); nearestId = waters[index].hydrologyId; }
+                continue;
+            }
             MeasureGeometry(waters[index], siteX, siteZ,
                 out double bankDistance,
                 out double centerlineDistance,
@@ -192,9 +205,13 @@ public static class YQSpatialSiteAccessV2
             waters.Add(water);
         }
 
+        var basins = new YQPreparedConnectedBasinV2[waters.Count];
+        for (int i = 0; i < waters.Count; i++)
+            if (waters[i].hasConnectedDomain && !YQPreparedConnectedBasinV2.TryPrepare(waters[i].connectedDomain,
+                waters[i].waterLevelNormalized, out basins[i], out failure)) return false;
         // note: Relationships are validated by the blueprint gate, but cannot manufacture water access without matching bank geometry.
         query = new YQSpatialSiteAccessQueryV2(
-            blueprint.worldSize, waters);
+            blueprint.worldSize, waters, basins);
         return true;
     }
 

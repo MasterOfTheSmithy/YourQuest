@@ -24,6 +24,7 @@ public static class YQSpatialBlueprintCompilerV2
         BuildRegionDomains(context);
         BuildGeologicalFields(context);
         BuildHydrology(context);
+        if (!TryBuildConnectedBasins(context, out failure)) return false;
         YQSpatialSiteNetworkCompilerV2.Build(context);
         SortCanonical(compiled.blueprint);
         return FinalizeCompilation(compiled, out failure);
@@ -60,6 +61,13 @@ public static class YQSpatialBlueprintCompilerV2
 
         if (!TryRunPhase(() => BuildHydrology(context),
                 "hydrology compilation", out failure))
+        {
+            completed?.Invoke(compiled, failure);
+            yield break;
+        }
+        yield return null;
+
+        if (!TryBuildConnectedBasins(context, out failure))
         {
             completed?.Invoke(compiled, failure);
             yield break;
@@ -585,6 +593,12 @@ public static class YQSpatialBlueprintCompilerV2
             nominalWidth = 112f,
             nominalDepth = 12f
         };
+        // note: The existing downstream lake is explicitly endorheic until coast-connected geography is introduced; its seasonal loss model is a declared approximation.
+        lake.basin = new YQHydrologyBasinV2
+        {
+            disposition = YQBasinDispositionV2.Closed,
+            closedBalance = YQClosedBasinBalanceV2.SeasonalStorageEvaporationAndSeepage
+        };
         lake.controlPoints.Add(
             YQSpatialBlueprintDeterminismV2.CopyPoint(
                 basin.controlPoints[0],
@@ -639,7 +653,7 @@ public static class YQSpatialBlueprintCompilerV2
         river.tags.Add("route_crossing_constraint");
         context.blueprint.hydrology.Add(river);
 
-        AddBoundaryRiver(context);
+        BuildOpeningWatershed(context, river, lake);
 
         int waterfallIndex = Mathf.Clamp(
             1 + Mathf.FloorToInt(
@@ -678,7 +692,7 @@ public static class YQSpatialBlueprintCompilerV2
         context.AddRelationship(
             "relationship:lake_fed_by_river",
             lake.hydrologyId,
-            river.hydrologyId,
+            "water:river:lake_outlet",
             YQSpatialRelationshipKindV2.FedBy,
             0f,
             context.blueprint.worldSize,
@@ -691,45 +705,186 @@ public static class YQSpatialBlueprintCompilerV2
             0f,
             context.blueprint.worldSize,
             "hydrology_chain");
+        AssignCatchmentOrdering(context.blueprint.hydrology);
     }
 
-    private static void AddBoundaryRiver(
-        YQSpatialBlueprintBuildContextV2 context)
+    private static bool TryBuildConnectedBasins(YQSpatialBlueprintBuildContextV2 context, out string failure)
     {
-        // note: A free-flowing accepted channel reaches the same boundary terminals as continuation roads, so the first streamed cells inherit real hydrology instead of an empty semantic promise.
-        float boundary = Mathf.Min(
-            508f,
-            context.blueprint.worldSize * 0.5f - 4f);
-        if (boundary <= 0f)
-            return;
+        failure = string.Empty;
+        // note: Solve the geological depression before flooding it. Accepted legacy worlds never enter this new-draft compiler phase.
+        foreach (var water in context.blueprint.hydrology)
+        {
+            if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland) continue;
+            var field = FindTerrain(context.blueprint, water.sourceTerrainFieldId);
+            if (field == null || field.kind != YQTerrainFieldKindV2.Basin)
+            { failure = water.hydrologyId + ":missing_geological_basin"; return false; }
+            field.strength = -1f;
+            float bedLevel = Mathf.Max(.025f, water.waterLevelNormalized - water.nominalDepth / YQGeneratedWorldTerrain.TerrainHeight);
+            foreach (var point in field.controlPoints) point.normalizedElevation = bedLevel;
+            var center = water.controlPoints[0];
+            float heading = YQSpatialBlueprintDeterminismV2.Hash01(context.seed + "|basin_lobes|" + water.hydrologyId) * Mathf.PI * 2f;
+            Vector2 axis = new Vector2(Mathf.Cos(heading), Mathf.Sin(heading));
+            Vector2 side = new Vector2(-axis.y, axis.x);
+            field.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(new Vector2(center.x, center.z) + axis * water.nominalWidth * .24f,
+                bedLevel + .012f, water.nominalWidth * .8f));
+            field.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(new Vector2(center.x, center.z) - axis * water.nominalWidth * .2f + side * water.nominalWidth * .13f,
+                bedLevel + .008f, water.nominalWidth * .7f));
+        }
+        var geology = YQSpatialBlueprintTerrainSamplerV2.PrepareDraftGeology(context.blueprint);
+        foreach (var water in context.blueprint.hydrology)
+        {
+            if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland) continue;
+            var center = water.controlPoints[0];
+            bool created = false;
+            // note: A regional patch may expand once at the same four-metre sampling scale; an unresolved frontier is rejected rather than capped into a false shoreline.
+            foreach (int resolution in new[] { 65, 129 })
+            {
+                float half = (resolution - 1) * 2f;
+                // note: Align the four-metre geological grid with the native two-metre heightfield so its piecewise-linear bed is not resampled across fractional triangle edges.
+                float minimumX = Mathf.Floor((center.x - half) / 4f) * 4f;
+                float minimumZ = Mathf.Floor((center.z - half) / 4f) * 4f;
+                created = YQPreparedConnectedBasinV2.TryCreate(minimumX, minimumZ, 4f, resolution, center.x, center.z,
+                    water.waterLevelNormalized, geology.SampleDraftGeology, out var domain, out failure);
+                if (created) { water.hasConnectedDomain = true; water.connectedDomain = domain; break; }
+                if (failure != "basin_reaches_planning_boundary") break;
+            }
+            if (!created && failure == "basin_reaches_planning_boundary")
+            {
+                // note: A lake above surrounding lowland needs an enclosing geological rim, not an artificial water polygon cap. Only an uncontained draft receives this bounded relief correction.
+                var rim = new YQTerrainFieldV2 { fieldId = water.sourceTerrainFieldId + ":rim", kind = YQTerrainFieldKindV2.BasinRim,
+                    radius = 24f, strength = 1f, falloff = 1f };
+                float rimRadius = Mathf.Max(FindTerrain(context.blueprint, water.sourceTerrainFieldId).radius * 1.7f, water.nominalWidth * .85f);
+                const int rimPoints = 12;
+                for (int point = 0; point <= rimPoints; point++)
+                {
+                    int canonicalPoint = point % rimPoints;
+                    float angle = canonicalPoint * Mathf.PI * 2f / rimPoints;
+                    float radius = rimRadius * Mathf.Lerp(.87f, 1.08f,
+                        YQSpatialBlueprintDeterminismV2.Hash01(context.seed + "|basin_rim|" + water.hydrologyId + "|" + canonicalPoint));
+                    rim.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(new Vector2(center.x + Mathf.Cos(angle) * radius,
+                        center.z + Mathf.Sin(angle) * radius), Mathf.Min(.88f, water.waterLevelNormalized + .035f), 24f));
+                }
+                rim.tags.Add("enclosing_basin_relief"); context.blueprint.terrainFields.Add(rim);
+                geology = YQSpatialBlueprintTerrainSamplerV2.PrepareDraftGeology(context.blueprint);
+                created = YQPreparedConnectedBasinV2.TryCreate(Mathf.Floor((center.x - 256f) / 4f) * 4f,
+                    Mathf.Floor((center.z - 256f) / 4f) * 4f, 4f, 129, center.x, center.z,
+                    water.waterLevelNormalized, geology.SampleDraftGeology, out var domain, out failure);
+                if (created) { water.hasConnectedDomain = true; water.connectedDomain = domain; }
+            }
+            if (!created) { failure = water.hydrologyId + ":" + failure; return false; }
+            if (!YQPreparedConnectedBasinV2.TryPrepare(water.connectedDomain, water.waterLevelNormalized, out var prepared, out failure)) return false;
+            if (!water.basin.hasSpill) continue;
+            var outlet = context.blueprint.hydrology.Find(candidate => candidate.hydrologyId == water.sinkHydrologyId);
+            Vector2 direction = new Vector2(outlet.controlPoints[2].x - center.x, outlet.controlPoints[2].z - center.z);
+            if (!prepared.TryFirstShoreCrossing(new Vector2(center.x, center.z), direction, out Vector2 spill))
+            { failure = water.hydrologyId + ":missing_connected_spill"; return false; }
+            outlet.controlPoints[1].x = spill.x; outlet.controlPoints[1].z = spill.y;
+            water.basin.spillPoint = YQSpatialBlueprintDeterminismV2.CopyPoint(outlet.controlPoints[1], water.waterLevelNormalized, outlet.controlPoints[1].width);
+        }
+        return true;
+    }
 
-        YQHydrologyFeatureV2 continuation = new YQHydrologyFeatureV2
+    private static void AssignCatchmentOrdering(List<YQHydrologyFeatureV2> features)
+    {
+        // note: Resolve the bounded draft graph from terminal sinks outward; no upstream search or render-cell arrival order participates in accepted drainage.
+        var byId = new Dictionary<string, YQHydrologyFeatureV2>(StringComparer.OrdinalIgnoreCase);
+        foreach (YQHydrologyFeatureV2 feature in features)
+        {
+            byId.Add(feature.hydrologyId, feature);
+            feature.drainageOrder = string.IsNullOrEmpty(feature.sinkHydrologyId) ? 0 : -1;
+            feature.catchmentId = feature.drainageOrder == 0 ? "catchment:" + feature.hydrologyId : string.Empty;
+        }
+        for (int pass = 0; pass < features.Count; pass++)
+        {
+            bool changed = false;
+            foreach (YQHydrologyFeatureV2 feature in features)
+            {
+                if (feature.drainageOrder >= 0 || !byId.TryGetValue(feature.sinkHydrologyId, out var sink) || sink.drainageOrder < 0)
+                    continue;
+                feature.drainageOrder = sink.drainageOrder + 1;
+                feature.catchmentId = sink.catchmentId;
+                changed = true;
+            }
+            if (!changed) break;
+        }
+    }
+
+    private static void BuildOpeningWatershed(YQSpatialBlueprintBuildContextV2 context,
+        YQHydrologyFeatureV2 river, YQHydrologyFeatureV2 downstreamLake)
+    {
+        // note: Split the existing downhill river at one nearby level basin. Both incoming water and its outlet keep exact junction coordinates and one receiving identity.
+        int middle = river.controlPoints.Count / 2;
+        var upstream = river.controlPoints[middle];
+        var downstream = river.controlPoints[middle + 1];
+        Vector2 direction = new Vector2(downstream.x - upstream.x, downstream.z - upstream.z);
+        float t = Mathf.Clamp01(620f / Mathf.Max(1f, direction.magnitude));
+        Vector2 center = new Vector2(upstream.x, upstream.z) + direction * t;
+        float level = Mathf.Lerp(upstream.normalizedElevation, downstream.normalizedElevation, t);
+        var junction = YQSpatialBlueprintDeterminismV2.Point(center, level, Mathf.Lerp(upstream.width, downstream.width, t));
+        var basin = new YQTerrainFieldV2 { fieldId = "terrain:basin:opening", kind = YQTerrainFieldKindV2.Basin,
+            strength = -.56f, radius = 110f, falloff = 2.6f };
+        basin.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(center, level - .04f, 180f));
+        basin.tags.Add("water_basin"); context.blueprint.terrainFields.Add(basin);
+        var openingLake = new YQHydrologyFeatureV2 { hydrologyId = "water:lake:opening", kind = YQHydrologyKindV2.Lake,
+            sourceTerrainFieldId = basin.fieldId, waterLevelNormalized = level, nominalWidth = 180f, nominalDepth = 10f };
+        openingLake.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(center, level, 180f));
+        openingLake.tags.Add("persistent_water_body"); context.blueprint.hydrology.Add(openingLake);
+        var outlet = new YQHydrologyFeatureV2 { hydrologyId = "water:river:lake_outlet", kind = YQHydrologyKindV2.River,
+            sourceTerrainFieldId = basin.fieldId, sinkHydrologyId = downstreamLake.hydrologyId,
+            waterLevelNormalized = level, nominalWidth = river.nominalWidth, nominalDepth = river.nominalDepth };
+        outlet.controlPoints.Add(YQSpatialBlueprintDeterminismV2.CopyPoint(junction, level, junction.width));
+        // note: Reserve a level outgoing lip before the connected-domain phase replaces its draft location with the accepted geological shore crossing.
+        Vector2 spillPosition = center + direction.normalized * (openingLake.nominalWidth * .47f);
+        YQBlueprintPointV2 spill = YQSpatialBlueprintDeterminismV2.Point(spillPosition, level, junction.width);
+        outlet.controlPoints.Add(spill);
+        openingLake.sinkHydrologyId = outlet.hydrologyId;
+        openingLake.basin = new YQHydrologyBasinV2
+        {
+            disposition = YQBasinDispositionV2.Open,
+            hasSpill = true,
+            spillPoint = YQSpatialBlueprintDeterminismV2.CopyPoint(spill, level, spill.width)
+        };
+        for (int index = middle + 1; index < river.controlPoints.Count; index++) outlet.controlPoints.Add(river.controlPoints[index]);
+        river.controlPoints.RemoveRange(middle + 1, river.controlPoints.Count - middle - 1);
+        river.controlPoints.Add(junction); river.sinkHydrologyId = openingLake.hydrologyId;
+        outlet.tags.Add("downhill_drainage"); context.blueprint.hydrology.Add(outlet);
+
+        var continuation = new YQHydrologyFeatureV2
         {
             hydrologyId = "water:river:streamed_continuation",
             kind = YQHydrologyKindV2.River,
             sourceTerrainFieldId = "terrain:base",
-            sinkHydrologyId = string.Empty,
-            waterLevelNormalized = 0.23f,
+            sinkHydrologyId = openingLake.hydrologyId,
+            waterLevelNormalized = level,
             nominalWidth = 10f,
             nominalDepth = 2.8f
         };
-        float[] zValues = { boundary, 250f, 0f, -250f, -boundary };
-        for (int index = 0; index < zValues.Length; index++)
+        Vector2 source = new Vector2(150f, Mathf.Min(508f, context.blueprint.worldSize * .5f - 4f));
+        Vector2 end = center;
+        float endLevel = level, firstIntersection = 1f;
+        // note: A tributary that meets the primary channel earlier joins there instead of crossing over it and continuing as an independent parallel sheet.
+        for (int index = 0; index + 1 < river.controlPoints.Count; index++)
         {
-            float t = index / (float)(zValues.Length - 1);
-            float z = zValues[index];
-            float x = 150f + Mathf.Sin(t * Mathf.PI * 2.2f +
-                YQSpatialBlueprintDeterminismV2.Hash01(
-                    context.seed + "|streamed_river_meander") * Mathf.PI * 2f) * 34f;
-            continuation.controlPoints.Add(
-                YQSpatialBlueprintDeterminismV2.Point(
-                    new Vector2(x, z),
-                    Mathf.Lerp(0.56f, 0.16f, t),
-                    Mathf.Lerp(8f, 12f, t)));
+            var a = river.controlPoints[index]; var b = river.controlPoints[index + 1];
+            Vector2 delta = center - source, channel = new Vector2(b.x - a.x, b.z - a.z), offset = new Vector2(a.x, a.z) - source;
+            float cross = delta.x * channel.y - delta.y * channel.x;
+            if (Mathf.Abs(cross) < .0001f) continue;
+            float along = (offset.x * channel.y - offset.y * channel.x) / cross;
+            float across = (offset.x * delta.y - offset.y * delta.x) / cross;
+            if (along <= .01f || along >= firstIntersection || across < 0f || across > 1f) continue;
+            firstIntersection = along; end = source + delta * along;
+            endLevel = Mathf.Lerp(a.normalizedElevation, b.normalizedElevation, across);
+            continuation.sinkHydrologyId = river.hydrologyId;
         }
-        continuation.tags.Add("accepted_streamed_continuation");
-        continuation.tags.Add("free_flowing_river");
+        continuation.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(source, Mathf.Max(.56f, endLevel + .08f), 8f));
+        continuation.controlPoints.Add(YQSpatialBlueprintDeterminismV2.Point(end, endLevel, 12f));
+        continuation.tags.Add("connected_tributary");
         context.blueprint.hydrology.Add(continuation);
+        // note: Causal relationships mirror the accepted receivers after the river is split by its opening basin.
+        context.AddRelationship("relationship:opening_lake_fed_by_river", openingLake.hydrologyId, river.hydrologyId,
+            YQSpatialRelationshipKindV2.FedBy, 0f, context.blueprint.worldSize, "hydrology_chain");
+        context.AddRelationship("relationship:tributary_receiver", continuation.sinkHydrologyId, continuation.hydrologyId,
+            YQSpatialRelationshipKindV2.FedBy, 0f, context.blueprint.worldSize, "hydrology_chain");
     }
 
     private static YQTerrainFieldV2 FindTerrain(

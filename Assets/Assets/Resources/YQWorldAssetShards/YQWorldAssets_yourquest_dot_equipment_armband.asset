@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_armband
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Dragonbound_Female.prefab
+    prefab: {fileID: 2430014681343766530, guid: 11310f3b41e715647b8070848c321c76, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Dragonbound_Male.prefab
+    prefab: {fileID: 3868627760324276572, guid: 7484cfa737c0a5242b1cde3b98ed5ac4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Eclipse_Female.prefab
+    prefab: {fileID: 943725883363456056, guid: e4d478938b1eafe4ca68c786547664bf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Eclipse_Male.prefab
+    prefab: {fileID: 4045947317701324711, guid: 0e5e5145744e11245923f0318b1142ea, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Field_Female.prefab
+    prefab: {fileID: 6074722839666186835, guid: d942954465308a94ca6ca4d232eaca3c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Field_Male.prefab
+    prefab: {fileID: 5627863791327702630, guid: f14e06947dab3614589bb3a5a89fc756, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Lamellar_Female.prefab
+    prefab: {fileID: 1151820200996253657, guid: c61ec1fc6a626d2459089f29e75c3924, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Lamellar_Male.prefab
+    prefab: {fileID: 6622401665785682554, guid: e4308872242f47947a3616bd8568dd0f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Ranger_Female.prefab
+    prefab: {fileID: 3860595338352826990, guid: 73411731751923543941f88c191d2a09, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Ranger_Male.prefab
+    prefab: {fileID: 2275915073012057726, guid: a0050d28d4934b04fbf375ad2fc06364, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Sentinel_Female.prefab
+    prefab: {fileID: 3444287289863373073, guid: 01adc38056d0d5547b5aea6d0e5ec2c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Sentinel_Male.prefab
+    prefab: {fileID: 4172291210188234386, guid: f70ef7430a65eb24b97d058f3f1636ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 7196637283951081913, guid: 64d67bccad950c641bf406f8f709f172, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 6649287992238257322, guid: a87990d3ecefc4d43bb6e9026a622ae9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Traveler_Female.prefab
+    prefab: {fileID: 8545991531166867207, guid: 94de61b61647ebd4fbc05dbe19774da0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Traveler_Male.prefab
+    prefab: {fileID: 5226554035319866491, guid: 5fbe17256b7441a4ab5d4115abace499, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 5262487634559293428, guid: eef78bf077374c544a2b15d8cf38ff0e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 4899875483586619360, guid: 08e33b0cd1a4bac4e8c25f9d10e4e0b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Field_Male_Parts.prefab
+    prefab: {fileID: 598623460804265971, guid: 48cd4d264edd8c94c97c39f594e4f3c9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Field_Female_Parts.prefab
+    prefab: {fileID: 7657077208888198597, guid: 2e81821b1d52dd641838400cdc2adc15, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Ranger_Male_Parts.prefab
+    prefab: {fileID: 559800146238515083, guid: 25470ba1174f9dd419bdd529fa4982dc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Ranger_Female_Parts.prefab
+    prefab: {fileID: 757128572628371926, guid: e3df0f484875c27478833fcac5259a5d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 3167000594768870810, guid: b8be8e1a470f4a64d9617aec729eb012, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 4750499152586299685, guid: bf952ecd3e5cfa142ab9aae883c6c13c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Traveler_Male_Parts.prefab
+    prefab: {fileID: 1402972118622368218, guid: c782244057cbabe4f8ebcfe9cbb1adcb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Traveler_Female_Parts.prefab
+    prefab: {fileID: 2502058777793396813, guid: f8fef89cd31057541912ebc47d96398b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 6938126333605984186, guid: 39a513bdf97d88947b38853e65d783ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 8912514071405805698, guid: a7cf2bc623eb5db418c185f100fc8029, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 4362114084870591467, guid: 40598fe2bb96de449b89dfb145974912, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 2072275869846430159, guid: e37364d81985c634c8958d58ba3ebd58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 8389051351532491347, guid: 3952e0eb03c8f454da82f7827058890d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 6158832097305092810, guid: 1da65dc1d841d97459b14b9a572a1409, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 6535338363522941707, guid: d25705ea82d22fb40bc0861938193c69, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 3860108748156362452, guid: 3b3a52a8b171aeb46b2826f6814a3819, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 9095924514098176706, guid: f3385ceef478adf4bbcad80faefefd46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/armband/Armband_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 1798146012609241520, guid: 561951ade67b20641af08134db099b6c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

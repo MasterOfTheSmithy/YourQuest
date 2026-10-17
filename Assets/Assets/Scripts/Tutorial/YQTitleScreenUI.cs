@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Unity.Profiling;
 
 [DisallowMultipleComponent]
 public sealed class YQTitleScreenUI : MonoBehaviour
@@ -7,6 +8,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
     private const float IntroTransitionSeconds = 1.05f;
     private const float ExitTransitionSeconds = 0.52f;
     private const float ViewTransitionSeconds = 0.32f;
+    private static readonly ProfilerMarker SelectSavedProfileMarker = new ProfilerMarker("YQ.Title.SelectSavedProfile");
 
     public static YQTitleScreenUI Instance { get; private set; }
     public static bool StartupGateActive { get; private set; }
@@ -40,6 +42,8 @@ public sealed class YQTitleScreenUI : MonoBehaviour
     private int _bodyFrameIndex;
     private bool _open;
     private bool _closing;
+    private bool _deletingSave;
+    private bool _loadingSave;
     private bool _pendingStartupCompletion;
     private bool _hoverSeen;
     private float _openedAt;
@@ -118,7 +122,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         if (!_open || !CanInteract || string.IsNullOrWhiteSpace(_selectedProfileId))
             return false;
         ContinueSelected();
-        return _closing;
+        return _closing || _loadingSave;
     }
 
     public bool ContinueExistingForDevelopmentVerification(string existingProfileId)
@@ -319,13 +323,15 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         else
         {
             Rect content = new Rect(0f, 0f, listRect.width - 22f, Mathf.Max(listRect.height, system.Profiles.Count * 82f + 8f));
+            // note: Scroll-view coordinates can hit offscreen rows; only the visible list viewport may own pointer hover.
+            bool pointerInsideList = listRect.Contains(Event.current.mousePosition);
             _saveScroll = GUI.BeginScrollView(listRect, _saveScroll, content, false, true);
             for (int i = 0; i < system.Profiles.Count; i++)
             {
                 YQProfileSaveSystem.ProfileEntry entry = system.Profiles[i];
                 if (entry == null)
                     continue;
-                DrawSaveRow(new Rect(8f, 8f + i * 82f, content.width - 16f, 72f), entry, system.ActiveProfileId);
+                DrawSaveRow(new Rect(8f, 8f + i * 82f, content.width - 16f, 72f), entry, system.ActiveProfileId, pointerInsideList);
             }
             GUI.EndScrollView();
         }
@@ -349,29 +355,29 @@ public sealed class YQTitleScreenUI : MonoBehaviour
             GUI.Label(new Rect(rect.x + 26f, buttonY - 28f, rect.width - 52f, 22f), _status, _smallStyle);
     }
 
-    private void DrawSaveRow(Rect rect, YQProfileSaveSystem.ProfileEntry entry, string activeProfileId)
+    private void DrawSaveRow(Rect rect, YQProfileSaveSystem.ProfileEntry entry, string activeProfileId, bool pointerInsideList)
     {
         bool selected = string.Equals(entry.profileId, _selectedProfileId, StringComparison.OrdinalIgnoreCase);
         bool active = string.Equals(entry.profileId, activeProfileId, StringComparison.OrdinalIgnoreCase);
-        // note: Save selection uses the same persistent rail and restrained hover contrast as the in-world menu.
-        bool hovered = CanInteract && rect.Contains(Event.current.mousePosition);
-        YQBlueglassStyle.DrawGuiFrame(rect, selected ? "Navigation_Selected" : hovered ? "Navigation_Hover" : "Navigation_Idle");
-        DrawRect(new Rect(rect.x, rect.y, 3f, rect.height), active ? new Color(0.68f, 0.94f, 1f, 1f) : new Color(0.22f, 0.48f, 0.62f, 0.72f));
+        // note: Hover brightness follows the current pointer on every repaint; the thin selection rail remains independent when the pointer leaves.
+        bool hovered = CanInteract && pointerInsideList && rect.Contains(Event.current.mousePosition);
+        YQBlueglassStyle.DrawGuiFrame(rect, hovered ? "Navigation_Hover" : "Navigation_Idle");
+        DrawRect(new Rect(rect.x, rect.y, 3f, rect.height), selected ? new Color(0.95f, 0.99f, 1f, 1f) : active ? new Color(0.68f, 0.94f, 1f, 1f) : new Color(0.22f, 0.48f, 0.62f, 0.72f));
 
         string name = string.IsNullOrWhiteSpace(entry.displayName) ? "Unnamed Save" : entry.displayName;
         GUI.Label(new Rect(rect.x + 18f, rect.y + 10f, rect.width - 36f, 26f), name, _saveNameStyle);
         GUI.Label(new Rect(rect.x + 18f, rect.y + 40f, rect.width - 36f, 22f), "Updated " + FormatUnix(entry.updatedUnix) + (active ? "  |  active" : string.Empty), _smallStyle);
 
-        RegisterHover("save:" + entry.profileId, rect, true);
+        RegisterHover("save:" + entry.profileId, rect, pointerInsideList);
         if (CanInteract && GUI.Button(rect, GUIContent.none, _invisibleButtonStyle))
             SelectSaveRow(entry.profileId);
     }
 
     private void SelectSaveRow(string profileId)
     {
+        if (!CanInteract) return;
         // note: Share the ordinary save-selection action with the development marker without loading, creating or rewriting a profile here.
-        YQTitleEnvironmentLoader.PlayUiConfirm();
-        YQBlueglassFeedback.Request(YQBlueglassCue.Select, YQBlueglassFeedback.ControllerActive);
+        PlayMenuFeedback(YQBlueglassCue.Select);
         _selectedProfileId = profileId;
         _confirmDeleteProfileId = string.Empty;
         _status = string.Empty;
@@ -497,22 +503,28 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         return selectedIndex;
     }
 
-    private void ContinueSelected()
+    private async void ContinueSelected()
     {
-        if (string.IsNullOrWhiteSpace(_selectedProfileId))
-            return;
-
-        YQProfileSaveSystem system = YQProfileSaveSystem.Instance;
-        bool ok = system != null && system.LoadProfile(_selectedProfileId);
-        if (!ok)
+        if (!CanInteract || string.IsNullOrWhiteSpace(_selectedProfileId)) return;
+        var system = YQProfileSaveSystem.Instance;
+        if (system == null) { _status = "Profile system unavailable."; return; }
+        string selected = _selectedProfileId;
+        _loadingSave = true;
+        _status = "Loading save...";
+        try
         {
-            _status = "Could not load that save.";
-            return;
+            // note: The paired owner prepares both documents without blocking title animation. Closing begins only after its normal identity and persistence barriers pass.
+            bool ok = await system.LoadProfileAsync(selected);
+            if (this == null) return;
+            if (!ok) { _status = "Could not load that save: " + system.LastFailure; return; }
+            CompleteStartupFlow("Loaded save.");
+            Debug.Log("[YQStartupPresentation] Continue selected profile=" + selected);
         }
-
-        CompleteStartupFlow("Loaded save.");
-        // note: Retain which ordinary startup route ran so verification cannot mistake a fixed-profile fixture for manual Continue coverage.
-        Debug.Log("[YQStartupPresentation] Continue selected profile=" + _selectedProfileId);
+        catch (Exception exception)
+        {
+            if (this != null) { _status = "Could not load that save."; Debug.LogException(exception); }
+        }
+        finally { _loadingSave = false; }
     }
 
     private void CreateCharacter()
@@ -543,9 +555,9 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         Debug.Log("[YQStartupPresentation] New Journey created profile=" + profileId);
     }
 
-    private void DeleteSelected()
+    private async void DeleteSelected()
     {
-        if (string.IsNullOrWhiteSpace(_selectedProfileId))
+        if (!CanInteract || string.IsNullOrWhiteSpace(_selectedProfileId))
             return;
 
         YQProfileSaveSystem system = YQProfileSaveSystem.Instance;
@@ -559,13 +571,28 @@ public sealed class YQTitleScreenUI : MonoBehaviour
             return;
         }
 
-        bool ok = system.DeleteProfile(_selectedProfileId);
-        _confirmDeleteProfileId = string.Empty;
-        _selectedProfileId = string.Empty;
-        RefreshSelectedProfile();
-        _status = ok ? "Save deleted." : "Delete failed.";
-        if (!HasAnyProfile())
-            SwitchView(ViewMode.CharacterCreation);
+        // note: The original second-click confirmation remains required; block competing menu actions while disk removal completes.
+        _deletingSave = true;
+        _status = "Deleting save...";
+        try
+        {
+            bool ok = await system.DeleteProfileAsync(_selectedProfileId);
+            if (this == null) return;
+            _confirmDeleteProfileId = string.Empty;
+            if (ok) _selectedProfileId = string.Empty;
+            RefreshSelectedProfile();
+            _status = ok ? "Save deleted." : "Delete failed: " + system.LastFailure;
+            if (ok && !HasAnyProfile()) SwitchView(ViewMode.CharacterCreation);
+        }
+        catch (Exception exception)
+        {
+            if (this != null)
+            {
+                _status = "Delete failed.";
+                Debug.LogException(exception);
+            }
+        }
+        finally { _deletingSave = false; }
     }
 
     private void CompleteStartupFlow(string message)
@@ -576,7 +603,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         BeginExitTransition();
     }
 
-    private bool CanInteract => !_closing &&
+    private bool CanInteract => !_closing && !_deletingSave && !_loadingSave &&
         Time.unscaledTime - _openedAt >= 0.38f;
 
     private void BeginExitTransition()
@@ -695,8 +722,7 @@ public sealed class YQTitleScreenUI : MonoBehaviour
             GUI.Button(rect, GUIContent.none, _invisibleButtonStyle);
         if (clicked)
         {
-            YQTitleEnvironmentLoader.PlayUiConfirm();
-            YQBlueglassFeedback.Request(YQBlueglassCue.Select,YQBlueglassFeedback.ControllerActive);
+            PlayMenuFeedback(YQBlueglassCue.Select);
         }
         return clicked;
     }
@@ -715,8 +741,26 @@ public sealed class YQTitleScreenUI : MonoBehaviour
         }
 
         _hoveredControl = controlId;
-        YQTitleEnvironmentLoader.PlayUiHover();
-        YQBlueglassFeedback.Request(YQBlueglassCue.Hover, YQBlueglassFeedback.ControllerActive);
+        PlayMenuFeedback(YQBlueglassCue.Hover);
+    }
+
+    private static void PlayMenuFeedback(YQBlueglassCue cue)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // note: Time only feedback transitions to distinguish audio/device stalls; ordinary repaint frames produce no diagnostic output.
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+#endif
+        if (cue == YQBlueglassCue.Hover) YQTitleEnvironmentLoader.PlayUiHover();
+        else YQTitleEnvironmentLoader.PlayUiConfirm();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        double audioMs = timer.Elapsed.TotalMilliseconds;
+#endif
+        YQBlueglassFeedback.Request(cue, YQBlueglassFeedback.ControllerActive);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        double feedbackMs = timer.Elapsed.TotalMilliseconds - audioMs;
+        if (timer.Elapsed.TotalMilliseconds >= 100d)
+            Debug.LogWarning($"[YQTitleMenuTiming] cue={cue} audioMs={audioMs:F1} feedbackMs={feedbackMs:F1}");
+#endif
     }
 
     private void DrawPanel(Rect rect, Color color)

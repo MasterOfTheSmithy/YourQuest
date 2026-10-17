@@ -1,0 +1,1642 @@
+{
+  "evidence": "Stored native Play Mode profiler frames; deep profiling disabled; inclusive subtree durations overlap and first recorded frame may be partial",
+  "first": 0,
+  "last": 3,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 1642.14136,
+      "costs": [
+        {
+          "Key": "Loading.ReadObject",
+          "Value": 5753.1258397102356
+        },
+        {
+          "Key": "IntegrateAllThreadedObjects",
+          "Value": 4309.2280679941177
+        },
+        {
+          "Key": "Loading.CheckConsistency [Editor Only]",
+          "Value": 2869.7993735074997
+        },
+        {
+          "Key": "Main Thread",
+          "Value": 1642.141357421875
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 1621.4295432567596
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 1617.5400390625
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 1604.177001953125
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 1604.17626953125
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 1600.537841796875
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 1600.5369873046875
+        },
+        {
+          "Key": "YQ.Stream.Population",
+          "Value": 1597.4969482421875
+        },
+        {
+          "Key": "YQ.Population.Activation",
+          "Value": 1461.1771240234375
+        },
+        {
+          "Key": "GameObject.Activate",
+          "Value": 1461.16259765625
+        },
+        {
+          "Key": "GameObject.ActivateAwakeRecursively",
+          "Value": 1461.1622314453125
+        },
+        {
+          "Key": "Loading.AwakeFromLoad",
+          "Value": 1438.7716999053955
+        },
+        {
+          "Key": "Loading.ReadObjectThreaded",
+          "Value": 880.39579844474792
+        },
+        {
+          "Key": "ReadObjectFromSerializedFile",
+          "Value": 880.04120004177094
+        },
+        {
+          "Key": "Loading.LoadFileHeaders",
+          "Value": 493.40589761734009
+        },
+        {
+          "Key": "YQ.Population.ContinuationContext",
+          "Value": 73.118000030517578
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 15.79509973526001
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 5.0004000663757324
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 4.9998998641967773
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 4.7181999683380127
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 4.6740999221801758
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 4.62690007686615
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 3.8887999057769775
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 3.886699914932251
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.8749001026153564
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.1933000087738037
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.1923000812530518
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 2.9460999965667725
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 2.9243000745773315
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 2.3485000133514404
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 2.3055000305175781
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.2966001033782959
+        }
+      ]
+    },
+    {
+      "frame": 1,
+      "ms": 101.0088,
+      "costs": [
+        {
+          "Key": "Main Thread",
+          "Value": 101.00879669189453
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 95.182897090911865
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 91.469802856445313
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 75.691902160644531
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 75.691001892089844
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 66.703498840332031
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 66.702400207519531
+        },
+        {
+          "Key": "YQ.Stream.Construction",
+          "Value": 57.413299560546875
+        },
+        {
+          "Key": "YQ.Stream.FrontierStep",
+          "Value": 57.3921012878418
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 6.2822999954223633
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 6.2817001342773438
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 5.0964999198913574
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 5.05460000038147
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 5.0254001617431641
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 5.0232000350952148
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 5.0108001232147217
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.7121000289916992
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.4226000308990479
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.4210000038146973
+        },
+        {
+          "Key": "YQ.Stream.Diagnostics",
+          "Value": 3.234299898147583
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 3.0867999792099
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.9834001064300537
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 2.9828999042510986
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 2.9526000022888184
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQGeneratedNpcWander.Update() [Invoke]",
+          "Value": 2.825700044631958
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 2.8245999813079834
+        },
+        {
+          "Key": "G08FrameCost.YQGeneratedNpcWander.Update()",
+          "Value": 2.6187999248504639
+        },
+        {
+          "Key": "YQ.Stream.Population",
+          "Value": 2.2381999492645264
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 2.0915999412536621
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: YQ_MinimapCamera",
+          "Value": 2.002500057220459
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.ApplyLifecycleOwnerPass",
+          "Value": 1.7800999879837036
+        },
+        {
+          "Key": "YQ.Population.CacheCompletion",
+          "Value": 1.7308000326156616
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 1.5412000417709351
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 1.5039999485015869
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LifecycleActivationSlice",
+          "Value": 1.2820999622344971
+        }
+      ]
+    },
+    {
+      "frame": 2,
+      "ms": 30.9197,
+      "costs": [
+        {
+          "Key": "Main Thread",
+          "Value": 30.919700622558594
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 24.879299402236938
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 20.880699157714844
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 7.3503999710083008
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 7.3496999740600586
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 4.9853000640869141
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 4.938499927520752
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 4.8885998725891113
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 3.9981000423431396
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 3.8309000730514526
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 3.76419997215271
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 3.7634999752044678
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.3554999828338623
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.3545000553131104
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 3.3424999713897705
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.LateUpdate() [Invoke]",
+          "Value": 3.3190999031066895
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.LateUpdate",
+          "Value": 3.3171999454498291
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 3.1319999694824219
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 2.8720998764038086
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 2.8715000152587891
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 2.1721000671386719
+        },
+        {
+          "Key": "Update.ScriptRunDelayedDynamicFrameRate",
+          "Value": 2.1442000865936279
+        },
+        {
+          "Key": "CoroutinesDelayedCalls",
+          "Value": 2.1438000202178955
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 1.9684000015258789
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 1.9680999517440796
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: YQ_MinimapCamera",
+          "Value": 1.7999999523162842
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 1.739799976348877
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 1.695099949836731
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.GenerateDecorativeScatterRoutine() [Coroutine: MoveNext] [Invoke]",
+          "Value": 1.551800012588501
+        },
+        {
+          "Key": "TerrainManager.CullAllTerrains",
+          "Value": 1.132099986076355
+        }
+      ]
+    },
+    {
+      "frame": 3,
+      "ms": 35.0851,
+      "costs": [
+        {
+          "Key": "Main Thread",
+          "Value": 35.085098266601563
+        },
+        {
+          "Key": "PlayerLoop",
+          "Value": 29.148699760437012
+        },
+        {
+          "Key": "UpdateScene",
+          "Value": 24.856899261474609
+        },
+        {
+          "Key": "Update.ScriptRunBehaviourUpdate",
+          "Value": 8.1049995422363281
+        },
+        {
+          "Key": "BehaviourUpdate",
+          "Value": 8.104100227355957
+        },
+        {
+          "Key": "Update.ScriptRunDelayedDynamicFrameRate",
+          "Value": 6.31820011138916
+        },
+        {
+          "Key": "CoroutinesDelayedCalls",
+          "Value": 6.3172998428344727
+        },
+        {
+          "Key": "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]",
+          "Value": 5.8155999183654785
+        },
+        {
+          "Key": "Inl_UniversalRenderTotal",
+          "Value": 5.75189995765686
+        },
+        {
+          "Key": "Inl_RenderCameraStack",
+          "Value": 5.6933000087738037
+        },
+        {
+          "Key": "RenderPlayModeViewCameras",
+          "Value": 4.2912998199462891
+        },
+        {
+          "Key": "LightProbeProxyVolumeManager.Update",
+          "Value": 4.0721001625061035
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQInvestorPlayerMotor.Update() [Invoke]",
+          "Value": 3.8687999248504639
+        },
+        {
+          "Key": "YQInvestorPlayerMotor.Update",
+          "Value": 3.8675000667572021
+        },
+        {
+          "Key": "CullScriptable",
+          "Value": 3.6606000661849976
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.GenerateChunkRoutine() [Coroutine: MoveNext] [Invoke]",
+          "Value": 3.6043000221252441
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.Update() [Invoke]",
+          "Value": 2.99429988861084
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.Update",
+          "Value": 2.9934000968933105
+        },
+        {
+          "Key": "EditorLoop",
+          "Value": 2.8592000007629395
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera",
+          "Value": 2.53629994392395
+        },
+        {
+          "Key": "TerrainManager.CullAllTerrains",
+          "Value": 2.4993000030517578
+        },
+        {
+          "Key": "Profiler.FlushCounters",
+          "Value": 2.3868999481201172
+        },
+        {
+          "Key": "Profiler.FlushMemoryCounters",
+          "Value": 2.3471000194549561
+        },
+        {
+          "Key": "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: YQ_MinimapCamera",
+          "Value": 2.1333000659942627
+        },
+        {
+          "Key": "YQ.Stream.ContentDispatch",
+          "Value": 2.0845999717712402
+        },
+        {
+          "Key": "YQPlayerFollowingSemanticChunkStreamer.TryStartNextContentGeneration",
+          "Value": 2.0843000411987305
+        },
+        {
+          "Key": "Assembly-CSharp.dll!::YQPlayerFollowingSemanticChunkStreamer.GenerateDecorativeScatterRoutine() [Coroutine: MoveNext] [Invoke]",
+          "Value": 2.05649995803833
+        },
+        {
+          "Key": "PreLateUpdate.ScriptRunBehaviourLateUpdate",
+          "Value": 1.3173999786376953
+        },
+        {
+          "Key": "LateBehaviourUpdate",
+          "Value": 1.3167999982833862
+        }
+      ]
+    }
+  ],
+  "activationTrace": {
+    "armedSite": "settlement:frontier:e01e53ee036fa2c55210c3c333a3fcf9dcdd374f29fff49760c98e3f1c8ccf14",
+    "completedSite": "settlement:frontier:e01e53ee036fa2c55210c3c333a3fcf9dcdd374f29fff49760c98e3f1c8ccf14",
+    "callbackReturned": true,
+    "completionNativeFrameBeforeCommit": -1,
+    "rawProfilerPath": "C:\\Users\\Garri\\YourQuest\\outputs\\OriginLag_20261009\\native-population-activation-20261016_213820_200.data",
+    "samples": [
+      {
+        "frame": 0,
+        "rootSample": 21356,
+        "descendants": 35431,
+        "visited": 35432,
+        "subtreeScanTruncated": false,
+        "expectedDirect": 5104,
+        "directVisited": 5104,
+        "directScanTruncated": false,
+        "directNameGroups": [
+          {
+            "name": "Loading.ReadObject",
+            "count": 20,
+            "totalMs": 1449.0732822418213,
+            "maxMs": 246.74800109863281
+          },
+          {
+            "name": "Animator.Rebind",
+            "count": 24,
+            "totalMs": 5.8712000027298927,
+            "maxMs": 0.41190001368522644
+          },
+          {
+            "name": "Assembly-CSharp.dll!::NpcDialogueAgent.Awake() [Invoke]",
+            "count": 6,
+            "totalMs": 0.554299995303154,
+            "maxMs": 0.18559999763965607
+          },
+          {
+            "name": "Assembly-CSharp.dll!::YQDotCreatureVisual.OnEnable() [Invoke]",
+            "count": 6,
+            "totalMs": 0.11780000163707882,
+            "maxMs": 0.11410000175237656
+          },
+          {
+            "name": "Assembly-CSharp.dll!::YQGeneratedNpcWander.Awake() [Invoke]",
+            "count": 6,
+            "totalMs": 0.1098000020137988,
+            "maxMs": 0.10620000213384628
+          },
+          {
+            "name": "UnityEditor.CoreModule.dll!UnityEditor.Playables::Utility.OnPlayableGraphCreated() [Invoke]",
+            "count": 24,
+            "totalMs": 0.029399999795714393,
+            "maxMs": 0.0026000000070780516
+          },
+          {
+            "name": "SortingGroup.UpdateRenderer",
+            "count": 288,
+            "totalMs": 0.025999999401392415,
+            "maxMs": 0.0010000000474974513
+          },
+          {
+            "name": "Assembly-CSharp.dll!::NpcDialogueAgent.OnEnable() [Invoke]",
+            "count": 6,
+            "totalMs": 0.0087000000057742,
+            "maxMs": 0.002899999963119626
+          },
+          {
+            "name": "Component.SetGameObject",
+            "count": 4724,
+            "totalMs": 0.0,
+            "maxMs": 0.0
+          }
+        ],
+        "costlyNodeCount": 2914,
+        "retainedCostlyNodes": 128,
+        "costlyNodesTruncated": true,
+        "topCostlyNodes": [
+          {
+            "index": 48978,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 246.74800109863281,
+            "directChildren": 4
+          },
+          {
+            "index": 48993,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 246.24089050292969,
+            "directChildren": 3
+          },
+          {
+            "index": 48996,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 246.23341369628906,
+            "directChildren": 4
+          },
+          {
+            "index": 49000,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 246.20429992675781,
+            "directChildren": 3
+          },
+          {
+            "index": 49005,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 246.18389892578125,
+            "directChildren": 3
+          },
+          {
+            "index": 49007,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 246.17959594726563,
+            "directChildren": 5
+          },
+          {
+            "index": 34682,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 245.02999877929688,
+            "directChildren": 4
+          },
+          {
+            "index": 34697,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 244.45779418945313,
+            "directChildren": 3
+          },
+          {
+            "index": 34700,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 244.45138549804688,
+            "directChildren": 4
+          },
+          {
+            "index": 34704,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 244.4248046875,
+            "directChildren": 3
+          },
+          {
+            "index": 34709,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 244.40640258789063,
+            "directChildren": 3
+          },
+          {
+            "index": 34711,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 244.40229797363281,
+            "directChildren": 5
+          },
+          {
+            "index": 39448,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 244.19218444824219,
+            "directChildren": 4
+          },
+          {
+            "index": 39463,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 243.59089660644531,
+            "directChildren": 3
+          },
+          {
+            "index": 39466,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 243.58309936523438,
+            "directChildren": 4
+          },
+          {
+            "index": 39470,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 243.55378723144531,
+            "directChildren": 3
+          },
+          {
+            "index": 39475,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 243.53439331054688,
+            "directChildren": 3
+          },
+          {
+            "index": 39477,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 243.52978515625,
+            "directChildren": 5
+          },
+          {
+            "index": 44211,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 242.81449890136719,
+            "directChildren": 4
+          },
+          {
+            "index": 44226,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 242.19200134277344,
+            "directChildren": 3
+          },
+          {
+            "index": 44229,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 242.18440246582031,
+            "directChildren": 4
+          },
+          {
+            "index": 44233,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 242.15629577636719,
+            "directChildren": 3
+          },
+          {
+            "index": 44238,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 242.13319396972656,
+            "directChildren": 3
+          },
+          {
+            "index": 44240,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 242.12860107421875,
+            "directChildren": 5
+          },
+          {
+            "index": 52240,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 80.116096496582031,
+            "directChildren": 3
+          },
+          {
+            "index": 52246,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 80.080093383789063,
+            "directChildren": 3
+          },
+          {
+            "index": 52248,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 80.073402404785156,
+            "directChildren": 1
+          },
+          {
+            "index": 52249,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 80.072196960449219,
+            "directChildren": 4
+          },
+          {
+            "index": 47477,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 79.914398193359375,
+            "directChildren": 3
+          },
+          {
+            "index": 37944,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 79.909500122070313,
+            "directChildren": 3
+          },
+          {
+            "index": 47483,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 79.8761978149414,
+            "directChildren": 3
+          },
+          {
+            "index": 37950,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 79.870002746582031,
+            "directChildren": 3
+          },
+          {
+            "index": 47485,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 79.869796752929688,
+            "directChildren": 1
+          },
+          {
+            "index": 47486,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 79.868492126464844,
+            "directChildren": 4
+          },
+          {
+            "index": 37952,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 79.8628921508789,
+            "directChildren": 1
+          },
+          {
+            "index": 37953,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 79.861602783203125,
+            "directChildren": 4
+          },
+          {
+            "index": 42707,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 78.7603988647461,
+            "directChildren": 3
+          },
+          {
+            "index": 42713,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 78.718803405761719,
+            "directChildren": 3
+          },
+          {
+            "index": 42715,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 78.711906433105469,
+            "directChildren": 1
+          },
+          {
+            "index": 42716,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 78.710601806640625,
+            "directChildren": 4
+          },
+          {
+            "index": 34712,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 65.339401245117188,
+            "directChildren": 3
+          },
+          {
+            "index": 34718,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 65.325897216796875,
+            "directChildren": 3
+          },
+          {
+            "index": 34720,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 65.322196960449219,
+            "directChildren": 1
+          },
+          {
+            "index": 34721,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 65.321296691894531,
+            "directChildren": 4
+          },
+          {
+            "index": 49008,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 64.620201110839844,
+            "directChildren": 3
+          },
+          {
+            "index": 49014,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 64.6061019897461,
+            "directChildren": 3
+          },
+          {
+            "index": 49016,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 64.601799011230469,
+            "directChildren": 1
+          },
+          {
+            "index": 49017,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 64.600898742675781,
+            "directChildren": 4
+          },
+          {
+            "index": 39478,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 64.376998901367188,
+            "directChildren": 3
+          },
+          {
+            "index": 39484,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 64.362602233886719,
+            "directChildren": 3
+          },
+          {
+            "index": 39486,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 64.358596801757813,
+            "directChildren": 1
+          },
+          {
+            "index": 39487,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 64.357803344726563,
+            "directChildren": 4
+          },
+          {
+            "index": 44241,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 63.52239990234375,
+            "directChildren": 3
+          },
+          {
+            "index": 44247,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 63.50830078125,
+            "directChildren": 3
+          },
+          {
+            "index": 44249,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 63.500301361083984,
+            "directChildren": 1
+          },
+          {
+            "index": 44250,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 63.4995002746582,
+            "directChildren": 4
+          },
+          {
+            "index": 48662,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 49.625198364257813,
+            "directChildren": 2
+          },
+          {
+            "index": 48663,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 49.614601135253906,
+            "directChildren": 140
+          },
+          {
+            "index": 43892,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 49.494400024414063,
+            "directChildren": 2
+          },
+          {
+            "index": 43893,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 49.484600067138672,
+            "directChildren": 140
+          },
+          {
+            "index": 39129,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 49.432399749755859,
+            "directChildren": 2
+          },
+          {
+            "index": 39130,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 49.422100067138672,
+            "directChildren": 140
+          },
+          {
+            "index": 53425,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 48.976799011230469,
+            "directChildren": 2
+          },
+          {
+            "index": 53426,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 48.967399597167969,
+            "directChildren": 140
+          },
+          {
+            "index": 49993,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 41.015899658203125,
+            "directChildren": 2
+          },
+          {
+            "index": 49994,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 41.006000518798828,
+            "directChildren": 116
+          },
+          {
+            "index": 45226,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 40.544601440429688,
+            "directChildren": 2
+          },
+          {
+            "index": 45227,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 40.535800933837891,
+            "directChildren": 116
+          },
+          {
+            "index": 40463,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 40.415699005126953,
+            "directChildren": 2
+          },
+          {
+            "index": 40464,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 40.406600952148438,
+            "directChildren": 116
+          },
+          {
+            "index": 35697,
+            "depth": 13,
+            "name": "Loading.ReadObjectThreaded",
+            "ms": 40.14849853515625,
+            "directChildren": 2
+          },
+          {
+            "index": 35698,
+            "depth": 14,
+            "name": "ReadObjectFromSerializedFile",
+            "ms": 40.140098571777344,
+            "directChildren": 116
+          },
+          {
+            "index": 50254,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 36.797698974609375,
+            "directChildren": 3
+          },
+          {
+            "index": 50260,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 36.753799438476563,
+            "directChildren": 3
+          },
+          {
+            "index": 50262,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 36.746299743652344,
+            "directChildren": 1
+          },
+          {
+            "index": 50263,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 36.745098114013672,
+            "directChildren": 4
+          },
+          {
+            "index": 40724,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 36.5723991394043,
+            "directChildren": 3
+          },
+          {
+            "index": 40730,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 36.53179931640625,
+            "directChildren": 3
+          },
+          {
+            "index": 40732,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 36.525199890136719,
+            "directChildren": 1
+          },
+          {
+            "index": 40733,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 36.523998260498047,
+            "directChildren": 4
+          },
+          {
+            "index": 35958,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 35.368698120117188,
+            "directChildren": 3
+          },
+          {
+            "index": 35964,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 35.328300476074219,
+            "directChildren": 3
+          },
+          {
+            "index": 35966,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 35.322601318359375,
+            "directChildren": 1
+          },
+          {
+            "index": 35967,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 35.321498870849609,
+            "directChildren": 4
+          },
+          {
+            "index": 45489,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 35.19580078125,
+            "directChildren": 3
+          },
+          {
+            "index": 45495,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 35.154300689697266,
+            "directChildren": 3
+          },
+          {
+            "index": 45497,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 35.147899627685547,
+            "directChildren": 1
+          },
+          {
+            "index": 45498,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 35.146701812744141,
+            "directChildren": 4
+          },
+          {
+            "index": 51558,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 34.9911994934082,
+            "directChildren": 3
+          },
+          {
+            "index": 51564,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 34.957000732421875,
+            "directChildren": 3
+          },
+          {
+            "index": 51566,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 34.951698303222656,
+            "directChildren": 1
+          },
+          {
+            "index": 51567,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 34.950401306152344,
+            "directChildren": 4
+          },
+          {
+            "index": 42025,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 34.794601440429688,
+            "directChildren": 3
+          },
+          {
+            "index": 42031,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 34.756401062011719,
+            "directChildren": 3
+          },
+          {
+            "index": 42033,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 34.7505989074707,
+            "directChildren": 1
+          },
+          {
+            "index": 42034,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 34.749298095703125,
+            "directChildren": 4
+          },
+          {
+            "index": 46795,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 34.422798156738281,
+            "directChildren": 3
+          },
+          {
+            "index": 46801,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 34.3848991394043,
+            "directChildren": 3
+          },
+          {
+            "index": 46803,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 34.379199981689453,
+            "directChildren": 1
+          },
+          {
+            "index": 46804,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 34.378101348876953,
+            "directChildren": 4
+          },
+          {
+            "index": 37262,
+            "depth": 9,
+            "name": "Loading.ReadObject",
+            "ms": 33.558700561523438,
+            "directChildren": 3
+          },
+          {
+            "index": 37268,
+            "depth": 10,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 33.522201538085938,
+            "directChildren": 3
+          },
+          {
+            "index": 37270,
+            "depth": 11,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 33.5166015625,
+            "directChildren": 1
+          },
+          {
+            "index": 37271,
+            "depth": 12,
+            "name": "Loading.ReadObject",
+            "ms": 33.515399932861328,
+            "directChildren": 4
+          },
+          {
+            "index": 54415,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 32.244998931884766,
+            "directChildren": 4
+          },
+          {
+            "index": 55771,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 32.097499847412109,
+            "directChildren": 4
+          },
+          {
+            "index": 54427,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 31.726999282836914,
+            "directChildren": 3
+          },
+          {
+            "index": 54430,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 31.719499588012695,
+            "directChildren": 4
+          },
+          {
+            "index": 54434,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 31.695999145507813,
+            "directChildren": 3
+          },
+          {
+            "index": 54439,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 31.669599533081055,
+            "directChildren": 3
+          },
+          {
+            "index": 54441,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 31.665199279785156,
+            "directChildren": 5
+          },
+          {
+            "index": 55783,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 31.613800048828125,
+            "directChildren": 3
+          },
+          {
+            "index": 55786,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 31.607398986816406,
+            "directChildren": 4
+          },
+          {
+            "index": 55790,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 31.584699630737305,
+            "directChildren": 3
+          },
+          {
+            "index": 55795,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 31.565700531005859,
+            "directChildren": 3
+          },
+          {
+            "index": 55797,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 31.561700820922852,
+            "directChildren": 5
+          },
+          {
+            "index": 53740,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 31.106899261474609,
+            "directChildren": 4
+          },
+          {
+            "index": 30529,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 30.768499374389648,
+            "directChildren": 4
+          },
+          {
+            "index": 31262,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 30.579700469970703,
+            "directChildren": 4
+          },
+          {
+            "index": 53752,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 30.500400543212891,
+            "directChildren": 3
+          },
+          {
+            "index": 53755,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 30.492799758911133,
+            "directChildren": 4
+          },
+          {
+            "index": 53759,
+            "depth": 6,
+            "name": "Loading.ReadObject",
+            "ms": 30.465599060058594,
+            "directChildren": 3
+          },
+          {
+            "index": 53764,
+            "depth": 7,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 30.437299728393555,
+            "directChildren": 3
+          },
+          {
+            "index": 53766,
+            "depth": 8,
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "ms": 30.432300567626953,
+            "directChildren": 5
+          },
+          {
+            "index": 29069,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 30.382499694824219,
+            "directChildren": 4
+          },
+          {
+            "index": 30541,
+            "depth": 4,
+            "name": "IntegrateAllThreadedObjects",
+            "ms": 30.321699142456055,
+            "directChildren": 3
+          },
+          {
+            "index": 29800,
+            "depth": 3,
+            "name": "Loading.ReadObject",
+            "ms": 30.321300506591797,
+            "directChildren": 4
+          },
+          {
+            "index": 30544,
+            "depth": 5,
+            "name": "Loading.AwakeFromLoad",
+            "ms": 30.313699722290039,
+            "directChildren": 4
+          }
+        ],
+        "costlyNameGroups": 19,
+        "retainedCostlyNameGroups": 19,
+        "costlyNameGroupsTruncated": false,
+        "topCostlyNameGroups": [
+          {
+            "name": "Loading.ReadObject",
+            "count": 216,
+            "totalMs": 5758.4406396150589,
+            "maxMs": 246.74800109863281
+          },
+          {
+            "name": "IntegrateAllThreadedObjects",
+            "count": 216,
+            "totalMs": 4357.2621677815914,
+            "maxMs": 246.24089050292969
+          },
+          {
+            "name": "Loading.CheckConsistency [Editor Only]",
+            "count": 108,
+            "totalMs": 2872.4163734912872,
+            "maxMs": 246.17959594726563
+          },
+          {
+            "name": "Loading.AwakeFromLoad",
+            "count": 108,
+            "totalMs": 1483.3473997116089,
+            "maxMs": 246.23341369628906
+          },
+          {
+            "name": "Loading.ReadObjectThreaded",
+            "count": 88,
+            "totalMs": 888.46919846534729,
+            "maxMs": 49.625198364257813
+          },
+          {
+            "name": "ReadObjectFromSerializedFile",
+            "count": 88,
+            "totalMs": 888.0958000421524,
+            "maxMs": 49.614601135253906
+          },
+          {
+            "name": "Loading.LoadFileHeaders",
+            "count": 72,
+            "totalMs": 500.5696976184845,
+            "maxMs": 30.173000335693359
+          },
+          {
+            "name": "AsyncReadManager.SyncRequest",
+            "count": 905,
+            "totalMs": 172.96789965778589,
+            "maxMs": 0.87699997425079346
+          },
+          {
+            "name": "File.Read",
+            "count": 894,
+            "totalMs": 167.57259963452816,
+            "maxMs": 0.87620002031326294
+          },
+          {
+            "name": "GenerateMuscleClip",
+            "count": 88,
+            "totalMs": 43.71549990773201,
+            "maxMs": 0.84299999475479126
+          },
+          {
+            "name": "Sort BuildCurveKeys",
+            "count": 63,
+            "totalMs": 11.179599933326244,
+            "maxMs": 0.31889998912811279
+          },
+          {
+            "name": "Animator.Rebind",
+            "count": 24,
+            "totalMs": 5.8712000027298927,
+            "maxMs": 0.41190001368522644
+          },
+          {
+            "name": "Animator.Initialize",
+            "count": 24,
+            "totalMs": 5.8609999939799309,
+            "maxMs": 0.41150000691413879
+          },
+          {
+            "name": "WaitForJobGroupID",
+            "count": 9,
+            "totalMs": 1.2022999823093414,
+            "maxMs": 0.15610000491142273
+          },
+          {
+            "name": "Idle",
+            "count": 7,
+            "totalMs": 0.81030000001192093,
+            "maxMs": 0.13019999861717224
+          },
+          {
+            "name": "Assembly-CSharp.dll!::NpcDialogueAgent.Awake() [Invoke]",
+            "count": 1,
+            "totalMs": 0.18559999763965607,
+            "maxMs": 0.18559999763965607
+          },
+          {
+            "name": "Assembly-CSharp.dll!::YQDotCreatureVisual.OnEnable() [Invoke]",
+            "count": 1,
+            "totalMs": 0.11410000175237656,
+            "maxMs": 0.11410000175237656
+          },
+          {
+            "name": "Animator.SetupControllerDataSet",
+            "count": 1,
+            "totalMs": 0.11309999972581863,
+            "maxMs": 0.11309999972581863
+          },
+          {
+            "name": "Assembly-CSharp.dll!::YQGeneratedNpcWander.Awake() [Invoke]",
+            "count": 1,
+            "totalMs": 0.10620000213384628,
+            "maxMs": 0.10620000213384628
+          }
+        ]
+      }
+    ]
+  }
+}

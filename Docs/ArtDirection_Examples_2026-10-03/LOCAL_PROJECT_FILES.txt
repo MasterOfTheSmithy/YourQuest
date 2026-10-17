@@ -1,0 +1,65 @@
+YOURQUEST — LOCAL ART SOURCE FILES
+
+These are canonical example files already present in the Unity project. Open them in Unity Project view at the exact path shown. They remain in their original pack folders; this index does not duplicate or alter scenes, materials, prefabs, or .meta files.
+
+[Befour Studios] Victorian Mansion — Mansion Demo Map — URP
+  Assets/BefourStudios/VictorianMansionEnvironment/Art/Scenes/MansionDemoMap_URP.unity
+  Warm, finished interiors; the asset-plan hero-interior quality reference.
+
+[Befour Studios] Victorian Mansion — Mansion Demo Map — HDRP
+  Assets/BefourStudios/VictorianMansionEnvironment/Art/Scenes/MansionDemoMap_HDRP.unity
+  Compare publisher lighting while retaining the URP demo as the applicable source example.
+
+[Befour Studios] Asian Dynasty — Demo Map — URP
+  Assets/BefourStudios/AsianDynastyEnvironment/Scenes/DemoMap_URP.unity
+  Architecture, courtyards, repeated shape language, and regional set dressing.
+
+[Befour Studios] Asian Dynasty — Demo Map — HDRP
+  Assets/BefourStudios/AsianDynastyEnvironment/Scenes/DemoMap_HDRP.unity
+  Second authored pipeline example for the same regional art pack.
+
+[Befour Studios] Persepolis Empire — Map Demo
+  Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Scenes/MAP_Demo.unity
+  Ancient monumental architecture and environment composition.
+
+[Befour Studios] Persepolis Empire — Overview
+  Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Scenes/Overview.unity
+  Pack-level composition reference.
+
+[HIVEMIND] Medieval Kingdom — Castle Town
+  Assets/HIVEMIND/MedievalKingdom/HDRP(Default)/Scenes/L_CastleTown.unity
+  Fortified settlement shapes and street scale.
+
+[HIVEMIND] Medieval Kingdom — Overview
+  Assets/HIVEMIND/MedievalKingdom/HDRP(Default)/Scenes/L_Overview.unity
+  Aerial and kit-level composition reference.
+
+[HIVEMIND] Gothic Cathedral — Cathedral
+  Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Scenes/LV_GothicCathedral.unity
+  Vertical sacred architecture, interior lighting, and strong silhouettes.
+
+[HIVEMIND] Gothic Cathedral — Overview
+  Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Scenes/LV_Overview.unity
+  Broader scene and layout reference.
+
+[Infinity PBR / Magic Pig Games] Human Character — Character showcase
+  Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Demo Files/InfinityPBR Human - Humans.unity
+  Character proportions, wardrobe and material presentation.
+
+[Infinity PBR / Magic Pig Games] Mimics & Chests — Creature showcase
+  Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/Demo/InfinityPBR - Mimics & Chests.unity
+  Treasure prop and creature identity in one authored example.
+
+[Infinity PBR / Magic Pig Games] Dragons — Creature showcase
+  Assets/Magic Pig Games (Infinity PBR)/Characters/Dragons/Demo/InfinityPBR - Dragons.unity
+  Large creature presentation and detail.
+
+[Infinity PBR / Magic Pig Games] Weapons & Armor — Accessories overview
+  Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor/Accessories/Demo/Accessories Overview.unity
+  Equipment silhouettes and surface detail.
+
+[Gabriel Aguiar Productions] Unique AoE Magic Abilities Vol. 1 — Pack documentation
+  Assets/GabrielAguiarProductions/Documentation_v1.pdf
+  Official pack reference; its presence does not certify integrated VFX prefabs.
+
+Use these scenes as pack-art references. Some HIVEMIND scenes are under its HDRP(Default) folder; they are untouched publisher examples and are not a runtime or pipeline-compatibility certification. The current GDD opening remains Archivist Vey’s warm, finished hut.

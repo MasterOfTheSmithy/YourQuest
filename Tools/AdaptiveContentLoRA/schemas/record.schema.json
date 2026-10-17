@@ -1,0 +1,1428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:yourquest:offline:adaptive-record:0.2.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.2.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^fixture:[a-z0-9:_-]+$"
+    },
+    "task": {
+      "type": "string",
+      "enum": [
+        "BEHAVIOR_INTERPRETATION",
+        "OPPORTUNITY_PROPOSAL",
+        "IDENTITY_GENERATION",
+        "UNIQUE_OPPORTUNITY",
+        "OPPORTUNITY_CHAIN",
+        "NPC_WORLD_REACTION",
+        "LORE_ENRICHMENT",
+        "ABSTAIN_INCUBATE",
+        "NPC_NAME_GENERATION"
+      ]
+    },
+    "scenario_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "validation",
+        "hidden_test",
+        "adversarial",
+        "regression",
+        "review_only",
+        "development"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "original_hand_authored",
+            "original_teacher_candidate",
+            "sanitized_owned_trace"
+          ]
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rights_status": {
+          "type": "string",
+          "enum": [
+            "original_pending_owner_review",
+            "approved_original",
+            "licensed_verified"
+          ]
+        },
+        "human_review": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "contains_private_text": {
+          "const": false
+        },
+        "hidden_reasoning": {
+          "const": false
+        }
+      },
+      "required": [
+        "type",
+        "author",
+        "rights_status",
+        "human_review",
+        "source_refs",
+        "contains_private_text",
+        "hidden_reasoning"
+      ],
+      "additionalProperties": false
+    },
+    "player_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^fixture:[a-z0-9:_-]+$"
+          },
+          "verb": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "successes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failures": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "distinct_contexts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "distinct_targets": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "tool_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "recency_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "provenance": {
+            "const": "offline_fixture_not_g15"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "verb",
+          "attempts",
+          "successes",
+          "failures",
+          "sessions",
+          "distinct_contexts",
+          "distinct_targets",
+          "tool_ids",
+          "recency_days",
+          "provenance",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "behavior_summary": {
+      "type": "object",
+      "properties": {
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "contradictions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "low_diversity_farming": {
+          "type": "boolean"
+        },
+        "identity_hypothesis": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "signals",
+        "contradictions",
+        "low_diversity_farming",
+        "identity_hypothesis"
+      ],
+      "additionalProperties": false
+    },
+    "player_state": {
+      "type": "object",
+      "properties": {
+        "accepted_identity_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "prior_choices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "offer_id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "accepted",
+                  "declined",
+                  "ignored"
+                ]
+              },
+              "identity_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "offer_id",
+              "state",
+              "identity_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "session_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "canonical_revision": {
+          "const": "offline-fixture-v1"
+        }
+      },
+      "required": [
+        "accepted_identity_ids",
+        "prior_choices",
+        "session_count",
+        "canonical_revision"
+      ],
+      "additionalProperties": false
+    },
+    "world_context": {
+      "type": "object",
+      "properties": {
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "entity_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "consistency": {
+                "type": "string",
+                "enum": [
+                  "consistent",
+                  "contradictory"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "text",
+              "entity_ids",
+              "consistency"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "missing_required_facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "hook_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "first_discovery_verified": {
+          "type": "boolean"
+        },
+        "hook_records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "target_entity_id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "required_fact_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "target_entity_id",
+              "required_fact_ids",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "objective_records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "template_id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "target_entity_id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "canonical_fact_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "supplied_objective": {
+                "type": "string",
+                "minLength": 1
+              },
+              "authority": {
+                "const": "offline_mock_not_runtime_certified"
+              }
+            },
+            "required": [
+              "id",
+              "template_id",
+              "target_entity_id",
+              "canonical_fact_ids",
+              "supplied_objective",
+              "authority"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "destinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "template_id": {
+                "type": "string",
+                "pattern": "^fixture:[a-z0-9:_-]+$"
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "canonical_entity_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "required_fact_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "objective_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "permitted_mechanic_tags": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "npc_knowledge_requirements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "npc_entity_id": {
+                      "type": "string",
+                      "pattern": "^fixture:[a-z0-9:_-]+$"
+                    },
+                    "fact_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "npc_entity_id",
+                    "fact_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "template_id",
+              "kind",
+              "canonical_entity_ids",
+              "required_fact_ids",
+              "objective_ids",
+              "permitted_mechanic_tags",
+              "npc_knowledge_requirements"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "facts",
+        "missing_required_facts",
+        "hook_ids",
+        "first_discovery_verified",
+        "hook_records",
+        "objective_records",
+        "destinations"
+      ],
+      "additionalProperties": false
+    },
+    "known_entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^fixture:[a-z0-9:_-]+$"
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "alive",
+              "dead",
+              "available",
+              "unavailable"
+            ]
+          },
+          "culture_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "knowledge_fact_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "culture_id",
+          "knowledge_fact_ids"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "available_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^fixture:[a-z0-9:_-]+$"
+          },
+          "template_id": {
+            "type": "string",
+            "pattern": "^fixture:[a-z0-9:_-]+$"
+          },
+          "opportunity_kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "effect_kind": {
+            "type": "string",
+            "enum": [
+              "presentation",
+              "skill",
+              "quest",
+              "interaction",
+              "relationship",
+              "world_event"
+            ]
+          },
+          "mechanic_tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "template_id",
+          "opportunity_kinds",
+          "effect_kind",
+          "mechanic_tags"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "existing_content": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^fixture:[a-z0-9:_-]+$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "ability",
+              "skill",
+              "spell",
+              "technique",
+              "title",
+              "class",
+              "class_evolution",
+              "item",
+              "weapon",
+              "armor",
+              "artifact",
+              "quest",
+              "opportunity",
+              "unique_opportunity",
+              "legendary_chain",
+              "faction",
+              "settlement",
+              "npc",
+              "npc_epithet",
+              "discovery",
+              "world_event"
+            ]
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "personalized",
+              "rare",
+              "unique",
+              "legendary_chain"
+            ]
+          },
+          "naming_lineage_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "canonical_entity_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "semantic_identity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "motifs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "rarity",
+          "naming_lineage_id",
+          "canonical_entity_ids",
+          "semantic_identity",
+          "motifs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rarity_constraints": {
+      "type": "object",
+      "properties": {
+        "ceiling": {
+          "type": "string",
+          "enum": [
+            "none",
+            "personalized",
+            "rare",
+            "unique",
+            "legendary_chain"
+          ]
+        },
+        "eligibility_validated": {
+          "type": "boolean"
+        },
+        "eligible_evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "uniqueness_status": {
+          "type": "string",
+          "enum": [
+            "not_requested",
+            "reserved",
+            "conflict"
+          ]
+        },
+        "legendary_authorized": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ceiling",
+        "eligibility_validated",
+        "eligible_evidence_ids",
+        "uniqueness_status",
+        "legendary_authorized"
+      ],
+      "additionalProperties": false
+    },
+    "negative_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "naming_context": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "species_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "people_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "culture_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "region_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "social_role": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "age_band": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "pronoun_context": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "local_naming_examples": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "phonetic_tendencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "common_roots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "honorific_rules": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "allowed_compounds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "taboo_vocabulary": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "applicable_name_parts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "forbidden_existing_names": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "existing_identity_immutable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "species_id",
+        "people_id",
+        "culture_id",
+        "region_id",
+        "social_role",
+        "age_band",
+        "pronoun_context",
+        "local_naming_examples",
+        "phonetic_tendencies",
+        "common_roots",
+        "honorific_rules",
+        "allowed_compounds",
+        "taboo_vocabulary",
+        "applicable_name_parts",
+        "forbidden_existing_names",
+        "existing_identity_immutable"
+      ],
+      "additionalProperties": false
+    },
+    "eval_labels": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "none",
+            "incubate",
+            "propose"
+          ]
+        },
+        "rarity": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "personalized",
+            "rare",
+            "unique",
+            "legendary_chain"
+          ]
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "ordinary",
+            "combat",
+            "crafting",
+            "exploration",
+            "social",
+            "mixed"
+          ]
+        },
+        "coverage_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "safety_traps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "review_only_measures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "unsupported_name_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "decision",
+        "rarity",
+        "domain",
+        "coverage_ids",
+        "safety_traps",
+        "review_only_measures",
+        "unsupported_name_terms"
+      ],
+      "additionalProperties": false
+    },
+    "expected_output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:yourquest:offline:adaptive-output:0.2.0",
+      "type": "object",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "none",
+            "incubate",
+            "propose"
+          ]
+        },
+        "interpretation": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "supporting_evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "summary",
+            "confidence",
+            "supporting_evidence_ids"
+          ],
+          "additionalProperties": false
+        },
+        "opportunity": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "skill",
+                "class_evolution",
+                "title",
+                "item",
+                "quest",
+                "npc_interaction",
+                "relationship",
+                "world_event",
+                "identity"
+              ]
+            },
+            "rarity": {
+              "type": "string",
+              "enum": [
+                "personalized",
+                "rare",
+                "unique",
+                "legendary_chain"
+              ]
+            },
+            "identity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "mechanical_template_id": {
+              "type": "string",
+              "pattern": "^fixture:[a-z0-9:_-]+$"
+            },
+            "destination_id": {
+              "type": "string",
+              "pattern": "^fixture:[a-z0-9:_-]+$"
+            },
+            "canonical_entity_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "canonical_fact_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "objective_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "mechanic_tags": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "diegetic_reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "future_hooks": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "offer_state": {
+              "const": "proposal_only"
+            }
+          },
+          "required": [
+            "kind",
+            "rarity",
+            "identity",
+            "mechanical_template_id",
+            "destination_id",
+            "canonical_entity_ids",
+            "canonical_fact_ids",
+            "objective_ids",
+            "mechanic_tags",
+            "diegetic_reason",
+            "future_hooks",
+            "offer_state"
+          ],
+          "additionalProperties": false
+        },
+        "naming": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "ability",
+                "skill",
+                "spell",
+                "technique",
+                "title",
+                "class",
+                "class_evolution",
+                "item",
+                "weapon",
+                "armor",
+                "artifact",
+                "quest",
+                "opportunity",
+                "unique_opportunity",
+                "legendary_chain",
+                "faction",
+                "settlement",
+                "npc",
+                "npc_epithet",
+                "discovery",
+                "world_event"
+              ]
+            },
+            "selected_name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "semantic_kernel": {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "method": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "motif": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "consequence": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "context": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tone": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "identity",
+                "method",
+                "motif",
+                "consequence",
+                "context",
+                "tone"
+              ],
+              "additionalProperties": false
+            },
+            "candidate_families": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1,
+              "maxItems": 3,
+              "uniqueItems": true
+            },
+            "parent_identity_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "naming_lineage_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evolution_reason": {
+              "type": "string"
+            },
+            "behavioral_delta": {
+              "type": "string"
+            },
+            "mechanical_delta": {
+              "type": "string"
+            },
+            "culture_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "naming_reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "presentation_only": {
+              "type": "boolean"
+            },
+            "motifs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "accepted": {
+              "const": false
+            },
+            "npc_parts": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "given_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "family_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "clan_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "honorific": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "pronunciation_hint": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "given_name",
+                "family_name",
+                "clan_name",
+                "honorific",
+                "pronunciation_hint"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "category",
+            "selected_name",
+            "semantic_kernel",
+            "candidate_families",
+            "candidates",
+            "parent_identity_id",
+            "naming_lineage_id",
+            "evolution_reason",
+            "behavioral_delta",
+            "mechanical_delta",
+            "culture_id",
+            "naming_reason",
+            "presentation_only",
+            "motifs",
+            "accepted",
+            "npc_parts"
+          ],
+          "additionalProperties": false
+        },
+        "response": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "npc_entity_id": {
+              "type": "string",
+              "pattern": "^fixture:[a-z0-9:_-]+$"
+            },
+            "knowledge_fact_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "npc_entity_id",
+            "knowledge_fact_ids",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        "enrichment": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "entity_id": {
+              "type": "string",
+              "pattern": "^fixture:[a-z0-9:_-]+$"
+            },
+            "canonical_fact_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "entity_id",
+            "canonical_fact_ids",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "requires_validation": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            "unsupported_requests": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "requires_validation",
+            "unsupported_requests"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "decision",
+        "interpretation",
+        "opportunity",
+        "naming",
+        "response",
+        "enrichment",
+        "constraints"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "task",
+    "scenario_family",
+    "split",
+    "source",
+    "player_evidence",
+    "behavior_summary",
+    "player_state",
+    "world_context",
+    "known_entities",
+    "available_capabilities",
+    "existing_content",
+    "rarity_constraints",
+    "negative_constraints",
+    "naming_context",
+    "eval_labels",
+    "expected_output"
+  ],
+  "additionalProperties": false
+}

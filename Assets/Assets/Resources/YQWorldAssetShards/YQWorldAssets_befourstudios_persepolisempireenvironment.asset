@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_persepolisempireenvironment
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_CircularPlatform.prefab
+    prefab: {fileID: 1030978990, guid: abc00000000017997735503425267015, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_ColumnBody_Big.prefab
+    prefab: {fileID: 1030982643, guid: abc00000000015663106570254193380, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_ColumnHeads_Homa.prefab
+    prefab: {fileID: 1354439536596749968, guid: 83f899c85ece5a045aca8db4dd897af0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_FireBasin.prefab
+    prefab: {fileID: 1030997119, guid: abc00000000014248754277409333696, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_FloorSetCustom_Base.prefab
+    prefab: {fileID: 1030997701, guid: abc00000000005746201526515181402, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_FolliageProp_1.prefab
+    prefab: {fileID: 1031014400, guid: abc00000000008691302952836136813, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_GateWall_L.prefab
+    prefab: {fileID: 1030971884, guid: abc00000000015929802500479346297, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_Grasspatch_1.prefab
+    prefab: {fileID: 1031016626, guid: abc00000000002775523888854298565, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_MountainPiece_01.prefab
+    prefab: {fileID: 1030972138, guid: abc00000000003765655494438653848, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_Murals_Soldier1.prefab
+    prefab: {fileID: 1030985420, guid: abc00000000005908416550266317093, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_PlinthSet_Flower.prefab
+    prefab: {fileID: 1030978455, guid: abc00000000015863827762942888146, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_RockSet_1.prefab
+    prefab: {fileID: 1030975161, guid: abc00000000013007423233421297990, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_SimplePlinth.prefab
+    prefab: {fileID: 1030975723, guid: abc00000000014216957300286539926, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_StairStopFlat_L.prefab
+    prefab: {fileID: 1030972529, guid: abc00000000015386370977461085796, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_WallSideArc.prefab
+    prefab: {fileID: 1030974595, guid: abc00000000002298868438159723892, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Prefabs/SM_WingedLionKing.prefab
+    prefab: {fileID: 1030973208, guid: abc00000000013133461378317035284, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

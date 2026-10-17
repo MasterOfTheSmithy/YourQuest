@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(150)]
-public sealed class YQPlayerEquipmentVisual : MonoBehaviour
+public sealed partial class YQPlayerEquipmentVisual : MonoBehaviour
 {
     private const string HumanMalePrefabPath = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/_Prefabs/Characters/Human Male (v4.1.1).prefab";
     private const string HumanAnimatorControllerPath = "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Demo Files/Human (Male & Female).controller";
@@ -20,6 +21,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private const float FirstPersonWeaponMaximumSize = 0.44f;
     private const float FirstPersonOffhandMaximumSize = 0.34f;
     private static readonly string[] BaseTextureProperties = { "_BaseMap", "_MainTex", "_Albedo", "_BaseColorMap", "_DiffuseMap", "_ColorMap" };
+    // note: Observe the exact visual-binding step without enabling retained native frame history.
+    private static readonly ProfilerMarker InitialBindingMarker = new ProfilerMarker("YQ.PlayerVisual.InitialBinding");
 
     private readonly struct SlotVisual
     {
@@ -133,6 +136,38 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
     private bool _strayVisualCleanupPerformed;
     private bool _incompatibleCloakReported;
 
+    internal static IEnumerator PreloadStartupAssetsRoutine()
+    {
+        // note: Warm the same approved avatar/equipment registry before AddComponent invokes Awake; accepted items and the single player remain unchanged.
+        var paths = new List<string> { HumanMalePrefabPath };
+        PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        if (state != null)
+        {
+            for (int index = 0; index < Slots.Length; index++)
+            {
+                string path = state.GetEquippedItem(Slots[index].Slot)?.prefabKey;
+                if (string.IsNullOrWhiteSpace(path) || IsPlayerOrFullCharacterPrefabPath(path)) continue;
+                if (Slots[index].Slot == "cloak" && path.Replace('\\', '/').IndexOf("/Accessories/_Prefabs/Gems/", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                paths.Add(path);
+                if (Slots[index].Slot == "boots")
+                {
+                    if (path.EndsWith("_Left.prefab", StringComparison.OrdinalIgnoreCase))
+                        paths.Add(path.Substring(0, path.Length - "_Left.prefab".Length) + "_Right.prefab");
+                    else if (path.EndsWith("_Right.prefab", StringComparison.OrdinalIgnoreCase))
+                        paths.Add(path.Substring(0, path.Length - "_Right.prefab".Length) + "_Left.prefab");
+                }
+            }
+        }
+        YQRuntimeWorldAssetRegistry registry = YQRuntimeWorldAssetRegistry.Instance;
+        if (registry != null) yield return registry.PreloadAssetPathsRoutine(paths);
+
+        // note: Async Resources loads prepare the existing controller and mirrored-arm assets without changing their bindings or creating another visual owner.
+        ResourceRequest controller = Resources.LoadAsync<RuntimeAnimatorController>(PlayerAnimatorResourcePath);
+        yield return controller;
+        ResourceRequest arms = Resources.LoadAsync<YQFirstPersonArmsAssets>(YQFirstPersonArmsAssets.ResourcePath);
+        yield return arms;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallOnPlayer()
     {
@@ -180,17 +215,26 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
     private void Awake()
     {
+        using (InitialBindingMarker.Auto()) InitializeVisuals();
+    }
+
+    private void InitializeVisuals()
+    {
         _controller = GetComponent<CharacterController>();
         _motor = GetComponent<YQInvestorPlayerMotor>();
         _lastAnimationPosition = transform.position;
-        CleanupLegacyPrimitiveVisual();
-        EnsureVisualRig();
-        EnsureAvatar();
-        RebuildEquipment();
+        // note: Attribute the player's initial native binding independently of cold Editor asset integration.
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("PlayerVisual.LegacyCleanup", () => { CleanupLegacyPrimitiveVisual(); return true; });
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("PlayerVisual.Rig", () => { EnsureVisualRig(); return true; });
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("PlayerVisual.Avatar", () => { EnsureAvatar(); return true; });
+        YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("PlayerVisual.Equipment", () => { RebuildEquipment(); return true; });
     }
 
     private void Update()
     {
+        // note: Ragdoll physics owns the same skeleton temporarily; visual root/crouch writers cannot overwrite its simulation.
+        if (_motor != null && _motor.IsRagdoll)
+        { _lastAnimationPosition = transform.position; ApplyPerspectiveVisibility(IsLocalFirstPerson()); return; }
         // note: Remove last frame's fallback offsets before the Animator evaluates a fresh pose.
         RestoreCrouchPose();
         // note: Sample the collision-resolved displacement after the authoritative motor, including its step/dash submoves.
@@ -1400,7 +1444,10 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             float planarSpeed = new Vector2(localVelocity.x, localVelocity.z).magnitude;
             float walkSpeed = _motor != null ? Mathf.Max(0.1f, _motor.walkSpeed) : referenceSpeed * 0.6f;
             // note: The walk/run blend thresholds describe poses, not a fixed ratio of motor speeds. A full walk keeps its complete stride after pace changes.
-            float amount = planarSpeed <= walkSpeed ? 0.6f * planarSpeed / walkSpeed : Mathf.Lerp(0.6f, 1f, Mathf.InverseLerp(walkSpeed, referenceSpeed, planarSpeed));
+            // note: Select the physically appropriate gait at fast base travel speeds instead of speeding up a walking clip fourfold.
+            float walkGait = HasAnimatorParameter("WalkFootSpeed", AnimatorControllerParameterType.Float) ? Mathf.Max(.1f, _animator.GetFloat("WalkFootSpeed")) : 2.5f;
+            float runGait = HasAnimatorParameter("RunFootSpeed", AnimatorControllerParameterType.Float) ? Mathf.Max(walkGait + .1f, _animator.GetFloat("RunFootSpeed")) : 5f;
+            float amount = planarSpeed <= walkGait ? .6f * planarSpeed / walkGait : Mathf.Lerp(.6f, 1f, Mathf.InverseLerp(walkGait, runGait, planarSpeed));
             if (crouching && _motor != null) amount = 0.3f * Mathf.Clamp01(planarSpeed / Mathf.Max(0.1f, _motor.crouchSpeed));
             Vector3 direction = planarSpeed > 0.001f ? localVelocity / planarSpeed : Vector3.zero;
             SetAnimatorFloat("MoveX", moving ? direction.x * amount : 0f);
@@ -1418,6 +1465,11 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
             float crouchRate = moving ? Mathf.Clamp(planarSpeed / Mathf.Max(.1f, crouchFootSpeed * Mathf.Min(1f, poseAmount / .3f)), .25f, 4f) : 1f;
             SetAnimatorFloatImmediate("CrouchRate", crouchRate * (localVelocity.z < -.1f ? -1f : 1f));
             SetAnimatorFloatImmediate("VerticalSpeed", _motor != null ? _motor.VerticalVelocity : _visualVelocity.y);
+            // note: Authored swimming observes accepted motor motion and uses the same body/first-person mirrored Animator, without root-motion displacement.
+            bool swimming = _motor != null && _motor.IsSwimming;
+            SetAnimatorBool("Swimming", swimming);
+            SetAnimatorFloat("SwimSpeed", swimming ? Mathf.Clamp01(_visualVelocity.magnitude / Mathf.Max(.1f, _motor.swimSpeed)) : 0f);
+            SetAnimatorFloatImmediate("SwimRate", swimming && _visualVelocity.sqrMagnitude > .01f ? Mathf.Clamp(_visualVelocity.magnitude / Mathf.Max(.1f, _motor.swimSpeed), .65f, 1.5f) : 1f);
             bool contact = _motor != null ? _motor.HasAnimationGroundContact : _controller == null || _controller.isGrounded;
             if (contact) _lastAnimationGroundContact = Time.time;
             // note: A brief descending contact gap on slopes must not restart Fall/Land every step. Jump/climb still enter their accepted airborne states immediately.
@@ -1452,11 +1504,17 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
                 TriggerFirstAnimator("CancelCast");
             _observedCasting = casting;
             SetAnimatorBool("Casting", casting);
+            // note: Combat and traversal timing parameters observe accepted owners, never raw input or animation events.
+            SetAnimatorBool("Blocking", _combat != null && _combat.IsBlocking);
+            SetAnimatorBool("PowerSliding", _motor != null && _motor.IsPowerSliding);
+            SetAnimatorFloatImmediate("ActionRate", _combat != null ? _combat.AttackAnimationRate : 1f);
+            SetAnimatorFloatImmediate("ActionPhase", _combat != null ? _combat.AttackPosePhase : 1f);
+            SetAnimatorBool("Recovering", _motor != null && _motor.IsRecovering);
             // note: Spell motions keep their authored open palms; the equipment grip resumes after recovery.
             AnimatorStateInfo action = _animator.GetCurrentAnimatorStateInfo(1);
             bool spellHands = action.IsName("Actions.Cast") || action.IsName("Actions.CastHold") || action.IsName("Actions.CastRelease") || action.IsName("Actions.Channel");
             // note: Empty override states retain an upper-body pose. Zero their layer weight at rest so authored idle and arm swing remain visible.
-            bool fullBodyAction = dashing || _traversalPose || (_motor != null && (_motor.IsClimbing || (_motor.vitals != null && _motor.vitals.IsDead)));
+            bool fullBodyAction = dashing || swimming || _traversalPose || (_motor != null && (_motor.IsPowerSliding || _motor.IsRecovering || _motor.IsClimbing || (_motor.vitals != null && _motor.vitals.IsDead)));
             bool actionActive = !fullBodyAction && (!action.IsName("Actions.Empty") || _animator.IsInTransition(1) || _requestedActionFrame == Time.frameCount);
             _animator.SetLayerWeight(1, Mathf.MoveTowards(_animator.GetLayerWeight(1), actionActive ? 1f : 0f, Time.deltaTime * 16f));
             bool openHands = fullBodyAction || spellHands || action.IsName("Actions.Interact") || action.IsName("Actions.Pickup") || action.IsName("Actions.Consume");
@@ -1512,6 +1570,7 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
         state.IsName("Base Layer.DodgeRoll") || state.IsName("Base Layer.DodgeRollRecover");
 
     private static bool IsTraversalState(AnimatorStateInfo state) => IsRollState(state) ||
+        state.IsName("Base Layer.Swim") ||
         state.IsName("Base Layer.DashStart") || state.IsName("Base Layer.Dash") || state.IsName("Base Layer.DashRecover") ||
         state.IsName("Base Layer.ClimbStart") || state.IsName("Base Layer.Climb") || state.IsName("Base Layer.ClimbRecover") ||
         state.IsName("Base Layer.Mount") || state.IsName("Base Layer.MountedRide") || state.IsName("Base Layer.MountedFlight") || state.IsName("Base Layer.Dismount");
@@ -2937,6 +2996,8 @@ public sealed class YQPlayerEquipmentVisual : MonoBehaviour
 
     private void LateUpdate()
     {
+        // note: Canonical hand contacts are corrected before the first-person mirror, sharing the existing post-animation callback.
+        UpdateActionContacts();
         // note: Apply after skeletal animation so walking and attacks keep playing underneath the crouch pose.
         if (_crouchBlend <= 0f || _nativeCrouchAnimation || _crouchBones[0] == null ||
             _animator == null || !_animator.isActiveAndEnabled || (_motor != null && !_motor.IsAuthoritative))

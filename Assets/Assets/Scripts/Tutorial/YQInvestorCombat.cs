@@ -9,7 +9,7 @@ using UnityEditor;
 [DisallowMultipleComponent]
 // note: Read this frame's movement/camera pose, then deliver animation feedback before the visual driver's Update (150).
 [DefaultExecutionOrder(100)]
-public sealed class YQInvestorCombat : MonoBehaviour
+public sealed partial class YQInvestorCombat : MonoBehaviour
 {
     public float attackRange = 2.1f;
     public float attackRadius = 1.15f;
@@ -40,6 +40,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
     // note: One pending cast belongs to this player and the captured profile; no coroutine can outlive that ownership.
     private SkillRecord _castingSpell;
     private PlayerState _castingOwner;
+    private string _castingSlot = "spell";
     private YQSpellCircleVfx _castingCircles;
     private string _castingDescriptor;
     private string _castingResource;
@@ -81,11 +82,16 @@ public sealed class YQInvestorCombat : MonoBehaviour
         {
             // note: Neither loading nor modal UI can queue an attack that fires when gameplay unlocks.
             _queuedAttackUntil = float.NegativeInfinity;
-            CancelSpellCast();
+            InterruptActions();
             return;
         }
 
+        if (_motor != null && (_motor.IsRagdoll || _motor.IsRecovering || _motor.IsDodgeRolling || _motor.IsPowerSliding || _motor.IsClimbing || _motor.IsSwimming))
+        { InterruptActions(); return; }
+
         AdvanceSpellCast();
+        AdvanceAttack();
+        AdvanceGuard();
 
         Mouse mouse = Mouse.current;
         Keyboard kb = Keyboard.current;
@@ -100,6 +106,16 @@ public sealed class YQInvestorCombat : MonoBehaviour
         }
         if (mouse != null && mouse.rightButton.wasPressedThisFrame)
             TryCastPulse();
+        if (kb != null && kb.zKey.wasPressedThisFrame) TryBeginAttack(true);
+        if (kb != null && kb.rKey.wasPressedThisFrame) TryBeginActiveSkill();
+        Gamepad pad = Gamepad.current;
+        if (pad != null)
+        {
+            if (pad.rightTrigger.wasPressedThisFrame) _queuedAttackUntil = Time.time + meleeInputBuffer;
+            if (pad.leftShoulder.wasPressedThisFrame) TryBeginAttack(true);
+            if (pad.rightShoulder.wasPressedThisFrame) TryCastPulse();
+            if (pad.dpad.up.wasPressedThisFrame) TryBeginActiveSkill();
+        }
         if (kb != null && kb.eKey.wasPressedThisFrame)
             TryInteract();
     }
@@ -109,24 +125,25 @@ public sealed class YQInvestorCombat : MonoBehaviour
         // note: Disabling/re-enabling this player must never replay pending combat input.
         _queuedAttackUntil = float.NegativeInfinity;
         _damagedEnemies.Clear();
-        CancelSpellCast();
+        InterruptActions();
     }
 
     private void TryAttack()
     {
-        if (IsCasting || Time.time < _nextAttackTime)
-            return;
+        TryBeginAttack(false);
+    }
 
-        _nextAttackTime = Time.time + attackCooldown;
-        PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
-        int equipmentBonus = Content != null ? Content.GetAttackBonus(state) : 0;
-        int damage = lightAttackDamage + equipmentBonus + (state != null ? Mathf.Max(0, state.stats.attack / 4) : 0);
+    private void CommitMeleeAttack()
+    {
+        // note: The accepted action captured its owner, hand, weapon and damage; this contact is committed exactly once.
+        PlayerState state = _attackOwner;
+        int damage = _acceptedAttackDamage;
 
         // note: Measure reach from the player, not from a sphere already placed an entire weapon range ahead.
         Vector3 origin = transform.position + Vector3.up * (_motor != null && _motor.IsCrouching ? 0.75f : 1.1f);
         Camera aimCamera = _motor != null ? _motor.playerCamera : _viewCamera;
         Vector3 aimDirection = aimCamera != null ? aimCamera.transform.forward : transform.forward;
-        float reach = Mathf.Max(0.1f, attackRange);
+        float reach = Mathf.Max(0.1f, _acceptedAttackRange);
         float width = Mathf.Max(0.01f, attackRadius);
         int hitBufferCount = IsMeleeOriginClear(origin)
             ? Physics.OverlapSphereNonAlloc(origin, reach, _attackHits, ~0, QueryTriggerInteraction.Ignore)
@@ -169,7 +186,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
         _recorder?.RecordCombat(firstTarget);
         if (_equipmentVisual == null)
             _equipmentVisual = GetComponent<YQPlayerEquipmentVisual>();
-        _equipmentVisual?.PlayMeleeFeedback();
+        GetComponent<YQPlayerHaptics>()?.Pulse(hitCount > 0 ? .3f : .1f, hitCount > 0 ? .65f : .25f, .08f);
         YQRuntimeAudioFeedback.PlayPlayerMelee(transform.position + transform.forward * 1.1f + Vector3.up * 1.1f, hitCount > 0);
         YQGeneratedRuntimeVfx.SpawnMeleeSwing(transform, BuildMeleeDescriptor(state), hitCount > 0);
         if (state != null)
@@ -219,7 +236,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
 
     private void TryCastPulse()
     {
-        if (IsCasting || Time.time < _nextSpellTime) return;
+        if (IsAttacking || IsBlocking || Time.time < _staggerUntil || IsCasting || Time.time < _nextSpellTime) return;
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
         SkillRecord equippedSpell = ResolveEquippedSpell(state);
         if (equippedSpell == null)
@@ -228,9 +245,13 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return;
         }
 
+        string targeting = (equippedSpell.targetingMode ?? string.Empty).Trim().ToLowerInvariant();
+        if (targeting.Length > 0 && targeting != "projectile" && targeting != "pulse")
+        { Content?.SetInventoryMessage("This action needs a supported projectile or pulse contract."); return; }
+
         float cost = YQSpellCircleRules.GetResourceCost(equippedSpell);
         string resource = YQSpellCircleRules.GetResourceType(equippedSpell);
-        if (_vitals == null || (resource == "stamina" ? _vitals.CurrentStamina : _vitals.CurrentMana) < cost)
+        if (_vitals == null || (resource == "stamina" ? _vitals.CurrentStamina : resource == "none" || resource == "free" ? float.MaxValue : _vitals.CurrentMana) < cost)
         {
             Content?.SetInventoryMessage("Not enough " + resource + " to cast " + equippedSpell.name + ".");
             return;
@@ -239,6 +260,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
         // note: Freeze the mechanical inputs; resources, effects, counters and cooldown commit only at successful release.
         int equipmentBonus = Content != null ? Content.GetManaBonus(state) : 0;
         _castingSpell = equippedSpell;
+        _castingSlot = "spell";
         _castingOwner = state;
         _castingDescriptor = BuildSkillDescriptor(equippedSpell);
         _castingResource = resource;
@@ -258,7 +280,7 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (!IsCasting) return;
         PlayerState state = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
         // note: A profile switch, unequip or replacement cannot release a spell captured by the old owner.
-        if (!ReferenceEquals(state, _castingOwner) || !ReferenceEquals(ResolveEquippedSpell(state), _castingSpell))
+        if (!ReferenceEquals(state, _castingOwner) || !ReferenceEquals(ResolveEquippedSkill(state, _castingSlot), _castingSpell))
         {
             CancelSpellCast();
             return;
@@ -298,7 +320,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
     {
         // note: Both supported delivery paths use the same power that determined this cast's wind-up.
         YQRuntimeAudioFeedback.PlaySpellCast(transform.position + transform.forward * 0.8f + Vector3.up * 1.1f);
-        if (WantsProjectile(equippedSpell, spellDescriptor) && YQGeneratedRuntimeVfx.TrySpawnSpellProjectile(transform, spellDescriptor, power, gameObject))
+        GetComponent<YQPlayerHaptics>()?.Pulse(.15f, .65f, .13f);
+        if (WantsProjectile(equippedSpell, spellDescriptor) && YQGeneratedRuntimeVfx.TrySpawnSpellProjectile(transform, spellDescriptor, power, gameObject, true))
         {
             if (state != null)
             {
@@ -553,8 +576,10 @@ public sealed class YQInvestorCombat : MonoBehaviour
         if (motor != null && !motor.IsAuthoritative)
             return;
 
-        // note: Accepted damage interrupts wind-up before the existing vitals/animation owners respond.
-        if (amount > 0) CancelSpellCast();
+        // note: Guard/parry resolve before damage acceptance; fall and drowning damage bypass directional combat defense.
+        if (amount <= 0) return;
+        amount = ResolveGuardDamage(amount, source);
+        if (amount <= 0) return;
         YQRuntimeAudioFeedback.PlayPlayerDamaged(transform.position + Vector3.up * 1.1f);
         if (_vitals != null)
             _vitals.TakeDamage(amount);
@@ -641,7 +666,8 @@ public sealed class YQInvestorCombat : MonoBehaviour
             return false;
         if (targeting == "projectile")
             return true;
-        return !string.IsNullOrWhiteSpace(descriptor);
+        // note: Legacy spell records default to projectile delivery; narrative prose no longer determines delivery mechanics.
+        return string.IsNullOrWhiteSpace(targeting) && YQSpellCircleRules.IsSpell(skill);
     }
 
     private static string BuildMeleeDescriptor(PlayerState state)

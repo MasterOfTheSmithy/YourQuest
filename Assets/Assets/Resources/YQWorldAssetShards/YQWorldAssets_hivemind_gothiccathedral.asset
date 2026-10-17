@@ -1,0 +1,4149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_gothiccathedral
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Cube.prefab
+    prefab: {fileID: 1030976687, guid: c3d0ad5ceecbe7f448344794f88e7d49, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Cube
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 033d60ca6072c264a8118d0876275cff, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Cube_1.prefab
+    prefab: {fileID: 1030989286, guid: 0f265f374089aa3468f8ee3b3f1cb6a6, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Cube
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 89057316f2fe71f469f87519770f8642, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Cube_2.prefab
+    prefab: {fileID: 1030989323, guid: abc00000000011511989277846749862, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Cube
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ab93df9ace2fd724d8f320707f682c04, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Plane.prefab
+    prefab: {fileID: 1030987032, guid: ecc325dd464b94e498417abdbda6e341, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: aa9e4ba92263d2b4f8c6987480f9f119, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Plane_1.prefab
+    prefab: {fileID: 1030988955, guid: d74a88eb1da08184bb3aa49b109e350e, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fcc8a53a4920968428c1a5ae6340169d, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/ForLights/Plane_2.prefab
+    prefab: {fileID: 1030989353, guid: abc00000000001497478416529335407, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 033d60ca6072c264a8118d0876275cff, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_A.prefab
+    prefab: {fileID: 1030976357, guid: abc00000000014199374843572681930, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_B.prefab
+    prefab: {fileID: 1030973837, guid: abc00000000017769620582294176017, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_C.prefab
+    prefab: {fileID: 1030973859, guid: abc00000000004707778583092939528, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_D.prefab
+    prefab: {fileID: 1030976665, guid: abc00000000017767063379914072655, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_Window_A.prefab
+    prefab: {fileID: 1030976115, guid: abc00000000003168300491087001045, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_Window_B.prefab
+    prefab: {fileID: 1030976563, guid: abc00000000016269871339355600846, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Chain_A.prefab
+    prefab: {fileID: 1030981244, guid: abc00000000007230188709461465564, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_Chain_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_Chain_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_Chain_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Ceiling_A.prefab
+    prefab: {fileID: 1030971934, guid: abc00000000004808984244720532975, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD0
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD1
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD2
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_A_LOD3
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Ceiling_B.prefab
+    prefab: {fileID: 1030973209, guid: abc00000000016294558069279011668, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD0
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD1
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD2
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Ceiling_B_LOD3
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Ceiling_C.prefab
+    prefab: {fileID: 1030978745, guid: abc00000000012976555230080265725, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_C_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Ceiling_D.prefab
+    prefab: {fileID: 1030979296, guid: abc00000000011833536554474445674, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Ceiling_D_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Design_A.prefab
+    prefab: {fileID: 1030973073, guid: abc00000000007775426141415228116, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Design_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Design_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Design_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Design_B.prefab
+    prefab: {fileID: 1030977366, guid: abc00000000014736596390566301039, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Design_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Design_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Design_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Design_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Railing_A.prefab
+    prefab: {fileID: 1030972214, guid: abc00000000007690431626074043866, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Railing_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: f2f68564bb8eb4b49bb3a8b4cebe896a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Railing_B.prefab
+    prefab: {fileID: 1030977384, guid: abc00000000005534414345540130017, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Railing_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Railing_C.prefab
+    prefab: {fileID: 1030977526, guid: abc00000000010193484125333068568, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Railing_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Railing_C_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Railing_D.prefab
+    prefab: {fileID: 1030977648, guid: abc00000000000666090422552747679, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Railing_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Railing_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Window_A.prefab
+    prefab: {fileID: 1030972951, guid: abc00000000017554836984152963662, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Window_B.prefab
+    prefab: {fileID: 1030973231, guid: abc00000000004453266135884363861, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Window_B_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Hook_A.prefab
+    prefab: {fileID: 1030994536, guid: abc00000000013170381233877243096, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hook_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a335baa590e4d147bd15ed87adc13d6, type: 2}
+    - transformPath: SM_Hook_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a335baa590e4d147bd15ed87adc13d6, type: 2}
+    - transformPath: SM_Hook_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a335baa590e4d147bd15ed87adc13d6, type: 2}
+    - transformPath: SM_Hook_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a335baa590e4d147bd15ed87adc13d6, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_MERGED_BP_SplineMeshActor_Chain_C_0.prefab
+    prefab: {fileID: 1030999569, guid: abc00000000001869706278485109833, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_0_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_0_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_0_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_0_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_MERGED_BP_SplineMeshActor_Chain_C_1.prefab
+    prefab: {fileID: 1030999547, guid: abc00000000006240349835131169088, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_1_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_MERGED_BP_SplineMeshActor_Chain_C_3.prefab
+    prefab: {fileID: 1030999591, guid: abc00000000003336139943886165890, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+    - transformPath: SM_MERGED_BP_SplineMeshActor_Chain_C_3_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 490002422a31c6f4083e53afb0cbd2ae, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pedestal_A.prefab
+    prefab: {fileID: 1030982393, guid: abc00000000001636536456526213847, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pedestal_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pedestal_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Pedestal_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pedestal_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Pedestal_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pedestal_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Pedestal_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pedestal_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Pedestal_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pedestal_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Pedestal_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pedestal_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Pedestal_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pedestal_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Pedestal_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pedestal_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bench_A.prefab
+    prefab: {fileID: 1030977720, guid: abc00000000009331361911774944497, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bench_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4741cb4f28c2d2a4a9d3344da555ac57, type: 2}
+    - transformPath: SM_Prop_Bench_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4741cb4f28c2d2a4a9d3344da555ac57, type: 2}
+    - transformPath: SM_Prop_Bench_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4741cb4f28c2d2a4a9d3344da555ac57, type: 2}
+    - transformPath: SM_Prop_Bench_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4741cb4f28c2d2a4a9d3344da555ac57, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bench_B.prefab
+    prefab: {fileID: 1030977762, guid: abc00000000011750622181358961834, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bench_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6b92d3a91e6cf3541bb4feab65b18a8e, type: 2}
+    - transformPath: SM_Prop_Bench_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6b92d3a91e6cf3541bb4feab65b18a8e, type: 2}
+    - transformPath: SM_Prop_Bench_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6b92d3a91e6cf3541bb4feab65b18a8e, type: 2}
+    - transformPath: SM_Prop_Bench_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6b92d3a91e6cf3541bb4feab65b18a8e, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_A.prefab
+    prefab: {fileID: 1030982882, guid: abc00000000002938875029777761530, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_B.prefab
+    prefab: {fileID: 1030982838, guid: abc00000000012410747281498944641, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_C.prefab
+    prefab: {fileID: 1030982860, guid: abc00000000012077755634091810488, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_D.prefab
+    prefab: {fileID: 1030982904, guid: abc00000000000906595253456538047, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_E.prefab
+    prefab: {fileID: 1030982926, guid: abc00000000008584113019465947494, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Bookset_F.prefab
+    prefab: {fileID: 1030982968, guid: abc00000000009983801693360092621, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Bookset_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Bookset_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_BurnerButtom_A.prefab
+    prefab: {fileID: 1030990061, guid: abc00000000005661107918654723732, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_BurnerButtom_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerButtom_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerButtom_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerButtom_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_BurnerTop_A.prefab
+    prefab: {fileID: 1030990083, guid: abc00000000011072221903224351856, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_BurnerTop_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerTop_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerTop_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+    - transformPath: SM_Prop_BurnerTop_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7cc974982afc4834e902aba805d5a52d, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Chalice_A.prefab
+    prefab: {fileID: 1030991775, guid: abc00000000002515677263421241956, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Chalice_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Chalice_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Chalice_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Chalice_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Ciborium_A.prefab
+    prefab: {fileID: 1030991731, guid: abc00000000012770223218003526301, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Ciborium_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Ciborium_B.prefab
+    prefab: {fileID: 1030992451, guid: abc00000000000821760232965809334, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Ciborium_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Ciborium_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cross_A.prefab
+    prefab: {fileID: 1030991753, guid: abc00000000016390832938037398131, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cross_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cross_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cross_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cross_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cruets_A.prefab
+    prefab: {fileID: 1030993223, guid: abc00000000013267801553803417211, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cruets_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cruets_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cruets_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Cruets_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_FlagRode_A.prefab
+    prefab: {fileID: 1030990473, guid: abc00000000009618845071212824715, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_FlagRode_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_FlagRode_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_FlagRode_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_FlagRode_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Flag_A.prefab
+    prefab: {fileID: 1030980510, guid: abc00000000009921647353456439127, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Flag_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Flag_A_Torn.prefab
+    prefab: {fileID: 1030986990, guid: abc00000000008167510429305861485, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Flag_A_Torn_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_Torn_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_Torn_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+    - transformPath: SM_Prop_Flag_A_Torn_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 88bad1228f10857488949e071e063b5d, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Flag_B.prefab
+    prefab: {fileID: 1030980974, guid: abc00000000014829602959093411036, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Flag_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Flag_B_Torn.prefab
+    prefab: {fileID: 1030980996, guid: abc00000000002380346111839135456, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Flag_B_Torn_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_Torn_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_Torn_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+    - transformPath: SM_Prop_Flag_B_Torn_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8f4024ea4c90665439edc8126b1f61eb, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A.prefab
+    prefab: {fileID: 1030971890, guid: abc00000000009154388266817159596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A_1.prefab
+    prefab: {fileID: 1030981098, guid: abc00000000004740790637251992664, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 16cf85514298e1a4ab07c274fd3294ab, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 16cf85514298e1a4ab07c274fd3294ab, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 16cf85514298e1a4ab07c274fd3294ab, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 16cf85514298e1a4ab07c274fd3294ab, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A_2.prefab
+    prefab: {fileID: 1030981120, guid: abc00000000011290998724781852003, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A_3.prefab
+    prefab: {fileID: 1030981142, guid: abc00000000000723186431195971354, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A_4.prefab
+    prefab: {fileID: 1030991709, guid: abc00000000001271324461808140653, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e8644dc73a81c164aa1d43005a82b69c, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e8644dc73a81c164aa1d43005a82b69c, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e8644dc73a81c164aa1d43005a82b69c, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e8644dc73a81c164aa1d43005a82b69c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_A_5.prefab
+    prefab: {fileID: 1030999301, guid: abc00000000017396492412873659716, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_B.prefab
+    prefab: {fileID: 1030991635, guid: abc00000000000372393395378569575, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: abdd8741c366b5340afe3945b00f5e3b, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: abdd8741c366b5340afe3945b00f5e3b, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: abdd8741c366b5340afe3945b00f5e3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_B_1.prefab
+    prefab: {fileID: 1030991653, guid: abc00000000004057403730760307551, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_B_2.prefab
+    prefab: {fileID: 1030993374, guid: abc00000000015398252720718395844, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_B_3.prefab
+    prefab: {fileID: 1030999261, guid: abc00000000017719828843362428397, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_C.prefab
+    prefab: {fileID: 1030991687, guid: abc00000000011097514968171838702, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9032115e3ea295b46a8e27bc7af918fa, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_C_1.prefab
+    prefab: {fileID: 1030995220, guid: abc00000000016480767522507814398, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 18329cac0d6ae0d46b42d2d26d615dba, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_C_2.prefab
+    prefab: {fileID: 1030998903, guid: abc00000000013082703906058571525, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a5cdb3ad268a1a14a9904acda1278917, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Frame_C_3.prefab
+    prefab: {fileID: 1030999279, guid: abc00000000006808964883608892860, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c873df4a0ba3c5147859d99a0207dfa1, type: 2}
+    - transformPath: SM_Prop_Frame_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f90df3337b431e24d90da84d790cf241, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Hanger_A.prefab
+    prefab: {fileID: 1030986706, guid: abc00000000015445257876652647544, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Hanger_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21c4af2651a58c7458217468d81776f4, type: 2}
+    - transformPath: SM_Prop_Hanger_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21c4af2651a58c7458217468d81776f4, type: 2}
+    - transformPath: SM_Prop_Hanger_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21c4af2651a58c7458217468d81776f4, type: 2}
+    - transformPath: SM_Prop_Hanger_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 21c4af2651a58c7458217468d81776f4, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_InkBox_A.prefab
+    prefab: {fileID: 1030984042, guid: abc00000000007147644231829149730, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_InkBox_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_InkBox_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_InkBox_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_InkBox_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Mug_A.prefab
+    prefab: {fileID: 1030992409, guid: abc00000000009894012509367742050, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Mug_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Mug_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Mug_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Mug_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Paper_A.prefab
+    prefab: {fileID: 1030992851, guid: abc00000000018249518063374378425, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Paper_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Paper_B.prefab
+    prefab: {fileID: 1030992893, guid: abc00000000006882554772071333490, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Paper_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Paper_C.prefab
+    prefab: {fileID: 1030992813, guid: abc00000000018419394216517365819, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Paper_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Paper_Weight_A.prefab
+    prefab: {fileID: 1030991859, guid: abc00000000014128291641111018324, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Paper_Weight_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_Weight_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_Weight_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Paper_Weight_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Plate_A.prefab
+    prefab: {fileID: 1030999057, guid: abc00000000005038118828242053399, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Plate_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Plate_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Plate_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Plate_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Stamp_A.prefab
+    prefab: {fileID: 1030991837, guid: abc00000000007221301169997421670, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Stamp_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Stamp_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Stamp_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+    - transformPath: SM_Prop_Stamp_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5f39dbdf4f0dc142ac664871cdccda9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Vase_A.prefab
+    prefab: {fileID: 1030978268, guid: abc00000000016558330973051227590, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Vase_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: add605fb645242446a86c8e8fa35e3c4, type: 2}
+    - transformPath: SM_Prop_Vase_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: add605fb645242446a86c8e8fa35e3c4, type: 2}
+    - transformPath: SM_Prop_Vase_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: add605fb645242446a86c8e8fa35e3c4, type: 2}
+    - transformPath: SM_Prop_Vase_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: add605fb645242446a86c8e8fa35e3c4, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Vase_C.prefab
+    prefab: {fileID: 1030999179, guid: abc00000000003563128160768874756, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Vase_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Vase_D.prefab
+    prefab: {fileID: 1030978290, guid: abc00000000014139258247287381795, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Vase_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+    - transformPath: SM_Prop_Vase_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 74b531d38ecece74da1ad3af233b4c33, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Stairs_A.prefab
+    prefab: {fileID: 1030981350, guid: abc00000000003434658249268004467, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 322471b565b471047ad1446eb1fd513c, type: 2}
+    - transformPath: SM_Stairs_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 322471b565b471047ad1446eb1fd513c, type: 2}
+    - transformPath: SM_Stairs_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 322471b565b471047ad1446eb1fd513c, type: 2}
+    - transformPath: SM_Stairs_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 322471b565b471047ad1446eb1fd513c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Stairs_A_End.prefab
+    prefab: {fileID: 1030982517, guid: abc00000000007571155560988262013, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_A_End_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Stairs_A_End_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Stairs_A_End_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Stairs_A_End_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Stairs_A_End_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Stairs_A_End_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Stairs_B.prefab
+    prefab: {fileID: 1030981392, guid: abc00000000012977110563981781160, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e866e1334a8713543996b7bbf20e2540, type: 2}
+    - transformPath: SM_Stairs_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e866e1334a8713543996b7bbf20e2540, type: 2}
+    - transformPath: SM_Stairs_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e866e1334a8713543996b7bbf20e2540, type: 2}
+    - transformPath: SM_Stairs_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e866e1334a8713543996b7bbf20e2540, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Carpet_A.prefab
+    prefab: {fileID: 1030990195, guid: abc00000000013681833190179783620, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Carpet_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Carpet_B.prefab
+    prefab: {fileID: 1030990173, guid: abc00000000002340984200221695327, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Carpet_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+    - transformPath: SM_Carpet_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0fd9beeaf163fbf4b9fb6608aa96848b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_Arch_A.prefab
+    prefab: {fileID: 1030975993, guid: abc00000000014247382023147519409, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_Arch_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Ceiling_Arch_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Ceiling_Arch_B.prefab
+    prefab: {fileID: 1030975971, guid: abc00000000010432534529616135018, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ceiling_Arch_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Ceiling_Arch_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Arch_A.prefab
+    prefab: {fileID: 1030971912, guid: abc00000000014334547969572544426, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Arch_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Arch_B.prefab
+    prefab: {fileID: 1030973187, guid: abc00000000011915287699988527089, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Arch_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Corridor_Arch_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Door_A.prefab
+    prefab: {fileID: 1030978621, guid: abc00000000012060619297699929294, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Door_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Door_B.prefab
+    prefab: {fileID: 1030978334, guid: abc00000000017405792523140881109, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Door_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Door_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Floor_A.prefab
+    prefab: {fileID: 1030972116, guid: abc00000000018109469060240525636, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Floor_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 724a5128ae11d874e92dd95b7640e68b, type: 2}
+    - transformPath: SM_Corridor_Floor_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 724a5128ae11d874e92dd95b7640e68b, type: 2}
+    - transformPath: SM_Corridor_Floor_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 724a5128ae11d874e92dd95b7640e68b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Floor_B.prefab
+    prefab: {fileID: 1030975609, guid: abc00000000006768620070282437343, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Floor_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Floor_Bb.prefab
+    prefab: {fileID: 1030982086, guid: abc00000000010116116454158779007, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Floor_Bb_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_Bb_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_Bb_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Corridor_Floor_Bb_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Corridor_Floor_C.prefab
+    prefab: {fileID: 1030978432, guid: abc00000000013186856810262114054, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Corridor_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Corridor_Floor_C_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_8x3_A.prefab
+    prefab: {fileID: 1030981594, guid: abc00000000007355922906027263451, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_8x3_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_8x3_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x3_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_8x3_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x3_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_8x3_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_8x4_A.prefab
+    prefab: {fileID: 1030981612, guid: abc00000000016988092579176027512, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_8x4_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_8x4_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_8x4_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_8x4_B.prefab
+    prefab: {fileID: 1030981630, guid: abc00000000009677056740671723523, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_8x4_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_8x4_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_8x4_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_8x4_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_A.prefab
+    prefab: {fileID: 1030972680, guid: abc00000000015554816160739871865, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_A
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_Ab.prefab
+    prefab: {fileID: 1030982632, guid: abc00000000014922122532572702585, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Ab
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_Ac.prefab
+    prefab: {fileID: 1030982567, guid: abc00000000007860831737087300848, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Ac
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_C.prefab
+    prefab: {fileID: 1030982020, guid: abc00000000017489812612982096123, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_C_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_C_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 41daa257438ca334db077331f4c4736c, type: 2}
+    - transformPath: SM_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+    - transformPath: SM_Floor_C_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: cb7ebf410ed5f994286ca0c2bafd7bf1, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_Round_A.prefab
+    prefab: {fileID: 1030981888, guid: abc00000000001990119928188942860, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Round_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+    - transformPath: SM_Floor_Round_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+    - transformPath: SM_Floor_Round_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Floor_Round_B.prefab
+    prefab: {fileID: 1030981906, guid: abc00000000017644093663788593863, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Round_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+    - transformPath: SM_Floor_Round_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+    - transformPath: SM_Floor_Round_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3f9f1b3943b92449b0ce5bf0288634a, type: 2}
+    - transformPath: SM_Floor_Round_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 12153d1901a5123479040fb90c50e6c1, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_A.prefab
+    prefab: {fileID: 1030973348, guid: abc00000000016925454466495723917, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2efd8fc8d55ab8245957cac277387dc9, type: 2}
+    - transformPath: SM_Pillar_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2efd8fc8d55ab8245957cac277387dc9, type: 2}
+    - transformPath: SM_Pillar_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2efd8fc8d55ab8245957cac277387dc9, type: 2}
+    - transformPath: SM_Pillar_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2efd8fc8d55ab8245957cac277387dc9, type: 2}
+    - transformPath: SM_Pillar_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2efd8fc8d55ab8245957cac277387dc9, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_B.prefab
+    prefab: {fileID: 1030972467, guid: abc00000000009926149323659992102, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 879ce4a9154603a4a875ae33beb90456, type: 2}
+    - transformPath: SM_Pillar_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 37586935af29a0546863eff8d61f0d15, type: 2}
+    - transformPath: SM_Pillar_B_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5603d9a7f9cbc9742abaf0abbeed296b, type: 2}
+    - transformPath: SM_Pillar_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 879ce4a9154603a4a875ae33beb90456, type: 2}
+    - transformPath: SM_Pillar_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 37586935af29a0546863eff8d61f0d15, type: 2}
+    - transformPath: SM_Pillar_B_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5603d9a7f9cbc9742abaf0abbeed296b, type: 2}
+    - transformPath: SM_Pillar_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 879ce4a9154603a4a875ae33beb90456, type: 2}
+    - transformPath: SM_Pillar_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 37586935af29a0546863eff8d61f0d15, type: 2}
+    - transformPath: SM_Pillar_B_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5603d9a7f9cbc9742abaf0abbeed296b, type: 2}
+    - transformPath: SM_Pillar_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 879ce4a9154603a4a875ae33beb90456, type: 2}
+    - transformPath: SM_Pillar_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 37586935af29a0546863eff8d61f0d15, type: 2}
+    - transformPath: SM_Pillar_B_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5603d9a7f9cbc9742abaf0abbeed296b, type: 2}
+    - transformPath: SM_Pillar_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 879ce4a9154603a4a875ae33beb90456, type: 2}
+    - transformPath: SM_Pillar_B_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 37586935af29a0546863eff8d61f0d15, type: 2}
+    - transformPath: SM_Pillar_B_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5603d9a7f9cbc9742abaf0abbeed296b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_C.prefab
+    prefab: {fileID: 1030973438, guid: abc00000000016086955431054814335, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 199989e5dc8f07e4b87e29e05c52cf72, type: 2}
+    - transformPath: SM_Pillar_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 199989e5dc8f07e4b87e29e05c52cf72, type: 2}
+    - transformPath: SM_Pillar_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 199989e5dc8f07e4b87e29e05c52cf72, type: 2}
+    - transformPath: SM_Pillar_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 199989e5dc8f07e4b87e29e05c52cf72, type: 2}
+    - transformPath: SM_Pillar_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 199989e5dc8f07e4b87e29e05c52cf72, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_D.prefab
+    prefab: {fileID: 1030972731, guid: abc00000000008566488508193822840, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87387a4b276c8b741ba972f4abfab2fa, type: 2}
+    - transformPath: SM_Pillar_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87387a4b276c8b741ba972f4abfab2fa, type: 2}
+    - transformPath: SM_Pillar_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87387a4b276c8b741ba972f4abfab2fa, type: 2}
+    - transformPath: SM_Pillar_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87387a4b276c8b741ba972f4abfab2fa, type: 2}
+    - transformPath: SM_Pillar_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87387a4b276c8b741ba972f4abfab2fa, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_E.prefab
+    prefab: {fileID: 1030973715, guid: abc00000000009144363385387669313, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_E_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_E_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_E_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_E_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_E_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_E_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_E_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_E_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_F.prefab
+    prefab: {fileID: 1030976379, guid: abc00000000004664834035843380922, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_F_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_F_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_F_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_F_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_F_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_F_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_F_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_F_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_G.prefab
+    prefab: {fileID: 1030976696, guid: abc00000000001255452669689518851, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_G_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_G_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_G_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_G_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_G_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_G_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_G_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_G_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_G_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_G_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_G_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_G_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_H.prefab
+    prefab: {fileID: 1030976839, guid: abc00000000009117602817967320572, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_H_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_H_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_H_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_H_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_H_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_H_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_H_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_H_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_H_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_H_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_H_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_H_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Pillar_I.prefab
+    prefab: {fileID: 1030978461, guid: abc00000000017017592353180725061, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_I_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_I_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_I_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pillar_I_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_I_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_I_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_I_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pillar_I_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_I_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_I_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_I_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pillar_I_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Pillar_I_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Pillar_I_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Pillar_I_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Pillar_I_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_A.prefab
+    prefab: {fileID: 1030983134, guid: abc00000000014337474437346687538, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_B.prefab
+    prefab: {fileID: 1030987961, guid: abc00000000011726962593933167737, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_C.prefab
+    prefab: {fileID: 1030983112, guid: abc00000000004665671798447766000, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_D.prefab
+    prefab: {fileID: 1030983178, guid: abc00000000013489525690652301239, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_E.prefab
+    prefab: {fileID: 1030983220, guid: abc00000000003754838635143590398, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_F.prefab
+    prefab: {fileID: 1030983156, guid: abc00000000000356775018694347525, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_F_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Book_G.prefab
+    prefab: {fileID: 1030987739, guid: abc00000000012529780069954220476, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Book_G_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_G_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_G_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+    - transformPath: SM_Prop_Book_G_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3d514d371f10f245b614c45d2063812, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cabinet_A.prefab
+    prefab: {fileID: 1030998341, guid: abc00000000009173798190544864915, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cabinet_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d51ac4b8b919cba44be7105acda25794, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d51ac4b8b919cba44be7105acda25794, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d51ac4b8b919cba44be7105acda25794, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d51ac4b8b919cba44be7105acda25794, type: 2}
+    - transformPath: SM_Prop_Cabinet_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cabinet_B.prefab
+    prefab: {fileID: 1030982794, guid: abc00000000017340738270546507464, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cabinet_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bae820946e3c6834cac03b1593468a56, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bae820946e3c6834cac03b1593468a56, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bae820946e3c6834cac03b1593468a56, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bae820946e3c6834cac03b1593468a56, type: 2}
+    - transformPath: SM_Prop_Cabinet_B_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cabinet_C.prefab
+    prefab: {fileID: 1030982816, guid: abc00000000012201000900801726673, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cabinet_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a547b9fdc251a984c9ef08e69386f198, type: 2}
+    - transformPath: SM_Prop_Cabinet_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a547b9fdc251a984c9ef08e69386f198, type: 2}
+    - transformPath: SM_Prop_Cabinet_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a547b9fdc251a984c9ef08e69386f198, type: 2}
+    - transformPath: SM_Prop_Cabinet_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a547b9fdc251a984c9ef08e69386f198, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Cabinet_D.prefab
+    prefab: {fileID: 1030998403, guid: abc00000000008417551698743639094, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Cabinet_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f014743132ed1274b91f716b8d2de43b, type: 2}
+    - transformPath: SM_Prop_Cabinet_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f014743132ed1274b91f716b8d2de43b, type: 2}
+    - transformPath: SM_Prop_Cabinet_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f014743132ed1274b91f716b8d2de43b, type: 2}
+    - transformPath: SM_Prop_Cabinet_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f014743132ed1274b91f716b8d2de43b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Chair_A.prefab
+    prefab: {fileID: 1030977944, guid: abc00000000010062325388526480824, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Chair_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0d14f5289770c2848a6d7b5744cc9fb8, type: 2}
+    - transformPath: SM_Prop_Chair_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0d14f5289770c2848a6d7b5744cc9fb8, type: 2}
+    - transformPath: SM_Prop_Chair_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0d14f5289770c2848a6d7b5744cc9fb8, type: 2}
+    - transformPath: SM_Prop_Chair_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0d14f5289770c2848a6d7b5744cc9fb8, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Table_A.prefab
+    prefab: {fileID: 1030978206, guid: abc00000000002301520264857691535, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Table_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb05ffd8f591d2b4093ada7c0b8889cb, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb05ffd8f591d2b4093ada7c0b8889cb, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb05ffd8f591d2b4093ada7c0b8889cb, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb05ffd8f591d2b4093ada7c0b8889cb, type: 2}
+    - transformPath: SM_Prop_Table_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a01ea98f59be43648ae82708c7921a5c, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Table_B.prefab
+    prefab: {fileID: 1030977698, guid: abc00000000007436755117618367092, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Table_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b959dc0b39cdeb447b76bc81e08c320b, type: 2}
+    - transformPath: SM_Prop_Table_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b959dc0b39cdeb447b76bc81e08c320b, type: 2}
+    - transformPath: SM_Prop_Table_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b959dc0b39cdeb447b76bc81e08c320b, type: 2}
+    - transformPath: SM_Prop_Table_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b959dc0b39cdeb447b76bc81e08c320b, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Prop_Wooden_Chest_A.prefab
+    prefab: {fileID: 1030978312, guid: abc00000000000726362132494524581, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a263d7bbf733eb46bcd0ccda80e59b0, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 95547f7a4fd4bd44b90bfb7c2f70b492, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a263d7bbf733eb46bcd0ccda80e59b0, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 95547f7a4fd4bd44b90bfb7c2f70b492, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a263d7bbf733eb46bcd0ccda80e59b0, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 95547f7a4fd4bd44b90bfb7c2f70b492, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a263d7bbf733eb46bcd0ccda80e59b0, type: 2}
+    - transformPath: SM_Prop_Wooden_Chest_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 95547f7a4fd4bd44b90bfb7c2f70b492, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Statue_A.prefab
+    prefab: {fileID: 1030996297, guid: abc00000000001170896697948888149, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Statue_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4f0bc2818331c1045b78b6ab398ec0a2, type: 2}
+    - transformPath: SM_Statue_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4f0bc2818331c1045b78b6ab398ec0a2, type: 2}
+    - transformPath: SM_Statue_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4f0bc2818331c1045b78b6ab398ec0a2, type: 2}
+    - transformPath: SM_Statue_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4f0bc2818331c1045b78b6ab398ec0a2, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Vista_BuildingA.prefab
+    prefab: {fileID: 1030991077, guid: abc00000000003342653298137986368, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vista_BuildingA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Vista_BuildingB.prefab
+    prefab: {fileID: 1030991119, guid: abc00000000001591724661205637067, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Vista_BuildingB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Vista_BuildingB_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5d13067a4822d7c40a040c78a923547a, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_A.prefab
+    prefab: {fileID: 1030976461, guid: abc00000000003911221478090150913, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Wall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Wall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Wall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1b6049a026a9dd1478095ae35a05d066, type: 2}
+    - transformPath: SM_Wall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_B.prefab
+    prefab: {fileID: 1030976738, guid: abc00000000012886093300078519418, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_C.prefab
+    prefab: {fileID: 1030977141, guid: abc00000000004260736691877823427, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_C_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_C_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_C_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_D.prefab
+    prefab: {fileID: 1030977197, guid: abc00000000016372971078389546276, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_D_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_D_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_D_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_D_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_E.prefab
+    prefab: {fileID: 1030977175, guid: abc00000000001484275889951298893, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_E_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_E_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_E_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_E_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_E_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_E_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_E_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_E_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_E_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_E_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_E_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 51d369ea5f3da8740ac5bae516643305, type: 2}
+    - transformPath: SM_Wall_E_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+  - assetPath: Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Art/Prefabs/SM_Wall_F.prefab
+    prefab: {fileID: 1030978543, guid: abc00000000000084587216057153766, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_F_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_F_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_F_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_F_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+    - transformPath: SM_Wall_F_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7d0bcbb4ffa57ab44a25b36570c79911, type: 2}
+    - transformPath: SM_Wall_F_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 634a84f8243d266488f1a3db2d376582, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

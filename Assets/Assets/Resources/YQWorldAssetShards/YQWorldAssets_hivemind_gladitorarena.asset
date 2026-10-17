@@ -1,0 +1,2193 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_gladitorarena
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Materials/Instances/M_Rock.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Materials/Instances/M_Sand.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Meshes/Materials/MI_Rock.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 11beb1e8ef8747545903a7651d157cec, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Meshes/Materials/MI_Sand.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 1d32605900573d6469cf30668ccd761d, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_ArenaGate_Floor.prefab
+    prefab: {fileID: 1030976147, guid: abc00000000012591277683768956656, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArenaGate_Floor_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_ArenaGate_Floor_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_ArenaGate_Floor_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_ArenaGate_Floor_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BaseStairsFloors_Ext1.prefab
+    prefab: {fileID: 1030985689, guid: abc00000000017922462073859043010, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BaseStairsFloors_Ext1_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext1_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext1_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BaseStairsFloors_Ext2.prefab
+    prefab: {fileID: 1030985671, guid: abc00000000015827503951776521865, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BaseStairsFloors_Ext2_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext2_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext2_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BaseStairsFloors_Ext3.prefab
+    prefab: {fileID: 1030985653, guid: abc00000000015979335372504363904, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BaseStairsFloors_Ext3_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext3_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext3_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BaseStairsFloors_Ext4.prefab
+    prefab: {fileID: 1030971903, guid: abc00000000010496449985635455431, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BaseStairsFloors_Ext4_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext4_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext4_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BaseStairsFloors_Ext4_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BigFlag_A.prefab
+    prefab: {fileID: 1030998050, guid: abc00000000001793096621998943855, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BigFlag_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47f28fae80cbc6941899910c4840c183, type: 2}
+    - transformPath: SM_BigFlag_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_BigFlag_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47f28fae80cbc6941899910c4840c183, type: 2}
+    - transformPath: SM_BigFlag_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_BigFlag_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47f28fae80cbc6941899910c4840c183, type: 2}
+    - transformPath: SM_BigFlag_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_BigFlag_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47f28fae80cbc6941899910c4840c183, type: 2}
+    - transformPath: SM_BigFlag_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BigFlag_B.prefab
+    prefab: {fileID: 1030998032, guid: abc00000000013278670446557422548, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BigFlag_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a976db878123fd0438cb297c47a2de8b, type: 2}
+    - transformPath: SM_BigFlag_B_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_BigFlag_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a976db878123fd0438cb297c47a2de8b, type: 2}
+    - transformPath: SM_BigFlag_B_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_BigFlag_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a976db878123fd0438cb297c47a2de8b, type: 2}
+    - transformPath: SM_BigFlag_B_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Chain_a.prefab
+    prefab: {fileID: 1030995808, guid: abc00000000005560203658341394044, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Chain_b.prefab
+    prefab: {fileID: 1030995776, guid: abc00000000000781181548785555063, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Chain_c.prefab
+    prefab: {fileID: 1030995956, guid: abc00000000015232287772217137598, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Chain_c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Collumn.prefab
+    prefab: {fileID: 1030975808, guid: abc00000000003805104135056840985, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Collumn_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Collumn_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Collumn_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Collumns.prefab
+    prefab: {fileID: 1030974394, guid: abc00000000006608918253750847680, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Collumns_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Collumns_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Collumns_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Collumns_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_EuropeanBeech_L_02.prefab
+    prefab: {fileID: 1011598471828617635, guid: ee4c60db5a03f55409005e93e58aac47, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e095a0d5685d3a4885dd80a33420ea8, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 418309652bee28947a89ff35c6cbaf3f, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5a022b3384c1ca24f810ffd64c8470b9, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e095a0d5685d3a4885dd80a33420ea8, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 418309652bee28947a89ff35c6cbaf3f, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5a022b3384c1ca24f810ffd64c8470b9, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e095a0d5685d3a4885dd80a33420ea8, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 418309652bee28947a89ff35c6cbaf3f, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0e095a0d5685d3a4885dd80a33420ea8, type: 2}
+    - transformPath: SM_EuropeanBeech_L_02_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 418309652bee28947a89ff35c6cbaf3f, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FlagPole_Balconie_A.prefab
+    prefab: {fileID: 1031004110, guid: abc00000000014975574870443829269, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FlagPole_Balconie_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FlagPole_Balconie_B.prefab
+    prefab: {fileID: 1031004085, guid: abc00000000005272831511976619790, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FlagPole_Balconie_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FlagPole_Balconie_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Flag_Pole.prefab
+    prefab: {fileID: 1030985617, guid: abc00000000013378384496033656988, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Flag_Pole_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Flag_Pole_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Flag_Pole_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FrontBalcony_AB.prefab
+    prefab: {fileID: 1030978155, guid: abc00000000015107664562921114444, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FrontBalcony_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AB_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FrontBalcony_AC.prefab
+    prefab: {fileID: 1030978901, guid: abc00000000003721571876334885141, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FrontBalcony_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontBalcony_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Gladius.prefab
+    prefab: {fileID: 1030988051, guid: abc00000000010489449805678092896, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Gladius_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+    - transformPath: SM_Gladius_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+    - transformPath: SM_Gladius_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+    - transformPath: SM_Gladius_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Hermeas.prefab
+    prefab: {fileID: 1031003459, guid: abc00000000015418020989096435968, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hermeas_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+    - transformPath: SM_Hermeas_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+    - transformPath: SM_Hermeas_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+    - transformPath: SM_Hermeas_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+    - transformPath: SM_Hermeas_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+    - transformPath: SM_Hermeas_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5758284766e610447b6d5000891b182f, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_MainEntrance.prefab
+    prefab: {fileID: 1030972885, guid: abc00000000006889856778211396464, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MainEntrance_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_MainEntrance_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_MainEntrance_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_MainEntrance_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_MainEntrance_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_MainEntrance_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_MainEntrance_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_MainEntrance_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Main_Central_Balcony.prefab
+    prefab: {fileID: 1030978875, guid: abc00000000005999567093331996897, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Main_Central_Balcony_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Main_Central_Balcony_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutsideBar.prefab
+    prefab: {fileID: 1030974416, guid: abc00000000015881134784607949597, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutsideBar_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutsideBar_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutsideBar_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Paintings_a.prefab
+    prefab: {fileID: 1030995197, guid: abc00000000013000474590018906904, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paintings_a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Paintings_b.prefab
+    prefab: {fileID: 1030995163, guid: abc00000000007088040724606020131, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paintings_b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_b_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_b_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_b_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Paintings_c.prefab
+    prefab: {fileID: 1030995247, guid: abc00000000010497422090759882202, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Paintings_c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_c_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_c_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+    - transformPath: SM_Paintings_c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 23552c51253e26149aee444d9cf228b1, type: 2}
+    - transformPath: SM_Paintings_c_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 6cb825eb58e07e140b7fba5c1ad3483a, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pillars_Centered_a.prefab
+    prefab: {fileID: 1030975787, guid: abc00000000008911391001000030287, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillars_Centered_a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Pillars_Centered_a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pillars_Centered_b.prefab
+    prefab: {fileID: 1031002926, guid: abc00000000008830650611713871924, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillars_Centered_b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Pillars_Centered_b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Pillars_Centered_b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pilum.prefab
+    prefab: {fileID: 1030988033, guid: abc00000000001201801606241198614, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pilum_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+    - transformPath: SM_Pilum_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+    - transformPath: SM_Pilum_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bd79ee57da6b6dd4f9aef74cd0ff014d, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Plane_Sand.prefab
+    prefab: {fileID: 1030999383, guid: abc00000000017085662938941058714, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plane_Sand_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+    - transformPath: SM_Plane_Sand_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+    - transformPath: SM_Plane_Sand_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+    - transformPath: SM_Plane_Sand_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+    - transformPath: SM_Plane_Sand_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 60036481508fd6b4f947de780eaf5cb2, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pot_A.prefab
+    prefab: {fileID: 1030987973, guid: abc00000000005845743741878083678, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pot_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ca2a7ff2e0a41443b6d0b57f25342c0, type: 2}
+    - transformPath: SM_Pot_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ca2a7ff2e0a41443b6d0b57f25342c0, type: 2}
+    - transformPath: SM_Pot_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ca2a7ff2e0a41443b6d0b57f25342c0, type: 2}
+    - transformPath: SM_Pot_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ca2a7ff2e0a41443b6d0b57f25342c0, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Rock.prefab
+    prefab: {fileID: 1030986109, guid: abc00000000002592542003564722262, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Rock_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+    - transformPath: SM_Rock_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+    - transformPath: SM_Rock_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+    - transformPath: SM_Rock_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+    - transformPath: SM_Rock_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c6f38c17de6288d469d2e9e3dfe472f5, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_AA.prefab
+    prefab: {fileID: 1030974917, guid: abc00000000000534282444679530800, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_AA_1.prefab
+    prefab: {fileID: 1030975721, guid: abc00000000011922278974723312884, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Stairs_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Stairs_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_AB.prefab
+    prefab: {fileID: 1030974935, guid: abc00000000014133304530196948795, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_Balconies.prefab
+    prefab: {fileID: 1030974152, guid: abc00000000001215164000956794362, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Balconies_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_Balconies_UpperLvl_L.prefab
+    prefab: {fileID: 1030980716, guid: abc00000000000873463580028984670, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Balconies_UpperLvl_L_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_L_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_L_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_L_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_Balconies_UpperLvl_M.prefab
+    prefab: {fileID: 1030980694, guid: abc00000000010852752390347585815, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_Balconies_UpperLvl_M_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_M_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_M_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_Balconies_UpperLvl_M_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_L.prefab
+    prefab: {fileID: 1030974731, guid: abc00000000013712655603977601902, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_L_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_L_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_L_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_L_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_L_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_L_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_L_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_L_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_M.prefab
+    prefab: {fileID: 1030974753, guid: abc00000000002987534031184332775, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_M_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_M_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_M_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_M_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_M_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_M_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_M_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_M_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Stairs_S.prefab
+    prefab: {fileID: 1030974775, guid: abc00000000005436963276101537793, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stairs_S_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_S_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_S_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_S_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_S_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_S_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_Stairs_S_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Stairs_S_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_TopFlagPole_Fabric.prefab
+    prefab: {fileID: 1030985707, guid: abc00000000007001478368631362430, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TopFlagPole_Fabric_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_TopFlagPole_Fabric_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 84fe76f4d383b994baf52c3d7da9c4ad, type: 2}
+    - transformPath: SM_TopFlagPole_Fabric_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_TopFlagPole_Fabric_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 84fe76f4d383b994baf52c3d7da9c4ad, type: 2}
+    - transformPath: SM_TopFlagPole_Fabric_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_TopFlagPole_Fabric_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 84fe76f4d383b994baf52c3d7da9c4ad, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Water.prefab
+    prefab: {fileID: 1030971886, guid: e233b4f493db172489dc70119b492521, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Plane
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 54be387c7b0bbb747a05eebf6509e8ba, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_ArchFrame_Dungeon.prefab
+    prefab: {fileID: 1030990002, guid: abc00000000013422588799511348043, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArchFrame_Dungeon_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_ArchFrame_Dungeon_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_ArchFrame_Dungeon_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BigFlag_A_Wind.prefab
+    prefab: {fileID: 1031005616, guid: abc00000000000288113957995214444, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BigFlag_A_Wind
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 47f28fae80cbc6941899910c4840c183, type: 2}
+    - transformPath: SM_BigFlag_A_Wind
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BigFlag_B_Wind.prefab
+    prefab: {fileID: 1031005625, guid: abc00000000017185498037603025937, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BigFlag_B_Wind
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a976db878123fd0438cb297c47a2de8b, type: 2}
+    - transformPath: SM_BigFlag_B_Wind
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BorderCap_Floor_Medium.prefab
+    prefab: {fileID: 1030998215, guid: abc00000000018221883520792068912, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BorderCap_Floor_Medium_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4bf1021e15f3b548a05d1623752eecc, type: 2}
+    - transformPath: SM_BorderCap_Floor_Medium_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4bf1021e15f3b548a05d1623752eecc, type: 2}
+    - transformPath: SM_BorderCap_Floor_Medium_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d4bf1021e15f3b548a05d1623752eecc, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BorderCap_Floor_Medium_1.prefab
+    prefab: {fileID: 1031007016, guid: abc00000000010991018499100251892, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BorderCap_Floor_Medium_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BorderCap_Floor_Medium_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BorderCap_Floor_Medium_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_BorderCap_Floor_Small.prefab
+    prefab: {fileID: 1030984906, guid: abc00000000006692177189155771290, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BorderCap_Floor_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BorderCap_Floor_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_BorderCap_Floor_Small_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FenceGate_Dungeon.prefab
+    prefab: {fileID: 1030976935, guid: abc00000000012739033510743181954, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceGate_Dungeon_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Dungeon_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Dungeon_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Dungeon_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FenceGate_Inside.prefab
+    prefab: {fileID: 1030976979, guid: abc00000000003776285951814823520, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceGate_Inside_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Inside_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Inside_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Inside_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FenceGate_Outside.prefab
+    prefab: {fileID: 1030977023, guid: abc00000000017720613912435735929, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FenceGate_Outside_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Outside_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Outside_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_FenceGate_Outside_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorCeilingHalf_.prefab
+    prefab: {fileID: 1030972307, guid: abc00000000011435982377720346328, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorCeilingHalf__LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeilingHalf__LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeilingHalf__LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorCeiling_Inside.prefab
+    prefab: {fileID: 1030971947, guid: abc00000000016897448750015570053, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorCeiling_Inside_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Inside_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Inside_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorCeiling_Outside.prefab
+    prefab: {fileID: 1030976233, guid: abc00000000017913681391794776598, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorCeiling_Outside_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Outside_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Outside_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorCeiling_Small.prefab
+    prefab: {fileID: 1030976587, guid: abc00000000014553904219480849658, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorCeiling_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorCeiling_Small_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorStairs_L.prefab
+    prefab: {fileID: 1030978953, guid: abc00000000003505245876629385410, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorStairs_L_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorStairs_L_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorStairs_L_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FloorStairs_Small.prefab
+    prefab: {fileID: 1031007403, guid: abc00000000002395641831481659119, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FloorStairs_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorStairs_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FloorStairs_Small_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FrontPodium_Arch_AA.prefab
+    prefab: {fileID: 1030973788, guid: abc00000000004973827685000262646, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FrontPodium_Arch_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Arch_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_FrontPodium_Wall_AA.prefab
+    prefab: {fileID: 1030973864, guid: abc00000000003615744924102680870, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FrontPodium_Wall_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_FrontPodium_Wall_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InsideArchesWall_Large.prefab
+    prefab: {fileID: 1030981859, guid: abc00000000007161252319942021169, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InsideArchesWall_Large_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Large_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Large_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InsideArchesWall_Medium.prefab
+    prefab: {fileID: 1031006962, guid: abc00000000018066919811289727721, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InsideArchesWall_Medium_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Medium_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Medium_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InsideArchesWall_Small.prefab
+    prefab: {fileID: 1031006979, guid: abc00000000017799954003123869449, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InsideArchesWall_Small_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Small_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InsideArchesWall_Small_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_Gate_L_AA.prefab
+    prefab: {fileID: 1030972924, guid: abc00000000006113905685150634900, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_Gate_L_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_L_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_Gate_M_AA.prefab
+    prefab: {fileID: 1030973292, guid: abc00000000012180503937382556267, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_Gate_M_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_Gate_M_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_L_AB.prefab
+    prefab: {fileID: 1030972946, guid: abc00000000011568749209747835649, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_L_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_L_AC.prefab
+    prefab: {fileID: 1030978437, guid: abc00000000011235757562340701496, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_L_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_L_AD.prefab
+    prefab: {fileID: 1031007493, guid: abc00000000000064597181705429055, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_L_AD_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AD_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AD_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_L_AE.prefab
+    prefab: {fileID: 1030983628, guid: abc00000000007742114947714838502, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_L_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_L_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_L_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_L_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_L_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_AB.prefab
+    prefab: {fileID: 1030973252, guid: abc00000000003658377393522564146, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_AC.prefab
+    prefab: {fileID: 1031007543, guid: abc00000000002982862002351268603, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_AD.prefab
+    prefab: {fileID: 1030978631, guid: abc00000000001850683026130097084, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_AD_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AD_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AD_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AD_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_AE.prefab
+    prefab: {fileID: 1030981394, guid: abc00000000008124422048579775749, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_AE_1.prefab
+    prefab: {fileID: 1030990246, guid: abc00000000011453718821448824473, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_InWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_M_Balcony_AC.prefab
+    prefab: {fileID: 1030983646, guid: abc00000000002481438368002383844, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_M_Balcony_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_Balcony_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_Balcony_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_M_Balcony_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_InWall_S_Balcony_AC.prefab
+    prefab: {fileID: 1030980060, guid: abc00000000009641595578544965594, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InWall_S_Balcony_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_S_Balcony_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_S_Balcony_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_InWall_S_Balcony_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_MiddleGround.prefab
+    prefab: {fileID: 1030972907, guid: abc00000000010014978199444339395, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MiddleGround_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_MiddleGround_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_MiddleGround_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_Gate_L_AA.prefab
+    prefab: {fileID: 1030971925, guid: abc00000000009886424968952417387, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_Gate_L_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_L_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_Gate_M_AA.prefab
+    prefab: {fileID: 1030973270, guid: abc00000000003819826716720496020, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_Gate_M_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_Gate_M_AA_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_L_AB.prefab
+    prefab: {fileID: 1030977067, guid: abc00000000016687783883467239380, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_L_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_L_AC.prefab
+    prefab: {fileID: 1031007741, guid: abc00000000013369781044268493437, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_L_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_L_AD.prefab
+    prefab: {fileID: 1030971965, guid: abc00000000012226762368662673386, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_L_AD_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AD_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AD_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AD_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_L_AE.prefab
+    prefab: {fileID: 1030983610, guid: abc00000000012997453936799614323, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_L_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_L_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_L_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_L_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_L_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_M_AB.prefab
+    prefab: {fileID: 1030973314, guid: abc00000000005780130566947161395, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_M_AB_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AB_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AB_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_M_AC.prefab
+    prefab: {fileID: 1030977621, guid: abc00000000011627750938774018986, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_M_AC_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AC_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AC_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AC_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_M_AD.prefab
+    prefab: {fileID: 1031007835, guid: abc00000000017379189814685158973, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_M_AD_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AD_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AD_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AD_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_OutWall_M_AE.prefab
+    prefab: {fileID: 1031007857, guid: abc00000000014846444642686433940, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_OutWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_M_AE_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_M_AE_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_OutWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_OutWall_M_AE_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pillar_a.prefab
+    prefab: {fileID: 1031003024, guid: abc00000000017719799718480815469, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3f5f7b84cd2ca9f40a82489da200b476, type: 2}
+    - transformPath: SM_Pillar_a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3f5f7b84cd2ca9f40a82489da200b476, type: 2}
+    - transformPath: SM_Pillar_a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3f5f7b84cd2ca9f40a82489da200b476, type: 2}
+    - transformPath: SM_Pillar_a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3f5f7b84cd2ca9f40a82489da200b476, type: 2}
+    - transformPath: SM_Pillar_a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3f5f7b84cd2ca9f40a82489da200b476, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Pillar_Arena_Inside.prefab
+    prefab: {fileID: 1030976797, guid: abc00000000001337124202458712512, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Pillar_Arena_Inside_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Pillar_Arena_Inside_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+    - transformPath: SM_Pillar_Arena_Inside_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c8726749eb9be9940aaec25c56a142ed, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_RoofRoom.prefab
+    prefab: {fileID: 1030984552, guid: abc00000000017812303629278158470, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RoofRoom_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_RoofRoom_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_RoofRoom_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_RoofRoom_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_RoofRoom_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_RoofRoom_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_RoofRoom_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_RoofRoom_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+    - transformPath: SM_RoofRoom_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_RoofRoom_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f441cd60cd68c6e498bacf70fe1bde3b, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Statue_O.prefab
+    prefab: {fileID: 1031003434, guid: abc00000000003855430719423028051, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Statue_O_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9974aeead6ce2344b0c18b9a3a860d1, type: 2}
+    - transformPath: SM_Statue_O_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9974aeead6ce2344b0c18b9a3a860d1, type: 2}
+    - transformPath: SM_Statue_O_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9974aeead6ce2344b0c18b9a3a860d1, type: 2}
+    - transformPath: SM_Statue_O_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9974aeead6ce2344b0c18b9a3a860d1, type: 2}
+    - transformPath: SM_Statue_O_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9974aeead6ce2344b0c18b9a3a860d1, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_ThinFlag_A.prefab
+    prefab: {fileID: 1031006911, guid: abc00000000018052079315608036250, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ThinFlag_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 97c9f9e04b773284798d131f78a4f253, type: 2}
+    - transformPath: SM_ThinFlag_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 97c9f9e04b773284798d131f78a4f253, type: 2}
+    - transformPath: SM_ThinFlag_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 97c9f9e04b773284798d131f78a4f253, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_ThinFlag_B.prefab
+    prefab: {fileID: 1031006929, guid: abc00000000004200814325148352417, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ThinFlag_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f9229e7ec7b004e4bb8e219a22925fa6, type: 2}
+    - transformPath: SM_ThinFlag_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f9229e7ec7b004e4bb8e219a22925fa6, type: 2}
+    - transformPath: SM_ThinFlag_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f9229e7ec7b004e4bb8e219a22925fa6, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Tower_A.prefab
+    prefab: {fileID: 1030978833, guid: abc00000000013094400426728467212, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tower_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Tower_A_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Tower_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Tower_A_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Tower_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Tower_A_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Tower_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Tower_A_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+  - assetPath: Assets/HIVEMIND/GladitorArena/HDRP(Default)/Art/Prefabs/SM_Wall_UnderStairsBalconie.prefab
+    prefab: {fileID: 1030973990, guid: abc00000000007353620511107013677, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_UnderStairsBalconie_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Wall_UnderStairsBalconie_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cf5584a9dc108a94a93e98b12c725a78, type: 2}
+    - transformPath: SM_Wall_UnderStairsBalconie_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+    - transformPath: SM_Wall_UnderStairsBalconie_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2723c5c946140cb4b98e1f88dfe7ca2b, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

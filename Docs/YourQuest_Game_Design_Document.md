@@ -616,7 +616,7 @@ Required fields:
 - `name`
 - `kind`
 - `type`
-- `tier`
+- `tier` for skills; `circle` (1–7) for spells
 - `rank`
 - `description`
 - `stimulus`
@@ -663,6 +663,12 @@ Required fields:
 - `emote`
 
 Animation intent is not the animation clip name. It is a stable gameplay contract that maps generated abilities to available animation layers.
+
+Spells are organized into **circles 1–7**. Skills retain their existing tiers. Each spell displays one animated casting ring per circle, with rings charging in order through the cast. The existing persisted `tier` field remains the compatibility storage for a spell's circle; loading accepted content does not regenerate spells or rewrite saves.
+
+The baseline cast time in seconds is `0.20 + 0.24 × (circle − 1) + 0.012 × mana cost + 0.015 × spell strength`. Strength is the same supported power delivered on release: base 16, plus 4 per circle above 1, plus 2 per mastery rank above 1, equipped mana bonus divided by 10, and 6 for structured projectile targeting. Explicit free spells have no mana-cost contribution; stamina spells retain their resource contract. Legacy spells retain their 15-mana fallback.
+
+A cast must finish its wind-up before applying effects, recording successful cast counters, spending resources, or starting cooldown. Damage, death, disabling the player, opening blocking UI, changing profiles, or replacing the equipped spell cancels a pending cast. Interrupted casts do not consume resources. Names, descriptions, elemental presentation, accepted IDs and save schemas remain unchanged.
 
 ### 11.4 Evolution
 

@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_phial
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Artisan.prefab
+    prefab: {fileID: 492562662781623056, guid: e3e0e11a5b368bd4a817d1b240144626, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Court.prefab
+    prefab: {fileID: 2762550140144615873, guid: 7b0f9c7ce66566b43a51d71684a645ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Dragonbound.prefab
+    prefab: {fileID: 5683016599725061605, guid: a1a4702f91c7f5646a901d5c9a59aaf7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Eclipse.prefab
+    prefab: {fileID: 1330171838078867893, guid: 9519f2c46e60f5c43ab348a59de3c60b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Field.prefab
+    prefab: {fileID: 8242613951335246836, guid: 6c90ce0f4ce85cc4f96db321c36b888c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Merchant.prefab
+    prefab: {fileID: 5792049714809885134, guid: 10ebd916c7d73314c9462f24af0a1696, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Ranger.prefab
+    prefab: {fileID: 6663288994129275736, guid: 99820eba599c8e04584fc9aea8af04c6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Starforged_Orrery.prefab
+    prefab: {fileID: 5133329516590785141, guid: bd31ab22134bd064f84e1b389c5e4bf9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Worldtree_Sovereign.prefab
+    prefab: {fileID: 8013982497789532337, guid: 7c33f3cc6d0be784486f04bc9b1fd8be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_core.prefab
+    prefab: {fileID: 4301645769449781453, guid: 12387006a041dd74b92b8858f6b2657f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mixed_darkness_light.prefab
+    prefab: {fileID: 1778235510816658741, guid: a6c682d0d884af8478fd630180628372, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mixed_organic_fire.prefab
+    prefab: {fileID: 6606424557857214742, guid: ff2443f7ad2b1d74e9bb995f6e2b9db2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_darkness.prefab
+    prefab: {fileID: 2705537588977555458, guid: 049d58d32431f3d44977775bee227fb8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_fire.prefab
+    prefab: {fileID: 813040430559592273, guid: f27bb43222273df4f9aada6d03052e53, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_forged.prefab
+    prefab: {fileID: 4068193968997727056, guid: 196157b28060a4346bbb10dd42e09d95, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_frost.prefab
+    prefab: {fileID: 5312770281998944300, guid: 9467285cfdec42c4cb85a0d85ee10a8a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_light.prefab
+    prefab: {fileID: 8102623886158560975, guid: f773fe281cf528449b2e16394a359557, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_motif_organic.prefab
+    prefab: {fileID: 5082174479622049695, guid: 86c209352560a2746884021676a50b4b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_darkness.prefab
+    prefab: {fileID: 2274971710288626949, guid: 58fe9cdd0d6417e49872f5d9d3ad0d46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_fire.prefab
+    prefab: {fileID: 3472937610245019610, guid: 3435a34caf32e814d95669fbd128e05e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_forged.prefab
+    prefab: {fileID: 7724763780200164857, guid: ef7cb30c2df2fb942a8743cb29db4982, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_frost.prefab
+    prefab: {fileID: 7080531063691761314, guid: 37f8f13c38fc86d4fadc473ddf6985b4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_light.prefab
+    prefab: {fileID: 5573045659780961108, guid: a37b26dc10da0b446805f8c8ea64f297, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/yqmod1_consumables_phial_mount_organic.prefab
+    prefab: {fileID: 3240562926025695093, guid: ddf5510e135d5044b9a880ebd1c72589, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Field_Parts.prefab
+    prefab: {fileID: 5587412924166393926, guid: 0a2f725278ef99848b6fa772dc02055e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Merchant_Parts.prefab
+    prefab: {fileID: 4002816486662911874, guid: 4a7d9f0465a0db0418ca86c9e002c32a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Ranger_Parts.prefab
+    prefab: {fileID: 1252829117107546100, guid: e400f5d5602d09f479795ce753f105ee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Artisan_Parts.prefab
+    prefab: {fileID: 75819695786672862, guid: cd0f47e7d06930b4fa4538c58e302dfa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Court_Parts.prefab
+    prefab: {fileID: 333019832202436667, guid: a1dd8c9e6baa28c4099641e2ef04770e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Dragonbound_Parts.prefab
+    prefab: {fileID: 4080798967021301221, guid: 294d23a63c62d7341bde624755b31f8d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Eclipse_Parts.prefab
+    prefab: {fileID: 2304757349074577640, guid: b4a267df29a15a94abc79dc8a4c3dac5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 2249381970609541078, guid: 523ec26732ce5874baecffbd30ea00e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/phial/Phial_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 6850321723742375887, guid: f382527a02800a241bd6c6482e87fd80, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -12,12 +13,20 @@ using UnityEngine.Networking;
 public sealed class OllamaRequest
 {
     public string model;
-    public string prompt;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public string prompt;
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public OllamaChatMessage[] messages;
     public bool stream;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public string keep_alive;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public object format;
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public bool? think;
     public Dictionary<string, object> options;
+}
+
+// note: A reasoning request uses Ollama's chat path so JSON constrains the final answer after reasoning.
+public sealed class OllamaChatMessage
+{
+    public string role;
+    public string content;
 }
 
 [DisallowMultipleComponent]
@@ -73,6 +82,9 @@ public sealed class LLMClient : MonoBehaviour
     public string LastError { get; private set; } = string.Empty;
     public YQLlmRuntimeState RuntimeState { get; private set; } = YQLlmRuntimeState.Disabled;
     public int SuccessfulRequestCount { get; private set; }
+    // note: Benchmark receipts distinguish deliberately blocked requests from actual inference dispatch.
+    public int BenchmarkBlockedRequestCount { get; private set; }
+    public int InferenceDispatchCount { get; private set; }
     public int FailedRequestCount { get; private set; }
     public YQLlmRequestResult LastCompletedRequest { get; private set; }
     public string ActiveModelName { get; private set; } = "awaiting first request";
@@ -99,11 +111,14 @@ public sealed class LLMClient : MonoBehaviour
         public bool deferJsonValidationToCaller;
         public int maxRetries;
         public int attempt;
+        public bool allowPlayerFacingPreemption;
+        public int preemptionCount;
         public YQRepairEpisode repairEpisode;
         public bool repairVerification;
         public bool protectPrompt;
         public string parentRequestKey;
         public string requiredOllamaModelDigest;
+        public string requiredModelSha256;
         public string repairRequestKey;
         public Func<bool> ownerStillCurrent;
 
@@ -134,13 +149,22 @@ public sealed class LLMClient : MonoBehaviour
     private LlamaCppServerProcess _llamaServer;
     private OllamaServerProcess _ollamaServer;
     private UnityWebRequest _activeWebRequest;
+    private YQLlmBackend _activeInferenceBackend;
+    // note: A yielded request uses the existing reserved-entry dictionary; process-exit acknowledgement gates later dispatch.
+    private long _preemptingRequestId;
+    private bool _preemptionExitPending;
+    private bool _preemptibleLlamaPreparation;
     private string _exclusiveSequenceOwner = string.Empty;
     private string _residentOllamaModel = string.Empty;
     private string _residentOllamaBaseUrl = string.Empty;
     private string _ownedLlamaResidencyKey = string.Empty;
+    private bool _residentOllamaRequestedCpuOnly;
+    private string _residentOllamaOptionsKey = string.Empty;
+    private string _llamaPromptScope = string.Empty;
     private bool _processing;
     private bool _quitting;
     private float _lastLlmActivityTime;
+    private float _lastPlayerFacingActivityTime = float.NegativeInfinity;
     private long _nextRequestId = 1;
     private int _consecutiveHighPriorityRequests;
     private readonly HashSet<long> _terminalRequestIds = new HashSet<long>();
@@ -226,7 +250,9 @@ public sealed class LLMClient : MonoBehaviour
 
         _llamaServer = new LlamaCppServerProcess();
         _lastLlmActivityTime = Time.realtimeSinceStartup;
-        RuntimeState = _activeConfig.enableRuntimeLlm ? YQLlmRuntimeState.Starting : YQLlmRuntimeState.Disabled;
+        RuntimeState = _activeConfig.enableRuntimeLlm && !LLMRuntimeConfig.BenchmarkIsolationActive ? YQLlmRuntimeState.Starting : YQLlmRuntimeState.Disabled;
+        if (LLMRuntimeConfig.BenchmarkIsolationActive)
+            Debug.Log("[LLMClient] Explicit benchmark isolation: all Unity inference and backend startup blocked for this Editor process.");
         YQServiceLifecycle.RegisterTeardown(InvalidateForProfileLifecycle);
         // note: Unity invokes Application.quitting for editor Play Mode stops as well as player shutdown, so the owned llama process is closed even when OnApplicationQuit ordering is skipped.
         Application.quitting += HandleApplicationQuitting;
@@ -262,6 +288,7 @@ public sealed class LLMClient : MonoBehaviour
             return;
         }
         RuntimeState = YQLlmRuntimeState.Standby;
+        _llamaPromptScope = string.Empty;
         Debug.Log("[LLMClient] Unloaded owned llama.cpp model after " + idleSeconds.ToString("0") + "s idle; the next queued request restarts it automatically.");
     }
 
@@ -357,20 +384,67 @@ public sealed class LLMClient : MonoBehaviour
     }
 
     public bool BoundedRepairEnabled => ActiveConfig().enableBoundedRepair;
-    public bool DialogueSemanticRepairEnabled => BoundedRepairEnabled && ActiveConfig().dialogueVerifierQualified;
+    public bool BestEffortSpeechEnabled => ActiveConfig().BestEffortSpeechAvailable;
+    public bool DialogueSemanticRepairEnabled => BoundedRepairEnabled && (ActiveConfig().HasQualifiedDialogueVerifier || BestEffortSpeechEnabled);
     // note: Goddess qualification is independent of NPC dialogue and bound to the reviewed prompt/schema contract.
-    public bool GoddessSemanticRepairEnabled => ActiveConfig().HasQualifiedGoddessVerifier;
-    public string QualifiedGoddessVerifierDigest => GoddessSemanticRepairEnabled ? ActiveConfig().goddessVerifierModelDigest : string.Empty;
-    public bool GoddessSpeechPlanEnabled => ActiveConfig().HasQualifiedGoddessSpeechPlan;
-    public string QualifiedGoddessSpeechPlanDigest => GoddessSpeechPlanEnabled ? ActiveConfig().goddessSpeechPlanModelDigest : string.Empty;
+    public bool GoddessSemanticRepairEnabled => ActiveConfig().HasQualifiedGoddessVerifier || BestEffortSpeechEnabled;
+    public string QualifiedGoddessVerifierDigest => ActiveConfig().HasQualifiedGoddessVerifier ? ActiveConfig().goddessVerifierModelDigest : string.Empty;
+    public bool GoddessSpeechPlanEnabled => ActiveConfig().HasQualifiedGoddessSpeechPlan || BestEffortSpeechEnabled;
+    public string QualifiedGoddessSpeechPlanDigest => ActiveConfig().HasQualifiedGoddessSpeechPlan ? ActiveConfig().goddessSpeechPlanModelDigest : string.Empty;
     public bool GoddessSpeechPlanCpuOnly => ActiveConfig().goddessSpeechPlanCpuOnly;
+
+    // note: Practical-mode identity pins do not falsely label a tested GGUF as semantically qualified.
+    public string SpeechModelDigest(LLMGenerationCategory category) => BestEffortSpeechEnabled
+        ? ActiveConfig().bestEffortSpeechModelSha256
+        : category == LLMGenerationCategory.DialogueVerification ? QualifiedDialogueVerifierDigest
+        : category == LLMGenerationCategory.GoddessVerification ? QualifiedGoddessVerifierDigest : QualifiedGoddessSpeechPlanDigest;
+
+    // note: Callers keep their existing qualified digest contract; the transport pin is selected from the actual role backend.
+    public void PinQualifiedModel(YQLlmRequest request, string digest)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+        request.requiredModelSha256 = null;
+        request.requiredOllamaModelDigest = null;
+        if (ActiveConfig().GetBackend(request.category) == YQLlmBackend.LlamaCpp) request.requiredModelSha256 = digest;
+        else request.requiredOllamaModelDigest = digest;
+    }
+
+    private readonly Dictionary<string, Task<string>> _qualifiedModelIdentities = new Dictionary<string, Task<string>>(StringComparer.OrdinalIgnoreCase);
+    private Task<string> QualifiedModelIdentity(string path)
+    {
+        try
+        {
+            var info = new System.IO.FileInfo(path);
+            string key = info.FullName + "|" + info.Length + "|" + info.LastWriteTimeUtc.Ticks;
+            if (_qualifiedModelIdentities.TryGetValue(key, out var existing)) return existing;
+            if (_qualifiedModelIdentities.Count >= 16) _qualifiedModelIdentities.Clear();
+            long length = info.Length, modified = info.LastWriteTimeUtc.Ticks;
+            // note: Hashing multi-GB weights must not block gameplay. Failure and modification during hashing produce no identity.
+            var pending = Task.Run(() => {
+                try
+                {
+                    using (var stream = new System.IO.FileStream(info.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
+                    using (var sha = System.Security.Cryptography.SHA256.Create())
+                    {
+                        string digest = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+                        var after = new System.IO.FileInfo(info.FullName);
+                        return after.Length == length && after.LastWriteTimeUtc.Ticks == modified ? digest : string.Empty;
+                    }
+                }
+                catch (Exception) { return string.Empty; }
+            });
+            _qualifiedModelIdentities[key] = pending;
+            return pending;
+        }
+        catch (Exception) { return Task.FromResult(string.Empty); }
+    }
     public void CancelRepairEpisode(YQRepairEpisode episode)
     {
         // note: Cancel exact admitted children, preserving unrelated work that happens to share an owner label.
         if (episode == null) return;
         foreach (long requestId in episode.RequestIds) CancelRequest(requestId, "Repair owner retired.");
     }
-    public string QualifiedDialogueVerifierDigest => ActiveConfig().dialogueVerifierQualified
+    public string QualifiedDialogueVerifierDigest => ActiveConfig().HasQualifiedDialogueVerifier
         ? ActiveConfig().dialogueVerifierModelDigest : string.Empty;
 
     public YQRepairEpisode CreateRepairEpisode(YQLlmRequest request, string taskFingerprint, double seconds)
@@ -385,6 +459,13 @@ public sealed class LLMClient : MonoBehaviour
 
     public long Submit(YQLlmRequest request, Action<YQLlmRequestResult> onComplete)
     {
+        // note: Complete immediately so offline fallback callers cannot wait behind a disabled model or enter transport retries.
+        if (LLMRuntimeConfig.BenchmarkIsolationActive)
+        {
+            BenchmarkBlockedRequestCount++;
+            CompleteDirectFailure(onComplete, request, "LLM benchmark isolation is active.");
+            return 0;
+        }
         if (request == null || string.IsNullOrWhiteSpace(request.prompt))
         {
             CompleteDirectFailure(onComplete, request, "LLM request prompt was empty.");
@@ -442,11 +523,13 @@ public sealed class LLMClient : MonoBehaviour
             jsonSchema = request.jsonSchema,
             deferJsonValidationToCaller = request.deferJsonValidationToCaller,
             maxRetries = request.maxRetries,
+            allowPlayerFacingPreemption = request.allowPlayerFacingPreemption,
             repairEpisode = request.repairEpisode,
             repairVerification = request.repairVerification,
             protectPrompt = request.protectPrompt,
             parentRequestKey = request.parentRequestKey,
             requiredOllamaModelDigest = request.requiredOllamaModelDigest,
+            requiredModelSha256 = request.requiredModelSha256,
             ownerStillCurrent = request.ownerStillCurrent,
             attempt = 0,
             queuedAt = now,
@@ -498,7 +581,7 @@ public sealed class LLMClient : MonoBehaviour
         string debugTag,
         Dictionary<string, object> optionsOverride,
         string exclusiveOwner,
-        // note: Startup-exclusive work is important, not infinite; callers must opt in explicitly if a genuinely unbounded local request is ever required.
+        // note: Legacy API compatibility only; transport is unlimited regardless of this argument.
         bool disableTimeout = false)
     {
         string owner = string.IsNullOrWhiteSpace(exclusiveOwner) ? string.Empty : exclusiveOwner.Trim();
@@ -555,6 +638,13 @@ public sealed class LLMClient : MonoBehaviour
         string exclusiveOwner,
         bool disableTimeout)
     {
+        // note: Legacy callbacks share the same launch-scoped isolation as typed requests.
+        if (LLMRuntimeConfig.BenchmarkIsolationActive)
+        {
+            BenchmarkBlockedRequestCount++;
+            SafeInvoke(onResponse, null, debugTag);
+            return;
+        }
         if (string.IsNullOrWhiteSpace(prompt))
         {
             SafeInvoke(onResponse, null, debugTag);
@@ -806,8 +896,10 @@ public sealed class LLMClient : MonoBehaviour
         // note: Backoff prevents a faulted local runtime from being hammered by multiple immediate retries.
         yield return new WaitForSecondsRealtime(delay);
 
-        _retryingRequests.Remove(request.id);
-        if (_quitting)
+        // note: Cancellation removes this retry's reservation while its delay can still be alive; never resurrect it or evict unrelated queued work.
+        if (!_retryingRequests.Remove(request.id) || _quitting || _terminalRequestIds.Contains(request.id))
+            yield break;
+        if (ShouldAbandonQueuedRequest(request))
             yield break;
 
         if (!TryReserveQueueSlot(request.highPriority || request.exclusive, out string queueError))
@@ -842,6 +934,12 @@ public sealed class LLMClient : MonoBehaviour
             }
 
             QueuedRequest request;
+            // note: Poll the existing queue briefly during conversational grace so a new player request is never held behind that delay.
+            if (ShouldDeferBackgroundWork())
+            {
+                yield return new WaitForSecondsRealtime(0.05f);
+                continue;
+            }
             if (!TryDequeueNextRequest(out request))
                 break;
 
@@ -854,8 +952,10 @@ public sealed class LLMClient : MonoBehaviour
             yield return WaitForRequestRoutine(request.id, SendOnceCoroutine(request));
             // note: Idle time starts after the attempt ends, including failures, rather than counting inference time as idle.
             _lastLlmActivityTime = Time.realtimeSinceStartup;
+            if (request.highPriority && !request.exclusive) _lastPlayerFacingActivityTime = Time.unscaledTime;
             _activeRequestValid = false;
             _activeRequestStartedAt = 0f;
+            ResumePreemptedRequest(request.id);
 
             if (ActiveConfig().staggerResponseHandoffAcrossFrames)
             {
@@ -871,6 +971,17 @@ public sealed class LLMClient : MonoBehaviour
         {
             EnsureQueueProcessorRunning();
         }
+    }
+
+    private bool ShouldDeferBackgroundWork()
+    {
+        // note: Preserve startup leases, priority order, repair budgets and FIFO. Only explicitly restartable background jobs may wait.
+        if (IsExclusiveSequenceActive || _highPriorityQueue.Count > 0 || _normalQueue.Count == 0) return false;
+        QueuedRequest next = _normalQueue.Peek();
+        if (!next.allowPlayerFacingPreemption || next.repairEpisode != null || next.exclusive || next.highPriority) return false;
+        LLMRuntimeConfig config = ActiveConfig();
+        return YQLlmResidencyPolicy.BackgroundGraceDelay(Time.unscaledTime, _lastPlayerFacingActivityTime,
+            next.firstQueuedAt, config.playerReplyGraceSeconds, config.maximumBackgroundGraceWaitSeconds) > 0f;
     }
 
     private bool TryDequeueNextRequest(out QueuedRequest request)
@@ -898,6 +1009,8 @@ public sealed class LLMClient : MonoBehaviour
         int highBurstLimit = Mathf.Clamp(config != null ? config.maxConsecutiveHighPriorityRequests : 3, 1, 8);
         bool serveNormalForFairness = _highPriorityQueue.Count > 0 &&
             _normalQueue.Count > 0 &&
+            // note: Opted-in background work starts only after waiting player requests drain, avoiding immediate abort/restart churn.
+            !_normalQueue.Peek().allowPlayerFacingPreemption &&
             _consecutiveHighPriorityRequests >= highBurstLimit;
 
         if (_highPriorityQueue.Count > 0 && !serveNormalForFairness)
@@ -925,7 +1038,7 @@ public sealed class LLMClient : MonoBehaviour
         pending.Push(routine);
         try
         {
-            while (!_quitting && !_terminalRequestIds.Contains(requestId) && pending.Count > 0)
+            while (pending.Count > 0 && IsRequestWaitCurrent(requestId))
             {
                 IEnumerator current = pending.Peek();
                 if (!current.MoveNext())
@@ -941,7 +1054,7 @@ public sealed class LLMClient : MonoBehaviour
                 }
                 if (current.Current is AsyncOperation operation)
                 {
-                    while (!operation.isDone && !_quitting && !_terminalRequestIds.Contains(requestId))
+                    while (!operation.isDone && IsRequestWaitCurrent(requestId))
                         yield return null;
                 }
                 else
@@ -955,8 +1068,111 @@ public sealed class LLMClient : MonoBehaviour
         }
     }
 
+    private bool IsRequestWaitCurrent(long requestId)
+    {
+        if (_quitting || _terminalRequestIds.Contains(requestId)) return false;
+        // note: Once yielded, every nested wait must remain stopped until the single queue owner requeues the reservation.
+        if (_preemptingRequestId == requestId) return false;
+        // note: Owner retirement must also unwind an indefinitely loading/unloading backend; it cannot wait for the next inference or application boundary.
+        if (_activeRequestValid && _activeRequest.id == requestId && !IsRequestCurrent(_activeRequest))
+        {
+            TerminalizeRequestById(requestId, YQLlmTerminalOutcome.Superseded,
+                "Request ownership retired while waiting for the backend.", false);
+            return false;
+        }
+        if (TryPreemptActiveBackgroundRequest(requestId)) return false;
+        return true;
+    }
+
+    private bool TryPreemptActiveBackgroundRequest(long requestId)
+    {
+        // note: An owned background model still loading is interruptible too; otherwise a cold HDD load can block a newly arrived player request.
+        bool interruptibleTransport = _preemptibleLlamaPreparation ||
+            (_activeInferenceBackend == YQLlmBackend.LlamaCpp && _activeWebRequest != null && !_activeWebRequest.isDone);
+        if (!_activeRequestValid || _activeRequest.id != requestId || _preemptingRequestId != 0 ||
+            _activeRequest.exclusive || _activeRequest.highPriority || !_activeRequest.allowPlayerFacingPreemption ||
+            _activeRequest.repairEpisode != null || IsExclusiveSequenceActive ||
+            !interruptibleTransport ||
+            _llamaServer == null || (!_preemptibleLlamaPreparation &&
+                (!_llamaServer.OwnsProcess || _llamaServer.HasOwnedProcessExited())) ||
+            ActiveConfig().serverParallelSlots != 1 || _highPriorityQueue.Count == 0)
+            return false;
+
+        bool playerWaiting = false;
+        foreach (QueuedRequest queued in _highPriorityQueue)
+        {
+            if (IsRequestCurrent(queued)) { playerWaiting = true; break; }
+        }
+        if (!playerWaiting || _retryingRequests.ContainsKey(requestId) || !TryReserveQueueSlot(false, out _))
+            return false;
+
+        // note: Reserve before aborting so a full queue cannot lose the original request; attempts and its one completion remain unchanged.
+        QueuedRequest parked = _activeRequest;
+        // note: A still-uncommitted frontier job must yield on every player request, rather than becoming uninterruptible after two conversations.
+        if (parked.preemptionCount < int.MaxValue) parked.preemptionCount++;
+        _retryingRequests.Add(requestId, parked);
+        _preemptingRequestId = requestId;
+        // note: Preparation precedes inference dispatch, so there is no sampling to stop. Retain the owned loading/ready model; active inference still requires a confirmed process exit.
+        _preemptionExitPending = !_preemptibleLlamaPreparation;
+        MaxObservedQueueDepth = Mathf.Max(MaxObservedQueueDepth, PendingRequestCount);
+        AbortActiveWebRequest();
+        if (logRequestSummaries) Debug.Log("[LLMClient] Yielding background request #" + requestId +
+            " to player-facing work (preemption " + parked.preemptionCount + ").");
+        return true;
+    }
+
+    private void ResumePreemptedRequest(long requestId)
+    {
+        if (_preemptingRequestId != requestId) return;
+        _preemptingRequestId = 0;
+        // note: Cancellation/lifecycle retirement can remove the reserved entry while its transport unwinds; never resurrect it.
+        if (!_retryingRequests.TryGetValue(requestId, out QueuedRequest parked)) return;
+        _retryingRequests.Remove(requestId);
+        if (_quitting || _terminalRequestIds.Contains(requestId) || ShouldAbandonQueuedRequest(parked)) return;
+        parked.queuedAt = Time.unscaledTime;
+        QueueRequest(parked, false);
+    }
+
     private IEnumerator SendOnceCoroutine(QueuedRequest request)
     {
+        // note: Per-role launch settings are transient; the existing request pump disposes this scope on cancellation too.
+        LLMRuntimeConfig source = ActiveConfig();
+        var category = request.category == LLMGenerationCategory.Default ? ResolveCategory(request.debugTag) : request.category;
+        // note: A short summary may use the already resident, tested generator; no accepted state is cached and every prompt remains complete.
+        LLMRuntimeConfig selected = null;
+        if (category == LLMGenerationCategory.Summarization && _usingRuntimeDefaultConfig &&
+            _llamaServer != null && _llamaServer.OwnsProcess && !_llamaServer.HasOwnedProcessExited())
+            selected = BuildResidentSummaryConfig(source, request, _ownedLlamaResidencyKey);
+        if (selected == null) selected = source.CreateRequestConfig(category);
+        try { yield return SendOnceWithConfig(request, selected); }
+        finally { if (selected != source) Destroy(selected); }
+    }
+
+    private LLMRuntimeConfig BuildResidentSummaryConfig(LLMRuntimeConfig source, QueuedRequest request, string residentKey)
+    {
+        // note: This optimization is confined to screened runtime defaults. An explicit CPU helper or model-bound review never changes identity.
+        if (string.IsNullOrEmpty(residentKey) || source.GetProfile(LLMGenerationCategory.Summarization).cpuOnly ||
+            !string.IsNullOrEmpty(request.requiredOllamaModelDigest) || !string.IsNullOrEmpty(request.requiredModelSha256) || request.repairEpisode != null) return null;
+        foreach (LLMGenerationCategory role in new[] { LLMGenerationCategory.Dialogue, LLMGenerationCategory.StructuredState })
+        {
+            LLMRuntimeConfig candidate = source.CreateRequestConfig(role);
+            var summary = candidate.GetProfile(LLMGenerationCategory.Summarization);
+            var options = BuildEffectiveOptions(candidate, summary, request.optionsOverride);
+            int output = ReadIntOption(options, "num_predict", summary.maxOutputTokens);
+            if (candidate.GetBackend(role) == YQLlmBackend.LlamaCpp && !candidate.cpuInferenceApproved &&
+                string.Equals(LlamaResidencyKey(candidate), residentKey, StringComparison.Ordinal) &&
+                LLMContextCompiler.TryCompileProtected(request.prompt, candidate, summary, output, out _, out _))
+                return candidate;
+            // note: An oversized or incompatible summary retains its original route, which owns any longer context it needs.
+            if (Application.isPlaying) Destroy(candidate);
+            else DestroyImmediate(candidate);
+        }
+        return null;
+    }
+
+    private IEnumerator SendOnceWithConfig(QueuedRequest request, LLMRuntimeConfig config)
+    {
+        float preparationStartedAt = Time.unscaledTime;
         _lastLlmActivityTime = Time.realtimeSinceStartup;
         if (!IsRequestCurrent(request))
         {
@@ -964,8 +1180,7 @@ public sealed class LLMClient : MonoBehaviour
             yield break;
         }
 
-        LLMRuntimeConfig config = ActiveConfig();
-        if (config == null || !config.enableRuntimeLlm)
+        if (LLMRuntimeConfig.BenchmarkIsolationActive || config == null || !config.enableRuntimeLlm)
         {
             const string disabledError = "LLM runtime is disabled.";
             RecordFailure(disabledError, request.debugTag);
@@ -994,7 +1209,8 @@ public sealed class LLMClient : MonoBehaviour
         string compileError;
         int contextLimitTokens = requestBackend == YQLlmBackend.Ollama
             ? ReadIntOption(options, "num_ctx", config.contextSizeTokens) : config.contextSizeTokens;
-        bool compiledOk = request.protectPrompt
+        // note: Screened role routes must reject oversized canonical context instead of silently compacting mandatory facts.
+        bool compiledOk = (request.protectPrompt || !string.IsNullOrWhiteSpace(profile.ggufModelPath))
             ? LLMContextCompiler.TryCompileProtected(request.prompt, config, profile, reservedOutputTokens, out compiled, out compileError, contextLimitTokens)
             : LLMContextCompiler.TryCompile(request.prompt, config, profile, reservedOutputTokens, out compiled, out compileError, contextLimitTokens);
         if (!compiledOk)
@@ -1028,9 +1244,41 @@ public sealed class LLMClient : MonoBehaviour
             requestBackend = config.GetBackend(category);
         }
 
+        // note: Never convert a GPU generator into CPU work or let the legacy backend silently split its weights.
+        if (!config.cpuInferenceApproved && (requestBackend == YQLlmBackend.Ollama ||
+            (options.ContainsKey("num_gpu") && ReadIntOption(options, "num_gpu", -1) == 0)))
+        {
+            const string placementError = "Full-GPU inference requires the owned llama.cpp route. CPU inference requires an explicitly approved model identity.";
+            CompleteRequest(request, false, null, placementError, 0f, 0f, default);
+            yield break;
+        }
+        // note: Verify qualified weights off the Unity thread before loading; mismatched or replaced files cannot inherit speech approval.
+        if (!string.IsNullOrWhiteSpace(request.requiredModelSha256))
+        {
+            if (requestBackend != YQLlmBackend.LlamaCpp)
+            {
+                CompleteRequest(request, false, null, "GGUF qualification requires the llama.cpp route.", 0f, 0f, compiled);
+                yield break;
+            }
+            Task<string> identity = QualifiedModelIdentity(config.ggufModelPath);
+            while (!identity.IsCompleted && IsRequestCurrent(request)) yield return null;
+            if (!IsRequestCurrent(request))
+            {
+                CompleteRequest(request, false, null, "Qualified request owner retired before loading.", 0f, 0f, compiled, YQLlmTerminalOutcome.Superseded);
+                yield break;
+            }
+            if (identity.Status != TaskStatus.RanToCompletion || !string.Equals(identity.Result, request.requiredModelSha256, StringComparison.OrdinalIgnoreCase))
+            {
+                CompleteRequest(request, false, null, "Qualified GGUF model is unavailable or its SHA-256 changed.", 0f, 0f, compiled);
+                yield break;
+            }
+        }
+        // note: Freeze the wire options before any yield in the residency handoff, including approved specialist placement.
+        if (requestBackend == YQLlmBackend.Ollama)
+            options = BuildOllamaOptions(config, profile, options);
         bool residencyReady = false;
         string residencyFailure = string.Empty;
-        yield return PrepareRoutedModelResidency(config, requestBackend, profile,
+        yield return PrepareRoutedModelResidency(config, requestBackend, profile, options,
             (ready, reason) => { residencyReady = ready; residencyFailure = reason; });
         if (!residencyReady)
         {
@@ -1045,11 +1293,17 @@ public sealed class LLMClient : MonoBehaviour
             bool ready = false;
             string readyMessage = string.Empty;
             RuntimeState = RuntimeState == YQLlmRuntimeState.Ready ? YQLlmRuntimeState.Ready : YQLlmRuntimeState.Starting;
-            yield return EnsureLlamaCppReady(config, (ok, message) =>
+            // note: The nested request pump disposes this scope on cancellation; the existing handoff then awaits owned-process exit before loading another model.
+            _preemptibleLlamaPreparation = true;
+            try
             {
-                ready = ok;
-                readyMessage = message;
-            });
+                yield return EnsureLlamaCppReady(config, (ok, message) =>
+                {
+                    ready = ok;
+                    readyMessage = message;
+                });
+            }
+            finally { _preemptibleLlamaPreparation = false; }
 
             if (!ready)
             {
@@ -1082,6 +1336,8 @@ public sealed class LLMClient : MonoBehaviour
             CompleteRequest(request, false, null, urlError, 0f, 0f, compiled);
             yield break;
         }
+        if (requestBackend == YQLlmBackend.Ollama)
+            url = SelectOllamaInferenceUrl(url, profile);
 
         string json = BuildRequestJson(
             config,
@@ -1092,6 +1348,22 @@ public sealed class LLMClient : MonoBehaviour
             profile,
             request.requireJson,
             request.jsonSchema);
+        string nextPromptScope = string.Empty;
+        if (requestBackend == YQLlmBackend.LlamaCpp)
+        {
+            // note: Scope changes force a fresh slot evaluation. The server only reuses tokens equal to the supplied full prompt.
+            JObject payload = JObject.Parse(json);
+            string contract = JsonConvert.SerializeObject(new { category, schema = request.jsonSchema,
+                format = payload["response_format"], template = payload["chat_template_kwargs"] });
+            string scope = YQLlmResidencyPolicy.PromptScope(request.profileId, request.worldId, request.generationEpoch,
+                request.playerStateRevision, request.worldStateRevision, _ownedLlamaResidencyKey, contract);
+            bool boundedReuse = config.enablePromptPrefixReuse && config.serverParallelSlots == 1 &&
+                _llamaServer != null && _llamaServer.BoundedPromptReuseEnabled;
+            payload["cache_prompt"] = boundedReuse && YQLlmResidencyPolicy.CanReusePrompt(_llamaPromptScope, scope);
+            if (boundedReuse) payload["id_slot"] = 0;
+            json = payload.ToString(Formatting.None);
+            nextPromptScope = boundedReuse ? scope : string.Empty;
+        }
         if (!string.IsNullOrWhiteSpace(request.requiredOllamaModelDigest))
         {
             // note: Qualification belongs to a specific model; a retagged model must not inherit its verifier receipt.
@@ -1128,11 +1400,15 @@ public sealed class LLMClient : MonoBehaviour
         // note: Report the routed model actually receiving this request instead of the legacy llama3.1 fallback field.
         ActiveModelName = requestBackend == YQLlmBackend.LlamaCpp ? System.IO.Path.GetFileName(config.ggufModelPath)
             : JObject.Parse(json).Value<string>("model");
+        if (requestBackend == YQLlmBackend.LlamaCpp) _llamaPromptScope = nextPromptScope;
         if (requestBackend == YQLlmBackend.Ollama)
         {
             // note: Track only a model dispatched by this scheduler, so switching never unloads unrelated externally loaded tags.
             _residentOllamaModel = ActiveModelName;
             _residentOllamaBaseUrl = OllamaBaseUrl(config.ollamaApiUrl);
+            JObject wireOptions = (JObject)JObject.Parse(json)["options"];
+            _residentOllamaRequestedCpuOnly = YQLlmResidencyPolicy.ExplicitCpu(wireOptions);
+            _residentOllamaOptionsKey = YQLlmResidencyPolicy.OptionsKey(wireOptions);
         }
 
         if (logRequestSummaries)
@@ -1150,6 +1426,7 @@ public sealed class LLMClient : MonoBehaviour
                 (request.attempt + 1) +
                 ", queueWait=" +
                 queueWait.ToString("0.00") +
+                "s, preparation=" + Mathf.Max(0f, Time.unscaledTime - preparationStartedAt).ToString("0.00") +
                 "s, inputTokens~" +
                 compiled.estimatedInputTokens +
                 ", reservedOutputTokens=" +
@@ -1174,7 +1451,10 @@ public sealed class LLMClient : MonoBehaviour
             www.SetRequestHeader("Accept", "application/json");
 
             // note: Retain only the in-flight transport so Play Mode shutdown can abort local inference immediately instead of waiting for the HTTP timeout or model completion.
+            _activeInferenceBackend = requestBackend;
             _activeWebRequest = www;
+            // note: Count physical inference, including retries, independently of queue admission.
+            InferenceDispatchCount++;
             yield return www.SendWebRequest();
             if (ReferenceEquals(_activeWebRequest, www))
                 _activeWebRequest = null;
@@ -1245,6 +1525,9 @@ public sealed class LLMClient : MonoBehaviour
                 MalformedResponseCount++;
                 RuntimeState = YQLlmRuntimeState.Ready;
                 string structuredError = "LLM returned invalid structured JSON: " + jsonError;
+                // note: Preserve completion metadata for rejected frontier output without logging generated content or changing acceptance.
+                if ((request.debugTag ?? string.Empty).StartsWith("FrontierLocationBrief", StringComparison.Ordinal))
+                    structuredError += BuildFrontierJsonFailureDiagnostics(json, raw);
                 RecordFailure(structuredError, request.debugTag);
                 CompleteRequest(request, false, null, structuredError, queueWait, generationSeconds, compiled);
                 yield break;
@@ -1324,16 +1607,25 @@ public sealed class LLMClient : MonoBehaviour
         if (_llamaServer == null)
             _llamaServer = new LlamaCppServerProcess();
 
-        // note: Live generation uses GPU fitting with rendering headroom; explicit CPU placement remains an intentional configuration choice.
+        // note: Both phases enforce the same full-GPU placement and free-memory reserve.
         bool protectLivePresentation = _usingRuntimeDefaultConfig && !IsExclusiveSequenceActive &&
             YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
-        // note: Readiness can cross the startup reveal; retain the policy actually requested, rather than labeling an earlier allocation with the later policy.
+        // note: Readiness can cross reveal; identify the actual launch configuration so an unchanged model stays resident.
         string launchResidencyKey = BuildLlamaResidencyKey(config, protectLivePresentation);
-        yield return _llamaServer.EnsureReady(config, (ready, reason) =>
+        try
         {
-            if (ready && _llamaServer.OwnsProcess) _ownedLlamaResidencyKey = launchResidencyKey;
-            onComplete?.Invoke(ready, reason);
-        }, protectLivePresentation);
+            yield return _llamaServer.EnsureReady(config, (ready, reason) =>
+            {
+                if (ready && _llamaServer.OwnsProcess) _ownedLlamaResidencyKey = launchResidencyKey;
+                onComplete?.Invoke(ready, reason);
+            }, protectLivePresentation);
+        }
+        finally
+        {
+            // note: The routing barrier selected these launch settings before preparation. Preserve the identity of an owned process still loading when preparation yields; the next owner must still pass health and reserve checks.
+            if (_llamaServer.OwnsProcess && !_llamaServer.HasOwnedProcessExited())
+                _ownedLlamaResidencyKey = launchResidencyKey;
+        }
     }
 
     private string LlamaResidencyKey(LLMRuntimeConfig config)
@@ -1341,9 +1633,16 @@ public sealed class LLMClient : MonoBehaviour
             YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
 
     private static string BuildLlamaResidencyKey(LLMRuntimeConfig config, bool protectLivePresentation)
+        // note: Presentation state does not alter server arguments. Including it forced an unnecessary reload on the first live reply; reserve checks still run on reuse.
         => config.ggufModelPath + "|" + config.contextSizeTokens + "|" + config.gpuLayerCount + "|" +
             config.targetGpuHeadroomMb + "|" + config.keepKvCacheInSystemRam + "|" + config.extraLlamaServerArguments + "|" +
-            protectLivePresentation;
+            config.enablePromptPrefixReuse + "|" + config.serverParallelSlots + "|" +
+            config.preserveGameResponsiveness + "|" + config.promptBatchSize + "|" + config.promptMicroBatchSize + "|" +
+            config.reservedCpuThreads + "|" + config.serverPollingPercent + "|" + config.enableFlashAttention + "|" +
+            config.useQuantizedKvCache + "|" + config.reasoningBudget + "|" + config.requireOwnedLlamaServer + "|" +
+            config.modelBlockCount + "|" + config.cpuInferenceApproved + "|" +
+            config.promptCacheRamMb + "|" + config.promptCheckpointCount + "|" + config.promptCheckpointMinTokens + "|" +
+            config.llamaServerExecutablePath + "|" + config.BuildBaseUrl();
 
     private static string OllamaBaseUrl(string url)
     {
@@ -1354,14 +1653,36 @@ public sealed class LLMClient : MonoBehaviour
     }
 
     private IEnumerator PrepareRoutedModelResidency(LLMRuntimeConfig config, YQLlmBackend backend, LLMGenerationProfile profile,
+        Dictionary<string, object> options,
         Action<bool, string> completed)
     {
+        if (_preemptionExitPending)
+        {
+            // note: Keep the single scheduler blocked until the owned engine acknowledges idle or exits. Successful cancellation no longer reloads unchanged model weights.
+            if (_llamaServer == null) { completed(false, "Yielded model ownership is unavailable; replacement dispatch deferred."); yield break; }
+            bool idle = false;
+            yield return _llamaServer.ConfirmOwnedInferenceIdle(value => idle = value);
+            if (!idle)
+            {
+                bool exited = false;
+                string exitFailure = string.Empty;
+                yield return _llamaServer.StopOwnedProcessRoutine((ok, reason) => { exited = ok; exitFailure = reason; });
+                if (!exited) { completed(false, exitFailure); yield break; }
+                _ownedLlamaResidencyKey = string.Empty;
+            }
+            else if (logRequestSummaries) Debug.Log("[LLMClient] Background cancellation acknowledged idle; resident model retained for player reply.");
+            _preemptionExitPending = false;
+            _llamaPromptScope = string.Empty;
+        }
         // note: The existing single queue owns the entire unload/acknowledgement/load handoff; there is never a competing model loader.
-        string targetModel = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel) ? profile.ollamaModel.Trim() : config.ollamaModel;
+        string targetModel = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel) ? profile.ollamaModel.Trim() :
+            (string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel);
+        bool retainCpu = false;
+        yield return CanRetainResidentCpuHelper(config, backend, targetModel, options, value => retainCpu = value);
         bool differentOllama = !string.IsNullOrEmpty(_residentOllamaModel) &&
             (backend != YQLlmBackend.Ollama || !string.Equals(_residentOllamaModel, targetModel, StringComparison.Ordinal) ||
              !string.Equals(_residentOllamaBaseUrl, OllamaBaseUrl(config.ollamaApiUrl), StringComparison.Ordinal));
-        if (differentOllama)
+        if (differentOllama && !retainCpu)
         {
             bool unloaded = false;
             string failure = string.Empty;
@@ -1376,16 +1697,53 @@ public sealed class LLMClient : MonoBehaviour
             if (!unloaded) { completed(false, failure); yield break; }
         }
         if (_llamaServer != null && _llamaServer.OwnsProcess &&
-            (backend != YQLlmBackend.LlamaCpp || _ownedLlamaResidencyKey != LlamaResidencyKey(config)))
+            ((backend != YQLlmBackend.LlamaCpp && !retainCpu) || _ownedLlamaResidencyKey != LlamaResidencyKey(config)))
         {
             bool stopped = false;
             string failure = string.Empty;
             yield return _llamaServer.StopOwnedProcessRoutine((ok, reason) => { stopped = ok; failure = reason; });
             if (!stopped) { completed(false, failure); yield break; }
             _ownedLlamaResidencyKey = string.Empty;
+            _llamaPromptScope = string.Empty;
             Debug.Log("[LLMClient] Owned control model exited before routed model/policy switch.");
         }
         completed(true, string.Empty);
+    }
+
+    private IEnumerator CanRetainResidentCpuHelper(LLMRuntimeConfig config, YQLlmBackend backend, string targetModel,
+        Dictionary<string, object> options, Action<bool> completed)
+    {
+        // note: A cold/unverified helper takes the ordinary serial path once. Later handoffs require fresh placement and RAM proof.
+        string endpoint = OllamaBaseUrl(config.ollamaApiUrl);
+        if (!config.retainVerifiedCpuHelpers || !_residentOllamaRequestedCpuOnly ||
+            string.IsNullOrEmpty(_residentOllamaModel) || !YQLlmResidencyPolicy.IsLocalEndpoint(endpoint) ||
+            !string.Equals(endpoint, _residentOllamaBaseUrl, StringComparison.Ordinal))
+        { completed(false); yield break; }
+        if (backend == YQLlmBackend.Ollama)
+        {
+            JObject requested = JObject.FromObject(options);
+            if (!YQLlmResidencyPolicy.SameModel(targetModel, _residentOllamaModel) ||
+                !YQLlmResidencyPolicy.ExplicitCpu(requested) ||
+                !string.Equals(_residentOllamaOptionsKey, YQLlmResidencyPolicy.OptionsKey(requested), StringComparison.Ordinal))
+            { completed(false); yield break; }
+        }
+        long additionalMainBytes = 0;
+        if (backend == YQLlmBackend.LlamaCpp && (_llamaServer == null || !_llamaServer.OwnsProcess ||
+            _ownedLlamaResidencyKey != LlamaResidencyKey(config)))
+        {
+            // note: Conservatively reserve twice the weight file plus runtime workspace before starting another owned process.
+            try { additionalMainBytes = checked(new System.IO.FileInfo(config.ggufModelPath).Length * 2 + 1024 * YQLlmResidencyPolicy.MiB); }
+            catch (Exception error) when (error is System.IO.IOException || error is UnauthorizedAccessException || error is OverflowException || error is ArgumentException)
+            { completed(false); yield break; }
+        }
+        bool reachable = false;
+        string residency = string.Empty;
+        yield return ProbeLocalHealth(endpoint + "/api/ps", 2, (ok, body) => { reachable = ok; residency = body; }, true);
+        bool allowed = reachable && YQLlmResidencyPolicy.CanRetainCpu(residency, _residentOllamaModel,
+            config.maximumCpuHelperResidentMb, YQLlmResidencyPolicy.AvailableSystemMemoryBytes(),
+            config.minimumFreeSystemMemoryMb, additionalMainBytes);
+        if (allowed && logRequestSummaries) Debug.Log("[LLMClient] Retaining verified CPU helper alongside the main model: " + _residentOllamaModel);
+        completed(allowed);
     }
 
     private static bool TryOllamaResident(string json, string modelName, out bool resident)
@@ -1430,18 +1788,49 @@ public sealed class LLMClient : MonoBehaviour
             {
                 probe.timeout = 2;
                 yield return probe.SendWebRequest();
-                if (probe.result == UnityWebRequest.Result.Success && TryOllamaResident(probe.downloadHandler.text, retiring, out bool resident) && !resident)
+                // note: Busy/loading stays pending, but an actual connection/protocol failure returns through the existing bounded retry contract without forgetting residency.
+                if (!TryEvaluateOllamaReleaseProbe(probe.result, probe.responseCode,
+                    probe.downloadHandler != null ? probe.downloadHandler.text : null, retiring,
+                    out bool released, out string failure))
+                {
+                    completed(false, failure);
+                    yield break;
+                }
+                if (released)
                 {
                     _residentOllamaModel = string.Empty; _residentOllamaBaseUrl = string.Empty;
+                    _residentOllamaRequestedCpuOnly = false; _residentOllamaOptionsKey = string.Empty;
                     // note: Ollama acknowledges runner release before the next model request; driver cleanup gets a frame boundary as well.
                     yield return null;
                     Debug.Log("[LLMClient] Ollama acknowledged unload before model switch: " + retiring);
                     completed(true, string.Empty); yield break;
                 }
             }
-            yield return null;
+            yield return new WaitForSecondsRealtime(.25f);
         }
         completed(false, "Model is still resident after unload; replacement loading deferred.");
+    }
+
+    private static bool TryEvaluateOllamaReleaseProbe(UnityWebRequest.Result result, long responseCode,
+        string body, string retiring, out bool released, out string failure)
+    {
+        released = false;
+        failure = string.Empty;
+        // note: These HTTP responses explicitly report temporary backend contention, not proof of release or an elapsed request deadline.
+        if (result == UnityWebRequest.Result.ProtocolError && (responseCode == 429 || responseCode == 503))
+            return true;
+        if (result != UnityWebRequest.Result.Success)
+        {
+            failure = "Model unload acknowledgement failed (" + result + ", HTTP " + responseCode + "); replacement loading deferred.";
+            return false;
+        }
+        if (!TryOllamaResident(body, retiring, out bool resident))
+        {
+            failure = "Model unload acknowledgement contained invalid residency data; replacement loading deferred.";
+            return false;
+        }
+        released = !resident;
+        return true;
     }
 
     private IEnumerator EnsureOllamaReady(LLMRuntimeConfig config, Action<bool, string> onComplete)
@@ -1594,6 +1983,7 @@ public sealed class LLMClient : MonoBehaviour
 
         if (activeProfile.stopSequences != null && activeProfile.stopSequences.Length > 0)
             options["stop"] = activeProfile.stopSequences;
+        if (activeProfile.minP >= 0) options["min_p"] = Mathf.Clamp01(activeProfile.minP);
 
         if (overrides != null)
         {
@@ -1612,9 +2002,12 @@ public sealed class LLMClient : MonoBehaviour
             ? 6800
             : profileMaxOutput;
         options["num_predict"] = Mathf.Clamp(requestedOutput, 64, permittedOutput);
-        options["temperature"] = Mathf.Clamp(ReadFloatOption(options, "temperature", activeProfile.temperature), 0.05f, 1.5f);
+        // note: Thinking tokens count toward the wire limit. Keep the caller's final-answer allowance in addition to bounded reasoning.
+        if (activeProfile.reasoningMode && activeProfile.reasoningBudget > 0)
+            options["num_predict"] = Math.Min(6800, (int)options["num_predict"] + activeProfile.reasoningBudget);
+        options["temperature"] = Mathf.Clamp(ReadFloatOption(options, "temperature", activeProfile.temperature), 0f, 1.5f);
         options["top_p"] = Mathf.Clamp(ReadFloatOption(options, "top_p", activeProfile.topP), 0.05f, 1f);
-        options["top_k"] = Mathf.Clamp(ReadIntOption(options, "top_k", activeProfile.topK), 1, 100);
+        options["top_k"] = Mathf.Clamp(ReadIntOption(options, "top_k", activeProfile.topK), 0, 100);
         options["presence_penalty"] = Mathf.Clamp(ReadFloatOption(options, "presence_penalty", activeProfile.presencePenalty), 0f, 2f);
         options["repeat_penalty"] = Mathf.Clamp(ReadFloatOption(options, "repeat_penalty", activeProfile.repeatPenalty), 0.8f, 2.5f);
 
@@ -1643,6 +2036,9 @@ public sealed class LLMClient : MonoBehaviour
                     { "content", prompt }
                 }
             };
+            // note: Model identity/instruction belongs to the system role; canonical player/world data stays in the caller's message.
+            if (!string.IsNullOrWhiteSpace(profile?.systemPrompt))
+                messages.Insert(0, new Dictionary<string, string> { { "role", "system" }, { "content", profile.systemPrompt } });
 
             Dictionary<string, object> payload = new Dictionary<string, object>(16)
             {
@@ -1654,8 +2050,8 @@ public sealed class LLMClient : MonoBehaviour
                 { "top_k", ReadIntOption(options, "top_k", 20) },
                 { "presence_penalty", ReadFloatOption(options, "presence_penalty", 1.5f) },
                 { "repeat_penalty", ReadFloatOption(options, "repeat_penalty", 1.0f) },
-                // note: Distinct world-generation prompts produced 200-300 MB cache evictions in the runtime log; responsiveness mode rejects that churn even when connecting to an external server.
-                { "cache_prompt", !config.preserveGameResponsiveness }
+                // note: Reuse is enabled only after owned-server capability and request-scope checks at dispatch.
+                { "cache_prompt", false }
             };
 
             if (profile != null && (profile.directMode || profile.reasoningMode))
@@ -1670,6 +2066,7 @@ public sealed class LLMClient : MonoBehaviour
 
             if (options.TryGetValue("stop", out object stop))
                 payload["stop"] = stop;
+            if (options.TryGetValue("min_p", out object minP)) payload["min_p"] = minP;
 
             if (jsonOutput)
             {
@@ -1687,7 +2084,50 @@ public sealed class LLMClient : MonoBehaviour
         }
 
         Dictionary<string, object> ollamaOptions = new Dictionary<string, object>(options);
-        // note: Keep the automatic live-gameplay residency protection when the default backend is Ollama; explicit request/config choices retain authority.
+        // note: CPU placement/context/batch options were frozen before residency arbitration; do not resolve them again after a yield.
+
+        // note: The generate endpoint applies grammar immediately. Reasoning profiles need chat's separate reasoning/final handling.
+        bool useChat = profile != null && profile.reasoningMode;
+        bool? thinkPreference = profile == null || profile.category == LLMGenerationCategory.Dialogue ? (bool?)null :
+            profile.reasoningMode ? (bool?)true :
+            profile.directMode ? (bool?)false : null;
+        OllamaRequest payloadOllama = new OllamaRequest
+        {
+            model = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel)
+                ? profile.ollamaModel.Trim()
+                : (string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel),
+            prompt = useChat ? null : prompt,
+            messages = useChat ? new[] { new OllamaChatMessage { role = "user", content = prompt } } : null,
+            stream = false,
+            // note: Ollama unloads its model after the same bounded idle window used by the owned llama.cpp server.
+            keep_alive = config.closeOwnedServerWhenIdle
+                ? Mathf.Max(5, config.ownedServerIdleTimeoutSeconds).ToString() + "s"
+                : null,
+            // note: Every explicit caller schema constrains its backend output; domain validators still own semantic acceptance.
+            format = jsonOutput ? (jsonSchema != null && jsonSchema.Count > 0 ? (object)jsonSchema : "json") : null,
+            // note: Qualified profiles bind their own reasoning choice; the author remains direct under its pinned profile.
+            think = thinkPreference,
+            options = ollamaOptions
+        };
+
+        return JsonConvert.SerializeObject(payloadOllama);
+    }
+
+    private static string SelectOllamaInferenceUrl(string generateUrl, LLMGenerationProfile profile)
+    {
+        // note: Change only the validated endpoint suffix; residency, cancellation and queue ownership stay in this client.
+        return profile != null && profile.reasoningMode
+            ? generateUrl.Substring(0, generateUrl.Length - "generate".Length) + "chat"
+            : generateUrl;
+    }
+
+    private Dictionary<string, object> BuildOllamaOptions(LLMRuntimeConfig config, LLMGenerationProfile profile,
+        Dictionary<string, object> options)
+    {
+        // note: A role default cannot overwrite an explicit caller placement, including automatic GPU fitting.
+        var ollamaOptions = new Dictionary<string, object>(options);
+        if (config.cpuInferenceApproved) ollamaOptions["num_gpu"] = 0;
+        // note: CPU placement is permitted only by the model-bound exception captured for this request.
         ApplyOllamaLivePresentationPolicy(config, ollamaOptions, _usingRuntimeDefaultConfig,
             IsExclusiveSequenceActive, YourQuestTutorialAutoBootstrap.GameplayPresentationReleased);
         // note: Match the compiled context ceiling and permit a smaller bounded request without duplicate sampling keys.
@@ -1711,43 +2151,14 @@ public sealed class LLMClient : MonoBehaviour
                     4);
         }
 
-        // note: Bounded dialogue and Goddess speech/review use closed grammars; other generation retains its existing format.
-        bool constrainDialogue = profile != null && profile.category == LLMGenerationCategory.Dialogue &&
-            (debugTag ?? string.Empty).StartsWith("DialogueRepair:", StringComparison.Ordinal);
-        bool constrainGoddess = profile != null && (profile.category == LLMGenerationCategory.GoddessCommentary ||
-            profile.category == LLMGenerationCategory.GoddessVerification);
-        bool? thinkPreference = profile == null || profile.category == LLMGenerationCategory.Dialogue ? (bool?)null :
-            profile.reasoningMode ? (bool?)true :
-            profile.directMode ? (bool?)false : null;
-        OllamaRequest payloadOllama = new OllamaRequest
-        {
-            model = profile != null && !string.IsNullOrWhiteSpace(profile.ollamaModel)
-                ? profile.ollamaModel.Trim()
-                : (string.IsNullOrWhiteSpace(config.ollamaModel) ? model : config.ollamaModel),
-            prompt = prompt,
-            stream = false,
-            // note: Ollama unloads its model after the same bounded idle window used by the owned llama.cpp server.
-            keep_alive = config.closeOwnedServerWhenIdle
-                ? Mathf.Max(5, config.ownedServerIdleTimeoutSeconds).ToString() + "s"
-                : null,
-            // note: Backend shape constraints never replace the domain parser or semantic acceptance checks.
-            format = jsonOutput ? (profile != null && (profile.category == LLMGenerationCategory.DialogueVerification || constrainDialogue || constrainGoddess) &&
-                jsonSchema != null && jsonSchema.Count > 0 ? (object)jsonSchema : "json") : null,
-            // note: Honor each role's direct/thinking selection; both bounded Goddess roles always stay direct.
-            think = constrainGoddess ? (bool?)false : thinkPreference,
-            options = ollamaOptions
-        };
-
-        return JsonConvert.SerializeObject(payloadOllama);
+        return ollamaOptions;
     }
 
     private static void ApplyOllamaLivePresentationPolicy(LLMRuntimeConfig config,
         Dictionary<string, object> options, bool runtimeDefault, bool exclusiveSequence, bool presentationReleased)
     {
-        // note: num_gpu=0 is a per-request CPU placement choice, not a server-wide setting; never overwrite an explicit placement, including automatic (-1).
-        if (runtimeDefault && !exclusiveSequence && presentationReleased && config.preserveGameResponsiveness &&
-            !options.ContainsKey("num_gpu"))
-            options["num_gpu"] = 0;
+        // note: Gameplay becoming visible never authorizes CPU fallback. Only a model-bound CPU exception can request it.
+        if (config.cpuInferenceApproved) options["num_gpu"] = 0;
     }
 
     private bool TryBuildGenerateUrl(LLMRuntimeConfig config, YQLlmBackend requestBackend, out string url, out string error)
@@ -1832,6 +2243,7 @@ public sealed class LLMClient : MonoBehaviour
 
     private void InvalidateForProfileLifecycle()
     {
+        _llamaPromptScope = string.Empty;
         // note: Profile switches supersede every outstanding model result before the shared state managers are replaced.
         CancelAllPending(YQLlmTerminalOutcome.Superseded, "LLM request superseded by a profile lifecycle transition.");
         _exclusiveSequenceOwner = string.Empty;
@@ -1951,6 +2363,8 @@ public sealed class LLMClient : MonoBehaviour
 
     private bool ShouldAbandonQueuedRequest(QueuedRequest request)
     {
+        // note: A terminal request cannot consume another queue turn even if an older delayed continuation still references its identity.
+        if (_terminalRequestIds.Contains(request.id)) return true;
         // note: A valid admitted request waits behind slow inference; ownership changes still cancel obsolete work.
         if (IsRequestCurrent(request))
             return false;
@@ -2023,7 +2437,7 @@ public sealed class LLMClient : MonoBehaviour
 
             JToken content = backend == YQLlmBackend.LlamaCpp
                 ? jo["content"]
-                : jo["response"];
+                : jo["message"]?["content"] ?? jo["response"];
             if (TryReadNonEmptyText(content, out modelText))
             {
                 return true;
@@ -2041,11 +2455,7 @@ public sealed class LLMClient : MonoBehaviour
                 return true;
             }
 
-            // note: Some llama.cpp/Qwen combinations expose the completed payload in reasoning_content even when the OpenAI-compatible final content field is empty.
-            JToken reasoningContent = jo["choices"]?[0]?["message"]?["reasoning_content"] ??
-                jo["reasoning_content"];
-            if (TryReadNonEmptyText(reasoningContent, out modelText))
-                return true;
+            // note: An exhausted reasoning budget is not a final answer. Never publish reasoning_content as dialogue or a gameplay proposal.
 
             JToken alternate = jo["completion"] ?? jo["generated_text"] ??
                 jo["choices"]?[0]?["delta"]?["content"];
@@ -2099,6 +2509,8 @@ public sealed class LLMClient : MonoBehaviour
             return LLMGenerationCategory.WorldGeneration;
         if (tag.StartsWith("GeneratedNpcPopulation", StringComparison.OrdinalIgnoreCase))
             return LLMGenerationCategory.NpcPopulation;
+        if (tag.Equals("GenerateSkill", StringComparison.OrdinalIgnoreCase))
+            return LLMGenerationCategory.SkillSpell;
         // note: Legacy progression submissions use the same domain route as typed progression requests.
         if (tag.StartsWith("ProgressionDecision", StringComparison.OrdinalIgnoreCase))
             return LLMGenerationCategory.Progression;
@@ -2138,6 +2550,51 @@ public sealed class LLMClient : MonoBehaviour
         return cleaned.Trim();
     }
 
+    private static string BuildFrontierJsonFailureDiagnostics(string requestJson, string envelopeJson)
+    {
+        // note: Diagnostic fact types are explicit; an untrusted string or boolean can never masquerade as a reported token count.
+        try
+        {
+            JObject request = JObject.Parse(requestJson);
+            JObject envelope = JObject.Parse(envelopeJson);
+            var facts = new JObject { ["envelopeCharacters"] = envelopeJson.Length };
+            Action<string, JToken> addInteger = (name, value) =>
+            {
+                if (value?.Type == JTokenType.Integer && long.TryParse(value.ToString(), out long number) && number >= 0)
+                    facts[name] = number;
+            };
+            Action<string, JToken> addBoolean = (name, value) =>
+            {
+                if (value?.Type == JTokenType.Boolean) facts[name] = value.DeepClone();
+            };
+            Action<string, JToken> addReason = (name, value) =>
+            {
+                if (value?.Type != JTokenType.String) return;
+                string scalar = (string)value;
+                if (scalar.Length > 64) scalar = scalar.Substring(0, 64);
+                var bounded = new StringBuilder(scalar.Length);
+                foreach (char character in scalar)
+                    if (!char.IsControl(character)) bounded.Append(character);
+                facts[name] = bounded.ToString();
+            };
+            addInteger("wireOutputLimit", request["max_tokens"] ?? request["options"]?["num_predict"]);
+            addBoolean("thinking", request["chat_template_kwargs"]?["enable_thinking"] ?? request["think"]);
+            addReason("finishReason", envelope["choices"]?[0]?["finish_reason"]);
+            addReason("stopType", envelope["stop_type"]);
+            addBoolean("stoppedLimit", envelope["stopped_limit"]);
+            addInteger("completionTokens", envelope["usage"]?["completion_tokens"]);
+            addInteger("predictedTokens", envelope["tokens_predicted"]);
+            addInteger("evalCount", envelope["eval_count"]);
+            addReason("doneReason", envelope["done_reason"]);
+            return " [frontier_completion=" + facts.ToString(Formatting.None) + "]";
+        }
+        catch (Exception)
+        {
+            // note: Diagnostic parsing cannot mask the original JSON rejection or create another retry.
+            return " [frontier_completion=metadata_unavailable]";
+        }
+    }
+
     private static bool TryNormalizeJsonObject(string raw, out string normalized, out string error)
     {
         normalized = null;
@@ -2170,7 +2627,8 @@ public sealed class LLMClient : MonoBehaviour
         candidate = candidate.Substring(objectStart, objectEnd - objectStart + 1);
         try
         {
-            JObject parsed = JObject.Parse(candidate);
+            // note: Wrapper repair may remove fences/prose, but conflicting duplicate keys must never become last-value-wins state.
+            JObject parsed = JObject.Parse(candidate, new JsonLoadSettings { DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error });
             normalized = parsed.ToString(Formatting.None);
             return true;
         }
@@ -2323,6 +2781,8 @@ public sealed class LLMClient : MonoBehaviour
 
     private void AbortActiveWebRequest()
     {
+        // note: An interrupted slot is rebuilt on the next call rather than inheriting an unfinished reuse scope.
+        _llamaPromptScope = string.Empty;
         UnityWebRequest request = _activeWebRequest;
         _activeWebRequest = null;
         if (request == null)

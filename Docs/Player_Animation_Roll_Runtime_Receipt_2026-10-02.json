@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-02T14:57:32.2673341Z",
+  "mode": "PlaySafe production motor with synthetic keyboard input; melee/cast/hit use presentation callbacks only; live gameplay damage, casting, death and climb are separate acceptance checks",
+  "checks": [
+    "one active production motor and animation rig",
+    "production player binds the project controller (actual=YQPlayer)",
+    "animator stays active on the authoritative player",
+    "roll witness starts on physical ground with gameplay input available",
+    "animator stays active on the authoritative player",
+    "production motor accepts crouch before the roll press",
+    "first-person roll uses the active mirrored arms",
+    "animator stays active on the authoritative player",
+    "production crouch-dash enters the authored full-body roll",
+    "first-person roll tucks the hands through inversion",
+    "accepted roll completes and first-person hands recover",
+    "roll witness preserves accepted inventory and equipment"
+  ],
+  "samples": [
+    {
+      "phase": 28,
+      "firstPerson": false,
+      "displacement": "(0.000, 0.000, 0.000)",
+      "moveX": 0.0,
+      "moveZ": 0.0,
+      "directedDistance": 0.0,
+      "directionWitness": null,
+      "grounded": true,
+      "crouching": false,
+      "state": -2089788878,
+      "normalizedTime": 24.0477428,
+      "gaitRate": 1.0,
+      "footTravel": 0.0,
+      "legArc": 0.0,
+      "gaitFrames": 0,
+      "locomotionFrames": 0
+    },
+    {
+      "phase": 29,
+      "firstPerson": true,
+      "displacement": "(0.000, 0.000, 0.000)",
+      "moveX": 0.0,
+      "moveZ": 0.0,
+      "directedDistance": 0.0,
+      "directionWitness": null,
+      "grounded": true,
+      "crouching": true,
+      "state": -2015693266,
+      "normalizedTime": 0.136298925,
+      "gaitRate": 1.0,
+      "footTravel": 0.0,
+      "legArc": 0.0,
+      "gaitFrames": 0,
+      "locomotionFrames": 0
+    },
+    {
+      "phase": 30,
+      "firstPerson": true,
+      "displacement": "(2.411, 0.864, 2.555)",
+      "moveX": 4.36539649E-09,
+      "moveZ": 0.0102120638,
+      "directedDistance": 0.0,
+      "directionWitness": null,
+      "grounded": true,
+      "crouching": true,
+      "state": -2015693266,
+      "normalizedTime": 0.2302695,
+      "gaitRate": 1.0,
+      "footTravel": 0.0,
+      "legArc": 0.0,
+      "gaitFrames": 0,
+      "locomotionFrames": 0
+    },
+    {
+      "rollMinimumHandY": -0.900001168,
+      "rollObserved": true,
+      "inputAvailable": true,
+      "focused": true,
+      "crouchDelivered": false
+    }
+  ],
+  "error": null
+}

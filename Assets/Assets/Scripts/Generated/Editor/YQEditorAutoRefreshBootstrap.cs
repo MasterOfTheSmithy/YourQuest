@@ -209,11 +209,15 @@ internal static class YQEditorAutoRefreshBootstrap
             return;
         // note: A manual stop cancels both phases so no stale request can replay after the user leaves Play Mode.
         DeleteMarker(StreamerRuntimeStartMarker);
+        DeleteMarker(WorkspaceControlRequest(StreamerRuntimeStartMarker));
+        DeleteMarker(StreamerRuntimeStopMarker);
+        DeleteMarker(WorkspaceControlRequest(StreamerRuntimeStopMarker));
         DeleteMarker(StreamerRuntimeTestMarker);
         DeleteMarker(FocusedSpeed260Marker);
         DeleteMarker(FocusedR1PublicationMarker);
         DeleteMarker(FocusedR1UnloadRevisitMarker);
         DeleteMarker(OrdinaryContinueMarker);
+        DeleteMarker(WorkspaceControlRequest(OrdinaryContinueMarker));
     }
 
     private static void SetPlayRefreshSuspended(bool suspended)
@@ -249,6 +253,16 @@ internal static class YQEditorAutoRefreshBootstrap
         watcher.Renamed -= QueueRefresh;
         watcher.Deleted -= QueueRefresh;
         watcher.Dispose();
+    }
+
+    // note: Only the same three explicit runtime controls use these aliases; no automatic request or new editor owner is introduced.
+    private static string WorkspaceControlRequest(string legacyMarker) =>
+        Path.Combine("Assets/Assets/EditorBuildRequests", Path.GetFileName(legacyMarker));
+
+    private static string ResolveControlRequest(string legacyMarker)
+    {
+        string workspace = WorkspaceControlRequest(legacyMarker);
+        return File.Exists(workspace) ? workspace : legacyMarker;
     }
 
     private static void DeleteMarker(string marker)
@@ -416,7 +430,8 @@ internal static class YQEditorAutoRefreshBootstrap
         }
 
         // note: File.Exists allocates for every absent path on this Editor runtime. One nonrecursive directory check avoids polling all handlers on empty ticks without throttling requests.
-        if (!HasPendingVerificationRequest("Temp", ContinuousTerrainDeterminismMarker))
+        if (!HasPendingVerificationRequest("Temp", ContinuousTerrainDeterminismMarker) &&
+            !HasPendingVerificationRequest("Assets/Assets/EditorBuildRequests", null))
             return;
 
         // note: Import pending source edits before analyzing; read frame-identified evidence only after the witness has left Play Mode.
@@ -629,39 +644,43 @@ internal static class YQEditorAutoRefreshBootstrap
             YQGenerationReadyPrefabRuntimeAudit.RunFromMenu();
         }
 
-        if (File.Exists(StreamerRuntimeStartMarker) && !EditorApplication.isPlayingOrWillChangePlaymode)
+        // note: Project-workspace aliases drive the existing one-shot controls without requiring external edits to generated Temp files; legacy requests keep their existing meaning.
+        string runtimeStartRequest = ResolveControlRequest(StreamerRuntimeStartMarker);
+        string runtimeStopRequest = ResolveControlRequest(StreamerRuntimeStopMarker);
+        string ordinaryContinueRequest = ResolveControlRequest(OrdinaryContinueMarker);
+        if (File.Exists(runtimeStartRequest) && !EditorApplication.isPlayingOrWillChangePlaymode)
         {
             // note: Start only from an explicit one-shot request; ordinary editor stops never create this marker.
-            if (File.GetLastWriteTimeUtc(StreamerRuntimeStartMarker) < System.DateTime.UtcNow.AddMinutes(-2))
+            if (File.GetLastWriteTimeUtc(runtimeStartRequest) < System.DateTime.UtcNow.AddMinutes(-2))
             {
-                DeleteMarker(StreamerRuntimeStartMarker);
+                DeleteMarker(runtimeStartRequest);
                 return;
             }
-            DeleteMarker(StreamerRuntimeStartMarker);
-            if (File.Exists(StreamerRuntimeStartMarker))
+            DeleteMarker(runtimeStartRequest);
+            if (File.Exists(runtimeStartRequest))
                 return;
             Debug.Log("[YQEditorAutoRefresh] Explicit terrain verification start request dispatched.");
             EditorApplication.isPlaying = true;
             return;
         }
 
-        if (File.Exists(StreamerRuntimeStopMarker) && EditorApplication.isPlaying)
+        if (File.Exists(runtimeStopRequest) && EditorApplication.isPlaying)
         {
             // note: Handle an explicit stop request before any startup gate can defer marker processing.
-            File.Delete(StreamerRuntimeStopMarker);
+            DeleteMarker(runtimeStopRequest);
             EditorApplication.isPlaying = false;
             return;
         }
 
-        if (File.Exists(OrdinaryContinueMarker) && EditorApplication.isPlaying &&
+        if (File.Exists(ordinaryContinueRequest) && EditorApplication.isPlaying &&
             YQTitleScreenUI.Instance != null)
         {
             // note: The explicit request waits only for the title's normal interaction delay, then drives the same selected-save action as the named menu.
             // note: Empty legacy markers retain the current selection; a supplied profile GUID selects only that existing save through the ordinary title action.
-            string requestedProfile = File.ReadAllText(OrdinaryContinueMarker).Trim();
+            string requestedProfile = File.ReadAllText(ordinaryContinueRequest).Trim();
             if (!string.IsNullOrEmpty(requestedProfile) && !Guid.TryParseExact(requestedProfile, "N", out _))
             {
-                DeleteMarker(OrdinaryContinueMarker);
+                DeleteMarker(ordinaryContinueRequest);
                 Debug.LogError("[YQEditorAutoRefresh] Continue request rejected: expected an existing profile GUID or an empty marker.");
                 return;
             }
@@ -669,7 +688,7 @@ internal static class YQEditorAutoRefreshBootstrap
                 (string.IsNullOrEmpty(requestedProfile)
                     ? YQTitleScreenUI.Instance.ContinueSelectedForDevelopmentVerification()
                     : YQTitleScreenUI.Instance.ContinueExistingForDevelopmentVerification(requestedProfile)))
-                DeleteMarker(OrdinaryContinueMarker);
+                DeleteMarker(ordinaryContinueRequest);
         }
 
         // note: Existing full-suite and fixture requests retain priority; never start a probe before a pending profile mutation.

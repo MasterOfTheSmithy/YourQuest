@@ -1,0 +1,281 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_shoulder_armor
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Dragonbound_Female.prefab
+    prefab: {fileID: 4513348490265179957, guid: b80c51ef73acdac4cba335016acbbea7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Dragonbound_Male.prefab
+    prefab: {fileID: 8437505004996609561, guid: a85b3de45c7ffa548b42a98ca7dfba3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Eclipse_Female.prefab
+    prefab: {fileID: 6687605808850312937, guid: 087639e1b57d7f84cb40a0d9fd0b7bf5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Eclipse_Male.prefab
+    prefab: {fileID: 1716487371985113036, guid: ac7660bce1df7e64eb8ce151b96dcb2d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Field_Female.prefab
+    prefab: {fileID: 4648561001186428873, guid: c47c5630cec703f419a567aa945eca2d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Field_Male.prefab
+    prefab: {fileID: 4845607180435273136, guid: d0d52578dd9ec504eb6931c0ff6c6772, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Lamellar_Female.prefab
+    prefab: {fileID: 3892055689385112963, guid: 31a9b52710d70c1449537f2b6470aa6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Lamellar_Male.prefab
+    prefab: {fileID: 5167739767446426567, guid: 514cb67ae0936d24d9a1bb4450d858b4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Ranger_Female.prefab
+    prefab: {fileID: 4916140922768895174, guid: edb0d057ee6e4ab42a8396ec911e9ffa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Ranger_Male.prefab
+    prefab: {fileID: 941868283301052783, guid: 885254f6f748d46429ea0b1c495136e1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Sentinel_Female.prefab
+    prefab: {fileID: 3402896527363138776, guid: 77c504cec5d222142bd3dbf7c3dabc41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Sentinel_Male.prefab
+    prefab: {fileID: 3096269724328967133, guid: a4dd33b9309ac3c4082a11c18faf87fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 481342063273460444, guid: 6bd2737ba8c7f9545ba62e749d58d4bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 1201524469606802987, guid: 03f3915ef7218434e9a3d7240f251d2d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Traveler_Female.prefab
+    prefab: {fileID: 5054316809766185521, guid: 80fecc85921e5b644889dfccdc46cd89, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Traveler_Male.prefab
+    prefab: {fileID: 1997861588914294043, guid: 035afe41ee7cc5d4e98896e275b9e617, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 1459394948919231897, guid: 2d250ba26f24aa143934fdaa84d0d9b9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3849617270210314412, guid: 79bd1f1b3415fca49bc292eb963afb08, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_core.prefab
+    prefab: {fileID: 7034963403202090323, guid: 3905e44430630b443a95023d919fdd94, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mixed_darkness_light.prefab
+    prefab: {fileID: 1183639522369499756, guid: 241ead0e868f84344b650d4845ed1a02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mixed_organic_fire.prefab
+    prefab: {fileID: 7985185675128787859, guid: d88e8df0084540d4b9c83f21641dbcf8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_darkness.prefab
+    prefab: {fileID: 943797119381535282, guid: 7ba38555a8bf9d6428269b586da87cfb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_fire.prefab
+    prefab: {fileID: 1788955998870214915, guid: 08fd247b8f6db8c4d874c62d161c328d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_forged.prefab
+    prefab: {fileID: 6864231235207441704, guid: de9ad9c8fe1a33f4895cbeb2653114d2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_frost.prefab
+    prefab: {fileID: 93792290525845387, guid: 0ea2e2c6f52e34f44b6c5f65fe637bf0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_light.prefab
+    prefab: {fileID: 2830949146828807705, guid: 201041ceb03b866429d47636c5266316, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_motif_organic.prefab
+    prefab: {fileID: 6395878577122326092, guid: f38d1aeea18f598449ca2a2a98cd1860, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_darkness.prefab
+    prefab: {fileID: 990649417480126344, guid: 9b8d0916064ee314c80f27c669857a3d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_fire.prefab
+    prefab: {fileID: 368528542684895371, guid: cd3a7d1bfdcf4de4faca5ba9b93e61ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_forged.prefab
+    prefab: {fileID: 2204593968972855970, guid: d947cc2e6a0645e429a418ae7b6540d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_frost.prefab
+    prefab: {fileID: 7941893774050983781, guid: eb90305e0d254fa4ca6000487749e40c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_light.prefab
+    prefab: {fileID: 8264598364963456997, guid: aabdefea15bcde34ab22ee2623fd10d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_female_mount_organic.prefab
+    prefab: {fileID: 5580323321950737391, guid: 239291ce86dcb07439ca3fa4f50e5ee9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_core.prefab
+    prefab: {fileID: 4876570739132850133, guid: c4d8856051645b642b0e1ad38340a8a6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mixed_darkness_light.prefab
+    prefab: {fileID: 5169479574271583322, guid: 8dbd5ff6f960b0f42921f9127d66d9fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mixed_organic_fire.prefab
+    prefab: {fileID: 6542346238306607909, guid: 8903337b953294e44a9c309c8a708f71, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_darkness.prefab
+    prefab: {fileID: 8591357046990330846, guid: 09687dd73c5fdf746b187baa822b4055, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_fire.prefab
+    prefab: {fileID: 1685341243357960547, guid: 4081fb376c0c9f540a6bef60ae745ff5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_forged.prefab
+    prefab: {fileID: 520245756837417991, guid: 41707b40455e41e41b15c3f40caf1c0d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_frost.prefab
+    prefab: {fileID: 2639735150820312366, guid: 8547fc4b184f1304e9bd6a8b46dc8d0b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_light.prefab
+    prefab: {fileID: 158488817912329734, guid: 80745eed12b836743ad20c338e73ee3a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_motif_organic.prefab
+    prefab: {fileID: 6243267818132580988, guid: 26ac20b7d1d07d34c831ec807c35e8a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_darkness.prefab
+    prefab: {fileID: 6960282383671025824, guid: 39ac777e0e125f34885a3318400cbb4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_fire.prefab
+    prefab: {fileID: 236772897482814787, guid: 40601bd29e87cd645bb8d0f6c5d85fd2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_forged.prefab
+    prefab: {fileID: 6293657759789690058, guid: 29a4ea1a253e66748b9610a06e0233b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_frost.prefab
+    prefab: {fileID: 2219767503975501054, guid: f940a9c2e2e19704e8dafcc27c6aff6c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_light.prefab
+    prefab: {fileID: 751427288198177200, guid: 13337dd45a44d4f41987385432eb86ad, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/yqmod1_wearables_shoulder_armor_male_mount_organic.prefab
+    prefab: {fileID: 1587307947094441811, guid: 1abf64e58ac1ec4458d4757814541cc3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Field_Male_Parts.prefab
+    prefab: {fileID: 2305749794411242068, guid: b43423fa8ee3236479cc7d3bba680058, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Field_Female_Parts.prefab
+    prefab: {fileID: 4128606050978720587, guid: 4610a30ef1f1098478875673beeb9914, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Ranger_Male_Parts.prefab
+    prefab: {fileID: 862618473189757521, guid: 736dcb6b007ba744eacfe7203bedcfe6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Ranger_Female_Parts.prefab
+    prefab: {fileID: 8683377933778712059, guid: 47cfbb4fc0430eb4298646dfffc50a8d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 6771713656805484958, guid: 890603f4794dfc244a84e8bf802296e7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 2300773803509945369, guid: a5244d6134429a14fa6ab853f2c8c37e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Traveler_Male_Parts.prefab
+    prefab: {fileID: 7421118048750682442, guid: a0964985848895846bcaecdb7733af5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Traveler_Female_Parts.prefab
+    prefab: {fileID: 2083487760564385270, guid: 9b586eb250779c5419821696ad9ed428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 8012287454013329175, guid: da7d6c90742bea041af13a3a68f15a4d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 1938702207264123491, guid: 4a84f8fa9b0725641b013d8623e07e69, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 719551723651615266, guid: cb51e416ae1193349b81624ee3fd8ae9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 1473482280825363541, guid: dcf9a8010b5c17d4182f1c362ed86b6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 7549742515719346590, guid: 0def90db67872084881802fc310b6559, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 6617200676581322720, guid: e31fef9f6f579464eafab96f6d3e5a09, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 1557100398986303021, guid: 9bf34717fc295e54dbd8735057ca2882, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 9205256325344889840, guid: 91ae8ef27b5555744a314d7f8ce51557, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 4877623321698229815, guid: 24a11e17d49b90b438288c8c4c7a2e04, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/shoulder_armor/Shoulder_Armor_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 8437285169922441868, guid: 2d12af9b328a87d49bd04f75763114c7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

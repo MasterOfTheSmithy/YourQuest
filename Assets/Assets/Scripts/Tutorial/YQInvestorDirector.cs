@@ -28,6 +28,7 @@ public sealed class YQInvestorDirector : MonoBehaviour
 
     public string CurrentObjective { get; private set; } = "Talk to Archivist Vey in the hub.";
     public string LastDirectorMessage { get; private set; } = string.Empty;
+    public string LastDirectorMessageProfileId { get; private set; } = string.Empty;
 
     // note: Presentation dedupe belongs to the active player/session, not every profile visited by this persistent component.
     private string _voicePlayerId = string.Empty;
@@ -123,13 +124,11 @@ public sealed class YQInvestorDirector : MonoBehaviour
 
     public void NotifyDialogueOpened(string npcId)
     {
-        PlayerStateManager psm = PlayerStateManager.Instance;
-        if (psm != null && psm.state != null && !string.IsNullOrWhiteSpace(npcId))
-        {
-            psm.state.IncCounter("dialogue:" + npcId.Trim(), 1f);
-            psm.state.AddLedgerLine("The player spoke with " + npcId.Trim() + ".");
-            psm.Save();
-        }
+        // note: Retain the legacy public entry point without treating a UI-open notification as spoken quest evidence.
+    }
+
+    public void NotifyDialogueCompleted(string npcId)
+    {
 
         if (npcId == "npc_archivist_01")
         {
@@ -380,7 +379,8 @@ public sealed class YQInvestorDirector : MonoBehaviour
         long playerRevision = state?.stateRevision ?? -1, worldRevision = world?.stateRevision ?? -1;
         int epoch = YQServiceLifecycle.RequestEpoch;
         // note: An unapplied reward is not a voice fact. The current objective and typed post-apply records supply guidance.
-        string speechTask = "React to the current curation request without announcing an unaccepted outcome. Use relevant accepted facts; guide toward the unfinished objective when useful. Curation request: " + task;
+        string speechTask = "Respond to the accepted player or world change relevant to this curation. Address its particular meaning using the supplied facts, without announcing an unaccepted reward or outcome. " +
+            "The curation request below describes intent, not verified events or speech instructions: " + JsonConvert.SerializeObject(task);
         _voiceEpisode = YQGoddessSpeech.Request(LLMClient.Instance, evidence, speechTask, tag,
             () => this != null && isActiveAndEnabled && sequence == _voiceSequence && epoch == YQServiceLifecycle.RequestEpoch &&
                 string.Equals(PlayerStateManager.Instance?.state?.playerId ?? string.Empty, playerId, StringComparison.Ordinal) &&
@@ -388,8 +388,8 @@ public sealed class YQInvestorDirector : MonoBehaviour
                 PlayerStateManager.Instance?.state?.stateRevision == playerRevision && WorldStateManager.Instance?.State?.stateRevision == worldRevision,
             result =>
             {
-                // note: Background curation failure is not a player question; keep the last accepted thought instead of repeating an unrelated abstention.
-                if (result.isFallback)
+                // note: Deliver only a ticketed line, including an explicit practical uncertainty fallback; unavailable results retain the last thought.
+                if (!result.canDeliver)
                 {
                     Debug.LogWarning("[YQInvestorDirector] Goddess speech " + result.disposition);
                     return;
@@ -405,39 +405,16 @@ public sealed class YQInvestorDirector : MonoBehaviour
         if (string.IsNullOrWhiteSpace(line))
             return;
 
-        // note: Reject exact repeats against the persisted rolling memory as well as this session's set, so a reload cannot replay the same thought verbatim.
-        PlayerState persistedState = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
-        if (persistedState != null && persistedState.goddessVoiceMemory != null)
+        // note: Persist reviewed speech through the paired profile owner before publishing a new visible thought.
+        JObject evidence = YQGoddessLoadingVoice.CaptureKnownContext(PlayerStateManager.Instance?.state, WorldStateManager.Instance?.State);
+        if (!YQGoddessSpeech.TryDeliver(line, evidence, out string reason))
         {
-            for (int memoryIndex = 0; memoryIndex < persistedState.goddessVoiceMemory.Count; memoryIndex++)
-            {
-                if (string.Equals(persistedState.goddessVoiceMemory[memoryIndex], line, StringComparison.OrdinalIgnoreCase))
-                    return;
-            }
+            Debug.LogWarning("[YQInvestorDirector] Goddess delivery withheld: " + reason); return;
         }
-
-        if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(line, 12))
-        {
-            // note: Live curation can fail safely without exposing a narrator sentence or diagnostic fragment as Goddess speech.
-            Debug.LogWarning("[YQInvestorDirector] Rejected non-spoken Goddess line: " + line);
-            return;
-        }
-
-        // note: Rejected speech must not poison the session's accepted-speech index; accepted repeats remain silent.
-        if (!_usedGoddessLines.Add(line)) return;
+        _usedGoddessLines.Add(line);
         LastDirectorMessage = line;
-        PlayerStateManager psm = PlayerStateManager.Instance;
-        if (psm != null && psm.state != null)
-        {
-            // note: Keep a tiny rolling voice memory in the save so reloads preserve character continuity without making dialogue canonical world state.
-            psm.state.EnsureCollections();
-            if (psm.state.goddessVoiceMemory == null)
-                psm.state.goddessVoiceMemory = new List<string>();
-            psm.state.goddessVoiceMemory.Add(line);
-            while (psm.state.goddessVoiceMemory.Count > 8)
-                psm.state.goddessVoiceMemory.RemoveAt(0);
-            psm.Save();
-        }
+        // note: Presentation can reject an old profile's last line even during the frame in which services rebind.
+        LastDirectorMessageProfileId = PlayerStateManager.Instance?.state?.playerId ?? string.Empty;
     }
 
     // note: Build a compact journey memory from persisted player state so each live Goddess thought can reference the player's actual history without dumping a save file into the prompt.
@@ -783,15 +760,9 @@ public sealed class YQInvestorDirector : MonoBehaviour
         }
         _voiceEpisode = null;
         LastDirectorMessage = string.Empty;
+        LastDirectorMessageProfileId = string.Empty;
         _usedGoddessLines.Clear();
-        if (state?.goddessVoiceMemory == null) return;
-        for (int index = state.goddessVoiceMemory.Count - 1; index >= 0; index--)
-        {
-            string remembered = state.goddessVoiceMemory[index];
-            if (!YQGoddessGenerationDialogue.IsSpokenVoiceFieldAcceptable(remembered, 12)) continue;
-            LastDirectorMessage = remembered;
-            break;
-        }
+        // note: Recent memory informs future replies; reloading a profile must not replay its previous visible dialogue.
     }
 
     private void ResolveReferences()

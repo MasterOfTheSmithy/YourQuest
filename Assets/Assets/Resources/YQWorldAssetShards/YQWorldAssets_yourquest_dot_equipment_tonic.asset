@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_tonic
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Artisan.prefab
+    prefab: {fileID: 2533232303016339707, guid: a706ddd722ba19543aa411337b84b36a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Court.prefab
+    prefab: {fileID: 7239687612544545592, guid: 19d21ab50fc075f4187bd83615ed6286, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Dragonbound.prefab
+    prefab: {fileID: 7854384713572414075, guid: e0aff5b5523d4dc4fad7d5170dad8fee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Eclipse.prefab
+    prefab: {fileID: 4053812430410128343, guid: 6d488944b70bbfb428abb5d4486ec7e6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Field.prefab
+    prefab: {fileID: 281451135992560913, guid: 1d1c49ec8ea42e94a9aa53793c53b291, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Merchant.prefab
+    prefab: {fileID: 4059459763190406319, guid: 28b542420728fe7479d359f890aa4c33, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Ranger.prefab
+    prefab: {fileID: 3408073772913125061, guid: 1082622c1fd44de4db4717c3922f98d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Starforged_Orrery.prefab
+    prefab: {fileID: 3505726075170362470, guid: 9a23ee5620a0cd143948070735433d3c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Worldtree_Sovereign.prefab
+    prefab: {fileID: 3724778640790588969, guid: a549af3d55f499d4e99369c880955918, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_core.prefab
+    prefab: {fileID: 4172756755202119797, guid: 00607e370ebe5f14cb2011d4ba02a959, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mixed_darkness_light.prefab
+    prefab: {fileID: 1113710752050469560, guid: 4ec2a6c06fb1dba439c4a5801117bdd3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mixed_organic_fire.prefab
+    prefab: {fileID: 8824046759214635296, guid: a29998ac34887734b9ba77bf017e2bb6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_darkness.prefab
+    prefab: {fileID: 2081310314780076173, guid: 4ee02b4dc0da24b41a6cf2cc42b3bc85, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_fire.prefab
+    prefab: {fileID: 8800177070640072157, guid: eaa2ea03223eca248b330f9325781563, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_forged.prefab
+    prefab: {fileID: 2220301799524961809, guid: 3060ec3c0427c7e40af6e710c8738175, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_frost.prefab
+    prefab: {fileID: 1127507665724031987, guid: ba2ce3281aaacab4f94acc9c1c079882, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_light.prefab
+    prefab: {fileID: 2653904121491711296, guid: 52250070884325948bf64d59e3003539, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_motif_organic.prefab
+    prefab: {fileID: 8778203322234498437, guid: 7815ec1b5532bdb4bb6eb5e099be10e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_darkness.prefab
+    prefab: {fileID: 1752047665143356559, guid: 9cc73e94424ccca4bba03abe436b69c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_fire.prefab
+    prefab: {fileID: 6219204621249769346, guid: 6d029549db19a5144805a381ee556029, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_forged.prefab
+    prefab: {fileID: 1333302489467284871, guid: 0f24c7cdcb71fa04eb844a5f71d67313, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_frost.prefab
+    prefab: {fileID: 670253723682122866, guid: 0cc2a5f5403c63646947dee60b3f5d01, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_light.prefab
+    prefab: {fileID: 8349670733447434015, guid: c975fa90d5f4d9f4fbb930f9d21dfefd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/yqmod1_consumables_tonic_mount_organic.prefab
+    prefab: {fileID: 8385895660032847863, guid: 290ebfd51d1103c4091a11b6ab6d7707, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Field_Parts.prefab
+    prefab: {fileID: 7684318602703529769, guid: b8788b1b9d9417443a3c4ddbde38384f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Merchant_Parts.prefab
+    prefab: {fileID: 83375469675117927, guid: bf36348c874947a40aa715260a7afb24, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Ranger_Parts.prefab
+    prefab: {fileID: 6824255877856209944, guid: e53ca118040ada44cbf49c14bc6de9fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Artisan_Parts.prefab
+    prefab: {fileID: 7209392462503351934, guid: b54255f620e2e6249afdf0496d467bc0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Court_Parts.prefab
+    prefab: {fileID: 195657908625927879, guid: 3a90b1ac5f9c91143bc7cfc72216a0e4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Dragonbound_Parts.prefab
+    prefab: {fileID: 4104993767080093355, guid: 83792bea6e339614c9b94ffc166ba74b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Eclipse_Parts.prefab
+    prefab: {fileID: 8781610659460945410, guid: 2609923b62ee2b24ab1d207caec902ed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7902938287542118677, guid: 58818c71ea59f8445aa907a2c5d8f9fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/tonic/Tonic_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3545249861806339704, guid: c21d651599779f647a35c0ad146c65af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

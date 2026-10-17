@@ -1,0 +1,281 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_belt
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Dragonbound_Female.prefab
+    prefab: {fileID: 4414969349166735969, guid: b692e3474beccc540b5da91ce0be1d86, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Dragonbound_Male.prefab
+    prefab: {fileID: 6422389443549447657, guid: 42e64da91e864f74eb3bdb5734bbb3dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Eclipse_Female.prefab
+    prefab: {fileID: 339285199088194985, guid: fd272083c36a4f449978d9002c6dae07, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Eclipse_Male.prefab
+    prefab: {fileID: 1878345746559942328, guid: 3262452328e0f0d4eaadaa56a5ee8823, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Field_Female.prefab
+    prefab: {fileID: 8501997625590186437, guid: ae85c443738a14744ad02d4ec4ccabd3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Field_Male.prefab
+    prefab: {fileID: 5308083390153017401, guid: 438bb894925bbcf40a1c4388e196f822, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Lamellar_Female.prefab
+    prefab: {fileID: 1993852138616519933, guid: 240e66c983c2d1f42b90d96e9e878094, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Lamellar_Male.prefab
+    prefab: {fileID: 1470269815652225177, guid: 3dc05d10ed6626c469df8be1e0dab978, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Ranger_Female.prefab
+    prefab: {fileID: 2824023320399490287, guid: 7cd763341b9a0de4b9e7c594dabfa303, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Ranger_Male.prefab
+    prefab: {fileID: 1473848099979232833, guid: f8c99b98fc7b44846ba399e997101ca9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Sentinel_Female.prefab
+    prefab: {fileID: 7288939380104281693, guid: 99190300f1191e549a02329b8b02c8a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Sentinel_Male.prefab
+    prefab: {fileID: 6225368851774286638, guid: 183636ee29607354399a1cd7ba253d58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 6462012503204108048, guid: 6e2a25302e2eaf64fa963ac2470736ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 3051699438733535997, guid: 322a2e73931056f4b89e610138e918bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Traveler_Female.prefab
+    prefab: {fileID: 1902341218341720354, guid: 1c8bc7b89d8f0874e8cfd48508a0f998, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Traveler_Male.prefab
+    prefab: {fileID: 1294609973050910321, guid: 21afadfa6cfd74941b3dc8230597cf9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 3883732571757632631, guid: af61c0ffb7060e546ad7bde086ad5595, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 1614609972298141748, guid: 80dc1c57c501df842be1d0e55c1ef813, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_core.prefab
+    prefab: {fileID: 3646026617340941138, guid: 28d35780d8deb6c458ffc3dcd410881d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mixed_darkness_light.prefab
+    prefab: {fileID: 8795305010121620951, guid: 8bc965b22d4437e48958df8f797095a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mixed_organic_fire.prefab
+    prefab: {fileID: 5468584875266118691, guid: 7deae2daa0b31f2488c208f0e9dbf76f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_darkness.prefab
+    prefab: {fileID: 890587916509353328, guid: a770bdaeef951df4591741028d175d6f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_fire.prefab
+    prefab: {fileID: 5465232994511420021, guid: c87be4b915aa3174c96136342a30d704, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_forged.prefab
+    prefab: {fileID: 5646251138293195099, guid: e874556dd1c6b33488b4edd220ec7796, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_frost.prefab
+    prefab: {fileID: 7752343712649387386, guid: 103fe65db7022774b9254a537eee2a2c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_light.prefab
+    prefab: {fileID: 3496858718533314806, guid: 6667e7133b50dcc4f938079557c72f4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_motif_organic.prefab
+    prefab: {fileID: 4573831110534772353, guid: 093a5d298f037284580d99babdedca6d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_darkness.prefab
+    prefab: {fileID: 97723446827098270, guid: 63b1905709fd9c54497d7f05d8fedd33, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_fire.prefab
+    prefab: {fileID: 878725700149293026, guid: 8a5e28ac6a62aa246bd148b6c1c27bf7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_forged.prefab
+    prefab: {fileID: 5456716836582914444, guid: 4d70b4fc21dc48149ba43396c8e332fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_frost.prefab
+    prefab: {fileID: 1400371334062333395, guid: 921184212fbfec34aa8e57be389d11d4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_light.prefab
+    prefab: {fileID: 2358577839932078676, guid: 7779d818655947644be0ec4ed15a5a5b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_female_mount_organic.prefab
+    prefab: {fileID: 4487719561598020339, guid: bcb7f07932e263e4fa0815fde48c18b5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_core.prefab
+    prefab: {fileID: 3711654314693245431, guid: d77ae1a0e386ed3418e50a7e8667ba02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mixed_darkness_light.prefab
+    prefab: {fileID: 4829494960218654714, guid: b301816fdb7e79648b3def34d468f2d1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mixed_organic_fire.prefab
+    prefab: {fileID: 1042041540060901254, guid: c3efc4e9f42619343a0befcaa607a444, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_darkness.prefab
+    prefab: {fileID: 399697027329915905, guid: 7936be768f00b934ba075f7277542e77, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_fire.prefab
+    prefab: {fileID: 1191655153768372668, guid: ffa27cd170cb4d34bb6c47295495be64, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_forged.prefab
+    prefab: {fileID: 8409755377394521749, guid: 742a3ac7e2e6fad4fa7fd75815e804fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_frost.prefab
+    prefab: {fileID: 6957171966665200005, guid: d91d0c842e6b56545a5121629cd9b794, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_light.prefab
+    prefab: {fileID: 8149702291817819321, guid: 135b9b99c22fd2d428ca7f846a9fe07e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_motif_organic.prefab
+    prefab: {fileID: 3982676813378767809, guid: 88c246e74bf84c14b8a5ab35e37abf43, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_darkness.prefab
+    prefab: {fileID: 4221844734705058665, guid: cda1d032d8804a94b96a84423e525fb7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_fire.prefab
+    prefab: {fileID: 2335112965578113581, guid: b848a677f4d33504ba00a86c130bbd0e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_forged.prefab
+    prefab: {fileID: 3168990253852943777, guid: 1888bb65101a0874687646d9f180fb8a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_frost.prefab
+    prefab: {fileID: 1523640550974365823, guid: 6c6063d5b56e54b41baec173aecc32c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_light.prefab
+    prefab: {fileID: 4682493212119264514, guid: b5bac92081dc3b54b97a7d6a5d786a1f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/yqmod1_wearables_belt_male_mount_organic.prefab
+    prefab: {fileID: 6214405211458276792, guid: 3ff01b5455de8cd4b9a76f61464db4a7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Field_Male_Parts.prefab
+    prefab: {fileID: 5265399974359068900, guid: fa2738c45ea8492418d5342ecbc2ca0c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Field_Female_Parts.prefab
+    prefab: {fileID: 3248134946956423493, guid: f3657bcf317d37f41a79942f152d5171, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Ranger_Male_Parts.prefab
+    prefab: {fileID: 2120087719747054390, guid: d00af42090f5853479854419b29a78e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7018154404289128879, guid: 63c408587e63bcf44a262e60e1065da7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 8036989488392605216, guid: 8e3114098ccb7424ab079a229fbb0c99, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 6336089246248620502, guid: b4bd03e1550f8b94ab5aa7651c61373e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Traveler_Male_Parts.prefab
+    prefab: {fileID: 5264504560671258595, guid: e53bf9247f08b1140ae866bcdc11fc19, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Traveler_Female_Parts.prefab
+    prefab: {fileID: 6779025535682581129, guid: 08f3de84f3272ae439607df708d7cbae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 3518735084972520510, guid: 6aaccfa76b838df4391025575f35604d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 1233272307044867663, guid: a189f0d494b2f8147af90772293e1f39, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 6573972828412682698, guid: 4f81810c71554d34080f0feefcfc04ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 2090030102744909759, guid: eb6b60bc346661541ae8f404290ade77, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 4795835661306708069, guid: 0ec4ef1c98b26a94e93d28babaad5c28, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 8157108505844662013, guid: ea2ce209a3410724dad866917e72f7ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 2507745855766576323, guid: ec58cf116e6cc7b448d758ceb64d2971, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 1837698448878360929, guid: 8ac3c84144cc42f48bfd2ed90aadbb7d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 3039325036235022520, guid: 6bc71ffe58cda6f49a7e6901e5751a8d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/belt/Belt_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 7489183020034837558, guid: 506c2e90e0e05f443ab7fcdb37a6263e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

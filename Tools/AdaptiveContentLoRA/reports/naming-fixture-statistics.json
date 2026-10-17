@@ -1,0 +1,86 @@
+{
+  "named_records": 27,
+  "normalized_name_collisions": [],
+  "motif_counts": {
+    "careful gathering": 1,
+    "held opening": 1,
+    "local consequence": 1,
+    "unmarked bank": 1,
+    "repair for others": 1,
+    "voluntary restitution": 1,
+    "careful route finding": 1,
+    "shared opening": 1,
+    "river watch": 3,
+    "careful sight line": 1,
+    "early protective timing": 1,
+    "civic ledger": 1,
+    "ledger bank": 1,
+    "shared ferry work": 1,
+    "returned light": 1,
+    "plain civic name": 1,
+    "plain name": 1,
+    "reclaimed kiln fuel": 1,
+    "borrowed measure": 1,
+    "patient hospitality": 1,
+    "seed custody": 1,
+    "careful cooling": 1,
+    "honest disclosure": 1,
+    "honest margins": 1,
+    "preserved clock history": 1
+  },
+  "generic_token_counts": {},
+  "important_name_candidate_counts": [
+    {
+      "id": "fixture:case:c05",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:c09",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:c15",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:c18",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:c20",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:s50",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t59",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t60",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t61",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t62",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t63",
+      "count": 3
+    },
+    {
+      "id": "fixture:case:t64",
+      "count": 3
+    }
+  ],
+  "memorability": null,
+  "semantic_distinctiveness": null,
+  "pronounceability": null,
+  "policy": "Lexical counts only; fixture names are not model evaluation and saturation quality needs human review."
+}

@@ -38,6 +38,27 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
     private Button _sendButton;
     private CanvasGroup _thinkingGroup;
     private TMP_Text _thinkingText;
+    private TMP_Text _voiceStatus;
+    private Button _talkButton;
+    private YQLocalSpeech _speech;
+    private int _dialogueEpoch;
+    private YQNpcConversationRewards.DisplayedOfferList _displayedOffers;
+    private PlayerState _dialoguePlayer;
+    private string _dialogueNpcId;
+    private bool _voiceFocused = true;
+    [Header("Live voice")]
+    public bool voiceMuted;
+    [Range(.5f, 30f)] public float defaultHearingRadius = 6f;
+    private Canvas _voiceCanvas;
+    private TMP_Text _voiceBadge;
+    private NpcDialogueAgent _hearingTarget;
+    private NpcDialogueAgent _liveReplyAgent;
+    private bool _liveWaiting;
+    private int _liveEpoch;
+    private float _nextHearingScan, _nextVoiceAttempt;
+    private PlayerState _voicePlayer;
+    private bool _voiceInferenceBlocked;
+    private const string VoiceMemoryBlockedStatus = "Insufficient graphics memory for dialogue • Mic paused • F2 to retry";
 
     private readonly List<DialogueTurn> _fallbackTurns = new List<DialogueTurn>(16);
 
@@ -62,6 +83,10 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         NormalizeWindowSize();
+        // note: This is transient audio presentation on the existing dialogue UI, not a second dialogue or LLM owner.
+        _speech = GetComponent<YQLocalSpeech>();
+        if (_speech == null) _speech = gameObject.AddComponent<YQLocalSpeech>();
+        _speech.StatusChanged += OnVoiceStatus;
         BuildUi();
         SetOpen(false);
     }
@@ -69,6 +94,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
     public void ForceCloseFromBootstrap()
     {
+        RetireVoiceTurn();
         _waitingOnReply = false;
         StopThinkingVisual();
         UnbindActiveAgent();
@@ -79,6 +105,8 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        RetireVoiceTurn();
+        if (_speech != null) _speech.StatusChanged -= OnVoiceStatus;
         StopInputFocusRoutine();
         UnbindActiveAgent();
 
@@ -94,6 +122,8 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         ResolveRefs();
 
         Keyboard kb = Keyboard.current;
+        if (kb != null && kb.f2Key.wasPressedThisFrame) ToggleVoiceInput();
+        UpdateLiveVoice();
 
         if (!_open)
         {
@@ -105,6 +135,14 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
             }
             return;
         }
+
+        // note: Input and late audio cannot cross profile changes or an NPC's streaming retirement.
+        if (_activeAgent == null || !_activeAgent.isActiveAndEnabled ||
+            !ReferenceEquals(_dialoguePlayer, PlayerStateManager.Instance?.state) ||
+            !string.Equals(_dialogueNpcId, _activeAgent.NpcId, StringComparison.OrdinalIgnoreCase))
+        { Close(); return; }
+        if (_talkButton != null)
+            _talkButton.interactable = true;
 
         if (kb == null)
             return;
@@ -156,7 +194,9 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
             Collider hit = hits[i].collider;
             if (hit == null)
                 continue;
-            if (playerRoot != null && (hit.transform == playerRoot || hit.transform.IsChildOf(playerRoot)))
+            // note: The player's detached physical body must not become its own talk target or occluder.
+            if (playerRoot != null && (hit.transform == playerRoot || hit.transform.IsChildOf(playerRoot) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(hit)?.transform == playerRoot))
                 continue;
 
             EntityInfo info = hit.GetComponentInParent<EntityInfo>();
@@ -232,7 +272,8 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
             if (candidate == null ||
                 (playerRoot != null &&
                  (candidate.transform == playerRoot ||
-                  candidate.transform.IsChildOf(playerRoot))))
+                  candidate.transform.IsChildOf(playerRoot) ||
+                  YQInvestorPlayerMotor.ResolveFromCollider(candidate)?.transform == playerRoot)))
             {
                 continue;
             }
@@ -339,7 +380,9 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
             if (targetRoot == hit || hit.IsChildOf(targetRoot))
                 return true;
-            if (playerRoot != null && (hit == playerRoot || hit.IsChildOf(playerRoot)))
+            // note: Collision ownership remains canonical while the active ragdoll's body has an independent physics hierarchy.
+            if (playerRoot != null && (hit == playerRoot || hit.IsChildOf(playerRoot) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(col)?.transform == playerRoot))
                 continue;
 
             return false;
@@ -359,10 +402,13 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
     private void Open(EntityInfo entity, NpcDialogueAgent agent)
     {
+        RetireVoiceTurn();
         UnbindActiveAgent();
         _activeEntity = entity;
         _activeAgent = agent;
         _activeAgent.RefreshIdentityAndSession();
+        _dialoguePlayer = PlayerStateManager.Instance?.state;
+        _dialogueNpcId = _activeAgent.NpcId;
         _activeAgent.TranscriptChanged += OnTranscriptChanged;
         _fallbackTurns.Clear();
         _waitingOnReply = false;
@@ -382,17 +428,18 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
             _sendButton.interactable = true;
 
         SetOpen(true);
+        CaptureOfferPresentation();
         RuntimeModalUiBlocker.SetDialogueOpen(true);
         RebuildTranscript();
         FocusInput();
+        _speech.Prepare();
 
-        YQInvestorDirector director = FindFirstObjectByType<YQInvestorDirector>();
-        if (director != null && entity != null && !string.IsNullOrWhiteSpace(entity.entityId))
-            director.NotifyDialogueOpened(entity.entityId);
+        // note: Opening a panel is not a conversation; both input routes acknowledge a completed reply in NpcDialogueAgent.
     }
 
     private void Close()
     {
+        RetireVoiceTurn();
         _waitingOnReply = false;
         StopThinkingVisual();
         UnbindActiveAgent();
@@ -400,6 +447,28 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         StopInputFocusRoutine();
         SetOpen(false);
         RuntimeModalUiBlocker.SetDialogueOpen(false);
+    }
+
+
+    // note: Publish one numbered order per open conversation. Settling a row never silently renumbers the next utterance.
+    private void CaptureOfferPresentation()
+    {
+        if (_displayedOffers != null || !_open || _activeAgent == null || _transcriptText == null ||
+            !IsCurrentVoiceTurn(_dialogueEpoch, _activeAgent)) return;
+        _displayedOffers = YQNpcConversationRewards.CaptureDisplayedOffers(_dialoguePlayer, _dialogueNpcId,
+            YQServiceLifecycle.RequestEpoch, YourQuestProgressionOfferUI.Instance?.GetVisibleOffer(_dialoguePlayer));
+    }
+
+    private string OfferPresentationText() => _displayedOffers == null ? string.Empty :
+        "\n\n<color=#84CDFF>" + Escape(_displayedOffers.Text) + "</color>";
+
+    private bool IsOfferPresentationCurrent(YQNpcConversationRewards.DisplayedOfferList displayed, int epoch, NpcDialogueAgent agent)
+    {
+        // note: A retained object alone is insufficient: the same exact list must still be in this open rendered conversation.
+        return displayed != null && ReferenceEquals(displayed, _displayedOffers) && IsCurrentVoiceTurn(epoch, agent) &&
+            _canvas != null && _canvas.enabled && _transcriptText != null &&
+            _transcriptText.text.EndsWith(OfferPresentationText(), StringComparison.Ordinal) &&
+            displayed.Matches(_dialoguePlayer, _dialogueNpcId, YQServiceLifecycle.RequestEpoch);
     }
 
     private void UnbindActiveAgent()
@@ -431,8 +500,17 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         if (string.IsNullOrWhiteSpace(text))
             return;
 
+        SubmitPlayerText(text);
+    }
+
+    private void SubmitPlayerText(string text)
+    {
+        // note: Dictation submits exactly once through the typed route; partial ASR text never enters memory or generation.
+        if (!_open || _waitingOnReply || _activeAgent == null || _activeAgent.IsThinking || string.IsNullOrWhiteSpace(text))
+            return;
+        _speech.Cancel();
         text = text.Trim();
-        _inputField.text = string.Empty;
+        if (_inputField != null) _inputField.text = string.Empty;
         _waitingOnReply = true;
 
         if (_sendButton != null)
@@ -442,12 +520,219 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
         StartThinkingVisual();
         PushFallbackTurn("player", text);
-        _activeAgent.SendPlayerMessage(text, OnNpcReply);
+        int epoch = _dialogueEpoch;
+        NpcDialogueAgent agent = _activeAgent;
+        string turnVoice = YQNpcVoice.ForAgent(agent);
+        var displayed = _displayedOffers;
+        _activeAgent.SendPlayerMessageWithDisplayedOffers(text, reply =>
+        {
+            if (IsCurrentVoiceTurn(epoch, agent)) OnNpcReply(reply, turnVoice);
+        }, () => IsCurrentVoiceTurn(epoch, agent), displayed, () => IsOfferPresentationCurrent(displayed, epoch, agent));
         RebuildTranscript();
         FocusInput();
     }
 
-    private void OnNpcReply(string npcReply)
+    public void SetVoiceMuted(bool muted)
+    {
+        voiceMuted = muted;
+        // note: Only an explicit unmute/retry resumes capture after a failed model load; old utterances are never replayed.
+        if (!muted) _voiceInferenceBlocked = false;
+        RetireLiveVoice();
+        if (_speech != null) _speech.Cancel();
+        RefreshVoiceButton();
+        OnVoiceStatus(muted ? "Microphone muted • F2 to unmute" : "Live voice enabled • F2 to mute");
+    }
+
+    private void ToggleVoiceInput() => SetVoiceMuted(_voiceInferenceBlocked && !voiceMuted ? false : !voiceMuted);
+
+    private void RefreshVoiceButton()
+    {
+        if (_talkButton != null)
+            _talkButton.GetComponentInChildren<TMP_Text>().text = voiceMuted ? "Unmute mic" : _voiceInferenceBlocked ? "Retry mic" : "Mute mic";
+    }
+
+    private void PauseLiveVoiceForMemory()
+    {
+        // note: A rejected inference must not reopen the microphone and commit repeated ambient transcripts while the model cannot load.
+        _voiceInferenceBlocked = true;
+        RetireLiveVoice();
+        if (_speech != null) _speech.Cancel();
+        RefreshVoiceButton();
+        OnVoiceStatus(VoiceMemoryBlockedStatus);
+    }
+
+    private void SynchronizeVoiceProfile(PlayerState player)
+    {
+        if (ReferenceEquals(player, _voicePlayer)) return;
+        // note: Failure recovery is scoped to the current journey, like capture and reply ownership.
+        RetireLiveVoice();
+        if (_speech != null) _speech.Cancel();
+        _voicePlayer = player;
+        _voiceInferenceBlocked = false;
+        RefreshVoiceButton();
+        OnVoiceStatus("Live voice enabled • F2 to mute");
+    }
+
+    private void UpdateLiveVoice()
+    {
+        SynchronizeVoiceProfile(PlayerStateManager.Instance?.state);
+        bool blocked = !_voiceFocused || playerRoot == null || PlayerStateManager.Instance?.state == null || RuntimeModalUiBlocker.IsMenuOpen ||
+            (!_open && RuntimeModalUiBlocker.IsBlocked);
+        if (_voiceCanvas != null) _voiceCanvas.enabled = playerRoot != null && (!blocked || _open);
+        if (blocked || voiceMuted || _voiceInferenceBlocked)
+        {
+            if (_speech.IsCapturing || _speech.IsTranscribing) _speech.Cancel();
+            if (_hearingTarget != null || _liveWaiting) RetireLiveVoice();
+            return;
+        }
+        if (Time.realtimeSinceStartup >= _nextHearingScan)
+        {
+            _nextHearingScan = Time.realtimeSinceStartup + .25f;
+            NpcDialogueAgent nearest = ClosestHearingAgent();
+            if (nearest != _hearingTarget)
+            {
+                // note: A final transcript must never be reassigned to a different listener merely because the player moved while speaking.
+                if (_speech.IsCapturing || _speech.IsTranscribing || nearest == null)
+                {
+                    if (_speech.IsCapturing || _speech.IsTranscribing) _speech.Cancel();
+                    RetireLiveVoice();
+                }
+                _hearingTarget = nearest;
+                if (nearest == null) OnVoiceStatus("No listener nearby • F2 to mute");
+            }
+        }
+        if ((_liveWaiting || _speech.IsSpeaking) && _liveReplyAgent != null && !CanAgentHear(_liveReplyAgent))
+        { RetireLiveVoice(); _speech.Cancel(); }
+        else if (_liveWaiting && (_liveReplyAgent == null || !_liveReplyAgent.isActiveAndEnabled))
+        { RetireLiveVoice(); _speech.Cancel(); }
+        if (_hearingTarget == null || _liveWaiting || _hearingTarget.IsThinking || _waitingOnReply || _speech.IsSpeaking ||
+            _speech.IsCapturing || _speech.IsTranscribing || Time.realtimeSinceStartup < _nextVoiceAttempt)
+            return;
+        _nextVoiceAttempt = Time.realtimeSinceStartup + 3f;
+        if (!_speech.IsReady) { _speech.Prepare(); return; }
+        int epoch = _liveEpoch;
+        NpcDialogueAgent capturedRecipient = _hearingTarget;
+        string capturedIdentity = capturedRecipient.NpcId;
+        string capturedVoice = YQNpcVoice.ForAgent(capturedRecipient);
+        string listenerName = _hearingTarget.NpcName;
+        // note: Freeze the addressee and casting at capture start; unresolved/switching listeners discard speculative speech without penalties.
+        _speech.BeginDictation(text =>
+        {
+            if (voiceMuted || !_voiceFocused || epoch != _liveEpoch ||
+                !ReferenceEquals(_voicePlayer, PlayerStateManager.Instance?.state)) return;
+            NpcDialogueAgent recipient = capturedRecipient;
+            if (!IsCurrentHeardTurn(epoch, recipient, capturedIdentity) || ClosestHearingAgent() != recipient) return;
+            if (recipient == null || recipient.IsThinking) return;
+            string identity = recipient.NpcId;
+            // note: Dictation keeps its hearing/mute ownership even when this NPC's dialogue panel is open.
+            _liveWaiting = true;
+            _liveReplyAgent = recipient;
+            var displayed = _open && recipient == _activeAgent ? _displayedOffers : null;
+            int displayEpoch = _dialogueEpoch;
+            recipient.SendPlayerMessageWithDisplayedOffers(text, reply =>
+            {
+                if (!IsCurrentHeardTurn(epoch, recipient, identity)) return;
+                _liveWaiting = false;
+                if (_open && recipient == _activeAgent) { OnNpcReply(reply, capturedVoice); return; }
+                if (!string.IsNullOrWhiteSpace(reply))
+                {
+                    _speech.Speak(reply, capturedVoice, recipient.LastReplyDelivery, () => IsCurrentHeardTurn(epoch, recipient, identity));
+                }
+                // note: Show transport/resource status without voicing or memorizing a fabricated NPC response.
+                else if (recipient.LastReplyGraphicsMemoryUnavailable) PauseLiveVoiceForMemory();
+                else if (!string.IsNullOrWhiteSpace(recipient.LastReplyStatus)) OnVoiceStatus(recipient.LastReplyStatus);
+            }, () => IsCurrentHeardTurn(epoch, recipient, identity), displayed,
+                () => IsCurrentHeardTurn(epoch, recipient, identity) && IsOfferPresentationCurrent(displayed, displayEpoch, recipient), _speech.LastFinalTranscriptId);
+        }, new[] { listenerName });
+    }
+
+    private NpcDialogueAgent ClosestHearingAgent()
+    {
+        if (playerRoot == null) return null;
+        // note: An open directed conversation resolves the addressee explicitly; another nearby actor cannot steal its microphone turn.
+        if (_open && CanAgentHear(_activeAgent)) return _activeAgent;
+        NpcDialogueAgent best = null;
+        float bestDistance = float.PositiveInfinity;
+        IReadOnlyList<NpcDialogueAgent> agents = NpcDialogueAgent.ActiveAgents;
+        for (int i = 0; i < agents.Count; i++)
+        {
+            NpcDialogueAgent agent = agents[i];
+            if (agent == null || !agent.isActiveAndEnabled || agent.transform == playerRoot || agent.transform.IsChildOf(playerRoot)) continue;
+            float distance = (agent.transform.position - playerRoot.position).sqrMagnitude;
+            YQNpcVoice voice = YQNpcVoice.Resolve(agent.gameObject);
+            float radius = voice != null ? voice.hearingRadius : defaultHearingRadius;
+            if (!YQVoiceRouteRules.CanHear(distance, radius, true)) continue;
+            if (best == null || YQVoiceRouteRules.Prefer(distance, agent.NpcId, bestDistance, best.NpcId))
+            { best = agent; bestDistance = distance; }
+        }
+        return best;
+    }
+
+    private bool IsCurrentHeardTurn(int epoch, NpcDialogueAgent agent, string identity)
+    {
+        if (voiceMuted || !_voiceFocused || epoch != _liveEpoch || playerRoot == null || agent == null || !agent.isActiveAndEnabled ||
+            !ReferenceEquals(_voicePlayer, PlayerStateManager.Instance?.state) ||
+            !string.Equals(identity, agent.NpcId, StringComparison.OrdinalIgnoreCase)) return false;
+        return CanAgentHear(agent);
+    }
+
+    private bool CanAgentHear(NpcDialogueAgent agent)
+    {
+        if (playerRoot == null || agent == null || !agent.isActiveAndEnabled) return false;
+        YQNpcVoice voice = YQNpcVoice.Resolve(agent.gameObject);
+        return YQVoiceRouteRules.CanHear((agent.transform.position - playerRoot.position).sqrMagnitude,
+            voice != null ? voice.hearingRadius : defaultHearingRadius, true);
+    }
+
+    private void RetireLiveVoice()
+    {
+        // note: Retiring hearing also releases the agent's pending turn so a muted/cancelled request cannot strand it as thinking.
+        if (_liveReplyAgent != null) _liveReplyAgent.CancelPendingTurn();
+        _liveEpoch++;
+        _liveWaiting = false;
+        _liveReplyAgent = null;
+        _hearingTarget = null;
+        _nextHearingScan = 0f;
+    }
+
+    private bool IsCurrentVoiceTurn(int epoch, NpcDialogueAgent agent)
+    {
+        return _open && epoch == _dialogueEpoch && agent != null && agent.isActiveAndEnabled &&
+            agent == _activeAgent && ReferenceEquals(_dialoguePlayer, PlayerStateManager.Instance?.state) &&
+            string.Equals(_dialogueNpcId, agent.NpcId, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RetireVoiceTurn()
+    {
+        if (_activeAgent != null) _activeAgent.CancelPendingTurn();
+        _dialogueEpoch++;
+        _displayedOffers = null;
+        RetireLiveVoice();
+        if (_speech != null) _speech.Cancel();
+    }
+
+    private void OnVoiceStatus(string status)
+    {
+        if (voiceMuted) status = "Microphone muted • F2 to unmute";
+        else if (_voiceInferenceBlocked) status = VoiceMemoryBlockedStatus;
+        if (_voiceStatus != null) _voiceStatus.text = Escape(status);
+        if (_voiceBadge != null) _voiceBadge.text = Escape(status);
+    }
+
+    private void OnApplicationFocus(bool focused)
+    {
+        // note: Losing focus cancels recording; it never auto-submits an unattended microphone capture.
+        _voiceFocused = focused;
+        if (!focused)
+        {
+            RetireLiveVoice();
+            if (_speech != null) _speech.Cancel();
+        }
+    }
+
+    private void OnDisable() { if (_open) Close(); else RetireVoiceTurn(); }
+
+    private void OnNpcReply(string npcReply, string turnVoice = null)
     {
         _waitingOnReply = false;
 
@@ -462,12 +747,22 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         {
             PushFallbackTurn("npc", npcReply.Trim());
             _latestText.text = Escape(npcReply.Trim());
+            NpcDialogueAgent speaker = _activeAgent;
+            int epoch = _dialogueEpoch;
+            string identity = _dialogueNpcId;
+            // note: Synthesis/playback retain this exact accepted speaker; despawn, pooling, switching and profile changes retire the audio.
+            if (_voiceFocused) _speech.Speak(npcReply.Trim(), turnVoice ?? YQNpcVoice.ForAgent(speaker), speaker?.LastReplyDelivery,
+                () => _voiceFocused && IsCurrentVoiceTurn(epoch, speaker) && speaker.NpcId == identity);
         }
-        else if (_activeAgent != null && !string.IsNullOrWhiteSpace(_activeAgent.LastNpcLine))
-            _latestText.text = Escape(_activeAgent.LastNpcLine.Trim());
+        else if (_activeAgent != null && !string.IsNullOrWhiteSpace(_activeAgent.LastReplyStatus))
+        {
+            if (_activeAgent.LastReplyGraphicsMemoryUnavailable) PauseLiveVoiceForMemory();
+            _latestText.text = Escape(_activeAgent.LastReplyStatus);
+        }
         else
             _latestText.text = "The NPC studies you in silence.";
 
+        CaptureOfferPresentation();
         RebuildTranscript();
         FocusInput();
     }
@@ -521,7 +816,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
 
     private void FocusInput()
     {
-        if (_inputField == null)
+        if (_inputField == null || (_speech != null && _speech.IsReady))
             return;
 
         StopInputFocusRoutine();
@@ -584,7 +879,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         List<DialogueTurn> turns = BuildMergedTranscript();
         if (turns == null || turns.Count == 0)
         {
-            _transcriptText.text = "<color=#A9BFCE>What would you like to say?</color>";
+            _transcriptText.text = "<color=#A9BFCE>What would you like to say?</color>" + OfferPresentationText();
             RefreshTranscriptLayout();
             return;
         }
@@ -618,7 +913,7 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         if (_waitingOnReply)
             sb.Append("\n\n<color=#A9BFCE>Waiting for a reply...</color>");
 
-        _transcriptText.text = sb.ToString();
+        _transcriptText.text = sb.ToString() + OfferPresentationText();
         RefreshTranscriptLayout();
     }
 
@@ -825,9 +1120,25 @@ public sealed class YQInvestorDialogueUI : MonoBehaviour
         RectTransform inputPanel = CreatePanel(panel, "InputPanel", new Vector2(0.5f, 0f), new Vector2(windowSize.x - 28f, 126f), new Vector2(0f, 14f), new Color(0.08f, 0.095f, 0.12f, 0.99f));
         AddFrame(inputPanel, new Color(0.72f, 0.66f, 0.46f, 0.28f));
 
-        TMP_Text inputHeader = CreateText(inputPanel, "InputHeader", 15f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(18f, -11f), new Vector2(300f, 20f));
-        inputHeader.text = "TYPE YOUR REPLY";
+        TMP_Text inputHeader = CreateText(inputPanel, "InputHeader", 15f, FontStyles.Bold, TextAlignmentOptions.TopLeft, new Vector2(18f, -11f), new Vector2(windowSize.x - 240f, 20f));
+        inputHeader.text = "Live voice • F2 to mute • Typing is optional";
+        _voiceStatus = inputHeader;
         inputHeader.color = new Color32(255, 240, 184, 255);
+        _talkButton = CreateButton(inputPanel, "MuteMic", new Vector2(1f, 1f), new Vector2(-18f, -8f), new Vector2(148f, 26f), voiceMuted ? "Unmute mic" : "Mute mic");
+        _talkButton.onClick.AddListener(ToggleVoiceInput);
+        // note: A non-interactive hearing indicator remains visible during ordinary gameplay without opening or pausing dialogue.
+        GameObject badge = new GameObject("LiveVoiceIndicator", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+        badge.transform.SetParent(transform, false);
+        _voiceCanvas = badge.GetComponent<Canvas>();
+        _voiceCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        _voiceCanvas.sortingOrder = 106;
+        CanvasScaler badgeScaler = badge.GetComponent<CanvasScaler>();
+        badgeScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        badgeScaler.referenceResolution = referenceResolution;
+        _voiceBadge = CreateText(badge.transform, "VoiceStatus", 15f, FontStyles.Normal, TextAlignmentOptions.TopLeft,
+            new Vector2(24f, -105f), new Vector2(700f, 24f));
+        _voiceBadge.raycastTarget = false;
+        _voiceBadge.text = voiceMuted ? "Microphone muted • F2 to unmute" : "Live voice • F2 to mute";
 
         _inputField = CreateInputField(inputPanel, new Vector2(18f, -40f), new Vector2(windowSize.x - 206f, 72f));
         _sendButton = CreateButton(inputPanel, "Send", new Vector2(1f, 1f), new Vector2(-18f, -40f), new Vector2(148f, 72f), "Send");

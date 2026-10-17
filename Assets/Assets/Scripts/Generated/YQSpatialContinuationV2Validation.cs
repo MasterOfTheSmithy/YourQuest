@@ -27,7 +27,184 @@ public static class YQSpatialContinuationValidatorV2
         return ValidateBasic(parent, parent?.acceptedContinuation);
     }
 
+    internal static string BranchIdentity(GeneratedSpatialContinuationV2Record continuation)
+    {
+        // note: Unity's inline field JSON may represent null variant branches like default records. Preserve the saved branch presence alongside that fast full-field snapshot; POI/settlement/camp and optional context semantics cannot alias.
+        if (continuation == null) return "null";
+        if (continuation.locations == null) return "null-locations";
+        var shape = new StringBuilder(continuation.locations.Count * 8);
+        foreach (var location in continuation.locations)
+        {
+            if (location == null) { shape.Append('n'); continue; }
+            shape.Append(location.settlement == null ? '0' : '1');
+            shape.Append(location.encampment == null ? '0' : '1');
+            shape.Append(location.pointOfInterest == null ? '0' : '1');
+            shape.Append(location.physicalContext == null ? '0' : '1');
+            shape.Append(location.compositionLayout == null ? '0' : '1');
+            shape.Append(location.settlement?.proceduralLayout == null ? '0' : '1');
+            shape.Append(location.encampment?.proceduralLayout == null ? '0' : '1');
+            shape.Append('|');
+        }
+        return shape.ToString();
+    }
+
+    private static readonly object ProofLock = new object();
+    private static string latestProof, previousProof;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetProofs()
+    {
+        lock (ProofLock) { latestProof = previousProof = null; }
+    }
+
     public static YQSpatialContinuationBasicValidationResultV2 ValidateBasic(
+        GeneratedSpatialWorldPlanV2Record parent,
+        GeneratedSpatialContinuationV2Record continuation)
+    {
+        // note: Reuse only a complete successful structural/hash gate for byte-identical parent and continuation fields. Return a fresh result so callers cannot mutate the retained proof.
+        if (continuation == null) return new YQSpatialContinuationBasicValidationResultV2();
+        string source;
+        try { source = BasicProofSource(parent, continuation); }
+        catch (Exception) { return ValidateUncached(parent, continuation); }
+        lock (ProofLock)
+        {
+            if (string.Equals(latestProof, source, StringComparison.Ordinal)) return new YQSpatialContinuationBasicValidationResultV2();
+            if (string.Equals(previousProof, source, StringComparison.Ordinal))
+            {
+                var old = latestProof; latestProof = previousProof; previousProof = old;
+                return new YQSpatialContinuationBasicValidationResultV2();
+            }
+        }
+        var result = ValidateUncached(parent, continuation);
+        if (result.IsStructurallyValid && string.Equals(source, BasicProofSource(parent, continuation), StringComparison.Ordinal))
+            lock (ProofLock) { previousProof = latestProof; latestProof = source; }
+        return result;
+    }
+
+
+    private static string BasicProofSource(GeneratedSpatialWorldPlanV2Record parent,
+        GeneratedSpatialContinuationV2Record continuation)
+    {
+        // note: Preserve the original snapshot and branch evaluation order. Only plain callback-free data may share a proof across the unrelated sibling envelope on its parent.
+        string parentJson = JsonUtility.ToJson(parent), continuationJson = JsonUtility.ToJson(continuation);
+        string parentBranches = BranchIdentity(parent?.acceptedContinuation), continuationBranches = BranchIdentity(continuation);
+        if (!CallbackFreeProofGraph(parent, continuation))
+            return parentJson + "|" + continuationJson + "|" + parentBranches + "|" + continuationBranches;
+        return ParentGeometryProofJson(parentJson) + "|" + continuationJson + "|" + continuationBranches;
+    }
+
+    private sealed class ProofReferenceComparer : IEqualityComparer<object>
+    {
+        public new bool Equals(object first, object last) => ReferenceEquals(first, last);
+        public int GetHashCode(object value) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value);
+    }
+
+    private static bool CallbackFreeProofGraph(GeneratedSpatialWorldPlanV2Record parent,
+        GeneratedSpatialContinuationV2Record continuation)
+        => CallbackFreeProofRoots(parent, typeof(GeneratedSpatialWorldPlanV2Record), continuation, typeof(GeneratedSpatialContinuationV2Record));
+
+    private static bool CallbackFreeProofRoots(object parent, Type parentType, object continuation, Type continuationType)
+    {
+        // note: This invocation-local guard refuses callbacks, runtime subtypes, foreign objects and oversized graphs; it does not issue acceptance or retain another proof cache.
+        var pending = new Stack<KeyValuePair<object, Type>>();
+        var visited = new HashSet<object>(new ProofReferenceComparer());
+        var fields = new Dictionary<Type, System.Reflection.FieldInfo[]>();
+        pending.Push(new KeyValuePair<object, Type>(parent, parentType));
+        pending.Push(new KeyValuePair<object, Type>(continuation, continuationType));
+        bool Leaf(Type type) => type.IsPrimitive || type.IsEnum || type == typeof(string) ||
+            type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Quaternion) || type == typeof(Color);
+        while (pending.Count > 0)
+        {
+            var entry = pending.Pop(); object value = entry.Key;
+            if (value == null) continue;
+            Type type = value.GetType();
+            if (type != entry.Value || value is ISerializationCallbackReceiver) return false;
+            if (Leaf(type)) continue;
+            if (visited.Count >= 65536) return false;
+            if (!visited.Add(value)) continue;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                Type element = type.GetGenericArguments()[0];
+                if (!Leaf(element)) foreach (object item in (System.Collections.IList)value)
+                {
+                    if (pending.Count >= 65536) return false;
+                    pending.Push(new KeyValuePair<object, Type>(item, element));
+                }
+                continue;
+            }
+            if (type.IsArray)
+            {
+                Type element = type.GetElementType();
+                if (!Leaf(element)) foreach (object item in (Array)value)
+                {
+                    if (pending.Count >= 65536) return false;
+                    pending.Push(new KeyValuePair<object, Type>(item, element));
+                }
+                continue;
+            }
+            // note: Private serialized base fields are not returned by this field walk; conservatively retain the original proof identity for every inherited record type.
+            if (!type.IsValueType && type.BaseType != typeof(object)) return false;
+            if (type.Assembly != typeof(GeneratedSpatialWorldPlanV2Record).Assembly ||
+                typeof(UnityEngine.Object).IsAssignableFrom(type) || !type.IsSerializable) return false;
+            if (!fields.TryGetValue(type, out var members))
+            {
+                members = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                fields.Add(type, members);
+            }
+            foreach (var field in members)
+            {
+                if (field.IsNotSerialized || !field.IsPublic &&
+                    !field.IsDefined(typeof(SerializeField), false) && !field.IsDefined(typeof(SerializeReference), false)) continue;
+                if (!Leaf(field.FieldType))
+                {
+                    if (pending.Count >= 65536) return false;
+                    pending.Push(new KeyValuePair<object, Type>(field.GetValue(value), field.FieldType));
+                }
+            }
+        }
+        return true;
+    }
+
+    private static string ParentGeometryProofJson(string source)
+    {
+        // note: Remove only the top-level sibling envelope value from an already captured Unity field document. All parent metadata/geometry and the explicit candidate document remain exact proof inputs.
+        const string key = "\"acceptedContinuation\"";
+        int depth = 0; bool quoted = false, escaped = false;
+        for (int i = 0; i < source.Length; i++)
+        {
+            char c = source[i];
+            if (quoted) { if (escaped) escaped = false; else if (c == '\\') escaped = true; else if (c == '"') quoted = false; continue; }
+            if (c == '"')
+            {
+                if (depth == 1 && i + key.Length <= source.Length && string.CompareOrdinal(source, i, key, 0, key.Length) == 0)
+                {
+                    int start = i + key.Length;
+                    while (start < source.Length && char.IsWhiteSpace(source[start])) start++;
+                    if (start < source.Length && source[start++] == ':')
+                    {
+                        while (start < source.Length && char.IsWhiteSpace(source[start])) start++;
+                        int nested = 0; bool text = false, slash = false;
+                        for (int end = start; end < source.Length; end++)
+                        {
+                            char item = source[end];
+                            if (text) { if (slash) slash = false; else if (item == '\\') slash = true; else if (item == '"') text = false; continue; }
+                            if (item == '"') { text = true; continue; }
+                            if (nested == 0 && (item == ',' || item == '}')) return source.Substring(0, start) + "null" + source.Substring(end);
+                            if (item == '{' || item == '[') nested++;
+                            else if (item == '}' || item == ']') nested--;
+                        }
+                    }
+                }
+                quoted = true;
+            }
+            else if (c == '{' || c == '[') depth++;
+            else if (c == '}' || c == ']') depth--;
+        }
+        return source;
+    }
+
+
+    private static YQSpatialContinuationBasicValidationResultV2 ValidateUncached(
         GeneratedSpatialWorldPlanV2Record parent,
         GeneratedSpatialContinuationV2Record continuation)
     {
@@ -449,35 +626,52 @@ public static class YQSpatialContinuationHasherV2
         parent[property] = new JArray(records);
     }
 
-    private static JToken Canonicalize(JToken token)
+    private static void WriteCanonical(JsonWriter writer, JToken token)
     {
-        // note: Only object properties are reordered recursively; ordered streets, entrances, sectors, cells and parallel ground heights retain their accepted sequence.
+        // note: Render the same ordinal object order directly; array order and primitive Json.NET formatting retain the accepted checksum bytes without a second token tree.
         if (token is JObject obj)
         {
             var properties = new List<JProperty>(obj.Properties());
             properties.Sort((left, right) => string.CompareOrdinal(left.Name, right.Name));
-            var result = new JObject();
-            foreach (JProperty property in properties) result.Add(property.Name, Canonicalize(property.Value));
-            return result;
+            writer.WriteStartObject();
+            foreach (JProperty property in properties)
+            {
+                writer.WritePropertyName(property.Name);
+                WriteCanonical(writer, property.Value);
+            }
+            writer.WriteEndObject();
+            return;
         }
         if (token is JArray array)
         {
-            var result = new JArray();
-            foreach (JToken value in array) result.Add(Canonicalize(value));
-            return result;
+            writer.WriteStartArray();
+            foreach (JToken value in array) WriteCanonical(writer, value);
+            writer.WriteEndArray();
+            return;
         }
-        return token.DeepClone();
+        token.WriteTo(writer);
     }
 
     private static string Hash(JToken token)
     {
-        string canonical = Canonicalize(token).ToString(Formatting.None);
         using (SHA256 algorithm = SHA256.Create())
         {
-            byte[] bytes = algorithm.ComputeHash(Encoding.UTF8.GetBytes(canonical));
-            var result = new StringBuilder(bytes.Length * 2);
-            foreach (byte value in bytes) result.Append(value.ToString("x2", CultureInfo.InvariantCulture));
-            return result.ToString();
+            // note: BOM-free UTF8 with the same replacement fallback feeds SHA256 incrementally, avoiding the canonical string and its whole-document byte copy.
+            using (var stream = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, algorithm,
+                System.Security.Cryptography.CryptoStreamMode.Write))
+            {
+                using (var text = new System.IO.StreamWriter(stream, new UTF8Encoding(false), 4096, true))
+                using (var writer = new JsonTextWriter(text) { Formatting = Formatting.None, CloseOutput = false })
+                {
+                    WriteCanonical(writer, token);
+                    writer.Flush();
+                }
+                stream.FlushFinalBlock();
+                var result = new StringBuilder(algorithm.Hash.Length * 2);
+                foreach (byte value in algorithm.Hash) result.Append(value.ToString("x2", CultureInfo.InvariantCulture));
+                return result.ToString();
+            }
         }
     }
+
 }

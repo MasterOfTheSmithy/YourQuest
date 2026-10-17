@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_sabatons
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Dragonbound_Female.prefab
+    prefab: {fileID: 2324115330255767926, guid: 5e0ffd463f1fca94780a382a88e50ca3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Dragonbound_Male.prefab
+    prefab: {fileID: 272775095951279106, guid: 788c0331ecdecb0489fa651d73024f98, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Eclipse_Female.prefab
+    prefab: {fileID: 8956691991729521923, guid: 7799c972ee68a20499d5d295bad6078e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Eclipse_Male.prefab
+    prefab: {fileID: 6006341946825296303, guid: e91873c3d3e4cf64687991ae69a3fba9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Field_Female.prefab
+    prefab: {fileID: 5074806901112405375, guid: 394f80543db2d6c4f8eb08becaf2ec8b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Field_Male.prefab
+    prefab: {fileID: 70339226532788355, guid: b82aeab0954e04945bbfb3190e7df19d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Lamellar_Female.prefab
+    prefab: {fileID: 7424283266068158934, guid: c2c5966ab0d395d4e84444d40cb859e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Lamellar_Male.prefab
+    prefab: {fileID: 1705818972472890175, guid: b6442649253c5514180ca166c55f30a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Ranger_Female.prefab
+    prefab: {fileID: 1406270757030639152, guid: 32d804e7fba4a8644b3c5ab12a994aa0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Ranger_Male.prefab
+    prefab: {fileID: 7602713679562535585, guid: 1bf90f44c8cbb6143843f1ae4bafec28, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Sentinel_Female.prefab
+    prefab: {fileID: 4668978267952399803, guid: 20280cd765a59334c9e9abaf0400004a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Sentinel_Male.prefab
+    prefab: {fileID: 9076875375428221737, guid: 30050e00d69e92740b5f8a7c9fa62db4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 8161878244041932362, guid: d1947de28a5f6074da45bce5fca02c17, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 853903941228546086, guid: 4fc4435e143da1e45afe876747fe0132, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Traveler_Female.prefab
+    prefab: {fileID: 1265896112302471472, guid: 5b04524421afc574d8253931ac00d58c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Traveler_Male.prefab
+    prefab: {fileID: 3073652717025468943, guid: 21e82c57fb3c7c440b09da6e9088a268, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 8675430993140970799, guid: 463e24acf15d6274c9fc69d3004ab5d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 3452564849750759164, guid: e7682c710c1f0fe4191672e7b734abf1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Field_Male_Parts.prefab
+    prefab: {fileID: 2901492041997605234, guid: 9271335b1ad1daa438cfabc5a7f7995e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Field_Female_Parts.prefab
+    prefab: {fileID: 4487615417767969351, guid: 1047980c2a5f39c4590aeb785b8d9b24, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Ranger_Male_Parts.prefab
+    prefab: {fileID: 19439811319713734, guid: c5e36849aedd19e458967acbc96068e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7116372236478324010, guid: 78f01f2364be31244be825ba1061777a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 1511179694668874212, guid: 06f0d8fd6dab4db48bd227932fe56edb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 1457572107203531572, guid: d820dfbfc1f8f4841a851b824bb79883, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Traveler_Male_Parts.prefab
+    prefab: {fileID: 822596838042769031, guid: d54cdced0787cba42bb265b37bcacddd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Traveler_Female_Parts.prefab
+    prefab: {fileID: 5321599810289311257, guid: 6ad4f7212befe974faf3ebf25f82bdd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 6723061713183184406, guid: 09ae3255755ee174e865859c33b94a07, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 512764708308311609, guid: d2df25fc124240c4e80c9b5558b4d1ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 8356298561091747722, guid: 729b5ff96ce6c004495b9e43129dc023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 7294192437846886291, guid: f95d73053844a0249a6c71654ec5972e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 5692018675985784712, guid: cb6fc34d494c7a94d98a2b07bd5cabb5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 4037378196181716576, guid: 14cffec1ec349034f83e6448291d2087, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 5115211126911499957, guid: 7951869674472d94285437917e493883, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 1845019970005412528, guid: 35aab8fc31845254796e0b151badbd80, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 412098718960302205, guid: e7839558c0f111e4e875dfc8d903d74a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/sabatons/Sabatons_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 301368517584071468, guid: e08b952b19b17d14ea111331f0a87fcd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_creatures_cairnback
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_darkness_affinity_set_v1.prefab
+    prefab: {fileID: 5846611850104292756, guid: c5741d01345fda5449c0ff9e0d97c9cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_earth_affinity_set_v1.prefab
+    prefab: {fileID: 7384788782298200642, guid: d23bf63d3c18a244aa853fb817926234, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_earth_unique_heavy.prefab
+    prefab: {fileID: 4210502158973613230, guid: 10d5e4017ec3366409c3dd8b834bd659, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_fire_affinity_set_v1.prefab
+    prefab: {fileID: 7364360479716661292, guid: 0725b2758c926924b8fc3ebc1f6e5fcc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_frost_affinity_set_v1.prefab
+    prefab: {fileID: 7416102814280338322, guid: 956c0ebda57c17a4ca3c81123db3bb3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_hybrid_affinity_set_v1.prefab
+    prefab: {fileID: 1527347180669405533, guid: a9f15c84cf481c048b0854ae630d3673, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_light_affinity_set_v1.prefab
+    prefab: {fileID: 2933312824393457035, guid: caa6e47a76320c64eb4717df8ea73be8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_nature_affinity_set_v1.prefab
+    prefab: {fileID: 5868420191147206950, guid: b8f2e4410fd6dc04db8f15411ff716e7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Creatures/cairnback/cairnback_neutral_normal_standard.prefab
+    prefab: {fileID: 3684935334117351395, guid: a2f16dad2e11b7447b1aa97bc0856c20, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

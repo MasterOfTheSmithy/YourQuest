@@ -79,6 +79,21 @@ public static class YQSpatialBlueprintValidatorV2
                 terrainIds,
                 halfExtent,
                 result);
+        // note: New drafts must meet the metre-based drainage gate, while reading accepted older versions preserves their stored physical contract and hash.
+        bool basinContract = GeneratedSpatialWorldPlanV2Record.UsesBasinMetadata(record.generationVersion);
+        bool physicalDrainageGate = basinContract || record.validationVersion == GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion;
+        if (basinContract || record.generationVersion == GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedGenerationVersion)
+            ValidateReceivingWatershedCore(hydrology, result, physicalDrainageGate);
+        if (physicalDrainageGate)
+            ValidatePhysicalDrainage(hydrology, result);
+        if (basinContract)
+            ValidateBasinConnectivity(hydrology, result);
+        if (record.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion)
+            ValidateConnectedBasins(hydrology, halfExtent, result);
+        else
+            foreach (var feature in hydrology.Values)
+                if (feature.hasConnectedDomain)
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":connected_domain_requires_topology_12");
         Dictionary<string, YQSiteAnchorV2> sites = ValidateSites(
             blueprint,
             regionIds,
@@ -334,6 +349,332 @@ public static class YQSpatialBlueprintValidatorV2
         }
 
         return features;
+    }
+
+    internal static void ValidateReceivingWatershed(Dictionary<string, YQHydrologyFeatureV2> features,
+        YQSpatialBlueprintValidationResultV2 result)
+    {
+        // note: Retain the existing numeric-verifier boundary for legacy receiving-water contracts.
+        ValidateReceivingWatershedCore(features, result, false);
+    }
+
+    private static void ValidateReceivingWatershedCore(Dictionary<string, YQHydrologyFeatureV2> features,
+        YQSpatialBlueprintValidationResultV2 result, bool physicalDrainageGate)
+    {
+        // note: New drainage networks are directed, downhill and finite. Every channel must physically meet its receiver and terminate in a body of water; old accepted layouts are kept version-pinned.
+        foreach (var entry in features)
+        {
+            var feature = entry.Value;
+            // note: Basic validation records malformed features before topology checks; never dereference their invalid points or throw instead of returning a rejection.
+            if (!HasUsableWaterPoints(feature))
+            { result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_physical_points"); continue; }
+            if (feature.kind != YQHydrologyKindV2.River && feature.kind != YQHydrologyKindV2.Waterfall) continue;
+            if (string.IsNullOrWhiteSpace(feature.sinkHydrologyId) || !features.TryGetValue(feature.sinkHydrologyId, out var sink) ||
+                !HasUsableWaterPoints(sink))
+            { result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":missing_receiver"); continue; }
+            var end = feature.controlPoints[feature.controlPoints.Count - 1];
+            float nearest = float.PositiveInfinity, receiverLevel = 0f, receiverWidth = sink.nominalWidth;
+            for (int i = 0; i < sink.controlPoints.Count; i++)
+            {
+                var first = sink.controlPoints[i]; var second = sink.controlPoints[Mathf.Min(i + 1, sink.controlPoints.Count - 1)];
+                Vector2 a = new Vector2(first.x, first.z), delta = new Vector2(second.x - first.x, second.z - first.z);
+                float t = Mathf.Clamp01(Vector2.Dot(new Vector2(end.x, end.z) - a, delta) / Mathf.Max(.0001f, delta.sqrMagnitude));
+                float distance = Vector2.Distance(new Vector2(end.x, end.z), a + delta * t);
+                if (distance >= nearest) continue;
+                nearest = distance;
+                // note: New area-water joins use the same level plane as physical drainage; older accepted contracts retain their control-point interpretation.
+                receiverLevel = physicalDrainageGate && (sink.kind == YQHydrologyKindV2.Lake ||
+                    sink.kind == YQHydrologyKindV2.Wetland || sink.kind == YQHydrologyKindV2.Coastline)
+                    ? sink.waterLevelNormalized : Mathf.Lerp(first.normalizedElevation, second.normalizedElevation, t);
+                receiverWidth = Mathf.Max(sink.nominalWidth, Mathf.Lerp(first.width, second.width, t));
+            }
+            if (nearest > receiverWidth * .5f + .5f || Mathf.Abs(end.normalizedElevation - receiverLevel) > .005f)
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":disconnected_receiver");
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var current = feature;
+            while (current != null && (current.kind == YQHydrologyKindV2.River || current.kind == YQHydrologyKindV2.Waterfall))
+            {
+                if (!visited.Add(current.hydrologyId)) { result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":drainage_cycle"); break; }
+                if (string.IsNullOrEmpty(current.sinkHydrologyId) || !features.TryGetValue(current.sinkHydrologyId, out current))
+                { result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":no_receiving_body"); break; }
+            }
+            if (current != null && current.kind != YQHydrologyKindV2.River && current.kind != YQHydrologyKindV2.Waterfall &&
+                current.kind != YQHydrologyKindV2.Lake && current.kind != YQHydrologyKindV2.Wetland && current.kind != YQHydrologyKindV2.Coastline)
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":invalid_receiving_body");
+        }
+        // note: Separate channels can join at endpoints, but cannot cross through each other or overlap as independent parallel sheets.
+        var rivers = new List<YQHydrologyFeatureV2>();
+        foreach (var feature in features.Values)
+            if (HasUsableWaterPoints(feature) && feature.kind == YQHydrologyKindV2.River) rivers.Add(feature);
+        for (int firstIndex = 0; firstIndex < rivers.Count; firstIndex++)
+        for (int secondIndex = firstIndex + 1; secondIndex < rivers.Count; secondIndex++)
+        {
+            var first = rivers[firstIndex]; var second = rivers[secondIndex];
+            for (int aIndex = 0; aIndex + 1 < first.controlPoints.Count; aIndex++)
+            for (int bIndex = 0; bIndex + 1 < second.controlPoints.Count; bIndex++)
+            {
+                var ap = first.controlPoints[aIndex]; var aq = first.controlPoints[aIndex + 1];
+                var bp = second.controlPoints[bIndex]; var bq = second.controlPoints[bIndex + 1];
+                Vector2 a = new Vector2(ap.x, ap.z), da = new Vector2(aq.x - ap.x, aq.z - ap.z);
+                Vector2 b = new Vector2(bp.x, bp.z), db = new Vector2(bq.x - bp.x, bq.z - bp.z), offset = b - a;
+                float cross = da.x * db.y - da.y * db.x;
+                if (da.sqrMagnitude < .001f || db.sqrMagnitude < .001f) continue;
+                if (Mathf.Abs(cross) > .0001f)
+                {
+                    float at = (offset.x * db.y - offset.y * db.x) / cross;
+                    float bt = (offset.x * da.y - offset.y * da.x) / cross;
+                    bool firstInterior = at > .001f && at < .999f;
+                    bool secondInterior = bt > .001f && bt < .999f;
+                    if (firstInterior && secondInterior)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, first.hydrologyId + ":unjoined_crossing:" + second.hydrologyId);
+                }
+                else
+                {
+                    Vector2 axis = da.normalized;
+                    float lateral = Mathf.Abs(offset.x * axis.y - offset.y * axis.x);
+                    float start = Vector2.Dot(offset, axis), end = Vector2.Dot(b + db - a, axis);
+                    float overlap = Mathf.Min(da.magnitude, Mathf.Max(start, end)) - Mathf.Max(0f, Mathf.Min(start, end));
+                    float width = Mathf.Max(first.nominalWidth, Mathf.Max(ap.width, aq.width)) + Mathf.Max(second.nominalWidth, Mathf.Max(bp.width, bq.width));
+                    if (lateral < width * .5f && overlap > width)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, first.hydrologyId + ":parallel_overlap:" + second.hydrologyId);
+                }
+            }
+        }
+    }
+
+    internal static void ValidatePhysicalDrainage(Dictionary<string, YQHydrologyFeatureV2> features,
+        YQSpatialBlueprintValidationResultV2 result)
+    {
+        // note: One physical tolerance is expressed in world metres, independent of normalized blueprint elevations.
+        const double elevationToleranceMetres = .01d;
+        double heightMetres = YQGeneratedWorldTerrain.TerrainHeight;
+        foreach (var entry in features)
+        {
+            YQHydrologyFeatureV2 feature = entry.Value;
+            if (!HasUsableWaterPoints(feature))
+            {
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_physical_points");
+                continue;
+            }
+
+            bool channel = feature.kind == YQHydrologyKindV2.River || feature.kind == YQHydrologyKindV2.Waterfall;
+            if (channel)
+            {
+                for (int pointIndex = 1; pointIndex < feature.controlPoints.Count; pointIndex++)
+                {
+                    double riseMetres = ((double)feature.controlPoints[pointIndex].normalizedElevation -
+                        feature.controlPoints[pointIndex - 1].normalizedElevation) * heightMetres;
+                    if (riseMetres > elevationToleranceMetres)
+                        result.Add(YQSpatialBlueprintFailureV2.UphillHydrology, feature.hydrologyId + ":rise_over_1cm:" + pointIndex);
+                }
+                if (features.TryGetValue(feature.sinkHydrologyId ?? string.Empty, out var sink) && HasUsableWaterPoints(sink))
+                {
+                    YQBlueprintPointV2 end = feature.controlPoints[feature.controlPoints.Count - 1];
+                    double receiverLevel = SampleReceivingLevel(sink, end.x, end.z);
+                    double mismatchMetres = Math.Abs(end.normalizedElevation - receiverLevel) * heightMetres;
+                    if (mismatchMetres > elevationToleranceMetres)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":receiver_level_over_1cm");
+                }
+            }
+
+            // note: Follow every declared drainage edge, including lake/wetland outlets. A terminal area body is valid under the existing model; a terminal river is not.
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            YQHydrologyFeatureV2 current = feature;
+            while (current != null)
+            {
+                if (!visited.Add(current.hydrologyId))
+                {
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":drainage_cycle");
+                    break;
+                }
+                if (string.IsNullOrWhiteSpace(current.sinkHydrologyId))
+                {
+                    if (current.kind != YQHydrologyKindV2.Lake && current.kind != YQHydrologyKindV2.Wetland &&
+                        current.kind != YQHydrologyKindV2.Coastline)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":no_receiving_body");
+                    break;
+                }
+                if (!features.TryGetValue(current.sinkHydrologyId, out current) || !HasUsableWaterPoints(current))
+                {
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, feature.hydrologyId + ":missing_receiver");
+                    break;
+                }
+            }
+        }
+    }
+
+    private static void ValidateConnectedBasins(Dictionary<string, YQHydrologyFeatureV2> features, float halfExtent,
+        YQSpatialBlueprintValidationResultV2 result)
+    {
+        // note: Recompute the bounded wet component at acceptance, including containment and shoreline spill agreement; declared triangle lists cannot bypass terrain connectivity.
+        int samples = 0;
+        bool sharedProjection = false, historicalProjection = false;
+        int newProjectionVersion = 0;
+        foreach (var entry in features)
+        {
+            var water = entry.Value;
+            bool area = water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland;
+            if (!area)
+            {
+                if (water.hasConnectedDomain) result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":channel_connected_domain");
+                continue;
+            }
+            int count = water.connectedDomain?.bed?.Count ?? 0;
+            if (count > YQPreparedConnectedBasinV2.MaximumSamples || samples > 65536 - count)
+            { result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":basin_domain_budget_or_bounds"); continue; }
+            if (!water.hasConnectedDomain || !YQPreparedConnectedBasinV2.TryPrepare(water.connectedDomain, water.waterLevelNormalized, out var domain, out _))
+            {
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_connected_domain");
+                continue;
+            }
+            samples += water.connectedDomain.bed.Count;
+            sharedProjection |= domain.Version >= YQPreparedConnectedBasinV2.SharedChannelProjectionVersion;
+            historicalProjection |= domain.Version < YQPreparedConnectedBasinV2.SharedChannelProjectionVersion;
+            // note: Plan-wide channel modes cannot reinterpret an archived basin when a later bank or wet-footprint version is added.
+            if (domain.Version >= YQPreparedConnectedBasinV2.SharedChannelProjectionVersion)
+            {
+                if (newProjectionVersion != 0 && newProjectionVersion != domain.Version)
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, "mixed_connected_projection_versions");
+                newProjectionVersion = domain.Version;
+            }
+            if (samples > 65536 || domain.MinimumX < -halfExtent || domain.MaximumX > halfExtent ||
+                domain.MinimumZ < -halfExtent || domain.MaximumZ > halfExtent)
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":basin_domain_budget_or_bounds");
+            if (water.basin != null && water.basin.hasSpill &&
+                Mathf.Abs(domain.SignedShoreDistance(water.basin.spillPoint.x, water.basin.spillPoint.z)) > .01f)
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":spill_outside_connected_shore");
+            foreach (var incoming in features.Values)
+            {
+                if (incoming.sinkHydrologyId != water.hydrologyId || !HasUsableWaterPoints(incoming)) continue;
+                var end = incoming.controlPoints[incoming.controlPoints.Count - 1];
+                if (domain.SignedShoreDistance(end.x, end.z) > .01f)
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, incoming.hydrologyId + ":outside_connected_receiver");
+            }
+        }
+        // note: The projection version governs all channels in this accepted artifact; a mixed new/historical lake set must not silently change an older basin's streaming behavior.
+        if (sharedProjection && historicalProjection)
+            result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, "mixed_connected_projection_versions");
+    }
+
+    internal static void ValidateBasinConnectivity(Dictionary<string, YQHydrologyFeatureV2> features,
+        YQSpatialBlueprintValidationResultV2 result)
+    {
+        // note: New accepted drainage carries a bounded decreasing order and one catchment identity through channels and open basins; legacy artifacts never acquire inferred metadata on load.
+        foreach (var entry in features)
+        {
+            YQHydrologyFeatureV2 feature = entry.Value;
+            if (!HasUsableWaterPoints(feature)) continue;
+            if (string.IsNullOrWhiteSpace(feature.catchmentId) || feature.drainageOrder < 0 || feature.drainageOrder >= features.Count)
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_catchment_order");
+            bool hasOutlet = !string.IsNullOrWhiteSpace(feature.sinkHydrologyId);
+            if (hasOutlet && features.TryGetValue(feature.sinkHydrologyId, out var sink) && sink != null &&
+                (feature.drainageOrder <= sink.drainageOrder || !string.Equals(feature.catchmentId, sink.catchmentId, StringComparison.Ordinal)))
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":nondecreasing_catchment_edge");
+
+            bool area = feature.kind == YQHydrologyKindV2.Lake || feature.kind == YQHydrologyKindV2.Wetland || feature.kind == YQHydrologyKindV2.Coastline;
+            YQHydrologyBasinV2 basin = feature.basin;
+            if (basin == null || basin.spillPoint == null)
+            {
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":unspecified_basin");
+                continue;
+            }
+            // note: Even inactive spill storage must roundtrip as finite default values; hidden nonfinite geometry cannot enter an accepted hash.
+            YQBlueprintPointV2 storedSpill = basin.spillPoint;
+            if (!IsFinite(storedSpill.x) || !IsFinite(storedSpill.z) || !IsNormalized(storedSpill.normalizedElevation) ||
+                !IsFinite(storedSpill.width) || storedSpill.width < 0f ||
+                (!basin.hasSpill && (storedSpill.x != 0f || storedSpill.z != 0f || storedSpill.normalizedElevation != 0f || storedSpill.width != 0f)))
+                result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_stored_spill");
+            if (!area)
+            {
+                if (basin.disposition != YQBasinDispositionV2.Unspecified || basin.hasSpill ||
+                    basin.closedBalance != YQClosedBasinBalanceV2.Unspecified)
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":channel_basin_metadata");
+                continue;
+            }
+            switch (basin.disposition)
+            {
+                case YQBasinDispositionV2.Open:
+                    if (!hasOutlet || !features.TryGetValue(feature.sinkHydrologyId, out var outlet) || !HasUsableWaterPoints(outlet) ||
+                        (outlet.kind != YQHydrologyKindV2.River && outlet.kind != YQHydrologyKindV2.Waterfall) ||
+                        feature.kind == YQHydrologyKindV2.Coastline || basin.closedBalance != YQClosedBasinBalanceV2.Unspecified)
+                    {
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_open_basin_outlet");
+                        break;
+                    }
+                    ValidateBasinSpill(feature, outlet, result);
+                    break;
+                case YQBasinDispositionV2.Closed:
+                    if (hasOutlet || feature.drainageOrder != 0 || basin.hasSpill || feature.kind == YQHydrologyKindV2.Coastline ||
+                        basin.closedBalance != YQClosedBasinBalanceV2.SeasonalStorageEvaporationAndSeepage)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_closed_basin_balance");
+                    break;
+                case YQBasinDispositionV2.OceanConnected:
+                    if (hasOutlet || feature.drainageOrder != 0 || basin.hasSpill ||
+                        feature.kind != YQHydrologyKindV2.Coastline || basin.closedBalance != YQClosedBasinBalanceV2.Unspecified)
+                        result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":invalid_ocean_sink");
+                    break;
+                default:
+                    result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, entry.Key + ":unspecified_basin");
+                    break;
+            }
+        }
+    }
+
+    private static void ValidateBasinSpill(YQHydrologyFeatureV2 lake, YQHydrologyFeatureV2 outlet,
+        YQSpatialBlueprintValidationResultV2 result)
+    {
+        // note: A spill is a level lip on the actual outgoing channel, not merely a named downstream receiver.
+        YQBlueprintPointV2 spill = lake.basin.spillPoint;
+        if (!lake.basin.hasSpill || spill == null || !IsFinite(spill.x) || !IsFinite(spill.z) || !IsFinite(spill.width) || spill.width < 0f || !IsNormalized(spill.normalizedElevation) ||
+            Math.Abs((double)spill.normalizedElevation - lake.waterLevelNormalized) * YQGeneratedWorldTerrain.TerrainHeight > .01d)
+        {
+            result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, lake.hydrologyId + ":invalid_spill_level");
+            return;
+        }
+        bool connected = false;
+        foreach (YQBlueprintPointV2 point in outlet.controlPoints)
+        {
+            double dx = (double)point.x - spill.x, dz = (double)point.z - spill.z;
+            if (dx * dx + dz * dz <= .0001d &&
+                Math.Abs((double)point.normalizedElevation - spill.normalizedElevation) * YQGeneratedWorldTerrain.TerrainHeight <= .01d)
+                connected = true;
+        }
+        if (!connected)
+            result.Add(YQSpatialBlueprintFailureV2.InvalidHydrology, lake.hydrologyId + ":disconnected_spill");
+    }
+
+    private static bool HasUsableWaterPoints(YQHydrologyFeatureV2 feature)
+    {
+        // note: Structural rejection remains safe even when topology validation is invoked with malformed external records.
+        if (feature == null || string.IsNullOrWhiteSpace(feature.hydrologyId) || feature.controlPoints == null ||
+            feature.controlPoints.Count == 0 || !IsNormalized(feature.waterLevelNormalized)) return false;
+        foreach (YQBlueprintPointV2 point in feature.controlPoints)
+            if (point == null || !IsFinite(point.x) || !IsFinite(point.z) || !IsNormalized(point.normalizedElevation) ||
+                !IsFinite(point.width) || point.width < 0f) return false;
+        return true;
+    }
+
+    private static double SampleReceivingLevel(YQHydrologyFeatureV2 sink, float x, float z)
+    {
+        // note: Area bodies have a fixed accepted water plane; their footprint control points do not define a sloping lake surface.
+        if (sink.kind == YQHydrologyKindV2.Lake || sink.kind == YQHydrologyKindV2.Wetland || sink.kind == YQHydrologyKindV2.Coastline)
+            return sink.waterLevelNormalized;
+        double nearestSquared = double.PositiveInfinity;
+        double elevation = sink.controlPoints[0].normalizedElevation;
+        for (int index = 0; index < sink.controlPoints.Count; index++)
+        {
+            YQBlueprintPointV2 a = sink.controlPoints[index];
+            YQBlueprintPointV2 b = sink.controlPoints[Math.Min(index + 1, sink.controlPoints.Count - 1)];
+            double dx = (double)b.x - a.x, dz = (double)b.z - a.z;
+            double lengthSquared = dx * dx + dz * dz;
+            double t = lengthSquared > 0d ? Math.Max(0d, Math.Min(1d, (((double)x - a.x) * dx + ((double)z - a.z) * dz) / lengthSquared)) : 0d;
+            double offsetX = x - (a.x + dx * t), offsetZ = z - (a.z + dz * t);
+            double distanceSquared = offsetX * offsetX + offsetZ * offsetZ;
+            if (distanceSquared >= nearestSquared) continue;
+            nearestSquared = distanceSquared;
+            elevation = a.normalizedElevation + ((double)b.normalizedElevation - a.normalizedElevation) * t;
+        }
+        return elevation;
     }
 
     private static Dictionary<string, YQSiteAnchorV2> ValidateSites(
@@ -863,7 +1204,8 @@ public static class YQSpatialBlueprintHasherV2
         if (record == null || record.blueprint == null)
             return string.Empty;
         // note: Stream the exact canonical character sequence into FNV so per-cell authority checks avoid building and copying a large temporary string.
-        StableHashWriter writer = new StableHashWriter();
+        StableHashWriter writer = new StableHashWriter(
+            GeneratedSpatialWorldPlanV2Record.UsesBasinMetadata(record.generationVersion));
         Append(writer, record.schemaVersion);
         Append(writer, record.generationVersion);
         Append(writer, record.worldSeed);
@@ -873,7 +1215,9 @@ public static class YQSpatialBlueprintHasherV2
 
         AppendRegions(writer, record.blueprint.regions);
         AppendTerrain(writer, record.blueprint.terrainFields);
-        AppendHydrology(writer, record.blueprint.hydrology);
+        AppendHydrology(writer, record.blueprint.hydrology,
+            GeneratedSpatialWorldPlanV2Record.UsesBasinMetadata(record.generationVersion),
+            record.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion);
         AppendSites(writer, record.blueprint.sites);
         AppendRoutes(writer, record.blueprint.routes);
         AppendRelationships(writer, record.blueprint.relationships);
@@ -926,7 +1270,9 @@ public static class YQSpatialBlueprintHasherV2
 
     private static void AppendHydrology(
         StableHashWriter builder,
-        IReadOnlyList<YQHydrologyFeatureV2> values)
+        IReadOnlyList<YQHydrologyFeatureV2> values,
+        bool includeBasinContract,
+        bool includeConnectedDomain)
     {
         List<YQHydrologyFeatureV2> sorted = SortById(
             values,
@@ -944,6 +1290,42 @@ public static class YQSpatialBlueprintHasherV2
             Append(builder, value.nominalDepth);
             AppendPoints(builder, value.controlPoints);
             AppendStrings(builder, value.tags);
+            if (includeBasinContract)
+            {
+                // note: Include all new drainage decisions only in the new generation contract; old canonical hash character sequences remain byte-for-byte compatible.
+                Append(builder, value.catchmentId);
+                Append(builder, value.drainageOrder);
+                Append(builder, value.basin != null ? 1 : 0);
+                if (value.basin != null)
+                {
+                    Append(builder, (int)value.basin.disposition);
+                    Append(builder, (int)value.basin.closedBalance);
+                    Append(builder, value.basin.hasSpill ? 1 : 0);
+                    Append(builder, value.basin.spillPoint != null ? 1 : 0);
+                    if (value.basin.spillPoint != null)
+                    {
+                        Append(builder, value.basin.spillPoint.x);
+                        Append(builder, value.basin.spillPoint.z);
+                        Append(builder, value.basin.spillPoint.normalizedElevation);
+                        Append(builder, value.basin.spillPoint.width);
+                    }
+                }
+            }
+            if (includeConnectedDomain)
+            {
+                // note: Hash every persisted domain decision only in topology 12; topology 11 keeps its original bit-formatted checksum.
+                Append(builder, value.hasConnectedDomain ? 1 : 0);
+                if (value.hasConnectedDomain && value.connectedDomain != null)
+                {
+                    var domain = value.connectedDomain;
+                    Append(builder, domain.version); Append(builder, domain.resolution); Append(builder, domain.spacing);
+                    Append(builder, domain.minimumX); Append(builder, domain.minimumZ); Append(builder, domain.seedX); Append(builder, domain.seedZ);
+                    Append(builder, domain.bed != null ? domain.bed.Count : -1);
+                    if (domain.bed != null) foreach (float height in domain.bed) Append(builder, height);
+                    Append(builder, domain.wetTriangles != null ? domain.wetTriangles.Count : -1);
+                    if (domain.wetTriangles != null) foreach (int triangle in domain.wetTriangles) Append(builder, triangle);
+                }
+            }
         }
     }
 
@@ -1130,6 +1512,15 @@ public static class YQSpatialBlueprintHasherV2
 
     private static void Append(StableHashWriter builder, float value)
     {
+        // note: New artifacts hash exact float bits, so Mono/CoreCLR formatting choices cannot change accepted identity; older artifacts keep their historical character sequence.
+        if (builder.CanonicalFloatBits)
+        {
+            Span<char> bits = stackalloc char[8];
+            int canonical = value == 0f ? 0 : BitConverter.SingleToInt32Bits(value);
+            canonical.TryFormat(bits, out int length, "X8", CultureInfo.InvariantCulture);
+            Append(builder, bits.Slice(0, length));
+            return;
+        }
         // note: The same round-trip invariant formatter avoids a temporary string on each runtime integrity check.
         Span<char> text = stackalloc char[64];
         if (value.TryFormat(text, out int written, "R", CultureInfo.InvariantCulture))
@@ -1151,6 +1542,12 @@ public static class YQSpatialBlueprintHasherV2
     private sealed class StableHashWriter
     {
         private ulong _hash = 14695981039346656037UL;
+        public bool CanonicalFloatBits { get; }
+
+        public StableHashWriter(bool canonicalFloatBits = false)
+        {
+            CanonicalFloatBits = canonicalFloatBits;
+        }
 
         public void AppendToken(ReadOnlySpan<char> value)
         {

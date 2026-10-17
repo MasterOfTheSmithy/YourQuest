@@ -1,0 +1,21 @@
+{
+  "generatedAtUtc": "2026-10-03T01:01:08.3673245Z",
+  "evidence": "Fresh C# compile against installed Unity/project references; no production runtime claim",
+  "results": [
+    {
+      "assembly": "Assembly-CSharp",
+      "status": "PASS",
+      "sourceCount": 359,
+      "exitCode": 0,
+      "log": "C:\\Users\\Garri\\AppData\\Local\\Temp\\YourQuestContainerCompile-ed9f30285b1748659f768573377277f5\\Assembly-CSharp.log"
+    },
+    {
+      "assembly": "Assembly-CSharp-Editor",
+      "status": "PASS",
+      "sourceCount": 125,
+      "exitCode": 0,
+      "log": "C:\\Users\\Garri\\AppData\\Local\\Temp\\YourQuestContainerCompile-ed9f30285b1748659f768573377277f5\\Assembly-CSharp-Editor.log"
+    }
+  ],
+  "outputFolder": "C:\\Users\\Garri\\AppData\\Local\\Temp\\YourQuestContainerCompile-ed9f30285b1748659f768573377277f5"
+}

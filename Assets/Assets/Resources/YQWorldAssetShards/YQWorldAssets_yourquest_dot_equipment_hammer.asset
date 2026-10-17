@@ -1,0 +1,181 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_hammer
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Drake_Hammer.prefab
+    prefab: {fileID: 7255055031414918046, guid: ebdc15769cc650c4b98180fe1d40c016, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Duelist_Hammer.prefab
+    prefab: {fileID: 2272638898161822685, guid: feb2d6ae821bf994685ed9ce1b1907f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Eclipse_Hammer.prefab
+    prefab: {fileID: 3904353756363859825, guid: 4b7af0891a59f174d9559a224e753966, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Field_Hammer.prefab
+    prefab: {fileID: 4068643455515994064, guid: 27c6d0ddf1747e549846dd40ba743914, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Frontier_Hammer.prefab
+    prefab: {fileID: 4814480502936180882, guid: 393953a481b0fbe40af3ce3f126ece32, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Hammer_Starforged_Orrery.prefab
+    prefab: {fileID: 8661610538927039040, guid: 38a94841d1c11894e975b831da385587, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Hammer_Worldtree_Sovereign.prefab
+    prefab: {fileID: 2810956705380177299, guid: c66ea5b8c490f5148896785d2556833d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Ranger_Hammer.prefab
+    prefab: {fileID: 218059229414465224, guid: 02713d5a87f803a42833d4fe6baf8c82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Sentinel_Hammer.prefab
+    prefab: {fileID: 1013800071198909350, guid: b73ded4a42db27b43a18c403302358dc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_darkness.prefab
+    prefab: {fileID: 3093819028283945585, guid: fdaa9c428eb98f64f9399474b7bedacd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_fire.prefab
+    prefab: {fileID: 8597061604739351636, guid: e3eb05afc6d6621429aab84f97d5fd0b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_forged.prefab
+    prefab: {fileID: 7395639614853780082, guid: ea058e578a0d51348bfd4aed9e7a27a4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_frost.prefab
+    prefab: {fileID: 9024232421095814870, guid: e0614123a2d178444afe3ba3ff024dc4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_light.prefab
+    prefab: {fileID: 1353265165666346659, guid: e4ec3f8795b199f438d253d264d947b8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_grip_organic.prefab
+    prefab: {fileID: 847783766688365297, guid: cbd60775c985a9e4c882df7123280999, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_darkness.prefab
+    prefab: {fileID: 8016608955081197526, guid: 3f4c7d9835de05f4e9d289df699aa3fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_fire.prefab
+    prefab: {fileID: 3364800657883164256, guid: bfefdc75e68cce540b87fe166683bd5c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_forged.prefab
+    prefab: {fileID: 542667006750368965, guid: abb00e583f82a7e4b8e9e85e163b0663, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_frost.prefab
+    prefab: {fileID: 6917918616919955201, guid: 5520f83ff306f394da24f09842a6a48d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_light.prefab
+    prefab: {fileID: 7333119676545563915, guid: ebfc2397c22768d41bd7d325567608d0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_haft_organic.prefab
+    prefab: {fileID: 2149804128144768812, guid: ed5eadb3bf5386a46b2fdb4871d8b79e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_darkness.prefab
+    prefab: {fileID: 8641723553401111933, guid: d10fc88f710408a429486458065abde2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_fire.prefab
+    prefab: {fileID: 6184043328333879906, guid: 70abec7ea8d63c7429e84693a105ce6b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_forged.prefab
+    prefab: {fileID: 4464231359248068771, guid: 6a57020ea39b12a46a52b70fa9dba5d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_frost.prefab
+    prefab: {fileID: 4314290190518174563, guid: 0a1edb45b678dff46a36097b4f66dd49, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_light.prefab
+    prefab: {fileID: 6747049414441474781, guid: 70280879fc36caf4684767c426317e92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_head_organic.prefab
+    prefab: {fileID: 1177917027709394519, guid: aa9f766d76c4ab542a4d917fe3d78ee1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_mixed_dark_light_forged.prefab
+    prefab: {fileID: 5726089816825392754, guid: f1caff1dd424a8f41970fb6aa116d44e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/yqmod1_weapon_hammer_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 651700693598945622, guid: 41daa50014dce704590d4af0585bd3db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Field_Hammer_Parts.prefab
+    prefab: {fileID: 1636002033862920597, guid: 1c14ba16f7dd53249a54f1adebff6d3e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Ranger_Hammer_Parts.prefab
+    prefab: {fileID: 7162157223139883439, guid: 3b80a129c3237f247966fd7e2822f1c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Sentinel_Hammer_Parts.prefab
+    prefab: {fileID: 7903603396907487263, guid: 989c708a27a0a5745a60707d9a24b42b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Duelist_Hammer_Parts.prefab
+    prefab: {fileID: 4677738240748838246, guid: 16894c8e4c7974f44b440043220c0fe4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Frontier_Hammer_Parts.prefab
+    prefab: {fileID: 2772095052234111986, guid: cd56f8029a8001c49af8975430821e44, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Drake_Hammer_Parts.prefab
+    prefab: {fileID: 7809913871173718585, guid: 86345aa27d8ff9448a861ed32886c71f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Eclipse_Hammer_Parts.prefab
+    prefab: {fileID: 3886878853750636221, guid: 1c200f7756eea364fae63427d05d9c23, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Hammer_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 3037609760727310174, guid: d3acc193a02554b429706609799eb78f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/Hammer_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 4547567927496126977, guid: 052c2bbd6758a9346b0e24ea8e5863b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/cairnback_mineral_horn_hammer_haft.prefab
+    prefab: {fileID: 4742326780938857987, guid: 4f4dc14357124554aabc0101a662fdf4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/cairnback_slate_plate_hammer_head.prefab
+    prefab: {fileID: 4786984313419007633, guid: e58bcf73353c9ed4bbfd4a0b0d1d8a5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/hammer/hammer_monster_crafted_assembled.prefab
+    prefab: {fileID: 5419165150443811553, guid: e9f083a3cc97eff47bd77404aeffdf19, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

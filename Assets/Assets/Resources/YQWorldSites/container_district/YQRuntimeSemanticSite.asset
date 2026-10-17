@@ -1,0 +1,271 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: container_district
+  semanticStyleKey: container_district
+  sourceSignature: fnv1a32_3bf459e7
+  topology: 7
+  streamingSite: {fileID: 11400000, guid: d85cb5f672e7d324a8148627c9a57f45, type: 2}
+  sourceInstanceCount: 8839
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_container_district_entrance_01
+    displayName: Container District Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -211.78839, y: 10313.309, z: -138.36433}
+    localBoundsCenter: {x: 0, y: 28.43457, z: 0}
+    localBoundsSize: {x: 314.07898, y: 56.86914, z: 285.04837}
+    sourceInstanceCount: 139
+    authoredBuildingCount: 0
+    authoredDressingCount: 139
+    semanticTags:
+    - authored
+    - entrance
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p0_p0_p00
+    - yq_cell_container_district_p0_p1_p00
+    - yq_cell_container_district_p0_p2_p00
+    - yq_cell_container_district_p1_p0_p00
+    - yq_cell_container_district_p1_p1_p00
+    - yq_cell_container_district_p1_p2_p00
+    - yq_cell_container_district_p2_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_habitation_02
+    displayName: Container District Habitation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -192.89565, y: 10313.793, z: 115.59787}
+    localBoundsCenter: {x: 0, y: 27.298828, z: 0}
+    localBoundsSize: {x: 263.9033, y: 54.597656, z: 313.891}
+    sourceInstanceCount: 119
+    authoredBuildingCount: 0
+    authoredDressingCount: 119
+    semanticTags:
+    - authored
+    - habitation
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p0_p3_p00
+    - yq_cell_container_district_p0_p4_p00
+    - yq_cell_container_district_p1_p3_p00
+    - yq_cell_container_district_p1_p4_p00
+    - yq_cell_container_district_p1_p5_p00
+    - yq_cell_container_district_p2_p4_p00
+    - yq_cell_container_district_p2_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_service_03
+    displayName: Container District Service
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -126.59714, y: 4159.2754, z: -165.97371}
+    localBoundsCenter: {x: 0, y: 3103.058, z: 0}
+    localBoundsSize: {x: 122.63544, y: 6206.116, z: 120.76486}
+    sourceInstanceCount: 23
+    authoredBuildingCount: 0
+    authoredDressingCount: 23
+    semanticTags:
+    - authored
+    - scifisectors
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_industry_04
+    displayName: Container District Industry
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -123.63007, y: 6805.0195, z: 31.547718}
+    localBoundsCenter: {x: 0, y: 1781.752, z: 0}
+    localBoundsSize: {x: 132.49881, y: 3563.504, z: 134.74971}
+    sourceInstanceCount: 47
+    authoredBuildingCount: 0
+    authoredDressingCount: 47
+    semanticTags:
+    - authored
+    - industry
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p2_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_circulation_05
+    displayName: Container District Circulation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -30.818733, y: -2.1728516, z: 37.794983}
+    localBoundsCenter: {x: 0, y: 5185.137, z: 0}
+    localBoundsSize: {x: 120.12767, y: 10370.274, z: 137.33548}
+    sourceInstanceCount: 4602
+    authoredBuildingCount: 0
+    authoredDressingCount: 4602
+    semanticTags:
+    - authored
+    - circulation
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p3_p3_p00
+    - yq_cell_container_district_p3_p3_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_poi_06
+    displayName: Container District Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 25.828499, y: 4995.2637, z: 27.025766}
+    localBoundsCenter: {x: 0, y: 2671.755, z: 0}
+    localBoundsSize: {x: 21.756332, y: 5343.51, z: 42.224297}
+    sourceInstanceCount: 362
+    authoredBuildingCount: 0
+    authoredDressingCount: 362
+    semanticTags:
+    - authored
+    - poi
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p4_p3_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_entrance_07
+    displayName: Container District Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 59.216324, y: 10311.154, z: 181.34288}
+    localBoundsCenter: {x: 0, y: 28.876953, z: 0}
+    localBoundsSize: {x: 322.9259, y: 57.753906, z: 255.14883}
+    sourceInstanceCount: 242
+    authoredBuildingCount: 0
+    authoredDressingCount: 242
+    semanticTags:
+    - authored
+    - entrance
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p3_p4_p00
+    - yq_cell_container_district_p3_p5_p00
+    - yq_cell_container_district_p3_p6_p00
+    - yq_cell_container_district_p4_p4_p00
+    - yq_cell_container_district_p4_p5_p00
+    - yq_cell_container_district_p4_p6_p00
+    - yq_cell_container_district_p5_p5_p00
+    - yq_cell_container_district_p5_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_habitation_08
+    displayName: Container District Habitation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 63.13106, y: 1079.8042, z: -74.17661}
+    localBoundsCenter: {x: 0, y: 4633.4414, z: 0}
+    localBoundsSize: {x: 115.69416, y: 9266.883, z: 115.33113}
+    sourceInstanceCount: 100
+    authoredBuildingCount: 0
+    authoredDressingCount: 100
+    semanticTags:
+    - authored
+    - habitation
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p4_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_service_09
+    displayName: Container District Service
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 93.44859, y: 10310.336, z: -128.39032}
+    localBoundsCenter: {x: 0, y: 29.154297, z: 0}
+    localBoundsSize: {x: 424.69336, y: 58.308594, z: 361.05383}
+    sourceInstanceCount: 500
+    authoredBuildingCount: 0
+    authoredDressingCount: 500
+    semanticTags:
+    - authored
+    - scifisectors
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p2_p0_p00
+    - yq_cell_container_district_p3_p0_p00
+    - yq_cell_container_district_p3_p1_p00
+    - yq_cell_container_district_p3_p2_p00
+    - yq_cell_container_district_p4_p0_p00
+    - yq_cell_container_district_p4_p1_p00
+    - yq_cell_container_district_p5_p0_p00
+    - yq_cell_container_district_p5_p1_p00
+    - yq_cell_container_district_p6_p0_p00
+    - yq_cell_container_district_p6_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_industry_10
+    displayName: Container District Industry
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 71.19794, y: 1466.9775, z: 27.592876}
+    localBoundsCenter: {x: 0, y: 4449.9272, z: 0}
+    localBoundsSize: {x: 125.08618, y: 8899.8545, z: 113.03024}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - industry
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p4_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_container_district_circulation_11
+    displayName: Container District Circulation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 225.38182, y: 10309.135, z: 44.65799}
+    localBoundsCenter: {x: 0, y: 30.615234, z: 0}
+    localBoundsSize: {x: 286.892, y: 61.23047, z: 350.22345}
+    sourceInstanceCount: 205
+    authoredBuildingCount: 0
+    authoredDressingCount: 205
+    semanticTags:
+    - authored
+    - circulation
+    - scifisectors
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_container_district_p5_p2_p00
+    - yq_cell_container_district_p5_p3_p00
+    - yq_cell_container_district_p5_p4_p00
+    - yq_cell_container_district_p6_p2_p00
+    - yq_cell_container_district_p6_p3_p00
+    - yq_cell_container_district_p6_p4_p00
+    - yq_cell_container_district_p6_p5_p00
+    - yq_cell_container_district_p7_p2_p00
+    - yq_cell_container_district_p7_p3_p00
+    cellContractsV2: []

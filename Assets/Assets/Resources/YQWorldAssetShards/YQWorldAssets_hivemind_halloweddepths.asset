@@ -1,0 +1,3113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_halloweddepths
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_GroundCrypt.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallChamber.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallChamber1.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallCrypt.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallCrypt01.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallCrypt1.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Materials/Master/Vertex/Materials/Instances/M_Displace_StoneWallCrypt2.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Candle_low_001.prefab
+    prefab: {fileID: 1030981484, guid: abc00000000015289165920768707141, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Candle_low_001_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_001_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_001_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_001_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_001_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_001_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Candle_low_002.prefab
+    prefab: {fileID: 1030981452, guid: abc00000000017061260499431046206, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Candle_low_002_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_002_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_002_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_002_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_002_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+    - transformPath: SM_Candle_low_002_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ad60872b2714244897047262339c215, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_chain.prefab
+    prefab: {fileID: 1031001456, guid: abc00000000014870723294513304952, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_chain_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_chain_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_chain_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_chain_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_chain_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_chain_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Chain_Chamber_Var_01.prefab
+    prefab: {fileID: 1030975111, guid: abc00000000007430231205096041729, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Chain_Chamber_Var_02.prefab
+    prefab: {fileID: 1030975179, guid: abc00000000016405103027084410234, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Chain_Chamber_Var_03.prefab
+    prefab: {fileID: 1030975253, guid: abc00000000007779746418883714243, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chain_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chain_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Chandelier_base_01.prefab
+    prefab: {fileID: 1031001596, guid: abc00000000011830822639607556070, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chandelier_base_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_base_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_base_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_base_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Chandelier_Chamber_Var_03.prefab
+    prefab: {fileID: 1030975337, guid: abc00000000005820082821506632627, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Chandelier_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4987c36c8fde3304884626afd754f543, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_01.prefab
+    prefab: {fileID: 1030997598, guid: abc00000000016443944622708730434, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_02.prefab
+    prefab: {fileID: 1030997566, guid: abc00000000014348986500626209289, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_03.prefab
+    prefab: {fileID: 1030997534, guid: abc00000000014500817921354051328, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_04.prefab
+    prefab: {fileID: 1030997502, guid: abc00000000009017932534485142855, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_04_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_04_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_04_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_05.prefab
+    prefab: {fileID: 1031023777, guid: abc00000000001697748900531660878, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_05_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_05_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_05_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_06.prefab
+    prefab: {fileID: 1031026959, guid: abc00000000007042922125972612693, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_06_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_06_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_06_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_07.prefab
+    prefab: {fileID: 1031030111, guid: abc00000000011810702872595043468, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_07_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_07_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_07_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Debris_07_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_08.prefab
+    prefab: {fileID: 1031033203, guid: abc00000000009727456147446752595, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_08_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_08_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_08_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_08_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_08_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+    - transformPath: SM_Debris_08_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 63eeb3bd52ac3e84f9e291445d2abc56, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_09.prefab
+    prefab: {fileID: 1031038157, guid: abc00000000010314760648930720074, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_09_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_09_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_09_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_09_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_09_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_09_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_11.prefab
+    prefab: {fileID: 1031036445, guid: abc00000000010663542991065217081, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_11_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_11_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_11_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_11_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_11_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+    - transformPath: SM_Debris_11_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eb134ffbd2d93aa408d9ec1d7641cb86, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Debris_12.prefab
+    prefab: {fileID: 1031039659, guid: abc00000000017743323773471723762, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Debris_12_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+    - transformPath: SM_Debris_12_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+    - transformPath: SM_Debris_12_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+    - transformPath: SM_Debris_12_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+    - transformPath: SM_Debris_12_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+    - transformPath: SM_Debris_12_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: be4bf8974a12de74ebedfa6b182ae7aa, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Floor_Chamber_Var_03.prefab
+    prefab: {fileID: 1031002230, guid: abc00000000010007658033164209032, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_A.prefab
+    prefab: {fileID: 1031009461, guid: abc00000000006595051334539448741, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_B.prefab
+    prefab: {fileID: 1031009481, guid: abc00000000002115521984995160350, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_C.prefab
+    prefab: {fileID: 1031009441, guid: abc00000000013476178078290774999, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+    - transformPath: SM_Ivy_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6af5b0a9706b8e45b33ec344b791f5d, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_LightCandle_01.prefab
+    prefab: {fileID: 1030994272, guid: abc00000000011505800162146783022, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_LightCandle_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_LightCandle_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_LightCandle_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_LightCandle_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_LightCandle_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_LightCandle_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Plate_01.prefab
+    prefab: {fileID: 1031006737, guid: abc00000000010042614864576633131, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Plate_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: bc1757cd02bcfb741b2e23341fd3ea2e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_01.prefab
+    prefab: {fileID: 1030978615, guid: abc00000000017391409611913972250, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_02.prefab
+    prefab: {fileID: 1030978644, guid: abc00000000003540144621454288417, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_03.prefab
+    prefab: {fileID: 1030978673, guid: abc00000000002962269744260441944, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_04.prefab
+    prefab: {fileID: 1030978702, guid: abc00000000004277122529924020703, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_04_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_04_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_04_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_05.prefab
+    prefab: {fileID: 1030978731, guid: abc00000000010695359269903697414, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_05_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_05_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_05_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_05_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_05_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_05_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_06.prefab
+    prefab: {fileID: 1030978760, guid: abc00000000017939547642526141549, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_06_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_06_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_06_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_06_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_06_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_06_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Skeleton_07.prefab
+    prefab: {fileID: 1030978789, guid: abc00000000015617971519882108996, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Skeleton_07_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_07_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_07_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_07_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_07_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+    - transformPath: SM_Skeleton_07_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 49ad175847d5bec448a88e77cd441d7e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Book_01.prefab
+    prefab: {fileID: 1030994240, guid: abc00000000018133070227574033656, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Book_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Book_02.prefab
+    prefab: {fileID: 1030994208, guid: abc00000000010822034389069729667, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Book_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Book_03.prefab
+    prefab: {fileID: 1030994176, guid: abc00000000014231415755223591738, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Book_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+    - transformPath: SM_Book_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b5da5eef653ea9a4f914745e373cd856, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Candle_Wall_Crypt_Var_01.prefab
+    prefab: {fileID: 1030974827, guid: abc00000000015380434037590368700, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+    - transformPath: SM_Candle_Wall_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5946ba8d0d4e23e43953da16bef46951, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_Crypt_Var_01.prefab
+    prefab: {fileID: 1030971892, guid: abc00000000014613910419038334354, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_Crypt_Var_02.prefab
+    prefab: {fileID: 1030971963, guid: abc00000000005774694700048118745, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_Crypt_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_Crypt_Var_03.prefab
+    prefab: {fileID: 1030972103, guid: abc00000000006591278345533070288, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_Crypt_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Column_Crypt_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_DetailArc_Crypt_Var_01.prefab
+    prefab: {fileID: 1030976211, guid: abc00000000000953698038446191606, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_DetailArc_Crypt_Var_01_1.prefab
+    prefab: {fileID: 1030976852, guid: abc00000000009788825441835919542, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_DetailArc_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_Detail_Crypt_Var_01.prefab
+    prefab: {fileID: 1030976179, guid: abc00000000000641117063863068632, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Column_Detail_Crypt_Var_01_1.prefab
+    prefab: {fileID: 1031001849, guid: abc00000000012835099969365006444, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+    - transformPath: SM_Column_Detail_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b2e5104ca3afb9949bc4ed0e3b1c0964, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Chamber_Var_01.prefab
+    prefab: {fileID: 1030977784, guid: abc00000000008990795799027839606, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 4de3825bfa23a7f42be9a4a9093e4062, type: 2}
+    - transformPath: SM_Door_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 9a559887849cae648a1624ad9b360d09, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Close_Chamber_Var_01.prefab
+    prefab: {fileID: 1030977632, guid: abc00000000017081170125438177425, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Close_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 09c0c038f46a4344aab73ad3c22bda7b, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Crypt_leftdoor.prefab
+    prefab: {fileID: 1030977465, guid: abc00000000014492641871658308720, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Crypt_leftdoor_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_leftdoor_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_leftdoor_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_leftdoor_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_leftdoor_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_leftdoor_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Crypt_rightdoor.prefab
+    prefab: {fileID: 1030977497, guid: abc00000000001112193952686124491, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Crypt_rightdoor_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_rightdoor_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_rightdoor_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_rightdoor_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_rightdoor_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_rightdoor_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Crypt_Var_basedoor.prefab
+    prefab: {fileID: 1030977529, guid: abc00000000009380487015797545726, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+    - transformPath: SM_Door_Crypt_Var_basedoor_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 59d990a08011a3048ba5c58478127148, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Chamber_Var_01.prefab
+    prefab: {fileID: 1030973286, guid: abc00000000015243473641217801669, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+    - transformPath: SM_Door_Open_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 48ebd60873e786e4ca0fc5e0dd7b1086, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Crypt_Var_01.prefab
+    prefab: {fileID: 1030972726, guid: abc00000000006749589767569928955, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de524707e1b89844b817bd5431ae7b71, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de524707e1b89844b817bd5431ae7b71, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de524707e1b89844b817bd5431ae7b71, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a20c352f281893844b294499e1105285, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: de524707e1b89844b817bd5431ae7b71, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Crypt_Wall_Var_01.prefab
+    prefab: {fileID: 1030977327, guid: abc00000000003225953758029205848, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Crypt_Wall_Var_01_001.prefab
+    prefab: {fileID: 1030977289, guid: abc00000000014247142796450201860, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_001_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 86c8d054e3e6dbc4490f5bf8dbd66072, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Crypt_Wall_Var_01_1.prefab
+    prefab: {fileID: 1030977413, guid: abc00000000010079524676097064428, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Door_Open_Crypt_Wall_Var_01_2.prefab
+    prefab: {fileID: 1031002144, guid: abc00000000007286754337987163815, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Door_Open_Crypt_Wall_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_EagleFern_M_01.prefab
+    prefab: {fileID: 1030979615, guid: abc00000000011039618699719396850, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_M_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_M_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_EagleFern_S_01.prefab
+    prefab: {fileID: 1030979628, guid: abc00000000010867273741362675008, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_EagleFern_S_02.prefab
+    prefab: {fileID: 1030979641, guid: abc00000000009116345104430325707, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_EagleFern_S_04.prefab
+    prefab: {fileID: 1030979654, guid: abc00000000003164213241217702037, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_EagleFern_S_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+    - transformPath: SM_EagleFern_S_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 333a64aee1e22684b8e25d660904cb24, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Floor_Crypt_Var_01.prefab
+    prefab: {fileID: 1030972792, guid: abc00000000016998069128463826084, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b3197c744f4bde24fbfc62a700bd37b9, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Floor_Crypt_Var_02.prefab
+    prefab: {fileID: 1030977752, guid: abc00000000011478911573831575743, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Crypt_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+    - transformPath: SM_Floor_Crypt_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a6a3e4d335a84814183fd610604dedf4, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Floor_Detail_03_Crypt_Var_01.prefab
+    prefab: {fileID: 1030974789, guid: abc00000000012919441793019849644, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+    - transformPath: SM_Floor_Detail_03_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8cd94290a4143b04a851f45d892ba1b2, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_CornerIn.prefab
+    prefab: {fileID: 1030978160, guid: abc00000000015276507614439001856, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_CornerIn_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerIn_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerIn_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerIn_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerIn_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerIn_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_CornerOut.prefab
+    prefab: {fileID: 1030978190, guid: abc00000000012820210404866605095, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_CornerOut_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerOut_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerOut_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerOut_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerOut_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_CornerOut_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_LineBot.prefab
+    prefab: {fileID: 1031009152, guid: abc00000000018274390963154072735, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_LineBot_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineBot_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineBot_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineBot_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineBot_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineBot_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_LineEdge.prefab
+    prefab: {fileID: 1030978220, guid: abc00000000009932084199543458855, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_LineEdge_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineEdge_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineEdge_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineEdge_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineEdge_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineEdge_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_LineGround.prefab
+    prefab: {fileID: 1030978368, guid: abc00000000012048661426076993217, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_LineGround_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineGround_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineGround_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineGround_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineGround_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineGround_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_LineLarge.prefab
+    prefab: {fileID: 1030978398, guid: abc00000000004389438613726249653, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_LineLarge_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineLarge_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineLarge_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineLarge_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineLarge_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineLarge_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_InteriorBush_LineMid.prefab
+    prefab: {fileID: 1030978130, guid: abc00000000012130208399637216374, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_InteriorBush_LineMid_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineMid_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineMid_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineMid_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineMid_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+    - transformPath: SM_InteriorBush_LineMid_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 36a407c1a9b304a49b873e234ec7240c, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_Wall_A.prefab
+    prefab: {fileID: 1031243351, guid: abc00000000009329714256186467492, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_Wall_A_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_A_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_A_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_A_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_A_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_Wall_B.prefab
+    prefab: {fileID: 1031243425, guid: abc00000000003810556701554217151, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_Wall_B_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_B_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_B_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_B_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_B_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_Wall_C.prefab
+    prefab: {fileID: 1031051011, guid: abc00000000011488074467563626598, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_Wall_C_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_C_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_C_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_C_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_C_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Ivy_Wall_D.prefab
+    prefab: {fileID: 1031017095, guid: abc00000000015314708729596623745, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Ivy_Wall_D_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_D_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_D_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_D_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+    - transformPath: SM_Ivy_Wall_D_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6975d683c14337d478df7b2e7d4775b1, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Arc_Crypt_Var_01.prefab
+    prefab: {fileID: 1030972827, guid: abc00000000002186560722663649045, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Arc_Crypt_Var_02.prefab
+    prefab: {fileID: 1030972945, guid: abc00000000010930561437905991182, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Arc_Crypt_Var_03.prefab
+    prefab: {fileID: 1030973039, guid: abc00000000012400560010615646215, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+    - transformPath: SM_Roof_Arc_Crypt_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52b7da7a07c24c349a0609e99c961669, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Center_Chamber_Var_01.prefab
+    prefab: {fileID: 1030973324, guid: abc00000000015072781373726205782, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Center_Chamber_Var_02.prefab
+    prefab: {fileID: 1030973386, guid: abc00000000009955697882282033213, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Center_Chamber_Var_03.prefab
+    prefab: {fileID: 1030973448, guid: abc00000000007422952710283308180, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Center_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Crypt_Var_03.prefab
+    prefab: {fileID: 1030975395, guid: abc00000000011780836390106000460, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Crypt_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ac7b16534af2e2544ae7fb6f9a043363, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Crypt_Var_03_1.prefab
+    prefab: {fileID: 1031002539, guid: abc00000000011857791161331144888, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Crypt_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Crypt_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Left_Chamber_Var_01.prefab
+    prefab: {fileID: 1030973482, guid: abc00000000008710215513975369870, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Left_Chamber_Var_02.prefab
+    prefab: {fileID: 1030973530, guid: abc00000000018412958872442579349, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Left_Chamber_Var_03.prefab
+    prefab: {fileID: 1030973618, guid: abc00000000011352307485319257036, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Left_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Slice_Chamber_Var_01.prefab
+    prefab: {fileID: 1030973666, guid: abc00000000008984918166021745261, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Roof_Slice_Chamber_Var_03.prefab
+    prefab: {fileID: 1030973758, guid: abc00000000013769237127129176031, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Roof_Slice_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Tomb_Crypt_Damage_Var_01.prefab
+    prefab: {fileID: 1030998080, guid: abc00000000004414581284858905262, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Tomb_Crypt_Damage_Var_02.prefab
+    prefab: {fileID: 1030998174, guid: abc00000000014117606118302936757, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Tomb_Crypt_Damage_Var_03.prefab
+    prefab: {fileID: 1030998112, guid: abc00000000007319072651080730476, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Tomb_Crypt_Damage_Var_04.prefab
+    prefab: {fileID: 1030998206, guid: abc00000000007874617836012636267, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+    - transformPath: SM_Tomb_Crypt_Damage_Var_04_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9257e278df380a4439237f8406d61743, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_01_Chamber_Var_01.prefab
+    prefab: {fileID: 1030973790, guid: abc00000000017282293009122932462, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_01_Chamber_Var_02.prefab
+    prefab: {fileID: 1030973852, guid: abc00000000008922214995752165109, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_01_Chamber_Var_03.prefab
+    prefab: {fileID: 1030974655, guid: abc00000000015339166307768253356, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_01_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_02_Chamber_Var_01.prefab
+    prefab: {fileID: 1030974623, guid: abc00000000005933597687542903975, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_02_Chamber_Var_03.prefab
+    prefab: {fileID: 1031002823, guid: abc00000000015524901492875010869, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_02_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_02_Crypt_Var_01.prefab
+    prefab: {fileID: 1030973133, guid: abc00000000002965973262790290825, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_02_Crypt_Var_02.prefab
+    prefab: {fileID: 1030973197, guid: abc00000000005060931384872811970, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_02_Crypt_Var_03.prefab
+    prefab: {fileID: 1030973230, guid: abc00000000001367157521562605579, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_02_Crypt_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Cell_Chamber_Door_Var_01.prefab
+    prefab: {fileID: 1030977961, guid: abc00000000010725057673434894138, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Door_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Cell_Chamber_Var_01.prefab
+    prefab: {fileID: 1030974000, guid: abc00000000013132860514505869477, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Cell_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 4e0c96e170da5974fa83dfac8169f803, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Chamber_Var_01.prefab
+    prefab: {fileID: 1030974128, guid: abc00000000004203440277483171266, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Chamber_Var_02.prefab
+    prefab: {fileID: 1030974285, guid: abc00000000002108482155400650121, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Chamber_Var_03.prefab
+    prefab: {fileID: 1030974437, guid: abc00000000002260313576128492160, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Crypt_Var_01.prefab
+    prefab: {fileID: 1030975741, guid: abc00000000005890274292118291628, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Crypt_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_Crypt_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_Crypt_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_Crypt_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_Crypt_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+    - transformPath: SM_Wall_Crypt_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8ed712a3dc666764da870f8ff2abd4dd, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_Hole_Chamber_Var_03.prefab
+    prefab: {fileID: 1030973914, guid: abc00000000002375123492335073553, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 87759f76983094644a0b2d579b443d88, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_Hole_Chamber_Var_03_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_UP_Chamber_Var_01.prefab
+    prefab: {fileID: 1030974559, guid: abc00000000011277367862595052744, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_01_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_Wall_UP_Chamber_Var_02.prefab
+    prefab: {fileID: 1030974591, guid: abc00000000003110427782593410195, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+    - transformPath: SM_Wall_UP_Chamber_Var_02_LOD5
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c842c773fac17f0439bddd56d4004f16, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_L_01.prefab
+    prefab: {fileID: 1030980164, guid: abc00000000011576836119900817974, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_L_01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+    - transformPath: SM_WildGrass_L_01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5d6b07febabae6a45a5e78f5ded0d5f8, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_M_01.prefab
+    prefab: {fileID: 1031009501, guid: abc00000000016185023768972930501, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_M_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5a7ee977917df85489691ce5afc9995e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_M_02.prefab
+    prefab: {fileID: 1031009507, guid: abc00000000017957118347635269566, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_M_02
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5a7ee977917df85489691ce5afc9995e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_S_01.prefab
+    prefab: {fileID: 1031009513, guid: abc00000000007737752430094090627, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_01
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5a7ee977917df85489691ce5afc9995e, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_S_02.prefab
+    prefab: {fileID: 1030980216, guid: abc00000000015048788268598394616, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_02_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+    - transformPath: SM_WildGrass_S_02_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b26b89bffb3127040b584fd75ee1b18d, type: 2}
+  - assetPath: Assets/HIVEMIND/HallowedDepths/HDRP(Default)/Art/Prefabs/SM_WildGrass_S_03.prefab
+    prefab: {fileID: 1031009519, guid: abc00000000015626663145792241089, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WildGrass_S_03
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5a7ee977917df85489691ce5afc9995e, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

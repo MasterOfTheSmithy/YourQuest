@@ -1,0 +1,179 @@
+{
+  "utc": "2026-10-02T12:29:28.3714238Z",
+  "status": "PARTIAL - current compile and 19-check assisted runtime PASS; ordinary mouse navigation remains unresolved",
+  "changed": [
+    "Alt-only quest banner",
+    "Staged quick reveal and downward scroll expansion; delayed branch fade avoids stacked opening labels",
+    "Active/spell hotbar with Alt-hover accepted-ability picker",
+    "Animated transparent player geometry with authoritative first/third-person label",
+    "Preserved native transparent control hit targets",
+    "Resume consumes its closing-frame pointer input, preventing observed combat click-through",
+    "Portrait copies runtime material property blocks without altering source materials"
+  ],
+  "compilation": {
+    "mode": "Unity compilation and asset checks",
+    "status": "PASS",
+    "unity": "6000.3.2f1",
+    "spriteCount": 28,
+    "owners": [
+      "YQTitleScreenUI",
+      "YQStartupLoadingScreen",
+      "YQOriginQuestionnaireUI",
+      "YourQuestTutorialHud",
+      "YourQuestTutorialMenuUI",
+      "YourQuestPauseMenuUI",
+      "YQInvestorDialogueUI",
+      "YourQuestProgressionOfferUI",
+      "YQProfileMenuUI",
+      "YQLockpickUi"
+    ],
+    "componentCoverage": [
+      "button/nav",
+      "hover/focus/pressed/disabled",
+      "persistent selection",
+      "item portrait",
+      "equipment socket",
+      "inspector",
+      "inventory grid",
+      "scroll/long text",
+      "input field",
+      "dropdown",
+      "toggle",
+      "slider",
+      "status/progress meter",
+      "confirmation/rejection",
+      "input hints",
+      "preferences"
+    ],
+    "assemblyHash": "AB9FCF1BC541ECC61FFF53ED2CABF69B8A27D42D98A0E395A6379B8BF477B5FC",
+    "runtime": "NOT TESTED by this entry point",
+    "physicalHaptics": "NOT TESTED"
+  },
+  "currentRuntime": {
+    "mode": "Production PlaySafe session; harness-assisted synthetic keyboard and native listener invocation",
+    "status": "PASS",
+    "error": null,
+    "checks": [
+      "Alt opens quick UI; cursor unlocked; simulation timescale unchanged",
+      "four native meters; accepted XP ratio; quest name; altitude-relative north-up map; finite discovery atlas; native quest diamond",
+      "hover retains highlight across refresh; native quick-entry identity preserved",
+      "native EventSystem pointer raycast reaches QuickCategory",
+      "quick Skills rows match the current section after deferred-destruction rebuild",
+      "live active/spell hotbar; Alt hover picker; current ability reselect is idempotent; world remains unpaused",
+      "quick category navigation uses production listeners",
+      "quest banner only during Alt; staged quick reveal and completed inert retraction",
+      "Alt-up closes quick UI and restores cursor without pausing",
+      "Escape opens full menu; world timescale zero",
+      "native EventSystem pointer raycast reaches Inventory",
+      "portrait source/view runtime tint equality; 0 tinted renderers compared",
+      "full HUD suppression; player-only transparent portrait; authoritative view mode label",
+      "approved idle advances actual skeletal pose at timescale zero",
+      "visible transparent portrait in both camera modes; mode label follows motor; original camera restored",
+      "inventory grid, 12 slots, skills/classes/titles/quests/stats navigation",
+      "full-menu Resume consumes the closing-frame pointer input after modal release",
+      "System retains existing controls and Resume handoff",
+      "accepted inventory/loadout unchanged"
+    ],
+    "scene": "Assets/Assets/Scenes/YourQuest_PlaySafe.unity",
+    "motionFrames": [
+      {
+        "direction": "open",
+        "reveal": 0.138888881,
+        "frame": 9237,
+        "entryHeight": 84.0
+      },
+      {
+        "direction": "open",
+        "reveal": 0.495516062,
+        "frame": 9241,
+        "entryHeight": 294.341522
+      },
+      {
+        "direction": "close",
+        "reveal": 0.8733856,
+        "frame": 9309,
+        "acceptsPointer": false
+      }
+    ],
+    "restoredReducedMotion": true,
+    "physicalGamepads": 0,
+    "physicalHaptics": "NOT TESTED",
+    "ordinaryMouseFlow": "Separate visible UI witness required",
+    "assemblyHash": "AB9FCF1BC541ECC61FFF53ED2CABF69B8A27D42D98A0E395A6379B8BF477B5FC"
+  },
+  "ordinaryStartup": "Actual Continue click on the selected existing save; production presentation gates completed; no fixture startup bypass",
+  "nativeMouseFlow": {
+    "mode": "Actual desktop mouse; menu entry assisted by editor helpers; quick review supplies synthetic Alt only",
+    "earlierBuild": "2478A665D3D02E723EAC8CCADA258B53ECCA2A8F9FE0344D1EAF4768A8B7AA7E: Inventory and Skills navigation, Roadsalt Cloak selection and Resume observed; Resume triggered active ability and prompted repair",
+    "currentBuild": "AB9FCF1BC541ECC61FFF53ED2CABF69B8A27D42D98A0E395A6379B8BF477B5FC",
+    "confirmed": [
+      "Alt review exposes quest and realtime quick menu",
+      "Native hotbar pointer opens picker",
+      "Current active ability reselect shows confirmation",
+      "75-second review cleanup hides quest, quick branch and picker",
+      "Native full-menu Resume returns to gameplay with no visible attack VFX or cooldown"
+    ],
+    "unresolved": [
+      "Quick Skills clicks showed hover feedback but did not update equipment rows",
+      "Later full-menu item clicks showed hover feedback but did not update the inspector"
+    ],
+    "boundary": "The 19 assisted checks verify raycasts and production listeners separately; they do not establish reliable ordinary mouse category/item selection. Investigate native pointer press/release and refresh lifecycle before declaring full functionality."
+  },
+  "motionFrameEvidence": "Fresh 08:21 local captures on the matching build; inspected two intermediate opening frames. First frame shows root only; second shows separated category labels fading in. Earlier stacked labels prompted the delay repair.",
+  "physicalHaptics": "NOT TESTED - 0 gamepads connected",
+  "alternateAbilitySwap": "NOT VERIFIED - selected save has one compatible active ability and no equipped spell; current-ability reselect is idempotent",
+  "portraitTint": "Copy implemented; current witness compared 0 tinted source renderers, so actual tinted equipment case is NOT VERIFIED",
+  "evidence": [
+    "Docs/UI_Blueglass_Evidence_2026-10-01/quick-opening-1.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/quick-opening-2.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/quick-closing.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/quick-after.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/hotbar-picker-after.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/pause-after.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/pause-inventory-after.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/portrait-first-person.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/portrait-third-person.png"
+  ],
+  "excludedStaleEvidence": [
+    "Docs/UI_Blueglass_Evidence_2026-10-01/quick-skills-after.png"
+  ],
+  "sourceSnapshot": [
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YourQuestTutorialHud.cs",
+      "sha256": "DF4D0FCDD5620CC78421C020D76CE6A292B97FA2C1EF962BED861D2173548C17"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YourQuestTutorialMenuUI.cs",
+      "sha256": "3060EBCC9438D931BA8DBD863B805D0E3437C472A16491176D8B9F2A6AFD5BCF"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YourQuestTutorialMenuUI.Blueglass.cs",
+      "sha256": "2948B4D1CCA7185EDD1E1E343422C7AA0CF62DD521247E2D0F7AF168E5BF343C"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YQBlueglassSurface.cs",
+      "sha256": "999944629462BCE41916A4FC1F7B0B2A251DD9146DA30622E64F97119FCDA08A"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YQBlueglassQuickMenuMotion.cs",
+      "sha256": "2E94D86C23C5F553D7ADD77CCEEF01FC8F4BAB0B2F02E75D4174092F9688DD86"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YQBlueglassAbilityHotbar.cs",
+      "sha256": "15C37D8CE925326F55B7EBF789BBB84EEF97565544D15220CC2C81DEA66E9D38"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YQBlueglassPlayerPortrait.cs",
+      "sha256": "3EE420D60B1AAB5A93679B9ACE5E9EB327B08E71DB5B48F8084BFFBDB8697D5C"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YQBlueglassUiVerification.cs",
+      "sha256": "49875738BBFAEDC357A1C612F2FC3148E67090E50C021669C632BE9B167FEF32"
+    }
+  ],
+  "editorAssemblyHash": "222E61A5131BB10F7C9430058FF1F3D85ADDE41346BC4F0BD385371918207671",
+  "coordination": "Human authorized coordination; exclusive test window used; animation chat explicitly notified that Unity is released in Edit Mode and UI source writes/input have ended",
+  "preparedPatch": "Docs/UI_Blueglass_Refinement_2026-10-01/applied-final-ui.patch - APPLIED; retained historical preparation artifact. Current source snapshot also includes the subsequently verified Resume guard and branch opacity repair.",
+  "preservedContracts": "Existing player, accepted inventory/loadout, paired save ownership, GUIDs and source equipment materials preserved; harness restored reduced-motion preference and original camera mode",
+  "remaining": "Reproduce ordinary quick category/item selection with pointer edges spanning frames on a stable Editor. Physical haptics, switching to a different accepted ability, and actual tinted-equipment comparison still need suitable hardware/save content. Animation chat owns subsequent gait/collider verification."
+}

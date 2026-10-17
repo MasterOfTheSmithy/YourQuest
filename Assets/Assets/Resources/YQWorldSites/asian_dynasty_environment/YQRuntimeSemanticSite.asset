@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: asian_dynasty_environment
+  semanticStyleKey: asian_dynasty
+  sourceSignature: fnv1a32_0158f7c0
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 43481629ba9afd34991e98ade131ba16, type: 2}
+  sourceInstanceCount: 2928
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_asian_dynasty_environment_residential_01
+    displayName: Asian Dynasty Environment Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -62.807014, y: -30.284, z: -64.58762}
+    localBoundsCenter: {x: 0, y: 37.92748, z: 0}
+    localBoundsSize: {x: 104.05427, y: 75.85496, z: 96.856094}
+    sourceInstanceCount: 96
+    authoredBuildingCount: 0
+    authoredDressingCount: 96
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_service_02
+    displayName: Asian Dynasty Environment Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -60.41737, y: -30.284, z: 10.046074}
+    localBoundsCenter: {x: 0, y: 36.70248, z: 0}
+    localBoundsSize: {x: 109.533554, y: 73.40496, z: 109.739876}
+    sourceInstanceCount: 425
+    authoredBuildingCount: 0
+    authoredDressingCount: 425
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_civic_03
+    displayName: Asian Dynasty Environment Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -48.696037, y: 4.5, z: 77.542885}
+    localBoundsCenter: {x: 0, y: 15.529175, z: 0}
+    localBoundsSize: {x: 80.97622, y: 31.05835, z: 72.921036}
+    sourceInstanceCount: 3
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_circulation_04
+    displayName: Asian Dynasty Environment Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 27.301998, y: -30.284, z: 102.14496}
+    localBoundsCenter: {x: 0, y: 36.70248, z: 0}
+    localBoundsSize: {x: 108.2276, y: 73.40496, z: 99.92655}
+    sourceInstanceCount: 128
+    authoredBuildingCount: 0
+    authoredDressingCount: 128
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p1_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_poi_05
+    displayName: Asian Dynasty Environment Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 28.939713, y: -30.284, z: 14.476028}
+    localBoundsCenter: {x: 0, y: 37.92748, z: 0}
+    localBoundsSize: {x: 120.96712, y: 75.85496, z: 117.65259}
+    sourceInstanceCount: 1459
+    authoredBuildingCount: 0
+    authoredDressingCount: 1459
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p1_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_residential_06
+    displayName: Asian Dynasty Environment Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 32.466805, y: -30.284, z: -72.14717}
+    localBoundsCenter: {x: 0, y: 41.178925, z: 0}
+    localBoundsSize: {x: 144.21324, y: 82.35785, z: 111.05718}
+    sourceInstanceCount: 777
+    authoredBuildingCount: 0
+    authoredDressingCount: 777
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p1_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_service_07
+    displayName: Asian Dynasty Environment Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 80.600876, y: 0, z: 13.25507}
+    localBoundsCenter: {x: 0, y: 21.020107, z: 0}
+    localBoundsSize: {x: 38.979088, y: 42.040215, z: 82.273476}
+    sourceInstanceCount: 13
+    authoredBuildingCount: 0
+    authoredDressingCount: 13
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_asian_dynasty_environment_civic_08
+    displayName: Asian Dynasty Environment Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 88.81431, y: 0, z: -53.10192}
+    localBoundsCenter: {x: 0, y: 23.910477, z: 0}
+    localBoundsSize: {x: 52.739655, y: 47.820953, z: 80.85956}
+    sourceInstanceCount: 27
+    authoredBuildingCount: 0
+    authoredDressingCount: 27
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_asian_dynasty_environment_p2_p0_p00
+    cellContractsV2: []

@@ -47,14 +47,36 @@ public static class YQFoundationTerrainContacts
     // note: Floating support is structurally invalid, so the lower tolerance stays at the measured contact epsilon instead of sharing the burial allowance.
     private const float RuntimeTerrainUnderEmbedTolerance = 0.03f;
 
+    public static bool TryGetRuntimeEmbeddingBounds(YQFoundationTerrainContact contact,
+        out float minimum, out float maximum)
+    {
+        minimum = maximum = 0f;
+        // note: Placement proposals and final validation share the existing tolerances; serialized review limits remain unchanged.
+        if (contact == null || !Finite(contact.minimumEmbedDepth) || !Finite(contact.maximumEmbedDepth) ||
+            contact.minimumEmbedDepth < 0f || contact.maximumEmbedDepth < contact.minimumEmbedDepth)
+            return false;
+        minimum = contact.minimumEmbedDepth - RuntimeTerrainUnderEmbedTolerance;
+        maximum = contact.maximumEmbedDepth + RuntimeTerrainOverEmbedTolerance;
+        return Finite(minimum) && Finite(maximum);
+    }
+
     public static bool TryValidate(UnityEngine.Transform cell, UnityEngine.Terrain terrain,
         YQReviewedCellFunctionContractV2 contract, float proposedVerticalDelta, out string failure)
+    {
+        // note: Keep the terrain API and multi-tile lookup unchanged while sharing this exact reviewed contact gate with staged collision ownership.
+        YQTerrainApproachV2.SampleHeight sample = terrain == null ? null :
+            (YQTerrainApproachV2.SampleHeight)((UnityEngine.Vector3 point, out float height) => TrySamplePublishedTerrain(terrain, point, out height));
+        return TryValidate(cell, contract, proposedVerticalDelta, sample, out failure);
+    }
+
+    internal static bool TryValidate(UnityEngine.Transform cell, YQReviewedCellFunctionContractV2 contract,
+        float proposedVerticalDelta, YQTerrainApproachV2.SampleHeight sample, out string failure)
     {
         failure = string.Empty;
         var assembly = contract?.independentAssembly;
         // note: Old authored assemblies retain their existing validation path; they do not acquire version-one certification.
         if (assembly == null || assembly.terrainContactVersion == 0) return true;
-        if (cell == null || terrain == null || assembly.terrainContactVersion != 1 ||
+        if (cell == null || sample == null || assembly.terrainContactVersion != 1 ||
             assembly.reviewState != YQSemanticSiteReviewState.Approved || !assembly.foundationVerified ||
             string.IsNullOrWhiteSpace(contract.sourceSignature) || assembly.sourceSignature != contract.sourceSignature ||
             assembly.terrainContacts == null || assembly.terrainContacts.Count == 0 || assembly.terrainContacts.Count > 256 ||
@@ -67,21 +89,20 @@ public static class YQFoundationTerrainContacts
         {
             // note: Validate before moving the cell so failed support does not partially apply a placement.
             if (contact == null || !Finite(contact.localBottom.x) || !Finite(contact.localBottom.y) || !Finite(contact.localBottom.z) ||
-                !Finite(contact.minimumEmbedDepth) || !Finite(contact.maximumEmbedDepth) || contact.minimumEmbedDepth < 0f ||
-                contact.maximumEmbedDepth < contact.minimumEmbedDepth ||
+                !TryGetRuntimeEmbeddingBounds(contact, out float minimumEmbed, out float maximumEmbed) ||
                 !YQCellDoorBindingsV2.TryResolveUniquePath(cell, contact.supportPath, out _))
             {
                 failure = "Invalid foundation contact geometry or support path.";
                 return false;
             }
             var bottom = cell.TransformPoint(contact.localBottom) + UnityEngine.Vector3.up * proposedVerticalDelta;
-            if (!TrySamplePublishedTerrain(terrain, bottom, out float soil))
+            if (!sample(bottom, out float soil))
             {
                 failure = "Foundation contact has no supported terrain: " + contact.supportPath;
                 return false;
             }
             float embed = soil - bottom.y;
-            if (!Finite(embed) || embed < contact.minimumEmbedDepth - RuntimeTerrainUnderEmbedTolerance || embed > contact.maximumEmbedDepth + RuntimeTerrainOverEmbedTolerance)
+            if (!Finite(embed) || embed < minimumEmbed || embed > maximumEmbed)
             {
                 failure = "Foundation terrain contact outside reviewed embedding range: " + contact.supportPath + " depth=" + embed;
                 return false;

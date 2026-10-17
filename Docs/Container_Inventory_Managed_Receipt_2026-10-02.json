@@ -1,0 +1,72 @@
+{
+  "generatedAtUtc": "2026-10-03T01:01:10.2889372Z",
+  "evidence": "MANAGED compiled production contracts; no Unity scene/asset/runtime execution",
+  "status": "PASS",
+  "results": [
+    {
+      "check": "profile rules and rarity eligibility",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "canonical seed, low/high region and missing context",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "partial stack withdrawal and player deposit conservation",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "strict stack compatibility and 99 stack limit",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "capacity, invalid quantities and stale transaction",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "failure rollback covers items, currency, ledger, counters and revisions",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "access, lock and equipped item rules",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "single equipped corpse item and no repeat loot",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "cross-store identity validation",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "paired disk commit, checksums, reload and streamed-view binding",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "interrupted disk publication retains accepted paired revision",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "commit pointer preparation preserves accepted manifest",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    },
+    {
+      "check": "ordered schema migration preserves accepted canon",
+      "status": "PASS",
+      "detail": "Compiled production contract."
+    }
+  ]
+}

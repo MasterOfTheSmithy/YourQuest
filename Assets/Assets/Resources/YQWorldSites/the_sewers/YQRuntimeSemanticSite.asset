@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: the_sewers
+  semanticStyleKey: the_sewers
+  sourceSignature: fnv1a32_d71279b5
+  topology: 2
+  streamingSite: {fileID: 11400000, guid: f0894317248c4214397582ab3d113898, type: 2}
+  sourceInstanceCount: 5379
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_the_sewers_entrance_01
+    displayName: The Sewers Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -41.57547, y: 1.6751442, z: -64.308815}
+    localBoundsCenter: {x: 0, y: 7.195835, z: 0}
+    localBoundsSize: {x: 37.40316, y: 14.39167, z: 36.815063}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_the_sewers_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_the_sewers_chamber_02
+    displayName: The Sewers Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -39.612144, y: 0, z: -64.48509}
+    localBoundsCenter: {x: 0, y: 9.007931, z: 0}
+    localBoundsSize: {x: 45.528694, y: 18.015862, z: 40.67857}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_the_sewers_p0_p0_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_the_sewers_corridor_03
+    displayName: The Sewers Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -38.86136, y: 1.0779505, z: -66.36681}
+    localBoundsCenter: {x: 0, y: 8.465559, z: 0}
+    localBoundsSize: {x: 46.010468, y: 16.931118, z: 32.905827}
+    sourceInstanceCount: 377
+    authoredBuildingCount: 0
+    authoredDressingCount: 377
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_the_sewers_p0_p0_p02
+    cellContractsV2: []
+  - stableId: yq_semantic_the_sewers_encounter_04
+    displayName: The Sewers Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 60.380756, y: 11.505518, z: 73.73282}
+    localBoundsCenter: {x: 0, y: 0.10369682, z: 0}
+    localBoundsSize: {x: 3.991455, y: 0.20739365, z: 22.183079}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_the_sewers_p1_p2_p00
+    cellContractsV2: []

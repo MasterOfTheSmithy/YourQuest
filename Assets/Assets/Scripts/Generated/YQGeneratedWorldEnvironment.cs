@@ -11,8 +11,12 @@ public static class YQGeneratedWorldEnvironment
 {
 #if UNITY_EDITOR
     // note: Attribute the existing ecology worker to its owner during opt-in binary captures.
-    private static readonly Unity.Profiling.ProfilerMarker BackgroundDetailPayloadMarker =
-        new Unity.Profiling.ProfilerMarker("YQ.R2.Worker.DetailPayload");
+    private static Unity.Profiling.ProfilerMarker BackgroundDetailPayloadMarker => DetailPayloadProfiler.Marker;
+    private static class DetailPayloadProfiler
+    {
+        // note: Immutable road projection does not require native profiler initialization; create the existing marker only when its worker is measured.
+        internal static readonly Unity.Profiling.ProfilerMarker Marker = new Unity.Profiling.ProfilerMarker("YQ.R2.Worker.DetailPayload");
+    }
 #endif
     private struct RequiredEcologyFrameAttribution
     {
@@ -145,6 +149,8 @@ public static class YQGeneratedWorldEnvironment
     private static YQPreparedSpatialMaterializationV2 _cachedPathProjectionPrepared;
     private static GeneratedSpatialWorldPlanV2Record _cachedPathProjectionArtifact;
     private static string _cachedPathProjectionContentHash = string.Empty;
+    // note: A finalized derived bridge route changes presentation paths without changing any accepted artifact/hash.
+    private static int _cachedPathProjectionBridgeRevision;
     private static List<string> _cachedPathProjectionSettlementIds = new List<string>();
     private static List<bool> _cachedPathProjectionHasProceduralLayouts = new List<bool>();
     private static List<LivedPathSegment> _cachedPathProjectionSegments = new List<LivedPathSegment>();
@@ -404,6 +410,30 @@ public static class YQGeneratedWorldEnvironment
     private static readonly List<Material> GeneratedLivedPathMaterials =
         new List<Material>();
 
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoadMethod]
+    private static void RegisterEditorGeometryCleanup()
+    {
+        UnityEditor.EditorApplication.playModeStateChanged -= ReleaseEditorSessionGeometry;
+        UnityEditor.EditorApplication.playModeStateChanged += ReleaseEditorSessionGeometry;
+    }
+
+    private static void ReleaseEditorSessionGeometry(UnityEditor.PlayModeStateChange state)
+    {
+        if (state != UnityEditor.PlayModeStateChange.EnteredEditMode) return;
+        // note: These lists own generated native objects, never imported source assets; finish their lifetime after the Play scene is gone.
+        foreach (Mesh mesh in GeneratedMacroWaterMeshes)
+            if (mesh != null && !UnityEditor.EditorUtility.IsPersistent(mesh)) UnityEngine.Object.DestroyImmediate(mesh);
+        foreach (Mesh mesh in GeneratedLivedPathMeshes)
+            if (mesh != null && !UnityEditor.EditorUtility.IsPersistent(mesh)) UnityEngine.Object.DestroyImmediate(mesh);
+        foreach (Material material in GeneratedLivedPathMaterials)
+            if (material != null && !UnityEditor.EditorUtility.IsPersistent(material)) UnityEngine.Object.DestroyImmediate(material);
+        GeneratedMacroWaterMeshes.Clear();
+        GeneratedLivedPathMeshes.Clear();
+        GeneratedLivedPathMaterials.Clear();
+    }
+#endif
+
     private const float WildernessRadiusMin =
         22f;
 
@@ -451,6 +481,15 @@ public static class YQGeneratedWorldEnvironment
         public int pathLayerIndex = -1;
     }
 
+    // note: Only immutable blueprint water fields are memoized for this raster invocation; live heights and route accumulation remain authoritative per visit.
+    private struct LivedPathRasterWaterSample
+    {
+        public bool initialized;
+        public float connectedBasinSupportMask;
+        public float waterMask;
+        public float waterSurfaceNormalized;
+    }
+
     private sealed class LivedPathSegment
     {
         // note: V2 route identity lets crossing detection continue across control-point segments instead of splitting a bridge at a waypoint.
@@ -468,7 +507,13 @@ public static class YQGeneratedWorldEnvironment
 
         public float curvePhase;
 
+        // note: Tile clipping keeps the original leg's style frame, so adjacent tiles sample the same presentation curve.
+        public bool styled;
+        public Vector2 styleStart, styleEnd;
+
         public bool terraced;
+        // note: Derived native endpoint earthworks use one accepted datum in both origin rasterization and continuation sampling.
+        public float? fixedElevationNormalized;
     }
 
     private sealed class V2PathProjectionTileCacheEntry
@@ -783,6 +828,16 @@ public static class YQGeneratedWorldEnvironment
                 minimumZ = Mathf.Min(minimumZ, point.z);
                 maximumZ = Mathf.Max(maximumZ, point.z);
             }
+            bool connectedArea = plan.spatialPlanV2.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion &&
+                feature.hasConnectedDomain;
+            if (connectedArea)
+            {
+                // note: Final construction repair covers the accepted connected bed/shore, including lobes outside a nominal radius; sampler preparation already validated this persisted grid.
+                var domain = feature.connectedDomain;
+                minimumX = domain.minimumX; minimumZ = domain.minimumZ;
+                maximumX = minimumX + domain.spacing * (domain.resolution - 1);
+                maximumZ = minimumZ + domain.spacing * (domain.resolution - 1);
+            }
             int minimumCellX = Mathf.Clamp(Mathf.FloorToInt((minimumX - padding - terrain.transform.position.x) / data.size.x * (resolution - 1)), 0, resolution - 1);
             int maximumCellX = Mathf.Clamp(Mathf.CeilToInt((maximumX + padding - terrain.transform.position.x) / data.size.x * (resolution - 1)), 0, resolution - 1);
             int minimumCellZ = Mathf.Clamp(Mathf.FloorToInt((minimumZ - padding - terrain.transform.position.z) / data.size.z * (resolution - 1)), 0, resolution - 1);
@@ -802,9 +857,17 @@ public static class YQGeneratedWorldEnvironment
                     }
                     // note: Leave authored road decks intact; bridge-specific channel restoration already handles their underpass geometry.
                     // note: Recut the accepted shoreline transition as well as the deep core so confluences and cave-like banks do not retain a rectangular earth wall.
-                    if (sample.waterMask < .30f || sample.routeMask > .65f)
+                    bool restoreConnectedBed = connectedArea && sample.connectedBasinSupportMask >= .999f;
+                    // note: Current connected lakes retain their accepted bed beneath routes; collidable crossings belong to the existing bridge materializer.
+                    if (!restoreConnectedBed && (sample.waterMask < .30f || sample.routeMask > .65f))
                         continue;
                     float target = Mathf.Clamp01(sample.elevationNormalized);
+                    if (restoreConnectedBed)
+                    {
+                        // note: A shared contour requires restoring both cut and filled shore samples after grading; legacy river repairs retain their existing recut-only behavior and protected footprint exclusions.
+                        if (Mathf.Abs(heights[z, x] - target) > .000001f) { heights[z, x] = target; repaired++; }
+                        continue;
+                    }
                     if (heights[z, x] <= target + .0005f)
                         continue;
                     float strength = Mathf.InverseLerp(.30f, 1f, sample.waterMask);
@@ -848,8 +911,14 @@ public static class YQGeneratedWorldEnvironment
             yield break;
         }
 
-        // note: Restore snapshots remain intact on disk; repair the runtime channel before painting/roads, using the same accepted dimensions as streamed cells.
-        yield return ReconcileRuntimeRiverBedsRoutine(terrain, plan);
+        var bridgePrepared = BuildMacroWaterSet(terrain, plan).preparedV2;
+        if (bridgePrepared != null && YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(bridgePrepared))
+        {
+            // note: Grade the original accepted layout first, restore its wet cores, then freeze only already-traversable shorter replacements before any paint/cache publication.
+            yield return BuildRiverCrossingsRoutine(terrain, plan, registry, BuildLivedPathNetwork(plan, terrain));
+        }
+
+        // note: Painting consumes finalized terrain. River-bank earthworks run before construction grading; applying them here cuts steps back into finished routes.
         List<RegionSurface> surfaces = null;
         YQStartupLoadingScreen.SetGenerationWorkStage(
             "Painting the terrain",
@@ -911,7 +980,7 @@ public static class YQGeneratedWorldEnvironment
         completed?.Invoke(mandatoryRoadsReady);
     }
 
-    private static IEnumerator ReconcileRuntimeRiverBedsRoutine(Terrain terrain, GeneratedWorldPlanRecord plan)
+    internal static IEnumerator ReconcileRuntimeRiverBedsRoutine(Terrain terrain, GeneratedWorldPlanRecord plan)
     {
         if (!YQWorldGenerationArchitecture.UsesV2SpatialRuntimeFor(plan)) yield break;
         if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out var prepared, out string failure))
@@ -934,9 +1003,13 @@ public static class YQGeneratedWorldEnvironment
                 {
                     float worldX = origin.x + x * size.x / (resolution - 1f);
                     float original = strip[z, x];
-                    // note: Restore the shared finite/continued terrain envelope, including smooth overlapping dry banks, before publishing the original terrain.
-                    if (!YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(prepared,
-                        worldX, worldZ, original, size.y, out float carved)) continue;
+                    // note: The origin bank was already graded; restore wet cores there without undoing the dry authored clearing during this later reconciliation pass.
+                    bool originClearing = new Vector2(worldX - 50f, worldZ - 17f).sqrMagnitude < 84f * 84f;
+                    float carved;
+                    bool influenced = originClearing
+                        ? YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterCoreModifiers(prepared, worldX, worldZ, original, size.y, out carved)
+                        : YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterTerrainModifiers(prepared, worldX, worldZ, original, size.y, out carved);
+                    if (!influenced) continue;
                     if (Mathf.Abs(original - carved) <= 0.00001f) continue;
                     strip[z, x] = carved;
                     changed = true;
@@ -966,10 +1039,34 @@ public static class YQGeneratedWorldEnvironment
             yield break;
         }
 
+        // note: Current native routes grade the same dry approaches that the existing shared-bridge owner later publishes; archived layouts retain their original grading.
+        YQPreparedSpatialMaterializationV2 bridgePrepared = null;
+        if (plan.spatialPlanV2?.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion &&
+            YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out bridgePrepared, out _))
+            yield return YQContinuousWorldFeatureMaterializer.PrepareAcceptedBridgeRoutesRoutine(bridgePrepared, terrain);
         List<LivedPathSegment> paths =
             BuildLivedPathNetwork(
                 plan,
                 terrain);
+
+        if (bridgePrepared != null)
+            foreach (var apron in YQContinuousWorldFeatureMaterializer.GetNativeBridgeEndpointApproaches(bridgePrepared))
+            {
+                var route = bridgePrepared.GetRoute(apron.routeIndex);
+                paths.Add(new LivedPathSegment { routeId = route.routeId, start = apron.start, end = apron.end,
+                    halfWidth = route.width * .5f, shoulderWidth = Mathf.Max(1f, route.shoulderWidth),
+                    fixedElevationNormalized = apron.elevationNormalized });
+            }
+
+        if (bridgePrepared != null)
+            YQContinuousWorldFeatureMaterializer.VisitSharedBridgeBankPaths(bridgePrepared, (routeIndex, width, connection) => {
+                // note: Keep the accepted bridge's dry-bank polyline straight and fully inside its published ribbon width.
+                for (int point = 1; point < connection.Count; point++)
+                    paths.Add(new LivedPathSegment { routeId = bridgePrepared.GetRoute(routeIndex).routeId,
+                        start = new Vector2(connection[point - 1].x, connection[point - 1].z),
+                        end = new Vector2(connection[point].x, connection[point].z), halfWidth = width * .5f,
+                        shoulderWidth = 3f });
+            });
 
         if (paths.Count == 0)
             yield break;
@@ -1024,6 +1121,9 @@ public static class YQGeneratedWorldEnvironment
             BuildMacroWaterSet(
                 terrain,
                 plan);
+        // note: Preserve archived road grading while current connected basins keep their native shoreline triangles beneath bridge decks.
+        bool preserveConnectedBasinGeometry = plan.spatialPlanV2 != null &&
+            plan.spatialPlanV2.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion;
         List<LivedPathTerrainReservation> fallbackReservations = null;
 
         if (protectedFootprints == null || protectedFootprints.Count == 0)
@@ -1100,12 +1200,21 @@ public static class YQGeneratedWorldEnvironment
             "Shaping landforms and roads",
             4,
             9,
-            "Rasterizing " + paths.Count + " accepted route spans",
+            "Rasterizing accepted route spans: 0/" + paths.Count,
             0.728f);
         // note: Accumulate overlapping corridors against one source heightmap; a later shoulder must never erase an earlier road centre.
         var roadTargets = new float[resolution, resolution];
         var roadStrengths = new float[resolution, resolution];
         var roadBlends = new float[resolution, resolution];
+        // note: Only finite native apron cores carry a pinned datum through overlap blending and grid relaxation; ordinary and archived paths retain their existing projection.
+        var apronCore = new bool[resolution, resolution];
+        var apronTargets = new float[resolution, resolution];
+        var apronScores = new float[resolution, resolution];
+        // note: Overlapping accepted roads query the same grid vertices. Keep a bounded, invocation-local cache without retaining the full terrain sample or changing sample coordinates.
+        var rasterWaterSamples = macroWater.preparedV2 != null
+            ? new LivedPathRasterWaterSample[resolution, resolution]
+            : null;
+        frameStartedAt = Time.realtimeSinceStartup;
         // note: Unity triangulates the height grid; grade every vertex supporting the walking corridor, including the outer cell diagonal.
         float rasterPadding = new Vector2(terrainSize.x, terrainSize.z).magnitude / (resolution - 1);
         for (int pathIndex = 0;
@@ -1190,6 +1299,18 @@ public static class YQGeneratedWorldEnvironment
                      x <= maximumX;
                      x++)
                 {
+                    // note: Check all visited vertices before any rejection can continue; skipped shore, parcel and shoulder cells still consume the frame budget.
+                    if (Time.realtimeSinceStartup - frameStartedAt >= routeWorkSliceSeconds)
+                    {
+                        YQStartupLoadingScreen.SetGenerationWorkStage(
+                            "Shaping landforms and roads", 4, 9,
+                            "Rasterizing accepted route spans: " + pathIndex + "/" + paths.Count +
+                                "; current span " + (pathIndex + 1) + ", row " + (z - minimumZ + 1) + "/" + (maximumZ - minimumZ + 1),
+                            0.728f);
+                        YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                        yield return null;
+                        frameStartedAt = Time.realtimeSinceStartup;
+                    }
                     float worldX =
                         terrainPosition.x +
                         x /
@@ -1222,6 +1343,46 @@ public static class YQGeneratedWorldEnvironment
                         continue;
                     }
 
+                    bool insideWaterFootprint = pathDistance <= path.halfWidth + path.shoulderWidth + rasterPadding;
+                    LivedPathRasterWaterSample waterSample = default;
+                    if (rasterWaterSamples != null && (preserveConnectedBasinGeometry || insideWaterFootprint))
+                    {
+                        waterSample = rasterWaterSamples[z, x];
+                        if (!waterSample.initialized)
+                        {
+                            YQSpatialTerrainSampleV2 sourceSample = macroWater.preparedV2.SampleTerrain(worldX, worldZ);
+                            waterSample = new LivedPathRasterWaterSample
+                            {
+                                initialized = true,
+                                connectedBasinSupportMask = sourceSample.connectedBasinSupportMask,
+                                waterMask = sourceSample.waterMask,
+                                waterSurfaceNormalized = sourceSample.waterSurfaceNormalized
+                            };
+                            rasterWaterSamples[z, x] = waterSample;
+                        }
+                    }
+                    if (preserveConnectedBasinGeometry && rasterWaterSamples != null &&
+                        waterSample.connectedBasinSupportMask >= .999f)
+                    {
+                        // note: Lake contact triangles include dry shore vertices; grading only the wet core still moves the published water contour.
+                        continue;
+                    }
+                    if (path.fixedElevationNormalized.HasValue && macroWater.preparedV2 != null &&
+                        YQContinuousWorldFeatureAuthority.TryApplyAcceptedWaterCoreModifiers(macroWater.preparedV2,
+                            worldX, worldZ, heights[z, x], terrainSize.y, out _)) continue;
+
+                    if (path.fixedElevationNormalized.HasValue)
+                    {
+                        float core = path.halfWidth + path.shoulderWidth;
+                        float score = pathDistance / core;
+                        if (pathDistance <= core + rasterPadding && (!apronCore[z, x] || score < apronScores[z, x]))
+                        {
+                            // note: Publish the same core-first finite apron datum as the cell owner after all ordinary road targets have blended.
+                            apronCore[z, x] = true; apronScores[z, x] = score;
+                            apronTargets[z, x] = path.fixedElevationNormalized.Value;
+                        }
+                    }
+
                     float targetWorldHeight =
                         SampleLivedPathHeightProfile(
                             pathHeightProfile,
@@ -1239,12 +1400,8 @@ public static class YQGeneratedWorldEnvironment
                             terrainStepRise;
                     }
 
-                    if (macroWater.preparedV2 != null && pathDistance <= path.halfWidth + path.shoulderWidth + rasterPadding)
+                    if (macroWater.preparedV2 != null && insideWaterFootprint)
                     {
-                        YQSpatialTerrainSampleV2 waterSample =
-                            macroWater.preparedV2.SampleTerrain(
-                                worldX,
-                                worldZ);
                         if (waterSample.waterMask >= 0.3f)
                         {
                             targetWorldHeight = Mathf.Max(
@@ -1308,25 +1465,32 @@ public static class YQGeneratedWorldEnvironment
                         dirtyMaximumXByRow[z],
                         x);
 
-                    // note: Yield inside the per-path raster as well as between rows; curved road bounds can span hundreds of cells and otherwise stall before the row boundary is reached.
-                    if (((x + z * resolution) & 63) == 63 &&
-                        Time.realtimeSinceStartup - frameStartedAt >= routeWorkSliceSeconds)
-                    {
-                        // note: A completed raster time slice is real path-repair progress, not an acceptance signal.
-                        YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
-                        yield return null;
-                        frameStartedAt = Time.realtimeSinceStartup;
-                    }
                 }
 
                 if (Time.realtimeSinceStartup - frameStartedAt >= routeWorkSliceSeconds)
                 {
+                    YQStartupLoadingScreen.SetGenerationWorkStage(
+                        "Shaping landforms and roads", 4, 9,
+                        "Rasterizing accepted route spans: " + pathIndex + "/" + paths.Count +
+                            "; current span " + (pathIndex + 1) + ", row " + (z - minimumZ + 1) + "/" + (maximumZ - minimumZ + 1),
+                        0.728f);
                     // note: Even long regional roads grade a few height rows per rendered frame so improved traversal cannot reintroduce a loading-screen hang.
                     // note: A completed road row slice is real path-repair progress, not an acceptance signal.
                     YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
                 }
+            }
+            // note: Span completion is observable even when a small span fits entirely within one frame; this does not certify loading acceptance.
+            if (Time.realtimeSinceStartup - frameStartedAt >= routeWorkSliceSeconds || pathIndex == paths.Count - 1)
+            {
+                YQStartupLoadingScreen.SetGenerationWorkStage(
+                    "Shaping landforms and roads", 4, 9,
+                    "Rasterizing accepted route spans: " + (pathIndex + 1) + "/" + paths.Count,
+                    0.728f);
+                YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
+                yield return null;
+                frameStartedAt = Time.realtimeSinceStartup;
             }
         }
 
@@ -1344,6 +1508,8 @@ public static class YQGeneratedWorldEnvironment
             for (int x = dirtyMinimumXByRow[z]; x <= dirtyMaximumXByRow[z]; x++)
                 if (roadStrengths[z, x] > 0f)
                     heights[z, x] = Mathf.Lerp(heights[z, x], roadTargets[z, x] / roadStrengths[z, x], roadBlends[z, x]);
+            for (int x = dirtyMinimumXByRow[z]; x <= dirtyMaximumXByRow[z]; x++)
+                if (apronCore[z, x]) heights[z, x] = apronTargets[z, x];
             if (z % 16 == 0)
             {
                 // note: A completed blend row slice keeps the repair watchdog aligned with actual work.
@@ -1362,6 +1528,16 @@ public static class YQGeneratedWorldEnvironment
                 fixedRoadGrid[z, x] = IsInsideLivedPathTerrainReservation(protectedFootprints,
                     new Vector2(terrainPosition.x + x * terrainSize.x / (resolution - 1),
                         terrainPosition.z + z * terrainSize.z / (resolution - 1)));
+                if (preserveConnectedBasinGeometry && macroWater.preparedV2 != null &&
+                    macroWater.preparedV2.SampleTerrain(
+                        terrainPosition.x + x * terrainSize.x / (resolution - 1),
+                        terrainPosition.z + z * terrainSize.z / (resolution - 1)).connectedBasinSupportMask >= .999f)
+                {
+                    // note: Adjacent road slope projection may move its dry approach, but cannot move the accepted lake bed or its supporting shore vertices.
+                    fixedRoadGrid[z, x] = true;
+                    continue;
+                }
+                if (apronCore[z, x]) { fixedRoadGrid[z, x] = true; continue; }
                 if (roadBlends[z, x] >= .999f && macroWater.preparedV2 != null)
                 {
                     var sample = macroWater.preparedV2.SampleTerrain(
@@ -1389,7 +1565,9 @@ public static class YQGeneratedWorldEnvironment
             for (int z = 0; z < resolution; z++)
                 for (int x = dirtyMinimumXByRow[z]; x <= dirtyMaximumXByRow[z]; x++)
                 {
-                    if (roadBlends[z, x] < .999f) continue;
+                    // note: Native foundations, shoreline nodes and bridge aprons are immutable sources too; only free road nodes may receive clearance lifts or slope corrections.
+                    if (roadBlends[z, x] < .999f ||
+                        (preserveConnectedBasinGeometry && fixedRoadGrid[z, x])) continue;
                     // note: Alternate height bounds and slope constraints so smoothing cannot sink a dry crossing below its accepted water level.
                     float lift = roadMinimum[z, x] - heights[z, x];
                     if (lift > 0f) { heights[z, x] += lift; residual = Mathf.Max(residual, lift); }
@@ -2427,7 +2605,7 @@ public static class YQGeneratedWorldEnvironment
                         shaped);
             }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Broad mountain silhouettes are authored a few height rows at a time so improved terrain cannot reintroduce a loading-screen hard frame.
                 yield return null;
@@ -2683,12 +2861,8 @@ public static class YQGeneratedWorldEnvironment
                 float normalizedX = Mathf.Clamp01((center.x - origin.x) / data.size.x);
                 float normalizedZ = Mathf.Clamp01((center.y - origin.z) / data.size.z);
                 float terrainY = origin.y + data.GetInterpolatedHeight(normalizedX, normalizedZ);
-                bool submerged = IsSubmergedByMacroWater(
-                    terrain,
-                    plan,
-                    new Vector3(center.x, terrainY, center.y),
-                    0f,
-                    macroWater);
+                bool submerged = IsLivedPathWaterOwned(
+                    terrain, plan, new Vector3(center.x, terrainY, center.y), macroWater);
                 hasWetCrossing |= submerged;
                 // note: Dry samples still require visible lived-path paint; submerged samples are valid only when the physical edge pair resolved and are later represented by an authored bridge.
                 if (!submerged)
@@ -2708,7 +2882,8 @@ public static class YQGeneratedWorldEnvironment
         }
         // note: The terrain renderer publishes every validated road using native layer blending and the same physical ground.
         // note: Crossing analysis must run even when one paint sample was rejected; otherwise a valid bridge candidate is discarded before it can restore route continuity.
-        yield return BuildRiverCrossingsRoutine(terrain,plan,registry,paths);
+        if (macroWater.preparedV2 == null || !YQContinuousWorldFeatureMaterializer.HasFinalizedBridgeLayout(macroWater.preparedV2))
+            yield return BuildRiverCrossingsRoutine(terrain,plan,registry,paths);
         report.roadObjects = report.builtSegments > 0 && terrain.drawHeightmap ? 1 : 0;
         completed?.Invoke(report);
     }
@@ -2718,6 +2893,10 @@ public static class YQGeneratedWorldEnvironment
     {
         var prepared = BuildMacroWaterSet(terrain,plan).preparedV2;
         if (prepared == null) yield break;
+        // note: Native bank meshes must sample the final restored channel; archived layouts retain their original publication order.
+        bool nativeCrossings = YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(prepared);
+        if (!nativeCrossings)
+            yield return YQContinuousWorldFeatureMaterializer.BuildAcceptedOriginCrossingsRoutine(terrain.transform.parent, terrain, prepared, registry);
         var data=terrain.terrainData;
         int resolution=data.heightmapResolution;
         float[,] heights=data.GetHeights(0,0,resolution,resolution);
@@ -2819,13 +2998,7 @@ public static class YQGeneratedWorldEnvironment
                 }
             }
             if(road.Count<2) continue;
-            // note: Build the accepted visual and collision span cooperatively before restoring the concave channel beneath its hidden terrain owner.
-            yield return YQGeneratedRiverBridge.BuildRoutine(
-                terrain.transform.parent,
-                road,
-                span.halfWidth * 2f + 2f,
-                registry);
-            // note: Only after the collidable bridge exists, restore the accepted concave channel under its former earth causeway.
+            // note: Restore the accepted submerged core before native physical crossings sample their bank support.
             float carveSliceStartedAt = Time.realtimeSinceStartup;
             for(int i=0;i<road.Count;i++)
             {
@@ -2857,6 +3030,8 @@ public static class YQGeneratedWorldEnvironment
             yield return null;
         }
         if(carved>0) { data.SetHeights(0,0,heights); Physics.SyncTransforms(); }
+        if (nativeCrossings)
+            yield return YQContinuousWorldFeatureMaterializer.BuildAcceptedOriginCrossingsRoutine(terrain.transform.parent, terrain, prepared, registry);
         Debug.Log("[WORLDGEN BRIDGES] Authored stone spans="+spans.Count+", channel samples restored="+carved);
     }
 
@@ -3244,8 +3419,8 @@ public static class YQGeneratedWorldEnvironment
             SafeName(
                 material.name);
 
-        layer.hideFlags =
-            HideFlags.DontSave;
+        // note: Exclude generated layers from serialization without making their source textures permanently ineligible for unused-asset collection.
+        layer.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
 
         layer.diffuseTexture =
             diffuse;
@@ -3644,22 +3819,16 @@ public static class YQGeneratedWorldEnvironment
                         livedPaths,
                         new Vector2(worldX, worldZ));
 
-                    Vector3 pathSurfacePoint =
-                        new Vector3(
-                            worldX,
-                            terrain.transform.position.y +
-                                data.GetInterpolatedHeight(normalizedX, normalizedZ),
-                            worldZ);
-
-                    if (IsSubmergedByMacroWater(
-                            terrain,
-                            plan,
-                            pathSurfacePoint,
-                            0f,
-                            macroWater))
+                    // note: Water can only erase a visible road weight. Avoid sampling full hydrology for the vast majority of texels outside every road, preserving the exact painted result.
+                    if (livedPathMask > 0.001f)
                     {
-                        // note: Roads stop at real shorelines and resume on raised construction shelves instead of painting a dry stripe across open water.
-                        livedPathMask = 0f;
+                        Vector3 pathSurfacePoint = new Vector3(worldX,
+                            terrainPosition.y + data.GetInterpolatedHeight(normalizedX, normalizedZ), worldZ);
+                        if (IsLivedPathWaterOwned(terrain, plan, pathSurfacePoint, macroWater))
+                        {
+                            // note: Roads stop at real shorelines and resume on raised construction shelves instead of painting a dry stripe across open water.
+                            livedPathMask = 0f;
+                        }
                     }
 
                     if (livedPathMask > 0.001f)
@@ -3701,7 +3870,7 @@ public static class YQGeneratedWorldEnvironment
                 }
             }
 
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 // note: Regional material weighting yields often enough for the Goddess presentation to retain its visual heartbeat.
                 yield return null;
@@ -4380,7 +4549,8 @@ public static class YQGeneratedWorldEnvironment
         YQPreparedSpatialMaterializationV2 prepared)
     {
         if (!ReferenceEquals(_cachedPathProjectionPlan, plan) ||
-            !ReferenceEquals(_cachedPathProjectionPrepared, prepared))
+            !ReferenceEquals(_cachedPathProjectionPrepared, prepared) ||
+            _cachedPathProjectionBridgeRevision != YQContinuousWorldFeatureMaterializer.GetBridgePhysicalRevision(prepared))
             return false;
 
         // note: V2 route projection consults settlements only to suppress duplicate approaches for authored procedural layouts.
@@ -4411,6 +4581,7 @@ public static class YQGeneratedWorldEnvironment
         // note: Store one immutable accepted-world projection and invalidate bounded tile views whenever its authority changes.
         _cachedPathProjectionPlan = plan;
         _cachedPathProjectionPrepared = prepared;
+        _cachedPathProjectionBridgeRevision = YQContinuousWorldFeatureMaterializer.GetBridgePhysicalRevision(prepared);
         _cachedPathProjectionArtifact = plan?.spatialPlanV2;
         _cachedPathProjectionContentHash = _cachedPathProjectionArtifact?.contentHash ?? string.Empty;
         _cachedPathProjectionSegments = worldProjection;
@@ -4482,6 +4653,9 @@ public static class YQGeneratedWorldEnvironment
             shoulderWidth = source.shoulderWidth,
             curveAmplitude = source.curveAmplitude,
             curvePhase = source.curvePhase,
+            styled = source.styled,
+            styleStart = source.styleStart,
+            styleEnd = source.styleEnd,
             terraced = source.terraced
         };
     }
@@ -4581,16 +4755,67 @@ public static class YQGeneratedWorldEnvironment
         return minimumT <= maximumT;
     }
 
+    internal static List<Vector2> GetAcceptedRouteCenterline(YQPreparedSpatialMaterializationV2 prepared, int routeIndex)
+    {
+        // note: Single-route callers retain their independent fresh projection; multi-route callers may own one immutable-query scope.
+        return new AcceptedRouteCenterlineQueries(prepared).GetRoute(routeIndex);
+    }
+
+    internal sealed class AcceptedRouteCenterlineQueries
+    {
+        private readonly YQPreparedSpatialMaterializationV2 prepared;
+        private readonly List<LivedPathSegment> paths = new List<LivedPathSegment>();
+
+        internal AcceptedRouteCenterlineQueries(YQPreparedSpatialMaterializationV2 prepared)
+        {
+            // note: This invocation-local snapshot uses the same exact immutable projection and excludes POI spurs; no terrain, plan, cache or random authority is retained.
+            this.prepared = prepared;
+            BuildV2LivedPathNetwork(paths, prepared, null, null, false, false);
+        }
+
+        internal List<Vector2> GetRoute(int routeIndex)
+        {
+            // note: Preserve original segment order, duplicate station handling, discontinuity rejection and fresh result-list ownership.
+            string id = prepared.GetRoute(routeIndex).routeId;
+            var points = new List<Vector2>();
+            foreach (var path in paths)
+            {
+                if (path.routeId != id) continue;
+                if (points.Count == 0) points.Add(path.start);
+                else if ((points[points.Count - 1] - path.start).sqrMagnitude > .01f)
+                    throw new InvalidOperationException("Accepted road projection is disconnected: " + id);
+                points.Add(path.end);
+            }
+            return points;
+        }
+    }
+
     private static void BuildV2LivedPathNetwork(
         List<LivedPathSegment> paths,
         YQPreparedSpatialMaterializationV2 prepared,
         GeneratedWorldPlanRecord plan,
-        Terrain terrain)
+        Terrain terrain,
+        bool includeSiteApproaches = true, bool includeFinalizedBridgeRoutes = true)
     {
         // note: Cull route segments with the same padded terrain test used by publication instead of allocating a world-wide path list per tile.
         bool hasTerrainBounds = terrain != null && terrain.terrainData != null;
         Vector3 terrainPosition = hasTerrainBounds ? terrain.transform.position : Vector3.zero;
         Vector3 terrainSize = hasTerrainBounds ? terrain.terrainData.size : Vector3.zero;
+        bool nativeRouteProjection = YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(prepared);
+        Vector2? goddessCenter = null;
+        if (nativeRouteProjection)
+        {
+            // note: Native road grading, bridge analysis and traversal use the shrine's same canonical relocated anchor; archived projections retain the preferred origin pose.
+            if (!YQGeneratedWorldLayout.TryResolveDryGoddessSummit(prepared, out Vector3 summit))
+                throw new InvalidOperationException("Accepted native road projection has no dry origin shrine anchor.");
+            goddessCenter = new Vector2(summit.x, summit.z);
+        }
+
+        // note: Resolve the complete original physical projection once, including every reserve detour, before splicing. The nested query opts out and cannot recurse into a finalized layout.
+        AcceptedRouteCenterlineQueries physicalQueries = includeFinalizedBridgeRoutes &&
+            YQContinuousWorldFeatureMaterializer.GetBridgePhysicalRevision(prepared) > 0
+                ? new AcceptedRouteCenterlineQueries(prepared) : null;
+
         // note: Reuse one route-point buffer while streaming cells so reserve filtering adds no per-route garbage.
         List<Vector2> routePoints = new List<Vector2>(4);
         for (int routeIndex = 0;
@@ -4604,8 +4829,19 @@ public static class YQGeneratedWorldEnvironment
                 continue;
 
             bool major = route.routeClass == YQRouteClassV2.PrimaryRoad;
+            if (physicalQueries != null)
+            {
+                // note: Paint, ecology and later raster queries use exact frozen deck/connector geometry. Re-detouring this completed physical route would disconnect its collision owner.
+                routePoints.Clear(); routePoints.AddRange(physicalQueries.GetRoute(routeIndex));
+                YQContinuousWorldFeatureMaterializer.ApplySharedBridgeRoute(prepared, routeIndex, routePoints);
+                for (int point = 1; point < routePoints.Count; point++)
+                    AddV2LivedPathSegmentIfRelevant(paths, route.routeId, routePoints[point - 1], routePoints[point],
+                        Mathf.Max(1f, route.width * .5f), Mathf.Max(route.width * .5f, route.shoulderWidth), major,
+                        hasTerrainBounds, terrainPosition, terrainSize);
+                continue;
+            }
             YQSpatialMaterializationSiteV2 destination = default;
-            bool destinationIsSettlement = TryResolveV2Site(prepared, route.toSiteId, out destination) &&
+            bool destinationIsSettlement = !nativeRouteProjection && TryResolveV2Site(prepared, route.toSiteId, out destination) &&
                 destination.kind == YQSiteKindV2.Settlement;
             bool settlementSkirtAuthored = false;
             routePoints.Clear();
@@ -4614,14 +4850,14 @@ public static class YQGeneratedWorldEnvironment
                 YQSpatialMaterializationRoutePointV2 point =
                     prepared.GetRoutePoint(routeIndex, pointIndex);
                 Vector2 position = new Vector2(point.x, point.z);
-                if (pointIndex == 0)
+                if (!nativeRouteProjection && pointIndex == 0)
                 {
                     position = ResolveV2RouteGate(
                         prepared,
                         route.fromSiteId,
                         position);
                 }
-                else if (pointIndex == pointCount - 1)
+                else if (!nativeRouteProjection && pointIndex == pointCount - 1)
                 {
                     position = ResolveV2RouteGate(
                         prepared,
@@ -4630,9 +4866,17 @@ public static class YQGeneratedWorldEnvironment
                 }
                 routePoints.Add(position);
             }
-            YQGeneratedWorldLayout.FilterOriginLandmarkRouteControlPoints(
-                routePoints,
-                Mathf.Max(1f, route.width * 0.5f));
+            // note: Gate connections stay local to their site. Moving a kilometre-long leg's endpoint moved its entire crossing corridor away from the accepted road earthworks.
+            if (nativeRouteProjection)
+            {
+                ApplyLocalV2RouteGate(prepared, route.fromSiteId, routePoints, false, Mathf.Max(1f, route.width * .5f));
+                ApplyLocalV2RouteGate(prepared, route.toSiteId, routePoints, true, Mathf.Max(1f, route.width * .5f));
+            }
+            if (goddessCenter.HasValue)
+                YQGeneratedWorldLayout.FilterOriginLandmarkRouteControlPoints(routePoints,
+                    YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(Mathf.Max(1f, route.width * .5f)), goddessCenter.Value);
+            else
+                YQGeneratedWorldLayout.FilterOriginLandmarkRouteControlPoints(routePoints, Mathf.Max(1f, route.width * .5f));
             for (int pointIndex = 1;
                  pointIndex < routePoints.Count;
                  pointIndex++)
@@ -4667,18 +4911,20 @@ public static class YQGeneratedWorldEnvironment
                         Vector2 outerB = center + (radial + lateral * side).normalized * skirtRadius;
                         Vector2 skirt = center + lateral * side * skirtRadius;
                         Vector2 gate = ResolveV2RouteGate(prepared, route.toSiteId, end);
-                        AddV2LivedPathLeg(paths, route, start, outerA, major, hasTerrainBounds, terrainPosition, terrainSize);
-                        AddV2LivedPathLeg(paths, route, outerA, outerB, major, hasTerrainBounds, terrainPosition, terrainSize);
-                        AddV2LivedPathLeg(paths, route, outerB, skirt, major, hasTerrainBounds, terrainPosition, terrainSize);
-                        AddV2LivedPathLeg(paths, route, skirt, gate, major, hasTerrainBounds, terrainPosition, terrainSize);
+                        AddV2LivedPathLeg(paths, route, start, outerA, major, hasTerrainBounds, terrainPosition, terrainSize, goddessCenter);
+                        AddV2LivedPathLeg(paths, route, outerA, outerB, major, hasTerrainBounds, terrainPosition, terrainSize, goddessCenter);
+                        AddV2LivedPathLeg(paths, route, outerB, skirt, major, hasTerrainBounds, terrainPosition, terrainSize, goddessCenter);
+                        AddV2LivedPathLeg(paths, route, skirt, gate, major, hasTerrainBounds, terrainPosition, terrainSize, goddessCenter);
                         settlementSkirtAuthored = true;
                     }
                 }
                 if (!settlementSkirtAuthored)
-                    AddV2LivedPathLeg(paths, route, start, end, major, hasTerrainBounds, terrainPosition, terrainSize);
+                    AddV2LivedPathLeg(paths, route, start, end, major, hasTerrainBounds, terrainPosition, terrainSize, goddessCenter);
             }
         }
 
+        // note: Route-only consumers must not append a POI spur carrying its frontage route's identity to the end of that route.
+        if (!includeSiteApproaches) return;
         for (int siteIndex = 0;
              siteIndex < prepared.SiteCount;
              siteIndex++)
@@ -4765,13 +5011,17 @@ public static class YQGeneratedWorldEnvironment
         bool major,
         bool hasTerrainBounds,
         Vector3 terrainPosition,
-        Vector3 terrainSize)
+        Vector3 terrainSize, Vector2? goddessCenter = null)
     {
         // note: Centralize V2 leg dimensions so detoured and straight segments remain visually and physically identical.
         float halfWidth = Mathf.Max(1f, route.width * 0.5f);
         float shoulderWidth = Mathf.Max(route.width * 0.5f, route.shoulderWidth);
-        if (YQGeneratedWorldLayout.TryBuildOriginLandmarkDetour(
-                start, end, halfWidth, out Vector2[] waypoints))
+        Vector2[] waypoints;
+        bool detoured = goddessCenter.HasValue
+            ? YQGeneratedWorldLayout.TryBuildOriginLandmarkDetour(start, end,
+                YQGeneratedWorldLayout.GetNativeOriginTerrainSupportHalfWidth(halfWidth), out waypoints, goddessCenter.Value)
+            : YQGeneratedWorldLayout.TryBuildOriginLandmarkDetour(start, end, halfWidth, out waypoints);
+        if (detoured)
         {
             // note: Route legs detour around the authored shrine reserve instead of allowing a painted trail to pass through its collider.
             Vector2 previous = start;
@@ -4819,6 +5069,9 @@ public static class YQGeneratedWorldEnvironment
             routeId = routeId,
             start = start,
             end = end,
+            styled = true,
+            styleStart = start,
+            styleEnd = end,
             halfWidth = halfWidth,
             shoulderWidth = shoulderWidth,
             curveAmplitude = 0f,
@@ -4870,13 +5123,68 @@ public static class YQGeneratedWorldEnvironment
         }
     }
 
+    private static void ApplyLocalV2RouteGate(YQPreparedSpatialMaterializationV2 prepared,
+        string siteId, List<Vector2> points, bool atEnd, float corridorHalfWidth)
+    {
+        if (points.Count < 2) return;
+        if (atEnd) points.Reverse();
+        try
+        {
+            Vector2 gate = ResolveV2RouteGate(prepared, siteId, points[0]);
+            if ((gate - points[0]).sqrMagnitude < .000001f || !TryResolveV2Site(prepared, siteId, out var site)) return;
+            Vector2 center = new Vector2(site.x, site.z), entrance = gate - center;
+            if (entrance.sqrMagnitude < .000001f) return;
+            // note: The chord of a thirty-degree arc must clear the full road width even for a large accepted reserve; small-site connector positions remain unchanged.
+            float chordRadius = (site.reservedRadius + corridorHalfWidth) / Mathf.Cos(Mathf.PI / 12f);
+            float radius = Mathf.Max(Mathf.Max(site.reservedRadius + 40f, chordRadius), entrance.magnitude + 1f);
+            int suffix = -1; Vector2 attach = default;
+            for (int index = 0; index < points.Count; index++)
+            {
+                if ((points[index] - center).sqrMagnitude < radius * radius) continue;
+                suffix = index; attach = points[index];
+                if (index > 0)
+                {
+                    Vector2 a = points[index - 1] - center, delta = points[index] - points[index - 1];
+                    float squared = delta.sqrMagnitude, dot = Vector2.Dot(a, delta);
+                    if (squared > .000001f)
+                    {
+                        float discriminant = Mathf.Max(0f, dot * dot - squared * (a.sqrMagnitude - radius * radius));
+                        float t = Mathf.Clamp01((-dot + Mathf.Sqrt(discriminant)) / squared);
+                        attach = points[index - 1] + delta * t;
+                    }
+                }
+                break;
+            }
+            // note: Short routes entirely within local site approaches retain their prior endpoint connection rather than inventing a distant detour.
+            if (suffix < 0) { points[0] = gate; return; }
+            entrance.Normalize(); Vector2 exit = (attach - center).normalized;
+            float angle = Mathf.Atan2(entrance.x * exit.y - entrance.y * exit.x, Vector2.Dot(entrance, exit));
+            int steps = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(angle) / (Mathf.PI / 6f)));
+            var connected = new List<Vector2>(points.Count + steps + 2) { gate, center + entrance * radius };
+            // note: A bounded arc stays outside the same site reserve as existing settlement skirts; its chord never cuts through the buildings to reach the accepted corridor.
+            for (int step = 1; step <= steps; step++)
+            {
+                float turn = angle * step / steps, cosine = Mathf.Cos(turn), sine = Mathf.Sin(turn);
+                connected.Add(center + new Vector2(entrance.x * cosine - entrance.y * sine,
+                    entrance.x * sine + entrance.y * cosine) * radius);
+            }
+            if ((connected[connected.Count - 1] - attach).sqrMagnitude > .000001f) connected.Add(attach);
+            for (int index = suffix; index < points.Count; index++)
+                if ((connected[connected.Count - 1] - points[index]).sqrMagnitude > .000001f) connected.Add(points[index]);
+            points.Clear(); points.AddRange(connected);
+        }
+        finally { if (atEnd) points.Reverse(); }
+    }
+
     private static Vector2 ResolveV2RouteGate(
         YQPreparedSpatialMaterializationV2 prepared,
         string siteId,
         Vector2 fallback)
     {
         if (!TryResolveV2Site(prepared, siteId, out YQSpatialMaterializationSiteV2 site) ||
-            site.kind == YQSiteKindV2.NaturalFeature)
+            site.kind == YQSiteKindV2.NaturalFeature ||
+            // note: A native origin is an open accepted starting area, not a settlement gate. Offsetting its endpoint by the whole reserve removes accepted river crossings from the graded corridor.
+            (site.kind == YQSiteKindV2.Origin && YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(prepared)))
         {
             return fallback;
         }
@@ -5062,14 +5370,79 @@ public static class YQGeneratedWorldEnvironment
             float effectiveShoulder = Mathf.Max(
                 0.6f,
                 path.shoulderWidth * LivedPathShoulderScale);
+            // note: World-space wear varies the visible core without widening or rerouting the accepted corridor; overlapping routes contribute one maximum mask.
+            float styledWidth = path.halfWidth * LivedPathWidthScale(point);
             float mask = 1f - SmoothThreshold(
-                path.halfWidth,
+                styledWidth * .62f,
                 path.halfWidth + effectiveShoulder,
                 distance);
+            float wear = Mathf.Lerp(.72f, 1f, Mathf.PerlinNoise(point.x * .074f + 29f, point.y * .074f + 83f));
+            mask *= wear;
             strongest = Mathf.Max(strongest, mask);
         }
 
         return strongest;
+    }
+
+    internal static float LivedPathWidthScale(Vector2 point)
+    {
+        // note: A shared procedural variance field is continuous across chunk borders and never consumes a canonical random stream.
+        return Mathf.Lerp(.80f, .98f, Mathf.PerlinNoise(point.x * .027f + 47f, point.y * .027f + 11f));
+    }
+
+    internal static bool TryCountPublishedLivedRoutePaint(GeneratedWorldPlanRecord plan, Terrain terrain,
+        YQPreparedSpatialMaterializationV2 prepared, Vector2Int coordinate, float cellSize, out int routeCount)
+    {
+        routeCount = 0;
+        if (terrain == null || terrain.terrainData == null || prepared == null) return false;
+        var data = terrain.terrainData;
+        var layers = data.terrainLayers;
+        var pathLayers = new List<int>();
+        for (int i = 0; i < layers.Length; i++)
+            if (layers[i] != null && layers[i].name.EndsWith("_LivedPath", StringComparison.Ordinal)) pathLayers.Add(i);
+        if (pathLayers.Count == 0) return false;
+        Vector3 origin = terrain.GetPosition(), size = data.size;
+        float minX = YQContinuousWorldFeatureAuthority.WorldGridOrigin + coordinate.x * cellSize;
+        float minZ = YQContinuousWorldFeatureAuthority.WorldGridOrigin + coordinate.y * cellSize;
+        float maxX = minX + cellSize, maxZ = minZ + cellSize;
+        if (maxX <= origin.x || maxZ <= origin.z || minX >= origin.x + size.x || minZ >= origin.z + size.z) return false;
+        int ax = Mathf.Clamp(Mathf.FloorToInt((minX - origin.x) / size.x * (data.alphamapWidth - 1)), 0, data.alphamapWidth - 1);
+        int az = Mathf.Clamp(Mathf.FloorToInt((minZ - origin.z) / size.z * (data.alphamapHeight - 1)), 0, data.alphamapHeight - 1);
+        int bx = Mathf.Clamp(Mathf.CeilToInt((maxX - origin.x) / size.x * (data.alphamapWidth - 1)), ax, data.alphamapWidth - 1);
+        int bz = Mathf.Clamp(Mathf.CeilToInt((maxZ - origin.z) / size.z * (data.alphamapHeight - 1)), az, data.alphamapHeight - 1);
+        // note: Read only this cell's splat rectangle. Missing or unpainted dry coverage retains the ordinary ribbon fallback and cannot certify an omitted route.
+        float[,,] paint = data.GetAlphamaps(ax, az, bx - ax + 1, bz - az + 1);
+        var painted = new HashSet<string>(StringComparer.Ordinal);
+        var paths = BuildLivedPathNetwork(plan, terrain, prepared);
+        foreach (var path in paths)
+        {
+            if (string.IsNullOrWhiteSpace(path.routeId)) continue;
+            bool inCell = false, dry = false;
+            int samples = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(path.start, path.end) / 4f));
+            for (int s = 0; s <= samples; s++)
+            {
+                Vector2 point = ResolveLivedPathCenter(path, s / (float)samples);
+                if (point.x < minX || point.y < minZ || point.x > maxX || point.y > maxZ) continue;
+                inCell = true;
+                if (prepared.SampleTerrain(point.x, point.y).waterMask > .05f) continue;
+                dry = true;
+                float fx = Mathf.Clamp((point.x - origin.x) / size.x * (data.alphamapWidth - 1) - ax, 0, bx - ax);
+                float fz = Mathf.Clamp((point.y - origin.z) / size.z * (data.alphamapHeight - 1) - az, 0, bz - az);
+                int x = Mathf.FloorToInt(fx), z = Mathf.FloorToInt(fz), x1 = Mathf.Min(x + 1, bx - ax), z1 = Mathf.Min(z + 1, bz - az);
+                float coverage = 0f;
+                foreach (int layer in pathLayers)
+                    coverage += Mathf.Lerp(Mathf.Lerp(paint[z, x, layer], paint[z, x1, layer], fx - x),
+                        Mathf.Lerp(paint[z1, x, layer], paint[z1, x1, layer], fx - x), fz - z);
+                if (coverage < .15f) return false;
+            }
+            if (inCell && dry) painted.Add(path.routeId);
+        }
+        var required = new List<int>();
+        YQContinuousWorldFeatureAuthority.GetAcceptedRouteIndicesForCell(prepared, coordinate, cellSize, required);
+        foreach (int index in required)
+            if (!painted.Contains(prepared.GetRoute(index).routeId)) return false;
+        routeCount = painted.Count;
+        return routeCount > 0;
     }
 
     public static float SmoothThreshold(float minimum, float maximum, float value)
@@ -5169,8 +5542,17 @@ public static class YQGeneratedWorldEnvironment
                 path.curvePhase) *
             path.curveAmplitude;
 
-        return Vector2.Lerp(path.start, path.end, pathT) +
-            perpendicular * curve;
+        Vector2 center = Vector2.Lerp(path.start, path.end, pathT);
+        if (path.styled)
+        {
+            // note: Gentle wear stays inside the accepted half-width and pins actual junction endpoints, while using the original frame after cell clipping.
+            Vector2 reference = path.styleEnd - path.styleStart;
+            float originalT = Mathf.Clamp01(Vector2.Dot(center - path.styleStart, reference) / Mathf.Max(.001f, reference.sqrMagnitude));
+            float phase = Deterministic01((path.routeId ?? string.Empty) + "|surface_wear") * 83f;
+            float wearCurve = Mathf.PerlinNoise(center.x * .043f + phase, center.y * .043f + 19f) - .5f;
+            curve += Mathf.Sin(originalT * Mathf.PI) * wearCurve * Mathf.Min(path.halfWidth * .6f, 1.2f);
+        }
+        return center + perpendicular * curve;
     }
 
     private static float ProjectRoadGridEdge(float[,] heights, float[,] blends, bool[,] fixedGrid,
@@ -5242,6 +5624,12 @@ public static class YQGeneratedWorldEnvironment
                     if (!buckets.TryGetValue(bucket, out var list)) buckets.Add(bucket, list = new List<int>());
                     list.Add(id);
                 }
+                // note: Pin the same finite apron datum used by the cell owner. Existing protected foundations stay authoritative; conflicting real terrain still faces the unchanged final bridge/route gates.
+                if (path.fixedElevationNormalized.HasValue && !IsInsideLivedPathTerrainReservation(reservations, point))
+                {
+                    nodes[id].height = terrainPosition.y + path.fixedElevationNormalized.Value * terrainSize.y;
+                    nodes[id].fixedHeight = true;
+                }
                 samples[i] = id;
                 if (i > 0 && samples[i - 1] != id)
                     edges.Add(new RoadHeightEdge(samples[i - 1], id,
@@ -5266,7 +5654,7 @@ public static class YQGeneratedWorldEnvironment
                 float excess = Mathf.Abs(difference) - edge.rise;
                 // note: Check the batch budget before any skip path so satisfied and immutable edges cannot create one unbounded synchronous pass.
                 if ((edgeIndex & 127) == 127 &&
-                    Time.realtimeSinceStartup - relaxationFrameStartedAt >= 0.0015f)
+                    Time.realtimeSinceStartup - relaxationFrameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: A completed relaxation batch is real profile progress, not a traversability publication.
                     YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
@@ -5874,6 +6262,13 @@ public static class YQGeneratedWorldEnvironment
         Action<int> completed)
     {
         int spawned = 0;
+        bool samplerReady = false;
+        string samplerFailure = string.Empty;
+        // note: An intervening source-cache miss must also prepare water off the main thread, rather than rebuilding the native sampler inside one publication step.
+        yield return YQSpatialBlueprintTerrainSamplerV2.WarmMaterializedWaterRoutine(plan,
+            () => root != null && terrain != null && ReferenceEquals(WorldStateManager.Instance?.State?.generatedWorldPlan, plan),
+            (ready, reason) => { samplerReady = ready; samplerFailure = reason; });
+        if (!samplerReady) throw new InvalidOperationException("Water surface sampler warmup failed: " + samplerFailure);
         // note: Terrain and connected water surfaces resolve their accepted datum through one sampler.
         if (!YQSpatialBlueprintTerrainSamplerV2.TryPrepare(plan, out var waterSampler, out string waterFailure))
             throw new InvalidOperationException("Water surface sampler failed: " + waterFailure);
@@ -5927,12 +6322,10 @@ public static class YQGeneratedWorldEnvironment
                     null);
             RemoveWildernessCollision(instance);
 
-            if (!TryConfigurePreparedV2WaterSurface(
-                    instance,
-                    terrain,
-                    prepared,
-                    waterSampler,
-                    waterIndex))
+            bool configured = false;
+            yield return ConfigurePreparedV2WaterSurfaceRoutine(instance, terrain, prepared, waterSampler,
+                waterIndex, success => configured = success);
+            if (!configured)
             {
                 instance.SetActive(false);
                 UnityEngine.Object.Destroy(instance);
@@ -5948,17 +6341,17 @@ public static class YQGeneratedWorldEnvironment
         completed?.Invoke(spawned);
     }
 
-    private static bool TryConfigurePreparedV2WaterSurface(
+    private static IEnumerator ConfigurePreparedV2WaterSurfaceRoutine(
         GameObject instance,
         Terrain terrain,
         YQPreparedSpatialMaterializationV2 prepared,
         YQSpatialBlueprintTerrainSamplerV2 waterSampler,
-        int waterIndex)
+        int waterIndex, Action<bool> completed)
     {
         if (instance == null || terrain == null ||
             terrain.terrainData == null || prepared == null)
         {
-            return false;
+            completed?.Invoke(false); yield break;
         }
 
         YQSpatialMaterializationWaterV2 water =
@@ -5985,8 +6378,9 @@ public static class YQGeneratedWorldEnvironment
                 terrain,
                 basin,
                 waterIndex,
-                water.kind);
-            return configured;
+                water.kind,
+                water.connectedBasin);
+            completed?.Invoke(configured); yield break;
         }
 
         int pointCount = prepared.GetWaterPointCount(waterIndex);
@@ -5994,7 +6388,7 @@ public static class YQGeneratedWorldEnvironment
         {
             // note: Keep a precise failure reason when an accepted channel cannot publish a ribbon; silent destruction made missing rivers look like a rendering bug.
             Debug.LogError("[YQGeneratedWorldEnvironment] Accepted water channel has fewer than two points. index=" + waterIndex + ", kind=" + water.kind + ", hydrologyId=" + water.hydrologyId);
-            return false;
+            completed?.Invoke(false); yield break;
         }
 
         List<Vector3> points = new List<Vector3>(pointCount);
@@ -6016,16 +6410,17 @@ public static class YQGeneratedWorldEnvironment
                     terrain.transform.position.y +
                         terrain.terrainData.size.y *
                             Mathf.Clamp01(normalizedSurface) +
-                        0.045f,
+                        0.005f,
                     point.z));
             widths.Add(
                 Mathf.Max(
-                    water.kind == YQHydrologyKindV2.River ? 14f : water.kind == YQHydrologyKindV2.Waterfall ? 10f : 1.5f,
+                    1.5f,
                     Mathf.Max(water.nominalWidth, point.width)));
         }
 
         // note: Extend the accepted river to its declared receiving body before resampling, so the visible ribbon and bank foam share the same confluence instead of ending in a detached cap.
-        ExtendPreparedWaterIntoReceivingBody(terrain, prepared, water, points, widths);
+        if (!prepared.UsesCanonicalChannelBanks)
+            ExtendPreparedWaterIntoReceivingBody(terrain, prepared, water, points, widths);
 
         // note: Keep already-connected accepted endpoints intact so the mouth cannot reverse direction inside its receiving lake.
 
@@ -6051,7 +6446,7 @@ public static class YQGeneratedWorldEnvironment
         {
             // note: The generated surface requires an approved imported material source; report the rejected channel instead of leaving an unexplained invisible river.
             Debug.LogError("[YQGeneratedWorldEnvironment] Approved water prefab had no usable renderer material for channel index=" + waterIndex + ", kind=" + water.kind + ", hydrologyId=" + water.hydrologyId);
-            return false;
+            completed?.Invoke(false); yield break;
         }
 
         // note: Subdivide long control segments before resolving confluences so a high endpoint cannot span above a lower connected body.
@@ -6062,6 +6457,12 @@ public static class YQGeneratedWorldEnvironment
         // note: Interpolate authored ribbon edges exactly; recomputing tangents after subdivision would move banks at every bend.
         for (int i = 0; i < points.Count; i++)
         {
+            // note: New drafts publish the accepted bank frame without extending endpoints or rebuilding directions from a clipped/resampled spline.
+            if (prepared.UsesCanonicalChannelBanks)
+            {
+                controlOffsets[i] = prepared.GetAcceptedChannelBankOffset(waterIndex, i);
+                continue;
+            }
             Vector3 tangent = points[Mathf.Min(points.Count - 1, i + 1)] - points[Mathf.Max(0, i - 1)];
             tangent.y = 0f;
             if (tangent.sqrMagnitude < .0001f) tangent = Vector3.forward;
@@ -6084,20 +6485,24 @@ public static class YQGeneratedWorldEnvironment
         sampledPoints.Add(points[points.Count - 1]);
         sampledWidths.Add(widths[widths.Count - 1]);
         sampledOffsets.Add(controlOffsets[controlOffsets.Length - 1]);
-        Mesh mesh = BuildPreparedWaterRibbonMesh(
+        Mesh mesh = null;
+        // note: Preserve the accepted ribbon calculation while publishing bounded chunks across loading frames.
+        yield return BuildPreparedWaterRibbonMeshRoutine(
             sampledPoints,
             sampledWidths,
             waterIndex,
             water.kind,
             waterSampler,
             terrain,
-            sampledOffsets);
+            sampledOffsets, result => mesh = result);
         if (mesh == null)
-            return false;
+        { completed?.Invoke(false); yield break; }
 
         GameObject surface =
             new GameObject("CompiledHydrologySurface");
         surface.transform.SetParent(instance.transform, false);
+        // note: The authored terrain owns only its finite footprint; streamed cells supply the continuation without a second surface over the tutorial channel.
+        YQContinuousWorldFeatureMaterializer.ClipWaterSurfaceToTerrain(mesh, surface.transform, terrain);
         MeshFilter filter = surface.AddComponent<MeshFilter>();
         MeshRenderer rendererComponent =
             surface.AddComponent<MeshRenderer>();
@@ -6125,13 +6530,14 @@ public static class YQGeneratedWorldEnvironment
 
         // note: Move the imported water texture down the generated ribbon without changing water height or physics.
         surface.AddComponent<YQWaterSurfaceMotion>().Configure(filter, rendererComponent, water.kind, flowScale);
-        Mesh foamMesh = BuildPreparedWaterBankFoamMesh(
+        // note: Rivers already render foam in their surface shader; do not sample and allocate a child mesh that is never displayed.
+        Mesh foamMesh = water.kind == YQHydrologyKindV2.Wetland ? BuildPreparedWaterBankFoamMesh(
             sampledPoints,
             sampledWidths,
             waterIndex,
             water.kind,
             waterSampler,
-            terrain);
+            terrain) : null;
         // note: River and waterfall surfaces use depth-aware contact and impact foam on the ribbon itself; a full-length child strip created pale wedges across the bank, so reserve standalone geometry for narrow wetland channels.
         if (water.kind == YQHydrologyKindV2.Wetland &&
             foamMesh != null &&
@@ -6166,7 +6572,7 @@ public static class YQGeneratedWorldEnvironment
         instance.SetActive(true);
         // note: The carved Terrain is the visible and collidable bed/bank; duplicate ribbons hid depth and produced long soil smears.
         // note: Rivers, coastlines, and waterfalls publish directly from accepted control points, including downhill surface elevations and per-point widths.
-        return true;
+        completed?.Invoke(true);
     }
 
     private static void ExtendPreparedWaterIntoReceivingBody(
@@ -6197,6 +6603,8 @@ public static class YQGeneratedWorldEnvironment
             return;
 
         bool sinkIsArea = sink.kind == YQHydrologyKindV2.Lake || sink.kind == YQHydrologyKindV2.Wetland;
+        // note: Topology 12 validates incoming endpoints inside its connected receiving domain; ellipse-based endpoint extension would invent a different shore.
+        if (sink.connectedBasin != null) return;
         YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin = default;
         if (sinkIsArea && !TryBuildPreparedAreaWaterBasin(terrain, prepared, sinkIndex, out basin))
             return;
@@ -6435,6 +6843,9 @@ public static class YQGeneratedWorldEnvironment
         mesh.colors = colours;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
+        // note: Retire source-ribbon foam inside a native join rather than appending water polygons with the foam material.
+        for (int join = 0; join < waterSampler.NativeJoinCount; join++)
+            waterSampler.GetNativeJoin(join).ApplyToMesh(mesh, null, terrain, waterIndex, false);
         GeneratedMacroWaterMeshes.Add(mesh);
         return mesh;
     }
@@ -6496,7 +6907,7 @@ public static class YQGeneratedWorldEnvironment
             terrain.transform.position.y +
             terrain.terrainData.size.y *
                 Mathf.Clamp01(normalizedSurface) +
-            0.045f;
+            0.005f;
         basin = new YQGeneratedWorldTerrain.MacroWaterBasinDescriptor(
             new Vector3(center.x, waterY, center.y),
             longAxis,
@@ -6509,22 +6920,25 @@ public static class YQGeneratedWorldEnvironment
         return true;
     }
 
-    private static Mesh BuildPreparedWaterRibbonMesh(
+    private static IEnumerator BuildPreparedWaterRibbonMeshRoutine(
         List<Vector3> points,
         List<float> widths,
         int waterIndex,
         YQHydrologyKindV2 kind,
         YQSpatialBlueprintTerrainSamplerV2 waterSampler,
         Terrain terrain,
-        List<Vector3> edgeOffsets)
+        List<Vector3> edgeOffsets, Action<Mesh> completed)
     {
         if (points == null || widths == null ||
             points.Count < 2 || widths.Count != points.Count)
         {
-            return null;
+            completed?.Invoke(null); yield break;
         }
 
         int segmentCount = points.Count - 1;
+        bool canonicalBanks = waterSampler.UsesCanonicalChannelBanks;
+        // note: A missing accepted bank stream fails publication rather than silently returning to tangent reconstruction.
+        if (canonicalBanks && (edgeOffsets == null || edgeOffsets.Count != points.Count)) { completed?.Invoke(null); yield break; }
         Vector3[] vertices = new Vector3[points.Count * 2];
         Vector3[] normals = new Vector3[vertices.Length];
         Vector2[] uvs = new Vector2[vertices.Length];
@@ -6532,6 +6946,15 @@ public static class YQGeneratedWorldEnvironment
         int[] triangles = new int[segmentCount * 6];
         var colours = new Color[vertices.Length];
         var owned = new bool[points.Count];
+        // note: The accepted sampler and centerline are immutable during this build; adjoining foam bands reuse exactly the same samples.
+        var centerSamples = new YQSpatialTerrainSampleV2[points.Count];
+        for (int index = 0; index < points.Count; index++)
+        {
+            centerSamples[index] = waterSampler.Sample(points[index].x, points[index].z);
+            // note: Sampling a whole accepted channel in one frame blocked title animation for seconds; order and samples remain identical.
+            if ((index & 127) == 127) yield return null;
+        }
+        float terrainY = terrain.transform.position.y, terrainHeight = terrain.terrainData.size.y;
         float travel = 0f;
 
         for (int index = 0; index < points.Count; index++)
@@ -6562,8 +6985,9 @@ public static class YQGeneratedWorldEnvironment
                     kind == YQHydrologyKindV2.Waterfall ? -.35f : .25f);
             // note: Build the bank frame from the actual resampled tangent; stale control-point offsets caused faceted sawtooth edges at bends.
             Vector3 bankOffset = side * renderHalfWidth;
+            if (canonicalBanks) bankOffset = edgeOffsets[index];
             // note: Waterfall banks stay on their sampled channel frame; corner miters can project translucent triangles beyond the carved fall while river bends still benefit from a capped miter.
-            if (kind != YQHydrologyKindV2.Waterfall && index > 0 && index < points.Count - 1)
+            if (!canonicalBanks && kind != YQHydrologyKindV2.Waterfall && index > 0 && index < points.Count - 1)
             {
                 Vector3 previousTangent = points[index] - points[index - 1];
                 Vector3 nextTangent = points[index + 1] - points[index];
@@ -6588,12 +7012,12 @@ public static class YQGeneratedWorldEnvironment
             }
             int vertexIndex = index * 2;
             // note: Pull each visible bank edge toward the centerline until the authoritative sampler confirms wet coverage; this removes transparent triangles over dry ground without changing the accepted channel path.
-            Vector3 leftEdge = ConstrainWaterRibbonEdge(
+            Vector3 leftEdge = canonicalBanks ? points[index] - bankOffset : ConstrainWaterRibbonEdge(
                 points[index],
                 points[index] - bankOffset,
                 waterIndex,
                 waterSampler);
-            Vector3 rightEdge = ConstrainWaterRibbonEdge(
+            Vector3 rightEdge = canonicalBanks ? points[index] + bankOffset : ConstrainWaterRibbonEdge(
                 points[index],
                 points[index] + bankOffset,
                 waterIndex,
@@ -6602,12 +7026,13 @@ public static class YQGeneratedWorldEnvironment
             float leftSpan = Mathf.Max(0f, Vector3.Dot(points[index] - leftEdge, side));
             float rightSpan = Mathf.Max(0f, Vector3.Dot(rightEdge - points[index], side));
             float safeSpan = Mathf.Min(leftSpan, rightSpan);
-            if (safeSpan > .05f)
+            // note: Keep new accepted frames intact; semantic ownership cannot shrink a bank or invent a minimum-width strip.
+            if (!canonicalBanks && safeSpan > .05f)
             {
                 leftEdge = points[index] - side * safeSpan;
                 rightEdge = points[index] + side * safeSpan;
             }
-            else
+            else if (!canonicalBanks)
             {
                 float minimumSpan = Mathf.Max(.18f, renderHalfWidth * .12f);
                 leftEdge = points[index] - side * minimumSpan;
@@ -6616,9 +7041,9 @@ public static class YQGeneratedWorldEnvironment
             vertices[vertexIndex] = leftEdge;
             vertices[vertexIndex + 1] = rightEdge;
             // note: Preserve the accepted hydraulic datum above the carved bed rather than flattening water onto the ground.
-            var centerSample = waterSampler.Sample(points[index].x, points[index].z);
+            var centerSample = centerSamples[index];
             float finalWaterY = centerSample.waterFeatureIndex >= 0
-                ? terrain.transform.position.y + centerSample.waterSurfaceNormalized * terrain.terrainData.size.y + .045f
+                ? terrainY + centerSample.waterSurfaceNormalized * terrainHeight + .005f
                 : points[index].y;
             vertices[vertexIndex].y = finalWaterY;
             vertices[vertexIndex + 1].y = finalWaterY;
@@ -6626,7 +7051,7 @@ public static class YQGeneratedWorldEnvironment
             owned[index] = centerSample.waterFeatureIndex == waterIndex;
             float foam = 0f;
             for (int neighbour = Mathf.Max(0,index-10); neighbour <= Mathf.Min(points.Count-1,index+10); neighbour += 5)
-                if (waterSampler.Sample(points[neighbour].x,points[neighbour].z).waterFeatureIndex != waterIndex)
+                if (centerSamples[neighbour].waterFeatureIndex != waterIndex)
                     foam = Mathf.Max(foam,1f-Mathf.Abs(neighbour-index)/11f);
             // note: A continuous twelve-metre inlet fade removes the rectangular overlay while the lake underneath supplies the receiving surface.
             float receivingFade = waterSampler.SampleReceivingWaterFade(points[index].x, points[index].z);
@@ -6648,6 +7073,7 @@ public static class YQGeneratedWorldEnvironment
             float v = travel / Mathf.Max(2f, widths[index]);
             uvs[vertexIndex] = new Vector2(0f, v);
             uvs[vertexIndex + 1] = new Vector2(1f, v);
+            if ((index & 127) == 127) yield return null;
         }
 
         // note: Recalculate slope from the final water elevations, including the levelled lake mouth; lighting and GPU flow must agree with the visible mesh.
@@ -6681,14 +7107,21 @@ public static class YQGeneratedWorldEnvironment
         {
             name = "YQ_V2Water_" + waterIndex + "_" + kind
         };
+        // note: Register the owned mesh before any yielded native patch so existing build cleanup also owns interrupted publication.
+        GeneratedMacroWaterMeshes.Add(mesh);
         mesh.vertices = vertices;
         mesh.normals = normals;
         mesh.uv = uvs;
         mesh.colors = colours;
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
-        GeneratedMacroWaterMeshes.Add(mesh);
-        return mesh;
+        // note: Replace near-lake surface triangles with the shared native wet polygons before clipping and motion capture by the existing water owner.
+        for (int join = 0; join < waterSampler.NativeJoinCount; join++)
+        {
+            // note: Clip within the join's own bounded iterator; a single patch can contain enough triangles to freeze the title camera.
+            yield return waterSampler.GetNativeJoin(join).ApplyToMeshRoutine(mesh, null, terrain, waterIndex, true);
+        }
+        completed?.Invoke(mesh);
     }
 
     private static Vector3 ConstrainWaterRibbonEdge(
@@ -6833,7 +7266,7 @@ public static class YQGeneratedWorldEnvironment
                 YQGeneratedWorldTerrain.SampleWorldHeight(
                     terrain,
                     point) +
-                0.045f;
+                0.005f;
             points.Add(point);
         }
 
@@ -7051,7 +7484,8 @@ public static class YQGeneratedWorldEnvironment
         Terrain terrain,
         YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin,
         int basinIndex,
-        YQHydrologyKindV2 waterKind)
+        YQHydrologyKindV2 waterKind,
+        YQPreparedConnectedBasinV2 connectedBasin = null)
     {
         if (instance == null)
             return false;
@@ -7084,7 +7518,7 @@ public static class YQGeneratedWorldEnvironment
             return false;
 
         GameObject surface =
-            new GameObject("CuratedEllipticalWaterSurface");
+            new GameObject(connectedBasin != null ? "ConnectedBasinWaterSurface" : "CuratedEllipticalWaterSurface");
         surface.transform.SetParent(instance.transform, false);
         surface.transform.localPosition = Vector3.zero;
         surface.transform.localRotation = Quaternion.identity;
@@ -7094,11 +7528,11 @@ public static class YQGeneratedWorldEnvironment
             surface.AddComponent<MeshFilter>();
         MeshRenderer rendererComponent =
             surface.AddComponent<MeshRenderer>();
-        filter.sharedMesh =
-            BuildMacroWaterEllipseMesh(
-                terrain,
-                basin,
-                basinIndex);
+        filter.sharedMesh = connectedBasin != null
+            ? BuildConnectedBasinMesh(terrain, basin, connectedBasin)
+            : BuildMacroWaterEllipseMesh(terrain, basin, basinIndex);
+        // note: The authored basin obeys the same exact terrain ownership as streamed water patches.
+        YQContinuousWorldFeatureMaterializer.ClipWaterSurfaceToTerrain(filter.sharedMesh, surface.transform, terrain);
         rendererComponent.sharedMaterials =
             materialSource.sharedMaterials;
         ConfigureGeneratedWaterMaterial(rendererComponent, waterKind);
@@ -7149,7 +7583,8 @@ public static class YQGeneratedWorldEnvironment
             Material waterMaterial = new Material(source)
             {
                 name = source.name + "_GeneratedWater",
-                hideFlags = HideFlags.DontSave
+                // note: Live renderer references own this copy; DontUnloadUnusedAsset would retain its textures after the world is destroyed.
+                hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild
             };
             // note: Use the project-owned water shader so HDRP source materials retain their ripple normal, depth foam, and blue high-fidelity presentation in URP.
             if (generatedWaterShader != null)
@@ -7193,6 +7628,29 @@ public static class YQGeneratedWorldEnvironment
             return 1f;
         float slope = weightedSlope / totalDistance;
         return Mathf.Clamp(1f + slope * 14f, 1f, 2.8f);
+    }
+
+    private static Mesh BuildConnectedBasinMesh(Terrain terrain, YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin,
+        YQPreparedConnectedBasinV2 domain)
+    {
+        // note: Origin water consumes the same clipped polygons as streamed water, retaining its approved material and existing presentation owner.
+        var positions = new List<Vector2>(); var triangles = new List<int>();
+        Vector3 minimum = terrain.transform.position, maximum = minimum + terrain.terrainData.size;
+        domain.AppendClippedTriangles(minimum.x, minimum.z, maximum.x, maximum.z, positions, triangles);
+        if (triangles.Count == 0) return null;
+        var vertices = new List<Vector3>(positions.Count);
+        var uvs = new List<Vector2>(positions.Count);
+        var colors = new List<Color>(positions.Count);
+        foreach (Vector2 position in positions)
+        {
+            vertices.Add(new Vector3(position.x, basin.WaterSurfaceY, position.y) - basin.CenterWorld);
+            uvs.Add(position * .25f);
+            colors.Add(new Color(0f, .5f, 1f, 1f));
+        }
+        var mesh = new Mesh { name = "AcceptedConnectedBasinWater", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+        mesh.SetVertices(vertices); mesh.SetUVs(0, uvs); mesh.SetColors(colors); mesh.SetTriangles(triangles, 0);
+        mesh.RecalculateNormals(); mesh.RecalculateBounds();
+        return mesh;
     }
 
     private static Mesh BuildMacroWaterEllipseMesh(
@@ -7460,13 +7918,9 @@ public static class YQGeneratedWorldEnvironment
         List<TerrainVegetationProfile> profiles =
             new List<TerrainVegetationProfile>();
         List<LivedPathSegment> livedPaths =
-            BuildLivedPathNetwork(
-                plan,
-                terrain);
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.Paths", () => BuildLivedPathNetwork(plan, terrain));
         MacroWaterSet macroWater =
-            BuildMacroWaterSet(
-                terrain,
-                plan);
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.Water", () => BuildMacroWaterSet(terrain, plan));
         uint terrainSeedHash =
             StableHash32(
                 YQGeneratedWorldTerrain.TerrainGenerationVersion +
@@ -7511,6 +7965,8 @@ public static class YQGeneratedWorldEnvironment
                     settlement,
                     terrain);
                 settlementDetailReserves.Add(new Vector2(anchor.x, anchor.z));
+                // note: Returning saves can contain many construction anchors; advance presentation between their unchanged authority lookups.
+                yield return null;
             }
         }
 
@@ -7528,6 +7984,7 @@ public static class YQGeneratedWorldEnvironment
                     encampment,
                     terrain);
                 encampmentDetailReserves.Add(new Vector2(anchor.x, anchor.z));
+                yield return null;
             }
         }
 
@@ -7568,7 +8025,7 @@ public static class YQGeneratedWorldEnvironment
                     detailMaskThreshold = ResolveDetailMaskThreshold(palette)
                 };
             // note: Grass is an explicit approved terrain layer, not an accidental selection from a bush prefab's atlas.
-            Texture2D grass = registry.TerrainGrassTexture;
+            Texture2D grass = YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.GrassAsset", () => registry.TerrainGrassTexture);
             if (grass != null && !ContainsAnySemantic(SafeText(palette.styleKey, string.Empty).ToLowerInvariant(), "desert", "snow", "arctic"))
             {
                 if (!detailPrototypeByTexture.TryGetValue(grass.GetInstanceID(), out int grassIndex))
@@ -7593,7 +8050,7 @@ public static class YQGeneratedWorldEnvironment
                     continue;
                 }
 
-                GameObject prefab = registry.ResolvePrefab(reference.assetPath);
+                GameObject prefab = YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.PaletteAsset", () => registry.ResolvePrefab(reference.assetPath));
                 if (prefab == null)
                     continue;
 
@@ -7642,7 +8099,7 @@ public static class YQGeneratedWorldEnvironment
                     AddUniqueIndex(profile.detailPrototypeIndices, detailIndex);
                 }
 
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: Prototype discovery may touch lazy registry shards, so it yields before another imported vegetation family is inspected.
                     yield return null;
@@ -7784,7 +8241,7 @@ public static class YQGeneratedWorldEnvironment
                     // note: Tree rejection sampling has a fixed attempt limit but can span the startup watchdog window on sparse palettes.
                     if ((attempt & 63) == 0)
                         YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
-                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                     {
                         // note: Rejected candidates consume budget too; yielding before evaluation prevents sparse biomes from spinning through thousands of failed samples in one loading frame.
                         yield return null;
@@ -7953,7 +8410,7 @@ public static class YQGeneratedWorldEnvironment
                         });
                     placedForRegion++;
 
-                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                     {
                         // note: Ecological rejection sampling is frame-budgeted even though Terrain will batch the accepted tree instances at publication.
                         yield return null;
@@ -7976,8 +8433,7 @@ public static class YQGeneratedWorldEnvironment
         }
         else
         {
-            data.treePrototypes = Array.Empty<TreePrototype>();
-            data.treeInstances = Array.Empty<TreeInstance>();
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.TreeReset", () => { data.treePrototypes = Array.Empty<TreePrototype>(); data.treeInstances = Array.Empty<TreeInstance>(); return true; });
         }
 
         int detailCount = 0;
@@ -7985,11 +8441,9 @@ public static class YQGeneratedWorldEnvironment
         if (detailPrototypes.Count > 0)
         {
             // note: Origin and streamed grass use the same instance-count interpretation of their accepted density maps.
-            data.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
-            data.SetDetailResolution(
-                TerrainDetailResolution,
-                TerrainDetailPatchResolution);
-            data.detailPrototypes = detailPrototypes.ToArray();
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.ScatterMode", () => { data.SetDetailScatterMode(DetailScatterMode.InstanceCountMode); return true; });
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.DetailResolution", () => { data.SetDetailResolution(TerrainDetailResolution, TerrainDetailPatchResolution); return true; });
+            YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.DetailPrototypes", () => { data.detailPrototypes = detailPrototypes.ToArray(); return true; });
             List<int[,]> detailMaps = new List<int[,]>(
                 detailPrototypes.Count);
 
@@ -8053,7 +8507,7 @@ public static class YQGeneratedWorldEnvironment
                 {
                     // note: Check the frame budget before rejection paths too; most detail cells exit early and would otherwise skip the inner-loop yield.
                     if ((x & 31) == 31 &&
-                        Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                        Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                     {
                         yield return null;
                         frameStartedAt = Time.realtimeSinceStartup;
@@ -8181,7 +8635,7 @@ public static class YQGeneratedWorldEnvironment
                 // note: Finished rows prove bounded ground-cover work is advancing; a long but healthy synthesis must not trip the no-progress watchdog.
                 if ((z & 15) == 15)
                     YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: Detail masks are synthesized incrementally so dense ground cover never blocks the Goddess presentation loop.
                     yield return null;
@@ -8218,11 +8672,7 @@ public static class YQGeneratedWorldEnvironment
                     }
 
                     // note: Detail density reaches Terrain in small row strips so no layer can force a full-map native upload onto one loading frame.
-                    data.SetDetailLayer(
-                        0,
-                        startRow,
-                        detailIndex,
-                        strip);
+                    YQGeneratedWorldRuntimeBuilder.MeasureStartupOperation("Vegetation.Upload", () => { data.SetDetailLayer(0, startRow, detailIndex, strip); return true; });
                     // note: Each published strip is a completed native Terrain update, so the startup deadline tracks real work.
                     YQGeneratedWorldRuntimeBuilder.ReportInitialGenerationProgress();
                     yield return null;
@@ -8267,6 +8717,64 @@ public static class YQGeneratedWorldEnvironment
         return tilePlan.Sample(worldX, worldZ);
     }
 
+    internal static bool IsCellVegetationExcludedByAreaWater(Bounds cell, YQPreparedSpatialMaterializationV2 prepared, out string waterId)
+    {
+        waterId = string.Empty;
+        if (prepared == null || cell.size.x <= 0f || cell.size.z <= 0f) return false;
+        // note: A fitted lake/wetland ellipse and each of its mask level sets are convex. Four corners inside the same accepted exclusion prove coverage of the whole rectangle; sparse failed scatter attempts do not.
+        for (int index = 0; index < prepared.WaterCount; index++)
+        {
+            var water = prepared.GetWater(index);
+            if (water.kind != YQHydrologyKindV2.Lake && water.kind != YQHydrologyKindV2.Wetland ||
+                prepared.GetWaterPointCount(index) == 0) continue;
+            if (water.connectedBasin != null)
+            {
+                // note: A connected basin has a native, possibly concave shore. Prove the entire planting domain against that accepted lake/channel union instead of fitting its old ellipse.
+                if (prepared.CoversVegetationRectangle(water.connectedBasin, cell))
+                { waterId = water.hydrologyId; return true; }
+                continue;
+            }
+            YQContinuousWorldFeatureAuthority.GetAcceptedAreaWaterFootprint(prepared, index,
+                out Vector2 center, out Vector2 axis, out float major, out float minor);
+            Vector2 side = new Vector2(-axis.y, axis.x);
+            float radius = Mathf.Min(major, minor);
+            float padding = YQGeneratedWorldTerrain.WorldSize / (YQGeneratedWorldTerrain.HeightmapResolution - 1f) * 1.414214f;
+            bool covered = true;
+            for (int corner = 0; corner < 4; corner++)
+            {
+                Vector2 offset = new Vector2((corner & 1) == 0 ? cell.min.x : cell.max.x,
+                    (corner & 2) == 0 ? cell.min.z : cell.max.z) - center;
+                float u = Vector2.Dot(offset, axis) / major, v = Vector2.Dot(offset, side) / minor;
+                float distance = Mathf.Sqrt(u * u + v * v) * radius;
+                // note: Evaluate this single area's canonical sampler mask, so an overlapping river cannot obscure a lake that already excludes the whole cell.
+                float mask = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(radius + padding,
+                    radius + padding + Mathf.Max(8f, radius * .6f), distance));
+                if (mask < PreparedVegetationWaterMaskLimit) { covered = false; break; }
+            }
+            if (covered) { waterId = water.hydrologyId; return true; }
+        }
+        return false;
+    }
+
+    private const float WildernessTerrainMargin = 3f;
+
+    internal static Bounds ResolveVegetationPlacementBounds(Bounds cell, Vector3 terrainOrigin, Vector3 terrainSize)
+    {
+        // note: The aquatic-cell proof must cover exactly the terrain-safe planting domain. A dry rim inside the grounding margin cannot support the plants demanded by readiness.
+        Vector3 minimum = cell.min, maximum = cell.max;
+        minimum.x = Mathf.Max(minimum.x, terrainOrigin.x + WildernessTerrainMargin);
+        minimum.z = Mathf.Max(minimum.z, terrainOrigin.z + WildernessTerrainMargin);
+        maximum.x = Mathf.Min(maximum.x, terrainOrigin.x + terrainSize.x - WildernessTerrainMargin);
+        maximum.z = Mathf.Min(maximum.z, terrainOrigin.z + terrainSize.z - WildernessTerrainMargin);
+        if (maximum.x <= minimum.x || maximum.z <= minimum.z) return default;
+        Bounds domain = default;
+        domain.SetMinMax(minimum, maximum);
+        return domain;
+    }
+
+    // note: Coverage proof and physical vegetation admission share one existing shoreline threshold.
+    private const float PreparedVegetationWaterMaskLimit = .12f;
+
     private static bool IsPreparedVegetationPositionAllowed(
         YQSpatialTerrainSampleV2 sample,
         bool terrainDetail)
@@ -8276,7 +8784,7 @@ public static class YQGeneratedWorldEnvironment
         float caveLimit = terrainDetail ? 0.22f : 0.16f;
 
         // note: V2 trees and ground cover use the exact terrain masks, leaving readable road shoulders, dry construction reserves, open cave mouths, and continuous shorelines.
-        return sample.waterMask < 0.12f &&
+        return sample.waterMask < PreparedVegetationWaterMaskLimit &&
                sample.routeMask < routeLimit &&
                sample.siteReserveMask < reserveLimit &&
                sample.caveMassMask < caveLimit;
@@ -8360,6 +8868,9 @@ public static class YQGeneratedWorldEnvironment
         int[,] densities = new int[resolution, resolution];
         int eligibleSamples = 0;
         int placed = 0;
+        int minimumDetailX = -1;
+        int minimumDetailZ = -1;
+        float strongestEligibleNoise = float.NegativeInfinity;
         for (int z = 0; z < resolution; z++)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -8398,6 +8909,13 @@ public static class YQGeneratedWorldEnvironment
                     ((seed & 0xFFFFu) * 0.00017f) + worldX * 0.031f,
                     (((seed >> 16) & 0xFFFFu) * 0.00019f) + worldZ * 0.031f);
                 float placementNoise = noise * Mathf.Lerp(0.78f, 1.12f, ecologyDensity);
+                // note: Retain the strongest already-eligible sample so a sparse dry rim can satisfy real grass publication without moving any accepted exclusion or reseeding retries.
+                if (placementNoise > strongestEligibleNoise)
+                {
+                    strongestEligibleNoise = placementNoise;
+                    minimumDetailX = x;
+                    minimumDetailZ = z;
+                }
                 if (placementNoise > 0.42f)
                 {
                     int density = Mathf.Clamp(2 + Mathf.FloorToInt(placementNoise * 8f), 1, 8);
@@ -8405,6 +8923,13 @@ public static class YQGeneratedWorldEnvironment
                     placed += density;
                 }
             }
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        if (prepared != null && eligibleSamples > 0 && placed == 0 && minimumDetailX >= 0)
+        {
+            // note: V2 requires visible groundcover on eligible terrain. Publish two approved instances at the deterministic best eligible cell; successful masks and wholly excluded terrain stay unchanged.
+            densities[minimumDetailZ, minimumDetailX] = 2;
+            placed = 2;
         }
         float elapsedSeconds = (float)((System.Diagnostics.Stopwatch.GetTimestamp() - startedAt) /
             (double)System.Diagnostics.Stopwatch.Frequency);
@@ -8482,7 +9007,8 @@ public static class YQGeneratedWorldEnvironment
             LastStreamedDetailStep = "detailPrototypeBindingReused";
         yield return null;
         YQPreparedSpatialMaterializationV2 prepared = null;
-        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(
+        // note: Grass reads the admitted immutable projection. Rehashing the entire mutable world for every detail tile stalls the main thread; cold/changed owners still take full admission.
+        if (!YQSpatialMaterializationResolverV2.TryGetQueryProjection(
                 plan,
                 out YQPreparedSpatialMaterializationV2 resolved,
                 out string preparationFailure))
@@ -9286,9 +9812,9 @@ public static class YQGeneratedWorldEnvironment
 
         // note: Read the accepted cell ecology once so every visible layer shares the same deterministic habitat and settlement-pressure decision.
         GeneratedSemanticCellPlanRecord semanticCell =
-            YQGeneratedWorldQuery.GetSemanticCellPlan(
+            YQGeneratedWorldQuery.GetPreparedSemanticCellPlan(
                 plan,
-                new Vector2Int(chunk.chunkX, chunk.chunkZ));
+                new Vector2Int(chunk.chunkX, chunk.chunkZ), plan.semanticAuthority);
         bool hasSemanticEcology =
             semanticCell != null &&
             !string.IsNullOrWhiteSpace(semanticCell.semanticHash);
@@ -9314,10 +9840,11 @@ public static class YQGeneratedWorldEnvironment
             canopyApplicable = forest >= 0.18f || danger >= 0.18f;
             understoryApplicable = forest >= 0.12f || moisture >= 0.18f || wetland >= 0.12f;
             shrubApplicable = forest >= 0.12f || moisture >= 0.18f || wetland >= 0.12f || danger >= 0.18f;
+            // note: Outside-origin forest cells need a real canopy silhouette; the old 4-16 cap read as isolated props across a 128 m cell.
             canopyTarget = Mathf.Clamp(
-                Mathf.RoundToInt(4f + forest * 12f + danger * 2f - civilization * 3f),
-                4,
-                16);
+                Mathf.RoundToInt(10f + forest * 28f + danger * 3f - civilization * 3f),
+                8,
+                44);
             understoryTarget = Mathf.Clamp(
                 Mathf.RoundToInt(6f + moisture * 8f + forest * 4f + wetland * 2f - civilization * 2f),
                 4,
@@ -9343,6 +9870,15 @@ public static class YQGeneratedWorldEnvironment
             groundcoverTarget = 12;
             boulderTarget = 5;
             shrubTarget = 5;
+        }
+        // note: Only the existing grounding-safe domain can satisfy vegetation readiness; prove that entire domain is aquatic before marking dry-land layers inapplicable.
+        Bounds vegetationBounds = ResolveVegetationPlacementBounds(bounds, terrain.transform.position, terrain.terrainData.size);
+        if (IsCellVegetationExcludedByAreaWater(vegetationBounds, sharedPreparedV2, out string excludedWaterId))
+        {
+            canopyApplicable = understoryApplicable = shrubApplicable = false;
+            groundcoverTarget = 0;
+            Debug.Log("[YQGeneratedWorldEnvironment] AQUATIC CELL ECOLOGY " + chunk.chunkX + "," + chunk.chunkZ +
+                " water=" + excludedWaterId + " dry-land layers inapplicable: accepted shoreline exclusion covers the full groundable domain");
         }
         // note: An inapplicable habitat layer executes as a zero-budget no-op, so applicability controls both work and publication rather than only the final predicate.
         if (!canopyApplicable)
@@ -9965,6 +10501,12 @@ public static class YQGeneratedWorldEnvironment
             if (colliders[index] == null)
                 continue;
             // note: Curated stage rocks frame the approach visually; trigger-only collision keeps them from blocking the mandatory route capsule.
+            if (colliders[index] is MeshCollider mesh && !mesh.convex)
+            {
+                // note: Unity cannot make a concave mesh a trigger; disable only this runtime decoration collider to preserve its intended nonblocking role.
+                mesh.enabled = false;
+                continue;
+            }
             colliders[index].isTrigger = true;
         }
     }
@@ -10291,10 +10833,31 @@ public static class YQGeneratedWorldEnvironment
             Vector2 direction = path.end - path.start;
             if (direction.sqrMagnitude < 16f)
                 continue;
+            // note: Place verge details at stable arc-length intervals inside this cell, rather than two random points on a kilometre-long route that usually fell outside its owner.
+            float length = direction.magnitude;
+            const float dressingSpacing = 24f;
+            int firstSample = 0, lastSample = Mathf.CeilToInt(length / dressingSpacing);
+            if (placementBounds.HasValue)
+            {
+                // note: Bound the stable sample indices to this cell's projected interval; final curved-path containment still enforces exact ownership.
+                Bounds cell = placementBounds.Value;
+                Vector2 axis = direction / length;
+                float minimum = float.PositiveInfinity, maximum = float.NegativeInfinity;
+                foreach (Vector2 corner in new[] { new Vector2(cell.min.x, cell.min.z), new Vector2(cell.min.x, cell.max.z),
+                    new Vector2(cell.max.x, cell.min.z), new Vector2(cell.max.x, cell.max.z) })
+                {
+                    float distance = Vector2.Dot(corner - path.start, axis);
+                    minimum = Mathf.Min(minimum, distance); maximum = Mathf.Max(maximum, distance);
+                }
+                float margin = path.halfWidth + path.shoulderWidth + 4f + Mathf.Abs(path.curveAmplitude);
+                firstSample = Mathf.Max(0, Mathf.FloorToInt((minimum - margin) / dressingSpacing));
+                lastSample = Mathf.Min(lastSample, Mathf.CeilToInt((maximum + margin) / dressingSpacing) + 1);
+            }
+            for (int sample = firstSample; sample < lastSample && spawned < candidateBudget; sample++)
             for (int side = 0; side < 2 && spawned < candidateBudget; side++)
             {
                 // note: Failed candidates consume time too; bound work even when every roadside location is reserved.
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     // note: Carry only a slow candidate's breakdown into the publication receipt so the existing 1.5 ms yield remains unchanged.
                     LastRoadsideDressingStep = "candidateBudgetYieldAfter:" + LastRoadsideDressingStep +
@@ -10304,9 +10867,9 @@ public static class YQGeneratedWorldEnvironment
                     frameStartedAt = Time.realtimeSinceStartup;
                 }
                 LastRoadsideDressingStep = "candidateGeometry";
-                string seed = SafeText(plan.worldSeed, "world") + "|roadside|" + pathIndex + "|" + side;
-                float along = Mathf.Lerp(0.28f, 0.72f, Deterministic01(seed + "|along"));
-                float offset = path.halfWidth + path.shoulderWidth + 2.4f + Deterministic01(seed + "|offset") * 3.2f;
+                string seed = SafeText(plan.worldSeed, "world") + "|roadside|" + pathIndex + "|" + sample + "|" + side;
+                float along = Mathf.Clamp01((sample + .35f + Deterministic01(seed + "|along") * .3f) * dressingSpacing / length);
+                float offset = path.halfWidth + path.shoulderWidth + 1f + Deterministic01(seed + "|offset") * 2.4f;
                 Vector2 point = ResolveRoadsideDressingPoint(path, along, offset * (side == 0 ? 1f : -1f));
                 Vector3 worldPosition = new Vector3(point.x, 0f, point.y);
                 if (placementBounds.HasValue && !ContainsXZ(placementBounds.Value, worldPosition))
@@ -10444,8 +11007,9 @@ public static class YQGeneratedWorldEnvironment
 
         // note: The accepted V2 water check already sampled this exact point; reuse its complete mask result instead of evaluating every route and water spline twice.
         stageStartedAt = stageFinishedAt;
+        // note: Verge props may occupy a dry road shoulder; full footprint tests below still protect the walkable ribbon, water and authored reserves.
         bool preparedMaskAllowed = water.preparedV2 == null ||
-            IsPreparedVegetationPositionAllowed(preparedSample, false);
+            (preparedSample.waterMask < .12f && preparedSample.siteReserveMask < .05f && preparedSample.caveMassMask < .16f);
         stageFinishedAt = Time.realtimeSinceStartupAsDouble;
         preparedMaskMs = (float)((stageFinishedAt - stageStartedAt) * 1000d);
         if (!preparedMaskAllowed)
@@ -10602,7 +11166,7 @@ public static class YQGeneratedWorldEnvironment
         // note: Shoreline dressing consumes the same persisted semantic palettes as the rest of the world; ensure missing palette records are repaired before candidate selection.
         LastShorelineDressingStep = "paletteRepair";
         YQWorldAssetCatalog.EnsureAssetPalettes(plan);
-        if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+        if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
         {
             yield return null;
             frameStartedAt = Time.realtimeSinceStartup;
@@ -10621,9 +11185,23 @@ public static class YQGeneratedWorldEnvironment
                 if (water.kind == YQHydrologyKindV2.Lake || water.kind == YQHydrologyKindV2.Wetland)
                 {
                     LastShorelineDressingStep = "areaWaterCandidates:" + waterIndex;
-                    if (TryBuildPreparedAreaWaterBasin(terrain, macroWater.preparedV2, waterIndex, out var basin))
+                    if (water.connectedBasin != null)
+                    {
+                        // note: Shore plants follow the accepted contour, including island shores, instead of dressing an independent elliptical bank.
+                        int shoreStride = Mathf.Max(1, Mathf.CeilToInt(water.connectedBasin.ShoreSegmentCount / 48f));
+                        for (int edge = 0; edge < water.connectedBasin.ShoreSegmentCount; edge += shoreStride)
+                        {
+                            water.connectedBasin.GetShoreSegment(edge, out Vector2 first, out Vector2 second);
+                            Vector2 middle = (first + second) * .5f, tangent = (second - first).normalized;
+                            Vector2 dry = new Vector2(-tangent.y, tangent.x);
+                            if (water.connectedBasin.SignedShoreDistance(middle.x + dry.x * 2f, middle.y + dry.y * 2f) < 0f) dry = -dry;
+                            Vector2 candidate = middle + dry * 12f;
+                            shorelinePoints.Add(new Vector3(candidate.x, 0f, candidate.y));
+                        }
+                    }
+                    else if (TryBuildPreparedAreaWaterBasin(terrain, macroWater.preparedV2, waterIndex, out var basin))
                         AppendAreaShorelineCandidates(basin, SafeText(plan.worldSeed, "world") + "|shore|" + waterIndex, shorelinePoints);
-                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                     {
                         yield return null;
                         frameStartedAt = Time.realtimeSinceStartup;
@@ -10651,7 +11229,7 @@ public static class YQGeneratedWorldEnvironment
                     float offset = radius + bankPadding + Mathf.Max(8f, radius * 0.6f);
                     shorelinePoints.Add(new Vector3(point.x + normal.x * offset, 0f, point.z + normal.y * offset));
                     shorelinePoints.Add(new Vector3(point.x - normal.x * offset, 0f, point.z - normal.y * offset));
-                    if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                    if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                     {
                         yield return null;
                         frameStartedAt = Time.realtimeSinceStartup;
@@ -10666,7 +11244,7 @@ public static class YQGeneratedWorldEnvironment
                 LastShorelineDressingStep = "legacyAreaCandidates:" + basinIndex;
                 YQGeneratedWorldTerrain.MacroWaterBasinDescriptor basin = macroWater.basins[basinIndex];
                 AppendAreaShorelineCandidates(basin, SafeText(plan.worldSeed, "world") + "|shore|" + basinIndex, shorelinePoints);
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
@@ -10687,7 +11265,7 @@ public static class YQGeneratedWorldEnvironment
         LastShorelineDressingStep = "livedPathNetwork";
         List<LivedPathSegment> paths = sharedPaths ??
             BuildLivedPathNetwork(plan, terrain, macroWater.preparedV2);
-        if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+        if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
         {
             yield return null;
             frameStartedAt = Time.realtimeSinceStartup;
@@ -10696,7 +11274,7 @@ public static class YQGeneratedWorldEnvironment
         {
             LastShorelineDressingStep = "candidate:" + index;
             // note: Spread the finite budget over all water bodies, including later lakes, rather than truncating the first river's candidate list.
-            if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+            if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
             {
                 yield return null;
                 frameStartedAt = Time.realtimeSinceStartup;
@@ -11188,6 +11766,10 @@ public static class YQGeneratedWorldEnvironment
                     slot,
                     treesOnly);
 
+            // note: Vary each owner's canopy cycle without changing accepted membership, target density, spatial samples, or low-flora weighted selection.
+            if (vegetationSlot && treesOnly)
+                OrderCanopyScatterReferences(scatterReferences, palette, plan.worldSeed, region.regionId, regionCenter, seedScope);
+
             List<LivedPathSegment> livedPaths =
                 sharedLivedPaths ??
                 BuildLivedPathNetwork(plan, terrain);
@@ -11206,6 +11788,11 @@ public static class YQGeneratedWorldEnvironment
             const float scatterWorkSliceSeconds = 0.004f;
             HashSet<string> measuredScatterPaths = new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
+            // note: Empty required layers retain the placement stage counts so a physical rejection is diagnosable without weakening habitat gates.
+            int resolvedCenters = 0, clippedMembers = 0, allowedMembers = 0, habitatMembers = 0, clearMembers = 0, resolvedPrefabs = 0;
+            int fallbackWaterRejected = 0, fallbackSettlementRejected = 0, fallbackCampRejected = 0;
+            bool dryCandidateSearched = false, hasDryCandidate = false;
+            Vector2 dryCandidate = default;
 
             for (int attempt = 0;
                  attempt < attempts &&
@@ -11245,7 +11832,42 @@ public static class YQGeneratedWorldEnvironment
                     "|" +
                     clusterIndex;
 
-                if (!TryResolveWildernessPosition(
+                // note: A cell's central grove disk can be entirely reserved or wet while its corners remain valid habitat. Empty required layers sample the full cell in their existing bounded retry band, retaining every exclusion.
+                bool requiredCellFallback = placementBounds.HasValue && vegetationSlot && spawned == 0 && attempt >= standardAttempts;
+                Vector3 clusterCenter;
+                if (requiredCellFallback)
+                {
+                    Bounds cell = placementBounds.Value;
+                    clusterCenter = new Vector3(
+                        Mathf.Lerp(cell.min.x + WildernessTerrainMargin, cell.max.x - WildernessTerrainMargin, Deterministic01(seed + "|required_cell_x")),
+                        0f,
+                        Mathf.Lerp(cell.min.z + WildernessTerrainMargin, cell.max.z - WildernessTerrainMargin, Deterministic01(seed + "|required_cell_z")));
+                    // note: The first four fallback samples cover dry corner remnants that a central disk and a small random band can both miss; remaining attempts retain the hashed full-cell distribution.
+                    int corner = attempt - standardAttempts;
+                    if (corner < 4)
+                        clusterCenter = new Vector3((corner & 1) == 0 ? cell.min.x + WildernessTerrainMargin : cell.max.x - WildernessTerrainMargin,
+                            0f, (corner & 2) == 0 ? cell.min.z + WildernessTerrainMargin : cell.max.z - WildernessTerrainMargin);
+                    if (corner >= 4 && corner < 12 && macroWater.preparedV2 != null)
+                    {
+                        // note: Preserve the first four corner attempts, then test one proven dry remnant with a bounded range of existing palette/habitat seeds. Random retries alone can miss a narrow island indefinitely.
+                        if (!dryCandidateSearched)
+                        {
+                            Bounds domain = ResolveVegetationPlacementBounds(cell, terrain.transform.position, terrain.terrainData.size);
+                            hasDryCandidate = macroWater.preparedV2.TryFindVegetationDryCandidate(domain, out dryCandidate);
+                            dryCandidateSearched = true;
+                        }
+                        if (hasDryCandidate) clusterCenter = new Vector3(dryCandidate.x, 0f, dryCandidate.y);
+                    }
+                    if (!IsWildernessPositionAllowed(terrain, plan, clusterCenter, settlementClearRadius,
+                            originClearRadius, encampmentClearRadius, macroWater))
+                    {
+                        if (IsInsideMacroWaterFootprint(terrain, plan, clusterCenter, 2f, macroWater)) fallbackWaterRejected++;
+                        if (NearAnySettlement(plan, terrain, clusterCenter, settlementClearRadius, macroWater.preparedV2)) fallbackSettlementRejected++;
+                        if (NearAnyEncampment(plan, terrain, clusterCenter, encampmentClearRadius, macroWater.preparedV2)) fallbackCampRejected++;
+                        continue;
+                    }
+                }
+                else if (!TryResolveWildernessPosition(
                         terrain,
                         plan,
                         regionCenter,
@@ -11255,15 +11877,16 @@ public static class YQGeneratedWorldEnvironment
                         settlementClearRadius,
                         originClearRadius,
                         encampmentClearRadius,
-                        out Vector3 clusterCenter,
+                        out clusterCenter,
                         macroWater))
                 {
                     continue;
                 }
 
                 // note: Region dressing grows in deterministic groves and rock outcrops instead of isolated uniform noise, preserving palette identity while filling traversal space coherently.
+                resolvedCenters++;
                 Vector3 position =
-                    clusterCenter +
+                    requiredCellFallback ? clusterCenter : clusterCenter +
                     ResolveRadialOffset(
                         seed + "|cluster_member",
                         vegetationSlot ? 1.5f : 0.8f,
@@ -11278,6 +11901,7 @@ public static class YQGeneratedWorldEnvironment
                         continue;
                 }
 
+                clippedMembers++;
                 if (!IsWildernessPositionAllowed(
                         terrain,
                         plan,
@@ -11290,6 +11914,7 @@ public static class YQGeneratedWorldEnvironment
                     continue;
                 }
 
+                allowedMembers++;
                 if (macroWater.preparedV2 != null)
                 {
                     YQSpatialEcologySampleV2 ecology =
@@ -11351,6 +11976,7 @@ public static class YQGeneratedWorldEnvironment
                     : vegetationSlot
                         ? 1.4f
                         : 3.2f;
+                habitatMembers++;
                 if (IsNearLivedPath(
                         livedPaths,
                         position,
@@ -11361,6 +11987,7 @@ public static class YQGeneratedWorldEnvironment
                 }
 
                 // note: Canopy diversity advances from the deterministic attempt index, not the number already spawned. A rejected position or prefab must not keep retrying the same tree family and starve the remaining approved silhouettes.
+                clearMembers++;
                 GeneratedAssetReferenceRecord reference =
                     treesOnly
                         ? scatterReferences[attempt % scatterReferences.Count]
@@ -11386,6 +12013,7 @@ public static class YQGeneratedWorldEnvironment
 
                 if (prefab == null)
                     continue;
+                resolvedPrefabs++;
 
                 // note: Vegetation can be authored with a large canopy; fit it to the mature-tree budget after instantiation instead of discarding the ecological family before it is audited.
                 if (!vegetationSlot &&
@@ -11564,7 +12192,7 @@ public static class YQGeneratedWorldEnvironment
                     spawnedTreeFamilies.Add(reference.assetPath);
 
                 // note: Wilderness dressing shares the strict loading budget; even a vegetation-heavy region cannot instantiate its complete scatter set on one presentation frame.
-                if (Time.realtimeSinceStartup - frameStartedAt >= 0.0015f)
+                if (Time.realtimeSinceStartup - frameStartedAt >= YQGeneratedWorldPerformanceDirector.CooperativeWorkSliceSeconds)
                 {
                     yield return null;
                     frameStartedAt = Time.realtimeSinceStartup;
@@ -11585,11 +12213,19 @@ public static class YQGeneratedWorldEnvironment
                     " candidates=" + scatterReferences.Count);
             }
 
-            if (requiredLowVegetation && spawned == 0)
+            if (placementBounds.HasValue && vegetationSlot && spawned == 0)
             {
-                // note: Exhaustion remains an explicit publication failure; no habitat requirement is waived to release the cell.
-                Debug.LogError("[YQGeneratedWorldEnvironment] REQUIRED SCATTER EXHAUSTED layer=" + layerLabel +
-                    " seed=" + seedScope + " attempts=" + attempts + " candidates=" + scatterReferences.Count);
+                // note: Native terrain detail owns required groundcover; optional prefab scatter may legitimately have no eligible cluster center. Required canopy/understory/shrub failures remain errors.
+                bool optionalGroundcover = string.Equals(layerLabel, "Groundcover", StringComparison.Ordinal);
+                string exhaustion = "[YQGeneratedWorldEnvironment] " +
+                    (optionalGroundcover ? "OPTIONAL" : "REQUIRED") + " SCATTER EXHAUSTED layer=" + layerLabel +
+                    " seed=" + seedScope + " attempts=" + attempts + " candidates=" + scatterReferences.Count +
+                    " centers=" + resolvedCenters + " clipped=" + clippedMembers + " allowed=" + allowedMembers +
+                    " habitat=" + habitatMembers + " pathClear=" + clearMembers + " prefabs=" + resolvedPrefabs +
+                    " fallbackWet=" + fallbackWaterRejected + " fallbackSettlement=" + fallbackSettlementRejected + " fallbackCamp=" + fallbackCampRejected +
+                    " terrainOrigin=" + terrain.transform.position + " terrainSize=" + terrain.terrainData.size;
+                if (optionalGroundcover) Debug.LogWarning(exhaustion);
+                else Debug.LogError(exhaustion);
             }
             completed?.Invoke(spawned);
         }
@@ -11600,6 +12236,56 @@ public static class YQGeneratedWorldEnvironment
                 pendingInstantiation.Cancel();
             if (preparationRoot != null)
                 UnityEngine.Object.Destroy(preparationRoot);
+        }
+    }
+
+    private static void OrderCanopyScatterReferences(
+        List<GeneratedAssetReferenceRecord> references,
+        GeneratedRegionAssetPaletteRecord palette,
+        string worldSeed,
+        string regionId,
+        Vector3 regionCenter,
+        string seedScope)
+    {
+        if (references == null || references.Count < 2 || palette == null)
+            return;
+
+        // note: R3 places accepted bindings first. Shuffle within that prefix and the existing supplement tier separately so regional references never lose precedence or metadata.
+        int acceptedCount = 0;
+        while (acceptedCount < references.Count && palette.vegetation != null &&
+            palette.vegetation.Contains(references[acceptedCount]))
+            acceptedCount++;
+
+        // note: The same accepted inputs and world-space owner center replay identically, independent of traversal, process culture, or Unity's mutable random state.
+        string seed = worldSeed + "|canopy_reference_order|" + regionId + "|" + palette.paletteId + "|" +
+            regionCenter.x.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "|" +
+            regionCenter.z.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "|" + seedScope;
+        ShuffleCanopyReferenceRange(references, 0, acceptedCount, StableHash32(seed + "|accepted"));
+        ShuffleCanopyReferenceRange(references, acceptedCount, references.Count - acceptedCount, StableHash32(seed + "|supplement"));
+    }
+
+    private static void ShuffleCanopyReferenceRange(
+        List<GeneratedAssetReferenceRecord> references,
+        int start,
+        int count,
+        uint seed)
+    {
+        // note: A local Fisher-Yates permutation retains every existing choice once per cycle; avalanche mixing prevents low-bit hash patterns from becoming a repeated neighbor-cell offset.
+        unchecked
+        {
+            for (int index = count - 1; index > 0; index--)
+            {
+                uint hash = seed ^ (uint)index * 0x9E3779B9u;
+                hash ^= hash >> 16;
+                hash *= 0x7FEB352Du;
+                hash ^= hash >> 15;
+                hash *= 0x846CA68Bu;
+                hash ^= hash >> 16;
+                int other = (int)(hash % (uint)(index + 1));
+                GeneratedAssetReferenceRecord reference = references[start + index];
+                references[start + index] = references[start + other];
+                references[start + other] = reference;
+            }
         }
     }
 
@@ -11758,6 +12444,13 @@ public static class YQGeneratedWorldEnvironment
                     palette,
                     slot);
 
+        // note: Accepted palette bindings own duplicate paths and their authored metadata; approved trees only supplement missing paths.
+        AddValidSmallReferences(
+            candidates,
+            primary,
+            slot,
+            treesOnly);
+
         if (treesOnly &&
             string.Equals(
                 slot,
@@ -11765,15 +12458,9 @@ public static class YQGeneratedWorldEnvironment
                 StringComparison.OrdinalIgnoreCase) &&
             ShouldSpawnVisibleTrees(palette))
         {
-            // note: Put the approved canopy family first so deterministic early placements demonstrate four distinct silhouettes before palette-specific additions can repeat one family.
+            // note: Retain the existing approved fallback pool after the region palette without replacing accepted reference settings.
             AddApprovedVisibleTreeReferences(candidates, palette);
         }
-
-        AddValidSmallReferences(
-            candidates,
-            primary,
-            slot,
-            treesOnly);
 
         if (string.Equals(
                 slot,
@@ -12594,10 +13281,16 @@ public static class YQGeneratedWorldEnvironment
                     continue;
                 }
 
-                GroundStructuralFeature(
+                if (!GroundStructuralFeature(
                     instance,
                     terrain,
-                    0.12f);
+                    0.12f))
+                {
+                    // note: Retry the remaining approved bindings instead of keeping a floating cave after rejected terrain contact.
+                    instance.SetActive(false);
+                    UnityEngine.Object.Destroy(instance);
+                    continue;
+                }
 
                 EnsureStaticStructuralCollision(
                     instance);
@@ -14179,10 +14872,11 @@ public static class YQGeneratedWorldEnvironment
                 PrepareStaticStructure(
                     chest);
 
-                GroundStructuralFeature(
+                if (!GroundStructuralFeature(
                     chest,
                     terrain,
-                    0.03f);
+                    0.03f, YQGeneratedWorldPlacementCategory.Prop))
+                    throw new InvalidOperationException("Wilderness reward has no supported terrain contact: " + reference.assetPath);
 
                 /*
                  * Wilderness reward balance.
@@ -14407,7 +15101,7 @@ public static class YQGeneratedWorldEnvironment
         if (!InsideTerrainWithMargin(
                 terrain,
                 candidate,
-                3f))
+                WildernessTerrainMargin))
         {
             return false;
         }
@@ -14453,6 +15147,19 @@ public static class YQGeneratedWorldEnvironment
         }
 
         return true;
+    }
+
+    private static bool IsLivedPathWaterOwned(Terrain terrain, GeneratedWorldPlanRecord plan,
+        Vector3 point, MacroWaterSet macroWater)
+    {
+        // note: Native masks describe the actual accepted water triangles. Temporary road fill cannot turn their eventual submerged bed into visible packed earth.
+        var prepared = macroWater != null ? macroWater.preparedV2 : null;
+        if (prepared != null && YQContinuousWorldFeatureMaterializer.UsesNativeBridgeRoutes(prepared))
+        {
+            var sample = prepared.SampleTerrain(point.x, point.z);
+            return sample.waterFeatureIndex >= 0 && sample.waterMask > .05f;
+        }
+        return IsSubmergedByMacroWater(terrain, plan, point, 0f, macroWater);
     }
 
     private static bool IsSubmergedByMacroWater(
@@ -15027,31 +15734,21 @@ public static class YQGeneratedWorldEnvironment
                     .SlotVegetation,
                 StringComparison.OrdinalIgnoreCase) &&
             LooksLikeTree(instance, reference);
-        if (tree &&
-            TryGetTreeTrunkBounds(
-                instance,
-                out Bounds trunkBounds))
+        if (tree)
         {
-            if (YQGeneratedWorldTerrain.TrySampleFootprintHeight(
-                    terrain,
-                    trunkBounds,
-                    out float trunkTerrainContact,
-                    out _,
-                    out _))
-            {
-                // note: Tree contact follows the visible trunk footprint rather than an arbitrary imported root pivot or the canopy bounds.
-                Vector3 treePosition =
-                    instance.transform.position;
-                treePosition.y +=
-                    trunkTerrainContact -
-                    trunkBounds.min.y -
-                    0.05f;
-                instance.transform.position =
-                    treePosition;
+            // note: Bark includes asymmetric branches, so its full footprint cannot choose the ground beneath the planted root. Combined and named-trunk trees share the same authored root XZ and primary geometry bottom.
+            if ((!TryGetTreeTrunkBounds(instance, out Bounds trunkBounds) &&
+                 !TryGetTreeTrunkBounds(instance, out trunkBounds, false)) ||
+                !YQGeneratedWorldTerrain.TrySamplePlacementHeight(terrain, instance.transform.position, null, out float groundHeight) ||
+                !TryResolveTreeRootCorrection(groundHeight, trunkBounds.min.y, out float correction))
+                return false;
 
-                // note: Tree trunks remain upright and use their root geometry as the explicit contact authority.
-                return true;
-            }
+            Vector3 position = instance.transform.position;
+            position.y += correction;
+            instance.transform.position = position;
+            Rigidbody body = instance.GetComponent<Rigidbody>();
+            if (body != null) body.position = position;
+            return true;
         }
 
         YQGeneratedWorldPlacementCategory category =
@@ -15060,7 +15757,6 @@ public static class YQGeneratedWorldEnvironment
                 YQWorldAssetCatalog.SlotRock,
                 StringComparison.OrdinalIgnoreCase)
                 ? YQGeneratedWorldPlacementCategory.Rock
-                : tree ? YQGeneratedWorldPlacementCategory.Tree
                 : string.Equals(
                     slot,
                     YQWorldAssetCatalog.SlotVegetation,
@@ -15068,13 +15764,25 @@ public static class YQGeneratedWorldEnvironment
                     ? YQGeneratedWorldPlacementCategory.Vegetation
                     : YQGeneratedWorldPlacementCategory.Prop;
 
-        // note: Combined tree meshes retain tree semantics when no renderer is named trunk/bark; only shrubs and rocks receive surface tilt.
+        // note: Non-tree dressing retains its existing category-specific surface tilt and embedding contract.
         return YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
             category,
             0.05f,
             out _);
+    }
+
+    internal static bool TryResolveTreeRootCorrection(float groundHeight, float geometryBottom, out float correction)
+    {
+        // note: Preserve the existing five-centimetre root embed and bounded correction contract without deriving contact from canopy width or branch asymmetry.
+        correction = groundHeight - geometryBottom - 0.05f;
+        if (float.IsNaN(correction) || float.IsInfinity(correction) || Mathf.Abs(correction) > 128f)
+        {
+            correction = 0f;
+            return false;
+        }
+        return true;
     }
 
     // ============================================================
@@ -15219,10 +15927,11 @@ public static class YQGeneratedWorldEnvironment
             permittedVariation;
     }
 
-    private static void GroundStructuralFeature(
+    private static bool GroundStructuralFeature(
         GameObject instance,
         Terrain terrain,
-        float penetrationRatio)
+        float penetrationRatio,
+        YQGeneratedWorldPlacementCategory category = YQGeneratedWorldPlacementCategory.Structure)
     {
         if (instance == null ||
             terrain == null ||
@@ -15231,7 +15940,7 @@ public static class YQGeneratedWorldEnvironment
                 out Bounds bounds,
                 out _))
         {
-            return;
+            return false;
         }
 
         float penetration =
@@ -15244,10 +15953,10 @@ public static class YQGeneratedWorldEnvironment
                 1.75f);
 
         // note: Caves and large wilderness structures share the same nine-point terrain contact contract as every other grounded generated asset.
-        YQGeneratedWorldTerrain.TryPlaceGroundedObject(
+        return YQGeneratedWorldTerrain.TryPlaceGroundedObject(
             instance,
             terrain,
-            YQGeneratedWorldPlacementCategory.Structure,
+            category,
             penetration,
             out _);
     }
@@ -15855,7 +16564,8 @@ public static class YQGeneratedWorldEnvironment
 
     private static bool TryGetTreeTrunkBounds(
         GameObject root,
-        out Bounds bounds)
+        out Bounds bounds,
+        bool requireTrunkName = true)
     {
         bounds =
             default;
@@ -15878,9 +16588,7 @@ public static class YQGeneratedWorldEnvironment
             Renderer renderer =
                 renderers[i];
 
-            if (renderer == null ||
-                renderer is
-                    ParticleSystemRenderer)
+            if (renderer == null || !IsPrimaryTreeContactRenderer(renderer, root.transform))
             {
                 continue;
             }
@@ -15897,7 +16605,7 @@ public static class YQGeneratedWorldEnvironment
                 name.Contains("stem") ||
                 name.Contains("stump");
 
-            if (!trunkLike)
+            if (requireTrunkName && !trunkLike)
                 continue;
 
             if (!initialized)
@@ -15916,6 +16624,19 @@ public static class YQGeneratedWorldEnvironment
         }
 
         return initialized;
+    }
+
+    private static bool IsPrimaryTreeContactRenderer(Renderer renderer, Transform root)
+    {
+        // note: Staging may hide renderers; use authored primary LOD identity, not current visibility or a distant billboard's padded bounds, for trunk contact.
+        if (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer)) return false;
+        LODGroup group = renderer.GetComponentInParent<LODGroup>(true);
+        if (group == null || !group.transform.IsChildOf(root)) return true;
+        LOD[] levels = group.GetLODs();
+        for (int level = 0; level < levels.Length; level++)
+            foreach (Renderer member in levels[level].renderers)
+                if (member == renderer) return level == 0;
+        return true;
     }
 
     // ============================================================
@@ -16023,8 +16744,9 @@ public static class YQGeneratedWorldEnvironment
                 1.4f,
                 4.5f);
 
+        // note: The blocking trunk follows the same planted root as grounding; asymmetric branches must not move collision away from the visible tree's base.
         Vector3 trunkWorldCenter =
-            trunkBounds.center;
+            root.transform.position;
 
         float terrainY =
             YQGeneratedWorldTerrain
@@ -16445,10 +17167,9 @@ public static class YQGeneratedWorldEnvironment
             position.z *
                 position.z;
 
-        return
-            distanceSquared <
-            radius *
-            radius;
+        // note: Keep procedural scatter out of the authored shrine-and-hut composition; its approved title dressing owns this clearing.
+        return distanceSquared < radius * radius ||
+            new Vector2(position.x - 50f, position.z - 17f).sqrMagnitude < 36f * 36f;
     }
 
     private static bool InsideTerrain(

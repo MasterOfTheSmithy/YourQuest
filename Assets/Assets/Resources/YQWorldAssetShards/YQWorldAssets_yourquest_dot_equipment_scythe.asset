@@ -1,0 +1,185 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_scythe
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Drake_Scythe.prefab
+    prefab: {fileID: 6620945095570152358, guid: b5a1b5dfd845fdb449dd63e52886bce8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Duelist_Scythe.prefab
+    prefab: {fileID: 6405447821535965263, guid: 0184edccd4c50f746ae834e86f044946, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Eclipse_Requiem.prefab
+    prefab: {fileID: 6541914970348388279, guid: 6ec72629a1c3496419abc9c3d897617b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Eclipse_Scythe.prefab
+    prefab: {fileID: 934172191690743914, guid: 39e4b22d68ed26e47a6f5a30dd6a5050, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Field_Scythe.prefab
+    prefab: {fileID: 7639356051068710473, guid: 76784c3cbfb6c1f4b928db687122fac8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Frontier_Scythe.prefab
+    prefab: {fileID: 2765916660146705170, guid: d46024c97442364479ea9849540bec86, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Moonharvest.prefab
+    prefab: {fileID: 553620200407697661, guid: 3bb138d898b7daf428b853b7a0412dd5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Ranger_Scythe.prefab
+    prefab: {fileID: 5070392172727208349, guid: ff9979c41d80c564885b88e7f1b48263, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Scythe_Starforged_Orrery.prefab
+    prefab: {fileID: 4534533816234036335, guid: 7e6ac96bd36df5b4a9c16ac8fccb934b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Scythe_Worldtree_Sovereign.prefab
+    prefab: {fileID: 8950945591332192468, guid: 9d170c87cfd3bcb4dbe0a8580bdd2186, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Sentinel_Scythe.prefab
+    prefab: {fileID: 6977676614178837780, guid: 3505ad8584dd2bf46876e6e016aa3b37, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_darkness.prefab
+    prefab: {fileID: 8539965642868207955, guid: 4504fa50eac53ac44a8e7c7ecb60a727, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_fire.prefab
+    prefab: {fileID: 1932061814506948384, guid: 6a6e417254c817e4bb184f643be7f0fb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_forged.prefab
+    prefab: {fileID: 8731072591317217283, guid: 74ee85c4f338c794f8136e2aec481d64, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_frost.prefab
+    prefab: {fileID: 5941216487810896046, guid: 07a349c6d3e874040b8035b23cdf92f7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_light.prefab
+    prefab: {fileID: 626383073098623158, guid: db1acd2f2835c1e4f9db8c2ca2aa67a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_head_organic.prefab
+    prefab: {fileID: 3441063148144941851, guid: 0105b5304c79ce341890d58fa0192340, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_darkness.prefab
+    prefab: {fileID: 6746886295397914055, guid: ff3840708280f2143ac299f450aa3e02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_fire.prefab
+    prefab: {fileID: 2395170077230728402, guid: 64ae768ff478d4045864d80793205b65, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_forged.prefab
+    prefab: {fileID: 1506398068712491038, guid: 3feda81092c4c6a499002ef3c4154758, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_frost.prefab
+    prefab: {fileID: 3122333494140514748, guid: 567e0b8bc4f1dd144a4e8751e6a0f4a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_light.prefab
+    prefab: {fileID: 8963603831337454636, guid: 8bd69fd05dac0064fbcf8094449fafa7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_lower_haft_organic.prefab
+    prefab: {fileID: 4088581245720604717, guid: 6ba417ecc0f5e434b9e392db9952ff0a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_mixed_dark_light_forged.prefab
+    prefab: {fileID: 3883185253654619932, guid: 8f5f903c5ea61914eb68ab72a25964ba, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 75102227248120285, guid: eb8344d7ac14d4345b818803acf3806e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_darkness.prefab
+    prefab: {fileID: 5301180759936364743, guid: 820cea4bea6968e4387f164edca82b46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_fire.prefab
+    prefab: {fileID: 7699074899531274245, guid: 343ffa977c58b86469cfae7b7c19d1f0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_forged.prefab
+    prefab: {fileID: 4342491283177194640, guid: 39d412d21c5063244a03e9b7a1bbd43d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_frost.prefab
+    prefab: {fileID: 323540694293628635, guid: 005f184b999cd434e95b5c1f8b9abb38, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_light.prefab
+    prefab: {fileID: 4680481483134063917, guid: c3c76b0243482d642822449e6904758f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/yqmod1_weapon_scythe_upper_haft_organic.prefab
+    prefab: {fileID: 484685645119225038, guid: 7d6c437a7b14f794b9cb6fc762148a9a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Field_Scythe_Parts.prefab
+    prefab: {fileID: 5998256583587685093, guid: 8bec82502d0c277469007ddc3a8d9374, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Ranger_Scythe_Parts.prefab
+    prefab: {fileID: 7537742565644812662, guid: 46da2c13c7fc93e4998c1e42c837ccf7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Sentinel_Scythe_Parts.prefab
+    prefab: {fileID: 8732391595287905470, guid: 04a4b1dccfccf1b4fb5e38c2d7b27ba1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Duelist_Scythe_Parts.prefab
+    prefab: {fileID: 4351060743911953485, guid: eba7814f192b6584cbefaf96893b88e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Frontier_Scythe_Parts.prefab
+    prefab: {fileID: 5223371576175248042, guid: b3d32ceda86655546aa0831e5c536a91, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Drake_Scythe_Parts.prefab
+    prefab: {fileID: 2330955718479567247, guid: c9008c8b1af5f6b4ca4a578190caaa87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Eclipse_Scythe_Parts.prefab
+    prefab: {fileID: 6368978017892511037, guid: f505dc005e131ca49b0da0273b9f546d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Scythe_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 4414034436281536414, guid: 77433de7c911c534d9fb82297c52d22b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Scythe_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 6306981740993675440, guid: d10e7ddb61158d040874e9944d4d0e62, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Moonharvest_Parts.prefab
+    prefab: {fileID: 1714784668848424557, guid: 7cf5aaa2ab4c7a64cac20e4ab4a7d599, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/scythe/Eclipse_Requiem_Parts.prefab
+    prefab: {fileID: 1849953979158942086, guid: 42a339654bb585c41ba9677823b1e67a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

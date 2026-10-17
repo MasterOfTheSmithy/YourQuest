@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_focus
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Artisan.prefab
+    prefab: {fileID: 5546638670227619764, guid: b4490c5bc51ab3143a3680742f5d5448, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Court.prefab
+    prefab: {fileID: 950520942033334125, guid: 6a96111ac5110484886a47f07956d2b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Dragonbound.prefab
+    prefab: {fileID: 6580069366003889972, guid: d716fdfb78eee664eb47e5ca0efb3be9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Eclipse.prefab
+    prefab: {fileID: 7313151370706189602, guid: b70af41182b639847a42fb0e8a759e80, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Field.prefab
+    prefab: {fileID: 3195466581361333775, guid: 89bee2dc574546f438870f24bfaf490c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Merchant.prefab
+    prefab: {fileID: 338400054004917900, guid: c87652182cffe0f46b80801d097c9430, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Ranger.prefab
+    prefab: {fileID: 4553984528850807881, guid: 1e56d6066ab00164f956ac822413302a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Starforged_Orrery.prefab
+    prefab: {fileID: 7308752850401915424, guid: c68870c2d65633340b47fdd0a3053ad5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1338868841169178022, guid: f13fbad1518a2494193e21049c5b79bd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_core.prefab
+    prefab: {fileID: 3503892023111914920, guid: 303bc3722d51b2d4781e9dec2d933969, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mixed_darkness_light.prefab
+    prefab: {fileID: 111035556272540536, guid: 9674448597f860c469a23961734296b9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mixed_organic_fire.prefab
+    prefab: {fileID: 8746298738561297284, guid: 42e174fd306d9b94a94ed76d072e32bd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_darkness.prefab
+    prefab: {fileID: 6199325396453599447, guid: 0f359d30bf89c844980f0018fba1aa33, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_fire.prefab
+    prefab: {fileID: 2624980027521969529, guid: 4e3d3987f4ea877478ec72129de32266, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_forged.prefab
+    prefab: {fileID: 8547019019390272254, guid: b894041a84d8e8340a940aed076c6ad4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_frost.prefab
+    prefab: {fileID: 6400314903663436340, guid: eeed2eb96afb03e40b6ffd90b7ff49c8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_light.prefab
+    prefab: {fileID: 7295311430065462283, guid: 7a893d4517ddcf240b5df2e0e6fa5895, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_motif_organic.prefab
+    prefab: {fileID: 4602936167483183634, guid: a80ee65eedcb6a84f8eab57c1e289cac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_darkness.prefab
+    prefab: {fileID: 187843486924847552, guid: 2f728d60ee93a2840a0f2698cfe3bc28, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_fire.prefab
+    prefab: {fileID: 1863257629519638787, guid: 523ce3d6b7ee01e4e905eb3164e6cf48, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_forged.prefab
+    prefab: {fileID: 1030238016963693131, guid: 5a2f6b02009ca364c9b97d397807d3fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_frost.prefab
+    prefab: {fileID: 5469314052135471431, guid: 4f6bba0e0d88d81498f4c169a2173fbf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_light.prefab
+    prefab: {fileID: 9215670008099453110, guid: 9855ca124601e4c4cb58ed9fb19c6941, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/yqmod1_accessories_focus_mount_organic.prefab
+    prefab: {fileID: 115198235288873154, guid: 312153cecabd67247a4ba8aafed397da, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Field_Parts.prefab
+    prefab: {fileID: 5230709568767507901, guid: 3f876147c1348784dac0e5df3fdad4e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Merchant_Parts.prefab
+    prefab: {fileID: 8324637129210201686, guid: 905de44baf77a874f9760a4be5a56b04, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Ranger_Parts.prefab
+    prefab: {fileID: 3131632575072483879, guid: d2a93aa26fdd62b46b2fb4d920f9207f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Artisan_Parts.prefab
+    prefab: {fileID: 1766400356297908638, guid: feade6b492a0e6a41848d5ca8688e29a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Court_Parts.prefab
+    prefab: {fileID: 4907921755503904179, guid: b9d4057cf5a09034ea6ad9a2266c3267, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Dragonbound_Parts.prefab
+    prefab: {fileID: 2683124138186848997, guid: 56d0a91dd8f8bc6429f6963feaa80a7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Eclipse_Parts.prefab
+    prefab: {fileID: 4068468350268051289, guid: 5539d1e6203c7b2429968d6970932f3a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7742631725730231728, guid: d6d91796f57a8c94d862e1491cbb5516, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/focus/Focus_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 2445013545266274356, guid: 05da77c503654fd42b57113fb4a4522e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

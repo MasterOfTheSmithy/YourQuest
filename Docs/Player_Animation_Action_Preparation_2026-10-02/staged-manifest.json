@@ -1,0 +1,52 @@
+[
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/YQInvestorPlayerMotor.cs",
+    "baselineSha256": "c28c5868e9b033dc05b50059600387cfa867a746fda7b5e1d629b3f004b39827",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\YQInvestorPlayerMotor.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/YQPlayerEquipmentVisual.cs",
+    "baselineSha256": "1a85c5b1c41a1aaafb4c3b924bdd3d23dff4f7866e3ed67441b8b13a8cc5db9b",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\YQPlayerEquipmentVisual.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/YQInvestorCombat.cs",
+    "baselineSha256": "e632b1684096a1bd642a7c4073b40c407ec3b650913efb33090a475f46001702",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\YQInvestorCombat.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/YQInvestorWorldPickup.cs",
+    "baselineSha256": "9a345e1f820d9ac4596903030d073e756bbe525d97d9150ebd63aa51fbe2d80d",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\YQInvestorWorldPickup.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/YQInvestorLootableCorpse.cs",
+    "baselineSha256": "2c0e5b46eadbd46ae1ca0cba491ba6607417f0a70cd582b9b0a8bef5d17cfe48",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\YQInvestorLootableCorpse.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Generated/GeneratedRpgContentService.cs",
+    "baselineSha256": "cbfcbe89439973593ac5cbda45bea887c8c31dccc0fa7f5d41abf0e1a6ef704c",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Generated\\GeneratedRpgContentService.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/Editor/YQAuthoredPlayerAnimations.cs",
+    "baselineSha256": "998eef147f5e607b49485336e2f14f729cbccf37c18a37d11e87d52d27d2d202",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQAuthoredPlayerAnimations.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/Editor/YQPlayerLocomotionRepair.cs",
+    "baselineSha256": "10c2f7bb0fb002c2638cc098d25a3160a64a2740f377f534d4558efd61a73639",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQPlayerLocomotionRepair.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/Editor/YQPlayerAnimationRuntimeVerification.cs",
+    "baselineSha256": "3f80aeac18bf9c99e62bfe6be0dc5f71e555f096683743e91ee25ff34a98dfb2",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQPlayerAnimationRuntimeVerification.cs.txt"
+  },
+  {
+    "path": "Assets/Assets/Scripts/Tutorial/Editor/YQPlayerAnimationAssets.cs",
+    "baselineSha256": "bcf6a3e980b92e5af9402eedca4a8602172b35ce6b7151d24c0089726f2f47d0",
+    "staged": "staged\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQPlayerAnimationAssets.cs.txt"
+  }
+]

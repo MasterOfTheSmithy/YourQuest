@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_nordicvillage
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Altar.prefab
+    prefab: {fileID: 1031012180, guid: abc00000000009126285138971862751, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Anvil.prefab
+    prefab: {fileID: 1031006307, guid: abc00000000000663048425925687157, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BackGate.prefab
+    prefab: {fileID: 1030991985, guid: abc00000000004870439115496280129, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Barrel.prefab
+    prefab: {fileID: 1030972168, guid: abc00000000005829700056042660361, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Cart.prefab
+    prefab: {fileID: 1030973938, guid: abc00000000011749161118377129527, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_DefensiveWallSingle.prefab
+    prefab: {fileID: 1031032173, guid: abc00000000006662206077574048420, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Fern.prefab
+    prefab: {fileID: 1031096200, guid: abc00000000003248308178604881290, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_FirePit.prefab
+    prefab: {fileID: 1031001156, guid: abc00000000009363921308734713768, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_GroundMesh.prefab
+    prefab: {fileID: 1031059858, guid: abc00000000007073312194872496851, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Log.prefab
+    prefab: {fileID: 1030999016, guid: abc00000000013152138394459853817, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_LogRoofGable01.prefab
+    prefab: {fileID: 1030977824, guid: abc00000000015631255397146571039, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_LogWall01.prefab
+    prefab: {fileID: 1030977600, guid: abc00000000001476554245532823404, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_LogWallDoor.prefab
+    prefab: {fileID: 1030977576, guid: abc00000000015850386098523110133, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_LogWallWindow.prefab
+    prefab: {fileID: 1030977622, guid: abc00000000013633089671616901629, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_MudMesh.prefab
+    prefab: {fileID: 1031060508, guid: abc00000000015561687403046257178, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Pebble01.prefab
+    prefab: {fileID: 1031029092, guid: abc00000000016791968638065247432, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Plank01.prefab
+    prefab: {fileID: 1030990721, guid: abc00000000004870837366453339734, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Plank02.prefab
+    prefab: {fileID: 1030991535, guid: abc00000000018200497948718718781, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Plank03.prefab
+    prefab: {fileID: 1030972424, guid: abc00000000015667752776719993748, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_RoofGableTall01.prefab
+    prefab: {fileID: 1030974190, guid: abc00000000000241228148298531122, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Shelf.prefab
+    prefab: {fileID: 1030976903, guid: abc00000000004257449022764763079, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Shield.prefab
+    prefab: {fileID: 1030986069, guid: abc00000000018358139735454925158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_SingleTile.prefab
+    prefab: {fileID: 1031056247, guid: abc00000000011182130756048998565, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_ThatchRoof01.prefab
+    prefab: {fileID: 1030973138, guid: abc00000000017517815497378487896, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Tree.prefab
+    prefab: {fileID: 1031001000, guid: abc00000000018220668741617656101, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_TreeNeedles01.prefab
+    prefab: {fileID: 1031096242, guid: abc00000000009956653230559430834, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Wall01.prefab
+    prefab: {fileID: 1030972890, guid: abc00000000014467348442950166076, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_WallDoor.prefab
+    prefab: {fileID: 1030972868, guid: abc00000000007254931558018333733, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_WallTall01.prefab
+    prefab: {fileID: 1030973522, guid: abc00000000011759104771258571945, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_WallTallDoor.prefab
+    prefab: {fileID: 1030973456, guid: abc00000000007790031350455543280, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_WallTorch.prefab
+    prefab: {fileID: 1031014354, guid: abc00000000014673320789256632217, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_WoodenCrate.prefab
+    prefab: {fileID: 1031000511, guid: abc00000000011623414244743131780, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BackGateLeftDoor.prefab
+    prefab: {fileID: 1030979924, guid: abc00000000002522717592112845914, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BackGateLockPlank.prefab
+    prefab: {fileID: 1030992007, guid: abc00000000009760555974936723844, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BackGateRightDoor.prefab
+    prefab: {fileID: 1030979902, guid: abc00000000001103546023727803709, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Bed.prefab
+    prefab: {fileID: 1031005725, guid: abc00000000018241557152127990318, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BedSheet01.prefab
+    prefab: {fileID: 1031012566, guid: abc00000000003296582345105973150, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_BedSheet02.prefab
+    prefab: {fileID: 1031012482, guid: abc00000000007776111694650261541, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

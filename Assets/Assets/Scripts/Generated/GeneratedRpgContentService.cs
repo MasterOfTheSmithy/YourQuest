@@ -126,8 +126,11 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         {
             string slot = slots[i];
             YQOriginGeneratedItemDto hint = FindLoadoutHint(generatedLoadout, slot, i);
-            InventoryItemRecord item = GenerateItem(seed + ":" + slot + ":" + i, level, slot, false);
-            RefineOriginItem(item, direction, stimulus, seed, i, hint);
+            // note: Only raw player statements can override a new item's weighted rarity; generated lore cannot promote itself.
+            string itemSeed = seed + ":" + slot + ":" + i;
+            string rarity = YQItemAuthoringPolicy.ResolveRarity(itemSeed, slot, hint?.rarityHint, hint?.intentEvidence, ReadAuthoredOriginStatements(state));
+            InventoryItemRecord item = GenerateItemCore(itemSeed, level, slot, false, rarity, null, state);
+            RefineOriginItem(item, direction, hint);
             state.AddOrUpdateItem(item, true);
             if (item.IsEquippable && state.TryEquipItem(item.itemId, out _))
                 state.IncCounter("item:equip", 1f);
@@ -135,7 +138,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         }
 
         InventoryItemRecord consumable = GenerateItem(seed + ":first_recovery", level, "consumable", true);
-        RefineOriginItem(consumable, direction, stimulus, seed, slots.Length, FindLoadoutHint(generatedLoadout, "consumable", slots.Length));
+        RefineOriginItem(consumable, direction, FindLoadoutHint(generatedLoadout, "consumable", slots.Length));
         consumable.quantity = Mathf.Max(consumable.quantity, 2);
         consumable.stackable = true;
         state.AddOrUpdateItem(consumable, true);
@@ -203,28 +206,31 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         }
     }
 
-    private void RefineOriginItem(InventoryItemRecord item, string direction, string stimulus, string seed, int index, YQOriginGeneratedItemDto hint)
+    private static IEnumerable<string> ReadAuthoredOriginStatements(PlayerState state)
+    {
+        // note: Keep authored fields separate so evidence cannot be fabricated by concatenating neighboring fields or generated stimulus/tags.
+        yield return state.characterLifeDirection;
+        yield return state.characterVow;
+        yield return state.characterAppearanceSummary;
+        if (state.originQuestionnaireAnswers != null)
+            foreach (string answer in state.originQuestionnaireAnswers) yield return answer;
+    }
+
+    private void RefineOriginItem(InventoryItemRecord item, string direction, YQOriginGeneratedItemDto hint)
     {
         if (item == null)
             return;
 
         string normalized = NormalizeOriginDirection(direction);
-        string motif = ResolveOriginMotif(normalized, seed, index);
         string slot = string.IsNullOrWhiteSpace(item.equipSlot) ? item.itemType : item.equipSlot;
-        string baseName = BuildOriginItemBaseName(item, seed, index);
         string hintedName = hint != null ? CleanHint(hint.nameHint) : string.Empty;
-        item.displayName = !string.IsNullOrWhiteSpace(hintedName)
-            ? YQGeneratedContentCuration.CuratePlayerFacingName(PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null, "item", hintedName, "origin", false, stimulus)
-            : motif + " " + baseName;
         string hintedDescription = hint != null ? CleanHint(hint.descriptionHint) : string.Empty;
-        item.description = YQGeneratedContentCuration.CuratePlayerFacingDescription(
-            PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null,
-            "item",
-            item.displayName,
-            string.IsNullOrWhiteSpace(hintedDescription) ? "Manifested at the Goddess threshold when she interpreted the player's intended life direction instead of assigning a fixed tutorial kit." : hintedDescription,
-            "origin",
-            false,
-            string.IsNullOrWhiteSpace(stimulus) ? normalized + " instinct" : stimulus);
+        // note: Item prose has its own physical-form contract; progression curation could replace proper names with abstract skill-like scaffolding.
+        if (YQItemAuthoringPolicy.IsUsableHint(slot, hintedName, hintedDescription))
+        {
+            item.displayName = hintedName;
+            item.description = hintedDescription;
+        }
 
         if (string.Equals(slot, "weapon", StringComparison.OrdinalIgnoreCase))
             item.attackBonus = Mathf.Max(item.attackBonus, ResolveOriginAttackBonus(normalized));
@@ -279,7 +285,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
                 return hint;
         }
 
-        return index >= 0 && index < generatedLoadout.Length ? generatedLoadout[index] : null;
+        // note: An unmatched recovery item must not inherit a weapon or armor hint by array position.
+        return null;
     }
 
     private static string NormalizeLoadoutSlot(string slot)
@@ -311,8 +318,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(value))
             return string.Empty;
-        string clean = value.Trim();
-        return clean.Length <= 120 ? clean : clean.Substring(0, 120).TrimEnd();
+        return YQItemAuthoringPolicy.Compact(value);
     }
 
     private static string ResolveOriginMotif(string direction, string seed, int index)
@@ -785,6 +791,14 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         return GenerateItemCore(contextKey, level, preferredKind, forceConsumable, null, null);
     }
 
+    public InventoryItemRecord GenerateItem(PlayerState sourceOwner, string contextKey, int level,
+        string preferredKind = null, bool forceConsumable = false)
+    {
+        // note: Detached offer evaluation supplies its own owner so identity normalization cannot touch the live player before a durable decision.
+        if (sourceOwner == null) throw new ArgumentNullException(nameof(sourceOwner));
+        return GenerateItemCore(contextKey, level, preferredKind, forceConsumable, null, null, sourceOwner);
+    }
+
     // note: Containers use the existing mechanical/asset generator with source semantics instead of the current player's build or a random GUID.
     public InventoryItemRecord GenerateContainerItem(string seed, YQContainerContext context, YQLootEntry entry, YQLootRarity rarity)
     {
@@ -824,13 +838,13 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         return item;
     }
 
-    private InventoryItemRecord GenerateItemCore(string contextKey, int level, string preferredKind, bool forceConsumable, string sourceRarity, string sourceTheme)
+    private InventoryItemRecord GenerateItemCore(string contextKey, int level, string preferredKind, bool forceConsumable, string sourceRarity, string sourceTheme, PlayerState sourceOwner = null)
     {
         int effectiveLevel = Mathf.Max(1, level);
         string kind = forceConsumable ? "consumable" : ResolveItemKind(contextKey, preferredKind);
-        string rarity = sourceRarity ?? Pick(library != null ? library.itemRarities : null, "Common", contextKey, 2 + effectiveLevel);
+        string rarity = sourceRarity ?? YQItemAuthoringPolicy.RollRarity(contextKey);
         string material = Pick(library != null ? library.itemMaterials : null, "Traveler", contextKey, 0);
-        PlayerState ownerState = PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null;
+        PlayerState ownerState = sourceOwner ?? (PlayerStateManager.Instance != null ? PlayerStateManager.Instance.state : null);
         string theme = sourceTheme ?? PlayerFlavor(ownerState, contextKey, kind);
 
         InventoryItemRecord record = new InventoryItemRecord();
@@ -848,8 +862,10 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
             case "weapon":
                 record.itemType = "weapon";
                 record.equipSlot = "weapon";
-                record.displayName = material + " " + theme + " " + Pick(library != null ? library.weaponBases : null, "Blade", contextKey, 1);
-                record.description = "A main-hand weapon selected for your current fighting rhythm and level.";
+                // note: Fallback scaffolding uses a single motif and physical form, avoiding incompatible random material/meaning combinations.
+                string weaponForm = Pick(library != null ? library.weaponBases : null, "Blade", contextKey, 1);
+                record.displayName = theme + " " + weaponForm;
+                record.description = "This " + weaponForm.ToLowerInvariant() + " is balanced for deliberate strikes and a steady grip.";
                 record.attackBonus = Mathf.Max(2, (library != null ? library.baselineWeaponAttack : 4) + effectiveLevel);
                 record.powerScore = record.attackBonus;
                 break;
@@ -857,8 +873,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
             case "offhand":
                 record.itemType = "offhand";
                 record.equipSlot = "offhand";
-                record.displayName = material + " " + theme + " Ward";
-                record.description = "An offhand focus tuned to how you recover space and stabilize pressure.";
+                record.displayName = theme + " Focus";
+                record.description = "An offhand focus that reinforces defense and reserves mana.";
                 record.defenseBonus = Mathf.Max(1, (library != null ? library.baselineArmorDefense : 3) + effectiveLevel / 2);
                 record.manaBonus = 4 + effectiveLevel * 2;
                 record.powerScore = record.defenseBonus + record.manaBonus;
@@ -873,8 +889,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
             case "cloak":
                 record.itemType = "armor";
                 record.equipSlot = kind;
-                record.displayName = material + " " + theme + " " + BuildArmorName(kind);
-                record.description = "A fitted armor piece chosen for the way you are taking hits, moving, and surviving.";
+                record.displayName = theme + " " + BuildArmorName(kind);
+                record.description = "Fitted " + BuildArmorName(kind).ToLowerInvariant() + " that protects without restricting movement.";
                 record.defenseBonus = Mathf.Max(1, (library != null ? library.baselineArmorDefense : 3) + effectiveLevel / 2 + ArmorSlotWeight(kind));
                 record.healthBonus = (kind == "chest" || kind == "legs") ? effectiveLevel * 4 : effectiveLevel * 2;
                 record.staminaBonus = (kind == "boots" || kind == "gloves" || kind == "belt") ? effectiveLevel * 2 : 0;
@@ -893,8 +909,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
                 string accessorySlot = ResolveAccessorySlot(kind, contextKey);
                 record.itemType = "trinket";
                 record.equipSlot = accessorySlot;
-                record.displayName = material + " " + theme + " " + BuildAccessoryName(accessorySlot);
-                record.description = "An accessory tuned to the utility, control, or sustain your current build keeps asking for.";
+                record.displayName = theme + " " + BuildAccessoryName(accessorySlot);
+                record.description = "This " + BuildAccessoryName(accessorySlot).ToLowerInvariant() + " holds a small reserve of mana.";
                 record.manaBonus = accessorySlot == "necklace" ? Mathf.Max(6, (library != null ? library.baselineTrinketMana : 10) + effectiveLevel) : 2 + effectiveLevel;
                 record.attackBonus = accessorySlot.StartsWith("ring", StringComparison.OrdinalIgnoreCase) ? 1 + effectiveLevel / 2 : 0;
                 record.defenseBonus = accessorySlot.StartsWith("earring", StringComparison.OrdinalIgnoreCase) ? 1 + effectiveLevel / 2 : 0;
@@ -907,7 +923,7 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
                 record.equipSlot = string.Empty;
                 record.stackable = true;
                 record.displayName = theme + " " + Pick(library != null ? library.consumableBases : null, "Tonic", contextKey, 3);
-                record.description = "A field consumable prepared for your next recovery window: health, stamina, and mana in one quick use.";
+                record.description = "A field remedy that restores health, stamina, and mana.";
                 record.healAmount = 18 + effectiveLevel * 4;
                 record.restoreStaminaAmount = 12 + effectiveLevel * 3;
                 record.restoreManaAmount = 10 + effectiveLevel * 3;
@@ -1375,6 +1391,9 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
                 continue;
 
             string previousName = item.displayName;
+            // note: Accepted origin text is canon; reload must not replace an authored Frost/Ember name with a different player motif.
+            if ((item.familyKey ?? string.Empty).StartsWith("origin:", StringComparison.Ordinal))
+                continue;
             string previousDescription = item.description;
             string previousFamilyKey = item.familyKey;
             string theme = PlayerFlavor(state, (item.templateId ?? string.Empty) + " " + (item.displayName ?? string.Empty), string.IsNullOrWhiteSpace(item.equipSlot) ? item.itemType : item.equipSlot);
@@ -1743,7 +1762,8 @@ public sealed class GeneratedRpgContentService : MonoBehaviour
         if (kind == "necklace")
             return "necklace";
         if (kind == "trinket")
-            return AccessorySlots[Mathf.Abs(StableHash((seed ?? string.Empty) + ":accessory")) % AccessorySlots.Length];
+            // note: An explicit trinket must retain its supported slot rather than randomly becoming a ring, earring, or necklace.
+            return "trinket";
         if (kind == "ring_left" || kind == "ring_right" || kind == "earring_left" || kind == "earring_right")
             return kind;
         return "trinket";

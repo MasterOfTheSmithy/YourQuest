@@ -1,0 +1,933 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_victorianmansionenvironment
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Ash.prefab
+    prefab: {fileID: 1030987868, guid: abc00000000007015182270076987607, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile1.prefab
+    prefab: {fileID: 1030984731, guid: abc00000000008622574849494861583, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bookshelf_BIG.prefab
+    prefab: {fileID: 1030983110, guid: abc00000000015854633588850970321, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bookshelf_Double.prefab
+    prefab: {fileID: 1030983170, guid: abc00000000013054807983352543002, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bookshelf_Inward.prefab
+    prefab: {fileID: 1030983290, guid: abc00000000018384224293147210662, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bookshelf_Outward.prefab
+    prefab: {fileID: 1030983090, guid: abc00000000001103068899891309897, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bookshelf_Single.prefab
+    prefab: {fileID: 1030983150, guid: abc00000000016269681465838828561, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle1.prefab
+    prefab: {fileID: 1030996729, guid: abc00000000011508708774224141590, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle10.prefab
+    prefab: {fileID: 1030996349, guid: abc00000000012678285427945906666, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle11.prefab
+    prefab: {fileID: 1031004425, guid: abc00000000013448976996082847603, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle12.prefab
+    prefab: {fileID: 1030996369, guid: abc00000000004544685237087072680, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle13.prefab
+    prefab: {fileID: 1030996689, guid: abc00000000016493132921477291057, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle14.prefab
+    prefab: {fileID: 1030996429, guid: abc00000000000497328883801875606, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle15.prefab
+    prefab: {fileID: 1030996509, guid: abc00000000005653733118191993967, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle2.prefab
+    prefab: {fileID: 1030996569, guid: abc00000000006385939920264441085, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle3.prefab
+    prefab: {fileID: 1030996389, guid: abc00000000009703942759463187028, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle4.prefab
+    prefab: {fileID: 1030996589, guid: abc00000000006013612812795561971, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle5.prefab
+    prefab: {fileID: 1031004585, guid: abc00000000005242921244658621034, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle6.prefab
+    prefab: {fileID: 1030996769, guid: abc00000000009057768738190005425, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle7.prefab
+    prefab: {fileID: 1030996609, guid: abc00000000015556065127509338664, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle8.prefab
+    prefab: {fileID: 1031004645, guid: abc00000000005566488594711890279, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Bottle9.prefab
+    prefab: {fileID: 1030996709, guid: abc00000000016291610167505159406, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BreadCreamSliced.prefab
+    prefab: {fileID: 1030994689, guid: abc00000000001140043378121421383, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BrooklynSofa_Big.prefab
+    prefab: {fileID: 1030980892, guid: abc00000000016434847793769943293, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BrooklynSofa_Small.prefab
+    prefab: {fileID: 1030980872, guid: abc00000000008494872733991830394, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Buffah1_Angle.prefab
+    prefab: {fileID: 1030986234, guid: abc00000000008609283403142746482, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BurntWood.prefab
+    prefab: {fileID: 1030998272, guid: abc00000000008637770785605157305, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CabinetMedium.prefab
+    prefab: {fileID: 1030978387, guid: abc00000000012748412031441108614, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CandleLongThin.prefab
+    prefab: {fileID: 1031004725, guid: abc00000000010124579592748016993, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Candlestickfourside.prefab
+    prefab: {fileID: 1030996189, guid: abc00000000000837014884555219823, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CandlestickSidedouble.prefab
+    prefab: {fileID: 1031004745, guid: abc00000000012918767703428110840, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CandlestickSingle.prefab
+    prefab: {fileID: 1030996209, guid: abc00000000005426330716016462266, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Candlesticktrihead.prefab
+    prefab: {fileID: 1030996289, guid: abc00000000003413153353531304471, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CarpetLong.prefab
+    prefab: {fileID: 1030978173, guid: abc00000000002035793680324625082, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_chandelier.prefab
+    prefab: {fileID: 1030982811, guid: abc00000000016555180349305040200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_ClothHangar1rack.prefab
+    prefab: {fileID: 1030998252, guid: abc00000000003280858329181822502, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_ClothHangar2rack.prefab
+    prefab: {fileID: 1031001121, guid: abc00000000013361213113447379589, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_ColumnFlower.prefab
+    prefab: {fileID: 1030977269, guid: abc00000000003060887958281843662, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CornerSimple.prefab
+    prefab: {fileID: 1030976080, guid: abc00000000003289145142728058128, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Cupcake.prefab
+    prefab: {fileID: 1030994829, guid: abc00000000000109304910826709075, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBig.prefab
+    prefab: {fileID: 1030992354, guid: abc00000000014290297016204601733, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainFlower.prefab
+    prefab: {fileID: 1030992434, guid: abc00000000007554872203552512496, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainFlower_1.prefab
+    prefab: {fileID: 1030992694, guid: abc00000000002710175513965245748, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainFlower_Gurad.prefab
+    prefab: {fileID: 1030992494, guid: abc00000000001937314044120486820, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainFlower_Gurad_1.prefab
+    prefab: {fileID: 1030992594, guid: abc00000000008000344849058001120, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_DoorCarved.prefab
+    prefab: {fileID: 1030978287, guid: abc00000000005950724964569394090, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Fence.prefab
+    prefab: {fileID: 1030991781, guid: abc00000000000028851775069512196, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Fireplace.prefab
+    prefab: {fileID: 1030981432, guid: abc00000000004904579656266662042, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Fireplace_1.prefab
+    prefab: {fileID: 1030991618, guid: abc00000000000380254620109356018, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FireToolsASh.prefab
+    prefab: {fileID: 1030996249, guid: abc00000000002109105464246080098, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FireToolsBasetray.prefab
+    prefab: {fileID: 1031002847, guid: abc00000000003855252193459223717, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FireToolsShovel.prefab
+    prefab: {fileID: 1031002867, guid: abc00000000010541063316583771467, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FireToolsStickHolder.prefab
+    prefab: {fileID: 1031002887, guid: abc00000000001542950630802923068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FireToolssticktwisted.prefab
+    prefab: {fileID: 1031002907, guid: abc00000000016185411539286597504, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FishFullServe.prefab
+    prefab: {fileID: 1030994249, guid: abc00000000016791578579406213081, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FishHead.prefab
+    prefab: {fileID: 1030994629, guid: abc00000000000769517875059347797, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FishSlice.prefab
+    prefab: {fileID: 1030994309, guid: abc00000000003400557052350987879, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Fishtail.prefab
+    prefab: {fileID: 1030994549, guid: abc00000000006960578839046557061, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Floor.prefab
+    prefab: {fileID: 1030971884, guid: abc00000000015463330696524268917, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FlowerBowl.prefab
+    prefab: {fileID: 1030988143, guid: abc00000000011037635197684519284, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FlowerPlate.prefab
+    prefab: {fileID: 1030987908, guid: abc00000000017677937151029978512, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FlowerPlateBig.prefab
+    prefab: {fileID: 1030988103, guid: abc00000000015387265671933699066, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStand_1S.prefab
+    prefab: {fileID: 1030985654, guid: abc00000000001327841953642450998, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStand_2S.prefab
+    prefab: {fileID: 1030985614, guid: abc00000000017929709158343847335, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStand_3S.prefab
+    prefab: {fileID: 1030985574, guid: abc00000000003643993596277166268, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FruitFlower.prefab
+    prefab: {fileID: 1030989083, guid: abc00000000016942242097866655916, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Globe.prefab
+    prefab: {fileID: 1030987563, guid: abc00000000014573972920634707352, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Gramophone.prefab
+    prefab: {fileID: 1030997114, guid: abc00000000002815432854963944385, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_GrandpaClock.prefab
+    prefab: {fileID: 1030991987, guid: abc00000000005650321621279173010, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_IceBigCup.prefab
+    prefab: {fileID: 1030987998, guid: abc00000000007657386313934771764, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_KnightPileBig.prefab
+    prefab: {fileID: 1031003247, guid: abc00000000002123393378180879984, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_KnightPileSmal.prefab
+    prefab: {fileID: 1031003267, guid: abc00000000007436732393037125257, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_lemon.prefab
+    prefab: {fileID: 1030994349, guid: abc00000000002521501923421726102, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_LionStatue.prefab
+    prefab: {fileID: 1030994009, guid: abc00000000010394263254440734459, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_MansionLamp.prefab
+    prefab: {fileID: 1031000730, guid: abc00000000001151438142186276306, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_miniFlowerPlate.prefab
+    prefab: {fileID: 1030987888, guid: abc00000000018021437899172548359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_MiniPlate.prefab
+    prefab: {fileID: 1030987688, guid: abc00000000009228352268331635888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_MiniRoofLight.prefab
+    prefab: {fileID: 1030987948, guid: abc00000000013459138172542036266, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingLong.prefab
+    prefab: {fileID: 1030981072, guid: abc00000000014292081728164250707, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PianoCompact.prefab
+    prefab: {fileID: 1031001500, guid: abc00000000009493248506953673167, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PlateBig.prefab
+    prefab: {fileID: 1030988983, guid: abc00000000002415708332825079091, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_RoofTile.prefab
+    prefab: {fileID: 1030972400, guid: abc00000000011956026876120870619, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_RoundBread.prefab
+    prefab: {fileID: 1030994269, guid: abc00000000013803127636111350579, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SoupBowl.prefab
+    prefab: {fileID: 1030988018, guid: abc00000000000128949595004930320, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SoupBowl2.prefab
+    prefab: {fileID: 1030988863, guid: abc00000000011994599923628055026, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SoupBowlClosed.prefab
+    prefab: {fileID: 1030988203, guid: abc00000000017220916192455250256, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Stairs.prefab
+    prefab: {fileID: 1030981220, guid: abc00000000014652448205853505507, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_StandBox.prefab
+    prefab: {fileID: 1030997094, guid: abc00000000011761291977048070918, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_StandCylander.prefab
+    prefab: {fileID: 1030977599, guid: abc00000000005986233063560811637, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_StandCylander_1.prefab
+    prefab: {fileID: 1030994169, guid: abc00000000016492077032900047433, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_StandSimple.prefab
+    prefab: {fileID: 1030972334, guid: abc00000000016644608354610821133, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Steak.prefab
+    prefab: {fileID: 1030994609, guid: abc00000000013538808728969223797, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SteampunkGear1.prefab
+    prefab: {fileID: 1030993709, guid: abc00000000015997248057114866607, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SteampunkGear2.prefab
+    prefab: {fileID: 1030993729, guid: abc00000000013638531170776763668, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_SteampunkGear3.prefab
+    prefab: {fileID: 1031003665, guid: abc00000000016171276342775488701, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Till.prefab
+    prefab: {fileID: 1031003725, guid: abc00000000012904481281778755564, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Double.prefab
+    prefab: {fileID: 1030993154, guid: abc00000000017562853638881020325, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack1.prefab
+    prefab: {fileID: 1031003765, guid: abc00000000010015411260610606986, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack2.prefab
+    prefab: {fileID: 1030993014, guid: abc00000000013830540229118813393, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack3.prefab
+    prefab: {fileID: 1030992954, guid: abc00000000000523533525154042568, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack4.prefab
+    prefab: {fileID: 1030992974, guid: abc00000000015592821850861124879, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack5.prefab
+    prefab: {fileID: 1031003845, guid: abc00000000010047091027060725814, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Pack6.prefab
+    prefab: {fileID: 1030993134, guid: abc00000000003548809938388891165, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_Single.prefab
+    prefab: {fileID: 1030992994, guid: abc00000000004715834579485505126, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TillFrame_triple.prefab
+    prefab: {fileID: 1030998072, guid: abc00000000009319018273011829666, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_Basic.prefab
+    prefab: {fileID: 1030988403, guid: abc00000000003294632106200483686, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_SealedBig.prefab
+    prefab: {fileID: 1030988443, guid: abc00000000001242110533502465894, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_SealedLong.prefab
+    prefab: {fileID: 1030989103, guid: abc00000000004822698456792809798, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_SealedSmall.prefab
+    prefab: {fileID: 1030988363, guid: abc00000000008306614856892162297, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_SealedSmall_1.prefab
+    prefab: {fileID: 1030988463, guid: abc00000000007526508791539675653, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_Vertical.prefab
+    prefab: {fileID: 1030988383, guid: abc00000000002546725757266611890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_Vertical_1.prefab
+    prefab: {fileID: 1030988483, guid: abc00000000016282721653663823322, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_TravelCase_Vertical_2.prefab
+    prefab: {fileID: 1030989123, guid: abc00000000014126704373129909473, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_UpperBoxDec.prefab
+    prefab: {fileID: 1030978013, guid: abc00000000007168536627831301454, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_Inward90D.prefab
+    prefab: {fileID: 1030987095, guid: abc00000000011472198295668690217, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_Outward60D.prefab
+    prefab: {fileID: 1030987035, guid: abc00000000012796886112357628907, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_Outward90D.prefab
+    prefab: {fileID: 1031004145, guid: abc00000000014289040271139490428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_OutwardCurve90D.prefab
+    prefab: {fileID: 1030987055, guid: abc00000000003921316875428699597, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_Single.prefab
+    prefab: {fileID: 1031000671, guid: abc00000000003096897733810225927, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_VitrinSingle.prefab
+    prefab: {fileID: 1030986374, guid: abc00000000000818447495468050621, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WaiterStand.prefab
+    prefab: {fileID: 1030987478, guid: abc00000000007576219040159932065, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WallLightChand.prefab
+    prefab: {fileID: 1030982850, guid: abc00000000018003577154794484545, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WindowFrame.prefab
+    prefab: {fileID: 1030978627, guid: abc00000000009323110526189830624, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WindowNoFrame.prefab
+    prefab: {fileID: 1030978647, guid: abc00000000006872327698851791567, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WineCup.prefab
+    prefab: {fileID: 1030988183, guid: abc00000000004347009351944608610, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WingedLion.prefab
+    prefab: {fileID: 1030994189, guid: abc00000000014342513210461476109, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WoodMannequin.prefab
+    prefab: {fileID: 1030993034, guid: abc00000000002632958650617788498, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide1.prefab
+    prefab: {fileID: 1030993690, guid: abc00000000002002533106376135054, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide2.prefab
+    prefab: {fileID: 1030993614, guid: abc00000000011705276464843344533, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide3.prefab
+    prefab: {fileID: 1030993671, guid: abc00000000004644625077720022220, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide4.prefab
+    prefab: {fileID: 1030993633, guid: abc00000000017657408328055968203, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide5.prefab
+    prefab: {fileID: 1031001631, guid: abc00000000016504127073743314306, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide6.prefab
+    prefab: {fileID: 1031001650, guid: abc00000000015037693408342258249, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide7.prefab
+    prefab: {fileID: 1030998014, guid: abc00000000000961592891278765888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_AnimalHide8.prefab
+    prefab: {fileID: 1031001688, guid: abc00000000008726374919283038735, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BED.prefab
+    prefab: {fileID: 1030998808, guid: abc00000000003756083380580565870, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BED_Cover.prefab
+    prefab: {fileID: 1031000233, guid: abc00000000000258359984972139130, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BooklynPianoChair.prefab
+    prefab: {fileID: 1030980912, guid: abc00000000016148130851800692281, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile.prefab
+    prefab: {fileID: 1030983611, guid: abc00000000011887933138331084986, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile10.prefab
+    prefab: {fileID: 1030983471, guid: abc00000000013000425448151477037, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile11.prefab
+    prefab: {fileID: 1030983451, guid: abc00000000011452661566742944004, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile12.prefab
+    prefab: {fileID: 1030983531, guid: abc00000000018413831815894016927, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile13.prefab
+    prefab: {fileID: 1030983711, guid: abc00000000006001120305315745222, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile14.prefab
+    prefab: {fileID: 1030983771, guid: abc00000000004835411665171847649, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile15.prefab
+    prefab: {fileID: 1030983751, guid: abc00000000009494481444964786200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile16.prefab
+    prefab: {fileID: 1030983651, guid: abc00000000003582047579551899427, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile17.prefab
+    prefab: {fileID: 1030983871, guid: abc00000000006991428945705761498, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile18.prefab
+    prefab: {fileID: 1030983691, guid: abc00000000005889504616533626725, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile19.prefab
+    prefab: {fileID: 1030983591, guid: abc00000000011444479202806523164, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile2.prefab
+    prefab: {fileID: 1030983551, guid: abc00000000013757809702255537140, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile3.prefab
+    prefab: {fileID: 1030983571, guid: abc00000000015025307010732179485, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile4.prefab
+    prefab: {fileID: 1030983671, guid: abc00000000003045164259244343690, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile5.prefab
+    prefab: {fileID: 1030984091, guid: abc00000000003833090517495688339, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile6.prefab
+    prefab: {fileID: 1030983991, guid: abc00000000012000030597497330888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile7.prefab
+    prefab: {fileID: 1030983911, guid: abc00000000006860293227752550097, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile8.prefab
+    prefab: {fileID: 1030983511, guid: abc00000000001898733036587957902, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BookPile9.prefab
+    prefab: {fileID: 1030983791, guid: abc00000000003368731609297612935, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_BrooklynChairSingle.prefab
+    prefab: {fileID: 1030980932, guid: abc00000000014927250108017441146, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Buffah1_DoubleDoor.prefab
+    prefab: {fileID: 1030986294, guid: abc00000000000652301960312386394, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Buffah1_SingleDoor.prefab
+    prefab: {fileID: 1030986254, guid: abc00000000003049133505228402405, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CabinetBIG.prefab
+    prefab: {fileID: 1030978307, guid: abc00000000008806041672966172951, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CabinetSmall.prefab
+    prefab: {fileID: 1030978367, guid: abc00000000000617543058745297720, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CarpaneseChairGuest.prefab
+    prefab: {fileID: 1030982455, guid: abc00000000014259843177265625210, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CarpaneseChairMaster.prefab
+    prefab: {fileID: 1030982515, guid: abc00000000016210145471356265752, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CarpetCircle.prefab
+    prefab: {fileID: 1030978230, guid: abc00000000011792113631896625908, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CarpetSquare.prefab
+    prefab: {fileID: 1030978211, guid: abc00000000012476183471357111685, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_ChainPart.prefab
+    prefab: {fileID: 1030982831, guid: abc00000000015134097337555172559, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CornerSimple_1.prefab
+    prefab: {fileID: 1030976840, guid: abc00000000002334573926651626900, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CupidStatue.prefab
+    prefab: {fileID: 1030993969, guid: abc00000000010359191890722966888, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBigSide.prefab
+    prefab: {fileID: 1030992854, guid: abc00000000012309299331309464996, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBigSide_1.prefab
+    prefab: {fileID: 1031002507, guid: abc00000000004741795425111415520, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBigSide_Guard.prefab
+    prefab: {fileID: 1030992074, guid: abc00000000005958074224863832870, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBigSide_Guard_1.prefab
+    prefab: {fileID: 1030992374, guid: abc00000000008245368314141257126, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainBig_1.prefab
+    prefab: {fileID: 1030992834, guid: abc00000000016620612936026089241, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainButterfly.prefab
+    prefab: {fileID: 1031002547, guid: abc00000000007647449007301032330, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainButterfly_Guard.prefab
+    prefab: {fileID: 1030992234, guid: abc00000000006920480182460215200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainKnot.prefab
+    prefab: {fileID: 1031001141, guid: abc00000000002560535164303243991, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainKnot_1.prefab
+    prefab: {fileID: 1031002627, guid: abc00000000009028961182997049039, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainKnot_Guard.prefab
+    prefab: {fileID: 1031002647, guid: abc00000000004960680427271505773, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainMidBig.prefab
+    prefab: {fileID: 1031002667, guid: abc00000000016125849600513497633, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainMidBig_Guard.prefab
+    prefab: {fileID: 1030997894, guid: abc00000000015401630309771207955, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainPipe_Long.prefab
+    prefab: {fileID: 1031002707, guid: abc00000000008884634312524882310, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainPipe_Medium.prefab
+    prefab: {fileID: 1031002727, guid: abc00000000005201820416184598521, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurtainPipe_Small.prefab
+    prefab: {fileID: 1031002747, guid: abc00000000009790487346643391801, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurveCornerUpper.prefab
+    prefab: {fileID: 1030972231, guid: abc00000000000576588003805238311, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_CurveCornerUpper90D.prefab
+    prefab: {fileID: 1030972191, guid: abc00000000005970360216252755288, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_DinnerTable.prefab
+    prefab: {fileID: 1030982555, guid: abc00000000002794783428951708491, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FenceSmall.prefab
+    prefab: {fileID: 1030977559, guid: abc00000000011004446373622834881, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FenceWoodSignle.prefab
+    prefab: {fileID: 1030978487, guid: abc00000000016713667071806924721, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStandGround_1S.prefab
+    prefab: {fileID: 1030997954, guid: abc00000000007741169113921076389, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStandGround_2S.prefab
+    prefab: {fileID: 1030985694, guid: abc00000000014224162309035573632, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_FoodStandGround_3S.prefab
+    prefab: {fileID: 1030985674, guid: abc00000000000312836016562435963, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingLong_1.prefab
+    prefab: {fileID: 1030981172, guid: abc00000000003333610532919020883, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingLong_2.prefab
+    prefab: {fileID: 1030981332, guid: abc00000000012876062847632797576, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingLong_3.prefab
+    prefab: {fileID: 1030981392, guid: abc00000000007491160773124482449, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingLong_4.prefab
+    prefab: {fileID: 1030986814, guid: abc00000000002577082566140973046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium.prefab
+    prefab: {fileID: 1030981092, guid: abc00000000008028184010002795528, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium_1.prefab
+    prefab: {fileID: 1030981132, guid: abc00000000009552855193855991196, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium_2.prefab
+    prefab: {fileID: 1030981212, guid: abc00000000004505578641157334807, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium_3.prefab
+    prefab: {fileID: 1030981292, guid: abc00000000012973033904548285278, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium_4.prefab
+    prefab: {fileID: 1030986834, guid: abc00000000002743297019415023321, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingMedium_5.prefab
+    prefab: {fileID: 1030993094, guid: abc00000000003559880664899974864, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare.prefab
+    prefab: {fileID: 1030981112, guid: abc00000000012310247234713288576, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare_1.prefab
+    prefab: {fileID: 1030981152, guid: abc00000000017053875744417382724, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare_2.prefab
+    prefab: {fileID: 1030981232, guid: abc00000000005713026754459294431, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare_3.prefab
+    prefab: {fileID: 1030981272, guid: abc00000000012131263494438971142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare_4.prefab
+    prefab: {fileID: 1030981312, guid: abc00000000004976048845989562145, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PaintingSquare_5.prefab
+    prefab: {fileID: 1030997774, guid: abc00000000004398173968795715672, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Big.prefab
+    prefab: {fileID: 1030982051, guid: abc00000000005368309529843693209, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Big_1.prefab
+    prefab: {fileID: 1030982070, guid: abc00000000009881441860756568805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Big_2.prefab
+    prefab: {fileID: 1030982127, guid: abc00000000000409851084012207710, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Long.prefab
+    prefab: {fileID: 1030982146, guid: abc00000000014755319639528765239, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Long_1.prefab
+    prefab: {fileID: 1030982360, guid: abc00000000010315836694358195567, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PersianCarpet_Long_2.prefab
+    prefab: {fileID: 1030982695, guid: abc00000000003354666445207122644, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_PolandianChair.prefab
+    prefab: {fileID: 1030998212, guid: abc00000000001682194351581645770, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_RoofTile_1.prefab
+    prefab: {fileID: 1030975716, guid: abc00000000007550253905492116843, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_StudyNoteTable.prefab
+    prefab: {fileID: 1030998232, guid: abc00000000012334885415318065820, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin2DoubleDoor.prefab
+    prefab: {fileID: 1030986974, guid: abc00000000003791206148735965842, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin2DoubleDoorFullGlass.prefab
+    prefab: {fileID: 1030987015, guid: abc00000000004156152868487010287, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin2DoubleDoorSideGlass.prefab
+    prefab: {fileID: 1031004065, guid: abc00000000004381714431899321409, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Vitrin3_DoubleDoor.prefab
+    prefab: {fileID: 1030987075, guid: abc00000000000098092287126229492, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_Door.prefab
+    prefab: {fileID: 1030980656, guid: abc00000000017682511239113812552, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_Door_1.prefab
+    prefab: {fileID: 1030998908, guid: abc00000000017530142644361581916, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_Standard.prefab
+    prefab: {fileID: 1030971971, guid: abc00000000007828083153427137695, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_Standard_1.prefab
+    prefab: {fileID: 1030998648, guid: abc00000000013037757137185315207, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_Windowframe.prefab
+    prefab: {fileID: 1030972171, guid: abc00000000014256519218512808643, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_WindowsStandard.prefab
+    prefab: {fileID: 1030971991, guid: abc00000000001560091025443487272, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_Wall_WindowsStandard_1.prefab
+    prefab: {fileID: 1030998728, guid: abc00000000013509870473958659068, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/VictorianMansionEnvironment/Art/Prefabs/SM_WoodenStudyTable.prefab
+    prefab: {fileID: 1030992934, guid: abc00000000016608556487793453610, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

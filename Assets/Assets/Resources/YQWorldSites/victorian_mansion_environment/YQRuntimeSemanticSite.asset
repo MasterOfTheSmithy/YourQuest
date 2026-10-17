@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: victorian_mansion_environment
+  semanticStyleKey: victorian_mansion
+  sourceSignature: fnv1a32_a5bcc812
+  topology: 3
+  streamingSite: {fileID: 11400000, guid: 21c7e1d8fca365d44a881c44c06aa54f, type: 2}
+  sourceInstanceCount: 1461
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_victorian_mansion_environment_entrance_01
+    displayName: Victorian Mansion Environment Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -12.384748, y: 0.7805176, z: -2.732174}
+    localBoundsCenter: {x: 0, y: 5.4993534, z: 0}
+    localBoundsSize: {x: 60.53174, y: 10.998707, z: 25.349388}
+    sourceInstanceCount: 589
+    authoredBuildingCount: 0
+    authoredDressingCount: 589
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - interiorrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_victorian_mansion_environment_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_victorian_mansion_environment_room_02
+    displayName: Victorian Mansion Environment Room
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -0.0000076293945, y: -0.36432362, z: 0.0000019073486}
+    localBoundsCenter: {x: 0, y: 8.461815, z: 0}
+    localBoundsSize: {x: 99.59064, y: 16.92363, z: 44.171017}
+    sourceInstanceCount: 872
+    authoredBuildingCount: 0
+    authoredDressingCount: 872
+    semanticTags:
+    - authored
+    - interiorrooms
+    - room
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_victorian_mansion_environment_p1_p0_p00
+    cellContractsV2: []

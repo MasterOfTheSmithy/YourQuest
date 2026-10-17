@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using System.Reflection;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public static class YQSemanticWorldAuthorityTests
@@ -277,12 +279,14 @@ public static class YQSemanticWorldAuthorityTests
         // note: The explicit cost probe shares this existing one-shot request path; ordinary semantic contract requests retain their original runner.
         string requestedMode = File.ReadAllText(Path.GetFullPath(PendingRequestPath)).Trim();
         bool sharedSitesOnly = string.Equals(requestedMode, "shared-site-footprints", StringComparison.Ordinal);
+        bool waterWorldRepair = string.Equals(requestedMode, "water-world-repair", StringComparison.Ordinal);
         bool sectorLayoutsOnly = string.Equals(requestedMode, "site-sector-layouts", StringComparison.Ordinal);
         bool continuationOnly = string.Equals(requestedMode, "frontier-continuation-contracts", StringComparison.Ordinal);
         bool queryCostOnly = string.Equals(requestedMode,
             "r2-query-cost", StringComparison.Ordinal);
         // note: Consume the marker only after imports settle so the result describes one stable source/build identity.
         AssetDatabase.DeleteAsset(PendingRequestPath);
+        if (waterWorldRepair) { RunWaterWorldRepair(); return; }
         // note: Keep the single idle poller registered so later one-shot requests do not depend on an unrelated domain reload.
         if (continuationOnly) { RunFrontierContinuationContracts(); return; }
         if (sectorLayoutsOnly) { RunSiteSectorLayoutProbe(); return; }
@@ -2254,6 +2258,8 @@ public static class YQSemanticWorldAuthorityTests
             Check("canonical index matches exact footprint union", indexedMatches);
             Check("noncanonical grid uses exact fallback", fallbackMatches);
             RunSharedSiteDemandContracts(prepared, target, Check);
+            RunAdoptedCaveCompletionContracts(plan, prepared, Check);
+            RunPlacementAndBridgeRepairContracts(plan, prepared, Check);
             string memberHash = YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(compiled);
             target.memberFootprint.Reverse();
             Check("member signature independent of traversal order", memberHash == YQSpatialBlueprintHasherV2.ComputeMemberFootprintHashReadOnly(compiled));
@@ -2302,7 +2308,8 @@ public static class YQSemanticWorldAuthorityTests
         var sourceHashes = new Dictionary<string, string>();
         foreach (string file in new[] { "YQSemanticWorldAuthority.cs", "YQSpatialMaterializationV2.cs",
             "YQSpatialBlueprintV2Validation.cs", "YQPlayerFollowingSemanticChunkStreamer.cs", "YQRuntimeWorldSiteCatalog.cs", "YQGeneratedWorldPopulation.cs",
-            "Editor/YQSemanticWorldAuthorityTests.cs" })
+            "YQContinuousWorldFeatureAuthority.cs", "YQGeneratedWorldTerrain.cs", "YQGeneratedNpcWander.cs",
+            "YQGeneratedWorldEnvironment.cs", "YQGeneratedWorldIntegrityValidator.cs", "Editor/YQSemanticWorldAuthorityTests.cs" })
             sourceHashes[file] = HashFile("Assets/Assets/Scripts/Generated/" + file);
         File.WriteAllText(Path.Combine(directory, DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + ".json"),
             Newtonsoft.Json.JsonConvert.SerializeObject(new {
@@ -2317,6 +2324,350 @@ public static class YQSemanticWorldAuthorityTests
             }, Newtonsoft.Json.Formatting.Indented));
         Debug.Log("[YQSharedSiteFootprints] " + checks.Count + " checks; failures=" + failures);
         return failures;
+    }
+
+    private static void RunPlacementAndBridgeRepairContracts(GeneratedWorldPlanRecord plan, YQPreparedSpatialMaterializationV2 prepared, Action<string, bool> check)
+    {
+        {
+            // note: Exercise the bound query adapters against ordinary validated queries on this detached fixture; accepted profile and Play Mode owners are untouched.
+            var queryFlags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+            var installedAuthority = YQSemanticWorldAuthority.Ensure(plan);
+            var coordinate = new Vector2Int(11, 5);
+            var boundCellMethod = typeof(YQGeneratedWorldQuery).GetMethod("GetPreparedSemanticCellPlan", queryFlags);
+            var boundSitesMethod = typeof(YQGeneratedWorldQuery).GetMethod("GetPreparedSemanticSites", queryFlags);
+            var ordinaryCell = YQGeneratedWorldQuery.GetSemanticCellPlan(plan, coordinate);
+            var ordinarySites = YQGeneratedWorldQuery.GetSemanticSites(plan, coordinate);
+            var boundCell = (GeneratedSemanticCellPlanRecord)boundCellMethod.Invoke(null, new object[] { plan, coordinate, installedAuthority });
+            var boundSites = (List<GeneratedSemanticSiteReservationRecord>)boundSitesMethod.Invoke(null, new object[] { plan, coordinate, installedAuthority });
+            check("bound streaming cell and site queries exactly match validated public queries",
+                JsonUtility.ToJson(ordinaryCell) == JsonUtility.ToJson(boundCell) &&
+                Newtonsoft.Json.JsonConvert.SerializeObject(ordinarySites) == Newtonsoft.Json.JsonConvert.SerializeObject(boundSites));
+            bool staleRejected = false;
+            try
+            {
+                plan.semanticAuthority = new GeneratedSemanticWorldAuthorityRecord();
+                try { boundCellMethod.Invoke(null, new object[] { plan, coordinate, installedAuthority }); }
+                catch (System.Reflection.TargetInvocationException exception) { staleRejected = exception.InnerException is InvalidOperationException; }
+            }
+            finally { plan.semanticAuthority = installedAuthority; }
+            check("bound streaming query rejects a replaced semantic graph", staleRejected);
+            var boundCandidateMethod = typeof(YQSemanticWorldAuthority).GetMethod("TryBuildPreparedFrontierLocationCandidate", queryFlags);
+            var ordinaryCandidateMethod = typeof(YQSemanticWorldAuthority).GetMethod("TryBuildFrontierLocationCandidate", queryFlags);
+            bool stableCandidate = false;
+            bool candidateCompared = false;
+            for (int z = -16; z <= 16 && !candidateCompared; z++)
+            for (int x = -16; x <= 16 && !candidateCompared; x++)
+            {
+                object[] boundArgs = { plan, x, z, plan.regions[0].regionId, prepared, null, null };
+                if (!(bool)boundCandidateMethod.Invoke(null, boundArgs)) continue;
+                candidateCompared = true;
+                object[] ordinaryArgs = { plan, x, z, plan.regions[0].regionId, null, null };
+                bool accepted = (bool)ordinaryCandidateMethod.Invoke(null, ordinaryArgs);
+                var candidate = (GeneratedSpatialContinuationLocationV2Record)boundArgs[5];
+                var ordinary = (GeneratedSpatialContinuationLocationV2Record)ordinaryArgs[4];
+                stableCandidate = accepted && candidate.anchor.siteId == ordinary.anchor.siteId &&
+                    candidate.contentId == ordinary.contentId && candidate.deterministicSeed == ordinary.deterministicSeed &&
+                    Newtonsoft.Json.JsonConvert.SerializeObject(candidate) == Newtonsoft.Json.JsonConvert.SerializeObject(ordinary);
+                // note: Compare the first suitable deterministic candidate; a mismatch cannot be hidden by a later matching block.
+            }
+            check("prepared frontier candidate retains exact public IDs and payload", stableCandidate);
+        }
+        // note: Native geometry checks run in an isolated preview scene, with no profile, Play Mode, or production owner changes.
+        var preview = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+        var data = new TerrainData { heightmapResolution = 33, size = new Vector3(1024, 100, 1024), hideFlags = HideFlags.HideAndDontSave };
+        var registry = ScriptableObject.CreateInstance<YQRuntimeWorldAssetRegistry>();
+        registry.hideFlags = HideFlags.HideAndDontSave;
+        var flags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var instanceFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var materializer = typeof(YQContinuousWorldFeatureMaterializer);
+        object Invoke(string name, params object[] args) => materializer.GetMethod(name, flags).Invoke(null, args);
+        void Drain(IEnumerator routine)
+        {
+            var stack = new Stack<IEnumerator>(); stack.Push(routine);
+            try
+            {
+                int steps = 0;
+                while (stack.Count > 0)
+                {
+                    if (++steps > 200000) throw new InvalidOperationException("Detached bridge construction exceeded its bounded iteration count.");
+                    var current = stack.Peek();
+                    if (!current.MoveNext()) { (stack.Pop() as IDisposable)?.Dispose(); continue; }
+                    if (current.Current is IEnumerator nested) stack.Push(nested);
+                    else if (current.Current != null) throw new InvalidOperationException("Unsupported detached bridge yield.");
+                }
+            }
+            finally { while (stack.Count > 0) (stack.Pop() as IDisposable)?.Dispose(); }
+        }
+        try
+        {
+            var root = new GameObject("DetachedPlacementAndBridges") { hideFlags = HideFlags.HideAndDontSave };
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, preview);
+            var terrainRoot = Terrain.CreateTerrainGameObject(data);
+            terrainRoot.transform.SetParent(root.transform, false); terrainRoot.transform.position = new Vector3(-512, 10, -512);
+            var terrain = terrainRoot.GetComponent<Terrain>();
+            var actor = GameObject.CreatePrimitive(PrimitiveType.Cube); actor.name = "DetachedResident";
+            actor.transform.SetParent(root.transform, false); actor.transform.position = new Vector3(0, 40, 0);
+            // note: Model an imported mesh two metres below its root pivot and hidden during streamed construction.
+            var body = GameObject.CreatePrimitive(PrimitiveType.Cube); body.transform.SetParent(actor.transform, false);
+            body.transform.localPosition = new Vector3(0, -2, 0); actor.GetComponent<MeshRenderer>().enabled = false;
+            UnityEngine.Object.DestroyImmediate(actor.GetComponent<MeshFilter>()); UnityEngine.Object.DestroyImmediate(actor.GetComponent<BoxCollider>());
+            body.GetComponent<MeshRenderer>().enabled = false;
+            check("hidden staged body supplies terrain contact", YQGeneratedWorldTerrain.TryPlaceGroundedObject(actor, terrain, YQGeneratedWorldPlacementCategory.Actor, .005f, out _));
+            YQGeneratedWorldTerrain.TryGetStableContactGeometry(actor, out _, out float bottom);
+            check("hidden actor feet contact native terrain", Mathf.Abs(bottom - 9.995f) < .03f);
+            var wander = actor.AddComponent<YQGeneratedNpcWander>(); wander.Configure("detached-grounding");
+            float offset = (float)typeof(YQGeneratedNpcWander).GetField("_contactOffset", instanceFlags).GetValue(wander);
+            check("wandering retains imported pivot-to-feet offset", Mathf.Abs(offset + 2.5f) < .01f);
+            // note: Reproduce the live campsite rejection with the imported Nordic cart and a generic catalog structure tag on an actual sloped heightfield.
+            const string cartPath = "Assets/BefourStudios/NordicVillage/Art/Prefabs/SM_Cart.prefab";
+            var cartReference = new GeneratedAssetReferenceRecord { assetPath = cartPath, styleTags = new List<string> { "structure" } };
+            var population = typeof(YQGeneratedWorldPopulation);
+            var resolveCategory = population.GetMethod("ResolveCampsitePlacementCategory", flags);
+            var category = (YQGeneratedWorldPlacementCategory)resolveCategory.Invoke(null, new object[] { cartReference });
+            check("generic campsite structure tag retains cart prop classification", category == YQGeneratedWorldPlacementCategory.Automatic);
+            cartReference.subTags.Add("building");
+            check("explicit campsite building intent retains rigid foundation contract", (YQGeneratedWorldPlacementCategory)resolveCategory.Invoke(null, new object[] { cartReference }) == YQGeneratedWorldPlacementCategory.Structure);
+            var cart = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(cartPath), root.transform);
+            cart.name = "CampSite_0__SM_Cart"; cart.transform.position = new Vector3(0, 70, 0);
+            var heights = new float[33, 33];
+            for (int z = 0; z < 33; z++) for (int x = 0; x < 33; x++) heights[z, x] = .2f + .6f * x / 32f;
+            data.size = new Vector3(64, 100, 64); terrainRoot.transform.position = new Vector3(-32, 10, -32); data.SetHeights(0, 0, heights);
+            check("native cart rejects an unsupported rigid foundation", !YQGeneratedWorldTerrain.TryPlaceGroundedObject(cart, terrain, YQGeneratedWorldPlacementCategory.Structure, .04f, out _));
+            check("native cart grounds using its actual prop contact rule", (bool)population.GetMethod("TryGroundObjectToTerrainBase", flags).Invoke(null, new object[] { cart, terrain, category }));
+            UnityEngine.Object.DestroyImmediate(cart);
+            data.size = new Vector3(1024, 100, 1024); terrainRoot.transform.position = new Vector3(-512, 10, -512); data.SetHeights(0, 0, new float[33, 33]);
+            // note: Distant startup placement must match the exact authority used to build later terrain tiles, including the near-origin collar.
+            if (!YQGeneratedWorldTerrain.TryCreateV2HeightSampler(plan, out var heightSampler, out string heightFailure))
+                throw new InvalidOperationException(heightFailure);
+            var continuous = new YQContinuousWorldCellAuthority(plan.worldSeed, terrain, heightSampler, plan);
+            bool distantMatches = true, unclamped = false;
+            foreach (var point in new[] { new Vector3(1800, 0, 1500), new Vector3(-1400, 0, 1024), new Vector3(520, 0, 200) })
+            {
+                object[] arguments = { terrain, point, plan, 0f };
+                bool sampled = (bool)typeof(YQGeneratedWorldTerrain).GetMethod("TrySamplePlacementHeight", flags).Invoke(null, arguments);
+                float height = (float)arguments[3];
+                float expected = 10f + continuous.SampleHeightNormalized(point.x, point.z) * 100f;
+                distantMatches &= sampled && Mathf.Abs(height - expected) < .001f;
+                unclamped |= Mathf.Abs(height - terrain.SampleHeight(point) - 10f) > 1f;
+            }
+            check("distant placements match streamed terrain and origin collar authority", distantMatches);
+            check("distant placement never uses the clamped finite-terrain edge", unclamped);
+            var hut = new GameObject("Origin_Vey_WitchHouse"); hut.transform.SetParent(root.transform, false);
+            var provider = hut.AddComponent<YQCompiledWorldSiteInstance>();
+            typeof(YQCompiledWorldSiteInstance).GetField("settlementId", instanceFlags).SetValue(provider, "origin_vey_witch_house");
+            var hutMesh = GameObject.CreatePrimitive(PrimitiveType.Cube); hutMesh.transform.SetParent(hut.transform, false);
+            var streamer = root.AddComponent<YQPlayerFollowingSemanticChunkStreamer>();
+            typeof(YQPlayerFollowingSemanticChunkStreamer).GetField("_worldRoot", instanceFlags).SetValue(streamer, root.transform);
+            typeof(YQPlayerFollowingSemanticChunkStreamer).GetField("_plan", instanceFlags).SetValue(streamer, plan);
+            typeof(YQPlayerFollowingSemanticChunkStreamer).GetField("_acceptedSpatialProjection", instanceFlags).SetValue(streamer, prepared);
+            typeof(YQPlayerFollowingSemanticChunkStreamer).GetField("_terrain", instanceFlags).SetValue(streamer, terrain);
+            typeof(YQPlayerFollowingSemanticChunkStreamer).GetMethod("CollectBoundedPhysicalObjects", instanceFlags).Invoke(streamer, new object[] { root.transform });
+            bool adoptedHut = false;
+            var chunks = (IDictionary)typeof(YQPlayerFollowingSemanticChunkStreamer).GetField("_chunks", instanceFlags).GetValue(streamer);
+            foreach (DictionaryEntry item in chunks)
+                adoptedHut |= ((IList)item.Value.GetType().GetField("ownedObjects").GetValue(item.Value)).Contains(hut);
+            check("pinned hut keeps provider visibility ownership", !adoptedHut && hut.activeSelf);
+            UnityEngine.Object.DestroyImmediate(actor); UnityEngine.Object.DestroyImmediate(hut);
+            chunks.Clear();
+            var entries = new List<YQRuntimeWorldAssetEntry>();
+            foreach (string path in YQGeneratedRiverBridge.RequiredAssetPaths)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null) throw new InvalidOperationException("Missing native bridge source: " + path);
+                entries.Add(new YQRuntimeWorldAssetEntry { assetPath = path, prefab = prefab });
+            }
+            registry.SetEntries(entries);
+            var layoutMethod = materializer.GetMethod("PrepareBridgeLayoutRoutine", flags);
+            Type spanType = materializer.GetNestedType("AcceptedCrossingSpan", System.Reflection.BindingFlags.NonPublic);
+            Type listType = typeof(List<>).MakeGenericType(spanType);
+            IList layout = null;
+            // note: Adapt the private typed callback without changing the production API solely for this detached fixture.
+            var parameter = System.Linq.Expressions.Expression.Parameter(listType, "value");
+            Action<object> capture = value => layout = (IList)value;
+            var callback = System.Linq.Expressions.Expression.Lambda(typeof(Action<>).MakeGenericType(listType),
+                System.Linq.Expressions.Expression.Invoke(System.Linq.Expressions.Expression.Constant(capture),
+                    System.Linq.Expressions.Expression.Convert(parameter, typeof(object))), parameter).Compile();
+            Drain((IEnumerator)layoutMethod.Invoke(null, new object[] { prepared, terrain, callback }));
+            object Field(object span, string name) => spanType.GetField(name).GetValue(span);
+            var bridges = new List<object>(); bool connectionsDry = true; int shared = 0;
+            foreach (object span in layout)
+            {
+                if (ReferenceEquals(Field(span, "bridge"), span)) bridges.Add(span);
+                else
+                {
+                    shared++;
+                    var connections = (IList)Field(span, "bankConnections");
+                    connectionsDry &= connections.Count == 2;
+                    foreach (List<Vector3> points in connections)
+                        foreach (Vector3 point in points) connectionsDry &= prepared.SampleTerrain(point.x, point.z).waterMask <= .05f;
+                }
+            }
+            bool separated = true;
+            for (int i = 0; i < bridges.Count; i++)
+            for (int j = i + 1; j < bridges.Count; j++)
+                separated &= !(bool)Invoke("CrossingDecksConflict", Field(bridges[i], "points"), Field(bridges[i], "width"), Field(bridges[j], "points"), Field(bridges[j], "width"));
+            check("all accepted bridge and ford identities receive physical layout", layout.Count == prepared.CrossingCount && bridges.Count > 0);
+            check("complete bridge decks neither intersect nor violate 24m clearance", separated);
+            check("nearby crossings retain two dry-bank connections", connectionsDry);
+            var first = new List<Vector3> { new Vector3(-20, 0, 0), new Vector3(20, 0, 0) };
+            var crossed = new List<Vector3> { new Vector3(0, 0, -20), new Vector3(0, 0, 20) };
+            var near = new List<Vector3> { new Vector3(-20, 0, 20), new Vector3(20, 0, 20) };
+            check("intersecting and nearby bridge candidates conflict", (bool)Invoke("CrossingDecksConflict", first, 4f, crossed, 4f) && (bool)Invoke("CrossingDecksConflict", first, 4f, near, 4f));
+            Drain((IEnumerator)Invoke("BuildAcceptedOriginCrossingsRoutine", root.transform, terrain, prepared, registry));
+            int count = root.GetComponentsInChildren<YQStreamedFeatureOverlayTarget>(true).Length;
+            check("accepted bridge identities have native collidable geometry", count == layout.Count && root.GetComponentsInChildren<YQGeneratedRiverBridge>(true).Length >= bridges.Count);
+            bool pathsGrounded = true; int pathVertices = 0;
+            foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (!filter.name.StartsWith("SharedBridgeBankPath", StringComparison.Ordinal)) continue;
+                foreach (var vertex in filter.sharedMesh.vertices)
+                {
+                    Vector3 point = filter.transform.TransformPoint(vertex);
+                    pathsGrounded &= Mathf.Abs(point.y - terrain.SampleHeight(point) - terrain.transform.position.y - .025f) < .001f;
+                    pathVertices++;
+                }
+            }
+            check("all shared bank path edges conform to native terrain", pathsGrounded && pathVertices > 0);
+            int children = root.transform.childCount;
+            Drain((IEnumerator)Invoke("BuildAcceptedOriginCrossingsRoutine", root.transform, terrain, prepared, registry));
+            check("bootstrap retry reuses exact crossing roots", root.transform.childCount == children);
+            Debug.Log("[YQBridgeRepairFixture] crossings=" + layout.Count + " bridges=" + bridges.Count + " shared=" + shared);
+        }
+        finally
+        {
+            UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+            UnityEngine.Object.DestroyImmediate(data); UnityEngine.Object.DestroyImmediate(registry);
+        }
+    }
+
+    private static void RunAdoptedCaveCompletionContracts(GeneratedWorldPlanRecord plan,
+        YQPreparedSpatialMaterializationV2 prepared, Action<string, bool> check)
+    {
+        // note: Production natural caves use reviewed dungeons; clone the detached inputs and explicitly opt this module-handoff fixture into its diagnostic provider.
+        if (!prepared.TryGetSiteBySiteId("site:natural:waterfall_cave", out var cave))
+            throw new InvalidOperationException("Detached fixture has no accepted waterfall cave.");
+        var moduleSelector = typeof(YQContinuousWorldFeatureMaterializer).GetMethod("UsesFixtureCaveModules",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        check("production waterfall cave does not select exposed fixture modules", !(bool)moduleSelector.Invoke(null, new object[] { cave }));
+        // note: The detached clone must not replace the caller's installed resolver context before its public-versus-bound query comparison.
+        var resolverFields = typeof(YQSpatialMaterializationResolverV2).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+        var resolverValues = new Dictionary<System.Reflection.FieldInfo, object>();
+        foreach (var field in resolverFields) if (!field.IsInitOnly) resolverValues.Add(field, field.GetValue(null));
+        plan = JsonUtility.FromJson<GeneratedWorldPlanRecord>(JsonUtility.ToJson(plan));
+        plan.spatialPlanV2.blueprint.sites.Find(site => site.siteId == cave.siteId).tags.Add("beta:cave");
+        plan.spatialPlanV2.contentHash = YQSpatialBlueprintHasherV2.ComputeContentHash(plan.spatialPlanV2);
+        plan.spatialPlanV2.validatedContentHash = plan.spatialPlanV2.contentHash;
+        if (!YQSpatialMaterializationResolverV2.TryGetPrepared(plan, out prepared, out string fixtureFailure) ||
+            !prepared.TryGetSiteBySiteId("site:natural:waterfall_cave", out cave))
+            throw new InvalidOperationException(fixtureFailure);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var preview = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+        var data = new TerrainData { heightmapResolution = 33, size = new Vector3(1024f, 100f, 1024f), hideFlags = HideFlags.HideAndDontSave };
+        var registry = ScriptableObject.CreateInstance<YQRuntimeWorldAssetRegistry>();
+        registry.hideFlags = HideFlags.HideAndDontSave;
+        var activeBefore = YQPlayerFollowingSemanticChunkStreamer.Active;
+        try
+        {
+            GameObject root = new GameObject("DetachedAdoptedCave") { hideFlags = HideFlags.HideAndDontSave };
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, preview);
+            var streamer = root.AddComponent<YQPlayerFollowingSemanticChunkStreamer>();
+            streamer.chunkWorldSize = 128;
+            GameObject content = new GameObject("CompletionContent"); content.transform.SetParent(root.transform, false);
+            GameObject terrainObject = Terrain.CreateTerrainGameObject(data);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(terrainObject, preview);
+            terrainObject.transform.position = new Vector3(-512f, 0f, -512f);
+            var terrain = terrainObject.GetComponent<Terrain>();
+            var entries = new List<YQRuntimeWorldAssetEntry>();
+            foreach (string path in new[] { "Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_CaveStraight.prefab", "Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_CaveCross.prefab" })
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null) throw new InvalidOperationException("Missing approved cave module: " + path);
+                entries.Add(new YQRuntimeWorldAssetEntry { assetPath = path, prefab = prefab });
+            }
+            registry.SetEntries(entries);
+            Vector2Int owner = new Vector2Int(Mathf.FloorToInt((cave.x + 512f) / 128f), Mathf.FloorToInt((cave.z + 512f) / 128f));
+            // note: This fixture's accepted cave can lie outside the production opening tile; provide real test terrain at its actual owner instead of faking collision readiness.
+            terrainObject.transform.position = new Vector3(-512f + owner.x * 128f, 0f, -512f + owner.y * 128f);
+            var record = new GeneratedSemanticChunkRecord { chunkX = owner.x, chunkZ = owner.y };
+            var retained = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < prepared.SiteCount; index++)
+                if (prepared.GetSite(index).siteId != cave.siteId) retained.Add(prepared.GetSite(index).siteId);
+            var method = typeof(YQContinuousWorldFeatureMaterializer).GetMethod("BuildMissingAdoptedSitesRoutine",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            void Drain(IEnumerator routine)
+            {
+                var stack = new Stack<IEnumerator>(); stack.Push(routine);
+                try
+                {
+                    for (int steps = 0; stack.Count > 0; steps++)
+                    {
+                        if (steps > 20000) throw new InvalidOperationException("Detached completion exceeded its iteration bound.");
+                        var current = stack.Peek();
+                        if (!current.MoveNext()) { (stack.Pop() as IDisposable)?.Dispose(); continue; }
+                        if (current.Current is IEnumerator nested) stack.Push(nested);
+                        else if (current.Current != null) throw new InvalidOperationException("Detached completion yielded an unsupported asynchronous operation.");
+                    }
+                }
+                finally { while (stack.Count > 0) (stack.Pop() as IDisposable)?.Dispose(); }
+            }
+            int built = -2;
+            var palette = new GeneratedRegionAssetPaletteRecord();
+            Drain((IEnumerator)method.Invoke(null, new object[] { content.transform, terrain, plan, record, palette, registry, 128f, prepared, retained, (Action<int>)(count => built = count) }));
+            var targets = content.GetComponentsInChildren<YQStreamedFeatureOverlayTarget>(true);
+            var target = Array.Find(targets, item => item.featureId == cave.siteId);
+            check("adopted water completion builds six missing real cave modules", built == 6 && target != null && target.transform.childCount == 6);
+            if (target == null) throw new InvalidOperationException("Missing completed cave root.");
+            check("cave completion uses natural-feature geometry without a compiled provider", target.GetComponent<YQCompiledWorldSiteInstance>() == null && target.GetComponentsInChildren<Renderer>(true).Length > 0);
+            target.transform.SetParent(root.transform, true);
+            UnityEngine.Object.DestroyImmediate(content);
+            Type type = typeof(YQPlayerFollowingSemanticChunkStreamer);
+            void Set(string name, object value) => type.GetField(name, flags).SetValue(streamer, value);
+            object Call(string name, params object[] args) => type.GetMethod(name, flags).Invoke(streamer, args);
+            Set("_plan", plan); Set("_acceptedSpatialProjection", prepared); Set("_worldRoot", root.transform); Set("_terrain", terrain);
+            Call("CollectBoundedPhysicalObjects", root.transform);
+            var chunks = (IDictionary)type.GetField("_chunks", flags).GetValue(streamer);
+            object chunk = chunks[owner];
+            check("borrowed natural cave is assigned to its accepted anchor owner", chunk != null);
+            if (chunk == null) throw new InvalidOperationException("Cave was adopted into a member cell instead of its owner.");
+            Type chunkType = chunk.GetType();
+            void Chunk(string name, object value) => chunkType.GetField(name).SetValue(chunk, value);
+            check("borrowed natural cave retains its complete root presentation", ((IList)chunkType.GetField("sitePresentations").GetValue(chunk)).Count == 1);
+            Chunk("adoptedContentNeedsWater", true);
+            int epoch = (int)chunkType.GetField("contentOwnerEpoch").GetValue(chunk);
+            Chunk("contentOwnerEpoch", epoch + 1); Call("RefreshRetainedWaterCompletionSitePresentations", chunk);
+            Chunk("physicalRepresentation", true); Chunk("requiredContentReady", true); Chunk("overlayReady", true);
+            Chunk("activationComplete", true); Chunk("activeState", (sbyte)1); Chunk("state", YQSemanticChunkLifecycle.Generated);
+            Chunk("appearanceReady", false); Chunk("visualReady", false); Chunk("requiredEcologyReady", false);
+            ((HashSet<string>)type.GetField("_sharedSiteVisibleIdentities", flags).GetValue(streamer)).Add(cave.siteId);
+            Call("ReconcileSharedSiteVisuals", chunk, false);
+            // note: Keep a failed detached handoff attributable to its exact readiness component.
+            if (!(bool)Call("IsSharedSitePresentationReady", chunk, cave.siteId))
+            {
+                object presentation = ((IList)chunkType.GetField("sitePresentations").GetValue(chunk))[0];
+                var presentationType = presentation.GetType();
+                Debug.Log("[YQAdoptedCaveFixture] owner=" + owner + " anchor=" + cave.x + "," + cave.z +
+                    " prep=" + Call("IsReadyForSharedSitePreparation", owner, chunk) +
+                    " current=" + Call("IsCurrentSharedSitePresentation", chunk, presentation) +
+                    " geometry=" + type.GetMethod("IsSharedSiteGeometryReady", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).Invoke(null, new[] { presentation }) +
+                    " active=" + target.gameObject.activeInHierarchy +
+                    " requiredRenderers=" + ((IList)presentationType.GetField("requiredRenderers").GetValue(presentation)).Count);
+            }
+            check("retained cave publishes after a water work epoch without center appearance or ecology", (bool)Call("IsSharedSitePresentationReady", chunk, cave.siteId));
+            retained.Add(cave.siteId);
+            int children = root.transform.childCount;
+            Drain((IEnumerator)method.Invoke(null, new object[] { root.transform, terrain, plan, record, palette, registry, 128f, prepared, retained, (Action<int>)(count => built = count) }));
+            check("retained physical cave is not duplicated by completion retry", built == 0 && root.transform.childCount == children);
+            Chunk("contentOwnerEpoch", epoch + 2); Call("ReconcileSharedSiteVisuals", chunk, false);
+            check("stale cave presentation still blocks readiness", !(bool)Call("IsSharedSitePresentationReady", chunk, cave.siteId));
+            chunks.Clear();
+        }
+        finally
+        {
+            UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+            UnityEngine.Object.DestroyImmediate(registry); UnityEngine.Object.DestroyImmediate(data);
+            foreach (var field in resolverValues) field.Key.SetValue(null, field.Value);
+            check("cave fixture preserves the active streaming owner", ReferenceEquals(activeBefore, YQPlayerFollowingSemanticChunkStreamer.Active));
+        }
     }
 
     private static void RunSharedSiteDemandContracts(YQPreparedSpatialMaterializationV2 prepared,
@@ -3217,6 +3568,120 @@ public static class YQSemanticWorldAuthorityTests
             if (authority.acceptedOverrides[index] != null && authority.acceptedOverrides[index].objectId == objectId)
                 return authority.acceptedOverrides[index];
         return null;
+    }
+
+    private static void RunWaterWorldRepair()
+    {
+        // note: This explicit request authors only swimming states, then exercises isolated water/world contracts; it never enters Play Mode or selects/saves a profile.
+        var checks = new List<object>(); int failures = 0;
+        void Check(string name, bool pass) { checks.Add(new { name, passed = pass }); if (!pass) failures++; }
+        try
+        {
+            YQPlayerSwimmingAnimationSetup.Apply();
+            foreach (string check in YQPlayerSwimmingAnimationSetup.VerifyContracts()) Check(check, true);
+            var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            // note: A tall accepted reserve must meet the surrounding relief continuously past its original short shoulder and across the spatial index boundary.
+            var padAuthority = new YQContinuousWorldCellAuthority("pad-grade-contract", null, null);
+            Type padType = typeof(YQContinuousWorldCellAuthority).GetNestedType("ContinuationPad", BindingFlags.NonPublic);
+            Array pads = Array.CreateInstance(padType, 1);
+            pads.SetValue(Activator.CreateInstance(padType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null,
+                new object[] { 2048f, 2048f, 32f, .9f, 12f }, null), 0);
+            var instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            float padHeight = (float)typeof(YQContinuousWorldCellAuthority).GetField("originHeight", instanceFlags).GetValue(padAuthority);
+            object padIndex = typeof(YQContinuousWorldCellAuthority).GetMethod("BuildContinuationPadIndex", flags).Invoke(null, new object[] { pads, padHeight });
+            typeof(YQContinuousWorldCellAuthority).GetField("continuationPadIndex", instanceFlags).SetValue(padAuthority, padIndex);
+            MethodInfo grade = typeof(YQContinuousWorldCellAuthority).GetMethod("ApplyContinuationPads", instanceFlags);
+            float previous = .9f; bool continuous = true;
+            for (float distance = 0f; distance < 32f + padHeight / .45f + 8f; distance += 1f)
+            {
+                float sample = (float)grade.Invoke(padAuthority, new object[] { 2048f + distance, 2048f, .1f });
+                continuous &= Mathf.Abs(sample - previous) * padHeight <= .451f;
+                previous = sample;
+            }
+            Check("mountain reserve grading remains continuous beyond short shoulders and index cells", continuous && Mathf.Abs(previous - .1f) < .001f);
+            // note: Malformed synthetic networks must reject missing receivers, cycles and duplicate channels, rather than merely passing generated examples.
+            var lake = new YQHydrologyFeatureV2 { hydrologyId = "fixture-lake", kind = YQHydrologyKindV2.Lake, nominalWidth = 20f };
+            lake.controlPoints.Add(new YQBlueprintPointV2 { x = 0, z = 0, normalizedElevation = .2f, width = 20f });
+            var channel = new YQHydrologyFeatureV2 { hydrologyId = "fixture-river", kind = YQHydrologyKindV2.River, sinkHydrologyId = lake.hydrologyId, nominalWidth = 8f };
+            channel.controlPoints.Add(new YQBlueprintPointV2 { x = 0, z = 100, normalizedElevation = .4f, width = 8f });
+            channel.controlPoints.Add(new YQBlueprintPointV2 { x = 0, z = 0, normalizedElevation = .2f, width = 8f });
+            var graph = new Dictionary<string, YQHydrologyFeatureV2> { [lake.hydrologyId] = lake, [channel.hydrologyId] = channel };
+            YQSpatialBlueprintValidationResultV2 ValidateWater()
+            {
+                var result = new YQSpatialBlueprintValidationResultV2();
+                typeof(YQSpatialBlueprintValidatorV2).GetMethod("ValidateReceivingWatershed", flags).Invoke(null, new object[] { graph, result }); return result;
+            }
+            Check("connected synthetic river terminates in a level body", ValidateWater().Accepted);
+            channel.sinkHydrologyId = "missing"; Check("missing receiving body rejects", !ValidateWater().Accepted);
+            channel.sinkHydrologyId = channel.hydrologyId; Check("drainage cycles reject", !ValidateWater().Accepted);
+            channel.sinkHydrologyId = lake.hydrologyId;
+            var parallel = JsonUtility.FromJson<YQHydrologyFeatureV2>(JsonUtility.ToJson(channel)); parallel.hydrologyId = "parallel-river";
+            foreach (var point in parallel.controlPoints) point.x += 2f;
+            graph.Add(parallel.hydrologyId, parallel); Check("independent concurrent water sheets reject", !ValidateWater().Accepted); graph.Remove(parallel.hydrologyId);
+            foreach (string seed in new[] { "semantic-v2-318", "33b9e87d", "watershed-alpha", "watershed-beta", "watershed-gamma", "watershed-delta" })
+            {
+                var plan = BuildFixture(seed); YQGeneratedWorldSpatialPlanner.EnsureSpatialPlan(plan);
+                bool compiled = YQSpatialBlueprintCompilerV2.TryCompile(plan, out var accepted, out string reason);
+                Check("connected downhill watershed compiles: " + seed + " " + reason, compiled);
+                if (!compiled) continue;
+                var encounters = accepted.blueprint.sites.Where(site => site.tags.Contains("opening_encounter")).ToList();
+                Check("first semantic settlement and hostile retain generated identity within walking bands: " + seed,
+                    encounters.Count == 2 && encounters.Any(site => site.tags.Contains("semantic_settlement") &&
+                        new Vector2(site.x, site.z).magnitude >= 850f && new Vector2(site.x, site.z).magnitude <= 1150f) &&
+                    encounters.Any(site => site.tags.Contains("semantic_hostile_site") &&
+                        new Vector2(site.x, site.z).magnitude >= 1100f && new Vector2(site.x, site.z).magnitude <= 1450f));
+                Check("opening body exists within ordinary travel distance: " + seed,
+                    accepted.blueprint.hydrology.Any(w => w.hydrologyId == "water:lake:opening" &&
+                        new Vector2(w.controlPoints[0].x, w.controlPoints[0].z).magnitude <= 700f));
+                var rivers = accepted.blueprint.hydrology.Where(w => w.kind == YQHydrologyKindV2.River).ToList();
+                Check("flowing channels have explicit receivers: " + seed, rivers.Count >= 3 && rivers.All(w => !string.IsNullOrWhiteSpace(w.sinkHydrologyId)));
+                plan.spatialPlanV2 = accepted;
+                accepted.generationVersion = GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedGenerationVersion;
+                accepted.contentHash = YQSpatialBlueprintHasherV2.ComputeContentHash(accepted); accepted.validatedContentHash = accepted.contentHash;
+                Check("existing topology 9 remains accepted without migration: " + seed,
+                    YQSpatialPlanVersionRouter.TryValidateAcceptedV2(plan, out _) && !YQSpatialPlanVersionRouter.IsKnownLegacyNonAuthoritativeArtifact(accepted));
+            }
+            var preview = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            TerrainData data = null; Mesh water = null; Material material = null;
+            try
+            {
+                data = new TerrainData { heightmapResolution = 33, size = new Vector3(64f, 100f, 64f) };
+                var heights = new float[33, 33];
+                for (int z = 0; z < 33; z++) for (int x = 0; x < 33; x++) heights[z, x] = .2f + x * .002f + z * .001f;
+                data.SetHeights(0, 0, heights);
+                var ground = Terrain.CreateTerrainGameObject(data); SceneManager.MoveGameObjectToScene(ground, preview);
+                Terrain terrain = ground.GetComponent<Terrain>();
+                var owner = new GameObject("RepairGeometryPreview"); SceneManager.MoveGameObjectToScene(owner, preview);
+                water = new Mesh { vertices = new[] { new Vector3(-10, 25, -10), new Vector3(74, 25, -10), new Vector3(74, 25, 74), new Vector3(-10, 25, 74) },
+                    triangles = new[] { 0, 2, 1, 0, 3, 2 }, colors = Enumerable.Repeat(new Color(0f, .5f, 1f, 1f), 4).ToArray() };
+                typeof(YQContinuousWorldFeatureMaterializer).GetMethod("ClipWaterSurfaceToTerrain", flags).Invoke(null, new object[] { water, owner.transform, terrain });
+                Check("water clips exactly to terrain ownership without padded overlap", water.vertexCount >= 4 && water.vertices.All(v => v.x >= 0f && v.x <= 64f && v.z >= 0f && v.z <= 64f));
+                Check("water clipping preserves hydraulic datum and shader coverage", water.vertices.All(v => Mathf.Abs(v.y - 25f) < .001f) && water.colors.All(c => Mathf.Abs(c.g - .5f) < .001f && c.a == 1f));
+                var shader = Shader.Find("YourQuest/Grounded Path"); Check("grounded path shader imports without errors", shader != null && !ShaderUtil.ShaderHasError(shader));
+                var waterShader = Shader.Find("YourQuest/Generated Water");
+                Check("downhill flow and contact foam shader imports without errors", waterShader != null && !ShaderUtil.ShaderHasError(waterShader));
+                material = new Material(shader);
+                var road = (GameObject)typeof(YQContinuousWorldFeatureMaterializer).GetMethod("BuildGroundedRoadRibbon", flags).Invoke(null,
+                    new object[] { owner.transform, "RoadContractPreview", new List<Vector3> { new Vector3(8, 0, 32), new Vector3(56, 0, 32) }, 8f, material, terrain, null });
+                Mesh roadMesh = road.GetComponent<MeshFilter>().sharedMesh;
+                float contactOffset = (float)typeof(YQGeneratedWorldEnvironment).GetField("RoadSurfaceOffset", flags).GetRawConstantValue();
+                Check("road vertices contact final native terrain", roadMesh.vertices.All(v => Mathf.Abs(v.y - terrain.SampleHeight(v) - contactOffset) < .001f));
+                Check("path centre stays visible and both verges blend", roadMesh.colors.Any(c => c.a > .99f) && roadMesh.colors.Any(c => c.a < .01f));
+                Check("adjacent road triangles share samples instead of duplicate queries", roadMesh.vertexCount < 48 * 8 * 3);
+            }
+            finally
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+                if (data != null) UnityEngine.Object.DestroyImmediate(data);
+                if (water != null) UnityEngine.Object.DestroyImmediate(water);
+                if (material != null) UnityEngine.Object.DestroyImmediate(material);
+            }
+        }
+        catch (Exception error) { Check("repair fixture completed: " + error, false); }
+        string directory = "outputs/World_Water_Repair_20261006"; Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory, "Contracts_" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss_fff") + ".json"), Newtonsoft.Json.JsonConvert.SerializeObject(
+            new { utc = DateTime.UtcNow.ToString("O"), verdict = failures == 0 ? "PASS" : "FAIL", failures, checks, evidence = "DETACHED_EDITOR_CONTRACT_NOT_GAMEPLAY_ACCEPTANCE" }, Newtonsoft.Json.Formatting.Indented));
+        Debug.Log("[YQWorldWaterRepair] " + checks.Count + " checks; failures=" + failures);
     }
 
     private static GeneratedWorldPlanRecord BuildFixture(string seed)

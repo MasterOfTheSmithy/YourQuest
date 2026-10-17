@@ -1,0 +1,276 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: native_american_village
+  semanticStyleKey: native_american_village
+  sourceSignature: fnv1a32_a8a33604
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: ff8922bfa6eb99d49a0f829abedc9680, type: 2}
+  sourceInstanceCount: 9125
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_native_american_village_residential_01
+    displayName: Native American Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -1006.5939, y: 57.652542, z: 78.6346}
+    localBoundsCenter: {x: 0, y: 54.76712, z: 0}
+    localBoundsSize: {x: 390.55493, y: 109.53424, z: 416.0993}
+    sourceInstanceCount: 227
+    authoredBuildingCount: 0
+    authoredDressingCount: 227
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p0_p12_p00
+    - yq_cell_native_american_village_p0_p13_p00
+    - yq_cell_native_american_village_p0_p14_p00
+    - yq_cell_native_american_village_p1_p15_p00
+    - yq_cell_native_american_village_p2_p11_p00
+    - yq_cell_native_american_village_p2_p12_p00
+    - yq_cell_native_american_village_p3_p11_p00
+    - yq_cell_native_american_village_p3_p12_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_service_02
+    displayName: Native American Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -702.05554, y: -0.63899994, z: -385.0428}
+    localBoundsCenter: {x: 0, y: 107.65588, z: 0}
+    localBoundsSize: {x: 647.79584, y: 215.31177, z: 596.4791}
+    sourceInstanceCount: 5713
+    authoredBuildingCount: 0
+    authoredDressingCount: 5713
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p2_p10_p00
+    - yq_cell_native_american_village_p2_p8_p00
+    - yq_cell_native_american_village_p2_p9_p00
+    - yq_cell_native_american_village_p3_p10_p00
+    - yq_cell_native_american_village_p3_p6_p00
+    - yq_cell_native_american_village_p3_p7_p00
+    - yq_cell_native_american_village_p3_p8_p00
+    - yq_cell_native_american_village_p3_p9_p00
+    - yq_cell_native_american_village_p4_p10_p00
+    - yq_cell_native_american_village_p4_p11_p00
+    - yq_cell_native_american_village_p4_p5_p00
+    - yq_cell_native_american_village_p4_p6_p00
+    - yq_cell_native_american_village_p4_p7_p00
+    - yq_cell_native_american_village_p4_p8_p00
+    - yq_cell_native_american_village_p4_p9_p00
+    - yq_cell_native_american_village_p5_p10_p00
+    - yq_cell_native_american_village_p5_p11_p00
+    - yq_cell_native_american_village_p5_p7_p00
+    - yq_cell_native_american_village_p5_p8_p00
+    - yq_cell_native_american_village_p5_p8_p01
+    - yq_cell_native_american_village_p5_p9_p00
+    - yq_cell_native_american_village_p6_p10_p00
+    - yq_cell_native_american_village_p6_p8_p00
+    - yq_cell_native_american_village_p6_p9_p00
+    - yq_cell_native_american_village_p7_p10_p00
+    - yq_cell_native_american_village_p7_p9_p00
+    - yq_cell_native_american_village_p8_p10_p00
+    - yq_cell_native_american_village_p8_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_civic_03
+    displayName: Native American Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -481.7857, y: -0.0000076293945, z: -521.4769}
+    localBoundsCenter: {x: 0, y: 71.51741, z: 0}
+    localBoundsSize: {x: 491.71985, y: 143.03482, z: 399.0553}
+    sourceInstanceCount: 1026
+    authoredBuildingCount: 0
+    authoredDressingCount: 1026
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p5_p5_p00
+    - yq_cell_native_american_village_p5_p6_p00
+    - yq_cell_native_american_village_p6_p6_p00
+    - yq_cell_native_american_village_p6_p7_p00
+    - yq_cell_native_american_village_p7_p5_p00
+    - yq_cell_native_american_village_p7_p6_p00
+    - yq_cell_native_american_village_p7_p7_p00
+    - yq_cell_native_american_village_p7_p8_p00
+    - yq_cell_native_american_village_p8_p5_p00
+    - yq_cell_native_american_village_p8_p6_p00
+    - yq_cell_native_american_village_p8_p7_p00
+    - yq_cell_native_american_village_p9_p4_p00
+    - yq_cell_native_american_village_p9_p6_p00
+    - yq_cell_native_american_village_p9_p7_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_circulation_04
+    displayName: Native American Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -417.80844, y: 29.5363, z: 33.20343}
+    localBoundsCenter: {x: 0, y: 50.191864, z: 0}
+    localBoundsSize: {x: 314.20428, y: 100.38373, z: 325.80963}
+    sourceInstanceCount: 373
+    authoredBuildingCount: 0
+    authoredDressingCount: 373
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p7_p11_p00
+    - yq_cell_native_american_village_p7_p12_p00
+    - yq_cell_native_american_village_p7_p13_p00
+    - yq_cell_native_american_village_p8_p11_p00
+    - yq_cell_native_american_village_p8_p12_p00
+    - yq_cell_native_american_village_p9_p13_p00
+    - yq_cell_native_american_village_p9_p14_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_poi_05
+    displayName: Native American Village Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -40.601425, y: 25.023224, z: -36.219635}
+    localBoundsCenter: {x: 0, y: 59.00573, z: 0}
+    localBoundsSize: {x: 337.86166, y: 118.01146, z: 343.5586}
+    sourceInstanceCount: 204
+    authoredBuildingCount: 0
+    authoredDressingCount: 204
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p10_p10_p00
+    - yq_cell_native_american_village_p10_p13_p00
+    - yq_cell_native_american_village_p11_p10_p00
+    - yq_cell_native_american_village_p11_p11_p00
+    - yq_cell_native_american_village_p13_p12_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_residential_06
+    displayName: Native American Village Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -108.47276, y: 18.446686, z: -360.23264}
+    localBoundsCenter: {x: 0, y: 69.52234, z: 0}
+    localBoundsSize: {x: 461.52567, y: 139.04468, z: 393.8542}
+    sourceInstanceCount: 1137
+    authoredBuildingCount: 0
+    authoredDressingCount: 1137
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p10_p7_p00
+    - yq_cell_native_american_village_p10_p8_p00
+    - yq_cell_native_american_village_p10_p9_p00
+    - yq_cell_native_american_village_p11_p7_p00
+    - yq_cell_native_american_village_p11_p8_p00
+    - yq_cell_native_american_village_p11_p9_p00
+    - yq_cell_native_american_village_p12_p6_p00
+    - yq_cell_native_american_village_p12_p7_p00
+    - yq_cell_native_american_village_p12_p8_p00
+    - yq_cell_native_american_village_p12_p9_p00
+    - yq_cell_native_american_village_p13_p8_p00
+    - yq_cell_native_american_village_p13_p9_p00
+    - yq_cell_native_american_village_p9_p10_p00
+    - yq_cell_native_american_village_p9_p8_p00
+    - yq_cell_native_american_village_p9_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_service_07
+    displayName: Native American Village Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -62.63229, y: 29.184792, z: -1146.3025}
+    localBoundsCenter: {x: 0, y: 12.419273, z: 0}
+    localBoundsSize: {x: 45.26905, y: 24.838547, z: 43.122803}
+    sourceInstanceCount: 6
+    authoredBuildingCount: 0
+    authoredDressingCount: 6
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p11_p0_p00
+    - yq_cell_native_american_village_p12_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_civic_08
+    displayName: Native American Village Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 1024.6154, y: 71.91286, z: 1153.1248}
+    localBoundsCenter: {x: 0, y: 24.83493, z: 0}
+    localBoundsSize: {x: 39.20186, y: 49.66986, z: 29.477741}
+    sourceInstanceCount: 5
+    authoredBuildingCount: 0
+    authoredDressingCount: 5
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p23_p24_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_native_american_village_circulation_09
+    displayName: Native American Village Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 1070.2227, y: 88.988434, z: 640.32886}
+    localBoundsCenter: {x: 0, y: 45.419434, z: 0}
+    localBoundsSize: {x: 263.29736, y: 90.83887, z: 326.81873}
+    sourceInstanceCount: 434
+    authoredBuildingCount: 0
+    authoredDressingCount: 434
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_native_american_village_p22_p17_p00
+    - yq_cell_native_american_village_p22_p18_p00
+    - yq_cell_native_american_village_p22_p19_p00
+    - yq_cell_native_american_village_p23_p17_p00
+    - yq_cell_native_american_village_p23_p18_p00
+    - yq_cell_native_american_village_p23_p19_p00
+    - yq_cell_native_american_village_p23_p20_p00
+    - yq_cell_native_american_village_p24_p19_p00
+    - yq_cell_native_american_village_p24_p20_p00
+    cellContractsV2: []

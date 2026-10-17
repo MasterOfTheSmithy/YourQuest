@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Unity.Profiling;
 
 [DisallowMultipleComponent]
 public sealed class YQTitleEnvironmentScene : MonoBehaviour
 {
+    private static readonly ProfilerMarker PresentationMarker = new ProfilerMarker("YQ.Title.Presentation");
     private struct GalaxyParticleState
     {
         public Vector3 center;
@@ -849,15 +851,23 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
         if (gameplayCamera == null || gameplayCamera == titleCamera)
             return;
 
-        if (YQGeneratedWorldRuntimeBuilder.IsInitialGenerationGameplayLocked ||
-            YQTitleEnvironmentLoader.IsWorldGenerationCameraReleased)
+        if (YQTitleEnvironmentLoader.IsWorldGenerationCameraReleased)
         {
             // note: Generation may overlap additive title cleanup, but it never grants this scene authority to disable the live gameplay camera.
             gameplayCamera.enabled = true;
             return;
         }
 
-        if (gameplayCamera.enabled &&
+        // note: Keep real world rendering/LOD preparation alive behind the full-screen Goddess camera; camera existence alone never releases input.
+        bool preparingWorld = YQStartupLoadingScreen.IsGenerationVisible &&
+            !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased;
+        if (preparingWorld && titleCamera != null)
+        {
+            gameplayCamera.enabled = true;
+            titleCamera.enabled = true;
+            titleCamera.depth = Mathf.Max(titleCamera.depth, gameplayCamera.depth + 1f);
+        }
+        else if (gameplayCamera.enabled &&
             !_suppressedGameplayCameras.Contains(gameplayCamera))
         {
             // note: Gameplay can be constructed after the additive title scene awakens; explicitly transfer camera ownership before the first rendered gameplay frame.
@@ -1170,6 +1180,12 @@ public sealed class YQTitleEnvironmentScene : MonoBehaviour
     }
 
     private void LateUpdate()
+    {
+        // note: A direct bounded recorder can distinguish presentation motion from main-thread loading stalls without retaining full frame histories.
+        using (PresentationMarker.Auto()) AdvancePresentation();
+    }
+
+    private void AdvancePresentation()
     {
         if (_exitTransitionActive)
         {

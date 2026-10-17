@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: bio_horror_sci_fi_environment
+  semanticStyleKey: bio_horror_scifi
+  sourceSignature: fnv1a32_23b1dbbf
+  topology: 7
+  streamingSite: {fileID: 11400000, guid: 93b1563b18d180b428e1e44e22f1c1c2, type: 2}
+  sourceInstanceCount: 770
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_bio_horror_sci_fi_environment_entrance_01
+    displayName: Bio Horror Sci Fi Environment Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0, y: -0.0000009536743, z: 0}
+    localBoundsCenter: {x: 0, y: 12.835756, z: 0}
+    localBoundsSize: {x: 29.49543, y: 25.671513, z: 23.884048}
+    sourceInstanceCount: 770
+    authoredBuildingCount: 0
+    authoredDressingCount: 770
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - habitation
+    - industry
+    - poi
+    - scifisectors
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_bio_horror_sci_fi_environment_p0_p0_p00
+    cellContractsV2: []

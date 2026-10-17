@@ -164,6 +164,36 @@ public static class YQContainerInventory
         return true;
     }
 
+    internal static bool TryPrepareConsentedNpcAid(WorldState world, PlayerState player, string npcId, string itemId,
+        string templateId, string contractHash, int quantity, long expectedPlayerRevision, long expectedInventoryRevision,
+        string requestId, long occurredUnix, out JObject proof, out string failure)
+    {
+        proof = null; failure = "Consented NPC aid inventory is unavailable.";
+        // note: Called only on detached paired documents after immutable request acceptance; ordinary private-inventory access stays unchanged.
+        var old = Find(world, npcId);
+        if (!YQSocialAidDomain.IsEligibleRecipient(world, player, npcId) || player.stateRevision != expectedPlayerRevision || old.revision != expectedInventoryRevision || occurredUnix <= 0 ||
+            !ValidateContents(old.contents, old.capacity, out failure) || !ValidateContents(player.inventoryItems, player.inventoryCapacity, out failure) ||
+            (player.equippedItemBySlot?.ContainsValue(itemId) ?? false)) return false;
+        var next = Copy(old); var backpack = Copy(player.inventoryItems);
+        var matches = backpack.FindAll(i => i != null && i.itemId == itemId);
+        if (matches.Count != 1 || quantity < 1 || quantity > 3) { failure = "Exact aid item/quantity unavailable."; return false; }
+        var item = matches[0];
+        if (!YQSocialAidDomain.IsSupportedSupply(item) || item.templateId != templateId || YQSocialAidDomain.ItemContractHash(item) != contractHash || quantity > item.quantity)
+        { failure = "Held supply differs from the accepted request."; return false; }
+        int donorBefore = item.quantity, recipientBefore = 0;
+        foreach (var held in old.contents) if (YQSocialAidDomain.ItemContractHash(held) == contractHash) recipientBefore += held.quantity;
+        if (!Move(backpack, next.contents, item, quantity, next.capacity, "consented-aid|" + requestId, out failure)) return false;
+        next.revision = checked(old.revision + 1); next.hasPlayerDeposits = true;
+        if (!ValidateOwnership(world, player, next, backpack, out failure)) return false;
+        int recipientAfter = 0;
+        foreach (var held in next.contents) if (YQSocialAidDomain.ItemContractHash(held) == contractHash) recipientAfter += held.quantity;
+        if (recipientAfter - recipientBefore != quantity) { failure = "Gift did not produce the requested recipient benefit."; return false; }
+        proof = new JObject { ["npcId"] = npcId, ["itemId"] = itemId, ["templateId"] = templateId, ["itemContractHash"] = contractHash, ["quantity"] = quantity,
+            ["donorQuantityBefore"] = donorBefore, ["donorQuantityAfter"] = donorBefore - quantity, ["recipientQuantityBefore"] = recipientBefore, ["recipientQuantityAfter"] = recipientAfter,
+            ["playerRevisionBefore"] = player.stateRevision, ["playerRevisionAfter"] = checked(player.stateRevision + 1), ["recipientRevisionBefore"] = old.revision, ["recipientRevisionAfter"] = next.revision };
+        player.inventoryItems = backpack; player.stateRevision = checked(player.stateRevision + 1); player.lastUpdatedUnix = Math.Max(player.lastUpdatedUnix, occurredUnix);
+        world.containers[npcId] = next; world.Touch(Math.Max(world.lastUpdatedUnix, occurredUnix)); failure = ""; return true;
+    }
     private static bool Move(List<InventoryItemRecord> source, List<InventoryItemRecord> target, InventoryItemRecord item,
         int quantity, int capacity, string splitKey, out string failure)
     {
@@ -172,13 +202,36 @@ public static class YQContainerInventory
         InventoryItemRecord merged = item.stackable ? target.Find(i => CanStack(i, item) && (long)i.quantity + quantity <= MaxStack) : null;
         if (merged == null)
         {
-            if (capacity > 0 && target.Count >= capacity) { failure = "Destination is full."; return false; }
             if (quantity > MaxStack && item.stackable) { failure = "Transfer at most " + MaxStack + " per stack."; return false; }
-            InventoryItemRecord moved = Copy(item);
-            moved.quantity = quantity;
-            if (quantity != item.quantity) moved.itemId = "split:" + StableKey(item.itemId + "|" + splitKey);
-            if (target.Exists(i => string.Equals(i.itemId, moved.itemId, StringComparison.OrdinalIgnoreCase))) return false;
-            target.Add(moved);
+            // note: When no single stack fits, use compatible partial stacks before requiring another slot.
+            // Plan capacity and identity first so a rejected transfer cannot partially fill the destination.
+            int remaining = quantity;
+            var partialStacks = new List<InventoryItemRecord>();
+            if (item.stackable)
+                foreach (InventoryItemRecord held in target)
+                {
+                    if (held.quantity >= MaxStack || !CanStack(held, item)) continue;
+                    partialStacks.Add(held);
+                    remaining -= Math.Min(MaxStack - held.quantity, remaining);
+                    if (remaining == 0) break;
+                }
+            InventoryItemRecord moved = null;
+            if (remaining > 0)
+            {
+                if (capacity > 0 && target.Count >= capacity) { failure = "Destination is full."; return false; }
+                moved = Copy(item);
+                moved.quantity = remaining;
+                if (quantity != item.quantity) moved.itemId = "split:" + StableKey(item.itemId + "|" + splitKey);
+                if (target.Exists(i => string.Equals(i.itemId, moved.itemId, StringComparison.OrdinalIgnoreCase))) return false;
+            }
+            int toMerge = quantity - remaining;
+            foreach (InventoryItemRecord held in partialStacks)
+            {
+                int amount = Math.Min(MaxStack - held.quantity, toMerge);
+                held.quantity += amount;
+                toMerge -= amount;
+            }
+            if (moved != null) target.Add(moved);
         }
         else merged.quantity += quantity;
         item.quantity -= quantity;

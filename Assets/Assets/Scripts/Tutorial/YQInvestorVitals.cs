@@ -11,6 +11,8 @@ public sealed class YQInvestorVitals : MonoBehaviour
     public float CurrentStamina { get; private set; }
     public float CurrentMana { get; private set; }
     public bool IsDead => CurrentHealth <= 0.01f;
+    public float MaximumHealth => GetMaxHealth();
+    private YQInvestorPlayerMotor _motionOwner;
 
     [Header("Recovery")]
     public float healthRegenPerSecond = 1.5f;
@@ -54,7 +56,10 @@ public sealed class YQInvestorVitals : MonoBehaviour
             ? 0f
             : (_isSprinting ? activeStaminaRegenPerSecond : staminaRegenPerSecond);
 
-        CurrentHealth = Mathf.Clamp(CurrentHealth + healthRegenPerSecond * Time.deltaTime, 0f, maxHealth);
+        // note: Fall grace cannot regenerate away a pending lethal impact or inflate clutch-retained health.
+        if (_motionOwner == null) _motionOwner = GetComponent<YQInvestorPlayerMotor>();
+        if (_motionOwner == null || !_motionOwner.HasPendingFallDamage)
+            CurrentHealth = Mathf.Clamp(CurrentHealth + healthRegenPerSecond * Time.deltaTime, 0f, maxHealth);
         CurrentStamina = Mathf.Clamp(CurrentStamina + staminaRegen * Time.deltaTime, 0f, maxStamina);
         CurrentMana = Mathf.Clamp(CurrentMana + manaRegenPerSecond * Time.deltaTime, 0f, maxMana);
     }
@@ -121,8 +126,11 @@ public sealed class YQInvestorVitals : MonoBehaviour
             return;
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
+        YQInvestorCombat combat = GetComponent<YQInvestorCombat>();
+        bool reacts = combat == null || combat.NotifyAcceptedDamage(amount);
+        GetComponent<YQPlayerHaptics>()?.Pulse(.45f, .65f, .14f);
         // note: Accepted damage drives presentation only; health, death loot, and persistence remain owned here.
-        GetComponent<YQPlayerEquipmentVisual>()?.PlayDamageFeedback(IsDead);
+        if (IsDead || reacts) GetComponent<YQPlayerEquipmentVisual>()?.PlayDamageFeedback(IsDead);
         if (IsDead)
             EnterDeathState();
     }
@@ -158,7 +166,9 @@ public sealed class YQInvestorVitals : MonoBehaviour
         CurrentHealth = GetMaxHealth();
         CurrentStamina = GetMaxStamina();
         CurrentMana = GetMaxMana();
+        GetComponent<YQPlayerRagdoll>()?.ResetForRespawn();
         transform.position = new Vector3(0f, 1.25f, -8f);
+        GetComponent<YQInvestorPlayerMotor>()?.ResetTraversalForRespawn();
         // note: Reviving releases the terminal animation without regenerating the avatar or accepted equipment.
         GetComponent<YQPlayerEquipmentVisual>()?.PlayReviveFeedback();
 

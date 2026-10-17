@@ -1,0 +1,435 @@
+{
+  "title": "YourQuest — purchased-pack art direction examples",
+  "compiled_date": "2026-10-03",
+  "scope": "Environments, characters, equipment, creatures, and magic effects. UI examples and DOT-generated assets are excluded.",
+  "evidence_boundary": "Publisher showcase references plus inspected local pack roots; not current-game rendering or Unity integration certification.",
+  "requirements_sources": [
+    "Docs/YourQuest_Game_Design_Document.md",
+    "Docs/AssetIntegrationPlan.md"
+  ],
+  "curation_status": "Visual synthesis for review; captions are suggested art uses, not new gameplay requirements.",
+  "records": [
+    {
+      "id": "befour-viking",
+      "vendor": "Befour Studios",
+      "pack": "Medieval Viking Village",
+      "local_pack_root": "Assets/BefourStudios/MedievalVikingVillage",
+      "local_root_present": true,
+      "publisher_page": "https://befourstudios.gumroad.com/l/btrymh",
+      "role": "Weathered settlements",
+      "direction_note": "Timber, rough stone, moss, and lived-in detail support grounded villages and forest-edge encounters.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "01_Befour_Environments/befour-viking-1.png",
+          "image_url": "https://public-files.gumroad.com/5yhw6dn4z750uelw6sasto4xwvob",
+          "width": 1005,
+          "height": 565,
+          "bytes": 968661,
+          "sha256": "df9138d53a5193bd70a7e5d3f253e37d10239c63358e95a4eb2568d668447bc5"
+        },
+        {
+          "file": "01_Befour_Environments/befour-viking-2.png",
+          "image_url": "https://public-files.gumroad.com/31gvf2bsc5rgidiae9ruihzj4miu",
+          "width": 1005,
+          "height": 565,
+          "bytes": 866358,
+          "sha256": "f054203cac72ca1fea64d52c89a6a16039ac15300eca850d524c58bb3adfd95f"
+        }
+      ]
+    },
+    {
+      "id": "befour-nordic",
+      "vendor": "Befour Studios",
+      "pack": "Medieval Nordic Village",
+      "local_pack_root": "Assets/BefourStudios/NordicVillage",
+      "local_root_present": true,
+      "publisher_page": "https://befourstudios.gumroad.com/l/cyrqy",
+      "role": "Northern regions",
+      "direction_note": "Distinct rooflines and village silhouettes give colder regions a recognizable identity.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "01_Befour_Environments/befour-nordic-1.png",
+          "image_url": "https://public-files.gumroad.com/34uqbyie8flezfvwc3fd0krizfms",
+          "width": 1005,
+          "height": 565,
+          "bytes": 678495,
+          "sha256": "7385a5015d91a253032136830238cf21d69bec847bb5e51e07236ba5915fc242"
+        },
+        {
+          "file": "01_Befour_Environments/befour-nordic-2.png",
+          "image_url": "https://public-files.gumroad.com/kfwf844ts42mbcjobzshi3cmctta",
+          "width": 1005,
+          "height": 565,
+          "bytes": 425937,
+          "sha256": "33d3bb211c4d67c1dc6c0070011378bd87b29554b9b1faec4f1f56dc8db77579"
+        }
+      ]
+    },
+    {
+      "id": "befour-mansion",
+      "vendor": "Befour Studios",
+      "pack": "Victorian Mansion",
+      "local_pack_root": "Assets/BefourStudios/VictorianMansionEnvironment",
+      "local_root_present": true,
+      "publisher_page": "https://befourstudios.gumroad.com/l/tnrqe",
+      "role": "Rich interiors",
+      "direction_note": "Warm pools of light, dark wood, carved furniture, and detailed rooms suit libraries, noble interiors, and discovery spaces.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "01_Befour_Environments/befour-mansion-1.png",
+          "image_url": "https://public-files.gumroad.com/dxxixucz6weaphxq1v4cdqxag57o",
+          "width": 1005,
+          "height": 565,
+          "bytes": 657647,
+          "sha256": "81be760d5cfdb5185944d0c156df4c9646277a651fc22249dd5e6e7ace88b754"
+        },
+        {
+          "file": "01_Befour_Environments/befour-mansion-2.png",
+          "image_url": "https://public-files.gumroad.com/dicx9tu1ifh0618oz57a9pswafh7",
+          "width": 1005,
+          "height": 565,
+          "bytes": 566029,
+          "sha256": "84137398a762eea91388e39ed17f79c9ae44e8848ae9baaab516cff3c3104960"
+        }
+      ]
+    },
+    {
+      "id": "befour-asian",
+      "vendor": "Befour Studios",
+      "pack": "Asian Dynasty Environment",
+      "local_pack_root": "Assets/BefourStudios/AsianDynastyEnvironment",
+      "local_root_present": true,
+      "publisher_page": "https://befourstudios.gumroad.com/l/qtuffz",
+      "role": "Regional architecture",
+      "direction_note": "Courtyards, roofs, and ornament offer a separate regional language; curate them as a coherent location.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "01_Befour_Environments/befour-asian-1.png",
+          "image_url": "https://public-files.gumroad.com/vhjjgmd749nmf7ta7dhsloia1mod",
+          "width": 1005,
+          "height": 565,
+          "bytes": 1077050,
+          "sha256": "e075f8d20867c5233cf5bd251e8b4f4fcdfb66acda12798d57d03f24b1d15407"
+        },
+        {
+          "file": "01_Befour_Environments/befour-asian-2.png",
+          "image_url": "https://public-files.gumroad.com/4pg2tpv860ltrheliy8pk2e3i5vj",
+          "width": 1005,
+          "height": 565,
+          "bytes": 985388,
+          "sha256": "36dcb2439f30f69d1659f456e24904dc10e1f75da3b7a79bb54d969c3dddde27"
+        }
+      ]
+    },
+    {
+      "id": "befour-persepolis",
+      "vendor": "Befour Studios",
+      "pack": "Persepolis Empire Environment",
+      "local_pack_root": "Assets/BefourStudios/PersepolisEmpireEnvironment",
+      "local_root_present": true,
+      "publisher_page": "https://befourstudios.gumroad.com/l/igdxn",
+      "role": "Ancient monumental spaces",
+      "direction_note": "Stone columns, ordered architecture, and large silhouettes provide references for ruins and places of old power.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "01_Befour_Environments/befour-persepolis-1.png",
+          "image_url": "https://public-files.gumroad.com/r4yyyptge86gvw7q7qctn4uja2ii",
+          "width": 1005,
+          "height": 565,
+          "bytes": 936996,
+          "sha256": "87c699df094d5a2ccdaa6c8042caf3c3c5b442489801c478d477d6c7bd3d6624"
+        },
+        {
+          "file": "01_Befour_Environments/befour-persepolis-2.png",
+          "image_url": "https://public-files.gumroad.com/3hhzat7o94vw87dz79uxofq7umhm",
+          "width": 1005,
+          "height": 565,
+          "bytes": 1042958,
+          "sha256": "5f1418009429f130d93280f443440b481d914011477720b22c4290f522deca06"
+        }
+      ]
+    },
+    {
+      "id": "hivemind-kingdom",
+      "vendor": "HIVEMIND",
+      "pack": "Medieval Kingdom",
+      "local_pack_root": "Assets/HIVEMIND/MedievalKingdom",
+      "local_root_present": true,
+      "publisher_page": "https://assetstore-fallback.unity.com/packages/3d/environments/fantasy/medieval-kingdom-medieval-castle-medieval-town-medieval-village--268667",
+      "role": "Settlements and castles",
+      "direction_note": "Detailed medieval construction supports towns, trade, traversal, and fortified landmarks.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "02_Hivemind_Environments/hivemind-kingdom-1.jpg",
+          "image_url": "https://assetstorev1-prd-cdn.unity3d.com/key-image/71c54c95-da6d-46ad-a4a8-b1ed85ddd4f4.jpg?v=1",
+          "width": 1200,
+          "height": 630,
+          "bytes": 323623,
+          "sha256": "e60669fe4b25e3c4b1b710075f8c3c8e213ad2ebbd5e8fb66a5362de88f1fbca"
+        }
+      ]
+    },
+    {
+      "id": "hivemind-cathedral",
+      "vendor": "HIVEMIND",
+      "pack": "Gothic Cathedral",
+      "local_pack_root": "Assets/HIVEMIND/GothicCathedral",
+      "local_root_present": true,
+      "publisher_page": "https://assetstore-fallback.unity.com/packages/3d/environments/dungeons/modular-gothic-cathedral-gothic-cathedral-modular-cathedral-306637",
+      "role": "Sacred and ominous spaces",
+      "direction_note": "Vertical stone forms, stained glass, and deep interiors provide a strong silhouette for divine or dangerous locations.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "02_Hivemind_Environments/hivemind-cathedral-1.jpg",
+          "image_url": "https://assetstorev1-prd-cdn.unity3d.com/key-image/6cf8a171-0bad-4c13-a91a-527eacb6b8b4.jpg?v=1",
+          "width": 1200,
+          "height": 630,
+          "bytes": 201415,
+          "sha256": "a185b9af0c4d4797019fe7296dc25331812a9e72ade95b2ff0dc20d35fe03be3"
+        }
+      ]
+    },
+    {
+      "id": "infinity-human",
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Human Character",
+      "local_pack_root": "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans",
+      "local_root_present": true,
+      "publisher_page": "https://infinitypbr.com/packs/human-character",
+      "role": "Player and NPC foundation",
+      "direction_note": "Human proportions, material detail, and modular fantasy clothing anchor the avatar and NPC reference.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "03_Characters_Equipment_and_Creatures/infinity-human-1.webp",
+          "image_url": "https://infinitypbr.com/images/store-60016-b276fab8-1000.webp",
+          "width": 1000,
+          "height": 667,
+          "bytes": 121602,
+          "sha256": "077955e7e6192a8520c4953be3568d58698bf7f7ae4b23bd92e2fc6120c2db05"
+        }
+      ]
+    },
+    {
+      "id": "infinity-weapons",
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Weapons & Armor Pack 1",
+      "local_pack_root": "Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor",
+      "local_root_present": true,
+      "publisher_page": "https://infinitypbr.com/packs/weapons-and-armor-1",
+      "role": "Equipment language",
+      "direction_note": "Readable weapon silhouettes, worn metal, leather, and wood should remain legible in both camera views.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "03_Characters_Equipment_and_Creatures/infinity-weapons-1.webp",
+          "image_url": "https://infinitypbr.com/images/store-44714-cf3eefa2-1000.webp",
+          "width": 1000,
+          "height": 667,
+          "bytes": 55530,
+          "sha256": "506b960f5ba4c75e22bd26a6a6e147b06f33280328dedb3a2e3b01ae99a0019f"
+        }
+      ]
+    },
+    {
+      "id": "infinity-mimics",
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Mimics & Chests",
+      "local_pack_root": "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests",
+      "local_root_present": true,
+      "publisher_page": "https://infinitypbr.com/packs/mimic-chests",
+      "role": "Loot and creature surprise",
+      "direction_note": "Ordinary treasure objects and expressive monster forms connect exploration, reward, and danger.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "03_Characters_Equipment_and_Creatures/infinity-mimics-1.webp",
+          "image_url": "https://infinitypbr.com/images/store-37789-7e1cd4b2-1000.webp",
+          "width": 1000,
+          "height": 667,
+          "bytes": 105664,
+          "sha256": "d7bd9b8db93a260dd95c51e3da3f45448a426c2ae3025585af218bf28c366d0f"
+        }
+      ]
+    },
+    {
+      "id": "infinity-dragons",
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Dragons",
+      "local_pack_root": "Assets/Magic Pig Games (Infinity PBR)/Characters/Dragons",
+      "local_root_present": true,
+      "publisher_page": "https://infinitypbr.com/packs/dragons",
+      "role": "Mythic scale",
+      "direction_note": "Large organic creatures provide a reference for the grand progression-fantasy scale described in the GDD.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "03_Characters_Equipment_and_Creatures/infinity-dragons-1.webp",
+          "image_url": "https://infinitypbr.com/images/store-45330-db89a893-1000.webp",
+          "width": 1000,
+          "height": 667,
+          "bytes": 118290,
+          "sha256": "99c6d9c8e5e5d3c9b39a7e150edaa58fdd2375fbea292a8e18ddc7e01dececfe"
+        }
+      ]
+    },
+    {
+      "id": "gabriel-aoe",
+      "vendor": "Gabriel Aguiar Productions",
+      "pack": "Unique AoE Magic Abilities Vol. 1",
+      "local_pack_root": "Assets/GabrielAguiarProductions",
+      "local_root_present": true,
+      "publisher_page": "https://gabrielaguiarprod1.gumroad.com/l/uniqueaoemagicabilitiesvol1unity",
+      "role": "Readable magical power",
+      "direction_note": "Concentrated luminous shapes and elemental colors support clear charging, release, impact, and area effects.",
+      "reference_type": "publisher showcase",
+      "images": [
+        {
+          "file": "04_Magic_and_VFX/gabriel-aoe-1.jpg",
+          "image_url": "https://public-files.gumroad.com/zv0cxdszudzymswk524bz5g1dq43",
+          "width": 1005,
+          "height": 565,
+          "bytes": 176047,
+          "sha256": "c902454c39c2f9b2fa09423ddbc64ae1e21ded2074e82f8ab3cf7f9ef57a7fc7"
+        },
+        {
+          "file": "04_Magic_and_VFX/gabriel-aoe-2.jpg",
+          "image_url": "https://public-files.gumroad.com/oq87zbdv1e10addhiy8gopbeqp6f",
+          "width": 1005,
+          "height": 565,
+          "bytes": 186914,
+          "sha256": "764409fe881a949d2515068d9a33dbfd3560e91d09cc4b85e15ecb6c3824cc81"
+        }
+      ]
+    }
+  ],
+  "local_project_examples": [
+    {
+      "vendor": "Befour Studios",
+      "pack": "Victorian Mansion",
+      "label": "Mansion Demo Map — URP",
+      "project_path": "Assets/BefourStudios/VictorianMansionEnvironment/Art/Scenes/MansionDemoMap_URP.unity",
+      "exists": true,
+      "direction_note": "Warm, finished interiors; the asset-plan hero-interior quality reference."
+    },
+    {
+      "vendor": "Befour Studios",
+      "pack": "Victorian Mansion",
+      "label": "Mansion Demo Map — HDRP",
+      "project_path": "Assets/BefourStudios/VictorianMansionEnvironment/Art/Scenes/MansionDemoMap_HDRP.unity",
+      "exists": true,
+      "direction_note": "Compare publisher lighting while retaining the URP demo as the applicable source example."
+    },
+    {
+      "vendor": "Befour Studios",
+      "pack": "Asian Dynasty",
+      "label": "Demo Map — URP",
+      "project_path": "Assets/BefourStudios/AsianDynastyEnvironment/Scenes/DemoMap_URP.unity",
+      "exists": true,
+      "direction_note": "Architecture, courtyards, repeated shape language, and regional set dressing."
+    },
+    {
+      "vendor": "Befour Studios",
+      "pack": "Asian Dynasty",
+      "label": "Demo Map — HDRP",
+      "project_path": "Assets/BefourStudios/AsianDynastyEnvironment/Scenes/DemoMap_HDRP.unity",
+      "exists": true,
+      "direction_note": "Second authored pipeline example for the same regional art pack."
+    },
+    {
+      "vendor": "Befour Studios",
+      "pack": "Persepolis Empire",
+      "label": "Map Demo",
+      "project_path": "Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Scenes/MAP_Demo.unity",
+      "exists": true,
+      "direction_note": "Ancient monumental architecture and environment composition."
+    },
+    {
+      "vendor": "Befour Studios",
+      "pack": "Persepolis Empire",
+      "label": "Overview",
+      "project_path": "Assets/BefourStudios/PersepolisEmpireEnvironment/Art/Scenes/Overview.unity",
+      "exists": true,
+      "direction_note": "Pack-level composition reference."
+    },
+    {
+      "vendor": "HIVEMIND",
+      "pack": "Medieval Kingdom",
+      "label": "Castle Town",
+      "project_path": "Assets/HIVEMIND/MedievalKingdom/HDRP(Default)/Scenes/L_CastleTown.unity",
+      "exists": true,
+      "direction_note": "Fortified settlement shapes and street scale."
+    },
+    {
+      "vendor": "HIVEMIND",
+      "pack": "Medieval Kingdom",
+      "label": "Overview",
+      "project_path": "Assets/HIVEMIND/MedievalKingdom/HDRP(Default)/Scenes/L_Overview.unity",
+      "exists": true,
+      "direction_note": "Aerial and kit-level composition reference."
+    },
+    {
+      "vendor": "HIVEMIND",
+      "pack": "Gothic Cathedral",
+      "label": "Cathedral",
+      "project_path": "Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Scenes/LV_GothicCathedral.unity",
+      "exists": true,
+      "direction_note": "Vertical sacred architecture, interior lighting, and strong silhouettes."
+    },
+    {
+      "vendor": "HIVEMIND",
+      "pack": "Gothic Cathedral",
+      "label": "Overview",
+      "project_path": "Assets/HIVEMIND/GothicCathedral/HDRP(Default)/Scenes/LV_Overview.unity",
+      "exists": true,
+      "direction_note": "Broader scene and layout reference."
+    },
+    {
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Human Character",
+      "label": "Character showcase",
+      "project_path": "Assets/Magic Pig Games (Infinity PBR)/Characters/Human - Humans/Demo Files/InfinityPBR Human - Humans.unity",
+      "exists": true,
+      "direction_note": "Character proportions, wardrobe and material presentation."
+    },
+    {
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Mimics & Chests",
+      "label": "Creature showcase",
+      "project_path": "Assets/Magic Pig Games (Infinity PBR)/Characters/Mimics & Chests/Demo/InfinityPBR - Mimics & Chests.unity",
+      "exists": true,
+      "direction_note": "Treasure prop and creature identity in one authored example."
+    },
+    {
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Dragons",
+      "label": "Creature showcase",
+      "project_path": "Assets/Magic Pig Games (Infinity PBR)/Characters/Dragons/Demo/InfinityPBR - Dragons.unity",
+      "exists": true,
+      "direction_note": "Large creature presentation and detail."
+    },
+    {
+      "vendor": "Infinity PBR / Magic Pig Games",
+      "pack": "Weapons & Armor",
+      "label": "Accessories overview",
+      "project_path": "Assets/Magic Pig Games (Infinity PBR)/Weapons & Armor/Accessories/Demo/Accessories Overview.unity",
+      "exists": true,
+      "direction_note": "Equipment silhouettes and surface detail."
+    },
+    {
+      "vendor": "Gabriel Aguiar Productions",
+      "pack": "Unique AoE Magic Abilities Vol. 1",
+      "label": "Pack documentation",
+      "project_path": "Assets/GabrielAguiarProductions/Documentation_v1.pdf",
+      "exists": true,
+      "direction_note": "Official pack reference; its presence does not certify integrated VFX prefabs."
+    }
+  ]
+}

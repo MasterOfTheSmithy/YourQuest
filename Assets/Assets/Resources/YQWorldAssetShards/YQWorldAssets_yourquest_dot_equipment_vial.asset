@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_vial
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Artisan.prefab
+    prefab: {fileID: 6861948368372885309, guid: 019fd261f5faa4b488f58ecc1769f66f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Court.prefab
+    prefab: {fileID: 1246615097143954405, guid: 15dac1851405eab4b8de0be1e7163b73, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Dragonbound.prefab
+    prefab: {fileID: 1452686316505756452, guid: bfaaf67c90082764bb01cf3861c405c0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Eclipse.prefab
+    prefab: {fileID: 5753117863439351951, guid: ec98ba5bb6d68c441a5915309ecdb65e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Field.prefab
+    prefab: {fileID: 709805407486148070, guid: faf0b4e1f4c3ea54e9eb37fea5d9beac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Merchant.prefab
+    prefab: {fileID: 5596075276994644002, guid: 0ca32f2f1366d82449291edc002ad9bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Ranger.prefab
+    prefab: {fileID: 2532479220648614028, guid: 1106b1818dbb5314f979d8e735a569e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Starforged_Orrery.prefab
+    prefab: {fileID: 8024920427721206358, guid: 072f646b615548041ab5abe95a34c6f5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1841739518092578776, guid: 4b5fce2dd8d950c4f8ccce7be5fa409a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_core.prefab
+    prefab: {fileID: 7397909102296031459, guid: a5f29b71062f1a54ab67e7f2132b46a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mixed_darkness_light.prefab
+    prefab: {fileID: 6945049044984083958, guid: 5f81eae04360ed14d87a5fd7f7e9286d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mixed_organic_fire.prefab
+    prefab: {fileID: 7292345358340544954, guid: 6778a837ac05ad640b489172450c6230, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_darkness.prefab
+    prefab: {fileID: 9038016881459960430, guid: 9b2c6b4bbdfdc954bb7a2b5af47f9836, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_fire.prefab
+    prefab: {fileID: 4223856556355307252, guid: b210de02a1270ab48a19b63bd8f1c9d8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_forged.prefab
+    prefab: {fileID: 2380708997782240700, guid: 259181c167b9d8049b99c2bd2272e597, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_frost.prefab
+    prefab: {fileID: 2618692343333700325, guid: 87be45386173a544896d24e15dc081cc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_light.prefab
+    prefab: {fileID: 1704248139143266734, guid: 5f244291dd6a9554997d664cafbb912c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_motif_organic.prefab
+    prefab: {fileID: 5937821035071810702, guid: a71ec9d73805ac54093d636f53341a21, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_darkness.prefab
+    prefab: {fileID: 908120505878468708, guid: c0b0893a6ee76a042a5582c32f3055b8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_fire.prefab
+    prefab: {fileID: 1085178412123319780, guid: aecf6644aec2ea04bb2a5113c254b99c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_forged.prefab
+    prefab: {fileID: 6517996735271680510, guid: 4537bb7a73e90cb4ba4296c7bd59e0fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_frost.prefab
+    prefab: {fileID: 7582292832946045243, guid: 7979d7a5fe4ae2a4ea3a2a7160dcc675, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_light.prefab
+    prefab: {fileID: 6030354458059587831, guid: 2b6db76c2b695a54b85d85a2af495910, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/yqmod1_consumables_vial_mount_organic.prefab
+    prefab: {fileID: 2465974751868593815, guid: 5937152ae7ff6764f90299b80fd3ad85, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Field_Parts.prefab
+    prefab: {fileID: 8050269920858184931, guid: 64b2e66521622fb47b09852989a9c581, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Merchant_Parts.prefab
+    prefab: {fileID: 5517480902942106702, guid: 6a8d15d6b77dd044499f12fe2e4fdd36, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Ranger_Parts.prefab
+    prefab: {fileID: 842821221718277609, guid: a550baa930cbe3c4da2ce87fb6410448, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Artisan_Parts.prefab
+    prefab: {fileID: 7082758546921251441, guid: 881e2f55626f69242b516a2cf665bbf6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Court_Parts.prefab
+    prefab: {fileID: 4294122815420144061, guid: fba95b6d9915fbe4a82defcb9ea09c62, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Dragonbound_Parts.prefab
+    prefab: {fileID: 1002651296187634256, guid: d970ee2ae0ca70f43a7bff5713283b37, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Eclipse_Parts.prefab
+    prefab: {fileID: 5472607540840454437, guid: e3ffe2018ef6d0846ab5276be6b6355d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7115108564046909314, guid: 7586d0db7536d6641bc6d1c79e9b6c53, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/vial/Vial_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 4045809570703944295, guid: 701f11af1d2867149bf904f22d4ed62c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

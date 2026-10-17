@@ -12,6 +12,8 @@ public static class WorldMemoryRenderer
         sb.AppendLine($"World: {s.worldName}  Region: {s.currentRegionId}");
         sb.AppendLine();
 
+        // note: Accepted policy identity/menu facts are public; observations, scores and private incident details are excluded.
+        sb.AppendLine("ACCEPTED_PUBLIC_POLICIES " + YQDispositionDomain.CapturePublicPolicies(s).ToString(Newtonsoft.Json.Formatting.None));
         AppendGeneratedWorldPlan(sb, s);
         sb.AppendLine();
 
@@ -25,6 +27,8 @@ public static class WorldMemoryRenderer
         {
             foreach (var kv in s.globalFlags)
             {
+                // note: Objective/legal/population social values are not evidence available to the unscoped director or every NPC.
+                if (YQDispositionDomain.IsReservedFlag(kv.Key)) continue;
                 sb.AppendLine($"- {kv.Key} = {kv.Value:0.00}");
                 added++;
                 if (added >= maxFlags) break;
@@ -41,7 +45,10 @@ public static class WorldMemoryRenderer
             {
                 var f = s.factions[i];
                 if (f == null) continue;
-                sb.AppendLine($"- {f.name} ({f.factionId}) | AttitudeToPlayer {f.attitudeToPlayer:0.00} | Status {f.status}");
+                // note: Public accepted faction identity/status remain visible. A private incident's governing consequence is not a universal knowledge source.
+                sb.AppendLine(YQDispositionDomain.IsGovernedFaction(s, f.factionId)
+                    ? $"- {f.name} ({f.factionId}) | Status {f.status}"
+                    : $"- {f.name} ({f.factionId}) | AttitudeToPlayer {f.attitudeToPlayer:0.00} | Status {f.status}");
                 fCount++;
             }
         }
@@ -78,7 +85,8 @@ public static class WorldMemoryRenderer
                     // if you later store npc->location->region, you can filter better
                 }
 
-                sb.AppendLine($"- {n.name} ({n.npcId}) | Faction {n.factionId} | Affinity {n.affinityToPlayer:0.00} | Status {n.status}");
+                // note: Personal affinity belongs to that NPC's scoped projection, not the global director context/rationale.
+                sb.AppendLine($"- {n.name} ({n.npcId}) | Faction {n.factionId} | Status {n.status}");
                 nCount++;
             }
         }

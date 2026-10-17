@@ -68,6 +68,19 @@ internal static class YourQuestTutorialWorldHelpers
 
 #if UNITY_EDITOR
     private static readonly Dictionary<string, GameObject> s_editorPrefabCache = new Dictionary<string, GameObject>();
+
+    [InitializeOnLoadMethod]
+    private static void RegisterEditorCacheCleanup()
+    {
+        EditorApplication.playModeStateChanged -= ClearEditorSessionCache;
+        EditorApplication.playModeStateChanged += ClearEditorSessionCache;
+    }
+
+    private static void ClearEditorSessionCache(PlayModeStateChange state)
+    {
+        // note: Recovery prefab references are useful during Play only; imported prefab files remain untouched.
+        if (state == PlayModeStateChange.EnteredEditMode) s_editorPrefabCache.Clear();
+    }
 #endif
 
     public static void CreateHut(Transform parent)

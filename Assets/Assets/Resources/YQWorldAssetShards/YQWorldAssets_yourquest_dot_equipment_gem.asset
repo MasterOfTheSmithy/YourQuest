@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_gem
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Artisan.prefab
+    prefab: {fileID: 6280283105326714828, guid: 541d9a42fb1eca0428813c04550d835f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Court.prefab
+    prefab: {fileID: 1267667969953469339, guid: 65187e5fe6525634b868de20a281f4ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Dragonbound.prefab
+    prefab: {fileID: 3604672395558636179, guid: b19c86ee64641a6429ebd2201aa24008, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Eclipse.prefab
+    prefab: {fileID: 6126466934663122197, guid: d65f6ce049968aa45b6be6f0dec0a05c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Field.prefab
+    prefab: {fileID: 5634303345870541015, guid: 6a91972ebeae9f14e92d61688b455403, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Merchant.prefab
+    prefab: {fileID: 8555091160406495538, guid: 2c8e3f94bcc64ea4e9064409b0efda68, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Ranger.prefab
+    prefab: {fileID: 7767539617767691333, guid: 41783a41ef5f0af4587cc3efc0714348, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Starforged_Orrery.prefab
+    prefab: {fileID: 9212561180317608743, guid: ffa17a6c600877e4ebff11a918492d92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1481477061356463458, guid: fc0915b4b3aca20409ce966d868aa160, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_core.prefab
+    prefab: {fileID: 7742033872113659878, guid: 447903fad783f444290f4815df48a377, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mixed_darkness_light.prefab
+    prefab: {fileID: 2115275221838867835, guid: 7bc117110ba7eaf4ba7fb6e9c8fa0018, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mixed_organic_fire.prefab
+    prefab: {fileID: 7265447322748069796, guid: a92b156f278dea748b13bd2ffa34bb09, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_darkness.prefab
+    prefab: {fileID: 5474324069032514701, guid: 2d2d1417b7d4d3b47a82e87e985f439e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_fire.prefab
+    prefab: {fileID: 5011587113515993056, guid: 71a52714522929342b2a68125a322da8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_forged.prefab
+    prefab: {fileID: 4907672059740097711, guid: e592d2b11753f5d49991189a1ab71d24, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_frost.prefab
+    prefab: {fileID: 5154827839673903768, guid: 6636eabbc52d6b34fae867751c170f26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_light.prefab
+    prefab: {fileID: 4331741017675795903, guid: 8a5606cb01cf8d14ca86394384656c58, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_motif_organic.prefab
+    prefab: {fileID: 3977954745593487978, guid: 9be0d80a15a12d446b68ae3c205df1ce, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_darkness.prefab
+    prefab: {fileID: 5123526735503379861, guid: 25b74eda32308604f9f6ac45a95474cc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_fire.prefab
+    prefab: {fileID: 4497417358784816121, guid: d2145f25490451a4f97e30da04dd797b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_forged.prefab
+    prefab: {fileID: 9198238869215276272, guid: 9546c932650b0864d980b08e8b0752d6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_frost.prefab
+    prefab: {fileID: 7267029409119178027, guid: a0af15681f7bb124c95ba84af7e32e89, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_light.prefab
+    prefab: {fileID: 7064433388303077398, guid: 0d11fef1aba8b034e9b24e06264c9019, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/yqmod1_accessories_gem_mount_organic.prefab
+    prefab: {fileID: 6103403555584006375, guid: dd4f568b5fa1a094f895f762ff458cd3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Field_Parts.prefab
+    prefab: {fileID: 7201692428546847201, guid: edde81b2f9939474a901228f1ee8a06e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Merchant_Parts.prefab
+    prefab: {fileID: 4821125367874004482, guid: 2af33382de2ae854d8e946d4325b02bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Ranger_Parts.prefab
+    prefab: {fileID: 1378004688579739825, guid: c48f05ae06ce3674682bc2098b95cf10, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Artisan_Parts.prefab
+    prefab: {fileID: 1166300768015610794, guid: 693530113056f6240a5a6212f49adb89, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Court_Parts.prefab
+    prefab: {fileID: 6191411614454816573, guid: a3c1ce118a40a0445ad17e051e2d9e21, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Dragonbound_Parts.prefab
+    prefab: {fileID: 2747075587508978242, guid: b93d9fa9e9bb41a4383f178ce88b09a6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Eclipse_Parts.prefab
+    prefab: {fileID: 7228297684802599977, guid: 569222fe0b889b54ba0f3345e5f9ed87, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 7961310834877805387, guid: 4facc03066f5dc44d8274b39a2a182c1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/gem/Gem_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 669378303932916910, guid: d452691b615cc41419a401285b05ee41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

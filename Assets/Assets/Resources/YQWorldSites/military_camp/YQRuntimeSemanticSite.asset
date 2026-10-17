@@ -1,0 +1,223 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: military_camp
+  semanticStyleKey: military_camp
+  sourceSignature: fnv1a32_272c7219
+  topology: 5
+  streamingSite: {fileID: 11400000, guid: 8eb2ed7ca3d630c4c9d77b71b17c9f71, type: 2}
+  sourceInstanceCount: 17342
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_military_camp_entrance_01
+    displayName: Military Camp Entrance
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -779.9925, y: 11.9820175, z: 141.13368}
+    localBoundsCenter: {x: 0, y: 20.428902, z: 0}
+    localBoundsSize: {x: 98.3707, y: 40.857803, z: 76.38226}
+    sourceInstanceCount: 473
+    authoredBuildingCount: 0
+    authoredDressingCount: 473
+    semanticTags:
+    - authored
+    - campzones
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p0_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_command_02
+    displayName: Military Camp Command
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -776.86774, y: 20.520905, z: 61.522858}
+    localBoundsCenter: {x: 0, y: 17.801086, z: 0}
+    localBoundsSize: {x: 98.61379, y: 35.602173, z: 114.21242}
+    sourceInstanceCount: 1375
+    authoredBuildingCount: 0
+    authoredDressingCount: 1375
+    semanticTags:
+    - authored
+    - campzones
+    - command
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_service_03
+    displayName: Military Camp Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -765.34045, y: 17.938126, z: -7.775667}
+    localBoundsCenter: {x: 0, y: 15.129738, z: 0}
+    localBoundsSize: {x: 70.79199, y: 30.259476, z: 49.818558}
+    sourceInstanceCount: 389
+    authoredBuildingCount: 0
+    authoredDressingCount: 389
+    semanticTags:
+    - authored
+    - campzones
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_habitation_04
+    displayName: Military Camp Habitation
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -691.2698, y: 19.085777, z: -128.5411}
+    localBoundsCenter: {x: 0, y: 12.653236, z: 0}
+    localBoundsSize: {x: 121.98932, y: 25.306473, z: 101.56732}
+    sourceInstanceCount: 5683
+    authoredBuildingCount: 0
+    authoredDressingCount: 5683
+    semanticTags:
+    - authored
+    - campzones
+    - habitation
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p0_p0_p00
+    - yq_cell_military_camp_p1_p0_p00
+    - yq_cell_military_camp_p1_p0_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_defense_05
+    displayName: Military Camp Defense
+    districtFunction: 4
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -688.0272, y: 14.178379, z: -35.177467}
+    localBoundsCenter: {x: 0, y: 18.055355, z: 0}
+    localBoundsSize: {x: 110.5932, y: 36.11071, z: 101.293106}
+    sourceInstanceCount: 5087
+    authoredBuildingCount: 0
+    authoredDressingCount: 5087
+    semanticTags:
+    - authored
+    - campzones
+    - defense
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p1_p1_p00
+    - yq_cell_military_camp_p1_p1_p01
+    - yq_cell_military_camp_p1_p1_p02
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_entrance_06
+    displayName: Military Camp Entrance
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -638.5646, y: 0.82253075, z: 73.05764}
+    localBoundsCenter: {x: 0, y: 23.502537, z: 0}
+    localBoundsSize: {x: 204.73047, y: 47.005074, z: 134.28821}
+    sourceInstanceCount: 2224
+    authoredBuildingCount: 0
+    authoredDressingCount: 2224
+    semanticTags:
+    - authored
+    - campzones
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p1_p2_p00
+    - yq_cell_military_camp_p1_p3_p00
+    - yq_cell_military_camp_p2_p2_p00
+    - yq_cell_military_camp_p2_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_command_07
+    displayName: Military Camp Command
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -615.2044, y: 8.5558815, z: -124.76521}
+    localBoundsCenter: {x: 0, y: 9.71439, z: 0}
+    localBoundsSize: {x: 54.720848, y: 19.42878, z: 88.75546}
+    sourceInstanceCount: 967
+    authoredBuildingCount: 0
+    authoredDressingCount: 967
+    semanticTags:
+    - authored
+    - campzones
+    - command
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p2_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_service_08
+    displayName: Military Camp Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -606.4696, y: 0.06955147, z: -7.0733795}
+    localBoundsCenter: {x: 0, y: 22.149448, z: 0}
+    localBoundsSize: {x: 407.06592, y: 44.298897, z: 301.30856}
+    sourceInstanceCount: 1025
+    authoredBuildingCount: 0
+    authoredDressingCount: 1025
+    semanticTags:
+    - authored
+    - campzones
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p2_p1_p00
+    - yq_cell_military_camp_p3_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_habitation_09
+    displayName: Military Camp Habitation
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -504.0448, y: 0.00000667572, z: 68.91518}
+    localBoundsCenter: {x: 0, y: 15.2747345, z: 0}
+    localBoundsSize: {x: 84.28518, y: 30.549469, z: 70.10208}
+    sourceInstanceCount: 113
+    authoredBuildingCount: 0
+    authoredDressingCount: 113
+    semanticTags:
+    - authored
+    - campzones
+    - habitation
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p3_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_military_camp_defense_10
+    displayName: Military Camp Defense
+    districtFunction: 4
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 827.789, y: 37.49905, z: -96.89672}
+    localBoundsCenter: {x: 0, y: 0.049999237, z: 0}
+    localBoundsSize: {x: 2.7777252, y: 0.1, z: 11.278015}
+    sourceInstanceCount: 6
+    authoredBuildingCount: 0
+    authoredDressingCount: 6
+    semanticTags:
+    - authored
+    - campzones
+    - defense
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_military_camp_p17_p0_p00
+    cellContractsV2: []

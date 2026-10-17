@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // note: Restore delivered texture alpha through existing imports; no race prefab, animation, shader or gameplay authority is replaced.
 [InitializeOnLoad]
@@ -108,7 +109,8 @@ public static class YQDotScalpAlphaPatch
             Graphics.Blit(texture, target); RenderTexture.active = target; pixels.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0); pixels.Apply();
             var colors = pixels.GetPixels32(); int transparent = colors.Count(c => c.a == 0), opaque = colors.Count(c => c.a == 255), partial = colors.Length - transparent - opaque;
             if (transparent == 0 || partial == 0 || opaque == 0) throw new InvalidDataException("Missing restored texture alpha: " + path);
-            var materials = assets.OfType<Material>().Where(m => Enumerable.Range(0, ShaderUtil.GetPropertyCount(m.shader)).Any(i => ShaderUtil.GetPropertyType(m.shader, i) == ShaderUtil.ShaderPropertyType.TexEnv && m.GetTexture(ShaderUtil.GetPropertyName(m.shader, i)) == texture)).ToArray();
+            // note: Inspect the same texture bindings through the current Shader metadata API.
+            var materials = assets.OfType<Material>().Where(m => Enumerable.Range(0, m.shader.GetPropertyCount()).Any(i => m.shader.GetPropertyType(i) == ShaderPropertyType.Texture && m.GetTexture(m.shader.GetPropertyName(i)) == texture)).ToArray();
             if (materials.Length == 0 || materials.Any(m => m.renderQueue < 2500 || !m.shader.isSupported)) throw new InvalidDataException("Hair material transparency contract failed: " + path);
             return new { path, texture = texture.name, texture.width, texture.height, transparent, partial, opaque, materials = materials.Select(m => new { m.name, shader = m.shader.name, m.renderQueue, keywords = m.shaderKeywords }) };
         }

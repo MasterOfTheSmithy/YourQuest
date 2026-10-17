@@ -1,0 +1,1753 @@
+[
+  {
+    "candidate_id": "SRC-01",
+    "original_url": "https://huggingface.co/unity/inference-engine-minilm-v6",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-minilm-v6",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "c43101c43cf8ffa8a77d500d39f56fd33ce0447c",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-minilm-v6",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 sentence-similarity Unity Sentis checkpoint; files MiniLMv6.onnx and data/vocab.txt; lastModified 2026-06-09."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-minilm-v6",
+        "kind": "official HF model card",
+        "text": "Card labels the model Sentence Similarity, Apache-2.0, Unity Sentis/Inference Engine and ONNX; repo page reports about 91.2 MB."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-02",
+    "original_url": "https://huggingface.co/unity/inference-engine-whisper-tiny",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-whisper-tiny",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "b8228024ceece49643cdddbfcb1159077ee57b82",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-whisper-tiny",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 automatic-speech-recognition Unity Sentis checkpoint; files include encoder/decoder/decoder-with-past/logmel ONNX and vocab.json; lastModified 2026-06-08."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-whisper-tiny",
+        "kind": "official HF model card",
+        "text": "Card labels Automatic Speech Recognition, Apache-2.0 and Unity Sentis/ONNX; repo tree reports about 427 MB and source sample requires multiple encoder/decoder assets plus audio preprocessing."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-whisper-tiny/commit/e3b62b470ef7cf7571db55c052bbc02f565fbab5",
+        "kind": "HF commit search result",
+        "text": "Search result shows inference-engine version update at this immutable commit; it is a historical indexed revision, not confirmed current HEAD."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-03",
+    "original_url": "https://huggingface.co/hexgrad/Kokoro-82M",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/hexgrad/Kokoro-82M",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 Kokoro TTS; kokoro-v1_0.pth plus voice checkpoints; lastModified 2025-04-10."
+      },
+      {
+        "url": "https://huggingface.co/hexgrad/Kokoro-82M",
+        "kind": "official HF model card",
+        "text": "Card identifies an 82M English text-to-speech model under Apache-2.0; repo contains model weights and voice assets. Runtime/phonemizer integration is separate."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-04",
+    "original_url": "https://github.com/snakers4/silero-vad",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/snakers4/silero-vad",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "1e261b036686cd0017d500ee96acd1c4ba572a9d",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/snakers4/silero-vad",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; commit dated 2026-09-29 (Silero VAD)."
+      },
+      {
+        "url": "https://github.com/snakers4/silero-vad",
+        "kind": "official repository page",
+        "text": "Current repository page identifies a pretrained voice activity detector and shows MIT license. Exact current commit and checkpoint file hashes were not captured."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-05",
+    "original_url": "https://huggingface.co/unity/inference-engine-jets-text-to-speech",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-jets-text-to-speech",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "2d4183150df6594bb30f16b8dc38d78c175d09b9",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-jets-text-to-speech",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: CC-BY-4.0 Unity Sentis JETS; jets-text-to-speech.onnx and phoneme_dict.txt; lastModified 2026-06-09."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-jets-text-to-speech",
+        "kind": "official HF model card",
+        "text": "Card shows CC-BY-4.0, Unity Sentis/ONNX, and JETS text-to-speech. Sample requires phoneme dictionary and pronunciation preprocessing."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-jets-text-to-speech/tree/90d24e8ba1e78e64565ff2e7147ed33ecda46ee2",
+        "kind": "HF repository search snapshot",
+        "text": "Indexed repository page lists .onnx and .sentis weights, phoneme_dict.txt, and CC-BY-4.0."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-06",
+    "original_url": "https://github.com/Unity-Technologies/ml-agents",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/Unity-Technologies/ml-agents",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "2f97e1cbb408fe40169b720aa82a46f3f8a0a8e9",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/Unity-Technologies/ml-agents",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; commit dated 2026-10-07 (Unity ML-Agents)."
+      },
+      {
+        "url": "https://github.com/Unity-Technologies/ml-agents",
+        "kind": "official repository page",
+        "text": "Official README says the toolkit trains Unity agents with reinforcement/imitation learning for NPC behavior, testing, and design evaluation; current release listing says Release 23 (2025-08-28), Python 1.1.0 and Unity package 4.0.0. Custom policy requires environment/training."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-07",
+    "original_url": "https://huggingface.co/unity/inference-engine-mobilenet-v2",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-mobilenet-v2",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "48f8e871f7a6efe1dd5c03e5a7751b1119ef4676",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-mobilenet-v2",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Unity Sentis image-classification; mobilenet_v2.onnx and class_desc.txt; lastModified 2026-06-09."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-mobilenet-v2",
+        "kind": "official HF model card",
+        "text": "Card identifies Image Classification, MIT, Unity Sentis/ONNX; tree reports 14.8 MB. Image search would need a separate embedding/index adapter."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-08",
+    "original_url": "https://huggingface.co/unity/inference-engine-yolo",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-yolo",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "1aea2ce54d688c056bc80ab94ffbc55f1e279b44",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-yolo",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: GPL-3.0 Unity Sentis object-detection; YOLOv8/9/11/12 ONNX variants and class list; lastModified 2026-06-08."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-yolo",
+        "kind": "official HF model card",
+        "text": "Card identifies Object Detection, GPL-3.0, Unity Sentis/ONNX; tree reports 96.6 MB. Distribution terms and exact class/model metadata need review."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-09",
+    "original_url": "https://huggingface.co/unity/inference-engine-midas",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-midas",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "6d14540001e159388af22eb5866b2fca0203a60a",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-midas",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Unity Sentis depth-estimation; model-small_opset19.onnx; lastModified 2025-05-21."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-midas",
+        "kind": "official HF model card",
+        "text": "Card identifies Depth Estimation, MIT, Unity Sentis/ONNX; tree reports 68.2 MB."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-10",
+    "original_url": "https://huggingface.co/unity/inference-engine-blaze-pose",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-blaze-pose",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "d96e13766db93eaaac6ad398d7b01f1c94c7ff6e",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-blaze-pose",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 Unity Sentis pose export; detection plus full/heavy/lite landmark ONNX files; lastModified 2025-05-21."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-blaze-pose",
+        "kind": "official HF model card",
+        "text": "Card identifies Unity Sentis/ONNX and Apache-2.0; tree reports 90.1 MB. Tracking and skeleton retargeting remain adapter work."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-11",
+    "original_url": "https://huggingface.co/unity/inference-engine-blaze-hand",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-blaze-hand",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "1e4394f13926e0b61c4a2d8f24ce7a78319d4d21",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-blaze-hand",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 Unity Sentis hand export; detector and landmark ONNX files; lastModified 2025-05-21."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-blaze-hand",
+        "kind": "official HF model card",
+        "text": "Card identifies Unity Sentis/ONNX and Apache-2.0. The exported landmark network is not a full persistent tracker."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-12",
+    "original_url": "https://huggingface.co/unity/inference-engine-phi-1_5",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-phi-1_5",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "069d939809bee2fd1375747503d8033735007cfd",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-phi-1_5",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Unity Sentis text-generation Phi-1.5; phi15.sentis and tokenizer files; lastModified 2026-06-08."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-phi-1_5",
+        "kind": "official HF model card",
+        "text": "Card identifies a 1.3B Phi-1.5 text-generation model exported for Unity Sentis with MIT license; tokenizer files are required."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-13",
+    "original_url": "https://huggingface.co/unity/inference-engine-tiny-stories",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-tiny-stories",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "20e31fe1d00b7af9464e63eb8fb2cb51cf919dcc",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-tiny-stories",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Unity Sentis TinyStories text-generation; tinystories.onnx and tokenizer files; lastModified 2026-06-08."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-tiny-stories",
+        "kind": "official HF model card",
+        "text": "Card identifies a TinyStories text-generation model exported for Unity Sentis with MIT license; tokenizer files and source demo are included."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-14",
+    "original_url": "https://huggingface.co/unity/inference-engine-othello",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/unity/inference-engine-othello",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "76759bb3268f4b59d4b43fbb4d59fbfb89540479",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/unity/inference-engine-othello",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Unity Sentis reinforcement-learning Othello.onnx policy; lastModified 2025-05-21."
+      },
+      {
+        "url": "https://huggingface.co/unity/inference-engine-othello",
+        "kind": "official HF model card",
+        "text": "Card identifies a reinforcement-learning Othello policy under MIT; exact observation/action interface must match the supplied game environment."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-15",
+    "original_url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies Qwen3-Embedding-0.6B, safetensors BF16, 595,776,512 parameters, Apache-2.0."
+      },
+      {
+        "url": "https://huggingface.co/api/models/Qwen/Qwen3-Embedding-0.6B",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA 97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3; BF16 safetensors; 595,776,512 parameters; Apache-2.0."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-16",
+    "original_url": "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "e61197ed45024b0ed8a2d74b80b4d909f1255473",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies Qwen3-Reranker-0.6B, safetensors BF16, 595,776,512 parameters, Apache-2.0."
+      },
+      {
+        "url": "https://huggingface.co/api/models/Qwen/Qwen3-Reranker-0.6B",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA e61197ed45024b0ed8a2d74b80b4d909f1255473; BF16 safetensors; 595,776,512 parameters; Apache-2.0."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-17",
+    "original_url": "https://huggingface.co/Qwen/Qwen3-4B",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen3-4B",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Qwen/Qwen3-4B",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 Qwen3-4B, three safetensors shards, text-generation; lastModified 2025-07-26."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-18",
+    "original_url": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "cfbefacb99257ffa30c83adab238a50856ac3083",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Phi-4-mini-instruct, two safetensors shards and model implementation files; lastModified 2025-12-10."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-19",
+    "original_url": "https://huggingface.co/google/gemma-3-4b-it",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/google/gemma-3-4b-it",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "093f9f388b31de276ce2de164bdc2081324b9767",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/google/gemma-3-4b-it",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Gemma-3-4B-it Gemma terms; two safetensors shards and multimodal processor files; lastModified 2025-03-21."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-20",
+    "original_url": "https://huggingface.co/BAAI/bge-m3",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/BAAI/bge-m3",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "5617a9f61b028005a4858fdac845db406aefb181",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/BAAI/bge-m3",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies BAAI/bge-m3, XLM-RoBERTa encoder, MIT license; listed assets include PyTorch, ONNX and additional sparse/ColBERT heads."
+      },
+      {
+        "url": "https://huggingface.co/api/models/BAAI/bge-m3",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA 5617a9f61b028005a4858fdac845db406aefb181; XLM-RoBERTa; MIT; includes PyTorch and ONNX assets and sparse/ColBERT head files."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-21",
+    "original_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/BAAI/bge-reranker-v2-m3",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 bge reranker CrossEncoder with safetensors/tokenizer assets; lastModified 2024-06-24."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-22",
+    "original_url": "https://huggingface.co/google/flan-t5-base",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/google/flan-t5-base",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "7bcac572ce56db69c1ea7c8af255c5d7c9672fc2",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/google/flan-t5-base",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies google/flan-t5-base, T5ForConditionalGeneration, Apache-2.0, safetensors with 247,577,856 parameters."
+      },
+      {
+        "url": "https://huggingface.co/api/models/google/flan-t5-base",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA 7bcac572ce56db69c1ea7c8af255c5d7c9672fc2; T5ForConditionalGeneration; Apache-2.0; 247,577,856 safetensors parameters."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-23",
+    "original_url": "https://huggingface.co/facebook/bart-large-cnn",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/facebook/bart-large-cnn",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "37f520fa929c961707657b28798b30c003dd100b",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/facebook/bart-large-cnn",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT BART-large-CNN summarization checkpoint; lastModified 2024-02-13."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-24",
+    "original_url": "https://huggingface.co/microsoft/MiniLM-L12-H384-uncased",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/microsoft/MiniLM-L12-H384-uncased",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "44acabbec0ef496f6dbc93adadea57f376b7c0ec",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/microsoft/MiniLM-L12-H384-uncased",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT MiniLM-L12-H384 English encoder; PyTorch/Flax/TF model files; lastModified 2021-05-19."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-25",
+    "original_url": "https://huggingface.co/google/mobilebert-uncased",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/google/mobilebert-uncased",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "1f90a6c24c7879273a291d34a849033eba2dbc0f",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/google/mobilebert-uncased",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 MobileBERT uncased; PyTorch/TF/Rust model files; lastModified 2021-04-19."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-26",
+    "original_url": "https://huggingface.co/microsoft/Florence-2-base-ft",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/microsoft/Florence-2-base-ft",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "f6c1a25888ffc1d945ee8a1a77ac833c7303d46e",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/microsoft/Florence-2-base-ft",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: MIT Florence-2-base-ft image-text-to-text; safetensors and custom Python model/processor code; lastModified 2025-08-04."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-27",
+    "original_url": "https://github.com/facebookresearch/sam2",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/facebookresearch/sam2",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/facebookresearch/sam2",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2024-12-16; implementation repo requires separate SAM2 checkpoint."
+      },
+      {
+        "url": "https://github.com/facebookresearch/sam2/blob/main/setup.py",
+        "kind": "official source file",
+        "text": "SAM2 setup lists torch>=2.5.1, torchvision>=0.20.1 and other Python dependencies; project setup identifies Apache 2.0. Repository implementation requires separate released checkpoint."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-28",
+    "original_url": "https://github.com/facebookresearch/sam3",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/facebookresearch/sam3",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "3c879f39826c281e95690f02c7821c4de09afae7"
+    },
+    "revision": {
+      "immutable": "0570b3a5be9c4e694f23d85232fb55f4a6f1f7fc",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "facebook/sam3",
+        "revision": "3c879f39826c281e95690f02c7821c4de09afae7",
+        "file": "sam3.pt",
+        "file_size_bytes": 3450062241,
+        "file_sha256": "9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/facebookresearch/sam3",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-10-07; SAM3 code and separate checkpoint links."
+      },
+      {
+        "url": "https://github.com/facebookresearch/sam3/blob/0570b3a5be9c4e694f23d85232fb55f4a6f1f7fc/README.md",
+        "kind": "official README at pinned code revision",
+        "text": "SAM 3 supports promptable image/video segmentation and inference/fine-tuning. Dependencies include timm, numpy, ftfy, iopath and Hugging Face Hub. Current code and checkpoint revisions are separately pinned in this catalog."
+      },
+      {
+        "url": "https://github.com/facebookresearch/sam3/blob/0570b3a5be9c4e694f23d85232fb55f4a6f1f7fc/LICENSE",
+        "kind": "official license; pinned code revision",
+        "text": "Exact scope: “trained model weights” are included in SAM Materials. Grant excerpt: “non-exclusive, worldwide, non-transferable and royalty-free limited license” to use, copy, modify and create derivatives. Condition excerpt: “you shall provide a copy of this Agreement” when distributing materials/derivatives; use must comply with Trade Controls, including restrictions on military/warfare, nuclear, espionage and weapons uses."
+      },
+      {
+        "url": "https://github.com/facebookresearch/sam3/blob/0570b3a5be9c4e694f23d85232fb55f4a6f1f7fc/sam3/model_builder.py",
+        "kind": "official checkpoint loader; pinned code revision",
+        "text": "The official loader selects repo_id facebook/sam3, ckpt_name sam3.pt and cfg_name config.json; BPE asset is sam3/assets/bpe_simple_vocab_16e6.txt.gz."
+      },
+      {
+        "url": "https://huggingface.co/api/models/facebook/sam3?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Current checkpoint repo revision 3c879f39826c281e95690f02c7821c4de09afae7; sam3.pt 3,450,062,241 bytes SHA-256 9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e; card uses custom license identifier other."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-29",
+    "original_url": "https://github.com/DepthAnything/Depth-Anything-V2",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/DepthAnything/Depth-Anything-V2",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_api": "https://huggingface.co/api/models/depth-anything/Depth-Anything-V2-Small-hf?blobs=true"
+    },
+    "revision": {
+      "immutable": "a561b849ebae10a6f5ef49e26c83cbbcd36c71bf",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/DepthAnything/Depth-Anything-V2",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; requirements update dated 2026-03-24; code and selected depth-model checkpoint are separate."
+      },
+      {
+        "url": "https://github.com/DepthAnything/Depth-Anything-V2/blob/main/README.md",
+        "kind": "official repository README",
+        "text": "README lists Small (24.8M parameters), Base (97.5M), Large (335.3M) and Giant (1.3B, coming soon); Small is Apache-2.0, Base/Large/Giant are CC-BY-NC-4.0. It points to separate checkpoint download and supports PyTorch/Transformers."
+      },
+      {
+        "url": "https://huggingface.co/api/models/depth-anything/Depth-Anything-V2-Small-hf?blobs=true",
+        "kind": "HF model API and file metadata",
+        "text": "Small companion repo current SHA 5426e4f0f36572d16453bbda7a8389317b1bef99; Apache-2.0; model.safetensors 99,173,660 bytes with SHA-256 3152477ce0d8d6978d76b995120de97cb5b928701fd0f817769f59e249a16b70."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-30",
+    "original_url": "https://huggingface.co/google/siglip2-base-patch16-224",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/google/siglip2-base-patch16-224",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/google/siglip2-base-patch16-224",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 SigLIP2 base-patch16-224 zero-shot vision-language encoder; safetensors; lastModified 2025-02-21."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-31",
+    "original_url": "https://huggingface.co/briaai/RMBG-2.0",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/briaai/RMBG-2.0",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "5df4c9c76d8170882c34f6986e848ee07fd0ba43"
+    },
+    "revision": {
+      "immutable": "5df4c9c76d8170882c34f6986e848ee07fd0ba43",
+      "source": "HF model API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "briaai/RMBG-2.0",
+        "revision": "5df4c9c76d8170882c34f6986e848ee07fd0ba43",
+        "file": "onnx/model_fp16.onnx",
+        "file_size_bytes": 513576499,
+        "file_sha256": "9dc47db40d113090ba5d7a13d8fcfd9ee4eda510ce92613219b2fe19da4746f6"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/briaai/RMBG-2.0",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: RMBG-2.0 license identifier other; safetensors and ONNX FP16/int8/quantized variants; lastModified 2026-04-06; inspect license text."
+      },
+      {
+        "url": "https://huggingface.co/briaai/RMBG-2.0",
+        "kind": "official model card; exact license/condition excerpts",
+        "text": "Card says: “The model is released under a CC BY-NC 4.0 license for non-commercial use” and “Commercial use is subject to a commercial agreement with BRIA.” Commercial classification/permission for YourQuest is not determined here."
+      },
+      {
+        "url": "https://huggingface.co/api/models/briaai/RMBG-2.0?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Pinned repo revision 5df4c9c76d8170882c34f6986e848ee07fd0ba43; selected ONNX FP16 file 513,576,499 bytes SHA-256 9dc47db40d113090ba5d7a13d8fcfd9ee4eda510ce92613219b2fe19da4746f6."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-32",
+    "original_url": "https://github.com/IDEA-Research/GroundingDINO",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/IDEA-Research/GroundingDINO",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71"
+    },
+    "revision": {
+      "immutable": "856dde20aee659246248e20734ef9ba5214f5e44",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "IDEA-Research/grounding-dino-tiny",
+        "revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71",
+        "file": "model.safetensors",
+        "file_size_bytes": 689359096,
+        "file_sha256": "1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/IDEA-Research/GroundingDINO",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2024-08-12; pretrained weights/config are separate."
+      },
+      {
+        "url": "https://github.com/IDEA-Research/GroundingDINO/blob/856dde20aee659246248e20734ef9ba5214f5e44/LICENSE",
+        "kind": "official code license; pinned code revision",
+        "text": "License heading reads “Apache License, Version 2.0”; selected model card separately identifies the checkpoint as Apache-2.0. This source code grant is not used as a substitute for checkpoint terms."
+      },
+      {
+        "url": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+        "kind": "official IDEA-Research model card",
+        "text": "Card identifies the zero-shot detector as Apache-2.0 and documents AutoProcessor and AutoModelForZeroShotObjectDetection loading."
+      },
+      {
+        "url": "https://huggingface.co/api/models/IDEA-Research/grounding-dino-tiny?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Current companion revision a2bb814dd30d776dcf7e30523b00659f4f141c71; model.safetensors 689,359,096 bytes SHA-256 1a2412ef99bd74bcd3c2a246fa1e48581f8889a1300c9051974741314fc042f3."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-33",
+    "original_url": "https://github.com/xuebinqin/U-2-Net",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/xuebinqin/U-2-Net",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "ac7e1c817ecab7c7dff5ce6b1abba61cd213ff29",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/xuebinqin/U-2-Net",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2024-01-13; official repo documents separate U2NET/U2NETP checkpoints."
+      },
+      {
+        "url": "https://github.com/xuebinqin/U-2-Net/blob/ac7e1c817ecab7c7dff5ce6b1abba61cd213ff29/LICENSE",
+        "kind": "official code license; pinned code revision",
+        "text": "License heading reads “Apache License, Version 2.0”; this establishes repository code terms only, not the separately hosted checkpoint terms."
+      },
+      {
+        "url": "https://github.com/xuebinqin/U-2-Net/blob/ac7e1c817ecab7c7dff5ce6b1abba61cd213ff29/README.md",
+        "kind": "official checkpoint instructions; pinned code revision",
+        "text": "README says u2netp.pth is 4.7 MB and links it from Google Drive or Baidu Pan; it gives no checkpoint-specific license or cryptographic hash."
+      },
+      {
+        "url": "https://drive.google.com/file/d/1rbSTGKAE-MTxBYHd-51l2hMOQPT_7EPy/view?usp=sharing",
+        "kind": "official README checkpoint link",
+        "text": "Observed landing page exposed only a sign-in view; no checkpoint metadata/hash or license text was visible. No weight file was fetched. The checkpoint license remains unresolved rather than inferred from code."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-34",
+    "original_url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "82920d643c0dc2f7bfd7255f45f62d386edfe60c",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "companion_repositories": [
+        {
+          "repo": "tencent/Hunyuan3D-2.1",
+          "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+          "license": "Tencent Hunyuan 3D 2.1 Community License"
+        }
+      ]
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; license update dated 2025-10-17; model weights are separate and use Hunyuan community terms."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/82920d643c0dc2f7bfd7255f45f62d386edfe60c/LICENSE",
+        "kind": "official model/code license; pinned code revision",
+        "text": "Section 1(j) expressly includes “trained model weights.” Exact territory condition: “does not apply in the European Union, United Kingdom and South Korea.” Grant is limited to the defined Territory and Acceptable Use Policy."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/82920d643c0dc2f7bfd7255f45f62d386edfe60c/LICENSE",
+        "kind": "official distribution/commercial condition; pinned code revision",
+        "text": "Section 3 requires a copy of the Agreement for distributed works/products using them. Section 4 says above 1 million MAU on release date, “You must request a license from Tencent” and may not exercise rights unless Tencent expressly grants it."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/82920d643c0dc2f7bfd7255f45f62d386edfe60c/README.md",
+        "kind": "official hardware/model documentation; pinned code revision",
+        "text": "Official README states 10 GB VRAM for shape, 21 GB for texture, 29 GB for both; selected model family is 3.3B shape plus 2B paint."
+      },
+      {
+        "url": "https://huggingface.co/api/models/tencent/Hunyuan3D-2.1?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Current repo revision 0b94677654c57bb9a6b6845cd7b704ccf551d327; complete shape/paint learned-weight filenames, sizes, and SHA-256 are listed in artifact_manifest."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1/blob/82920d643c0dc2f7bfd7255f45f62d386edfe60c/README.md",
+        "kind": "official third-party helper instruction; pinned code revision",
+        "text": "README instructs downloading RealESRGAN_x4plus.pth from xinntao/Real-ESRGAN release v0.1.0 for the painter; release metadata lists 67,040,989 bytes but no digest."
+      },
+      {
+        "url": "https://api.github.com/repos/xinntao/Real-ESRGAN/releases/tags/v0.1.0",
+        "kind": "official release API metadata",
+        "text": "Release API exposes the RealESRGAN_x4plus.pth asset name and size (67,040,989 bytes); its digest field is null. Companion weight license was not established from asset metadata."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-35",
+    "original_url": "https://github.com/microsoft/TRELLIS.2",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/microsoft/TRELLIS.2",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "companion_repositories": [
+        {
+          "repo": "microsoft/TRELLIS.2-4B",
+          "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+          "license": "MIT"
+        }
+      ]
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/microsoft/TRELLIS.2",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-06-05; separate 3D checkpoints/kernels required."
+      },
+      {
+        "url": "https://github.com/microsoft/TRELLIS.2/blob/75fbf0183001ed9876c8dbb35de6b68552ee08bd/README.md",
+        "kind": "official repository license and requirements; pinned code revision",
+        "text": "README states “This model and code are released under the MIT License”; dependencies nvdiffrast and nvdiffrec have separate licenses. Prerequisites: “tested only on Linux” and “at least 24GB” NVIDIA memory is necessary."
+      },
+      {
+        "url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+        "kind": "official Microsoft model card",
+        "text": "Official TRELLIS.2-4B card labels model license MIT and identifies the 4-billion-parameter model."
+      },
+      {
+        "url": "https://huggingface.co/api/models/microsoft/TRELLIS.2-4B?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Current model revision af44b45f2e35a493886929c6d786e563ec68364d; all nine checkpoint components and hashes are listed in artifact_manifest."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-36",
+    "original_url": "https://github.com/Stability-AI/stable-fast-3d",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/Stability-AI/stable-fast-3d",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/Stability-AI/stable-fast-3d",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2025-01-22; implementation and model checkpoint are separate."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-37",
+    "original_url": "https://github.com/Tencent-Hunyuan/HY-Motion-1.0",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/Tencent-Hunyuan/HY-Motion-1.0",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "620dd559f8d964aac2f82f1204fe6a35ad8ad14d"
+    },
+    "revision": {
+      "immutable": "4e426f5a1021cbcf7f375458c37b840ee7225229",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "tencent/HY-Motion-1.0",
+        "revision": "620dd559f8d964aac2f82f1204fe6a35ad8ad14d",
+        "file": "HY-Motion-1.0-Lite/latest.ckpt",
+        "file_size_bytes": 1843542538,
+        "file_sha256": "d83f118f8d74db76249db86dcf9982a8229f43ef4e9fa11f683019d6230dd486"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/Tencent-Hunyuan/HY-Motion-1.0",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-07-18; motion checkpoint and retargeting contract are separate."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/HY-Motion-1.0/blob/4e426f5a1021cbcf7f375458c37b840ee7225229/License.txt",
+        "kind": "official model/code license; pinned code revision",
+        "text": "Section 1(j) includes “trained model weights.” Territory excludes “the European Union, United Kingdom and South Korea.” Section 4 requires requesting Tencent permission when the defined MAU threshold is exceeded; Section 5 bars use outside the Territory and restricts use of outputs to improve other models."
+      },
+      {
+        "url": "https://github.com/Tencent-Hunyuan/HY-Motion-1.0/blob/4e426f5a1021cbcf7f375458c37b840ee7225229/README.md",
+        "kind": "official hardware/model instructions; pinned code revision",
+        "text": "Model zoo lists HY-Motion-1.0-Lite at 0.46B and 24 GB minimum VRAM; optional prompt rewrite/duration model can be disabled with the two disable flags."
+      },
+      {
+        "url": "https://huggingface.co/api/models/tencent/HY-Motion-1.0?blobs=true",
+        "kind": "official Tencent HF model file metadata",
+        "text": "Pinned repo revision 620dd559f8d964aac2f82f1204fe6a35ad8ad14d; Lite latest.ckpt 1,843,542,538 bytes SHA-256 d83f118f8d74db76249db86dcf9982a8229f43ef4e9fa11f683019d6230dd486."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-38",
+    "original_url": "https://github.com/VAST-AI-Research/TripoSR",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/VAST-AI-Research/TripoSR",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a"
+    },
+    "revision": {
+      "immutable": "107cefdc244c39106fa830359024f6a2f1c78871",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "stabilityai/TripoSR",
+        "revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a",
+        "file": "model.ckpt",
+        "file_size_bytes": 1677246742,
+        "file_sha256": "429e2c6b22a0923967459de24d67f05962b235f79cde6b032aa7ed2ffcd970ee"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/VAST-AI-Research/TripoSR",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-06-04; trained checkpoint is separate."
+      },
+      {
+        "url": "https://huggingface.co/stabilityai/TripoSR",
+        "kind": "official model card",
+        "text": "Card identifies TripoSR as a single-image 3D reconstruction model and states License: MIT; training renders use a curated Objaverse subset available under CC-BY."
+      },
+      {
+        "url": "https://huggingface.co/api/models/stabilityai/TripoSR?blobs=true",
+        "kind": "official HF model file metadata",
+        "text": "Current model revision 5b521936b01fbe1890f6f9baed0254ab6351c04a; model.ckpt 1,677,246,742 bytes SHA-256 429e2c6b22a0923967459de24d67f05962b235f79cde6b032aa7ed2ffcd970ee."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-39",
+    "original_url": "https://github.com/SYSTRAN/faster-whisper",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/SYSTRAN/faster-whisper",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "9fa78645d7913ff9d94d0907a2156526b19b4556",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/SYSTRAN/faster-whisper",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-10-06; CTranslate2 runtime requires separately selected Whisper model checkpoint."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-40",
+    "original_url": "https://github.com/rhasspy/piper",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/rhasspy/piper",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "73c04d81d5590ecc46e522de3601ce7fb29fc2be",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/rhasspy/piper",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2025-08-26; Piper runtime requires separate voice model and voice license review."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-41",
+    "original_url": "https://github.com/coqui-ai/TTS",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/coqui-ai/TTS",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "dbf1a08a0d4e47fdad6172e433eeb34bc6b13b4e",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/coqui-ai/TTS",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2024-02-10; toolkit requires separate model/config/vocoder."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-42",
+    "original_url": "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "81eed5e8f68b6bed1789f682fe78cdd324495afc",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2026-08-04; WebUI/toolkit requires trained voice and supporting models."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-43",
+    "original_url": "https://github.com/facebookresearch/audiocraft",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://github.com/facebookresearch/audiocraft",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "896ec7c47f5e5d1e5aa1e4b260c4405328bf009d",
+      "source": "GitHub commits/HEAD API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://github.com/facebookresearch/audiocraft",
+        "kind": "GitHub commits/HEAD API",
+        "text": "Current GitHub default-branch HEAD API snapshot; latest commit dated 2025-03-13; MusicGen checkpoint is separate and uses model-specific non-commercial license."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-44",
+    "original_url": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "488639f1ff808d1d3d0ba301aef8c11461451ec5",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Qwen2.5-Coder-3B-Instruct license identifier other; two safetensors shards; lastModified 2025-01-12; inspect LICENSE."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-45",
+    "original_url": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "c03e6d358207e414f1eca0bb1891e29f1db0e242",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies Qwen2.5-Coder-7B-Instruct, Qwen2ForCausalLM, Apache-2.0, with four BF16 safetensors shards totaling 7,615,616,512 parameters."
+      },
+      {
+        "url": "https://huggingface.co/api/models/Qwen/Qwen2.5-Coder-7B-Instruct",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA c03e6d358207e414f1eca0bb1891e29f1db0e242; Qwen2ForCausalLM; Apache-2.0; four BF16 shards total 7,615,616,512 parameters."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-46",
+    "original_url": "https://huggingface.co/microsoft/codebert-base",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/microsoft/codebert-base",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "companion_revision": "3b0952feddeffad0063f274080e3c23d75e7eb39"
+    },
+    "revision": {
+      "immutable": "3b0952feddeffad0063f274080e3c23d75e7eb39",
+      "source": "HF model API",
+      "status": "pinned_current",
+      "selected_companion": {
+        "repo": "microsoft/codebert-base",
+        "revision": "3b0952feddeffad0063f274080e3c23d75e7eb39",
+        "file": "pytorch_model.bin",
+        "file_size_bytes": 498627950,
+        "file_sha256": "28b61fd8fa069f6bc966f4cb9572a4026ab2a784fca8fb224020d91b744e32d6"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/microsoft/codebert-base",
+        "kind": "HF model API",
+        "text": "Current API metadata identifies microsoft/codebert-base as RobertaModel feature-extraction weights; license field absent from API metadata."
+      },
+      {
+        "url": "https://github.com/microsoft/CodeBERT/blob/c0de43d3aaf38e89290f1efb771f8de845e7a489/LICENSE",
+        "kind": "official source code license; pinned code revision",
+        "text": "The pinned code repository LICENSE begins “MIT License”; this license is for repository software and is not assumed to cover model weights hosted in a different repository."
+      },
+      {
+        "url": "https://huggingface.co/api/models/microsoft/codebert-base?blobs=true",
+        "kind": "official HF checkpoint metadata",
+        "text": "Current codebert-base checkpoint repo SHA 3b0952feddeffad0063f274080e3c23d75e7eb39; API license field is null. Selected pytorch_model.bin is 498,627,950 bytes, SHA-256 28b61fd8fa069f6bc966f4cb9572a4026ab2a784fca8fb224020d91b744e32d6."
+      },
+      {
+        "url": "https://huggingface.co/microsoft/codebert-base",
+        "kind": "official model card",
+        "text": "Model card identifies CodeBERT as a multilingual programming-language and natural-language pretrained representation; no checkpoint license declaration is present in the card metadata."
+      },
+      {
+        "url": "https://huggingface.co/api/models/microsoft/codebert-base",
+        "kind": "HF API",
+        "text": "Current API snapshot: SHA 3b0952feddeffad0063f274080e3c23d75e7eb39; RobertaModel feature-extraction checkpoint; API license field absent."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-47",
+    "original_url": "https://huggingface.co/microsoft/unixcoder-base",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/microsoft/unixcoder-base",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "5604afdc964f6c53782a6813140ade5216b99006",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/microsoft/unixcoder-base",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 UniXcoder-base feature-extraction code model; PyTorch weights/tokenizer; lastModified 2024-07-31."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "SRC-48",
+    "original_url": "https://huggingface.co/Salesforce/codet5-base",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Salesforce/codet5-base",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false
+    },
+    "revision": {
+      "immutable": "02cd2d31bb7c6d0e4d91156167b2de044989c733",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/Salesforce/codet5-base",
+        "kind": "HF model API",
+        "text": "Current HF API snapshot: Apache-2.0 CodeT5-base encoder-decoder checkpoint; weights/tokenizer; lastModified 2025-01-21."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "CONTROL-QWEN35-4B",
+    "original_url": "https://huggingface.co/Qwen/Qwen3.5-4B",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Qwen/Qwen3.5-4B",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "api_probe": {
+        "url": "https://huggingface.co/api/models/unsloth/Qwen3.5-4B-MTP-GGUF?blobs=true",
+        "status": "resolved",
+        "meaning": "Current repo revision and exact Q4_K_M file SHA-256/size match the active runtime-factory artifact."
+      }
+    },
+    "revision": {
+      "immutable": "86835bf9949e4d14d6860f7910b1340ad4f271a9",
+      "source": "HF model API for unsloth/Qwen3.5-4B-MTP-GGUF",
+      "status": "pinned_current",
+      "file_sha256": "3874209241c9a397e2f62cd3f70f80fd2dfbf0dfccb6838416bdb48a714e8630"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/api/models/unsloth/Qwen3.5-4B-MTP-GGUF",
+        "kind": "HF model API",
+        "text": "Current API SHA 86835bf9949e4d14d6860f7910b1340ad4f271a; Apache-2.0; includes Qwen3.5-4B-Q4_K_M.gguf."
+      },
+      {
+        "url": "https://huggingface.co/api/models/unsloth/Qwen3.5-4B-MTP-GGUF?blobs=true",
+        "kind": "HF model file metadata",
+        "text": "Q4_K_M file has size 2,834,975,040 bytes and lfs SHA-256 3874209241c9a397e2f62cd3f70f80fd2dfbf0dfccb6838416bdb48a714e8630, exactly matching primary's active runtime control."
+      },
+      {
+        "url": "https://huggingface.co/api/models/Qwen/Qwen3.5-4B",
+        "kind": "HF model API",
+        "text": "Base card SHA 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a; Apache-2.0; local GGUF file provenance is separately pinned to the Unsloth repo."
+      },
+      {
+        "url": "https://huggingface.co/api/models/Qwen/Qwen3.5-4B",
+        "kind": "HF model API",
+        "text": "Current base-model API snapshot: SHA 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a; Apache-2.0; Qwen3_5ForConditionalGeneration; this pins the upstream base card, not the local Unsloth GGUF file."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "VAR-MINIFANTASY",
+    "original_url": "https://huggingface.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "metadata_source_url": "https://huggingface.co/api/models/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF",
+      "revision_url": "https://huggingface.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF/commit/84d82263ef444991519d30b63c2d73482659b23e",
+      "api_probe": {
+        "url": "https://huggingface.co/api/models/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF",
+        "status": "resolved",
+        "meaning": "API returned current revision, Apache-2.0 license identifier, GGUF library and file list."
+      }
+    },
+    "revision": {
+      "immutable": "84d82263ef444991519d30b63c2d73482659b23e",
+      "source": "HF model API",
+      "status": "pinned_current",
+      "selected_file": "Q4_K_M/Qwen3.5-4B-MiniFantasy-Q4_K_M.gguf",
+      "file_size_bytes": 2708796576,
+      "file_sha256": "518915429d55e105cae2c44ae1138088ea0d5230cacff3bd5299ea13fd0397f3"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/api/models/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF?blobs=true",
+        "kind": "HF model API and file metadata",
+        "text": "Current repo SHA 84d82263ef444991519d30b63c2d73482659b23e; Apache-2.0; exact Q4_K_M file size 2,708,796,576 bytes and SHA-256 518915429d55e105cae2c44ae1138088ea0d5230cacff3bd5299ea13fd0397f3."
+      },
+      {
+        "url": "https://huggingface.co/Nubinu/Qwen3.5-4B-MiniFantasy-GGUF",
+        "kind": "HF model card",
+        "text": "Card states 4-bit LoRA fine-tune lineage from MuXodious/Qwen3.5-4B-SOMPOA-heresy-v2 and lists Q4_K_M, Q5_K_M, Q6_K, Q8_0, and F16 GGUF options."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "VAR-DECKARD-HERETIC",
+    "original_url": "https://huggingface.co/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "metadata_source_url": "https://huggingface.co/api/models/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking?blobs=true",
+      "api_probe": {
+        "url": "https://huggingface.co/api/models/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking?blobs=true",
+        "status": "resolved",
+        "meaning": "API returned current revision, Apache-2.0, base lineage and exact BF16 shard sizes."
+      }
+    },
+    "revision": {
+      "immutable": "c237e9be571350185f20270fe3439179878e748a",
+      "source": "HF model API",
+      "status": "pinned_current"
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/api/models/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking?blobs=true",
+        "kind": "HF model API",
+        "text": "Current revision c237e9be571350185f20270fe3439179878e748a; Apache-2.0; base_model coder3101/Qwen3.5-4B-heretic; two BF16 safetensors shards are 4,972,947,968 and 4,105,672,464 bytes."
+      },
+      {
+        "url": "https://huggingface.co/api/models/DavidAU/Qwen3.5-4B-Deckard-HERETIC-UNCENSORED-Thinking?blobs=true",
+        "kind": "HF model API",
+        "text": "Current revision c237e9be571350185f20270fe3439179878e748a; Apache-2.0; base_model coder3101/Qwen3.5-4B-heretic; two BF16 safetensors shards total 9,078,620,432 bytes. No GGUF is listed in this source snapshot."
+      }
+    ],
+    "current_head_verified": true
+  },
+  {
+    "candidate_id": "VAR-KIMI-REASONING-LUNA",
+    "original_url": "https://huggingface.co/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF",
+    "snapshot_date": "2026-10-09",
+    "source_check": {
+      "checked_on": "2026-10-09",
+      "source_page_url": "https://huggingface.co/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF",
+      "page_status": "opened",
+      "revision_status": "see_revision_field",
+      "runtime_tested": false,
+      "api_probe": {
+        "url": "https://huggingface.co/api/models/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF?blobs=true",
+        "status": "resolved",
+        "meaning": "API returned current revision, Apache-2.0, exact GGUF/projector file sizes, and companion filenames."
+      },
+      "metadata_source_url": "https://huggingface.co/api/models/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF?blobs=true"
+    },
+    "revision": {
+      "immutable": "14c5a4ff3a077fd4a2a49e47880f164e4ccb806d",
+      "source": "HF model API",
+      "status": "pinned_current",
+      "selected_file": "Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-step495-Q4_K_M.gguf",
+      "file_size_bytes": 2783446592,
+      "file_sha256": "7b3d606715b3749e9f9732afc98cf1d3b3fa217af48f394c3d831d3e27f905fb",
+      "optional_companion": {
+        "file": "mmproj-Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-step495-BF16.gguf",
+        "file_size_bytes": 675568832,
+        "file_sha256": "c6af4ec77428ea55d81b71db8580c3b251c7f1061d766d3e011ed5ac8a99ae69"
+      }
+    },
+    "status": "pinned_current",
+    "metadata": [
+      {
+        "url": "https://huggingface.co/api/models/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF?blobs=true",
+        "kind": "HF model API and file metadata",
+        "text": "Current repo SHA 14c5a4ff3a077fd4a2a49e47880f164e4ccb806d; Q4_K_M 2,783,446,592 bytes SHA-256 7b3d606715b3749e9f9732afc98cf1d3b3fa217af48f394c3d831d3e27f905fb; BF16 mmproj 675,568,832 bytes SHA-256 c6af4ec77428ea55d81b71db8580c3b251c7f1061d766d3e011ed5ac8a99ae69."
+      },
+      {
+        "url": "https://huggingface.co/Miska25/Qwen3.5-4B-Kimi-Reasoning-Luna-LoRA-GGUF",
+        "kind": "HF model card",
+        "text": "Card states the checkpoint is step-495 GGUF from a LoRA fine-tuned on unsloth/Qwen3.5-4B, merged using RSLoRA scaling; identifies the training data source as synthetic lossy reasoning reductions."
+      }
+    ],
+    "current_head_verified": true
+  }
+]

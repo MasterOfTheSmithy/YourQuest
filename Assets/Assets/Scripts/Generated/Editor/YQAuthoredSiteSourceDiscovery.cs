@@ -35,7 +35,8 @@ public static class YQAuthoredSiteSourceDiscovery
         List<YQAuthoredSiteSourceRecord> detected = DetectRecords();
         catalog.ApplyDetection(detected);
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        // note: Persist only this owned catalog; automatic discovery must leave unrelated dirty assets unsaved.
+        AssetDatabase.SaveAssetIfDirty(catalog);
 
         if (logResult)
         {

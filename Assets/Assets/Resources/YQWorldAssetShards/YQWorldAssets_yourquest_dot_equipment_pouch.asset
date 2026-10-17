@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_pouch
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Artisan.prefab
+    prefab: {fileID: 5712595436713611177, guid: 2128e117452817042a96ecf82985727e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Court.prefab
+    prefab: {fileID: 6858535887393874459, guid: 9e4c4eed06ea4d943b38c62d8946bc67, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Dragonbound.prefab
+    prefab: {fileID: 7801593151474854091, guid: baf3d5804cc69434a97a218c0545b236, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Eclipse.prefab
+    prefab: {fileID: 611213429340028107, guid: 58d275dc1ac123445a03b0548ec1d152, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Field.prefab
+    prefab: {fileID: 1853088388603559144, guid: 54624427f5e9d944aa1aa10d2af229f1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Merchant.prefab
+    prefab: {fileID: 6466983815281221534, guid: 6d9df669982ec8b4a8f522fa7d438c26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Ranger.prefab
+    prefab: {fileID: 1827624900058107384, guid: b4da68f8897926d48b6ddf474e73a631, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Starforged_Orrery.prefab
+    prefab: {fileID: 8322676445360810704, guid: 5edf829ab7a7bf349a037279938020f0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Worldtree_Sovereign.prefab
+    prefab: {fileID: 6705225244865103357, guid: eaa00fcfe45f059439c14590c5acd8db, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_core.prefab
+    prefab: {fileID: 2904678293802872980, guid: 1676e317597c5184cbf9105007679876, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mixed_darkness_light.prefab
+    prefab: {fileID: 1503156946638516073, guid: f65a19f9b615f0646b04b3444cb85a3a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mixed_organic_fire.prefab
+    prefab: {fileID: 8311749659122943210, guid: 2849bc9ad20d66f4297955d0407db2e9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_darkness.prefab
+    prefab: {fileID: 6584126670892485029, guid: f5c52962c6bef654483203f29fee3f96, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_fire.prefab
+    prefab: {fileID: 8845269628480265031, guid: 1c0d882e854e7284bb22c608356cb155, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_forged.prefab
+    prefab: {fileID: 4569477657932787787, guid: 58d42b23f2841a8429039829c128b26c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_frost.prefab
+    prefab: {fileID: 6319188891176652047, guid: 7fda1075782191543982a444febc67f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_light.prefab
+    prefab: {fileID: 7359086616712593108, guid: 317c4cffeacc4bf459a9ad1d36372bae, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_motif_organic.prefab
+    prefab: {fileID: 936564239235539562, guid: 04ca15b7835d14e4fa3e76db5991abb0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_darkness.prefab
+    prefab: {fileID: 1739493548050396098, guid: e42ecc9f528b34849a1c660077bf1300, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_fire.prefab
+    prefab: {fileID: 1825657247745247238, guid: 41209c6529b74f04a8ea39f45e219837, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_forged.prefab
+    prefab: {fileID: 8813080529954030727, guid: c9821b65986b01a4787ac5774b1858d4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_frost.prefab
+    prefab: {fileID: 8196267855504914850, guid: c9bd2ca4a481b3c4ab74d7e080f98046, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_light.prefab
+    prefab: {fileID: 8542399799389161569, guid: 579c5c001460cda4a97e673a63b2dbfb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/yqmod1_accessories_pouch_mount_organic.prefab
+    prefab: {fileID: 8228572734962911598, guid: 41358f4fec2a31c4a9202f2b95249866, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Field_Parts.prefab
+    prefab: {fileID: 8299707801598092098, guid: 4fe358d80dea1134fac5be1dd56c394a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Merchant_Parts.prefab
+    prefab: {fileID: 4433007126324257562, guid: 3408aa5d6ec181c42913eab3b97dcbb4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Ranger_Parts.prefab
+    prefab: {fileID: 7991296718413824692, guid: 88e3c6b0eb83fb1449b07a9b26a1945c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Artisan_Parts.prefab
+    prefab: {fileID: 6565644297486965984, guid: 254d2f56a406bd64ebe5b4fded1d5244, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Court_Parts.prefab
+    prefab: {fileID: 7101196665120957313, guid: c35bf897a11a68c44952813f6c8f72af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Dragonbound_Parts.prefab
+    prefab: {fileID: 4468657526400047222, guid: 281201c10000052409bba0116909ddee, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Eclipse_Parts.prefab
+    prefab: {fileID: 6336191876812740206, guid: a7ab97a7a6616d44eb9293481d0fc283, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 1582384210346376650, guid: ff9e5cb19ad14af4f872f383b4e9422a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/pouch/Pouch_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3189944281203236010, guid: d9f604c200f9ec14aade9260e3914d32, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

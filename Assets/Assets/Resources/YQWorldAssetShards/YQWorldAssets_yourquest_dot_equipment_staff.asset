@@ -1,0 +1,181 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_staff
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Drake_Staff.prefab
+    prefab: {fileID: 1882746125648360925, guid: 5660862d8005af845891710fa13db7be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Duelist_Staff.prefab
+    prefab: {fileID: 1611397165786849160, guid: 1be6ce9e5efa1214a8fc3518f1284bfa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Eclipse_Staff.prefab
+    prefab: {fileID: 4969698608795969200, guid: 8e2d5f4ecd892a9498f39144bcf99b0b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Field_Staff.prefab
+    prefab: {fileID: 6945741734493653953, guid: 18ddfc8a3422a22499d37ba2e6821854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Frontier_Staff.prefab
+    prefab: {fileID: 3675232472358465570, guid: 2a986cca0fdbb4849bad4fdcec20d92b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Ranger_Staff.prefab
+    prefab: {fileID: 7615354799728693816, guid: 57a7351790f9f004fbca14b5d6231566, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Sentinel_Staff.prefab
+    prefab: {fileID: 2037538928362642130, guid: f1d2ca1b75ee40f4dbaf21fd5a90dccd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Staff_Starforged_Orrery.prefab
+    prefab: {fileID: 1402944577519508411, guid: 63f0b9f1265a6e64e93d7a3127f34434, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Staff_Worldtree_Sovereign.prefab
+    prefab: {fileID: 2879419134298153482, guid: 3571c0c231aa57b4c8108081282cc3dd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_darkness.prefab
+    prefab: {fileID: 7739529666081879814, guid: f3c6fa78b075eaa42af7414e371d5353, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_fire.prefab
+    prefab: {fileID: 15867634758100357, guid: 0e01161b995711b45a549784326ebd33, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_forged.prefab
+    prefab: {fileID: 3874793946175568909, guid: 94e5ce1ce2ed42e449edb8a4c5f2ec4e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_frost.prefab
+    prefab: {fileID: 6272144870880291659, guid: f48e287a46cd1ed44bb5ada6bdfba928, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_light.prefab
+    prefab: {fileID: 5910782105228260810, guid: d583be44e1db8df4392dad99ce92386a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_head_organic.prefab
+    prefab: {fileID: 6556040779336936271, guid: 82d55240ff371cd40b8171fabcdf4694, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_darkness.prefab
+    prefab: {fileID: 5905902118711025736, guid: df576ad381777e443b7db4206cf24d3c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_fire.prefab
+    prefab: {fileID: 5029028436811832202, guid: 313f3df1f3f334d478c90aadce83bf57, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_forged.prefab
+    prefab: {fileID: 7569431197578125787, guid: 7942ef0062aa96e469c640dce2d15c38, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_frost.prefab
+    prefab: {fileID: 1050426992569440258, guid: af83e4ba28a67b2468f84e25b9b4470c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_light.prefab
+    prefab: {fileID: 1805765707964622612, guid: f29187acf0a74ac4a9ebcbbee1b85ea1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_lower_haft_organic.prefab
+    prefab: {fileID: 5656962724002709900, guid: c621a361dac108f4fb7dd9c34492ee0e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_mixed_dark_light_forged.prefab
+    prefab: {fileID: 3034755669753199620, guid: 677fe0239f36ce848b91f7079385d8cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 4103239525612136146, guid: 47beeb93845089d4c9816770144f5980, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_darkness.prefab
+    prefab: {fileID: 8274576365735615492, guid: 734d5491fa31e4c418bd04d4b2ad8b3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_fire.prefab
+    prefab: {fileID: 3863301749721934860, guid: 7a52271c0e0649c42a06a25a09048ec8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_forged.prefab
+    prefab: {fileID: 1661569857937039827, guid: 5705db572aef05243aa38a9b964b6242, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_frost.prefab
+    prefab: {fileID: 4190518244252260863, guid: cd76650f1ee5fe244be758981e4bb32d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_light.prefab
+    prefab: {fileID: 6096641163005250210, guid: 60501fb85b6ef6745a9ce3150eb2ff2a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/yqmod1_weapon_staff_upper_haft_organic.prefab
+    prefab: {fileID: 9210863041132456587, guid: cdfebc01f9cfbf041aea2b33b3cb6f78, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Field_Staff_Parts.prefab
+    prefab: {fileID: 2734759186114048959, guid: 7c444896914a56f46b03b8c954198a7f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Ranger_Staff_Parts.prefab
+    prefab: {fileID: 8669432157778953379, guid: aeb14754166b3ce4bb1189c8ea9b4fbc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Sentinel_Staff_Parts.prefab
+    prefab: {fileID: 5351138711127513203, guid: cda41b559b19a7e48ac79dc22cb1e774, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Duelist_Staff_Parts.prefab
+    prefab: {fileID: 5047306628276925159, guid: b0c3e38988b8a884294b634e780b3c42, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Frontier_Staff_Parts.prefab
+    prefab: {fileID: 6592996690868684078, guid: 5b2a0cf0cf42afc47b09d75a4bb99d9d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Drake_Staff_Parts.prefab
+    prefab: {fileID: 3870416136346169827, guid: 692f49c4955260b429bdacc951eaa77d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Eclipse_Staff_Parts.prefab
+    prefab: {fileID: 8254520199904847210, guid: 4a7f59c6c5d7f2447a802f972de66800, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Staff_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 1074874527814084904, guid: 68c259d1b931c5c4e8b7eae1450be805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/Staff_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3361561777565464176, guid: 8aa4d215a5635164a9d8753eda1b83b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/sporewarden_cap_staff_head.prefab
+    prefab: {fileID: 3629010900079923577, guid: ecafbd5cf30256b41ba126d75978ccdb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/sporewarden_gill_staff_upper_haft.prefab
+    prefab: {fileID: 7395798925432937749, guid: 8b39b6199ffcb19418c663cd4bdd3e55, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/staff/staff_monster_crafted_assembled.prefab
+    prefab: {fileID: 769829943213040424, guid: 5808d3f516f18ad47bdd1ca2a69d1e03, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

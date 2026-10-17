@@ -1,0 +1,281 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_helmet
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Barbute_Female.prefab
+    prefab: {fileID: 8162765948348587947, guid: 35234ae4a126c324db5d1e6c6eb7e14e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Barbute_Male.prefab
+    prefab: {fileID: 4251123499901824371, guid: c5e4b94e62fbe144e9861b02879f2b3d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_DragonVisage_Female.prefab
+    prefab: {fileID: 1688117113138608851, guid: 57b6f66e9ab685e4683528a0db7bc9ad, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_DragonVisage_Male.prefab
+    prefab: {fileID: 97153373203112348, guid: d8c828a8cc365cf41aca3ac0076072bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_EclipseCrown_Female.prefab
+    prefab: {fileID: 8494126088223670342, guid: d7ad6d454cb301f43b920c6ec71d9dbb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_EclipseCrown_Male.prefab
+    prefab: {fileID: 7706411006351800323, guid: eb77cca96450d3849aa45f118989a483, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Greathelm_Female.prefab
+    prefab: {fileID: 8366199639028525241, guid: 335b91a259da12d41b46d91a313b4b8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Greathelm_Male.prefab
+    prefab: {fileID: 1765324211493727080, guid: ec445773756791c4f8f5a50590f5ba44, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Kettle_Female.prefab
+    prefab: {fileID: 6326172150327745592, guid: 61e017560d034644f9c5aeecc0937292, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Kettle_Male.prefab
+    prefab: {fileID: 2181694685581292932, guid: 6919a682159ba444387083d9911bc0e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Nasal_Female.prefab
+    prefab: {fileID: 7916769669045221899, guid: f4bf1663b4f801d4a835a7ac969e23e8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Nasal_Male.prefab
+    prefab: {fileID: 7958843567210517590, guid: 210b9d0d3baf6d54098428b21b83b02b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Sallet_Female.prefab
+    prefab: {fileID: 449424208051963215, guid: fe1bb269b573a6f45943ecfed13b852d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Sallet_Male.prefab
+    prefab: {fileID: 997607306530058568, guid: cc4b82530e3af4940a4664899ffe9944, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 4213880066067531194, guid: 9669ecc05e8939d4188ba1aaf7c2bbeb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 5312148214288553931, guid: c9fd689bc18be4941854d8e44134cb4e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 4034076916413396153, guid: 5bb5d53a6efeb67449dd1b6a34511527, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 2659042994766364483, guid: 40dc1b3f36dc81b4aa3a5542028c1abd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_core.prefab
+    prefab: {fileID: 1246913822203101386, guid: e48df4ceedd9dfb44be2789ea8c475f9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mixed_darkness_light.prefab
+    prefab: {fileID: 3022211331054930038, guid: 00f63cb3b1ad7aa4085eb43a4fdf0423, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mixed_organic_fire.prefab
+    prefab: {fileID: 389909343440537382, guid: 5793989b4c06f554ca137ca89a270cb4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_darkness.prefab
+    prefab: {fileID: 2515366913559665686, guid: d53b34ce83f57294c99253f111ff04b5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_fire.prefab
+    prefab: {fileID: 5713846071846869326, guid: 3f65e428acdd3614081f8f8feb084337, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_forged.prefab
+    prefab: {fileID: 1932768796582734428, guid: b538175595c39a1449beb29cb994c55c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_frost.prefab
+    prefab: {fileID: 8317364334162483949, guid: 50cd5749591bf944c98af376c074a321, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_light.prefab
+    prefab: {fileID: 9192677704796630134, guid: 54fe816e6532c9a43a26c47768ffe124, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_motif_organic.prefab
+    prefab: {fileID: 2528444433068760376, guid: bd84c88ab1fe8f94baaaffa09e9d673c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_darkness.prefab
+    prefab: {fileID: 8073049687937395544, guid: f292e2a97781e6e489799d4d606e294c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_fire.prefab
+    prefab: {fileID: 6886566755978587775, guid: 4fa43f48f78b4f245a2c356ea84a5258, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_forged.prefab
+    prefab: {fileID: 6099879568036561315, guid: 94d1bc92ea4d9e4419a5129ec722e995, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_frost.prefab
+    prefab: {fileID: 493435884061742024, guid: 4d17a02f288b48d47925dfaefd8d8743, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_light.prefab
+    prefab: {fileID: 3928004578972574547, guid: 3b4bc5c69a8dd2441a60e23023b78d38, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_female_mount_organic.prefab
+    prefab: {fileID: 1339889297375095159, guid: 02ee1e4f2d27d5e47a33afd82d065e16, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_core.prefab
+    prefab: {fileID: 7119099674898338606, guid: 2fc82642b7753bd44a1451f134b67552, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mixed_darkness_light.prefab
+    prefab: {fileID: 3460537543053395705, guid: d1f95956c6f8b4247834ca5b3df85d1c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mixed_organic_fire.prefab
+    prefab: {fileID: 3177897731838659026, guid: 79778bb9d228ce649b0ffe09e097f7e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_darkness.prefab
+    prefab: {fileID: 1849144120270779622, guid: ddc45dd11f7a59d45b981390aa69d158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_fire.prefab
+    prefab: {fileID: 2918967167611024835, guid: ea29c0ad645affd4f861c42e9ca547f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_forged.prefab
+    prefab: {fileID: 4127970885974660833, guid: bcf3118dc32f5b940acb53bd38689cbf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_frost.prefab
+    prefab: {fileID: 5689166989884142642, guid: e5c3232786915ec4888967983f472e6b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_light.prefab
+    prefab: {fileID: 8628974708220518509, guid: 3f664c29a89cc02438fd5675f67e7fc2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_motif_organic.prefab
+    prefab: {fileID: 4261776428809628466, guid: 303ed7270092d6a45ad2a2f162081b37, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_darkness.prefab
+    prefab: {fileID: 591402339988578324, guid: 900019abd7fa8f64b9a147cb50e48e5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_fire.prefab
+    prefab: {fileID: 7982299702905073420, guid: 52ec59db068b7604086b49b8ddc65300, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_forged.prefab
+    prefab: {fileID: 8333320087866102627, guid: c49f60309672925418194f52ae16a0fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_frost.prefab
+    prefab: {fileID: 3199507280875315692, guid: bd1861acf97f44041b0b015106013a4a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_light.prefab
+    prefab: {fileID: 1089725976333642462, guid: dec496fccc0339140926f73f3046adc0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/yqmod1_wearables_helmet_male_mount_organic.prefab
+    prefab: {fileID: 6267852138239105061, guid: 287099893852c2a4483e3c90dfb6f57f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Kettle_Male_Parts.prefab
+    prefab: {fileID: 2163253484882119872, guid: 1ad541f36db30424fac3a13aebf0b95f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Kettle_Female_Parts.prefab
+    prefab: {fileID: 1812609294815584039, guid: f7f5d461914e9424f9bbb1ccbb63df1f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Nasal_Male_Parts.prefab
+    prefab: {fileID: 323808739871445550, guid: 73227a2618719d943854e4b6d9c2398c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Nasal_Female_Parts.prefab
+    prefab: {fileID: 2668273634938795303, guid: f5c24be187a3c5c4894dd70e9330fc25, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Barbute_Male_Parts.prefab
+    prefab: {fileID: 5824038228336304750, guid: 32b12fdbcdfabc14c8dbe22382286aff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Barbute_Female_Parts.prefab
+    prefab: {fileID: 2706181309494463260, guid: 0d079f7041d4a1046a3afd0b0e946a62, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Sallet_Male_Parts.prefab
+    prefab: {fileID: 8224382039767099188, guid: 6b18fdad36f19614da21fedd547ad2ac, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Sallet_Female_Parts.prefab
+    prefab: {fileID: 8737279726584728970, guid: ea1e5d973708b7248aa6f9c58b1fcac4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Greathelm_Male_Parts.prefab
+    prefab: {fileID: 493152608534243436, guid: 0378a3a1b2ddb7f478469b9611e0fd56, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Greathelm_Female_Parts.prefab
+    prefab: {fileID: 1324672818157738268, guid: 944c2ae309e6fa041883bbfe227ebd19, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_DragonVisage_Male_Parts.prefab
+    prefab: {fileID: 9152934017861083119, guid: 5b6281975278b3148a8227dc1b4125ca, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_DragonVisage_Female_Parts.prefab
+    prefab: {fileID: 6975408763939097973, guid: 363a1d82a6f67e2498320c668fea3834, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_EclipseCrown_Male_Parts.prefab
+    prefab: {fileID: 38684504182694564, guid: 8ae3681447b27644c84412bc9f952c57, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_EclipseCrown_Female_Parts.prefab
+    prefab: {fileID: 2960307295901169332, guid: b100a00e45c6ad14d8e7ed5ba01747b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 5124801627817091402, guid: e320bc63da2235b42bbad561df57fac8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 9151639725154504881, guid: 389c0cdfa4ec7cb4da94c14bff0118bc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 5270291280695549364, guid: 0a94503dc79e63e44a6deed8f1508b5a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/helmet/Helmet_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 4105122617761409265, guid: 99a37916e4762454ba0ca9978ddc400a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

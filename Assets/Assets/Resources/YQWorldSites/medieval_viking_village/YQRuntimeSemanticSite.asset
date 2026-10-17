@@ -1,0 +1,832 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: medieval_viking_village
+  semanticStyleKey: medieval_viking_village
+  sourceSignature: 
+  topology: 0
+  streamingSite: {fileID: 0}
+  sourceInstanceCount: 1051
+  releaseEligible: 1
+  reviewState: 0
+  reviewNote: 
+  zones:
+  - stableId: yq_viking_district_central_village
+    displayName: CentralVillage
+    districtFunction: 2
+    prefab: {fileID: 8758441613492521118, guid: cf8bc312d321cee4bb54ec5f5e4463a5, type: 3}
+    authoredSourceOrigin: {x: -8.702156, y: 0, z: 9.296175}
+    localBoundsCenter: {x: -0.0000038146973, y: 9.371342, z: 0.0000019073486}
+    localBoundsSize: {x: 66.59518, y: 18.742683, z: 51.39853}
+    sourceInstanceCount: 356
+    authoredBuildingCount: 101
+    authoredDressingCount: 255
+    semanticTags:
+    - authored-composition
+    - circulation
+    - civic
+    - district
+    - medieval
+    - mixeduse
+    - poi
+    - residential
+    - service
+    - viking
+    connectionSocketPaths:
+    - Sockets/Connection_North
+    - Sockets/Connection_East
+    - Sockets/Connection_South
+    - Sockets/Connection_West
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_viking_district_central_village
+      sourceSignature: 
+      reviewState: 0
+      reviewNote: 'Candidate only: verify this cell''s support, entrances, runtime
+        interactions and route connections before approval.'
+      curation:
+        contractVersion: 0
+        primaryRole: 15
+        primaryFunction: 0
+        secondaryRoles: 
+        secondaryFunctions: 
+        environments: 
+        affordances: 
+        familyId: medieval_viking_village
+        variantGroupId: yq_viking_district_central_village
+        supportMode: 0
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0
+        maximumSupportRelief: 0
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_viking_district_central_village:Sockets/Connection_North
+          kind: 1
+          transformPath: Sockets/Connection_North
+          localPosition: {x: -23.587994, y: 0, z: 13.612223}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_central_village:Sockets/Connection_East
+          kind: 1
+          transformPath: Sockets/Connection_East
+          localPosition: {x: 18.702156, y: 0, z: -2.5961752}
+          localRotation: {x: 0, y: 0.7071068, z: -0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_central_village:Sockets/Connection_South
+          kind: 1
+          transformPath: Sockets/Connection_South
+          localPosition: {x: 4.231385, y: 0, z: -18.143553}
+          localRotation: {x: 0, y: 1, z: -0, w: 0}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_central_village:Sockets/Connection_West
+          kind: 1
+          transformPath: Sockets/Connection_West
+          localPosition: {x: -27.974037, y: 0, z: -15.566615}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 0
+        sourceSignature: 
+        completeStructuralDependencies: 0
+        foundationVerified: 0
+        terrainContactVersion: 0
+        terrainContacts: []
+        externalConnectionPaths: []
+      doorBindings:
+      - bindingId: SM_House4_Door11
+        targetPath: SM_House4_Door11
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -28.4799, y: 6.8, z: -5.576778}
+        sourceLocalRotation: {x: -0, y: -0.087155975, z: -0, w: 0.9961947}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door3
+        targetPath: SM_House4_Door3
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -15.982193, y: 4.8, z: -2.011804}
+        sourceLocalRotation: {x: -0, y: 0.7071063, z: -0, w: 0.7071073}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door2
+        targetPath: SM_House4_Door2
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -14.685446, y: 6.8, z: 8.890329}
+        sourceLocalRotation: {x: -0, y: 1, z: -0, w: 0}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door4
+        targetPath: SM_House4_Door4
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -6.8821917, y: 4.8, z: -5.211804}
+        sourceLocalRotation: {x: -0, y: 0.7071063, z: -0, w: 0.7071073}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door_97
+        targetPath: SM_House4_Door_97
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 5.52008, y: 6.8, z: -3.0040479}
+        sourceLocalRotation: {x: -0, y: 0.7071063, z: -0, w: 0.7071073}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      lootBindings: []
+  - stableId: yq_viking_district_eastern_works
+    displayName: EasternWorks
+    districtFunction: 3
+    prefab: {fileID: 4613972863056017444, guid: 09454b5045752b24591dafe7c816944f, type: 3}
+    authoredSourceOrigin: {x: 9.668209, y: 0, z: -17.391006}
+    localBoundsCenter: {x: -0.0000038146973, y: 8.782832, z: -0.0000038146973}
+    localBoundsSize: {x: 66.654465, y: 17.565664, z: 67.80885}
+    sourceInstanceCount: 334
+    authoredBuildingCount: 134
+    authoredDressingCount: 200
+    semanticTags:
+    - authored-composition
+    - circulation
+    - district
+    - medieval
+    - poi
+    - service
+    - viking
+    connectionSocketPaths:
+    - Sockets/Connection_North
+    - Sockets/Connection_East
+    - Sockets/Connection_South
+    - Sockets/Connection_West
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_viking_district_eastern_works
+      sourceSignature: 
+      reviewState: 0
+      reviewNote: 'Candidate only: verify this cell''s support, entrances, runtime
+        interactions and route connections before approval.'
+      curation:
+        contractVersion: 0
+        primaryRole: 15
+        primaryFunction: 9
+        secondaryRoles: 
+        secondaryFunctions: 
+        environments: 
+        affordances: 
+        familyId: medieval_viking_village
+        variantGroupId: yq_viking_district_eastern_works
+        supportMode: 0
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0
+        maximumSupportRelief: 0
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_viking_district_eastern_works:Sockets/Connection_North
+          kind: 1
+          transformPath: Sockets/Connection_North
+          localPosition: {x: 3.381791, y: 0, z: 24.541006}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_eastern_works:Sockets/Connection_East
+          kind: 1
+          transformPath: Sockets/Connection_East
+          localPosition: {x: 14.936092, y: 0, z: -11.759922}
+          localRotation: {x: 0, y: 0.7071068, z: -0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_eastern_works:Sockets/Connection_South
+          kind: 1
+          transformPath: Sockets/Connection_South
+          localPosition: {x: 15.003172, y: 0, z: -15.468315}
+          localRotation: {x: 0, y: 1, z: -0, w: 0}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_eastern_works:Sockets/Connection_West
+          kind: 1
+          transformPath: Sockets/Connection_West
+          localPosition: {x: -15.517764, y: 0, z: -2.2912598}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 0
+        sourceSignature: 
+        completeStructuralDependencies: 0
+        foundationVerified: 0
+        terrainContactVersion: 0
+        terrainContacts: []
+        externalConnectionPaths: []
+      doorBindings:
+      - bindingId: SM_House2_Door_64
+        targetPath: SM_House2_Door_64
+        sourcePrefabGuid: abc00000000008531496485008972678
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 8.192978, y: 3.7, z: 25.778374}
+        sourceLocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
+        sourceLocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
+        colliderCenter: {x: -0.000001, y: 1.382041, z: -0.603086}
+        colliderSize: {x: 0.061291, y: 2.764081, z: 1.206172}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House2_Door2
+        targetPath: SM_House2_Door2
+        sourcePrefabGuid: abc00000000008531496485008972678
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 14.38847, y: 10.1, z: -6.214775}
+        sourceLocalRotation: {x: -0, y: 0.7071073, z: -0, w: 0.7071063}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: -0.000001, y: 1.382041, z: -0.603086}
+        colliderSize: {x: 0.061291, y: 2.764081, z: 1.206172}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door6
+        targetPath: SM_House4_Door6
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -32.811417, y: 4.8, z: -4.7081203}
+        sourceLocalRotation: {x: -0, y: 1, z: -0, w: 0}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door5
+        targetPath: SM_House4_Door5
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -16.136045, y: 4.8, z: -1.265749}
+        sourceLocalRotation: {x: -0, y: -0, z: -0, w: 1}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door7
+        targetPath: SM_House4_Door7
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: -9.194912, y: 4.8, z: -7.649231}
+        sourceLocalRotation: {x: -0, y: 0.70710784, z: -0, w: -0.7071058}
+        sourceLocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door8
+        targetPath: SM_House4_Door8
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 0.5441885, y: 6.8, z: -11.62249}
+        sourceLocalRotation: {x: -0, y: 1, z: -0, w: 0}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      - bindingId: SM_House4_Door10
+        targetPath: SM_House4_Door10
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 3.3804665, y: 6.8, z: -15.94772}
+        sourceLocalRotation: {x: -0, y: -0, z: -0, w: 1}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      lootBindings: []
+  - stableId: yq_viking_district_southern_quarter
+    displayName: SouthernQuarter
+    districtFunction: 4
+    prefab: {fileID: 3086812694856845662, guid: 39e2b911fd593d144b614113a48ce86b, type: 3}
+    authoredSourceOrigin: {x: -41.10836, y: -0.39999866, z: -28.732994}
+    localBoundsCenter: {x: -3.1840897, y: 9.621343, z: -5.8354836}
+    localBoundsSize: {x: 75.84854, y: 19.242687, z: 45.79502}
+    sourceInstanceCount: 215
+    authoredBuildingCount: 56
+    authoredDressingCount: 159
+    semanticTags:
+    - authored-composition
+    - circulation
+    - civic
+    - defensive
+    - district
+    - medieval
+    - poi
+    - viking
+    connectionSocketPaths:
+    - Sockets/Connection_North
+    - Sockets/Connection_East
+    - Sockets/Connection_South
+    - Sockets/Connection_West
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_viking_district_southern_quarter
+      sourceSignature: 
+      reviewState: 0
+      reviewNote: 'Candidate only: verify this cell''s support, entrances, runtime
+        interactions and route connections before approval.'
+      curation:
+        contractVersion: 0
+        primaryRole: 15
+        primaryFunction: 4
+        secondaryRoles: 
+        secondaryFunctions: 
+        environments: 
+        affordances: 
+        familyId: medieval_viking_village
+        variantGroupId: yq_viking_district_southern_quarter
+        supportMode: 0
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0
+        maximumSupportRelief: 0
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_viking_district_southern_quarter:Sockets/Connection_North
+          kind: 1
+          transformPath: Sockets/Connection_North
+          localPosition: {x: 17.43338, y: 0, z: 10.7202835}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_southern_quarter:Sockets/Connection_East
+          kind: 1
+          transformPath: Sockets/Connection_East
+          localPosition: {x: 30.470976, y: 0, z: 2.3481312}
+          localRotation: {x: 0, y: 0.7071068, z: -0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_southern_quarter:Sockets/Connection_South
+          kind: 1
+          transformPath: Sockets/Connection_South
+          localPosition: {x: 8.986908, y: 0, z: -9.976616}
+          localRotation: {x: 0, y: 1, z: -0, w: 0}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_southern_quarter:Sockets/Connection_West
+          kind: 1
+          transformPath: Sockets/Connection_West
+          localPosition: {x: -4.6928253, y: 0, z: 0.71103096}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 0
+        sourceSignature: 
+        completeStructuralDependencies: 0
+        foundationVerified: 0
+        terrainContactVersion: 0
+        terrainContacts: []
+        externalConnectionPaths: []
+      doorBindings:
+      - bindingId: SM_House4_Door9
+        targetPath: SM_House4_Door9
+        sourcePrefabGuid: abc00000000008430468280016741684
+        reviewState: 0
+        reviewNote: Measured separate door leaf; swing direction, standing clearance,
+          interior floor and passage still require review. Not approved.
+        passageVerified: 0
+        sourceLocalPosition: {x: 17.115145, y: 7.7, z: -10.674976}
+        sourceLocalRotation: {x: -0, y: 0.7071063, z: -0, w: -0.7071073}
+        sourceLocalScale: {x: 1, y: 1, z: 1}
+        colliderCenter: {x: 0.032805, y: 1.063671, z: -0.626662}
+        colliderSize: {x: 0.064274, y: 2.125893, z: 1.253324}
+        openEuler: {x: 0, y: 0, z: 0}
+        initiallyLocked: 0
+        lockDifficulty: 0.45
+        terrainApproach:
+          reviewState: 0
+          authoredRouteVerified: 0
+          supportPath: 
+          localStart: {x: 0, y: 0, z: 0}
+          localOutward: {x: 0, y: 0, z: 1}
+          width: 1.2
+          minimumRun: 2
+          maximumRun: 8
+          sampleSpacing: 0.5
+          maximumGradeDegrees: 24
+          maximumCrossSlopeDegrees: 10
+          maximumCut: 0.5
+          maximumFill: 0.5
+          contactTolerance: 0.03
+          walkingSurfaceAboveTerrain: 0
+      lootBindings: []
+  - stableId: yq_viking_district_west_homestead
+    displayName: WestHomestead
+    districtFunction: 1
+    prefab: {fileID: 198050974738671287, guid: 4d0c0e36ebc9e19409fa27654020d095, type: 3}
+    authoredSourceOrigin: {x: -47.147156, y: -0.40000105, z: 7.8100433}
+    localBoundsCenter: {x: -17.02378, y: 7.0713434, z: 0}
+    localBoundsSize: {x: 60.24675, y: 14.142687, z: 102.352066}
+    sourceInstanceCount: 146
+    authoredBuildingCount: 51
+    authoredDressingCount: 95
+    semanticTags:
+    - authored-composition
+    - circulation
+    - district
+    - medieval
+    - poi
+    - residential
+    - viking
+    connectionSocketPaths:
+    - Sockets/Connection_North
+    - Sockets/Connection_East
+    - Sockets/Connection_South
+    - Sockets/Connection_West
+    streamingCellIds: []
+    cellContractsV2:
+    - cellId: yq_viking_district_west_homestead
+      sourceSignature: 
+      reviewState: 0
+      reviewNote: 'Candidate only: verify this cell''s support, entrances, runtime
+        interactions and route connections before approval.'
+      curation:
+        contractVersion: 0
+        primaryRole: 15
+        primaryFunction: 1
+        secondaryRoles: 
+        secondaryFunctions: 
+        environments: 
+        affordances: 
+        familyId: medieval_viking_village
+        variantGroupId: yq_viking_district_west_homestead
+        supportMode: 0
+        canonicalScale: {x: 1, y: 1, z: 1}
+        preserveAuthoredScale: 1
+        supportLocalY: 0
+        supportPolygon: []
+        minimumEmbedDepth: 0
+        maximumEmbedDepth: 0
+        maximumSupportRelief: 0
+        maxUsesPerSite: 0
+        minimumRepeatDistance: 0
+        sockets:
+        - socketId: yq_viking_district_west_homestead:Sockets/Connection_North
+          kind: 1
+          transformPath: Sockets/Connection_North
+          localPosition: {x: -17.02378, y: 0, z: 51.176033}
+          localRotation: {x: 0, y: 0, z: 0, w: 1}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_west_homestead:Sockets/Connection_East
+          kind: 1
+          transformPath: Sockets/Connection_East
+          localPosition: {x: 13.099594, y: 0, z: 0}
+          localRotation: {x: 0, y: 0.7071068, z: -0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_west_homestead:Sockets/Connection_South
+          kind: 1
+          transformPath: Sockets/Connection_South
+          localPosition: {x: -17.02378, y: 0, z: -51.176033}
+          localRotation: {x: 0, y: 1, z: -0, w: 0}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        - socketId: yq_viking_district_west_homestead:Sockets/Connection_West
+          kind: 1
+          transformPath: Sockets/Connection_West
+          localPosition: {x: -47.147156, y: 0, z: 0}
+          localRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+          clearanceSize: {x: 0, y: 0, z: 0}
+          compatibilityKey: 
+        ecology:
+          layer: 0
+          speciesFamilyId: 
+          minimumMoisture: 0
+          maximumMoisture: 1
+          minimumNormalizedElevation: 0
+          maximumNormalizedElevation: 1
+          minimumSpacing: 1
+          cohortMinimum: 1
+          cohortMaximum: 1
+          disturbanceTolerance: 0.5
+      independentAssembly:
+        reviewState: 0
+        sourceSignature: 
+        completeStructuralDependencies: 0
+        foundationVerified: 0
+        terrainContactVersion: 0
+        terrainContacts: []
+        externalConnectionPaths: []
+      doorBindings: []
+      lootBindings: []

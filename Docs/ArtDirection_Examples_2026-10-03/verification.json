@@ -1,0 +1,32 @@
+{
+  "checked_date": "2026-10-03",
+  "scope": "Offline reference board only",
+  "packs": 12,
+  "images": 18,
+  "all_images_loaded": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 800,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "browser_errors": [],
+  "UI_examples": 0,
+  "DOT_sources": 0,
+  "visual_review": "PASS: all four reference sections inspected",
+  "guidance_validator": {
+    "status": "PASS",
+    "checks": 468,
+    "mode": "guidance-only"
+  },
+  "unity_compilation": "Not applicable: reference folder only",
+  "canonical_local_scene_and_document_paths_checked": 15
+}

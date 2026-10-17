@@ -1,0 +1,825 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3b88122bf261c84592fe1d9a2797ed2, type: 3}
+  m_Name: YQRuntimeWorldSiteCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldSiteCatalog
+  schemaVersion: runtime-world-sites-1.0.0
+  sites:
+  - kitId: asian_dynasty_environment
+    semanticStyleKey: asian_dynasty
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/asian_dynasty_environment/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 0, y: 10.894924, z: 12.216232}
+    authoredFootprintSize: {x: 230.36829, y: 82.35785, z: 279.784}
+    authoredFoundationY: -30.284
+    authoredFootprintRadius: 181.21027
+    activeCellCount: 8
+    activeInstanceCount: 2928
+    spatialSignature: 2d263d7804284fbbcd0fb56944b1f61d
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: bio_horror_sci_fi_environment
+    semanticStyleKey: bio_horror_scifi
+    siteKind: 7
+    topology: 7
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - habitation
+    - industry
+    - poi
+    - scifisectors
+    - service
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/bio_horror_sci_fi_environment/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 0, y: 12.835755, z: 0}
+    authoredFootprintSize: {x: 29.49543, y: 25.671513, z: 23.884048}
+    authoredFoundationY: -0.0000009536743
+    authoredFootprintRadius: 18.976486
+    activeCellCount: 1
+    activeInstanceCount: 770
+    spatialSignature: e4972fe2370ddf2afeda70d94eaf5130
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: hallowed_depths
+    semanticStyleKey: hallowed_depths
+    siteKind: 2
+    topology: 2
+    presentationMode: 3
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - chamber
+    - corridor
+    - dungeonrooms
+    - encounter
+    - entrance
+    - poi
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/hallowed_depths/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: -0.0000076293945, y: 13.269758, z: -0.0000019073486}
+    authoredFootprintSize: {x: 99.3022, y: 27.817516, z: 35.496418}
+    authoredFoundationY: -0.15779972
+    authoredFootprintRadius: 52.727894
+    activeCellCount: 2
+    activeInstanceCount: 2542
+    spatialSignature: c54de858068c317a361db9103d7922e0
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: haunted_village
+    semanticStyleKey: haunted_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/haunted_village/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -122.59433, y: 22.185673, z: -207.72697}
+    authoredFootprintSize: {x: 287.71228, y: 45.791344, z: 303.42648}
+    authoredFoundationY: 5.881529
+    authoredFootprintRadius: 209.07295
+    activeCellCount: 12
+    activeInstanceCount: 13157
+    spatialSignature: a8bfd35d07413e540ce241c4c4abaff6
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: horror_hospital
+    semanticStyleKey: horror_hospital
+    siteKind: 3
+    topology: 3
+    presentationMode: 2
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - interiorrooms
+    - poi
+    - room
+    - service
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/horror_hospital/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: 0, y: 4.131373, z: 0}
+    authoredFootprintSize: {x: 21.91, y: 8.262746, z: 14.7281685}
+    authoredFoundationY: 0.0435009
+    authoredFootprintRadius: 13.200067
+    activeCellCount: 6
+    activeInstanceCount: 12780
+    spatialSignature: d4b0e14e2e396e71947948f0c4846d8e
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: medieval_kingdom
+    semanticStyleKey: medieval_kingdom
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/medieval_kingdom/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 2789.8735, y: 520.2515, z: 3537.0732}
+    authoredFootprintSize: {x: 329.35254, y: 34.432495, z: 248.78418}
+    authoredFoundationY: 510.4973
+    authoredFootprintRadius: 206.37749
+    activeCellCount: 10
+    activeInstanceCount: 12836
+    spatialSignature: 66683beaee2986a1e75c29044d771930
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: medieval_viking_village
+    semanticStyleKey: medieval_viking_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored-composition
+    - circulation
+    - civic
+    - defensive
+    - district
+    - medieval
+    - mixeduse
+    - poi
+    - residential
+    - service
+    - viking
+    runtimeManifestResourceKey: YQWorldSites/medieval_viking_village/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -25.649437, y: 9.221345, z: 0.7600441}
+    authoredFootprintSize: {x: 137.28975, y: 19.242691, z: 116.452065}
+    authoredFoundationY: 0
+    authoredFootprintRadius: 90.013275
+    activeCellCount: 4
+    activeInstanceCount: 1051
+    spatialSignature: 3c7339093deb79c016837c23d4f28819
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: modular_viking_village
+    semanticStyleKey: modular_viking_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/modular_viking_village/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -6439.8896, y: 509.38046, z: -6015.295}
+    authoredFootprintSize: {x: 292.32812, y: 106.335754, z: 198.2539}
+    authoredFoundationY: 482.8284
+    authoredFootprintRadius: 176.60715
+    activeCellCount: 3
+    activeInstanceCount: 4
+    spatialSignature: 59b601f41a1bbfbc3786d8d71b7a273a
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: mountain_temple
+    semanticStyleKey: mountain_temple
+    siteKind: 4
+    topology: 4
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - approach
+    - authored
+    - core
+    - landmarkcampus
+    - perimeter
+    - poi
+    - streaming_safe
+    - support
+    runtimeManifestResourceKey: YQWorldSites/mountain_temple/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 0, y: 20.693384, z: -5.563118}
+    authoredFootprintSize: {x: 339.22235, y: 41.70237, z: 78.6584}
+    authoredFoundationY: 4.553976
+    authoredFootprintRadius: 174.11128
+    activeCellCount: 6
+    activeInstanceCount: 7964
+    spatialSignature: b430be106b9d4519b70177a1422bc931
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: mystic_dungeon
+    semanticStyleKey: mystic_dungeon
+    siteKind: 2
+    topology: 2
+    presentationMode: 3
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - chamber
+    - corridor
+    - dungeonrooms
+    - encounter
+    - entrance
+    - poi
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/mystic_dungeon/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: 0, y: 15.762429, z: 0.000015258789}
+    authoredFootprintSize: {x: 141.84995, y: 31.524878, z: 284.48828}
+    authoredFoundationY: 2.7879143
+    authoredFootprintRadius: 158.94574
+    activeCellCount: 16
+    activeInstanceCount: 18468
+    spatialSignature: 457b57d218ca1a5559f10ac5f257acfa
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: native_american_village
+    semanticStyleKey: native_american_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/native_american_village/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -235.27988, y: 72.48964, z: -327.0643}
+    authoredFootprintSize: {x: 207.91144, y: 108.08591, z: 346.10748}
+    authoredFoundationY: 58.87845
+    authoredFootprintRadius: 201.87717
+    activeCellCount: 8
+    activeInstanceCount: 847
+    spatialSignature: 4abce5f1319704ab38e34ec44e4ee9aa
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: nordic_village
+    semanticStyleKey: nordic_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/nordic_village/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 6.880493, y: 95.64519, z: -8.2958145}
+    authoredFootprintSize: {x: 264.50488, y: 58.456116, z: 217.82391}
+    authoredFoundationY: 68.07855
+    authoredFootprintRadius: 171.32578
+    activeCellCount: 12
+    activeInstanceCount: 17980
+    spatialSignature: 1ba712d575335454c0f990ceaea0b7b4
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: persepolis_empire_environment
+    semanticStyleKey: persepolis_empire
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/persepolis_empire_environment/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -85.7612, y: 186.33298, z: -30.55687}
+    authoredFootprintSize: {x: 319.47333, y: 136.48035, z: 267.93652}
+    authoredFoundationY: 173.5484
+    authoredFootprintRadius: 208.47853
+    activeCellCount: 11
+    activeInstanceCount: 16181
+    spatialSignature: 6fef9f6bf58d50cce5d5990cf9593ee1
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: pirate_island
+    semanticStyleKey: pirate_island
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/pirate_island/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 89.92768, y: 62.109444, z: 161.73912}
+    authoredFootprintSize: {x: 352.2807, y: 92.4479, z: 225.92337}
+    authoredFoundationY: 17.358482
+    authoredFootprintRadius: 209.25049
+    activeCellCount: 7
+    activeInstanceCount: 3120
+    spatialSignature: 427aa4ba6e6bb6a42570c3d51a396382
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: rural_town
+    semanticStyleKey: rural_town
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/rural_town/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 179.23111, y: 211.04587, z: -327.65417}
+    authoredFootprintSize: {x: 252.73334, y: 54.750366, z: 255.64148}
+    authoredFoundationY: 184.55542
+    authoredFootprintRadius: 179.74059
+    activeCellCount: 9
+    activeInstanceCount: 3959
+    spatialSignature: 24457a115ade2d7c5ec57201cbfee000
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: sci_fi_engineers_room
+    semanticStyleKey: sci_fi_engineers_room
+    siteKind: 7
+    topology: 7
+    presentationMode: 2
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - habitation
+    - industry
+    - poi
+    - scifisectors
+    - service
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/sci_fi_engineers_room/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: 0.0000038146973, y: 2.542282, z: 0}
+    authoredFootprintSize: {x: 9.524567, y: 5.084564, z: 18.111229}
+    authoredFoundationY: 0
+    authoredFootprintRadius: 10.231495
+    activeCellCount: 1
+    activeInstanceCount: 309
+    spatialSignature: aa8d0466384e2796552496cfe325ee52
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: the_messenger_mountain
+    semanticStyleKey: messenger_mountain
+    siteKind: 6
+    topology: 6
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - encounter
+    - landmark
+    - route
+    - streaming_safe
+    - transition
+    - vista
+    - wildernessregions
+    runtimeManifestResourceKey: YQWorldSites/the_messenger_mountain/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -111.73762, y: 33.437138, z: -237.59723}
+    authoredFootprintSize: {x: 128.29686, y: 66.8743, z: 347.3405}
+    authoredFoundationY: 3.386733
+    authoredFootprintRadius: 185.13881
+    activeCellCount: 10
+    activeInstanceCount: 20820
+    spatialSignature: fa8413fdef7377696a6010ce795bde1e
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: the_sewers
+    semanticStyleKey: the_sewers
+    siteKind: 2
+    topology: 2
+    presentationMode: 3
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - chamber
+    - corridor
+    - dungeonrooms
+    - encounter
+    - entrance
+    - poi
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/the_sewers/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: -0.0000076293945, y: 9.007931, z: -0.0000076293945}
+    authoredFootprintSize: {x: 124.752975, y: 18.015862, z: 169.64874}
+    authoredFoundationY: 1.6751442
+    authoredFootprintRadius: 105.29008
+    activeCellCount: 4
+    activeInstanceCount: 5379
+    spatialSignature: 32f8e986b5553508776111c326f94eb6
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: town_smith
+    semanticStyleKey: town_smith
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/town_smith/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 344.94388, y: 251.51208, z: 418.84048}
+    authoredFootprintSize: {x: 326.83234, y: 63.37256, z: 221.50311}
+    authoredFoundationY: 233.92896
+    authoredFootprintRadius: 197.41011
+    activeCellCount: 4
+    activeInstanceCount: 2506
+    spatialSignature: 9f43011f659ffdac080052db35d05fc5
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: victorian_mansion_environment
+    semanticStyleKey: victorian_mansion
+    siteKind: 3
+    topology: 3
+    presentationMode: 2
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - interiorrooms
+    - poi
+    - room
+    - service
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/victorian_mansion_environment/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: -0.0000076293945, y: 8.097491, z: 0.0000019073486}
+    authoredFootprintSize: {x: 99.59064, y: 16.92363, z: 44.171017}
+    authoredFoundationY: 0.7805176
+    authoredFootprintRadius: 54.473328
+    activeCellCount: 2
+    activeInstanceCount: 1461
+    spatialSignature: 8151a6477de82d618c024228df7d2772
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: villa_forge
+    semanticStyleKey: villa_forge
+    siteKind: 4
+    topology: 4
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - approach
+    - authored
+    - core
+    - landmarkcampus
+    - perimeter
+    - poi
+    - streaming_safe
+    - support
+    runtimeManifestResourceKey: YQWorldSites/villa_forge/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 0, y: 12.343132, z: 0}
+    authoredFootprintSize: {x: 116.56232, y: 24.686264, z: 97.296555}
+    authoredFoundationY: 1.6177979
+    authoredFootprintRadius: 75.91672
+    activeCellCount: 3
+    activeInstanceCount: 1077
+    spatialSignature: ebae9afaf5f3a813e33f4ddea2d70ee6
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: western_desert_town
+    semanticStyleKey: western_desert_town
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - authored
+    - circulation
+    - civic
+    - poi
+    - residential
+    - service
+    - settlementdistricts
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/western_desert_town/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -51.60376, y: 2870.4211, z: -0.9944153}
+    authoredFootprintSize: {x: 235.34583, y: 29.45459, z: 293.37366}
+    authoredFoundationY: 2858.6504
+    authoredFootprintRadius: 188.05302
+    activeCellCount: 14
+    activeInstanceCount: 15920
+    spatialSignature: fb84dbcb0e7f1b09cfa6f20e95dcb071
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: witch_house
+    semanticStyleKey: witch_house
+    siteKind: 3
+    topology: 3
+    presentationMode: 2
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - authored
+    - circulation
+    - entrance
+    - interiorrooms
+    - poi
+    - room
+    - service
+    - streaming_safe
+    runtimeManifestResourceKey: YQWorldSites/witch_house/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 0
+    authoredFootprintCenter: {x: 0, y: 23.320501, z: 0}
+    authoredFootprintSize: {x: 145.41504, y: 49.481003, z: 154.04024}
+    authoredFoundationY: 2.629303
+    authoredFootprintRadius: 105.917336
+    activeCellCount: 6
+    activeInstanceCount: 681
+    spatialSignature: a1e87f610c1451477bcf2bbb19b9adfb
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: qualified_occupied_homestead
+    semanticStyleKey: medieval_viking_village
+    siteKind: 5
+    topology: 5
+    presentationMode: 1
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - encounter
+    - perimeter
+    - circulation
+    - poi
+    - medieval
+    - viking
+    - occupied_homestead
+    runtimeManifestResourceKey: YQWorldSites/qualified_occupied_homestead/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -31.97609, y: 7.554573, z: -3.0069497}
+    authoredFootprintSize: {x: 13.418449, y: 8.46019, z: 7.1795096}
+    authoredFoundationY: -3.6795058
+    authoredFootprintRadius: 7.609207
+    activeCellCount: 1
+    activeInstanceCount: 57
+    spatialSignature: beb0cffc83637454e5bfa95de6569c24
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 0c0000000b00000004000000070000000a000000
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: qualified_viking_home
+    semanticStyleKey: medieval_viking_village
+    siteKind: 1
+    topology: 1
+    presentationMode: 1
+    structureUsagePolicy: 1
+    maximumEnterableStructures: 1
+    semanticTags:
+    - residential
+    - service
+    - commerce
+    - circulation
+    - medieval
+    - viking
+    - poi
+    runtimeManifestResourceKey: YQWorldSites/qualified_viking_home/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: -31.97609, y: 7.554573, z: -3.0069497}
+    authoredFootprintSize: {x: 13.418449, y: 8.46019, z: 7.1795096}
+    authoredFoundationY: -3.6795058
+    authoredFootprintRadius: 7.609207
+    activeCellCount: 1
+    activeInstanceCount: 57
+    spatialSignature: c706171882d2605c4aeeac1f963e223f
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 010000000900000002000000070000000a000000
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}
+  - kitId: qualified_nordic_shrine
+    semanticStyleKey: medieval_viking_village
+    siteKind: 4
+    topology: 4
+    presentationMode: 1
+    structureUsagePolicy: 2
+    maximumEnterableStructures: 0
+    semanticTags:
+    - poi
+    - shrine
+    - cultural
+    - transition
+    - reward
+    - circulation
+    - medieval
+    - viking
+    runtimeManifestResourceKey: YQWorldSites/qualified_nordic_shrine/YQRuntimeSemanticSite
+    spatialMetadataVersion: reviewed-site-spatial-1.2.0-settlement-slices
+    spatiallyValidated: 1
+    seamlessPlacementEligible: 1
+    authoredFootprintCenter: {x: 0.6676326, y: 0.47480994, z: 1.6648198}
+    authoredFootprintSize: {x: 3.7027674, y: 1.1141444, z: 5.8204722}
+    authoredFoundationY: -0.08226228
+    authoredFootprintRadius: 3.4492166
+    activeCellCount: 1
+    activeInstanceCount: 22
+    spatialSignature: a9868732f5a0aa185b6e1871274fc89f
+    spatialValidationFailure: 
+    reviewedFunctionsV2: 060000000d0000000b000000070000000a000000
+    streamingSite: {fileID: 0}
+    semanticSite: {fileID: 0}

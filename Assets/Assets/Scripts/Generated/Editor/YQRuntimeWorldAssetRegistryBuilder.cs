@@ -720,7 +720,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                 pair.Value.Count;
         }
 
-        // note: The root remains a tiny router; exact asset references live only in the on-demand pack registries.
+        // note: Preserve legacy pack bindings as authoring input; runtime routing uses additive per-asset leaves built from those same references.
         rootRegistry.SetEntries(
             new List<YQRuntimeWorldAssetEntry>());
 
@@ -731,7 +731,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
             rootRegistry);
 
         AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        YQGranularWorldAssetResources.RebuildFromSerializedShards();
         YQRuntimeWorldAssetRegistry.ClearCachedInstance();
 
         Debug.Log(

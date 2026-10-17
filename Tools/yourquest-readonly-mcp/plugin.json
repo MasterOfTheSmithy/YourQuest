@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "yourquest-readonly-mcp",
+  "version": "0.1.0",
+  "description": "Read-only YourQuest requirements, roadmap provenance and curated evidence from the local checkout."
+}

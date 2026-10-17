@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_tom_s_terrain_tools_unity_terrain_assets
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Rocks/RockMesh.prefab
+    prefab: {fileID: 2684919694194076636, guid: 8239b07f86bd639438b2772e706ab073, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/Alder.prefab
+    prefab: {fileID: 2331932009522354631, guid: 25873e4357f295b4698162347e940130, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/Mimosa.prefab
+    prefab: {fileID: 7962189939943593951, guid: 25997747875e1e14882f09c5587aabc1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/ScotsPineTypeA.prefab
+    prefab: {fileID: 9175226767316070882, guid: 3fc4082763cc69e4e9a1cb318502237c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/ScotsPineTypeB.prefab
+    prefab: {fileID: 1584819886476317592, guid: b0023862ccacb8549907554521d6183d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/Sycamore.prefab
+    prefab: {fileID: 7246969429602779148, guid: 436652e6144c76646bee63bbd953750a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/Tom's Terrain Tools/Unity Terrain Assets/Trees Ambient-Occlusion/ThinTree.prefab
+    prefab: {fileID: 6305037101520402349, guid: c0752fb98a21a7f4ab4ffe7c291effbf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

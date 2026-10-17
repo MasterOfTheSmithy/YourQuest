@@ -1,0 +1,294 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: persepolis_empire_environment
+  semanticStyleKey: persepolis_empire
+  sourceSignature: fnv1a32_9b6773f5
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: fb2da781d7f1ab343a9a8b47a50558b8, type: 2}
+  sourceInstanceCount: 32111
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_persepolis_empire_environment_residential_01
+    displayName: Persepolis Empire Environment Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -167.19315, y: 118.092804, z: -83.462006}
+    localBoundsCenter: {x: 0, y: 74.8902, z: 0}
+    localBoundsSize: {x: 156.60944, y: 149.7804, z: 241.00128}
+    sourceInstanceCount: 15
+    authoredBuildingCount: 0
+    authoredDressingCount: 15
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p0_p1_p00
+    - yq_cell_persepolis_empire_environment_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_service_02
+    displayName: Persepolis Empire Environment Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -168.33972, y: 131.09274, z: 35.964363}
+    localBoundsCenter: {x: 0, y: 51.440155, z: 0}
+    localBoundsSize: {x: 135.57083, y: 102.88031, z: 134.89407}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p0_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_civic_03
+    displayName: Persepolis Empire Environment Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -126.3794, y: 127.25415, z: 148.3585}
+    localBoundsCenter: {x: 0, y: 59.90947, z: 0}
+    localBoundsSize: {x: 222.2017, y: 119.81894, z: 202.42331}
+    sourceInstanceCount: 14
+    authoredBuildingCount: 0
+    authoredDressingCount: 14
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p0_p4_p00
+    - yq_cell_persepolis_empire_environment_p1_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_circulation_04
+    displayName: Persepolis Empire Environment Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -125.52751, y: 131.09265, z: 226.15144}
+    localBoundsCenter: {x: 0, y: 61.790268, z: 0}
+    localBoundsSize: {x: 206.95856, y: 123.580536, z: 140.34885}
+    sourceInstanceCount: 11
+    authoredBuildingCount: 0
+    authoredDressingCount: 11
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p0_p5_p00
+    - yq_cell_persepolis_empire_environment_p1_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_poi_05
+    displayName: Persepolis Empire Environment Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -100.25648, y: 134.14505, z: 28.840103}
+    localBoundsCenter: {x: 0, y: 48.390915, z: 0}
+    localBoundsSize: {x: 151.39476, y: 96.78183, z: 139.59157}
+    sourceInstanceCount: 13509
+    authoredBuildingCount: 0
+    authoredDressingCount: 13509
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p1_p2_p00
+    - yq_cell_persepolis_empire_environment_p1_p3_p00
+    - yq_cell_persepolis_empire_environment_p1_p3_p01
+    - yq_cell_persepolis_empire_environment_p1_p3_p02
+    - yq_cell_persepolis_empire_environment_p1_p3_p03
+    - yq_cell_persepolis_empire_environment_p1_p3_p04
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_residential_06
+    displayName: Persepolis Empire Environment Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -59.20659, y: 132.67355, z: -200.13092}
+    localBoundsCenter: {x: 0, y: 97.345535, z: 0}
+    localBoundsSize: {x: 260.92166, y: 194.69107, z: 192.38983}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p1_p0_p00
+    - yq_cell_persepolis_empire_environment_p1_p1_p00
+    - yq_cell_persepolis_empire_environment_p2_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_service_07
+    displayName: Persepolis Empire Environment Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -17.918488, y: 131.67355, z: -139.08391}
+    localBoundsCenter: {x: 0, y: 75.46649, z: 0}
+    localBoundsSize: {x: 207.09833, y: 150.93298, z: 168.85403}
+    sourceInstanceCount: 3
+    authoredBuildingCount: 0
+    authoredDressingCount: 3
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_civic_08
+    displayName: Persepolis Empire Environment Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -0.18721771, y: 105.230194, z: 29.434563}
+    localBoundsCenter: {x: 0, y: 71.36319, z: 0}
+    localBoundsSize: {x: 148.3254, y: 142.72638, z: 156.525}
+    sourceInstanceCount: 15157
+    authoredBuildingCount: 0
+    authoredDressingCount: 15157
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p2_p2_p00
+    - yq_cell_persepolis_empire_environment_p2_p3_p00
+    - yq_cell_persepolis_empire_environment_p2_p3_p01
+    - yq_cell_persepolis_empire_environment_p2_p3_p02
+    - yq_cell_persepolis_empire_environment_p2_p3_p03
+    - yq_cell_persepolis_empire_environment_p2_p3_p04
+    - yq_cell_persepolis_empire_environment_p2_p3_p05
+    - yq_cell_persepolis_empire_environment_p2_p3_p06
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_circulation_09
+    displayName: Persepolis Empire Environment Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 43.118797, y: 0.000022888184, z: 128.11841}
+    localBoundsCenter: {x: 0, y: 105.367294, z: 0}
+    localBoundsSize: {x: 194.29652, y: 210.73459, z: 144.39693}
+    sourceInstanceCount: 93
+    authoredBuildingCount: 0
+    authoredDressingCount: 93
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p2_p4_p00
+    - yq_cell_persepolis_empire_environment_p3_p4_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_poi_10
+    displayName: Persepolis Empire Environment Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 44.87327, y: 104.79944, z: 203.11795}
+    localBoundsCenter: {x: 0, y: 62.37233, z: 0}
+    localBoundsSize: {x: 240.76363, y: 124.74466, z: 163.32733}
+    sourceInstanceCount: 1585
+    authoredBuildingCount: 0
+    authoredDressingCount: 1585
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p2_p5_p00
+    - yq_cell_persepolis_empire_environment_p3_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_residential_11
+    displayName: Persepolis Empire Environment Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 93.174255, y: 148.48584, z: -86.25783}
+    localBoundsCenter: {x: 0, y: 85.56003, z: 0}
+    localBoundsSize: {x: 191.36554, y: 171.12006, z: 198.64859}
+    sourceInstanceCount: 55
+    authoredBuildingCount: 0
+    authoredDressingCount: 55
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p3_p1_p00
+    - yq_cell_persepolis_empire_environment_p3_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_service_12
+    displayName: Persepolis Empire Environment Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 121.88891, y: 81.79947, z: 20.757507}
+    localBoundsCenter: {x: 0, y: 143.90318, z: 0}
+    localBoundsSize: {x: 235.67892, y: 287.80637, z: 250.04218}
+    sourceInstanceCount: 1660
+    authoredBuildingCount: 0
+    authoredDressingCount: 1660
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p3_p3_p00
+    - yq_cell_persepolis_empire_environment_p4_p2_p00
+    - yq_cell_persepolis_empire_environment_p4_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_persepolis_empire_environment_civic_13
+    displayName: Persepolis Empire Environment Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 160.88405, y: 104.79952, z: 126.10968}
+    localBoundsCenter: {x: 0, y: 49.37229, z: 0}
+    localBoundsSize: {x: 169.22757, y: 98.74458, z: 152.85718}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_persepolis_empire_environment_p4_p4_p00
+    cellContractsV2: []

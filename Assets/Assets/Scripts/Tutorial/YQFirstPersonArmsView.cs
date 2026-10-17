@@ -178,7 +178,8 @@ public sealed class YQFirstPersonArmsView : MonoBehaviour
         AnimatorStateInfo body = _source.GetCurrentAnimatorStateInfo(0);
         bool attack = action.IsName("Actions.MeleeLeft") || action.IsName("Actions.MeleeRight") ||
             action.IsName("Actions.MeleeLeftRecover") || action.IsName("Actions.MeleeRightRecover") ||
-            action.IsName("Actions.PunchLeft") || action.IsName("Actions.PunchRight");
+            action.IsName("Actions.PunchLeft") || action.IsName("Actions.PunchRight") ||
+            action.IsName("Actions.TwoHandAttack") || action.IsName("Actions.RangedAttack");
         bool gesture = action.IsName("Actions.Interact") || action.IsName("Actions.Pickup") || action.IsName("Actions.Consume");
         _attackFraming = BlendFraming(_attackFraming, attack ? _source.GetLayerWeight(1) : 0f, sampled, 18f);
         _gestureFraming = BlendFraming(_gestureFraming, gesture ? _source.GetLayerWeight(1) : 0f, sampled, 12f);

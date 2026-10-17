@@ -1,0 +1,64 @@
+# YourQuest Semantic Chunk Runtime Verification
+- verificationScope: focused production motor matrix and abrupt speed-260 boundary witness; remaining R1/G08 rows not run
+- startedUtc: 2026-10-02T16:52:25.8493985Z
+- executingAssembly: name=Assembly-CSharp mvid=f2b02717-6958-4fe1-b719-79c9e382019e path=C:\Users\Garri\YourQuest\Library\ScriptAssemblies\Assembly-CSharp.dll
+- executingAssemblySha256: path=C:\Users\Garri\YourQuest\Library\ScriptAssemblies\Assembly-CSharp.dll sha256=B0CE3FF9EF76925D4B5752F99F734EA97A02A643F7C23E1722564DF6897633FA
+- verifierSourceSha256: path=C:/Users/Garri/YourQuest/Assets\Assets\Scripts\Generated\YQSemanticChunkRuntimeVerification.cs sha256=425AE4C5AA809803F663F2B6F2CFA6DD3689470D6F188FB91163ECCC8C928F20
+- streamerSourceSha256: path=C:/Users/Garri/YourQuest/Assets\Assets\Scripts\Generated\YQPlayerFollowingSemanticChunkStreamer.cs sha256=F0AA983F7799F516EB7681C57748F3C5AB3CE283746C9E805AB3BB9A5F74014E
+- measurementSetup: unity=6000.3.2f1 os=Windows 11  (10.0.26200) 64bit cpu=AMD Ryzen 7 5800X 8-Core Processor  logicalProcessors=16 memoryMb=32648 gpu=NVIDIA GeForce RTX 5060 graphicsApi=Direct3D12 viewport=616x264 focused=True
+- measurementProfilerSetup: enabled=False binaryLog=False allocationCallstacks=False deepProfiling=False traceRequested=False
+- status: WAITING_FOR_STARTUP
+- macroFieldHashParity: PASS seedCoordinateSamples=16 maximumDelta=0.000000
+- sourceMode: live-authored-world
+- status: STARTUP_READY
+- profileWorldIdentity: activeProfileId=3ccfff4df9a1479884061e51940e4457 ownerProfileId=3ccfff4df9a1479884061e51940e4457 ownerMatchesActiveProfile=True
+- worldPlanIdentity: stateSchema=7 planSchema=world_plan_v1 worldId=yq-world-0284d4409a720743c13eb56e worldSeed=4bb221dc
+- activeSpatialPlanResolution: resolved=True authority=AcceptedV2 reason=<empty>
+- persistedSpatialArtifactIdentity: id=yq-content-49290a13affdd39a1a2a0351 version=spatial_world_plan_v1_causal
+- persistedV1Artifact: schema=spatial_world_plan_v1 generation=spatial_world_plan_v1_causal seed=4bb221dc semanticFingerprint=63c40fe9
+- acceptedV2Artifact: state=Accepted schema=spatial_world_plan_v2 generation=spatial_world_plan_v2_topology_9 validation=spatial_world_plan_v2_gate_2 seed=4bb221dc contentHash=c1d6ce9d3e06f760 validatedContentHash=c1d6ce9d3e06f760
+- acceptedSaveTerrainStartup: PASS
+- profileTerrainSnapshotMatchesWorld: True
+- profileTerrainRestoreSucceeded: True
+- continuationPortalSymmetry: PASS
+- authoredFeatureBoundaryContinuation: PASS
+- status: INITIAL_FRONTIER_OBSERVATION
+- initialCamera: fov=84 position=(0.00, 63.51, -2.13) rotation=(0.00, 0.00, 0.00) timeScale=1
+- initialRequiredCoverage: PASS
+- initialPreparedViewEnvelope: PASS radius=7
+- initialVisualCoverage: PASS radius=4 prewarm=5 distance=512m
+- productionMotorPreflight: enabledBeforeVerifier=True, authoritative=True, cameraPivot=True, playerCamera=True, controller=True, modalBlocked=False, timeScale=1
+- initialTraversability: PASS
+- verifierBackgroundCadence: focusedSpeedWitness=True, runInBackgroundBefore=True, runInBackgroundDuring=True
+- productionMotorEligibility: True, groundedAtInputStart=True, moveInput=(0.000, 0.000)
+- productionInputDelivery: ACK,updateBefore=1900991,updateAfter=1900992,deviceAdded=True,deviceEnabled=True,deviceCurrent=True,applicationFocused=True
+- productionInputDiagnostics: phase=acknowledgement,injected=YQRuntimeVerificationKeyboard,injectedAdded=True,injectedW=True,injectedQ=False,current=YQRuntimeVerificationKeyboard,currentW=True,currentQ=False,updateType=Dynamic,updateCount=1900992
+- productionInputDiagnostics: phase=walk,injected=YQRuntimeVerificationKeyboard,injectedAdded=True,injectedW=True,injectedQ=False,current=YQRuntimeVerificationKeyboard,currentW=True,currentQ=False,updateType=Dynamic,updateCount=1900993
+- productionMotorWalkEvidence: eligible=True, elapsedSeconds=1.252, grounded=True, planarDistance=2.365, finalMoveInput=(0.000, 1.000)
+- productionMotorWalk: PASS
+- verifierStatus: HEARTBEAT queue=37,pendingTerrain=21,pendingPaint=3,generating=True,lifecycle=True,active=84,retained=150,physical=185,terrainAdmission=active=<none>;queueHead=(1, 14);age=0.000;phase=none;workId=0;ownerEpoch=0;activePriority=-1;queuePriority=3;colliderPending=(0, 13):colliderSync:age=0.005:workId=618,(3, 15):colliderSync:age=0.058:workId=615/2;activeDemand=none;preempted=False;preemptionCount=0;lastPreemption=(-2147483648, -2147483648)::-1->-1;lastReservationBlock=(-2147483648, -2147483648):owners=0:urgent=False:count=0;viewDemand=30/221;viewPrediction=94;predictionPass=73:admitted=46:projectedHard=48:ownerLimitSkipped=0:age=0.028;current=(4, 4);velocity=(0.00, 5.41);physical=185;capacity=256,semantic=266,coverage=True,coverageFailure=,visualCoverage=True,visualCoverageFailure=,motors=1,playerPosition=(0.00, 62.02, 2.78)
+- productionMotorRunEvidence: eligible=True, elapsedSeconds=1.771, grounded=True, planarDistance=9.411, finalMoveInput=(0.000, 1.000)
+- productionMotorRun: PASS
+- productionInputDiagnostics: phase=dash,injected=YQRuntimeVerificationKeyboard,injectedAdded=True,injectedW=False,injectedQ=True,current=YQRuntimeVerificationKeyboard,currentW=False,currentQ=True,updateType=Dynamic,updateCount=1901108
+- verifierStatus: HEARTBEAT queue=42,pendingTerrain=19,pendingPaint=3,generating=True,lifecycle=True,active=84,retained=126,physical=179,terrainAdmission=active=<none>;queueHead=(2, -5);age=0.000;phase=none;workId=0;ownerEpoch=0;activePriority=-1;queuePriority=3;colliderPending=(5, -5):colliderSync:age=0.048:workId=730,(7, -4):colliderSync:age=0.025:workId=731/2;activeDemand=none;preempted=False;preemptionCount=0;lastPreemption=(-2147483648, -2147483648)::-1->-1;lastReservationBlock=(-2147483648, -2147483648):owners=0:urgent=False:count=0;viewDemand=30/197;viewPrediction=102;predictionPass=73:admitted=22:projectedHard=80:ownerLimitSkipped=0:age=0.000;current=(4, 4);velocity=(0.00, -1.81);physical=179;capacity=256,semantic=289,coverage=True,coverageFailure=,visualCoverage=True,visualCoverageFailure=,motors=1,playerPosition=(0.00, 62.15, 3.48)
+- productionMotorDashEvidence: eligible=True, activated=True, elapsedSeconds=0.709, grounded=True, planarDistance=6.335, finalMoveInput=(0.000, -1.000)
+- productionMotorMovementDiagnostics: phase=dash,position=(0.000, 62.150, 3.479),forward=(0.000, 0.000, 1.000),input=(0.000, -1.000),requestedVelocity=(0.000, 0.000, -1.810),lastRequestedMove=(0.000, -0.047, -0.043),lastActualMove=(0.000, -0.008, -0.043),collisionFlags=Below,readinessGateRejected=False,blockingSideContacts=0,blockingContact=<none this phase>,contactPoint=(-0.234, 62.708, 5.351),contactNormal=(0.615, 0.593, -0.519)
+- productionMotorDash: PASS
+- verifierStatus: HEARTBEAT queue=60,pendingTerrain=22,pendingPaint=3,generating=True,lifecycle=True,active=83,retained=155,physical=203,terrainAdmission=active=<none>;queueHead=(10, 11);age=0.000;phase=none;workId=0;ownerEpoch=0;activePriority=-1;queuePriority=3;colliderPending=(11, 9):colliderSync:age=0.057:workId=818,(8, 12):colliderSync:age=0.002:workId=823/2;activeDemand=none;preempted=False;preemptionCount=0;lastPreemption=(-2147483648, -2147483648)::-1->-1;lastReservationBlock=(-2147483648, -2147483648):owners=0:urgent=False:count=0;viewDemand=30/231;viewPrediction=75;predictionPass=17:admitted=0:projectedHard=75:ownerLimitSkipped=0:age=0.029;current=(4, 4);velocity=(1.28, 1.28);physical=203;capacity=256,semantic=326,coverage=True,coverageFailure=,visualCoverage=True,visualCoverageFailure=,motors=1,playerPosition=(0.88, 61.85, 1.98)
+- productionMotorReversalEvidence: eligible=True, elapsedSeconds=1.261, grounded=True, planarDistance=2.298, finalMoveInput=(0.000, -1.000)
+- productionMotorReversal: PASS
+- productionMotorDiagonalEvidence: inputObserved=True, grounded=True, planarDistance=1.410, traversalBlocks=0, frames=30
+- productionMotorDiagonal: PASS
+- productionMotorRapidTurnsEvidence: inputTransitions=4/4, grounded=True, planarDistance=0.079, traversalBlocks=0, frames=53
+- productionMotorRapidTurns: PASS
+- productionMotorSpeed260TerrainLane: zOffset=2.0, sampled=True, peakTwoMeterHeightStep=3.513, physicalRouteBlockers=1, turnCorridorsChecked=6x9
+- speed260RouteCandidates: 2.0:turnClear=False,turnPeak=3.513,corridorBlockers=0;10.0:turnClear=False,turnPeak=0.000,corridorBlockers=18;18.0:turnClear=False,turnPeak=0.151,corridorBlockers=10;26.0:turnClear=False,turnPeak=0.000,corridorBlockers=15;34.0:turnClear=False,turnPeak=0.000,corridorBlockers=24;42.0:turnClear=False,turnPeak=0.000,corridorBlockers=20;50.0:turnClear=False,turnPeak=0.018,corridorBlockers=24;58.0:turnClear=False,turnPeak=0.132,corridorBlockers=22;66.0:turnClear=True,turnPeak=0.930,corridorBlockers=24;74.0:turnClear=True,turnPeak=0.256,corridorBlockers=22;82.0:turnClear=True,turnPeak=0.254,corridorBlockers=21;90.0:turnClear=True,turnPeak=0.517,corridorBlockers=20;98.0:turnClear=False,turnPeak=0.401,corridorBlockers=20;106.0:turnClear=True,turnPeak=0.798,corridorBlockers=20;114.0:turnClear=False,turnPeak=2.427,corridorBlockers=20;122.0:turnClear=False,turnPeak=1.036,corridorBlockers=20;
+- productionMotorSpeed260Staging: ready=False, inputObserved=False, start=(1.03, 61.82, 2.22), target=(-4.00, 61.82, 2.00), final=(1.03, 61.82, 2.22), distanceMeters=5.033, elapsedSeconds=0.000, frames=0, noProgressFrames=0, termination=invalid-route-preflight
+- productionMotorMovementDiagnostics: phase=speed260-staging,position=(1.029, 61.822, 2.215),forward=(0.000, 0.000, 1.000),input=(0.707, -0.707),requestedVelocity=(1.280, 0.000, -1.280),lastRequestedMove=(0.031, -0.049, -0.031),lastActualMove=(0.031, -0.001, -0.031),collisionFlags=Below,readinessGateRejected=False,blockingSideContacts=0,blockingContact=<none this phase>,contactPoint=(-0.234, 62.708, 5.351),contactNormal=(0.615, 0.593, -0.519)
+- speed260CertificationValidity: INVALID_ROUTE routeVersion=4 reason=staging-not-ready
+- speed260MeasuredPhases: NOT_RUN input=False coast=False
+- fixedTargetTerrainTrace: C:\Users\Garri\YourQuest\Logs\G08_R2_FixedTarget_20261002_165233_522.tsv
+- focusedProductionMotorWitness: FAIL
+- remainingR1AndG08Rows: NOT_RUN_FOCUSED_SCOPE
+- result: FAIL
+- finishedUtc: 2026-10-02T16:52:33.5252207Z

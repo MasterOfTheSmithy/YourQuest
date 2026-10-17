@@ -13,7 +13,8 @@ public sealed class OllamaServerProcess
 
     public IEnumerator EnsureReady(LLMRuntimeConfig config, Action<bool, string> completed)
     {
-        if (disposed || config == null || !config.enableRuntimeLlm)
+        // note: Block both connecting to a resident model service and launching one during the isolated Unity baseline.
+        if (LLMRuntimeConfig.BenchmarkIsolationActive || disposed || config == null || !config.enableRuntimeLlm)
         {
             completed?.Invoke(false, "Ollama runtime is disabled or disposed.");
             yield break;

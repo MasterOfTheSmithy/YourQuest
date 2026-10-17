@@ -146,12 +146,17 @@ public static class YQSavedWorldPlacementReviewV2
         if (saved == null || saved.acceptanceState != GeneratedSpatialPlanAcceptanceState.Accepted ||
             saved.schemaVersion != GeneratedSpatialWorldPlanV2Record.SupportedSchemaVersion ||
             (saved.generationVersion != GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion &&
+             saved.generationVersion != GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedGenerationVersion &&
+             saved.generationVersion != GeneratedSpatialWorldPlanV2Record.BasinMetadataGenerationVersion &&
+             saved.generationVersion != GeneratedSpatialWorldPlanV2Record.OlderCompatibleAcceptedGenerationVersion &&
              !YQSpatialPlanVersionRouter.IsKnownLegacyNonAuthoritativeArtifact(saved)) ||
-            (saved.validationVersion != GeneratedSpatialWorldPlanV2Record.LegacyValidationVersion && saved.validationVersion != GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion) ||
+            (saved.validationVersion != GeneratedSpatialWorldPlanV2Record.LegacyValidationVersion &&
+             saved.validationVersion != GeneratedSpatialWorldPlanV2Record.CompatibleAcceptedValidationVersion &&
+             saved.validationVersion != GeneratedSpatialWorldPlanV2Record.SupportedValidationVersion) ||
             saved.worldSeed != original.worldSeed || saved.semanticFingerprint != original.spatialPlan?.semanticFingerprint ||
             string.IsNullOrEmpty(saved.contentHash) || saved.contentHash != saved.validatedContentHash ||
             saved.contentHash != YQSpatialBlueprintHasherV2.ComputeContentHash(saved))
-            // note: The read-only proposal accepts only the exact shadow-era generation tuple in addition to the current contract; unknown or future artifacts remain blocked.
+            // note: Read-only proposals retain the same accepted generation/gate versions as runtime routing; unknown or future artifacts remain blocked.
             throw new InvalidOperationException("Repair source identity/hash is invalid; no proposal was generated.");
         var validation = YQSpatialBlueprintValidatorV2.Validate(saved);
         int waterAccessErrorCount = 0;

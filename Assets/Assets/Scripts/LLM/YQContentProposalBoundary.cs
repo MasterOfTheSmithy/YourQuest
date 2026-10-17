@@ -38,7 +38,10 @@ public static class YQContentProposalBoundary
         JObject parsed;
         try
         {
-            parsed = JObject.Parse(ExtractJsonObject(rawJson));
+            // note: Canonical acceptance must reject ambiguous fields even when the caller owns transport JSON validation.
+            parsed = JObject.Parse(ExtractJsonObject(rawJson), new JsonLoadSettings {
+                DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error
+            });
         }
         catch (Exception exception)
         {
@@ -210,7 +213,10 @@ public static class YQContentProposalBoundary
         error = string.Empty;
         try
         {
-            parsed = JObject.Parse(json);
+            // note: Commit validation keeps the same duplicate-key rule as proposal intake.
+            parsed = JObject.Parse(json, new JsonLoadSettings {
+                DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error
+            });
             return true;
         }
         catch (Exception exception)

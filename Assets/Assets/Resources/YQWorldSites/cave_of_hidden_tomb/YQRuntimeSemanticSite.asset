@@ -1,0 +1,259 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: cave_of_hidden_tomb
+  semanticStyleKey: cave_hidden_tomb
+  sourceSignature: fnv1a32_df2d9a52
+  topology: 2
+  streamingSite: {fileID: 11400000, guid: 508fda30d6a8cea459c98ad98114b8d8, type: 2}
+  sourceInstanceCount: 12372
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_cave_of_hidden_tomb_entrance_01
+    displayName: Cave Of Hidden Tomb Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -107.93126, y: -0.63899994, z: -262.72913}
+    localBoundsCenter: {x: 0, y: 64.94118, z: 0}
+    localBoundsSize: {x: 81.77348, y: 129.88235, z: 83.43651}
+    sourceInstanceCount: 1364
+    authoredBuildingCount: 0
+    authoredDressingCount: 1364
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_chamber_02
+    displayName: Cave Of Hidden Tomb Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -107.19254, y: 64.59035, z: -227.5369}
+    localBoundsCenter: {x: 0, y: 26.21682, z: 0}
+    localBoundsSize: {x: 58.349575, y: 52.43364, z: 39.836525}
+    sourceInstanceCount: 148
+    authoredBuildingCount: 0
+    authoredDressingCount: 148
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p0_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_corridor_03
+    displayName: Cave Of Hidden Tomb Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -106.06682, y: 105.88869, z: -298.48434}
+    localBoundsCenter: {x: 0, y: 4.703392, z: 0}
+    localBoundsSize: {x: 41.5587, y: 9.406784, z: 12.110611}
+    sourceInstanceCount: 52
+    authoredBuildingCount: 0
+    authoredDressingCount: 52
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_encounter_04
+    displayName: Cave Of Hidden Tomb Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -40.750664, y: 94.856995, z: -163.87193}
+    localBoundsCenter: {x: 0, y: 4.9480896, z: 0}
+    localBoundsSize: {x: 49.356613, y: 9.896179, z: 28.926617}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p1_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_poi_05
+    displayName: Cave Of Hidden Tomb Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -36.761703, y: 59.87114, z: -284.55496}
+    localBoundsCenter: {x: 0, y: 30.07035, z: 0}
+    localBoundsSize: {x: 89.47766, y: 60.1407, z: 104.65619}
+    sourceInstanceCount: 2536
+    authoredBuildingCount: 0
+    authoredDressingCount: 2536
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p1_p0_p00
+    - yq_cell_cave_of_hidden_tomb_p1_p1_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_entrance_06
+    displayName: Cave Of Hidden Tomb Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -18.97873, y: -0.63899994, z: -257.4568}
+    localBoundsCenter: {x: 0, y: 66.55728, z: 0}
+    localBoundsSize: {x: 157.0231, y: 133.11456, z: 104.00597}
+    sourceInstanceCount: 4652
+    authoredBuildingCount: 0
+    authoredDressingCount: 4652
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p1_p1_p00
+    - yq_cell_cave_of_hidden_tomb_p1_p1_p02
+    - yq_cell_cave_of_hidden_tomb_p2_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_chamber_07
+    displayName: Cave Of Hidden Tomb Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -16.701836, y: -0.63899994, z: -195.19809}
+    localBoundsCenter: {x: 0, y: 62.946964, z: 0}
+    localBoundsSize: {x: 163.13843, y: 125.89393, z: 88.169464}
+    sourceInstanceCount: 2357
+    authoredBuildingCount: 0
+    authoredDressingCount: 2357
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p1_p2_p00
+    - yq_cell_cave_of_hidden_tomb_p2_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_corridor_08
+    displayName: Cave Of Hidden Tomb Corridor
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 14.40154, y: 76.80942, z: 354.1077}
+    localBoundsCenter: {x: 0, y: 0.33098602, z: 0}
+    localBoundsSize: {x: 1.0901074, y: 0.66197205, z: 5.523182}
+    sourceInstanceCount: 11
+    authoredBuildingCount: 0
+    authoredDressingCount: 11
+    semanticTags:
+    - authored
+    - corridor
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p2_p11_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_encounter_09
+    displayName: Cave Of Hidden Tomb Encounter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 20.211166, y: 73.02763, z: -307.77112}
+    localBoundsCenter: {x: 0, y: 37.45301, z: 0}
+    localBoundsSize: {x: 82.93321, y: 74.90602, z: 54.75267}
+    sourceInstanceCount: 439
+    authoredBuildingCount: 0
+    authoredDressingCount: 439
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - encounter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p2_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_poi_10
+    displayName: Cave Of Hidden Tomb Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 58.51436, y: 65.808334, z: -203.18187}
+    localBoundsCenter: {x: 0, y: 31.939545, z: 0}
+    localBoundsSize: {x: 56.986366, y: 63.87909, z: 69.83217}
+    sourceInstanceCount: 379
+    authoredBuildingCount: 0
+    authoredDressingCount: 379
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p3_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_entrance_11
+    displayName: Cave Of Hidden Tomb Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 82.1839, y: -0.63899994, z: -285.6164}
+    localBoundsCenter: {x: 0, y: 66.55728, z: 0}
+    localBoundsSize: {x: 119.960175, y: 133.11456, z: 138.50586}
+    sourceInstanceCount: 428
+    authoredBuildingCount: 0
+    authoredDressingCount: 428
+    semanticTags:
+    - authored
+    - dungeonrooms
+    - entrance
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p3_p0_p00
+    - yq_cell_cave_of_hidden_tomb_p3_p1_p00
+    - yq_cell_cave_of_hidden_tomb_p4_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_cave_of_hidden_tomb_chamber_12
+    displayName: Cave Of Hidden Tomb Chamber
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 112.990265, y: 39.404938, z: -314.86136}
+    localBoundsCenter: {x: 0, y: 40.27117, z: 0}
+    localBoundsSize: {x: 71.655495, y: 80.54234, z: 84.01593}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - chamber
+    - dungeonrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_cave_of_hidden_tomb_p4_p0_p00
+    cellContractsV2: []

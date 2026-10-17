@@ -1,0 +1,40 @@
+{
+  "mode": "Unity compilation and asset checks",
+  "status": "PASS",
+  "utc": "2026-10-02T14:53:43.6590327Z",
+  "unity": "6000.3.2f1",
+  "spriteCount": 28,
+  "owners": [
+    "YQTitleScreenUI",
+    "YQStartupLoadingScreen",
+    "YQOriginQuestionnaireUI",
+    "YourQuestTutorialHud",
+    "YourQuestTutorialMenuUI",
+    "YourQuestPauseMenuUI",
+    "YQInvestorDialogueUI",
+    "YourQuestProgressionOfferUI",
+    "YQProfileMenuUI",
+    "YQLockpickUi"
+  ],
+  "componentCoverage": [
+    "button/nav",
+    "hover/focus/pressed/disabled",
+    "persistent selection",
+    "item portrait",
+    "equipment socket",
+    "inspector",
+    "inventory grid",
+    "scroll/long text",
+    "input field",
+    "dropdown",
+    "toggle",
+    "slider",
+    "status/progress meter",
+    "confirmation/rejection",
+    "input hints",
+    "preferences"
+  ],
+  "assemblyHash": "0F1733E23A8CFA0D42F1BCD6D984E1E1B2C70E0179E5BA8821A84291949C35A3",
+  "runtime": "NOT TESTED by this entry point",
+  "physicalHaptics": "NOT TESTED"
+}

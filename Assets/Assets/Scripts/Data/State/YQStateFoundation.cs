@@ -349,6 +349,8 @@ public static class YQStateIdentity
                     if (blueprint.routes[index] != null)
                         EnsureValueId(ref blueprint.routes[index].routeId, YQStableEntityKind.Route, SpatialParent(blueprint.routes[index].parentRegionId, state.worldIdentity.worldId), index, 0, state.identityRecords, blueprint.routes[index].routeClass.ToString());
             }
+            // note: Continuation IDs are already accepted content; register them without generating IDs or rewriting their checksummed payload.
+            YQSpatialContinuationStateReferences.RegisterAccepted(state);
         }
         for (int index = 0; index < state.factions.Count; index++)
             if (state.factions[index] != null)
@@ -436,6 +438,8 @@ public static class YQStateReferenceValidator
                 for (int index = 0; index < world.generatedWorldPlan.encampments.Count; index++) if (world.generatedWorldPlan.encampments[index] != null) locationIds.Add(world.generatedWorldPlan.encampments[index].encampmentId ?? string.Empty);
                 for (int index = 0; index < world.generatedWorldPlan.pointsOfInterest.Count; index++) if (world.generatedWorldPlan.pointsOfInterest[index] != null) locationIds.Add(world.generatedWorldPlan.pointsOfInterest[index].poiId ?? string.Empty);
             }
+            // note: The normal paired save/load boundary also checks continuation parents and identity collisions; structural validity grants no physical acceptance.
+            YQSpatialContinuationStateReferences.Validate(world, locationIds, factionIds, result);
             for (int index = 0; index < world.npcs.Count; index++)
             {
                 WorldState.NpcRecord npc = world.npcs[index];
@@ -553,6 +557,110 @@ public static class YQStateReferenceValidator
             current = parentId;
         }
         return false;
+    }
+}
+
+internal static class YQSpatialContinuationStateReferences
+{
+    internal static void RegisterAccepted(WorldState world)
+    {
+        GeneratedSpatialWorldPlanV2Record parent = world?.generatedWorldPlan?.spatialPlanV2;
+        GeneratedSpatialContinuationV2Record continuation = parent?.acceptedContinuation;
+        if (continuation == null || continuation.state != YQSpatialContinuationStateV2.Accepted) return;
+        var factions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (GeneratedFactionPlanRecord faction in world.generatedWorldPlan.factions) if (faction != null) factions.Add(faction.factionId);
+        foreach (WorldState.FactionRecord faction in world.factions) if (faction != null) factions.Add(faction.factionId);
+        var validation = new YQIdentityValidationResult();
+        Validate(world, new HashSet<string>(StringComparer.OrdinalIgnoreCase), factions, validation);
+        if (!validation.IsValid) return;
+        // note: Proposals remain outside the accepted identity registry, including accepted-looking entries in a staged envelope.
+        foreach (GeneratedSpatialContinuationLocationV2Record location in continuation.locations)
+        {
+            string region = location.anchor.parentRegionId;
+            YQStateIdentity.EnsureIdentity(world.identityRecords, location.contentId, YQStableEntityKind.Content, location.anchor.siteId, string.Empty, 0);
+            YQStateIdentity.EnsureIdentity(world.identityRecords, location.anchor.siteId, YQStableEntityKind.Site, region, string.Empty, 0);
+            YQStateIdentity.EnsureIdentity(world.identityRecords, location.anchor.sourceSemanticId,
+                location.settlement != null ? YQStableEntityKind.Settlement : YQStableEntityKind.Site,
+                region, location.settlement?.displayName ?? location.encampment?.displayName ?? location.pointOfInterest?.displayName, 0);
+            foreach (GeneratedNpcPlanRecord npc in location.population)
+                YQStateIdentity.EnsureIdentity(world.identityRecords, npc.npcId, YQStableEntityKind.Npc,
+                    location.anchor.sourceSemanticId, npc.displayName, 0);
+        }
+    }
+
+    internal static void Validate(WorldState world, HashSet<string> locationIds, HashSet<string> factionIds,
+        YQIdentityValidationResult result)
+    {
+        GeneratedWorldPlanRecord plan = world.generatedWorldPlan;
+        GeneratedSpatialWorldPlanV2Record parent = plan?.spatialPlanV2;
+        GeneratedSpatialContinuationV2Record continuation = parent?.acceptedContinuation;
+        if (continuation == null) return;
+        YQSpatialContinuationBasicValidationResultV2 basic = YQSpatialContinuationValidatorV2.ValidateBasic(parent);
+        if (!basic.IsStructurallyValid)
+        {
+            foreach (string error in basic.errors) result.failures.Add("Continuation contract: " + error);
+            return;
+        }
+        if (continuation.state != YQSpatialContinuationStateV2.Accepted) return;
+
+        // note: A valid local document must also fit the complete persisted world's vocabulary, including existing opening NPCs and topology.
+        var regions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var reserved = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void Reserve(string id) { if (!string.IsNullOrWhiteSpace(id)) reserved.Add(id); }
+        Reserve(world.worldIdentity?.worldId);
+        foreach (GeneratedRegionRecord region in plan.regions) if (region != null) { regions.Add(region.regionId); Reserve(region.regionId); }
+        foreach (GeneratedFactionPlanRecord faction in plan.factions) if (faction != null) Reserve(faction.factionId);
+        foreach (WorldState.FactionRecord faction in world.factions) if (faction != null) Reserve(faction.factionId);
+        foreach (GeneratedSettlementRecord site in plan.settlements) if (site != null) Reserve(site.settlementId);
+        foreach (GeneratedEncampmentRecord site in plan.encampments) if (site != null) Reserve(site.encampmentId);
+        foreach (GeneratedPointOfInterestRecord site in plan.pointsOfInterest) if (site != null) Reserve(site.poiId);
+        foreach (GeneratedNpcPlanRecord npc in plan.generatedNpcs) if (npc != null) Reserve(npc.npcId);
+        foreach (GeneratedWorldRouteRecord route in plan.routes) if (route != null) Reserve(route.routeId);
+        foreach (GeneratedWorldQuestHookRecord hook in plan.worldQuestHooks) if (hook != null) Reserve(hook.hookId);
+        foreach (GeneratedNotableWorldObjectRecord item in plan.notableObjects) if (item != null) Reserve(item.objectId);
+        foreach (YQRegionDomainV2 region in parent.blueprint.regions) if (region != null) { regions.Add(region.regionId); Reserve(region.regionId); }
+        foreach (YQSiteAnchorV2 site in parent.blueprint.sites) if (site != null) { Reserve(site.siteId); Reserve(site.sourceSemanticId); }
+        foreach (YQHydrologyFeatureV2 water in parent.blueprint.hydrology) if (water != null) Reserve(water.hydrologyId);
+        foreach (YQRouteCorridorV2 route in parent.blueprint.routes) if (route != null) Reserve(route.routeId);
+        var identities = new Dictionary<string, YQEntityIdentityRecord>(StringComparer.OrdinalIgnoreCase);
+        foreach (YQEntityIdentityRecord identity in world.identityRecords)
+            if (identity != null && !string.IsNullOrWhiteSpace(identity.id) && !identities.ContainsKey(identity.id)) identities.Add(identity.id, identity);
+        var continuationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        void CheckIdentity(string id, YQStableEntityKind kind, string expectedParent)
+        {
+            if (!string.Equals(id, id.Trim(), StringComparison.Ordinal)) result.failures.Add("Continuation identity is not canonical: " + id);
+            if (reserved.Contains(id)) result.failures.Add("Continuation shadows existing world identity: " + id);
+            if (!continuationIds.Add(id)) result.failures.Add("Continuation repeats an identity across content kinds: " + id);
+            if (identities.TryGetValue(id, out YQEntityIdentityRecord identity) &&
+                (identity.kind != kind || !string.Equals(identity.parentId, expectedParent, StringComparison.OrdinalIgnoreCase)))
+                result.failures.Add("Continuation identity conflicts with persisted kind or parent: " + id);
+        }
+        foreach (GeneratedSpatialContinuationLocationV2Record location in continuation.locations)
+        {
+            string siteId = location.anchor.sourceSemanticId;
+            string region = location.anchor.parentRegionId;
+            if (!regions.Contains(region)) result.failures.Add("Continuation has missing region: " + location.anchor.siteId);
+            CheckIdentity(location.contentId, YQStableEntityKind.Content, location.anchor.siteId);
+            CheckIdentity(location.anchor.siteId, YQStableEntityKind.Site, region);
+            if (location.settlement != null || !string.Equals(siteId, location.anchor.siteId, StringComparison.OrdinalIgnoreCase))
+                CheckIdentity(siteId, location.settlement != null ? YQStableEntityKind.Settlement : YQStableEntityKind.Site, region);
+            locationIds.Add(siteId);
+            locationIds.Add(location.anchor.siteId);
+            WorldState.LocationRecord existingSite = world.locations.Find(value => value != null &&
+                (string.Equals(value.locationId, siteId, StringComparison.OrdinalIgnoreCase) || string.Equals(value.locationId, location.anchor.siteId, StringComparison.OrdinalIgnoreCase)));
+            if (existingSite != null && !string.Equals(existingSite.regionId, region, StringComparison.OrdinalIgnoreCase))
+                result.failures.Add("Continuation site conflicts with persisted region: " + siteId);
+            foreach (GeneratedNpcPlanRecord npc in location.population)
+            {
+                CheckIdentity(npc.npcId, YQStableEntityKind.Npc, siteId);
+                if (!string.IsNullOrWhiteSpace(npc.factionId) && !factionIds.Contains(npc.factionId))
+                    result.failures.Add("Continuation NPC has missing faction: " + npc.npcId);
+                WorldState.NpcRecord existing = world.npcs.Find(value => value != null && string.Equals(value.npcId, npc.npcId, StringComparison.OrdinalIgnoreCase));
+                if (existing != null && (!string.Equals(existing.locationId, siteId, StringComparison.OrdinalIgnoreCase) ||
+                    !string.Equals(existing.factionId ?? string.Empty, npc.factionId ?? string.Empty, StringComparison.OrdinalIgnoreCase)))
+                    result.failures.Add("Continuation NPC conflicts with persisted population parent: " + npc.npcId);
+            }
+        }
     }
 }
 

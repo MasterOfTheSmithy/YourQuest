@@ -170,18 +170,9 @@ public partial class PlayerStateManager : MonoBehaviour
 
         try
         {
-            // note: Do not change the authoritative runtime state until a complete JSON document is accepted.
-            if (!YQStateMigrations.TryNormalizePlayerDocument(File.ReadAllText(path), out string normalizedJson, out _, out failure))
-                return false;
-            loaded = JsonConvert.DeserializeObject<PlayerState>(normalizedJson, JsonSettings);
-            YQMigrationResult migration = null;
-            if (loaded == null || !YQStateMigrations.TryMigrate(loaded, out migration))
-            {
-                failure = loaded == null ? "Player record was null." : migration.message;
-                Debug.LogError("[PlayerStateManager] Load rejected: " + failure);
-                return false;
-            }
-            return true;
+            if (TryDecodeLoadedDocument(File.ReadAllText(path), out loaded, out failure)) return true;
+            Debug.LogError("[PlayerStateManager] Load rejected: " + failure);
+            return false;
         }
         catch (Exception exception)
         {
@@ -189,6 +180,44 @@ public partial class PlayerStateManager : MonoBehaviour
             Debug.LogWarning("[PlayerStateManager] Save file could not be read: " + Path.GetFileName(path) + "\n" + exception);
             return false;
         }
+    }
+
+    internal static bool TryPrepareLoadedDocument(string json, out PlayerState loaded, out string failure)
+    {
+        if (!TryDecodeLoadedDocument(json, out loaded, out failure)) return false;
+        // note: Normalize once on the detached worker document, before its paired owner permits installation.
+        try { NormalizeLoadedState(loaded); return true; }
+        catch (Exception exception) { failure = exception.Message; loaded = null; return false; }
+    }
+
+    private static bool TryDecodeLoadedDocument(string json, out PlayerState loaded, out string failure)
+    {
+        // note: Only detached document values enter this migration/normalization kernel; no singleton, filesystem write, or Unity object is touched by a profile's decoding worker.
+        loaded = null; failure = string.Empty;
+        try
+        {
+            // note: Do not change the authoritative runtime state until a complete JSON document is accepted.
+            if (!YQStateMigrations.TryNormalizePlayerDocument(json, out string normalizedJson, out _, out failure))
+                return false;
+            loaded = JsonConvert.DeserializeObject<PlayerState>(normalizedJson, JsonSettings);
+            YQMigrationResult migration = null;
+            if (loaded == null || !YQStateMigrations.TryMigrate(loaded, out migration))
+            {
+                failure = loaded == null ? "Player record was null." : migration.message;
+                return false;
+            }
+            return true;
+        }
+        catch (Exception exception) { failure = exception.Message; return false; }
+    }
+
+    internal void InstallPreparedProfileDocument(PlayerState prepared)
+    {
+        // note: The paired profile owner has already validated identity, schema, complete documents and the old-player writer barrier before this main-thread handoff.
+        if (prepared == null || prepared.schemaVersion != YQStateContract.CurrentStateSchemaVersion)
+            throw new InvalidOperationException("Prepared profile document is unavailable or unsupported.");
+        state = prepared;
+        LastLoadStatus = "loaded";
     }
 
     private void WriteAtomically(string json)
@@ -226,6 +255,12 @@ public partial class PlayerStateManager : MonoBehaviour
     }
 
     private void NormalizeState()
+    {
+        state ??= new PlayerState();
+        NormalizeLoadedState(state);
+    }
+
+    private static void NormalizeLoadedState(PlayerState state)
     {
         if (state == null)
             state = new PlayerState();

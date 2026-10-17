@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: horror_hospital
+  semanticStyleKey: horror_hospital
+  sourceSignature: fnv1a32_0cdbce01
+  topology: 3
+  streamingSite: {fileID: 11400000, guid: a8be4c36c2b8c224cb67f777face297f, type: 2}
+  sourceInstanceCount: 12780
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_horror_hospital_entrance_01
+    displayName: Horror Hospital Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0, y: 0, z: 0}
+    localBoundsCenter: {x: 0, y: 4.131373, z: 0}
+    localBoundsSize: {x: 21.91, y: 8.262746, z: 14.7281685}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - entrance
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_horror_hospital_room_02
+    displayName: Horror Hospital Room
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.07192421, y: 0.10634351, z: 0.71339035}
+    localBoundsCenter: {x: 0, y: 2.3276572, z: 0}
+    localBoundsSize: {x: 18.024551, y: 4.6553144, z: 11.707668}
+    sourceInstanceCount: 280
+    authoredBuildingCount: 0
+    authoredDressingCount: 280
+    semanticTags:
+    - authored
+    - interiorrooms
+    - room
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p05
+    cellContractsV2: []
+  - stableId: yq_semantic_horror_hospital_circulation_03
+    displayName: Horror Hospital Circulation
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.07862282, y: 0.0435009, z: 0.8147297}
+    localBoundsCenter: {x: 0, y: 1.9339468, z: 0}
+    localBoundsSize: {x: 17.94455, y: 3.8678937, z: 11.582207}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - circulation
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p03
+    cellContractsV2: []
+  - stableId: yq_semantic_horror_hospital_service_04
+    displayName: Horror Hospital Service
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.111063, y: 0.015543461, z: 0.7738342}
+    localBoundsCenter: {x: 0, y: 1.9275444, z: 0}
+    localBoundsSize: {x: 17.881554, y: 3.8550887, z: 11.667362}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - interiorrooms
+    - service
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_horror_hospital_poi_05
+    displayName: Horror Hospital Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.11136246, y: 0.009652615, z: 0.82071877}
+    localBoundsCenter: {x: 0, y: 1.94187, z: 0}
+    localBoundsSize: {x: 17.880657, y: 3.88374, z: 11.575951}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - interiorrooms
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p02
+    cellContractsV2: []
+  - stableId: yq_semantic_horror_hospital_entrance_06
+    displayName: Horror Hospital Entrance
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.12465668, y: 0.071134806, z: 0.8258648}
+    localBoundsCenter: {x: 0, y: 1.9533961, z: 0}
+    localBoundsSize: {x: 17.8549, y: 3.9067922, z: 11.620972}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - entrance
+    - interiorrooms
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_horror_hospital_p0_p0_p04
+    cellContractsV2: []

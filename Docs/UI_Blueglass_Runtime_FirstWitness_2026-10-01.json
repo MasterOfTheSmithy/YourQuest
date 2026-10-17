@@ -1,0 +1,14 @@
+{
+  "mode": "Production PlaySafe session; harness-assisted synthetic keyboard and native listener invocation",
+  "status": "FAIL",
+  "error": "System.Reflection.AmbiguousMatchException: Ambiguous match found.\r\n  at System.RuntimeType.GetMethodImplCommon (System.String name, System.Int32 genericParameterCount, System.Reflection.BindingFlags bindingAttr, System.Reflection.Binder binder, System.Reflection.CallingConventions callConv, System.Type[] types, System.Reflection.ParameterModifier[] modifiers) [0x00050] in <1eb9db207454431c84a47bcd81e79c37>:0 \r\n  at System.RuntimeType.GetMethodImpl (System.String name, System.Reflection.BindingFlags bindingAttr, System.Reflection.Binder binder, System.Reflection.CallingConventions callConv, System.Type[] types, System.Reflection.ParameterModifier[] modifiers) [0x00000] in <1eb9db207454431c84a47bcd81e79c37>:0 \r\n  at System.Type.GetMethod (System.String name, System.Reflection.BindingFlags bindingAttr) [0x0000e] in <1eb9db207454431c84a47bcd81e79c37>:0 \r\n  at YQBlueglassUiVerification.VerifyHoverRefresh () [0x0003f] in C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQBlueglassUiVerification.cs:225 \r\n  at YQBlueglassUiVerification.Tick () [0x000e8] in C:\\Users\\Garri\\YourQuest\\Assets\\Assets\\Scripts\\Tutorial\\Editor\\YQBlueglassUiVerification.cs:104 ",
+  "checks": [
+    "Alt opens quick UI; cursor unlocked; simulation timescale unchanged",
+    "four native meters; accepted XP ratio; quest name; altitude-relative north-up map; finite discovery atlas"
+  ],
+  "scene": "Assets/Assets/Scenes/YourQuest_PlaySafe.unity",
+  "physicalGamepads": 0,
+  "physicalHaptics": "NOT TESTED",
+  "ordinaryMouseFlow": "Separate visible UI witness required",
+  "assemblyHash": "4DC0F196FCFFA1B72099A59AD0701A4B39BBAA2B33DD971E27C2BFE1704BF225"
+}

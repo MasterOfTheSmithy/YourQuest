@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_bow
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Bow_Starforged_Orrery.prefab
+    prefab: {fileID: 1507399803878485865, guid: 3bae41612d8d9234f9298898025757f5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Bow_Worldtree_Sovereign.prefab
+    prefab: {fileID: 1835085040712692083, guid: d8e871cf889c0284f8eeb1f032d1b35e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Drake_Bow.prefab
+    prefab: {fileID: 6056351225552943863, guid: 9620bab4885c435458f036f4fe78f12c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Duelist_Bow.prefab
+    prefab: {fileID: 5508206392650960457, guid: 1f8d52daf6d96204eb8a5af444c72af2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Eclipse_Bow.prefab
+    prefab: {fileID: 6962614904922823459, guid: f486eee1359edc844afd43b9d5922773, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Field_Bow.prefab
+    prefab: {fileID: 8213639059101979026, guid: 46a59db53aaba9a4888adeb970d9f757, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Frontier_Bow.prefab
+    prefab: {fileID: 1619802316462051879, guid: c1b836b858df03d4faecc81a8b8bb8d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Ranger_Bow.prefab
+    prefab: {fileID: 5839497877090348668, guid: 87bb07857d3cae544ad37e40facb000b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Sentinel_Bow.prefab
+    prefab: {fileID: 664036178497621667, guid: eefa6a10847ee134fafd02667e9deaeb, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_darkness.prefab
+    prefab: {fileID: 1408066446303364637, guid: 70da5be3bcd653141b4457fee7401854, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_fire.prefab
+    prefab: {fileID: 1116384741647596338, guid: 9d0b688d76ee37a409fb88448673055c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_forged.prefab
+    prefab: {fileID: 671419845088277885, guid: f36c304f000a46941b7490ff19102444, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_frost.prefab
+    prefab: {fileID: 4016272600029503910, guid: b3d61aa1a8830774ab78f7b0a371455c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_light.prefab
+    prefab: {fileID: 1166124174526251719, guid: a1bd83115eca0db4e8bc97893701a58e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_limb_pair_organic.prefab
+    prefab: {fileID: 855625429247206886, guid: be00b0bc2af384440a162928a656080d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_mixed_dark_light_forged.prefab
+    prefab: {fileID: 8428875474933198565, guid: 2ec0eaf8cde3c7a4ca881c38d0f42f9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 4615316996702659383, guid: 391dda3ce10f7f64d9c0f7196f191307, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_darkness.prefab
+    prefab: {fileID: 7422784884033494159, guid: dc6fe9386eaf2164c949a1f3da5d008b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_fire.prefab
+    prefab: {fileID: 1059601922359262517, guid: ba1df093e1a09a64289b37b81b3c59b1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_forged.prefab
+    prefab: {fileID: 3624954191608052850, guid: a21f1c4d04957fd49a5f1af440834c8f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_frost.prefab
+    prefab: {fileID: 4025394950961188286, guid: ff9a83ee23ff8b549b8ccea327eff4ad, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_light.prefab
+    prefab: {fileID: 6130241423008830042, guid: 78795afb9ac6ec243ba2540a946c8685, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_riser_organic.prefab
+    prefab: {fileID: 1208644238635351657, guid: c6bb5ede07bf40b43b2b62aa7b607339, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_darkness.prefab
+    prefab: {fileID: 3628650573397863858, guid: dd8bd60e55db20646a02234f1ca262fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_fire.prefab
+    prefab: {fileID: 7401133380211224637, guid: d58c9a599fcb8504aaced8af6df869cc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_forged.prefab
+    prefab: {fileID: 4207373703645652893, guid: 253d35032a4a42f40a754db42c14ab26, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_frost.prefab
+    prefab: {fileID: 5904995740942498392, guid: d6f91b2561a98884da09a445c05bd7e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_light.prefab
+    prefab: {fileID: 7668808187786213486, guid: 92c71f1f2ec69f248b654d9423e92516, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/yqmod1_weapon_bow_string_organic.prefab
+    prefab: {fileID: 4522834839034880000, guid: d4b1de4e5d4c51046830ae2563310087, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Field_Bow_Parts.prefab
+    prefab: {fileID: 1630412481036873921, guid: 52772c0853eab244eb28ad62dd32f6ff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Ranger_Bow_Parts.prefab
+    prefab: {fileID: 7859596160076574065, guid: ee93e4bba43a94c4fb718a045c4a5d03, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Sentinel_Bow_Parts.prefab
+    prefab: {fileID: 3285640808981829873, guid: abb44022227ce4043b04e3a4fa1e84e4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Duelist_Bow_Parts.prefab
+    prefab: {fileID: 4748443528526496946, guid: 903330b0203107c498e830885922e568, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Frontier_Bow_Parts.prefab
+    prefab: {fileID: 6255036081199779250, guid: d4bc928027c0bec40a48648c767484c8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Drake_Bow_Parts.prefab
+    prefab: {fileID: 2799537121468127348, guid: daf746c88474a36409564e11bb68a658, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Eclipse_Bow_Parts.prefab
+    prefab: {fileID: 2282798593344589222, guid: d5aad59bcb7a1ae4e8bc7b8fb30ef544, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Bow_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 4626381668828229184, guid: 319ba5616ecfd51488b6b6b1d7fda965, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/bow/Bow_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 4574229230285010986, guid: 6b2cc6f2f00e40a4290b9a6632368905, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

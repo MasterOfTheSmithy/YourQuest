@@ -257,8 +257,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         s_instance.SuppressOrdinaryLogStackTraces();
 
-        // note: Initial generation may show progress over the world, but it must never hand camera ownership to the title/Goddess stage; the live gameplay camera remains free to look while generation catches up.
-        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
+        // note: The Goddess remains visible while the player and streamed surroundings are prepared behind the loading gate.
+        YQTitleEnvironmentLoader.HoldForWorldGeneration();
 
         s_instance._title =
             GenerationTitle;
@@ -291,6 +291,38 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         ShowGeneration(
             status,
             progress);
+    }
+
+    private YQGoddessSpeech.Result _pendingReturningSpeech;
+
+    public void RequestReturningJourneySpeech()
+    {
+        // note: Continue requests transient speech through the existing qualified scheduler; accepted world/player content is reused.
+        var player = PlayerStateManager.Instance?.state;
+        var world = WorldStateManager.Instance?.State;
+        string playerId = player?.playerId, worldId = world?.worldIdentity?.worldId;
+        int epoch = YQServiceLifecycle.RequestEpoch;
+        bool Current() => this != null && s_instance == this && _generationMode &&
+            !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased && epoch == YQServiceLifecycle.RequestEpoch &&
+            PlayerStateManager.Instance?.state?.playerId == playerId && WorldStateManager.Instance?.State?.worldIdentity?.worldId == worldId;
+        // note: Returning speech uses the supported welcome purpose so uncertainty-commentary fallbacks cannot replace the welcome.
+        YQGoddessSpeech.Request(LLMClient.Instance, YQGoddessLoadingVoice.CaptureKnownContext(player, world),
+            "Welcome the player back to this accepted journey while its existing world is prepared. Do not claim that loading or player release has finished.",
+            "returning-journey", Current, result =>
+            {
+                if (!Current()) return;
+                // note: Practical mode may deliver a marked uncertainty fallback; absent or stale results stay silent.
+                if (!result.canDeliver)
+                {
+                    Debug.LogWarning("[YQStartupPresentation] Returning Goddess speech unavailable: " + result.disposition);
+                    return;
+                }
+                var currentEvidence = YQGoddessLoadingVoice.CaptureKnownContext(PlayerStateManager.Instance?.state, WorldStateManager.Instance?.State);
+                if (YQGoddessSpeechPlan.TryReadSpokenComposition(result.line, currentEvidence, out string proven))
+                {
+                    _pendingReturningSpeech = result;
+                }
+            }, YQGoddessSpeechPlan.Purpose.Welcome);
     }
 
     public static void SetGenerationWorkStage(
@@ -373,8 +405,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         if (s_instance == null ||
             !s_instance._generationMode ||
             s_instance._finishingGenerationPresentation ||
-            (YourQuestTutorialAutoBootstrap.GameplayRuntimeReady &&
-             !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased))
+            !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
         {
             return;
         }
@@ -430,11 +461,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
         float progress,
         bool generatedLine)
     {
-        if (_generationMode &&
-            string.IsNullOrWhiteSpace(
-                status))
+        if (_generationMode && (!generatedLine || string.IsNullOrWhiteSpace(status)))
         {
-            // note: Exhausted grab bags keep the existing transcript visible instead of falling back to bland filler.
+            // note: Progress remains truthful system UI; the Goddess transcript accepts only reviewed original prose.
             _progress =
                 Mathf.Clamp01(
                     progress);
@@ -484,8 +513,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 return;
             }
 
-            _currentGenerationLineWasGenerated =
-                generatedLine;
+            if (!AddGenerationTranscriptLine(nextStatus, transcriptKey)) return;
+            _currentGenerationLineWasGenerated = generatedLine;
 
             _nextGenerationLineSwapTime =
                 Time.unscaledTime +
@@ -497,10 +526,6 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                         ? GeneratedGenerationLineMaxSeconds
                         : FallbackGenerationLineMaxSeconds);
 
-            AddGenerationTranscriptLine(
-                nextStatus,
-                transcriptKey);
-
             SetGenerationTranscriptTarget(
                 BuildGenerationTranscript());
 
@@ -509,13 +534,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         if (_generationMode)
         {
-            AddGenerationTranscriptLine(
-                nextStatus,
-                NormalizeTranscriptKey(
-                    nextStatus));
-
-            SetGenerationTranscriptTarget(
-                BuildGenerationTranscript());
+            if (AddGenerationTranscriptLine(nextStatus, NormalizeTranscriptKey(nextStatus)))
+                SetGenerationTranscriptTarget(BuildGenerationTranscript());
 
             return;
         }
@@ -574,7 +594,6 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             yield break;
         SetGenerationWorkStage("Entering the world", 9, 9,
             "Preparing the surrounding world before player release", 0.99f);
-        YQTitleEnvironmentLoader.ReleaseWorldGeneration();
         if (!CanContinueGenerationHandoff(canRevealGameplay))
             yield break;
 
@@ -640,8 +659,9 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
         RestoreOrdinaryLogStackTraces();
 
+        // note: Scene teardown releases a live title owner without recreating one that has already retired.
         if (wasGenerationPresentation)
-            YQTitleEnvironmentLoader.ReleaseWorldGeneration();
+            YQTitleEnvironmentLoader.ReleaseWorldGenerationIfPresent();
 
         if (_pixel != null)
         {
@@ -840,55 +860,24 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
                 StringComparison.Ordinal);
     }
 
-    private void AddGenerationTranscriptLine(
-        string line,
-        string key)
+    private bool AddGenerationTranscriptLine(string line, string key)
     {
-        if (string.IsNullOrWhiteSpace(
-                line) ||
-            string.IsNullOrWhiteSpace(
-                key))
+        if (string.IsNullOrWhiteSpace(line) || string.IsNullOrWhiteSpace(key) || _generationTranscriptKeys.Contains(key)) return false;
+        // note: The shared durable history gate runs only after cadence permits display; a rejected or unsaved line never enters the transcript.
+        if (!YQGoddessSpeech.TryDeliver(line, YQGoddessGenerationDialogue.CaptureDeliveryEvidence(line), out string reason))
         {
-            return;
+            Debug.LogWarning("[YQStartupPresentation] Goddess delivery withheld: " + reason); return false;
         }
-
-        if (!_generationTranscriptKeys.Add(
-                key))
-        {
-            return;
-        }
-
-        string cadenceKey =
-            BuildTranscriptCadenceKey(
-                line);
-
-        if (!string.IsNullOrWhiteSpace(
-                cadenceKey) &&
-            !_generationTranscriptCadenceKeys.Add(
-                cadenceKey))
-        {
-            // note: Suppress "same sentence, different settlement" so the transcript feels authored instead of templated.
-            return;
-        }
-
-        string prepared =
-            line.Trim();
-
-        // note: The full key set remains unbounded for the run; only transcript history count is trimmed.
-        _generationTranscript.Add(
-            prepared);
-
-        while (_generationTranscript.Count >
-               MaxGenerationTranscriptLines)
-        {
-            _generationTranscript.RemoveAt(
-                0);
-        }
+        _generationTranscriptKeys.Add(key);
+        _generationTranscript.Add(line.Trim());
+        while (_generationTranscript.Count > MaxGenerationTranscriptLines) _generationTranscript.RemoveAt(0);
+        return true;
     }
 
     private void ClearGenerationTranscript()
     {
         // note: Transcript memory is presentation-only and resets between loading screens.
+        _pendingReturningSpeech = null;
         _generationTranscript.Clear();
         _generationTranscriptKeys.Clear();
         _generationTranscriptCadenceKeys.Clear();
@@ -973,6 +962,19 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
 
     private void UpdateGenerationTypewriter()
     {
+        // note: A reviewed returning response waits for readable cadence and passes the same durable delivery gate as all loading speech.
+        if (_generationMode && _pendingReturningSpeech != null && !IsGenerationTranscriptTyping() &&
+            Time.unscaledTime >= _nextGenerationLineSwapTime)
+        {
+            var result = _pendingReturningSpeech;
+            _pendingReturningSpeech = null;
+            string line = string.Empty;
+            if (result.canDeliver && YQGoddessSpeechPlan.TryReadSpokenComposition(result.line,
+                YQGoddessLoadingVoice.CaptureKnownContext(PlayerStateManager.Instance?.state, WorldStateManager.Instance?.State), out line))
+            {
+                SetStage(line, _progress, true);
+            }
+        }
         if (_generationMode &&
             !IsGenerationTranscriptTyping() &&
             Time.unscaledTime >= _nextGenerationLineSwapTime &&
@@ -1230,38 +1232,8 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
     private static bool ContainsCensorGlyphs(
         string value)
     {
-        if (string.IsNullOrEmpty(
-                value))
-        {
-            return false;
-        }
-
-        // note: Treat all Goddess corruption glyphs as intentional uniqueness marks in the active transcript.
-        return
-            value.IndexOf(
-                '\u2588') >=
-            0 ||
-            value.IndexOf(
-                '\u2593') >=
-            0 ||
-            value.IndexOf(
-                '\u2592') >=
-            0 ||
-            value.IndexOf(
-                '\u2591') >=
-            0 ||
-            value.IndexOf(
-                '\u25A0') >=
-            0 ||
-            value.IndexOf(
-                '\u25A1') >=
-            0 ||
-            value.IndexOf(
-                '\u25CA') >=
-            0 ||
-            value.IndexOf(
-                '\u2205') >=
-            0;
+        // note: Loading-screen checks use the Goddess dialogue's canonical glyph set.
+        return YQGoddessGenerationDialogue.ContainsCensorGlyphs(value);
     }
 
     // ============================================================
@@ -1274,8 +1246,7 @@ public sealed class YQStartupLoadingScreen : MonoBehaviour
             !YQGeneratedWorldRuntimeBuilder
                 .IsInitialGenerationGameplayLocked &&
             !_finishingGenerationPresentation &&
-            !(YourQuestTutorialAutoBootstrap.GameplayRuntimeReady &&
-              !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased))
+            YourQuestTutorialAutoBootstrap.GameplayPresentationReleased)
         {
             // note: This catches a stale modal restored across script reloads even when no later system reports another generation stage.
             DismissOrphanedGenerationPresentation();

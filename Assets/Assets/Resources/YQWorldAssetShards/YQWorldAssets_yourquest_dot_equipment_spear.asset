@@ -1,0 +1,185 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_spear
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Drake_Spear.prefab
+    prefab: {fileID: 7349055374951195376, guid: 9d250f64fb46df54da56a9e7389f45cf, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Duelist_Spear.prefab
+    prefab: {fileID: 4367343425064037689, guid: ed2915e724fd56142a1d49d782a3a9f2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Eclipse_Spear.prefab
+    prefab: {fileID: 596790341057777640, guid: e15af68dfcae58c4582b6f741ba7053b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Field_Spear.prefab
+    prefab: {fileID: 6531755375459277629, guid: 1e861323382e2614ab47d80930c05412, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Frontier_Spear.prefab
+    prefab: {fileID: 3889644866539745380, guid: 4642bfc9362b5c5449ad1cd35c9752d3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Ranger_Spear.prefab
+    prefab: {fileID: 84721734394545443, guid: 9945ef9f7f82a27478acfc1ebe641e96, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Sentinel_Spear.prefab
+    prefab: {fileID: 6438702861604262107, guid: f6fede1eddea3374da6bb66236e1f3af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Spear_Starforged_Orrery.prefab
+    prefab: {fileID: 5212478799896758141, guid: 675ef32b2285cbc43ad6e2126d5d38f6, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Spear_Worldtree_Sovereign.prefab
+    prefab: {fileID: 65656207290086834, guid: ebb8327e6830060499eb128119934f41, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_darkness.prefab
+    prefab: {fileID: 6892908022050830644, guid: c4a1eff89faa8024183f05d6832ed74e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_fire.prefab
+    prefab: {fileID: 1209864659007257760, guid: 14e283cc2e98d654b8fa3e764ef9f66c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_forged.prefab
+    prefab: {fileID: 9099172804935163963, guid: f393e3295d089ba4b8fd09378db3eb9a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_frost.prefab
+    prefab: {fileID: 9202924998127519265, guid: fc10628560a942a4f9fcd9d3244b2db9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_light.prefab
+    prefab: {fileID: 7089301574416250529, guid: 27f6e3a59f42eaf48914948960d4be13, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_head_organic.prefab
+    prefab: {fileID: 571893733611725848, guid: 59d7329b6f164ad47bfba9be989d20e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_darkness.prefab
+    prefab: {fileID: 2225497952283636638, guid: bbec743a09589a544b885b75398e635a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_fire.prefab
+    prefab: {fileID: 5682437917465851597, guid: bcbc8b6161ab97c4fb060151106fdc2e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_forged.prefab
+    prefab: {fileID: 1535150122888695470, guid: 7438730d95e13994ab929fa551a48a46, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_frost.prefab
+    prefab: {fileID: 6395415239064688407, guid: e0c0d17e089d9be43a5f634926677eb8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_light.prefab
+    prefab: {fileID: 8740612215956298886, guid: 54af7c9db0ceebc40af0831f9ae889fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_lower_haft_organic.prefab
+    prefab: {fileID: 3249724934819732293, guid: 1dfbaa7bccd0cba4bad374779bae0f1a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_mixed_dark_light_forged.prefab
+    prefab: {fileID: 3786806882805113804, guid: 0c4abf51e3730874f8e3f021c6b7a105, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 8631164990439926819, guid: 5685b4193d5afdf42aecbf596b26e48b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_darkness.prefab
+    prefab: {fileID: 1200221899754439270, guid: fd798ad764b4e7040ab0ea9754fabe82, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_fire.prefab
+    prefab: {fileID: 5694856080004314799, guid: 5f2c0f317a028b74d8e7fcf252253dd1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_forged.prefab
+    prefab: {fileID: 1142791859065454261, guid: ad6f5c8a3f902314fba488ccef2074a1, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_frost.prefab
+    prefab: {fileID: 2013144165663650866, guid: 6cb25fc168e11244cab084e557cb5908, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_light.prefab
+    prefab: {fileID: 1562389065125877021, guid: 1dce0039a658f694d94b81014c8b47bd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/yqmod1_weapon_spear_upper_haft_organic.prefab
+    prefab: {fileID: 1284496592112614232, guid: 1059c58806466064b8e38a967c8710cd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Field_Spear_Parts.prefab
+    prefab: {fileID: 4941813282302716967, guid: 522438a0d4c580c478487f29e9f5aa92, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Ranger_Spear_Parts.prefab
+    prefab: {fileID: 2758928311220365396, guid: dcab4251a2121c347ba4e7a53c097c76, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Sentinel_Spear_Parts.prefab
+    prefab: {fileID: 2961152182727264007, guid: 1aff8d870e9389c469c0224067b710e0, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Duelist_Spear_Parts.prefab
+    prefab: {fileID: 9069393047077167790, guid: a7259a373e4117b4a8adb06b4cec834b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Frontier_Spear_Parts.prefab
+    prefab: {fileID: 2158440851335460546, guid: 0887205f46aff1446a9bc9dc1320548e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Drake_Spear_Parts.prefab
+    prefab: {fileID: 1582178280902669215, guid: d2d4641a21213df43bbe85f7d6d5218f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Eclipse_Spear_Parts.prefab
+    prefab: {fileID: 412015022662988824, guid: 2c6678f66520ded4f9bc0b490bed99fd, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Spear_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 480581920174273945, guid: f1eafc49f77714445976a38f02cd4de2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/Spear_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 4233532640832419166, guid: 072b4129948fb6a419be22992f910d1b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/spear_monster_crafted_assembled.prefab
+    prefab: {fileID: 712329831369345643, guid: d557842593acac74b85bc8fabdc07830, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/thornweaver_mandible_spear_head.prefab
+    prefab: {fileID: 837703487001936570, guid: 57709a66b0055eb418959ba171994c8e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/thornweaver_scute_spear_upper_haft.prefab
+    prefab: {fileID: 7209545889837249111, guid: 3c1970ea98ee99345b42877a575bbc97, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/spear/thornweaver_silk_spear_lower_haft.prefab
+    prefab: {fileID: 4968631700318359007, guid: 95d00375e9f9ca848bf86dcf03254932, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

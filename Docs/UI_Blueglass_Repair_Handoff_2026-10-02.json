@@ -1,0 +1,36 @@
+{
+  "utc": "2026-10-02T13:58:25.7453940Z",
+  "status": "PARTIAL - compiled and normal title/loading flow verified; new hover behavior requires runtime rerun",
+  "assemblyHash": "85C90D4AFE3F6C4B4C0AAB70EC94860B4B0EA30129BC37415C850E3049637CC9",
+  "changed": [
+    "Inventory/Equipment exclusively own animated player and sockets; other pages have full-height record browser and inspector",
+    "Hover-only Alt branches with inert animated retraction and gap grace",
+    "Read-only scrollable rich previews for items, slots, skills/spells, classes, titles, quests, stats and hotbar choices; available artwork and typed mechanics",
+    "Visible native button raycast mesh; row scroll forwarding; bounded state refresh and stable meter mesh optimization",
+    "Title celestial material transparency; clean shared startup frames; actual loading progress and scrollable diagnostic disclosure"
+  ],
+  "verified": [
+    "Fresh Unity 6000.3.2f1 compile and 28-sprite/owner/meter/loadout contract checks PASS",
+    "Ordinary title Continue entered saved profile, loading details opened/closed, production readiness released gameplay",
+    "Current equipment page rendered using approved animated portrait; saved PNG evidence"
+  ],
+  "runtimeWitness": "FAIL - 40-second timeout: listener-only hover driver lacks pointer residence required by the new hover-only branch. Empty checks; historical PASS is not current.",
+  "nativePointer": "UNRESOLVED - Skills mouse click received raw pointer (909.06, 1392.45) outside 1920x1080 Game view. EventSystem UI click action enabled; raycast returned zero hits. Native trace: Docs/UI_Blueglass_Pointer_2026-10-02.jsonl",
+  "remaining": [
+    "Adapt focused harness to real pointer residence and rerun all new hover/page-layout/preview checks",
+    "Verify ordinary mouse navigation and screenshots of Skills/Quests/hover preview after input-coordinate issue is resolved",
+    "Physical controller haptics and a distinct accepted ability swap remain unverified",
+    "No quantified profiler result; no fresh New Journey generation UI run"
+  ],
+  "evidence": [
+    "Docs/UI_Blueglass_Evidence_2026-10-01/screen-20261002-131904.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/screen-20261002-134956.png",
+    "Docs/UI_Blueglass_Evidence_2026-10-01/screen-20261002-135702.png"
+  ],
+  "preserved": [
+    "Save schemas and accepted records",
+    "Existing player/combat/quest/loadout authorities",
+    "Serialized GUIDs, approved art and animation assets"
+  ],
+  "editor": "Play Mode stopped; exclusive Editor/Assets window released to Repair player animations chat"
+}

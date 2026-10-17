@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "review_state": "COORDINATOR_CLEARED_AFTER_DETACHED_COMPILE",
+  "detached_compile_receipt": "outputs/ProjectSterilization_20261016/ExclusionCompile_Ten_20261016/receipt.json",
+  "quarantine_root": "Quarantine/2026-10-16/scripts",
+  "files": [
+    {
+      "path": "Assets/Assets/Scripts/PrototypeBuilder/Editor/YQPrototypeSceneBuilder.cs",
+      "guid": "bbb5cbbee8039264a920c8aa30bea996",
+      "source_sha256": "85afee572d488da0ad87ca947a6a5745c33dd50f995a2e473fb96f9700ab8a25",
+      "meta_sha256": "e047aac4e83ea3e3042c20fab261ca4dc83a1300abbec247df8f32dc91a8c80a"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YourQuestPolishedPrototypeSceneMenu.cs",
+      "guid": "be73e4db11c09dc4f9f4956e150873a1",
+      "source_sha256": "d58b6ff0ebe5078eab95676388481123000bc8b73c63fa3c13e92dab1dc3bc13",
+      "meta_sha256": "08592080a2f8227d0ec84dc7af6ecc474a32cae6b11e5770ef888afc05c33042"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YourQuestTestSceneMenu.cs",
+      "guid": "939e6e636ca115941bbf5e1264591d6d",
+      "source_sha256": "ca7bf87c56e3fc23a8062d3d2fdf6967f7cc92c1103d7ccc0dcac183c93c0ddc",
+      "meta_sha256": "c2be08914e49732a61aced925f1e6495a9963371da5ee264b63f3cc3c167c821"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/Editor/YourQuestInvestorSceneBuilder.cs",
+      "guid": "858cc479f2df6414e854a059bac75457",
+      "source_sha256": "a876161d27e365519195143087ef066a31f48cd7a9d3d6e9a99dc72ffca33a61",
+      "meta_sha256": "1f68800a9302a3a946e71d191d7813394d3e98f597c0f1678e62b86f2371d64a"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Data/Serialization/SerializableDictionary.cs",
+      "guid": "b5920985f3af8d6448d620a6782b18a5",
+      "source_sha256": "dd3f24e9fd27a190a8059741d7f3925b5e58c0e1b17d84c0d0b0f76b246cd8aa",
+      "meta_sha256": "9a5a16fbde75573793d982a34f6d6df3f336a59b7f43b44bca634add76ca7316"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Data/State/StateCompatibilityExtensions.cs",
+      "guid": "5f86870a2cb205e479b60a7df22b672c",
+      "source_sha256": "0189404d390377b739814684b1852929b4c2ac4e1a421db906fc49e1da22a6d4",
+      "meta_sha256": "9ad3e3587bc13d0bfb3b94876fe93e8cda0d437d8907c5bd5357d190937ff761"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Generated/YQRuntimeWorldAssetRegistrySmokeTest.cs",
+      "guid": "cac4030ef3a125949af29447e9ac0dc3",
+      "source_sha256": "31f322fdae8027161fe2418fd7f34ac169bd2282d4d3ec776764e36317b5d5ba",
+      "meta_sha256": "fe4a684094bca0af78658db68aea72392ab478b44f552bd8ef0fbb554fc4f325"
+    },
+    {
+      "path": "Assets/Assets/Scripts/LLM/Debug/DebugSkillGenerator.cs",
+      "guid": "4620cf832175f624c9c1d4f9adf787ca",
+      "source_sha256": "e1d818d7de410a9ee096877eeb7e09be553f34303c02f1db74b273705c0f3ccd",
+      "meta_sha256": "f72ff58311738cd8d784b30a94f70b9ab61564e0d1090a2416d4170f667351ba"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Observation/Threat/ThreatProbe.cs",
+      "guid": "d289e61ba75b50641af79053dec45e4e",
+      "source_sha256": "87fee411314e23037da334a3be54e4425f426cee4350349abde650e7c2ca2428",
+      "meta_sha256": "602da181ef944796c2693dcec0cd8bb9af2736ce8a72614b87e9f252a866728b"
+    },
+    {
+      "path": "Assets/Assets/Scripts/Tutorial/YourQuestTutorialVitals.cs",
+      "guid": "6739c2d78fec7f24e8cc2705e2c61f8e",
+      "source_sha256": "cc8e72dee3b807778303f87b3a278871b424264826ceb44ac4929473fa69518d",
+      "meta_sha256": "6f61e3366ceab3ecea1ac19a4719db9bab25b56a074dc4264d57f7a96bbc9af9"
+    }
+  ]
+}

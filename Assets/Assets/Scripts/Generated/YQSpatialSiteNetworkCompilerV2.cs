@@ -364,6 +364,7 @@ internal static class YQSpatialSiteNetworkCompilerV2
             BuildPrimaryRoadTree();
             BuildSemanticRegionRoutes();
             AttachAccessibleSecondarySites();
+            ValidateOpeningEncounterTravel();
             OrientSitesToRoutes();
             PopulateMetrics();
         }
@@ -400,6 +401,8 @@ internal static class YQSpatialSiteNetworkCompilerV2
             BuildSemanticRegionRoutes();
             yield return null;
             AttachAccessibleSecondarySites();
+            yield return null;
+            ValidateOpeningEncounterTravel();
             yield return null;
             OrientSitesToRoutes();
             yield return null;
@@ -479,7 +482,9 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     0.28f,
                     0.7f,
                     waterNeed,
-                    keepEntireReserveDry);
+                    keepEntireReserveDry,
+                    index == 0 ? 850f : 0f,
+                    index == 0 ? 1150f : 0f);
                 YQSiteAnchorV2 site = new YQSiteAnchorV2
                 {
                     siteId = siteId,
@@ -508,6 +513,8 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     site.requiredFunctions.Add(YQAssetFunctionV2.Commerce);
                 }
                 site.tags.Add("semantic_settlement");
+                // note: New drafts keep the first generated settlement reachable on foot; stable semantic IDs, region bindings, water needs and all acceptance gates remain its owners.
+                if (index == 0) site.tags.Add("opening_encounter");
                 AddSemanticTags(semantic.serviceSlots, "service:", site.tags);
                 AddSite(site);
             }
@@ -543,7 +550,9 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     0.56f,
                     0.9f,
                     0f,
-                    false);
+                    index == 0,
+                    index == 0 ? 1100f : 0f,
+                    index == 0 ? 1450f : 0f);
                 YQSiteAnchorV2 site = new YQSiteAnchorV2
                 {
                     siteId = siteId,
@@ -567,6 +576,8 @@ internal static class YQSpatialSiteNetworkCompilerV2
                 site.requiredFunctions.Add(YQAssetFunctionV2.Reward);
                 site.requiredFunctions.Add(YQAssetFunctionV2.Security);
                 site.tags.Add("semantic_hostile_site");
+                // note: Opening encounter cadence chooses a dry physical reservation for the generated hostile identity without creating an extra encounter or moving an accepted save.
+                if (index == 0) site.tags.Add("opening_encounter");
                 if (!string.IsNullOrWhiteSpace(semantic.stealthApproach))
                     site.tags.Add("alternate_approach");
                 AddSite(site);
@@ -794,6 +805,28 @@ internal static class YQSpatialSiteNetworkCompilerV2
             string siteId = "site:continuation:" + direction;
             if (context.sitesById.ContainsKey(siteId))
                 return;
+
+            // note: New basin geometry can move semantic sites near an old fixed frontier anchor. Keep the anchor on its border, but select a reserve-clear dry endpoint before its access trail is planned.
+            if (context.record.generationVersion == GeneratedSpatialWorldPlanV2Record.SupportedGenerationVersion)
+            {
+                Vector2 lateral = direction == "east" || direction == "west" ? Vector2.up : Vector2.right;
+                bool found = false;
+                for (int attempt = 0; attempt < 33; attempt++)
+                {
+                    int step = (attempt + 1) / 2;
+                    Vector2 candidate = position + lateral * (step * 12f * (attempt % 2 == 0 ? 1f : -1f));
+                    bool clear = true;
+                    float margin = 16f + RouteWidth(YQRouteClassV2.Trail) * .5f + RouteShoulder(YQRouteClassV2.Trail) + 2f;
+                    foreach (var existing in context.sitesById.Values)
+                        if (existing.kind != YQSiteKindV2.NaturalFeature &&
+                            Vector2.Distance(candidate, new Vector2(existing.x, existing.z)) < existing.reservedRadius + margin)
+                        { clear = false; break; }
+                    if (!clear || !waterAccessQuery.TryMeasure(siteId, candidate.x, candidate.y, 16f, out _, out float bank,
+                        out _, out bool wet, out _) || wet || bank < 16f) continue;
+                    position = candidate; found = true; break;
+                }
+                if (!found) throw new InvalidOperationException("No reserve-clear dry frontier anchor is available for " + siteId);
+            }
 
             YQRegionDomainV2 region = NearestRegion(position);
             YQSiteAnchorV2 anchor = new YQSiteAnchorV2
@@ -1339,7 +1372,10 @@ internal static class YQSpatialSiteNetworkCompilerV2
             for (int index = 0; index < secondary.Count; index++)
             {
                 YQSiteAnchorV2 site = secondary[index];
-                YQSiteAnchorV2 nearest = NearestSite(site, primary);
+                // note: A short geometric branch to a town can still require kilometres of backtracking. The first hostile area's existing validated trail connects to the origin directly.
+                YQSiteAnchorV2 nearest = site.kind == YQSiteKindV2.HostileSite && site.tags.Contains("opening_encounter")
+                    ? context.sitesById[context.blueprint.originSiteId]
+                    : NearestSite(site, primary);
                 if (nearest == null)
                     continue;
 
@@ -1468,12 +1504,9 @@ internal static class YQSpatialSiteNetworkCompilerV2
             Vector2 delta = end - start;
             float distance = Mathf.Max(0.001f, delta.magnitude);
             Vector2 perpendicular = new Vector2(-delta.y, delta.x) / distance;
-            float bend = Mathf.Min(42f, distance * 0.16f) *
-                         Mathf.Lerp(
-                             -1f,
-                             1f,
-                             YQSpatialBlueprintDeterminismV2.Hash01(
-                                 context.seed + "|route_bend|" + route.routeId));
+            // note: New accepted routes always have a meaningful bend; a hash close to one half previously produced almost perfectly straight long roads.
+            float bendChoice = YQSpatialBlueprintDeterminismV2.Hash01(context.seed + "|route_bend|" + route.routeId);
+            float bend = Mathf.Min(42f, distance * .16f) * Mathf.Lerp(.35f, 1f, Mathf.Abs(bendChoice * 2f - 1f)) * (bendChoice < .5f ? -1f : 1f);
 
             route.controlPoints.Add(
                 YQSpatialBlueprintDeterminismV2.Point(
@@ -1631,9 +1664,10 @@ internal static class YQSpatialSiteNetworkCompilerV2
             for (int index = 0; index < water.controlPoints.Count; index++)
                 widestBank = Mathf.Max(widestBank, water.controlPoints[index].width);
             float bankOffset = Mathf.Max(32f,
-                widestBank * 0.5f + route.width * 0.5f + route.shoulderWidth + 14f);
+                widestBank * .5f + RouteWidth(YQRouteClassV2.PrimaryRoad) * .5f + RouteShoulder(YQRouteClassV2.PrimaryRoad) + 14f);
+            // note: Routes following the same river share one deterministic bank spine and diverge at their approaches, rather than generating parallel class/ID-specific strips.
             float side = YQSpatialBlueprintDeterminismV2.Hash01(
-                context.seed + "|route_water_bank|" + route.routeId + "|" + water.hydrologyId) < 0.5f
+                context.seed + "|route_water_bank|" + water.hydrologyId) < 0.5f
                 ? -1f
                 : 1f;
             float turnLead = Mathf.Min(48f, bankOffset * 0.65f);
@@ -1935,6 +1969,43 @@ internal static class YQSpatialSiteNetworkCompilerV2
             }
         }
 
+        private void ValidateOpeningEncounterTravel()
+        {
+            // note: New generated encounters must be reachable by the actual accepted route graph, not just nearby as the crow flies. Existing accepted artifacts never enter this compiler.
+            const float maximumOpeningTravel = 1800f;
+            var distances = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var site in context.blueprint.sites) distances[site.siteId] = float.PositiveInfinity;
+            distances[context.blueprint.originSiteId] = 0f;
+            var routeLengths = new float[context.blueprint.routes.Count];
+            for (int index = 0; index < routeLengths.Length; index++) routeLengths[index] = RouteLength(context.blueprint.routes[index]);
+            for (int iteration = 0; iteration < distances.Count; iteration++)
+            {
+                string next = null;
+                float nearest = float.PositiveInfinity;
+                foreach (var site in context.blueprint.sites)
+                {
+                    if (visited.Contains(site.siteId)) continue;
+                    float distance = distances[site.siteId];
+                    if (distance < nearest || distance == nearest && next != null && string.CompareOrdinal(site.siteId, next) < 0)
+                    { nearest = distance; next = site.siteId; }
+                }
+                if (next == null || nearest > maximumOpeningTravel) break;
+                visited.Add(next);
+                for (int index = 0; index < context.blueprint.routes.Count; index++)
+                {
+                    var route = context.blueprint.routes[index];
+                    string neighbour = string.Equals(route.fromSiteId, next, StringComparison.OrdinalIgnoreCase) ? route.toSiteId
+                        : string.Equals(route.toSiteId, next, StringComparison.OrdinalIgnoreCase) ? route.fromSiteId : null;
+                    if (neighbour != null && distances.TryGetValue(neighbour, out float prior))
+                        distances[neighbour] = Mathf.Min(prior, nearest + routeLengths[index]);
+                }
+            }
+            foreach (var site in context.blueprint.sites)
+                if (site.tags.Contains("opening_encounter") && distances[site.siteId] > maximumOpeningTravel)
+                    throw new InvalidOperationException("V2 opening encounter exceeds 1800m of connected route travel: " + site.siteId);
+        }
+
         private void PopulateMetrics()
         {
             YQSpatialBlueprintMetricsV2 metrics =
@@ -1990,9 +2061,12 @@ internal static class YQSpatialSiteNetworkCompilerV2
             float minimumRadiusFraction,
             float maximumRadiusFraction,
             float minimumWaterAccess,
-            bool keepEntireReserveDry)
+            bool keepEntireReserveDry,
+            float openingMinimumDistance = 0f,
+            float openingMaximumDistance = 0f)
         {
-            Vector2 regionCenter = region != null
+            bool openingEncounter = openingMaximumDistance > openingMinimumDistance;
+            Vector2 regionCenter = openingEncounter ? Vector2.zero : region != null
                 ? new Vector2(region.centerX, region.centerZ)
                 : Vector2.zero;
             float regionRadius = region != null ? region.radius : 220f;
@@ -2004,7 +2078,7 @@ internal static class YQSpatialSiteNetworkCompilerV2
             for (int attempt = 0; attempt < 64; attempt++)
             {
                 float ring = (attempt % 8) / 7f;
-                float distance = regionRadius * Mathf.Lerp(
+                float distance = openingEncounter ? Mathf.Lerp(openingMinimumDistance, openingMaximumDistance, ring) : regionRadius * Mathf.Lerp(
                     minimumRadiusFraction,
                     maximumRadiusFraction,
                     ring);
@@ -2015,7 +2089,7 @@ internal static class YQSpatialSiteNetworkCompilerV2
                 if (minimumWaterAccess > 0f &&
                     (attempt & 1) == 0 &&
                     TryFindDryBankCandidate(
-                        regionCenter,
+                        openingEncounter ? regionCenter + direction * distance : regionCenter,
                         siteId,
                         siteRadius,
                         minimumWaterAccess,
@@ -2029,6 +2103,9 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     candidate = context.Clamp(
                         regionCenter + direction * distance);
                 }
+                // note: Water-aware candidates still honor the walking-distance band; coastline or river access cannot silently select the distant regional domain.
+                if (openingEncounter && (candidate.magnitude < openingMinimumDistance || candidate.magnitude > openingMaximumDistance))
+                    continue;
                 float clearance = MinimumReserveClearance(
                     candidate,
                     siteRadius);
@@ -2077,6 +2154,9 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     return candidate;
                 }
             }
+
+            if (openingEncounter)
+                throw new InvalidOperationException("V2 opening encounter could not retain dry reserve/water access within its bounded walking-distance band: " + siteId);
 
             float fallbackRequiredDryBank = keepEntireReserveDry
                 ? siteRadius
@@ -2137,6 +2217,24 @@ internal static class YQSpatialSiteNetworkCompilerV2
                     context.blueprint.hydrology[waterIndex];
                 if (water == null || water.controlPoints == null)
                     continue;
+
+                var connectedBasin = waterAccessQuery.GetConnectedBasin(waterIndex);
+                if (connectedBasin != null)
+                {
+                    // note: A waterfront requirement must nominate dry candidates on the actual accepted contour; nominal lake radii can land deep inside an irregular basin.
+                    int edge = Mathf.Min(connectedBasin.ShoreSegmentCount - 1, Mathf.FloorToInt(
+                        YQSpatialBlueprintDeterminismV2.Hash01(context.seed + "|site_shore|" + siteId + "|" + attempt + "|" + water.hydrologyId) * connectedBasin.ShoreSegmentCount));
+                    connectedBasin.GetShoreSegment(edge, out Vector2 first, out Vector2 second);
+                    Vector2 shorePoint = (first + second) * .5f, tangent = (second - first).normalized;
+                    Vector2 drySide = new Vector2(-tangent.y, tangent.x);
+                    if (connectedBasin.SignedShoreDistance(shorePoint.x + drySide.x, shorePoint.y + drySide.y) < 0f) drySide = -drySide;
+                    Vector2 bankCandidate = context.Clamp(shorePoint + drySide * desiredBankDistance);
+                    EvaluateWaterAccess(bankCandidate, siteRadius, siteId, out float access, out float distance, out bool wet);
+                    float regionalDistanceSquared = (bankCandidate - regionCenter).sqrMagnitude;
+                    if (!wet && access + .001f >= minimumWaterAccess && distance + .001f >= minimumBankDistance && regionalDistanceSquared < bestDistanceSquared)
+                    { candidate = bankCandidate; bestDistanceSquared = regionalDistanceSquared; }
+                    continue;
+                }
 
                 if (water.controlPoints.Count == 1)
                 {

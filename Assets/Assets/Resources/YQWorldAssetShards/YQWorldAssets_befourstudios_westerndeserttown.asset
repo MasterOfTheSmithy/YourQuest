@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_westerndeserttown
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Barrel1.prefab
+    prefab: {fileID: 4925036881091845545, guid: 00c191d209ae77049bd9cb5befc9f9c7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Cactus01.prefab
+    prefab: {fileID: 4526860367519722045, guid: 1def214b997abec4d9b5d8a48359343b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_CaveStraight.prefab
+    prefab: {fileID: 1031394136, guid: abc00000000000602171918053170848, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Chair01.prefab
+    prefab: {fileID: 1031000385, guid: abc00000000014436150749547819861, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Church.prefab
+    prefab: {fileID: 1030971900, guid: abc00000000012471616344300274980, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Church_1.prefab
+    prefab: {fileID: 1031030977, guid: abc00000000007825831254850838112, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_CrossWalls01.prefab
+    prefab: {fileID: 1031031266, guid: abc00000000000853263224303418723, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Door01.prefab
+    prefab: {fileID: 5508640488545471819, guid: 591950da3b657094ea21ea63439cccbe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_End01Walls01.prefab
+    prefab: {fileID: 1031031458, guid: abc00000000006229851830739246277, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Fence01.prefab
+    prefab: {fileID: 1030998594, guid: abc00000000017906712086878926253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Floor01.prefab
+    prefab: {fileID: 1030978453, guid: abc00000000008038820301270369348, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Grass01.prefab
+    prefab: {fileID: 1031027893, guid: abc00000000004245998034452250468, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Hammer.prefab
+    prefab: {fileID: 1030975257, guid: abc00000000015238524577280148859, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_LanternHook.prefab
+    prefab: {fileID: 1031014233, guid: abc00000000007689921957149187142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_LanternPost.prefab
+    prefab: {fileID: 7454939128023280834, guid: 03cf822704c32f345aa9b9f073a2a000, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Mountain01.prefab
+    prefab: {fileID: 1031035908, guid: abc00000000001472291640004313029, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_RoadMesh01.prefab
+    prefab: {fileID: 1031020088, guid: abc00000000013306867685451796193, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_RoadTurnMesh.prefab
+    prefab: {fileID: 1031020024, guid: abc00000000006144395129148240093, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Rock01.prefab
+    prefab: {fileID: 1030985631, guid: abc00000000015605456155916707391, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Roof01.prefab
+    prefab: {fileID: 1031033361, guid: abc00000000016729333119654547734, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_SackStack01.prefab
+    prefab: {fileID: 1031008175, guid: abc00000000016513656652634915440, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_SoilMesh.prefab
+    prefab: {fileID: 1030973225, guid: abc00000000010439747584245361655, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_CraneHook04_.prefab
+    prefab: {fileID: 1614368491053989413, guid: 9637e22c92cf64c4bb5661a3b5ed89af, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/WesternDesertTown/Art/Prefabs/SM_Mountain04.prefab
+    prefab: {fileID: 1030971943, guid: abc00000000006026071649544443824, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

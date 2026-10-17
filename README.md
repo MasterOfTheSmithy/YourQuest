@@ -11,6 +11,20 @@ YourQuest is a Unity RPG built around accepted procedural content and determinis
 
 Open the project folder in the recorded Unity version, then open `Assets/Assets/Scenes/YourQuest_PlaySafe.unity`. Production startup creates the runtime camera and services in Play Mode. The title environment and authored assets remain part of the existing scene and binding setup.
 
+## Project layout
+
+| Location | Purpose |
+|---|---|
+| `Assets/Assets/Scripts/` | Project-owned runtime and Editor code; scoped `AGENTS.md` files describe local ownership. |
+| `Assets/Assets/Scenes/` | Production and supporting Unity scenes. Preserve scene references and `.meta` GUIDs. |
+| `Packages/`, `ProjectSettings/` | Unity dependencies and project configuration. |
+| [Tools catalog](Tools/README.md) | Repository verification, asset preparation, and evaluation tools, with their inputs and side effects. |
+| `Docs/`, `AI_CONTEXT/`, `PROMPTS/` | Maintained requirements, evidence, system context, and task templates. |
+| `outputs/` | Ignored local diagnostics, experiments, staged patches, and temporary handoffs. Curated evidence belongs in `Docs/`. |
+| `Quarantine/` | Retired [scripts](Quarantine/2026-10-16/scripts/README.md) and [root artifacts](Quarantine/2026-10-16/root/README.md), preserved outside Unity's asset tree with original paths, checksums, and guarded restore instructions. |
+
+Keep imported assets in their existing locations. Folder names such as `Tutorial`, `Generated`, or `Editor` do not imply that their scripts are inactive. Confirm code, serialized, reflection, and tool entry points before retiring anything; keep retired files recoverable with their original paths and hashes.
+
 ## Check project guidance
 
 With Node.js 18 or newer installed:

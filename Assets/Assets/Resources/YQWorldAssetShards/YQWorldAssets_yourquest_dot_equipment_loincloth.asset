@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_loincloth
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Dragonbound_Female.prefab
+    prefab: {fileID: 6138328968603095972, guid: 08f01d5a8c9dc2541a708769b4fe8cd4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Dragonbound_Male.prefab
+    prefab: {fileID: 6819559741578376641, guid: a8f70ddaf9556664fa864d0aac7e6a02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Eclipse_Female.prefab
+    prefab: {fileID: 1099183763549918549, guid: f233123e7cc973d4e84ada05711fdb93, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Eclipse_Male.prefab
+    prefab: {fileID: 5319987818669607132, guid: 15e08be27ff457f419b373a565c9c437, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Field_Female.prefab
+    prefab: {fileID: 738548080565245746, guid: 503bd6299e58cb14e82f3da8da292979, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Field_Male.prefab
+    prefab: {fileID: 5099281081706494905, guid: 968232a89e87966409f0c111a61dd14f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Lamellar_Female.prefab
+    prefab: {fileID: 2039867782660861002, guid: 27a3e8e62bb3bdd439ec3ee9d3966853, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Lamellar_Male.prefab
+    prefab: {fileID: 6985190438943493979, guid: c021e18f0e5ef504e81f8fd89d291056, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Ranger_Female.prefab
+    prefab: {fileID: 7964473883545058630, guid: 23caf8c232d458c47891afd0bf063472, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Ranger_Male.prefab
+    prefab: {fileID: 7992665918339191301, guid: 43f6088b38c9f724ab34be051692135c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Sentinel_Female.prefab
+    prefab: {fileID: 6247629494326912666, guid: 5416bd1743d6f1f479d9c18c69197795, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Sentinel_Male.prefab
+    prefab: {fileID: 4909285630286462439, guid: a780820771628f5488c3ba08a64b0e56, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Starforged_Orrery_Female.prefab
+    prefab: {fileID: 6896589003674483209, guid: 8f00cd972c2c8cf49bcb458f9ee1337a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Starforged_Orrery_Male.prefab
+    prefab: {fileID: 5351543713148349774, guid: 55847e2cff89a0745b34f10fde4b9545, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Traveler_Female.prefab
+    prefab: {fileID: 4905347311839233883, guid: 701a44065b319e4418bb6d4dc811867b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Traveler_Male.prefab
+    prefab: {fileID: 6394712264750655054, guid: f302c7259ee72804385a1f5aea72d73f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Worldtree_Sovereign_Female.prefab
+    prefab: {fileID: 4600510489504876889, guid: 754b98be888136748a8f501142b50245, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Worldtree_Sovereign_Male.prefab
+    prefab: {fileID: 5313794842827563696, guid: c6ee3e366b1f7a348a35920bc796ab31, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Field_Male_Parts.prefab
+    prefab: {fileID: 9038187898340247141, guid: 503f190c5bb949a46981b732e60eb62a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Field_Female_Parts.prefab
+    prefab: {fileID: 6256454976070000974, guid: 8e6930c4a301d944f9b5bbca73ee92fa, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Ranger_Male_Parts.prefab
+    prefab: {fileID: 1137461724840671165, guid: 926c45c42a0f5f649ac2c0701f5b0a4f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Ranger_Female_Parts.prefab
+    prefab: {fileID: 7787406376115028095, guid: 6d06453076de35e4bb0c332bd65d23de, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Lamellar_Male_Parts.prefab
+    prefab: {fileID: 3479800644533780800, guid: 54bc93d566d169d48a11c2bf8de902b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Lamellar_Female_Parts.prefab
+    prefab: {fileID: 5809153582340900060, guid: c771849dd63637a48bd11a947e4f43ff, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Traveler_Male_Parts.prefab
+    prefab: {fileID: 5360432032820192417, guid: 3bdaf236810f7b44c84f1cc1dc51a36b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Traveler_Female_Parts.prefab
+    prefab: {fileID: 3994985788661892887, guid: a8f9f3076b9a68c47841976bd182c3b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Sentinel_Male_Parts.prefab
+    prefab: {fileID: 8979966539043444786, guid: ee56ef3e28ab6604785f168daee2fc10, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Sentinel_Female_Parts.prefab
+    prefab: {fileID: 6707747261367325746, guid: 6f90a6b772be485478d67e717c00b45a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Dragonbound_Male_Parts.prefab
+    prefab: {fileID: 3530028487516351942, guid: 220740436a222f347b86ca731b9cf02e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Dragonbound_Female_Parts.prefab
+    prefab: {fileID: 6727599231013385662, guid: 8a1495bca90724a44be36971a4b22c7e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Eclipse_Male_Parts.prefab
+    prefab: {fileID: 3087543492447953077, guid: 2735fa2845287254ab9df57b8b03eb9f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Eclipse_Female_Parts.prefab
+    prefab: {fileID: 4856915139943071278, guid: 08cc0d89ca722de4cb1b7551aa4dc405, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Worldtree_Sovereign_Male_Parts.prefab
+    prefab: {fileID: 1303257959770218862, guid: 547b739d733ee5d43b134b89631f89f3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Worldtree_Sovereign_Female_Parts.prefab
+    prefab: {fileID: 1828821467104202600, guid: fafb32836c218d940afc9d5627135de9, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Starforged_Orrery_Male_Parts.prefab
+    prefab: {fileID: 7071255220266965298, guid: 5e2c414d4ee35ab40a8a0b4416293023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/loincloth/Loincloth_Starforged_Orrery_Female_Parts.prefab
+    prefab: {fileID: 6753377242235309745, guid: bd4db298f14a8a44699f6caae2fc8021, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

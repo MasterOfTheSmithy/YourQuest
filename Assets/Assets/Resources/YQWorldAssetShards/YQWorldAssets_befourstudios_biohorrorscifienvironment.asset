@@ -1,0 +1,385 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_biohorrorscifienvironment
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BigCables.prefab
+    prefab: {fileID: 1030972099, guid: abc00000000006506480472692552779, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BigPile_Figures.prefab
+    prefab: {fileID: 1030991207, guid: abc00000000017378614003173252463, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BigPile_Tenta.prefab
+    prefab: {fileID: 1030991235, guid: abc00000000009104588718805160324, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BigPile_TentaEgg.prefab
+    prefab: {fileID: 1030991263, guid: abc00000000000239303777462593635, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioHumanCorrupt_Female.prefab
+    prefab: {fileID: 1030983367, guid: abc00000000004952091357205123918, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioHumanCorrupt_Infant.prefab
+    prefab: {fileID: 1030983351, guid: abc00000000001844107101359902082, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioHumanCorrupt_Male.prefab
+    prefab: {fileID: 1030983335, guid: abc00000000009263885538881627729, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_01_01.prefab
+    prefab: {fileID: 1030977735, guid: abc00000000005930044086663297327, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_01_02.prefab
+    prefab: {fileID: 1030977751, guid: abc00000000003571327200325194388, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_01_03.prefab
+    prefab: {fileID: 1030977767, guid: abc00000000006104072372323919421, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_01_04.prefab
+    prefab: {fileID: 1030977811, guid: abc00000000000352633496412779434, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_01_05.prefab
+    prefab: {fileID: 1030977787, guid: abc00000000012951757198295473459, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_02_01.prefab
+    prefab: {fileID: 1030977715, guid: abc00000000010284899717273961718, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_02_02.prefab
+    prefab: {fileID: 1030977891, guid: abc00000000005162130863314261213, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_03_01.prefab
+    prefab: {fileID: 1030977695, guid: abc00000000002111031082530705285, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_03_02.prefab
+    prefab: {fileID: 1030977671, guid: abc00000000005509094698979948158, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_04_01.prefab
+    prefab: {fileID: 1030984372, guid: abc00000000010806239430364166740, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_04_02.prefab
+    prefab: {fileID: 1030984392, guid: abc00000000017767409679515239663, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_04_03.prefab
+    prefab: {fileID: 1030984408, guid: abc00000000012611005445125121302, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_05.prefab
+    prefab: {fileID: 1030979015, guid: abc00000000010649417557507951263, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_06_01.prefab
+    prefab: {fileID: 1030978459, guid: abc00000000013850761159572774066, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_06_02.prefab
+    prefab: {fileID: 1030989614, guid: abc00000000011240249316159254265, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BioMassSet_06_03.prefab
+    prefab: {fileID: 1030978479, guid: abc00000000004178958520673852528, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile1.prefab
+    prefab: {fileID: 1030990132, guid: abc00000000018239825495404398936, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile2.prefab
+    prefab: {fileID: 1030990152, guid: abc00000000006343289509224706659, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile3.prefab
+    prefab: {fileID: 1030990172, guid: abc00000000014222221289348377626, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile4.prefab
+    prefab: {fileID: 1030990192, guid: abc00000000014770359319960546925, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile5.prefab
+    prefab: {fileID: 1030990212, guid: abc00000000012448783197316514372, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BonePile6.prefab
+    prefab: {fileID: 1030990232, guid: abc00000000001107934207358426079, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton1.prefab
+    prefab: {fileID: 1030989940, guid: abc00000000000102477403171490406, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton2.prefab
+    prefab: {fileID: 1030989956, guid: abc00000000001502166077065635533, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton3.prefab
+    prefab: {fileID: 1030989972, guid: abc00000000016390861265503882916, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton4.prefab
+    prefab: {fileID: 1030989988, guid: abc00000000004278626878992160067, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton5.prefab
+    prefab: {fileID: 1030990004, guid: abc00000000012903983487192856058, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton6.prefab
+    prefab: {fileID: 1030990020, guid: abc00000000003929111665204487553, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_BoneSet_Skeleton7.prefab
+    prefab: {fileID: 1030990036, guid: abc00000000003596120017797353400, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CableChaos.prefab
+    prefab: {fileID: 1030972179, guid: abc00000000017190460120394676160, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ConnectorDevice.prefab
+    prefab: {fileID: 1030972961, guid: abc00000000002504905943173322176, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CornerPile_1.prefab
+    prefab: {fileID: 1030990955, guid: abc00000000001728895225036874974, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CorruptFigure.prefab
+    prefab: {fileID: 1030991095, guid: abc00000000011499629583845589124, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CorruptFigureSet_Crawl.prefab
+    prefab: {fileID: 1030991123, guid: abc00000000004273057638780743468, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CorruptFigureSet_Scared.prefab
+    prefab: {fileID: 1030991151, guid: abc00000000008665379406814888755, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CorruptFigureSet_Sitting.prefab
+    prefab: {fileID: 1030991179, guid: abc00000000015988934469770616177, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_Door.prefab
+    prefab: {fileID: 1030997542, guid: abc00000000016900457399985715273, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ExprimentDevice.prefab
+    prefab: {fileID: 1030972699, guid: abc00000000013140096416879938127, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_GoreSet_1.prefab
+    prefab: {fileID: 1030990052, guid: abc00000000014918732946525665632, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_GoreSet_2.prefab
+    prefab: {fileID: 1030990072, guid: abc00000000013574928539071644779, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_1.prefab
+    prefab: {fileID: 1030990255, guid: abc00000000016270257522462697177, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_10.prefab
+    prefab: {fileID: 1030990507, guid: abc00000000000018689175133592523, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_2.prefab
+    prefab: {fileID: 1030990283, guid: abc00000000006662729167743361170, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_3.prefab
+    prefab: {fileID: 1030990311, guid: abc00000000005987213776572065627, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_4.prefab
+    prefab: {fileID: 1030990339, guid: abc00000000004633071623194113436, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_5.prefab
+    prefab: {fileID: 1030990367, guid: abc00000000017524841110630768613, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_6.prefab
+    prefab: {fileID: 1030990395, guid: abc00000000008053250333886407518, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_7.prefab
+    prefab: {fileID: 1030990423, guid: abc00000000018032539144205008663, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_8.prefab
+    prefab: {fileID: 1030990451, guid: abc00000000002683073865352376472, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HanginDropSet_9.prefab
+    prefab: {fileID: 1030990479, guid: abc00000000016470748159268989537, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HolderRoof.prefab
+    prefab: {fileID: 1030972115, guid: abc00000000007858387407335134629, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_HumanInside.prefab
+    prefab: {fileID: 1030990092, guid: abc00000000009122262419203730620, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_MessyPileSet_1.prefab
+    prefab: {fileID: 1030990647, guid: abc00000000000630081317373347490, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_MessyPileSet_2.prefab
+    prefab: {fileID: 1030990675, guid: abc00000000009354731106081616361, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_MessyPileSet_3.prefab
+    prefab: {fileID: 1030990703, guid: abc00000000009116954462422355680, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_MessyPileSet_4.prefab
+    prefab: {fileID: 1030990731, guid: abc00000000004424834531926528423, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_1.prefab
+    prefab: {fileID: 1030990787, guid: abc00000000012386766518180414256, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_2.prefab
+    prefab: {fileID: 1030990815, guid: abc00000000007539044529988280635, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_3.prefab
+    prefab: {fileID: 1030990843, guid: abc00000000014448949159251799922, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_4.prefab
+    prefab: {fileID: 1030990871, guid: abc00000000007832986508640283461, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_5.prefab
+    prefab: {fileID: 1030990899, guid: abc00000000018379741047136430588, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_6.prefab
+    prefab: {fileID: 1030990927, guid: abc00000000013600718937580591607, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_OctoStick_7.prefab
+    prefab: {fileID: 1030990759, guid: abc00000000009605081087302622526, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ScifiFrame.prefab
+    prefab: {fileID: 1030971891, guid: abc00000000004036254428248566062, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ScifiTile.prefab
+    prefab: {fileID: 1030975801, guid: abc00000000011093090064042403823, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ShroomSet_1.prefab
+    prefab: {fileID: 1030990619, guid: abc00000000013967101011351672331, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ShroomSet_2.prefab
+    prefab: {fileID: 1030990563, guid: abc00000000015717748173307199616, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ShroomSet_3.prefab
+    prefab: {fileID: 1030990591, guid: abc00000000015565916752579357577, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_ShroomSet_4.prefab
+    prefab: {fileID: 1030990535, guid: abc00000000002914679152484809166, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StandLight.prefab
+    prefab: {fileID: 1030972715, guid: abc00000000003343712029119108253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StructureSet_1.prefab
+    prefab: {fileID: 1030983390, guid: abc00000000012797574116515185276, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StructureSet_2.prefab
+    prefab: {fileID: 1030983414, guid: abc00000000008018552006959346295, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StructureSet_3.prefab
+    prefab: {fileID: 1030983462, guid: abc00000000004022914156681377214, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StructureSet_4.prefab
+    prefab: {fileID: 1030983486, guid: abc00000000001787001446224047929, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_StructureSet_5.prefab
+    prefab: {fileID: 1030983438, guid: abc00000000006804599587559168944, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_WallDecor.prefab
+    prefab: {fileID: 1030973127, guid: abc00000000009548650200969422148, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_WallLight.prefab
+    prefab: {fileID: 1030973979, guid: abc00000000012071658977529646915, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_WallRamp.prefab
+    prefab: {fileID: 1030977457, guid: abc00000000016833625209289911813, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_Column.prefab
+    prefab: {fileID: 1030974779, guid: abc00000000012661533397562269643, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_Column2.prefab
+    prefab: {fileID: 1030972023, guid: abc00000000018089738677802644627, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CornerPile_2.prefab
+    prefab: {fileID: 1030990983, guid: abc00000000011200486001781236069, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CornerPile_3.prefab
+    prefab: {fileID: 1030991011, guid: abc00000000016755460588054132508, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CornerPile_4.prefab
+    prefab: {fileID: 1030991039, guid: abc00000000018109602741432084699, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_CornerPile_5.prefab
+    prefab: {fileID: 1030991067, guid: abc00000000000338374058893828626, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/BioHorrorSciFiEnvironment/Art/Prefabs/SM_LightCableBig.prefab
+    prefab: {fileID: 1030989794, guid: abc00000000002402776049229919424, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

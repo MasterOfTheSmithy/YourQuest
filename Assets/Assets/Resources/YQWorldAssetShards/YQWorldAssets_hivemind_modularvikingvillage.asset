@@ -1,0 +1,2637 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_hivemind_modularvikingvillage
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_GrassPatch_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_MudRoad.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 9292b3614552a464cb4a853b3da7c1d7, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_RockStone.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: acd105c2dd104d34ea546a6849016ea1, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_RockStone_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 6cce3e1d89fd7824a81f0f32c4abdf7a, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_RockStone_01c.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: a1a9140d1fc866c4b91997f151b3b2f0, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_StonePatch_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: b04111806ab8b9c4eb3ed62f0fbb034b, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_StonePatch_01b.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: 9f239bb692a49934783f02ec80d29ab8, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Materials/M_WoodRoughPath_01a.mat
+    prefab: {fileID: 0}
+    material: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Hay_01a.prefab
+    prefab: {fileID: 1031199624, guid: abc00000000008324659208661340630, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hay_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Hay_02a.prefab
+    prefab: {fileID: 1031199664, guid: abc00000000008469710294021400923, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Hay_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_Hay_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodBeam_01a.prefab
+    prefab: {fileID: 1031199684, guid: abc00000000008816978377443754576, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBeam_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodCylinder_01a.prefab
+    prefab: {fileID: 3733095615316020231, guid: 28347ae71350104448fc31c8b64f10d7, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodCylinder_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodCylinder_01b.prefab
+    prefab: {fileID: 1030975368, guid: abc00000000001430026055141422564, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodCylinder_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodCylinder_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodHeadCarving_01a.prefab
+    prefab: {fileID: 3932836947301325012, guid: dcb01d9304f85e3429a598ebd736c632, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodHeadCarving_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodSupportCylinder_01a.prefab
+    prefab: {fileID: 1030972481, guid: abc00000000000830237956464374262, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodSupportCylinder_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodSupportCylinder_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodSupportCylinder_02a.prefab
+    prefab: {fileID: 1030972521, guid: abc00000000007358351841537561083, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodSupportCylinder_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodSupportCylinder_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodSupport_01a.prefab
+    prefab: {fileID: 1030976046, guid: abc00000000001234607896506094260, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodSupport_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_WoodSupport_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodSupport_01b.prefab
+    prefab: {fileID: 6662827748632092768, guid: 38d8e8648b2a28144901cf1b5b5b62ab, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodSupport_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodWindowFrame_01a.prefab
+    prefab: {fileID: 5786502640457778748, guid: a25ffc4bb8f1d484ba309cfcbbea5fd0, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodWindowFrame_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_WoodWindowFrame_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/sm_Anvil_01a.prefab
+    prefab: {fileID: 1030978137, guid: abc00000000010906071072544922306, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: sm_Anvil_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8a42e190935e1704994668e61cc40d9b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_ArcheryStorage_01a.prefab
+    prefab: {fileID: 1031205295, guid: abc00000000016364362047858591231, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArcheryStorage_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_ArcheryStorage_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_ArrowSac_01a.prefab
+    prefab: {fileID: 1030977291, guid: abc00000000009670741523582377596, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ArrowSac_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArrowSac_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArrowSac_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_ArrowSac_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Arrow_01a.prefab
+    prefab: {fileID: 1030977331, guid: abc00000000012683612113314112051, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arrow_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Arrow_01b.prefab
+    prefab: {fileID: 1031205568, guid: abc00000000014861327659987065192, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arrow_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Arrow_01c.prefab
+    prefab: {fileID: 1031205528, guid: abc00000000016111972215556952305, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Arrow_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+    - transformPath: SM_Arrow_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b63d1960bc655ce43bacec47472cde88, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Bottle_01b.prefab
+    prefab: {fileID: 1030976602, guid: abc00000000008864353162780442601, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bottle_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Bottle_02b.prefab
+    prefab: {fileID: 1031187400, guid: abc00000000008278259110709433372, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bottle_02b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_02b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_02b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_02b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Bottle_03b.prefab
+    prefab: {fileID: 1031206636, guid: abc00000000001048702269753877859, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bottle_03b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_03b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_03b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_03b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Bottle_04b.prefab
+    prefab: {fileID: 1030976338, guid: abc00000000015652342759206295286, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Bottle_04b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_04b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_04b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+    - transformPath: SM_Bottle_04b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5593ea066ff457a42827f563cdd14bbf, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Boulder_01a.prefab
+    prefab: {fileID: 1030971983, guid: abc00000000009340680366250821555, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Boulder_02a.prefab
+    prefab: {fileID: 1030971948, guid: abc00000000013385904994742942062, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_BoxStorage_01a.prefab
+    prefab: {fileID: 1030974364, guid: abc00000000018258921620666698664, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_BoxStorage_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_BoxStorage_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Brasero_01a.prefab
+    prefab: {fileID: 1031234002, guid: abc00000000001919706010828566388, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brasero_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8d960b7e57304b842a69d32d85a38b41, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Brasero_02a.prefab
+    prefab: {fileID: 1031225204, guid: abc00000000018264024297150082293, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brasero_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8d960b7e57304b842a69d32d85a38b41, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Brasero_02b.prefab
+    prefab: {fileID: 1031208163, guid: abc00000000008177358236811298030, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brasero_02b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8d960b7e57304b842a69d32d85a38b41, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Brasero_02c.prefab
+    prefab: {fileID: 1031208170, guid: abc00000000015898980737727580519, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Brasero_02c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8d960b7e57304b842a69d32d85a38b41, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Candle_01c.prefab
+    prefab: {fileID: 1031181505, guid: abc00000000006319345272679589043, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Candle_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8759fe05546c4ae488f08cc855339c76, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_CarryCliff_01a.prefab
+    prefab: {fileID: 1030971997, guid: abc00000000003522614481859253863, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_CoverPlant_03a.prefab
+    prefab: {fileID: 1031173296, guid: abc00000000005567963730695896696, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_CoverPlant_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Fish_01a.prefab
+    prefab: {fileID: 1031177614, guid: abc00000000018087792055793811012, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Fish_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagPack_01a.prefab
+    prefab: {fileID: 1030975644, guid: abc00000000004091306807797842377, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagPack_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagPack_01b.prefab
+    prefab: {fileID: 1030974403, guid: abc00000000005557740473198898434, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagPack_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagPack_01d.prefab
+    prefab: {fileID: 1030974396, guid: abc00000000012144982550885157964, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagPack_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagSeed_01a.prefab
+    prefab: {fileID: 1031182568, guid: abc00000000002688580663370796793, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagSeed_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+    - transformPath: SM_FoodBagSeed_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagSeed_02c.prefab
+    prefab: {fileID: 1031209670, guid: abc00000000009821564438360769562, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagSeed_02c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+    - transformPath: SM_FoodBagSeed_02c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagSeed_03c.prefab
+    prefab: {fileID: 1030974622, guid: abc00000000003617214912919757669, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagSeed_03c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+    - transformPath: SM_FoodBagSeed_03c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBagSeed_03d.prefab
+    prefab: {fileID: 1031181498, guid: abc00000000011201847043741901842, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBagSeed_03d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+    - transformPath: SM_FoodBagSeed_03d
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBag_01d.prefab
+    prefab: {fileID: 1031187544, guid: abc00000000008155013620327536611, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBag_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBag_01e.prefab
+    prefab: {fileID: 1030974615, guid: abc00000000016033945400451207578, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBag_01e
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodBag_01f.prefab
+    prefab: {fileID: 1030974608, guid: abc00000000002182680409991523745, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodBag_01f
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodKitApple_01a.prefab
+    prefab: {fileID: 1031181532, guid: abc00000000017216491541090927450, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodKitApple_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodKitBread_01a.prefab
+    prefab: {fileID: 1031181696, guid: abc00000000012091550818805472024, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodKitBread_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStandMeal_01a.prefab
+    prefab: {fileID: 1030976512, guid: abc00000000014101664516172042757, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStandMeal_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStandMeal_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+    - transformPath: SM_FoodStandMeal_01a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+    - transformPath: SM_FoodStandMeal_01a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStandMeal_01b.prefab
+    prefab: {fileID: 1031181586, guid: abc00000000017499728132621285630, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStandMeal_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStandMeal_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+    - transformPath: SM_FoodStandMeal_01b
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+    - transformPath: SM_FoodStandMeal_01b
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStandMeal_01c.prefab
+    prefab: {fileID: 1030976505, guid: abc00000000008787671114420444855, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStandMeal_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStandMeal_01c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+    - transformPath: SM_FoodStandMeal_01c
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_01b.prefab
+    prefab: {fileID: 1030975669, guid: abc00000000015001109902731110763, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_01c.prefab
+    prefab: {fileID: 1030975662, guid: abc00000000007858041165136123426, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_01c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_01d.prefab
+    prefab: {fileID: 1031177642, guid: abc00000000002797354111311859637, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_01d
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_03a.prefab
+    prefab: {fileID: 1030975683, guid: abc00000000006263703101382578506, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_03a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_03a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_03d.prefab
+    prefab: {fileID: 1031182575, guid: abc00000000009831391637723969231, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_03d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_03d
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_04a.prefab
+    prefab: {fileID: 1031182498, guid: abc00000000005680464443338741203, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_04a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_04b.prefab
+    prefab: {fileID: 1031182491, guid: abc00000000015222916758052517896, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_04b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_05a.prefab
+    prefab: {fileID: 1031209103, guid: abc00000000008724892974964686756, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_05a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_05b.prefab
+    prefab: {fileID: 1031182484, guid: abc00000000003205735420332436415, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_05b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_05c.prefab
+    prefab: {fileID: 1030977571, guid: abc00000000010883253186341845862, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_05c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+    - transformPath: SM_FoodStand_05c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_07a.prefab
+    prefab: {fileID: 1030975676, guid: abc00000000004864785041160466062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_07a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_07a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_07c.prefab
+    prefab: {fileID: 1030976595, guid: abc00000000007506877012504353228, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_07c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_07c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 2c85fa9ea7d4867498b21c27a10f26cb, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_08a.prefab
+    prefab: {fileID: 1030976519, guid: abc00000000006338849457310251271, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_08a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_08a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_08b.prefab
+    prefab: {fileID: 1031182624, guid: abc00000000007510942855944483404, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_08b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_08b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStand_08c.prefab
+    prefab: {fileID: 1031182596, guid: abc00000000014571594243067805717, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStand_08c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_FoodStand_08c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStorage_01a.prefab
+    prefab: {fileID: 1030974410, guid: abc00000000018193512658919212691, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStorage_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+    - transformPath: SM_FoodStorage_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodStorage_02a.prefab
+    prefab: {fileID: 1030975259, guid: abc00000000003547109983915069262, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodStorage_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_FoodStorage_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_HouseBuilding_001_a.prefab
+    prefab: {fileID: 1031224871, guid: abc00000000011610675231503260015, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4dcd777ae9fb3f54f9cfb35bf75b1fa7, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 6
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+    - transformPath: SM_HouseBuilding_001_a
+      rendererIndex: 0
+      materialIndex: 7
+      replacementMaterial: {fileID: 2100000, guid: 898278310b442924aa678f6085734dc8, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_HouseBuilding_001_b.prefab
+    prefab: {fileID: 1030975881, guid: abc00000000004649504982352187092, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseBuilding_001_b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_001_b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_001_b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_001_b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_HouseBuilding_002_a.prefab
+    prefab: {fileID: 1031233790, guid: abc00000000012499867042553602600, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: 4dcd777ae9fb3f54f9cfb35bf75b1fa7, type: 2}
+    - transformPath: SM_HouseBuilding_002_a
+      rendererIndex: 0
+      materialIndex: 6
+      replacementMaterial: {fileID: 2100000, guid: 898278310b442924aa678f6085734dc8, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_HouseBuilding_003_a.prefab
+    prefab: {fileID: 1031229355, guid: abc00000000007717027427444533625, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 4dcd777ae9fb3f54f9cfb35bf75b1fa7, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+    - transformPath: SM_HouseBuilding_003_a
+      rendererIndex: 0
+      materialIndex: 6
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_HouseBuilding_003_b.prefab
+    prefab: {fileID: 1031229113, guid: abc00000000010327539270858053426, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseBuilding_003_b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_003_b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_003_b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseBuilding_003_b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Meat_01a.prefab
+    prefab: {fileID: 1031209040, guid: abc00000000011887383335057168667, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Meat_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Meat_01b.prefab
+    prefab: {fileID: 1031187420, guid: abc00000000016752340013363706000, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Meat_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalChain_02b.prefab
+    prefab: {fileID: 1031175470, guid: abc00000000012830049339130735096, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalChain_02b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalChain_03b.prefab
+    prefab: {fileID: 1031175511, guid: abc00000000002246814003084026991, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalChain_03b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalKitPotFlower_03a.prefab
+    prefab: {fileID: 1030976256, guid: abc00000000014612157053746356951, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalKitPotFlower_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+    - transformPath: SM_MetalKitPotFlower_03a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalKitPot_03b.prefab
+    prefab: {fileID: 1030976588, guid: abc00000000010051851854116736497, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalKitPot_03b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalKitPot_03d.prefab
+    prefab: {fileID: 1031175938, guid: abc00000000018048522713951271727, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalKitPot_03d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Mushroom_01b.prefab
+    prefab: {fileID: 1031173372, guid: abc00000000018104907199902960915, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mushroom_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+    - transformPath: SM_Mushroom_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+    - transformPath: SM_Mushroom_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+    - transformPath: SM_Mushroom_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_Mushroom_01d.prefab
+    prefab: {fileID: 1031187379, guid: abc00000000010850379619429900445, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Mushroom_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: edcf1191702713f4ead46dc60b641cd5, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStoneWall_01a.prefab
+    prefab: {fileID: 1030971927, guid: abc00000000005611364298714615214, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockStoneWall_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6cce3e1d89fd7824a81f0f32c4abdf7a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStoneWall_01b.prefab
+    prefab: {fileID: 1030971934, guid: abc00000000015314389132158646709, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockStoneWall_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6cce3e1d89fd7824a81f0f32c4abdf7a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStone_01a.prefab
+    prefab: {fileID: 1030971941, guid: abc00000000017848130124109786634, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStone_01b.prefab
+    prefab: {fileID: 1030971969, guid: abc00000000003216515018908441425, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockStone_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6cce3e1d89fd7824a81f0f32c4abdf7a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStone_01b_1.prefab
+    prefab: {fileID: 1030976752, guid: abc00000000002740027514376986765, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockStone_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a1a9140d1fc866c4b91997f151b3b2f0, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_RockStone_01c.prefab
+    prefab: {fileID: 1030975125, guid: abc00000000008356252388653222216, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_RockStone_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 6cce3e1d89fd7824a81f0f32c4abdf7a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_StrawArcheryTarget_01a.prefab
+    prefab: {fileID: 1031205588, guid: abc00000000016846466495668038640, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_StrawArcheryTarget_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_StrawArcheryTarget_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_ThorHammer_01a.prefab
+    prefab: {fileID: 1030978029, guid: abc00000000007336170188079837403, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_ThorHammer_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 2a5fd4ce42350c54ca6001fea69a0647, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TorchHolded_01a.prefab
+    prefab: {fileID: 1031228974, guid: abc00000000016168869469941925650, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TorchHolded_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b662f6eb3d5cf2548a6a66e96b8f1170, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TorchHolded_02b.prefab
+    prefab: {fileID: 1030978490, guid: abc00000000005649492036123648076, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TorchHolded_02b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b662f6eb3d5cf2548a6a66e96b8f1170, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01a.prefab
+    prefab: {fileID: 1030980322, guid: abc00000000013708705434536491852, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TreePine_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01a_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01b.prefab
+    prefab: {fileID: 1031015146, guid: abc00000000012536612035902259719, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TreePine_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01c.prefab
+    prefab: {fileID: 1031048626, guid: abc00000000011066613463192604686, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_TreePine_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01c_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01c_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01c_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01c_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_TreePine_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: SM_TreePine_01c_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingBoat_01a.prefab
+    prefab: {fileID: 1030977191, guid: abc00000000006409791223878619038, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingBoat_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 52cc8a546f9dfa144a70eb3d3cae0264, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingBoat_02a.prefab
+    prefab: {fileID: 1031205092, guid: abc00000000007601943454819765283, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingBoat_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingBoat_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingBoat_02b.prefab
+    prefab: {fileID: 1031205350, guid: abc00000000013514377320232652056, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingBoat_02b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingBoat_02b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_VikingBoat_02b
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingBoat_02c.prefab
+    prefab: {fileID: 1031223929, guid: abc00000000008855307540439713505, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingBoat_02c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+    - transformPath: SM_VikingBoat_02c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_VikingBoat_02c
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingBoat_02d.prefab
+    prefab: {fileID: 1031223902, guid: abc00000000010021016180583611078, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingBoat_02d_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6926993700ec994a97306552cf9bfaa, type: 2}
+    - transformPath: SM_VikingBoat_02d_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6926993700ec994a97306552cf9bfaa, type: 2}
+    - transformPath: SM_VikingBoat_02d_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6926993700ec994a97306552cf9bfaa, type: 2}
+    - transformPath: SM_VikingBoat_02d_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e6926993700ec994a97306552cf9bfaa, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingCross_01a.prefab
+    prefab: {fileID: 1030976917, guid: abc00000000012999811189577267998, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingCross_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingCross_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingCross_01b.prefab
+    prefab: {fileID: 1031175581, guid: abc00000000017479340539121556389, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingCross_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingCross_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingCross_02a.prefab
+    prefab: {fileID: 1030976910, guid: abc00000000014191963420518414243, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingCross_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingCross_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingCross_02b.prefab
+    prefab: {fileID: 1030974330, guid: abc00000000001657653212221749400, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingCross_02b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_VikingCross_02b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingFlag_01a.prefab
+    prefab: {fileID: 1031216681, guid: abc00000000010184753226868582402, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingFlag_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingFlag_01b.prefab
+    prefab: {fileID: 1030978082, guid: abc00000000008718319561467526345, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingFlag_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingFlag_02a.prefab
+    prefab: {fileID: 1031224597, guid: abc00000000002086040298255759991, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingFlag_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingFlag_05a.prefab
+    prefab: {fileID: 1030977580, guid: abc00000000001375678066063672390, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingFlag_05a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_VikingFlag_05a_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: b21eb44215136104cadffe552210b7ad, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodAleDrink_01a.prefab
+    prefab: {fileID: 1030976842, guid: abc00000000001053768138012891883, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodAleDrink_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e7cb1351d92e7d64cb0bd92fe3c052f1, type: 2}
+    - transformPath: SM_WoodAleDrink_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 50854584d747a194795dfed00e679e44, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodBench_01a.prefab
+    prefab: {fileID: 1030974814, guid: abc00000000011080675790553098947, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBench_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodLadder_01a.prefab
+    prefab: {fileID: 1030974371, guid: abc00000000007538784176616120725, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodLadder_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_WoodLadder_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodLadder_01b.prefab
+    prefab: {fileID: 1030975710, guid: abc00000000016282784891858462862, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodLadder_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_WoodLadder_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/sm_WoodLog_01b.prefab
+    prefab: {fileID: 1031177504, guid: abc00000000002763343578686935016, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: sm_WoodLog_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d3fde25993ff7174f951cb1d43975e19, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/sm_WoodLog_01c.prefab
+    prefab: {fileID: 1030974944, guid: abc00000000004013988134256822129, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: sm_WoodLog_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d3fde25993ff7174f951cb1d43975e19, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTrestles_01a.prefab
+    prefab: {fileID: 1030974478, guid: abc00000000017437845224464291547, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTrestles_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+    - transformPath: SM_WoodTrestles_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTrestles_02a.prefab
+    prefab: {fileID: 1030974979, guid: abc00000000017292794139104231254, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTrestles_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+    - transformPath: SM_WoodTrestles_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Floor_200x200_01a.prefab
+    prefab: {fileID: 1164976212828342546, guid: 6563128b32eeafd46839e96baf8608f7, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_200x200_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Floor_250x250_01a.prefab
+    prefab: {fileID: 6222774626436478007, guid: dfe19ba23e4241a40b2c8cbb04eb154c, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Floor_250x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_HouseAdd_01b.prefab
+    prefab: {fileID: 1031188720, guid: abc00000000009181235278942817284, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD0
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD1
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD2
+      rendererIndex: 0
+      materialIndex: 5
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD3
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+    - transformPath: SM_HouseAdd_01b_LOD4
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Stair_01a.prefab
+    prefab: {fileID: 7099537579338594959, guid: aafb9c944b9335a46b9631be3f584859, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stair_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Stair_01b.prefab
+    prefab: {fileID: 1030976029, guid: abc00000000004110189081438191880, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stair_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Stair_01c.prefab
+    prefab: {fileID: 1031224478, guid: abc00000000017172031080639428369, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Stair_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallCorner_100x100_01b.prefab
+    prefab: {fileID: 7926453226062732523, guid: 2f99852a71539d54b8ec36ab1ef721c9, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallCorner_100x100_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallDoor_200x250_01b.prefab
+    prefab: {fileID: 8088290292208340063, guid: f6e4b85203181094198f1aed178dbc72, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallDoor_200x250_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallDoor_250x250_01a.prefab
+    prefab: {fileID: 7924620702494826004, guid: 2c5e8df8809aa804c8e4ddbabd3c10bb, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallDoor_250x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallTriangle_01a.prefab
+    prefab: {fileID: 1030975943, guid: abc00000000004255673695490081222, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallTriangle_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallTriangle_01b.prefab
+    prefab: {fileID: 4134006591120687135, guid: 00cdf5fbef69c8c4e99f2423b19457e1, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallTriangle_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallWin_150x250_01a.prefab
+    prefab: {fileID: 3949919421069445231, guid: 0f22cd9cf1880b5468c9187faac91a81, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallWin_150x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallWin_200x250_01b.prefab
+    prefab: {fileID: 8924205190549869185, guid: cb0233104eb76f148b27e665402014ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallWin_200x250_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WallWin_250x250_01a.prefab
+    prefab: {fileID: 3165792234445656027, guid: e0889ae90d107454eb4c13fad25598b4, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WallWin_250x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Wall_100x250_01b.prefab
+    prefab: {fileID: 6222143937554309560, guid: db1bbdb67421863488c2209ed38497c6, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_100x250_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Wall_150x250_01a.prefab
+    prefab: {fileID: 5914400865559597829, guid: 383767d865958ac4bb9f9e9e41a3b1df, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_150x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Wall_200x250_01b.prefab
+    prefab: {fileID: 1983762230411596412, guid: fe7b8257297242e449b31f75563d5517, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_200x250_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_Wall_250x250_01a.prefab
+    prefab: {fileID: 5084459268430887814, guid: cb754a232428f344c942b8a40e11db32, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_Wall_250x250_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ca839e799749baa41a02961ea5deaf79, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodDoor_01a.prefab
+    prefab: {fileID: 1031224908, guid: abc00000000009543555603983805649, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodDoor_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodDoor_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: c427d8363c9fba54a872b368a36c5b18, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodFence_01a.prefab
+    prefab: {fileID: 1030976060, guid: abc00000000001809912768817090990, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodFence_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodFence_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPath_01a.prefab
+    prefab: {fileID: 5338545926188273104, guid: 3790213cf7697a74b845c310f9418442, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPath_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPillar_01a.prefab
+    prefab: {fileID: 1030975929, guid: abc00000000001319520966875019357, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPillar_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlankCarving_01a.prefab
+    prefab: {fileID: 1030975991, guid: abc00000000017016118448066537289, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlankCarving_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlankCarving_01b.prefab
+    prefab: {fileID: 1031188685, guid: abc00000000000035808039758041730, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlankCarving_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlankCarving_01c.prefab
+    prefab: {fileID: 836325563905558383, guid: ba6a6454ac090be46882847e24918f59, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlankCarving_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlank_01a.prefab
+    prefab: {fileID: 5533532777599567238, guid: ee33fedf37e0c93488aa28b188f4b803, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlank_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlank_01a075.prefab
+    prefab: {fileID: 6389508366766748482, guid: d64484e9ef0e2464eb06f582bb6851b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlank_01a075
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlank_01a076.prefab
+    prefab: {fileID: 7731203854526090839, guid: 53aee6bbaea68a240bad880b18039b88, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlank_01a076
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlank_02a.prefab
+    prefab: {fileID: 1726111829184619449, guid: 1c003bdfc37b9a7458c334b86de3f288, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlank_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlank_WIN.prefab
+    prefab: {fileID: 7445394473488258440, guid: 596679792080cc04e9b8ca14f3e41494, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlank_WIN
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+    - transformPath: SM_WoodPlank_WIN
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformBarrier_01a.prefab
+    prefab: {fileID: 1030972653, guid: abc00000000014694887913725698615, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformBarrier_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodPlatformBarrier_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformFloorKit_01a.prefab
+    prefab: {fileID: 1030972681, guid: abc00000000006466244480689697094, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformFloorKit_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformFloorKit_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformFloor_01a.prefab
+    prefab: {fileID: 1030972546, guid: abc00000000016828960789570848124, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformFloor_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformFloor_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformFloor_01b.prefab
+    prefab: {fileID: 1030972560, guid: abc00000000012049938680015009143, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformFloor_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformFloor_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformFloor_01c.prefab
+    prefab: {fileID: 1030972567, guid: abc00000000008054300829737040062, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformFloor_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformFloor_01c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformFloor_01d.prefab
+    prefab: {fileID: 1030975382, guid: abc00000000005818388119279710777, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformFloor_01d
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformFloor_01d
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformScaffold_01a.prefab
+    prefab: {fileID: 1030973056, guid: abc00000000006096988481483982550, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformScaffold_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodPlatformScaffold_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformStairStep_01a.prefab
+    prefab: {fileID: 1031205120, guid: abc00000000005871073494048071235, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformStairStep_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformStairStep_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatformStair_01a.prefab
+    prefab: {fileID: 1030972537, guid: abc00000000017993911915427611717, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatformStair_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatformStair_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatform_01a.prefab
+    prefab: {fileID: 1030973327, guid: abc00000000008023089830942249772, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatform_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatform_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatform_01b.prefab
+    prefab: {fileID: 1030972453, guid: abc00000000017687839033213211367, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatform_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatform_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodPlatform_01c.prefab
+    prefab: {fileID: 1030973334, guid: abc00000000009966216532296928878, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodPlatform_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodPlatform_01c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodShutter_01a.prefab
+    prefab: {fileID: 1031228925, guid: abc00000000003815775177777437582, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodShutter_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodShutter_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodShutter_01b.prefab
+    prefab: {fileID: 1031228911, guid: abc00000000013518518536244647061, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodShutter_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodShutter_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 19982326ead23ec42a1a3f24f482c70c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/ModularParts/SM_WoodShutter_01c.prefab
+    prefab: {fileID: 1031224555, guid: abc00000000006457867149121324748, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodShutter_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodShutter_01c
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 19982326ead23ec42a1a3f24f482c70c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_CoverPlant_01a.prefab
+    prefab: {fileID: 1031173236, guid: abc00000000015418069493949406786, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_CoverPlant_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_CoverPlant_02a.prefab
+    prefab: {fileID: 1031173256, guid: abc00000000014300733581459477175, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_CoverPlant_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+    - transformPath: SM_CoverPlant_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: cafbf45311c77d94d8d7f20af5886a35, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FireCamp_01b.prefab
+    prefab: {fileID: 1031193496, guid: abc00000000017700138018932734582, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FireCamp_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+    - transformPath: SM_FireCamp_01b
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_FireCamp_01b
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 7ce55c68a32f3024c81910db2796d82c, type: 2}
+    - transformPath: SM_FireCamp_01b
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: a1a9140d1fc866c4b91997f151b3b2f0, type: 2}
+    - transformPath: SM_FireCamp_01b
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: e62913b2721f2534ba360d9f9623289a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FishWoodContainer_01a.prefab
+    prefab: {fileID: 1030974594, guid: abc00000000011625998328971273734, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FishWoodContainer_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_FishWoodContainer_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_FishWoodContainer_01a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 8acdcf7bcb7fa164782b8bb511c23538, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_FoodKitContainer_01a.prefab
+    prefab: {fileID: 1031181752, guid: abc00000000009320518954782150523, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_FoodKitContainer_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: ef409369ede75904d9de53acbef8397f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_GrassPatch_01a.prefab
+    prefab: {fileID: 1031171856, guid: abc00000000013105007313295962686, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GrassPatch_01a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_01a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_01a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_01a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_GrassPatch_02a.prefab
+    prefab: {fileID: 1030973568, guid: abc00000000002445637672112072771, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_GrassPatch_02a_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_02a_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_02a_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+    - transformPath: SM_GrassPatch_02a_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_GrassPatch_02a_Foliage.prefab
+    prefab: {fileID: 1030973568, guid: 5041c0eba859e3943ba3fc0a69266d3b, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: c9274c78544c57e4aa6f57bfcc49949b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MergedRoad.prefab
+    prefab: {fileID: 6172715135207718819, guid: 9fcd31b067161234696968d21bc41156, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9292b3614552a464cb4a853b3da7c1d7, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD0
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9292b3614552a464cb4a853b3da7c1d7, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD1
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9292b3614552a464cb4a853b3da7c1d7, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD2
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 9292b3614552a464cb4a853b3da7c1d7, type: 2}
+    - transformPath: SM_MERGED_Landscape_0/SM_MERGED_Landscape_0_LOD3
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: f23f74322ee30d14e97bf531915d7260, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalChain_01a.prefab
+    prefab: {fileID: 1030975007, guid: abc00000000011828132134385604734, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalChain_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_MetalChain_01b.prefab
+    prefab: {fileID: 1031175602, guid: abc00000000008430068517936361861, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_MetalChain_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e115a3e4f52aeeb469815f59da36c386, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_SignBoard_02a.prefab
+    prefab: {fileID: 1030974512, guid: abc00000000009637914675737682312, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_SignBoard_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 19982326ead23ec42a1a3f24f482c70c, type: 2}
+    - transformPath: SM_SignBoard_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_StonePatch_01a_1.prefab
+    prefab: {fileID: 1030972332, guid: abc00000000012231226516596603085, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01aFoliage.prefab
+    prefab: {fileID: 1030980322, guid: 0869dc79190a4544aa07b833c01826b7, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01bFoliage.prefab
+    prefab: {fileID: 1031015146, guid: 8b39fac53b9eedc4cb40d0e8fab2b563, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_TreePine_01cFoliage.prefab
+    prefab: {fileID: 1031048626, guid: 991e76ee9a5478744b371015f735ed8e, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: b494d111dc49b224680e80b21e5c78fd, type: 2}
+    - transformPath: 
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: 7ffdeabc2b996114e9802755e8ce2e3f, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingShield_01a.prefab
+    prefab: {fileID: 1030977163, guid: abc00000000000700384281272489411, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingShield_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c61f06a544a96b45ae4a4e10d156415, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingShield_01b.prefab
+    prefab: {fileID: 1030977134, guid: abc00000000000017877420077682744, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingShield_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c61f06a544a96b45ae4a4e10d156415, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_VikingShield_01c.prefab
+    prefab: {fileID: 1031208197, guid: abc00000000000350869067484816897, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_VikingShield_01c
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 3c61f06a544a96b45ae4a4e10d156415, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodBed_01a.prefab
+    prefab: {fileID: 1031225129, guid: abc00000000013849782789403550276, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodBed_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodBed_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: a122daa90b13d38449cc767c6907a3e1, type: 2}
+    - transformPath: SM_WoodBed_01a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: 0313c3ac4290ca940967a6efec09784b, type: 2}
+    - transformPath: SM_WoodBed_01a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: a7c355ef69d75b64fb9adcb0bf797e5b, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodChair_01a.prefab
+    prefab: {fileID: 1030974663, guid: abc00000000014901999005721343110, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodChair_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodChest_01a.prefab
+    prefab: {fileID: 1031206683, guid: abc00000000003460613732841093046, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodChest_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d5c184acfb0d49740924546c99681f6a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodChest_01b.prefab
+    prefab: {fileID: 1030977550, guid: abc00000000015409076717878810013, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodChest_01b
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: d5c184acfb0d49740924546c99681f6a, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodStool_01a.prefab
+    prefab: {fileID: 1030974821, guid: abc00000000000680907974685947688, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodStool_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodStool_02a.prefab
+    prefab: {fileID: 1030974457, guid: abc00000000001681594759299014409, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodStool_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTable_01a.prefab
+    prefab: {fileID: 1030977244, guid: abc00000000012704414254309572089, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTable_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: eacda563a18355147b1034585e474e7c, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTable_02a.prefab
+    prefab: {fileID: 1030974972, guid: abc00000000005408258161646014552, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTable_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTower_01a.prefab
+    prefab: {fileID: 1031209751, guid: abc00000000006869175788108703162, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTower_01a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodTower_01a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodTower_01a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d3fde25993ff7174f951cb1d43975e19, type: 2}
+    - transformPath: SM_WoodTower_01a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_WoodTower_01a
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  - assetPath: Assets/HIVEMIND/ModularVikingVillage/HDRP/Art/Prefabs/SM_WoodTower_02a.prefab
+    prefab: {fileID: 1031188651, guid: abc00000000000187594924412436975, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: SM_WoodTower_02a
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: 5386d6c4cc0bed049a7c25f4645e78bc, type: 2}
+    - transformPath: SM_WoodTower_02a
+      rendererIndex: 0
+      materialIndex: 1
+      replacementMaterial: {fileID: 2100000, guid: e622fadb7e0d34543b738ea4a70893df, type: 2}
+    - transformPath: SM_WoodTower_02a
+      rendererIndex: 0
+      materialIndex: 2
+      replacementMaterial: {fileID: 2100000, guid: d3fde25993ff7174f951cb1d43975e19, type: 2}
+    - transformPath: SM_WoodTower_02a
+      rendererIndex: 0
+      materialIndex: 3
+      replacementMaterial: {fileID: 2100000, guid: 1d4294f81a830f24ba74869f63d98de5, type: 2}
+    - transformPath: SM_WoodTower_02a
+      rendererIndex: 0
+      materialIndex: 4
+      replacementMaterial: {fileID: 2100000, guid: fe78e1d4f3f785849bf3e4110e8638d3, type: 2}
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

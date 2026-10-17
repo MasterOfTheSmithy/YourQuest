@@ -1,0 +1,260 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: western_desert_town
+  semanticStyleKey: western_desert_town
+  sourceSignature: fnv1a32_8bc8c2e5
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 91f4a26a676ed9647a9ee1b73eb6d423, type: 2}
+  sourceInstanceCount: 23426
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_western_desert_town_residential_01
+    displayName: Western Desert Town Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -90.1867, y: 2858.2192, z: 24.058714}
+    localBoundsCenter: {x: 0, y: 3.314209, z: 0}
+    localBoundsSize: {x: 29.45914, y: 6.628418, z: 29.243755}
+    sourceInstanceCount: 4
+    authoredBuildingCount: 0
+    authoredDressingCount: 4
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p0_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_service_02
+    displayName: Western Desert Town Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -83.69007, y: 2858.7783, z: -50.88749}
+    localBoundsCenter: {x: 0, y: 13.185059, z: 0}
+    localBoundsSize: {x: 171.1732, y: 26.370117, z: 193.58751}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_civic_03
+    displayName: Western Desert Town Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -11.210953, y: 0, z: 94.6303}
+    localBoundsCenter: {x: 0, y: 1440.4299, z: 0}
+    localBoundsSize: {x: 72.87234, y: 2880.8599, z: 106.10189}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_circulation_04
+    displayName: Western Desert Town Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -10.866402, y: 2856.745, z: 91.53224}
+    localBoundsCenter: {x: 0, y: 5.94751, z: 0}
+    localBoundsSize: {x: 73.69112, y: 11.89502, z: 100.34178}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p2_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_poi_05
+    displayName: Western Desert Town Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -27.9579, y: 2858.6504, z: 44.051285}
+    localBoundsCenter: {x: 0, y: 4.150879, z: 0}
+    localBoundsSize: {x: 60.74587, y: 8.301758, z: 13.171371}
+    sourceInstanceCount: 10529
+    authoredBuildingCount: 0
+    authoredDressingCount: 10529
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p1_p01
+    - yq_cell_western_desert_town_p1_p1_p02
+    - yq_cell_western_desert_town_p1_p1_p03
+    - yq_cell_western_desert_town_p1_p1_p04
+    - yq_cell_western_desert_town_p1_p1_p05
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_residential_06
+    displayName: Western Desert Town Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 3.0505981, y: 2858.5566, z: 122.8044}
+    localBoundsCenter: {x: 0, y: 2.142334, z: 0}
+    localBoundsSize: {x: 44.235336, y: 4.284668, z: 45.77603}
+    sourceInstanceCount: 25
+    authoredBuildingCount: 0
+    authoredDressingCount: 25
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p3_p00
+    - yq_cell_western_desert_town_p4_p3_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_service_07
+    displayName: Western Desert Town Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -0.63591194, y: 2858.0093, z: 70.706}
+    localBoundsCenter: {x: 0, y: 2.709961, z: 0}
+    localBoundsSize: {x: 37.471653, y: 5.419922, z: 43.888718}
+    sourceInstanceCount: 67
+    authoredBuildingCount: 0
+    authoredDressingCount: 67
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p2_p02
+    - yq_cell_western_desert_town_p4_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_civic_08
+    displayName: Western Desert Town Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 44.597355, y: 2855.6938, z: 88.844604}
+    localBoundsCenter: {x: 0, y: 4.5620117, z: 0}
+    localBoundsSize: {x: 42.943596, y: 9.124023, z: 60.022736}
+    sourceInstanceCount: 295
+    authoredBuildingCount: 0
+    authoredDressingCount: 295
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p1_p4_p00
+    - yq_cell_western_desert_town_p2_p2_p02
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_circulation_09
+    displayName: Western Desert Town Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 65.85153, y: 540.8219, z: 86.965775}
+    localBoundsCenter: {x: 0, y: 1162.1167, z: 0}
+    localBoundsSize: {x: 89.80812, y: 2324.2334, z: 66.93741}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p2_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_poi_10
+    displayName: Western Desert Town Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 68.38751, y: 1546.8965, z: 85.8925}
+    localBoundsCenter: {x: 0, y: 665.10645, z: 0}
+    localBoundsSize: {x: 93.4597, y: 1330.2129, z: 67.30214}
+    sourceInstanceCount: 2500
+    authoredBuildingCount: 0
+    authoredDressingCount: 2500
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p2_p2_p01
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_residential_11
+    displayName: Western Desert Town Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 142.32231, y: 2856.559, z: 114.769714}
+    localBoundsCenter: {x: 0, y: 3.1416016, z: 0}
+    localBoundsSize: {x: 44.347965, y: 6.283203, z: 25.345718}
+    sourceInstanceCount: 5
+    authoredBuildingCount: 0
+    authoredDressingCount: 5
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p3_p2_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_western_desert_town_service_12
+    displayName: Western Desert Town Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 168.40965, y: 2856.5818, z: 141.66254}
+    localBoundsCenter: {x: 0, y: 3.008789, z: 0}
+    localBoundsSize: {x: 1.7339807, y: 6.017578, z: 1.0704346}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_western_desert_town_p3_p3_p00
+    cellContractsV2: []

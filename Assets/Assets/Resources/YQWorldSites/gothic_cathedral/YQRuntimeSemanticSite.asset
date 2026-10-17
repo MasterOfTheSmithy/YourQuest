@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: gothic_cathedral
+  semanticStyleKey: gothic_cathedral
+  sourceSignature: fnv1a32_13f19393
+  topology: 4
+  streamingSite: {fileID: 11400000, guid: 0fb15a1ec445ef548b24249d5ada6899, type: 2}
+  sourceInstanceCount: 1574
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_gothic_cathedral_approach_01
+    displayName: Gothic Cathedral Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -256.15112, y: 23.708786, z: -81.11665}
+    localBoundsCenter: {x: 0, y: 47.014526, z: 0}
+    localBoundsSize: {x: 145.8826, y: 94.02905, z: 107.32927}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p1_p6_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_core_02
+    displayName: Gothic Cathedral Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -262.51556, y: 22.53209, z: 257.2906}
+    localBoundsCenter: {x: 0, y: 47.602875, z: 0}
+    localBoundsSize: {x: 332.29956, y: 95.20575, z: 124.04492}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p0_p9_p00
+    - yq_cell_gothic_cathedral_p2_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_perimeter_03
+    displayName: Gothic Cathedral Perimeter
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -197.08376, y: 0, z: 600.80945}
+    localBoundsCenter: {x: 0, y: 78.36842, z: 0}
+    localBoundsSize: {x: 137.23184, y: 156.73685, z: 202.61217}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - perimeter
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p2_p13_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_support_04
+    displayName: Gothic Cathedral Support
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 0.73596954, y: -0.7099991, z: 44.459297}
+    localBoundsCenter: {x: 0, y: 60.047527, z: 0}
+    localBoundsSize: {x: 254.01617, y: 120.095055, z: 166.8027}
+    sourceInstanceCount: 1560
+    authoredBuildingCount: 0
+    authoredDressingCount: 1560
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    - support
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p3_p7_p00
+    - yq_cell_gothic_cathedral_p5_p7_p00
+    - yq_cell_gothic_cathedral_p5_p8_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_poi_05
+    displayName: Gothic Cathedral Poi
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 114.54863, y: 33.604767, z: 412.7753}
+    localBoundsCenter: {x: 0, y: 47.014526, z: 0}
+    localBoundsSize: {x: 312.1491, y: 94.02905, z: 230.72003}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - landmarkcampus
+    - poi
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p4_p12_p00
+    - yq_cell_gothic_cathedral_p6_p11_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_approach_06
+    displayName: Gothic Cathedral Approach
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 177.64835, y: 7.8084183, z: -590.16833}
+    localBoundsCenter: {x: 0, y: 88.23164, z: 0}
+    localBoundsSize: {x: 356.50903, y: 176.46329, z: 223.89429}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - approach
+    - authored
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p5_p1_p00
+    - yq_cell_gothic_cathedral_p7_p1_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_gothic_cathedral_core_07
+    displayName: Gothic Cathedral Core
+    districtFunction: 0
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 326.62878, y: -0.15780258, z: 67.723076}
+    localBoundsCenter: {x: 0, y: 59.77143, z: 0}
+    localBoundsSize: {x: 204.073, y: 119.54286, z: 384.24255}
+    sourceInstanceCount: 6
+    authoredBuildingCount: 0
+    authoredDressingCount: 6
+    semanticTags:
+    - authored
+    - core
+    - landmarkcampus
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_gothic_cathedral_p7_p6_p00
+    - yq_cell_gothic_cathedral_p8_p8_p00
+    - yq_cell_gothic_cathedral_p8_p9_p00
+    cellContractsV2: []

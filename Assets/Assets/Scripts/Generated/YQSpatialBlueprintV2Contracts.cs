@@ -11,7 +11,9 @@ public enum YQTerrainFieldKindV2
     Escarpment = 5,
     HillCluster = 6,
     CaveMass = 7,
-    SiteReserve = 8
+    SiteReserve = 8,
+    // note: New basin enclosing relief is applied after broad valleys/depressions and before hydrology carves accepted inlets and spill channels.
+    BasinRim = 9
 }
 
 public enum YQHydrologyKindV2
@@ -22,6 +24,31 @@ public enum YQHydrologyKindV2
     Wetland = 3,
     Coastline = 4,
     Waterfall = 5
+}
+
+public enum YQBasinDispositionV2
+{
+    Unspecified = 0,
+    Open = 1,
+    Closed = 2,
+    OceanConnected = 3
+}
+
+public enum YQClosedBasinBalanceV2
+{
+    Unspecified = 0,
+    // note: This is an explicit planning approximation, not a simulated annual water-volume budget.
+    SeasonalStorageEvaporationAndSeepage = 1
+}
+
+[Serializable]
+public sealed class YQHydrologyBasinV2
+{
+    public YQBasinDispositionV2 disposition;
+    // note: Unity serializes inline reference classes as default records rather than preserving null; explicit presence keeps save/router roundtrips canonical.
+    public bool hasSpill;
+    public YQBlueprintPointV2 spillPoint = new YQBlueprintPointV2();
+    public YQClosedBasinBalanceV2 closedBalance;
 }
 
 public enum YQRouteClassV2
@@ -137,6 +164,13 @@ public sealed class YQHydrologyFeatureV2
     public float waterLevelNormalized;
     public float nominalWidth;
     public float nominalDepth;
+    // note: Topology 11 persists the drainage proof with the existing feature; older accepted artifacts leave these additive fields unspecified.
+    public string catchmentId = string.Empty;
+    public int drainageOrder;
+    public YQHydrologyBasinV2 basin = new YQHydrologyBasinV2();
+    // note: Inline records survive Unity JSON round trips; the explicit flag distinguishes legacy area geometry from an accepted connected domain.
+    public bool hasConnectedDomain;
+    public YQConnectedBasinDomainV2 connectedDomain = new YQConnectedBasinDomainV2();
     public List<YQBlueprintPointV2> controlPoints =
         new List<YQBlueprintPointV2>();
     public List<string> tags = new List<string>();

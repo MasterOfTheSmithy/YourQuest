@@ -1,4 +1,6 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="MagicPigGames.Shared.Editor.csproj" />
+  <Project Path="MagicPigGames.Shared.csproj" />
 </Solution>

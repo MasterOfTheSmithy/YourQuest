@@ -1,0 +1,1121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_befourstudios_medievalvikingvillage
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_BigBarrellong.prefab
+    prefab: {fileID: 1030995189, guid: abc00000000006017651192921991303, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_BoxLog.prefab
+    prefab: {fileID: 1030995269, guid: abc00000000002076400952576458242, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_branchPile.prefab
+    prefab: {fileID: 1030994390, guid: abc00000000002880342409073810641, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_BucketURoped.prefab
+    prefab: {fileID: 1030994886, guid: abc00000000011292155938693501772, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CampWoodFireStructure.prefab
+    prefab: {fileID: 1030994352, guid: abc00000000001708226519827006648, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CarryWheel.prefab
+    prefab: {fileID: 1030994515, guid: abc00000000000136963209599366623, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_GroundRock.prefab
+    prefab: {fileID: 1030973157, guid: abc00000000018143247483757590127, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Hay_Bale.prefab
+    prefab: {fileID: 1030998151, guid: abc00000000006289535825477670690, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Hay_Pile_Small.prefab
+    prefab: {fileID: 1030991011, guid: abc00000000007613175297668528000, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Horse.prefab
+    prefab: {fileID: 1030989671, guid: abc00000000014045534236753062588, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_HorseWaterPlace.prefab
+    prefab: {fileID: 1030995460, guid: abc00000000008833286471135501022, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_HorseWaterPlaceKeg.prefab
+    prefab: {fileID: 1030995480, guid: abc00000000016889496719806469645, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Horse_1.prefab
+    prefab: {fileID: 1030989691, guid: abc00000000002647251993513397736, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Horse_2.prefab
+    prefab: {fileID: 1030989711, guid: abc00000000000469536446840444595, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House1_Floor.prefab
+    prefab: {fileID: 1030972323, guid: abc00000000009488254187270693139, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_BackWall.prefab
+    prefab: {fileID: 1030973221, guid: abc00000000000593005955936278151, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_Door.prefab
+    prefab: {fileID: 1030973303, guid: abc00000000008531496485008972678, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_FrontWall.prefab
+    prefab: {fileID: 1030973281, guid: abc00000000006265377206827171595, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_Roof.prefab
+    prefab: {fileID: 1030973196, guid: abc00000000004492641380648497100, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_SideWall.prefab
+    prefab: {fileID: 1030973241, guid: abc00000000001887812663701346519, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_LadderPatched.prefab
+    prefab: {fileID: 1030995948, guid: abc00000000001435260764316626170, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_LogStackSet.prefab
+    prefab: {fileID: 1030994535, guid: abc00000000017479832950482873273, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MediumWoodenBridge_Floor.prefab
+    prefab: {fileID: 1030987209, guid: abc00000000002904129332320612498, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Mini4LegLadder.prefab
+    prefab: {fileID: 1031001038, guid: abc00000000009659081044285386720, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiniBridge_Body.prefab
+    prefab: {fileID: 1030996177, guid: abc00000000016562996584755216378, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiscWoodenProp.prefab
+    prefab: {fileID: 1030997470, guid: abc00000000017549120595965845368, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiscWoodenProp2.prefab
+    prefab: {fileID: 1030997450, guid: abc00000000002387317382160864554, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiscWoodenProp3.prefab
+    prefab: {fileID: 1030997490, guid: abc00000000014986441084043558579, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiscWoodenProp4.prefab
+    prefab: {fileID: 1030997510, guid: abc00000000005606011086073279508, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiscWoodenProp5.prefab
+    prefab: {fileID: 1030997530, guid: abc00000000008138756258072004541, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Pile_Large.prefab
+    prefab: {fileID: 1030991031, guid: abc00000000006009575542136959961, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RoofCot.prefab
+    prefab: {fileID: 1030991293, guid: abc00000000005639178696436854971, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_Floor.prefab
+    prefab: {fileID: 1030982578, guid: abc00000000007547247728863027269, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_SideWall.prefab
+    prefab: {fileID: 1030982315, guid: abc00000000013465731671175794012, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StairsOneSideFenced.prefab
+    prefab: {fileID: 1031000849, guid: abc00000000010960961254622343629, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StoneWall_PS3.prefab
+    prefab: {fileID: 1030973037, guid: abc00000000010771969676842220251, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StoneWall_PS4.prefab
+    prefab: {fileID: 1030973057, guid: abc00000000009417827523464268060, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StoneWall_PS5.prefab
+    prefab: {fileID: 1030973117, guid: abc00000000003862852937191371621, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Structures_FlatPost.prefab
+    prefab: {fileID: 1030975690, guid: abc00000000013110002175403184853, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StructureWC_Body.prefab
+    prefab: {fileID: 1030986774, guid: abc00000000007093269769665693773, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Structure_ShadowPost.prefab
+    prefab: {fileID: 1030995520, guid: abc00000000002821657904244740953, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_TallPlatfprmStructureFenced.prefab
+    prefab: {fileID: 1031000806, guid: abc00000000017410943260781951896, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Tree_02_Foliage.prefab
+    prefab: {fileID: 1030987891, guid: 59ea741e48e6dc040ab643b43edc40fe, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_1.prefab
+    prefab: {fileID: 1030989811, guid: abc00000000005394426611072070944, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_10.prefab
+    prefab: {fileID: 1030989931, guid: abc00000000013642226555139622784, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_11.prefab
+    prefab: {fileID: 1030989951, guid: abc00000000013490395134411780745, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_12.prefab
+    prefab: {fileID: 1030989971, guid: abc00000000015585353256494301890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_13.prefab
+    prefab: {fileID: 1030989991, guid: abc00000000011891579393184095499, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_14.prefab
+    prefab: {fileID: 1030990591, guid: abc00000000010952111506380614924, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_15.prefab
+    prefab: {fileID: 1030990011, guid: abc00000000006184330759758184149, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_16.prefab
+    prefab: {fileID: 1030990031, guid: abc00000000000839157534317232334, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_17.prefab
+    prefab: {fileID: 1030990051, guid: abc00000000008159341168270714311, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_18.prefab
+    prefab: {fileID: 1030990071, guid: abc00000000018411317095946100744, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_19.prefab
+    prefab: {fileID: 1030990091, guid: abc00000000013026415021437785617, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_2.prefab
+    prefab: {fileID: 1030997732, guid: abc00000000011025750907271770923, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_20.prefab
+    prefab: {fileID: 1030990111, guid: abc00000000005991411960479380785, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_3.prefab
+    prefab: {fileID: 1030989831, guid: abc00000000002891092636836224226, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_4.prefab
+    prefab: {fileID: 1030989851, guid: abc00000000010287643648416000629, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_5.prefab
+    prefab: {fileID: 1030990551, guid: abc00000000016704594960432088876, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_6.prefab
+    prefab: {fileID: 1030989871, guid: abc00000000007922600088993498855, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_7.prefab
+    prefab: {fileID: 1030990171, guid: abc00000000000200977588077216366, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_8.prefab
+    prefab: {fileID: 1030989891, guid: abc00000000011413880232471614001, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_VikingVase_9.prefab
+    prefab: {fileID: 1030989911, guid: abc00000000017912176621790947240, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WagonWoodenHay1.prefab
+    prefab: {fileID: 1030994478, guid: abc00000000013866742262821725718, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WagonWoodenHay2.prefab
+    prefab: {fileID: 1030994575, guid: abc00000000008743973408862025213, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WagonWoodenHay3.prefab
+    prefab: {fileID: 1030994555, guid: abc00000000012061976248060771156, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_1.prefab
+    prefab: {fileID: 1031000616, guid: abc00000000011303153936534670086, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WideLowBucketURoped.prefab
+    prefab: {fileID: 1030995209, guid: abc00000000014385292243226811555, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodBath_Body.prefab
+    prefab: {fileID: 1031001379, guid: abc00000000013044205624650091428, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodBenchOutdoorLog.prefab
+    prefab: {fileID: 1030994968, guid: abc00000000008869444497444945378, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenBoatSimple.prefab
+    prefab: {fileID: 1031001459, guid: abc00000000014206352978181222047, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenBox.prefab
+    prefab: {fileID: 1030989081, guid: abc00000000012180990260701285450, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenBox2.prefab
+    prefab: {fileID: 1030989121, guid: abc00000000012280226286107860676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenBridgeBend.prefab
+    prefab: {fileID: 1030989181, guid: abc00000000011027464657541814133, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenFence_3section.prefab
+    prefab: {fileID: 1030972783, guid: abc00000000000047395446466320393, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenHangStand_RopeFrame.prefab
+    prefab: {fileID: 1030982202, guid: abc00000000013318943381298532943, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenHangStand_Stairs.prefab
+    prefab: {fileID: 1030972949, guid: abc00000000016200364863773553974, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenHangStand_Stand.prefab
+    prefab: {fileID: 1030982182, guid: abc00000000013397474275206827636, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenMiniWatchtower_Body.prefab
+    prefab: {fileID: 1030973659, guid: abc00000000001147813946490636373, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenPallete.prefab
+    prefab: {fileID: 1030995968, guid: abc00000000011507093152497329922, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodentableSimple.prefab
+    prefab: {fileID: 1030996042, guid: abc00000000012739002868711865451, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_Base.prefab
+    prefab: {fileID: 1030975391, guid: abc00000000013783041704298702200, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_Head.prefab
+    prefab: {fileID: 1030975459, guid: abc00000000016745761729247120009, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_Mid.prefab
+    prefab: {fileID: 1030975498, guid: abc00000000012434640467086545495, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_MidDome.prefab
+    prefab: {fileID: 1030975439, guid: abc00000000008744400631861437414, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_Wing.prefab
+    prefab: {fileID: 1030975479, guid: abc00000000005185213770365190806, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUGEntrance.prefab
+    prefab: {fileID: 1030996062, guid: abc00000000018369896623378552445, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_Monumnetsimple.prefab
+    prefab: {fileID: 1030976506, guid: abc00000000012876505724380362890, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_PathwayBody.prefab
+    prefab: {fileID: 1030971892, guid: abc00000000005753616452924816453, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_PathwayFencesimple.prefab
+    prefab: {fileID: 1030972002, guid: abc00000000007430564203428532230, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_PathwayOpen.prefab
+    prefab: {fileID: 1030971938, guid: abc00000000013704485818269039377, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_PathwaySection.prefab
+    prefab: {fileID: 1030971960, guid: abc00000000009104069479129161166, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUpPathway_PathwayStairs.prefab
+    prefab: {fileID: 1030971980, guid: abc00000000012099071215203225743, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenWatertank_Foundation.prefab
+    prefab: {fileID: 1030994740, guid: abc00000000003573314450787437752, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenWatertank_Tank.prefab
+    prefab: {fileID: 1030994762, guid: abc00000000016739422954179510367, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_1.prefab
+    prefab: {fileID: 1030998756, guid: abc00000000006078575502854345364, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_10.prefab
+    prefab: {fileID: 1030998936, guid: abc00000000014711916588470232988, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_11.prefab
+    prefab: {fileID: 1030998956, guid: abc00000000009156942002197336549, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_12.prefab
+    prefab: {fileID: 1030998976, guid: abc00000000018132095299162527070, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_13.prefab
+    prefab: {fileID: 1030998996, guid: abc00000000009664640035771576599, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_14.prefab
+    prefab: {fileID: 1030999016, guid: abc00000000008718942059514216656, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_15.prefab
+    prefab: {fileID: 1030973925, guid: abc00000000007902358414029265113, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_16.prefab
+    prefab: {fileID: 1030999056, guid: abc00000000016741574133019480722, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_18.prefab
+    prefab: {fileID: 1030999076, guid: abc00000000014720098952406653828, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_19.prefab
+    prefab: {fileID: 1030999096, guid: abc00000000016267862833815186861, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_2.prefab
+    prefab: {fileID: 1030998776, guid: abc00000000008437292389192448303, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_20.prefab
+    prefab: {fileID: 1030999116, guid: abc00000000010998261546932840909, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_21.prefab
+    prefab: {fileID: 1030999136, guid: abc00000000007440212661661536676, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_22.prefab
+    prefab: {fileID: 1030999156, guid: abc00000000001921055107029286335, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_23.prefab
+    prefab: {fileID: 1030999176, guid: abc00000000009598572873038695782, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_24.prefab
+    prefab: {fileID: 1030999196, guid: abc00000000013425207135071692929, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_25.prefab
+    prefab: {fileID: 1030999216, guid: abc00000000013092215487664558776, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_26.prefab
+    prefab: {fileID: 1030999236, guid: abc00000000013774722348859365443, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_27.prefab
+    prefab: {fileID: 1030999256, guid: abc00000000003953334883350509818, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_28.prefab
+    prefab: {fileID: 1030999276, guid: abc00000000015308930094559237253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_29.prefab
+    prefab: {fileID: 1030999296, guid: abc00000000009035191072109558588, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_3.prefab
+    prefab: {fileID: 1030998796, guid: abc00000000013728404166297242966, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_30.prefab
+    prefab: {fileID: 1030999316, guid: abc00000000008593744769421516202, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_31.prefab
+    prefab: {fileID: 1030999336, guid: abc00000000002746124397594658611, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_32.prefab
+    prefab: {fileID: 1030999356, guid: abc00000000004923839944267611752, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_33.prefab
+    prefab: {fileID: 1030999376, guid: abc00000000006174484499837498865, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_34.prefab
+    prefab: {fileID: 1030999396, guid: abc00000000001015523063067277142, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_35.prefab
+    prefab: {fileID: 1030999416, guid: abc00000000014171155359672034095, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_36.prefab
+    prefab: {fileID: 1030999436, guid: abc00000000011812438473333931156, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_37.prefab
+    prefab: {fileID: 1030999456, guid: abc00000000014345183645332656189, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_38.prefab
+    prefab: {fileID: 1030999476, guid: abc00000000010114620332121677218, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_39.prefab
+    prefab: {fileID: 1030999496, guid: abc00000000017257689069716664555, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_4.prefab
+    prefab: {fileID: 1030998816, guid: abc00000000000440621529357913073, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_40.prefab
+    prefab: {fileID: 1030999516, guid: abc00000000002742058554154528435, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_41.prefab
+    prefab: {fileID: 1030999536, guid: abc00000000008589678925981386026, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_42.prefab
+    prefab: {fileID: 1030999556, guid: abc00000000006170418656397368689, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_43.prefab
+    prefab: {fileID: 1030999576, guid: abc00000000004919774100827481576, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_44.prefab
+    prefab: {fileID: 1030999596, guid: abc00000000014167089516231903919, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_45.prefab
+    prefab: {fileID: 1030999616, guid: abc00000000001011457219627146966, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_46.prefab
+    prefab: {fileID: 1030999636, guid: abc00000000014341117801892526013, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_47.prefab
+    prefab: {fileID: 1030999656, guid: abc00000000011808372629893800980, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_48.prefab
+    prefab: {fileID: 1030999676, guid: abc00000000017253623226276534379, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_49.prefab
+    prefab: {fileID: 1030999696, guid: abc00000000010110554488681547042, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_5.prefab
+    prefab: {fileID: 1030998836, guid: abc00000000017636721047497577576, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_50.prefab
+    prefab: {fileID: 1030999716, guid: abc00000000009963296802752858072, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_51.prefab
+    prefab: {fileID: 1030999736, guid: abc00000000010541171679946704545, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_52.prefab
+    prefab: {fileID: 1030999756, guid: abc00000000005945692596696836762, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_53.prefab
+    prefab: {fileID: 1030999776, guid: abc00000000016513504890282717411, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_54.prefab
+    prefab: {fileID: 1030999796, guid: abc00000000004172254504664973508, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_55.prefab
+    prefab: {fileID: 1030999816, guid: abc00000000006493830627309006061, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_56.prefab
+    prefab: {fileID: 1030999836, guid: abc00000000017696386328396113542, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_57.prefab
+    prefab: {fileID: 1030999856, guid: abc00000000011278149588416436831, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_58.prefab
+    prefab: {fileID: 1030999876, guid: abc00000000010773060511776966928, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_59.prefab
+    prefab: {fileID: 1030999896, guid: abc00000000005493062975563907865, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_6.prefab
+    prefab: {fileID: 1030998856, guid: abc00000000015459005500824624435, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_60.prefab
+    prefab: {fileID: 1030999916, guid: abc00000000001705714592962461257, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_61.prefab
+    prefab: {fileID: 1030999936, guid: abc00000000006076358149608520512, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_62.prefab
+    prefab: {fileID: 1030999956, guid: abc00000000004325429512676171211, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_63.prefab
+    prefab: {fileID: 1030999976, guid: abc00000000003172148258363517314, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_64.prefab
+    prefab: {fileID: 1030999996, guid: abc00000000016820041723173099157, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_65.prefab
+    prefab: {fileID: 1031000016, guid: abc00000000009759390336049776844, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_66.prefab
+    prefab: {fileID: 1031000036, guid: abc00000000008587296937415544711, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_67.prefab
+    prefab: {fileID: 1031000056, guid: abc00000000007117298364705889678, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_68.prefab
+    prefab: {fileID: 1030992645, guid: abc00000000012078858555870481873, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_7.prefab
+    prefab: {fileID: 1030998876, guid: abc00000000002859881798941930410, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_70.prefab
+    prefab: {fileID: 1031000096, guid: abc00000000009594507029598565606, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_71.prefab
+    prefab: {fileID: 1031000116, guid: abc00000000001916989263589156159, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_72.prefab
+    prefab: {fileID: 1030992605, guid: abc00000000007436146818221406500, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_73.prefab
+    prefab: {fileID: 1031000156, guid: abc00000000010994195703492710733, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_74.prefab
+    prefab: {fileID: 1030992625, guid: abc00000000003949269039910379642, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_8.prefab
+    prefab: {fileID: 1030998896, guid: abc00000000017766814381527379253, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet2_9.prefab
+    prefab: {fileID: 1030998916, guid: abc00000000010968280914305172972, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks1.prefab
+    prefab: {fileID: 1031000196, guid: abc00000000000198547931775319271, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks10.prefab
+    prefab: {fileID: 1031000216, guid: abc00000000001688477081634224949, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks2.prefab
+    prefab: {fileID: 1031000236, guid: abc00000000008980542803213909292, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks3.prefab
+    prefab: {fileID: 1031000256, guid: abc00000000002563591491197821045, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks4.prefab
+    prefab: {fileID: 1031000276, guid: abc00000000013613784553327596258, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks5.prefab
+    prefab: {fileID: 1031000296, guid: abc00000000003301698750053591339, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks6.prefab
+    prefab: {fileID: 1031000316, guid: abc00000000016117118527563442976, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks7.prefab
+    prefab: {fileID: 1031000336, guid: abc00000000005512085732825159977, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks8.prefab
+    prefab: {fileID: 1031000356, guid: abc00000000006140768111287570582, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Planks9.prefab
+    prefab: {fileID: 1031000376, guid: abc00000000011297172345677688943, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks1.prefab
+    prefab: {fileID: 1031000396, guid: abc00000000015300477464986091245, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks10.prefab
+    prefab: {fileID: 1031000416, guid: abc00000000014318217290789223255, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks2.prefab
+    prefab: {fileID: 1031000436, guid: abc00000000008056289092363647110, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks3.prefab
+    prefab: {fileID: 1031000476, guid: abc00000000001638052352383970399, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks4.prefab
+    prefab: {fileID: 1031000496, guid: abc00000000000323199566720391640, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks5.prefab
+    prefab: {fileID: 1031000516, guid: abc00000000000901074443914238113, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks6.prefab
+    prefab: {fileID: 1031000536, guid: abc00000000014752339434373921946, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks7.prefab
+    prefab: {fileID: 1030972363, guid: abc00000000006873407654250250979, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks8.prefab
+    prefab: {fileID: 1031000576, guid: abc00000000008368265615592667868, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodSet_Trunks9.prefab
+    prefab: {fileID: 1030975770, guid: abc00000000015025927339913921317, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodStructRamp.prefab
+    prefab: {fileID: 1031001561, guid: abc00000000016042632450640386405, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CampWoodFirePyramid.prefab
+    prefab: {fileID: 1030994371, guid: abc00000000006465719415335247031, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CatterPillar_GroundBase.prefab
+    prefab: {fileID: 1030997062, guid: abc00000000001705088138133157141, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CatterPillar_MidStructure.prefab
+    prefab: {fileID: 1030986720, guid: abc00000000011256171621453398486, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CatterPillar_Movver.prefab
+    prefab: {fileID: 1030997087, guid: abc00000000011768964875517359886, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_CatterPillar_WeightBack.prefab
+    prefab: {fileID: 1030986751, guid: abc00000000007756705900881032654, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_GroundPatch_2.prefab
+    prefab: {fileID: 1030973177, guid: abc00000000011321574565082392605, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House2_Rack.prefab
+    prefab: {fileID: 1030973323, guid: abc00000000013250833642792569959, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House3_Floor.prefab
+    prefab: {fileID: 1030985823, guid: abc00000000017752538940508268617, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House3_Roof.prefab
+    prefab: {fileID: 1030985798, guid: abc00000000007469218152771139115, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House3_SideWall1.prefab
+    prefab: {fileID: 1030985843, guid: abc00000000000756923437171770953, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House3_SideWall2.prefab
+    prefab: {fileID: 1030985868, guid: abc00000000002223357102572827010, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House4_BackWall.prefab
+    prefab: {fileID: 1030972195, guid: abc00000000008684847609300175561, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House4_Door.prefab
+    prefab: {fileID: 1030972303, guid: abc00000000008430468280016741684, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House4_FrontWall.prefab
+    prefab: {fileID: 1030972255, guid: abc00000000004161674255300093189, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House4_Roof.prefab
+    prefab: {fileID: 1030972278, guid: abc00000000016761833538009803534, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_House4_SideWall.prefab
+    prefab: {fileID: 1030972215, guid: abc00000000009806261565176149993, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MediumWoodenBridge_FenceSupport.prefab
+    prefab: {fileID: 1030987235, guid: abc00000000016029373594820687884, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MediumWoodenBridge_HeadTrunk.prefab
+    prefab: {fileID: 1030987357, guid: abc00000000016406906721116708536, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MediumWoodenBridge_triangleSupport.prefab
+    prefab: {fileID: 1030987259, guid: abc00000000007270802664505757889, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiniBridge_HeadStep.prefab
+    prefab: {fileID: 1030996019, guid: abc00000000002877607297527324658, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_MiniBridge_TailStep.prefab
+    prefab: {fileID: 1030995995, guid: abc00000000000055244832114782170, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_miniShackRoofRainStop.prefab
+    prefab: {fileID: 1031001058, guid: abc00000000012452158733395020740, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_1.prefab
+    prefab: {fileID: 1030998191, guid: abc00000000000029523699471458811, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_10.prefab
+    prefab: {fileID: 1030998362, guid: abc00000000002317931204802294337, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_11.prefab
+    prefab: {fileID: 1030998381, guid: abc00000000001740056327608447864, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_12.prefab
+    prefab: {fileID: 1030998400, guid: abc00000000012875764562813695491, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_13.prefab
+    prefab: {fileID: 1030998419, guid: abc00000000016285145928967557562, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_14.prefab
+    prefab: {fileID: 1030998438, guid: abc00000000010099022285910348941, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_15.prefab
+    prefab: {fileID: 1030998457, guid: abc00000000008550976929524993892, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_16.prefab
+    prefab: {fileID: 1030998476, guid: abc00000000009260523250469439359, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_17.prefab
+    prefab: {fileID: 1030998495, guid: abc00000000003099717143074617126, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_18.prefab
+    prefab: {fileID: 1030998514, guid: abc00000000009727342040800359865, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_19.prefab
+    prefab: {fileID: 1030991799, guid: abc00000000014744940182135480880, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_2.prefab
+    prefab: {fileID: 1030998210, guid: abc00000000009479980525453384432, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_20.prefab
+    prefab: {fileID: 1030998552, guid: abc00000000002219804854573315984, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_21.prefab
+    prefab: {fileID: 1030998571, guid: abc00000000015386551392069808537, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_22.prefab
+    prefab: {fileID: 1030991780, guid: abc00000000005640265040242432082, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_23.prefab
+    prefab: {fileID: 1030998609, guid: abc00000000015801592249976330267, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_24.prefab
+    prefab: {fileID: 1030998628, guid: abc00000000009455107194421483356, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_25.prefab
+    prefab: {fileID: 1030998647, guid: abc00000000016112768918742736805, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_26.prefab
+    prefab: {fileID: 1030998666, guid: abc00000000011633239569198448414, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_27.prefab
+    prefab: {fileID: 1030998685, guid: abc00000000004547151588784511447, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_28.prefab
+    prefab: {fileID: 1030998704, guid: abc00000000001410041145549207128, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_29.prefab
+    prefab: {fileID: 1030998723, guid: abc00000000001987916022743053601, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_3.prefab
+    prefab: {fileID: 1030991723, guid: abc00000000016541271320938786169, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_4.prefab
+    prefab: {fileID: 1030998248, guid: abc00000000008569147362149208830, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_5.prefab
+    prefab: {fileID: 1030998267, guid: abc00000000018303834417657919671, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_6.prefab
+    prefab: {fileID: 1030998286, guid: abc00000000017344088796959838908, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_7.prefab
+    prefab: {fileID: 1030991742, guid: abc00000000005171083745699965957, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_8.prefab
+    prefab: {fileID: 1030998324, guid: abc00000000012262232608200790138, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_RopeSet_9.prefab
+    prefab: {fileID: 1030991761, guid: abc00000000003636876000000094147, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_ShabbyShackBrokenRoof.prefab
+    prefab: {fileID: 1030994603, guid: abc00000000006919356233248050023, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_1.prefab
+    prefab: {fileID: 1031001112, guid: abc00000000001031201594464474144, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_2.prefab
+    prefab: {fileID: 1030994782, guid: abc00000000006662525890664174123, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_3.prefab
+    prefab: {fileID: 1031001132, guid: abc00000000016974611693938179042, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_4.prefab
+    prefab: {fileID: 1030994458, guid: abc00000000005924418631808403829, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_5.prefab
+    prefab: {fileID: 1030994928, guid: abc00000000012341369943824492076, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_6.prefab
+    prefab: {fileID: 1031001214, guid: abc00000000003559375072385902055, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_SignBoardSimpleSet_7.prefab
+    prefab: {fileID: 1030994438, guid: abc00000000014284496645179171182, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_BackWall.prefab
+    prefab: {fileID: 1030982295, guid: abc00000000005726935183607470216, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_Door.prefab
+    prefab: {fileID: 1030982359, guid: abc00000000004492144052154533241, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_InteriorWall.prefab
+    prefab: {fileID: 1030982335, guid: abc00000000006771510373769075461, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StableWooden_Roof.prefab
+    prefab: {fileID: 1030982379, guid: abc00000000016966220337036311415, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StrongholdWallBase.prefab
+    prefab: {fileID: 1030982598, guid: abc00000000002790423996713089764, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StrongholdWallBase_FenceInside.prefab
+    prefab: {fileID: 1030983644, guid: abc00000000017835341928901086234, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StrongholdWallBase_FloorPiece.prefab
+    prefab: {fileID: 1030983380, guid: abc00000000011439259407385411771, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StrongholdWallBase_OneSide.prefab
+    prefab: {fileID: 1030982698, guid: abc00000000011547380501009849968, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_StructureWC_Door.prefab
+    prefab: {fileID: 1030986810, guid: abc00000000002173213345936412301, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_TorchHead.prefab
+    prefab: {fileID: 1030992177, guid: abc00000000002211293771029598895, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_TorchLong.prefab
+    prefab: {fileID: 1030991913, guid: abc00000000008584560055714155107, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_TorchWall.prefab
+    prefab: {fileID: 1030991979, guid: abc00000000005518141383171224729, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_2.prefab
+    prefab: {fileID: 1031000635, guid: abc00000000000100598235447562605, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_3.prefab
+    prefab: {fileID: 1031000654, guid: abc00000000016225766186513081668, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_4.prefab
+    prefab: {fileID: 1031000673, guid: abc00000000010120272498421273955, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_5.prefab
+    prefab: {fileID: 1031000692, guid: abc00000000017999204278544944922, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_6.prefab
+    prefab: {fileID: 1031000711, guid: abc00000000004147939288085261089, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodBath_Stair.prefab
+    prefab: {fileID: 1031001399, guid: abc00000000002829669819544978451, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodBenchOutdoorPlank.prefab
+    prefab: {fileID: 1030994948, guid: abc00000000012053218859434639284, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenCurveChest_Closed.prefab
+    prefab: {fileID: 1031001479, guid: abc00000000013195712083664174406, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenCurveChest_Open.prefab
+    prefab: {fileID: 1031001499, guid: abc00000000016912755367057528826, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenFence_Conncetor.prefab
+    prefab: {fileID: 1030972803, guid: abc00000000009764562873767482850, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenFence_Door.prefab
+    prefab: {fileID: 1030996489, guid: abc00000000001736049952832084013, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenFence_Single.prefab
+    prefab: {fileID: 1030972843, guid: abc00000000005821451909944261565, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenMiniChair.prefab
+    prefab: {fileID: 1030995500, guid: abc00000000011185979533421184013, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenMiniWatchtower_Base.prefab
+    prefab: {fileID: 1030973639, guid: abc00000000018180292917551049734, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenMiniWatchtower_Stairs.prefab
+    prefab: {fileID: 1030976628, guid: abc00000000000144587936614135999, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenTurbine_Door.prefab
+    prefab: {fileID: 1030975518, guid: abc00000000015285040928294819259, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_WoodenUGEntrance_Door.prefab
+    prefab: {fileID: 1030996102, guid: abc00000000004759776579407202584, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

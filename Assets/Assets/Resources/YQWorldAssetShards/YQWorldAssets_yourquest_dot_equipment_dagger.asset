@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAssets_yourquest_dot_equipment_dagger
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Broad_Leaf_Dagger.prefab
+    prefab: {fileID: 7785111827978975689, guid: 3adabfbbdbc619f4e99de7e43316e134, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Curved_Jambiya.prefab
+    prefab: {fileID: 1784925893786772998, guid: c3e6a3d2470841246861e0dbd0367385, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Dagger_Starforged_Orrery.prefab
+    prefab: {fileID: 7520557777732360920, guid: 201fc58ed21016949b485f36340d8f69, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Dagger_Worldtree_Sovereign.prefab
+    prefab: {fileID: 8717448240529421252, guid: b441e6cd78d6b074db1f6f130614bd31, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Eclipse_Fork_Dagger.prefab
+    prefab: {fileID: 8638733991867021070, guid: eccec358f0670c54687a6fab65a61281, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Parrying_Main_Gauche.prefab
+    prefab: {fileID: 6625882247605120474, guid: 41617f8459da29b468280b76525261e2, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Stiletto_Needle.prefab
+    prefab: {fileID: 5052298415368122132, guid: 58437ad420b77aa4fa83964357553914, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Wayfarer_Rondel_Dagger.prefab
+    prefab: {fileID: 6359207421072094272, guid: 1537f3f793398d34ab0afc2e8d2d33ef, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Wyrmtooth_Dagger.prefab
+    prefab: {fileID: 2445467883525038375, guid: fab567b37c5fe9748a3a583decdd0e02, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_darkness.prefab
+    prefab: {fileID: 8052313797482803557, guid: d9a882423b48c234b831613eb1c8a6be, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_fire.prefab
+    prefab: {fileID: 7580005221646024675, guid: 3a524dd541a73a6419cfa9ddf0d95955, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_forged.prefab
+    prefab: {fileID: 954753205986442349, guid: 2b01638d3ff536745907d037a157bc2f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_frost.prefab
+    prefab: {fileID: 5456774989335981155, guid: 34ffc3d5dcb091c47ad72d18af6dc653, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_light.prefab
+    prefab: {fileID: 5205270004630394494, guid: 4a9caa98862f8f841bd70892325549b3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_blade_organic.prefab
+    prefab: {fileID: 3653039495611396926, guid: 6c33112e99876a64f9fc3e639ec3c86b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_darkness.prefab
+    prefab: {fileID: 6221302107086892326, guid: 22882a5a63c076745a2521039b09a467, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_fire.prefab
+    prefab: {fileID: 6128841066673894420, guid: 866007c641ab3bd4a828f33b0dc673ea, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_forged.prefab
+    prefab: {fileID: 3165246851903280520, guid: 0ba7a184c6e36a94ea9cdf88688f029a, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_frost.prefab
+    prefab: {fileID: 8129073848441736751, guid: e810ef4ed7ed2b94ca1b16a84c05c2f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_light.prefab
+    prefab: {fileID: 1809699507060849162, guid: 758790ee09d86764ca739dc68ee61d96, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_guard_organic.prefab
+    prefab: {fileID: 3034736284729995222, guid: 50b6f4966727df049ae098ff93bfb71c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_darkness.prefab
+    prefab: {fileID: 8513514894234711653, guid: 5811f6b77e275d049ae39907386be9c5, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_fire.prefab
+    prefab: {fileID: 1007402461216315353, guid: 96c09ccf727007046b179879d7967c5e, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_forged.prefab
+    prefab: {fileID: 5498465719722896689, guid: 3a36b1fd46874fa4b9e25c236b01706c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_frost.prefab
+    prefab: {fileID: 6283073234983510899, guid: 7c1ce64331318cb4e956898dc2ddfd3f, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_light.prefab
+    prefab: {fileID: 6750869257305430424, guid: 63be458f698235c45bf05dec2994c63d, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_hilt_organic.prefab
+    prefab: {fileID: 6406614306826350982, guid: da0ef3e32a67802468f751d342533206, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_mixed_dark_light_forged.prefab
+    prefab: {fileID: 8166153136274674569, guid: 6f227ba8e3359e24f840b5f226785895, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/yqmod1_weapon_dagger_mixed_frost_fire_organic.prefab
+    prefab: {fileID: 1968652250314711362, guid: 2bfae0474729f0c4b8cd59d9e16babed, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Wayfarer_Rondel_Dagger_Parts.prefab
+    prefab: {fileID: 7297758112119630067, guid: 85c95b2668112e742860657eb4ba62e3, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Broad_Leaf_Dagger_Parts.prefab
+    prefab: {fileID: 5453162539526981413, guid: cf2487c64310d374f9c6e87b298fdb88, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Parrying_Main_Gauche_Parts.prefab
+    prefab: {fileID: 7872602137216589723, guid: c73b80c3328ffc64f8a587d6254b120c, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Curved_Jambiya_Parts.prefab
+    prefab: {fileID: 9010700944747642364, guid: dcb99eef47a1a9f4dad9625e45c126f8, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Stiletto_Needle_Parts.prefab
+    prefab: {fileID: 6002370078221067069, guid: d676b117f34f9fd42b35967382607b34, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Wyrmtooth_Dagger_Parts.prefab
+    prefab: {fileID: 5443453602616812287, guid: 9b52cac40b8dea34e9fef3f40e2d6e04, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Eclipse_Fork_Dagger_Parts.prefab
+    prefab: {fileID: 1783924837269586452, guid: e6ef773c163bf24448eb98389f882bc4, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Dagger_Worldtree_Sovereign_Parts.prefab
+    prefab: {fileID: 1977711870508723955, guid: dff6b06f498761b4688db92bd9c781fc, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  - assetPath: Assets/YourQuest DOT Equipment/dagger/Dagger_Starforged_Orrery_Parts.prefab
+    prefab: {fileID: 3970654228270264139, guid: a4c52ee18d8cd6140a177a3d44dee23b, type: 3}
+    material: {fileID: 0}
+    materialOverrides: []
+  useLazyResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

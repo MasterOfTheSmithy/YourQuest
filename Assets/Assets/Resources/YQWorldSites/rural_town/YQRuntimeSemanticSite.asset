@@ -1,0 +1,190 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f4a7116cbdbd8e4fa0f779898bb2348, type: 3}
+  m_Name: YQRuntimeSemanticSite
+  m_EditorClassIdentifier: Assembly-CSharp::YQReviewedSemanticSiteManifest
+  schemaVersion: reviewed-semantic-site-1.0.0
+  kitId: rural_town
+  semanticStyleKey: rural_town
+  sourceSignature: fnv1a32_f28ec9ab
+  topology: 1
+  streamingSite: {fileID: 11400000, guid: 0474b6c3d83e4e649bb7dd5cb753ff73, type: 2}
+  sourceInstanceCount: 4026
+  releaseEligible: 1
+  reviewState: 1
+  reviewNote: 
+  zones:
+  - stableId: yq_semantic_rural_town_residential_01
+    displayName: Rural Town Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -654.97125, y: -0.00009271875, z: 1241.2861}
+    localBoundsCenter: {x: 0, y: 0.05, z: 0}
+    localBoundsSize: {x: 2.1262054, y: 0.1, z: 0.2786379}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p2_p27_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_service_02
+    displayName: Rural Town Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -367.13513, y: 215.90546, z: -887.8589}
+    localBoundsCenter: {x: 0, y: 108.07999, z: 0}
+    localBoundsSize: {x: 976.3336, y: 216.15999, z: 1015.693}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p5_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_civic_03
+    displayName: Rural Town Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -290.89746, y: 120.08594, z: -204.5653}
+    localBoundsCenter: {x: 0, y: 133.52998, z: 0}
+    localBoundsSize: {x: 1095.8928, y: 267.05997, z: 1222.5026}
+    sourceInstanceCount: 2
+    authoredBuildingCount: 0
+    authoredDressingCount: 2
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p5_p10_p00
+    - yq_cell_rural_town_p7_p13_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_circulation_04
+    displayName: Rural Town Circulation
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: -214.95193, y: 8.249428, z: 403.23346}
+    localBoundsCenter: {x: 0, y: 96.00055, z: 0}
+    localBoundsSize: {x: 953.9486, y: 192.0011, z: 1667.9242}
+    sourceInstanceCount: 33
+    authoredBuildingCount: 0
+    authoredDressingCount: 33
+    semanticTags:
+    - authored
+    - circulation
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p1_p27_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_poi_05
+    displayName: Rural Town Poi
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 179.23111, y: 183.67068, z: -385.29803}
+    localBoundsCenter: {x: 0, y: 27.375183, z: 0}
+    localBoundsSize: {x: 252.73334, y: 54.750366, z: 370.9292}
+    sourceInstanceCount: 3977
+    authoredBuildingCount: 0
+    authoredDressingCount: 3977
+    semanticTags:
+    - authored
+    - poi
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p10_p10_p00
+    - yq_cell_rural_town_p10_p11_p00
+    - yq_cell_rural_town_p10_p12_p00
+    - yq_cell_rural_town_p10_p9_p00
+    - yq_cell_rural_town_p11_p10_p00
+    - yq_cell_rural_town_p11_p11_p00
+    - yq_cell_rural_town_p11_p12_p00
+    - yq_cell_rural_town_p11_p9_p00
+    - yq_cell_rural_town_p9_p10_p00
+    - yq_cell_rural_town_p9_p11_p00
+    - yq_cell_rural_town_p9_p9_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_residential_06
+    displayName: Rural Town Residential
+    districtFunction: 1
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 188.7093, y: 1531.9734, z: 1390.72}
+    localBoundsCenter: {x: 0, y: 83.21655, z: 0}
+    localBoundsSize: {x: 122.745026, y: 166.4331, z: 9.970459}
+    sourceInstanceCount: 9
+    authoredBuildingCount: 0
+    authoredDressingCount: 9
+    semanticTags:
+    - authored
+    - residential
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p10_p28_p00
+    - yq_cell_rural_town_p10_p29_p00
+    - yq_cell_rural_town_p11_p29_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_service_07
+    displayName: Rural Town Service
+    districtFunction: 3
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 226.84326, y: 170.98593, z: -887.8589}
+    localBoundsCenter: {x: 0, y: 108.07999, z: 0}
+    localBoundsSize: {x: 976.33356, y: 216.15996, z: 1015.693}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - service
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p11_p5_p00
+    cellContractsV2: []
+  - stableId: yq_semantic_rural_town_civic_08
+    displayName: Rural Town Civic
+    districtFunction: 2
+    prefab: {fileID: 0}
+    authoredSourceOrigin: {x: 354.47754, y: 152.98593, z: 64.84006}
+    localBoundsCenter: {x: 0, y: 108.07999, z: 0}
+    localBoundsSize: {x: 1001.6486, y: 216.15996, z: 810.62146}
+    sourceInstanceCount: 1
+    authoredBuildingCount: 0
+    authoredDressingCount: 1
+    semanticTags:
+    - authored
+    - civic
+    - settlementdistricts
+    - streaming_safe
+    connectionSocketPaths: []
+    streamingCellIds:
+    - yq_cell_rural_town_p12_p15_p00
+    cellContractsV2: []

@@ -6,10 +6,11 @@ using UnityEngine;
 // note: Publish a continuous bridge treatment over an accepted road profile while leaving the carved river channel open below.
 public sealed class YQGeneratedRiverBridge : MonoBehaviour
 {
-    internal const float CooperativeSliceSeconds = 0.005f;
+    // note: Loading shares a 12 ms work slice; live bridge streaming retains its existing 5 ms bound.
+    internal static float CooperativeSliceSeconds => Application.isPlaying && !YourQuestTutorialAutoBootstrap.GameplayPresentationReleased ? .012f : .005f;
     private const float BridgeVisualDeckCenterOffset = 0.08f;
     private const float BridgeVisualDeckThickness = 0.28f;
-    private const float WalkSurfaceTopOffset = BridgeVisualDeckCenterOffset + BridgeVisualDeckThickness * 0.5f;
+    internal const float WalkSurfaceTopOffset = BridgeVisualDeckCenterOffset + BridgeVisualDeckThickness * 0.5f;
     private const float WalkSurfaceThickness = 0.047f;
     private const float WalkSurfaceBottomOffset = WalkSurfaceTopOffset - WalkSurfaceThickness;
     private const float WalkSurfaceSupportTopInset = 0.01f;
@@ -37,7 +38,22 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
         IReadOnlyList<Vector3> road,
         float width,
         YQRuntimeWorldAssetRegistry registry,
-        Action<string, float> substageTelemetry = null)
+        Action<string, float> substageTelemetry = null,
+        Func<Vector3, float> sampleGroundHeight = null)
+    {
+        // note: Preserve the existing public/archived adapter while native accepted crossings opt into their reviewed width-constrained tread.
+        return BuildRoutineCore(parent,road,width,registry,substageTelemetry,sampleGroundHeight,false,null,null);
+    }
+
+    internal static IEnumerator BuildNativeRoutine(Transform parent,IReadOnlyList<Vector3> road,float width,
+        YQRuntimeWorldAssetRegistry registry,Action<string,float> telemetry,Func<Vector3,float> sampleGroundHeight)
+    {
+        return BuildRoutineCore(parent,road,width,registry,telemetry,sampleGroundHeight,true,null,null);
+    }
+
+    private static IEnumerator BuildRoutineCore(Transform parent,IReadOnlyList<Vector3> road,float width,
+        YQRuntimeWorldAssetRegistry registry,Action<string,float> substageTelemetry,Func<Vector3,float> sampleGroundHeight,
+        bool nativeTread,Vector2? firstSide,Vector2? lastSide)
     {
         if (road == null || road.Count < 2)
             throw new InvalidOperationException("Bridge needs two bank contacts.");
@@ -52,7 +68,11 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
                 List<Vector3> section = new List<Vector3>();
                 for (int index = start; index <= Mathf.Min(start + 24, road.Count - 1); index++)
                     section.Add(road[index]);
-                yield return BuildRoutine(parent, section, width, registry, substageTelemetry);
+                // note: Adjacent native arch sections use the identical whole-road miter at their shared station, preventing a collision gap at a bent subdivision.
+                int end=Mathf.Min(start+24,road.Count-1);
+                Vector2? sectionFirst=nativeTread?(start==0?firstSide:YQNativeBridgeTread.SectionOffset(road,start)):null;
+                Vector2? sectionLast=nativeTread?(end==road.Count-1?lastSide:YQNativeBridgeTread.SectionOffset(road,end)):null;
+                yield return BuildRoutineCore(parent, section, width, registry, substageTelemetry, sampleGroundHeight,nativeTread,sectionFirst,sectionLast);
             }
             yield break;
         }
@@ -63,97 +83,272 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
         root.transform.SetParent(parent, false);
         YQGeneratedRiverBridge owner = root.AddComponent<YQGeneratedRiverBridge>();
 
-        float stageStarted = Time.realtimeSinceStartup;
-        bool materialNeedsVariantTint = TryResolveBridgeRuntimeMaterial(registry, variant, out Material bridgeMaterial);
-        RecordBuildSubstage(substageTelemetry, "bridgeMaterialRegistryLookup", stageStarted);
-        if (!materialNeedsVariantTint)
+        // note: A failed or disposed bridge build must release its still-private root and registered meshes/materials; successful publication transfers ownership to the existing parent.
+        bool buildCompleted = false;
+        try
         {
-            // note: Retain the compatibility repair path for an asset whose persisted approved slot cannot be reused directly.
-            stageStarted = Time.realtimeSinceStartup;
-            bridgeMaterial = ResolveBridgeMaterial(registry, variant);
-            RecordBuildSubstage(substageTelemetry, "bridgeMaterialFallbackRepair", stageStarted);
-            owner.materials.Add(bridgeMaterial);
-        }
-        yield return null;
+            float stageStarted = Time.realtimeSinceStartup;
+            bool materialNeedsVariantTint = TryResolveBridgeRuntimeMaterial(registry, variant, out Material bridgeMaterial);
+            RecordBuildSubstage(substageTelemetry, "bridgeMaterialRegistryLookup", stageStarted);
+            if (!materialNeedsVariantTint)
+            {
+                // note: Retain the compatibility repair path for an asset whose persisted approved slot cannot be reused directly.
+                stageStarted = Time.realtimeSinceStartup;
+                bridgeMaterial = ResolveBridgeMaterial(registry, variant);
+                RecordBuildSubstage(substageTelemetry, "bridgeMaterialFallbackRepair", stageStarted);
+                owner.materials.Add(bridgeMaterial);
+            }
+            yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
 
-        MaterialPropertyBlock tintBlock = materialNeedsVariantTint ? new MaterialPropertyBlock() : null;
-        yield return BuildContinuousDeckVisualRoutine(root.transform, road, width, bridgeMaterial, variant, tintBlock, substageTelemetry);
-        yield return BuildBridgeRailsRoutine(root.transform, road, width, bridgeMaterial, variant, tintBlock, substageTelemetry);
-
-        stageStarted = Time.realtimeSinceStartup;
-        Mesh deckCollision = BuildWalkSurfaceMesh(road, width);
-        RecordBuildSubstage(substageTelemetry, "bridgeCollisionMesh", stageStarted);
-        if (deckCollision != null)
-        {
+            MaterialPropertyBlock tintBlock = materialNeedsVariantTint ? new MaterialPropertyBlock() : null;
+            // note: Build the fitted surface once. Presentation copies its actual top triangles instead of inventing level blocks between differently elevated road samples.
             stageStarted = Time.realtimeSinceStartup;
-            GameObject deck = new GameObject("StoneBridgeWalkSurface");
-            deck.transform.SetParent(root.transform, false);
-            deck.AddComponent<MeshCollider>().sharedMesh = deckCollision;
-            owner.meshes.Add(deckCollision);
-            RecordBuildSubstage(substageTelemetry, "bridgeCollisionDeck", stageStarted);
-            yield return null;
+            // note: Native collision consumes the same resolved grade as the visual deformation, with full-width station triangles instead of the failing buffered fan.
+            Mesh deckCollision = nativeTread?YQNativeBridgeTread.Build(road,width,WalkSurfaceTopOffset,WalkSurfaceBottomOffset,false,"YQ_StoneBridgeWalkSurface",firstSide,lastSide,true):BuildWalkSurfaceMesh(road, width);
+            if (deckCollision != null) owner.meshes.Add(deckCollision);
+            RecordBuildSubstage(substageTelemetry, "bridgeCollisionMesh", stageStarted);
+            yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+            yield return BuildContinuousDeckVisualRoutine(root.transform, deckCollision, owner, bridgeMaterial, variant, tintBlock, substageTelemetry);
+            yield return BuildBridgeRailsRoutine(root.transform, road, width, bridgeMaterial, variant, tintBlock, substageTelemetry);
+            // note: Production crossings supply the canonical riverbed sampler; fitted deck collision alone does not establish structural support.
+            if (sampleGroundHeight != null)
+                yield return BuildGroundSupportsRoutine(root.transform, road, width, bridgeMaterial, variant, tintBlock,
+                    sampleGroundHeight, substageTelemetry);
 
-            // note: One continuous shoulder follows the same shared road vertices. Tilted segment boxes exposed steep end caps at joints and lifted the capsule off its intended plane.
-            stageStarted = Time.realtimeSinceStartup;
-            Mesh supportCollision = BuildSupportSurfaceMesh(road, width);
-            RecordBuildSubstage(substageTelemetry, "bridgeSupportMesh", stageStarted);
-            if (supportCollision != null)
+            if (deckCollision != null)
             {
                 stageStarted = Time.realtimeSinceStartup;
-                GameObject support = new GameObject("StoneBridgeWalkSurface");
-                support.transform.SetParent(root.transform, false);
-                support.AddComponent<MeshCollider>().sharedMesh = supportCollision;
-                owner.meshes.Add(supportCollision);
-                RecordBuildSubstage(substageTelemetry, "bridgeSupportCollider", stageStarted);
-                yield return null;
+                GameObject deck = new GameObject("StoneBridgeWalkSurface");
+                deck.transform.SetParent(root.transform, false);
+                deck.AddComponent<MeshCollider>().sharedMesh = deckCollision;
+                RecordBuildSubstage(substageTelemetry, "bridgeCollisionDeck", stageStarted);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+
+                // note: One continuous shoulder follows the same shared road vertices. Tilted segment boxes exposed steep end caps at joints and lifted the capsule off its intended plane.
+                stageStarted = Time.realtimeSinceStartup;
+                float supportTop=WalkSurfaceTopOffset-WalkSurfaceSupportTopInset;
+                Mesh supportCollision = nativeTread?YQNativeBridgeTread.Build(road,width+2f,supportTop,supportTop-WalkSurfaceSupportThickness,true,"YQ_ContinuousBridgeSupport",firstSide,lastSide,true):BuildSupportSurfaceMesh(road, width);
+                if (supportCollision != null) owner.meshes.Add(supportCollision);
+                RecordBuildSubstage(substageTelemetry, "bridgeSupportMesh", stageStarted);
+                if (supportCollision != null)
+                {
+                    stageStarted = Time.realtimeSinceStartup;
+                    GameObject support = new GameObject("StoneBridgeWalkSurface");
+                    support.transform.SetParent(root.transform, false);
+                    support.AddComponent<MeshCollider>().sharedMesh = supportCollision;
+                    RecordBuildSubstage(substageTelemetry, "bridgeSupportCollider", stageStarted);
+                    yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+                }
+            }
+            buildCompleted = true;
+        }
+        finally
+        {
+            if (!buildCompleted && root != null) UnityEngine.Object.Destroy(root);
+        }
+    }
+
+    private static IEnumerator BuildGroundSupportsRoutine(Transform parent, IReadOnlyList<Vector3> road,
+        float width, Material material, int variant, MaterialPropertyBlock tintBlock,
+        Func<Vector3, float> sampleGroundHeight, Action<string, float> telemetry)
+    {
+        // note: Two narrow piers every twelve metres reach the canonical bed and leave the channel open; endpoints always receive bank support.
+        float distanceSinceSupport = 12f;
+        for (int index = 0; index < road.Count; index++)
+        {
+            if (index > 0) distanceSinceSupport += Vector3.Distance(road[index - 1], road[index]);
+            if (index != road.Count - 1 && distanceSinceSupport < 12f) continue;
+            distanceSinceSupport = 0f;
+            Vector3 tangent = index == road.Count - 1 ? road[index] - road[index - 1] : road[index + 1] - road[index];
+            tangent.y = 0f;
+            if (tangent.sqrMagnitude < .0001f)
+                throw new InvalidOperationException("Bridge support has no horizontal deck direction.");
+            tangent.Normalize();
+            Vector3 side = new Vector3(-tangent.z, 0f, tangent.x);
+            float pierWidth = Mathf.Clamp(width * .12f, .45f, 1.4f);
+            float offset = Mathf.Max(.25f, width * .5f - pierWidth * .5f);
+            for (int sign = -1; sign <= 1; sign += 2)
+            {
+                Vector3 point = road[index] + side * (offset * sign);
+                float bottom = sampleGroundHeight(point) - .25f;
+                float top = point.y - .04f;
+                if (float.IsNaN(bottom) || float.IsInfinity(bottom) || top - bottom > 64f)
+                    throw new InvalidOperationException("Bridge support cannot reach a valid bed at " + point);
+                if (top <= bottom) continue;
+                float startedAt = Time.realtimeSinceStartup;
+                GameObject pier = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                pier.name = "GroundedBridgePier";
+                pier.transform.SetParent(parent, false);
+                pier.transform.SetPositionAndRotation(new Vector3(point.x, (top + bottom) * .5f, point.z),
+                    Quaternion.LookRotation(tangent));
+                pier.transform.localScale = new Vector3(pierWidth, top - bottom, pierWidth);
+                Renderer renderer = pier.GetComponent<Renderer>();
+                renderer.sharedMaterial = material;
+                ApplyVariantTint(renderer, material, variant, tintBlock);
+                RecordBuildSubstage(telemetry, "bridgeGroundedPier", startedAt);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
             }
         }
     }
 
     private static IEnumerator BuildContinuousDeckVisualRoutine(
         Transform parent,
-        IReadOnlyList<Vector3> road,
-        float width,
+        Mesh fittedSurface,
+        YQGeneratedRiverBridge owner,
         Material material,
         int variant,
         MaterialPropertyBlock tintBlock,
         Action<string, float> substageTelemetry)
     {
-        if (material == null)
+        if (material == null || fittedSurface == null)
             yield break;
-        // note: Segment-local deck blocks follow accepted bends while each primitive is published into the still-hidden chunk root in its own frame slice.
-        float sliceStartedAt = Time.realtimeSinceStartup;
-        for (int index = 0; index < road.Count - 1; index++)
+        // note: The render shell shares every fitted tread triangle, including curved/buffered crossings, and keeps the existing visible thickness below that plane. It never adds collision.
+        float stageStarted = Time.realtimeSinceStartup;
+        Mesh visual = null;
+        yield return BuildVisualDeckMeshRoutine(fittedSurface, mesh =>
         {
-            float stageStarted = Time.realtimeSinceStartup;
-            Vector3 a = road[index];
-            Vector3 b = road[index + 1];
-            Vector3 delta = b - a;
-            Vector3 flat = new Vector3(delta.x, 0f, delta.z);
-            float length = flat.magnitude;
-            if (length >= 0.05f)
+            visual = mesh;
+            owner.meshes.Add(mesh);
+        }, substageTelemetry);
+        yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+        stageStarted = Time.realtimeSinceStartup;
+        GameObject deck = new GameObject(variant == 1 ? "WoodBridgeDeck" : variant == 2 ? "DisheveledBridgeDeck" : variant == 3 ? "RepairedBridgeDeck" : "StoneBridgeDeck");
+        deck.transform.SetParent(parent, false);
+        deck.AddComponent<MeshFilter>().sharedMesh = visual;
+        Renderer renderer = deck.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = material;
+        ApplyVariantTint(renderer, material, variant, tintBlock);
+        RecordBuildSubstage(substageTelemetry, "bridgeDeckSegment", stageStarted);
+        yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+    }
+
+    private static Mesh BuildVisualDeckMesh(Mesh fittedSurface)
+    {
+        // note: Preserve a synchronous owner-level adapter for focused geometry fixtures; production uses the cooperative routine below.
+        Mesh result = null;
+        RunSynchronously(BuildVisualDeckMeshRoutine(fittedSurface, mesh => result = mesh));
+        return result;
+    }
+
+    private static IEnumerator BuildVisualDeckMeshRoutine(Mesh fittedSurface, Action<Mesh> completed, Action<string, float> telemetry = null)
+    {
+        float sliceStarted = Time.realtimeSinceStartup;
+        Vector3[] source = fittedSurface.vertices;
+        int[] sourceTriangles = fittedSurface.triangles;
+        RecordBuildSubstage(telemetry, "bridgeDeckVisualSourceCopy", sliceStarted);
+        yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+        sliceStarted = Time.realtimeSinceStartup;
+        var vertices = new List<Vector3>();
+        var uvs = new List<Vector2>();
+        var triangles = new List<int>();
+        var topIndices = new Dictionary<int, int>();
+        var edges = new Dictionary<long, CorridorEdge>();
+        int TopIndex(int sourceIndex)
+        {
+            if (topIndices.TryGetValue(sourceIndex, out int index)) return index;
+            index = vertices.Count;
+            topIndices.Add(sourceIndex, index);
+            Vector3 point = source[sourceIndex];
+            vertices.Add(point);
+            uvs.Add(new Vector2(point.x, point.z) * .25f);
+            return index;
+        }
+        for (int triangle = 0; triangle < sourceTriangles.Length; triangle += 3)
+        {
+            // note: Bound added managed work cooperatively without reducing the fitted footprint or introducing another streamer budget.
+            if (triangle % 192 == 0 && Time.realtimeSinceStartup - sliceStarted >= CooperativeSliceSeconds)
             {
-                GameObject deck = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                deck.name = variant == 1 ? "WoodBridgeDeck" : variant == 2 ? "DisheveledBridgeDeck" : variant == 3 ? "RepairedBridgeDeck" : "StoneBridgeDeck";
-                deck.transform.SetParent(parent, false);
-                deck.transform.position = Vector3.Lerp(a, b, .5f) + Vector3.up * BridgeVisualDeckCenterOffset;
-                deck.transform.rotation = Quaternion.LookRotation(flat / length, Vector3.up);
-                deck.transform.localScale = new Vector3(Mathf.Max(2f, width), BridgeVisualDeckThickness, length + .16f);
-                Collider collider = deck.GetComponent<Collider>();
-                if (collider != null) UnityEngine.Object.Destroy(collider);
-                Renderer renderer = deck.GetComponent<Renderer>();
-                if (renderer != null)
+                RecordBuildSubstage(telemetry, "bridgeDeckVisualGeometry", sliceStarted);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+                sliceStarted = Time.realtimeSinceStartup;
+            }
+            int a = sourceTriangles[triangle], b = sourceTriangles[triangle + 1], c = sourceTriangles[triangle + 2];
+            // note: Existing fitted tops wind upward; sides are vertical and bottoms wind down. Copy even steep top faces unchanged so presentation cannot conceal a physical grade failure.
+            if (Vector3.Cross(source[b] - source[a], source[c] - source[a]).y <= 0f) continue;
+            a = TopIndex(a); b = TopIndex(b); c = TopIndex(c);
+            triangles.Add(a); triangles.Add(b); triangles.Add(c);
+            for (int edge = 0; edge < 3; edge++)
+            {
+                int first = edge == 0 ? a : edge == 1 ? b : c;
+                int second = edge == 0 ? b : edge == 1 ? c : a;
+                long key = ((long)Math.Min(first, second) << 32) | (uint)Math.Max(first, second);
+                if (edges.TryGetValue(key, out CorridorEdge existing))
                 {
-                    renderer.sharedMaterial = material;
-                    ApplyVariantTint(renderer, material, variant, tintBlock);
+                    if (existing.count != 1 || existing.first != second || existing.second != first)
+                        throw new InvalidOperationException("Bridge visual tread has a non-manifold edge.");
+                    existing.count = 2; edges[key] = existing;
                 }
+                else edges.Add(key, new CorridorEdge { first = first, second = second, count = 1 });
             }
-            RecordBuildSubstage(substageTelemetry, "bridgeDeckSegment", stageStarted);
-            if (Time.realtimeSinceStartup - sliceStartedAt >= CooperativeSliceSeconds)
+        }
+        if (triangles.Count == 0)
+            throw new InvalidOperationException("Bridge visual needs a fitted upward tread.");
+        int topCount = vertices.Count, topIndexCount = triangles.Count;
+        for (int index = 0; index < topCount; index++)
+        {
+            if (index % 64 == 0 && Time.realtimeSinceStartup - sliceStarted >= CooperativeSliceSeconds)
             {
-                yield return null;
-                sliceStartedAt = Time.realtimeSinceStartup;
+                RecordBuildSubstage(telemetry, "bridgeDeckVisualGeometry", sliceStarted);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+                sliceStarted = Time.realtimeSinceStartup;
             }
+            vertices.Add(vertices[index] - Vector3.up * BridgeVisualDeckThickness);
+            uvs.Add(uvs[index]);
+        }
+        for (int index = 0; index < topIndexCount; index += 3)
+        {
+            if (index % 192 == 0 && Time.realtimeSinceStartup - sliceStarted >= CooperativeSliceSeconds)
+            {
+                RecordBuildSubstage(telemetry, "bridgeDeckVisualGeometry", sliceStarted);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+                sliceStarted = Time.realtimeSinceStartup;
+            }
+            triangles.Add(triangles[index] + topCount);
+            triangles.Add(triangles[index + 2] + topCount);
+            triangles.Add(triangles[index + 1] + topCount);
+        }
+        // note: Close only footprint-boundary edges, with separate side UVs/normals. This removes block overlaps and bank overhang without changing the accepted crossing footprint.
+        var orderedEdges = new List<long>(edges.Keys);
+        orderedEdges.Sort();
+        int edgeIndex = 0;
+        foreach (long key in orderedEdges)
+        {
+            if (edgeIndex++ % 64 == 0 && Time.realtimeSinceStartup - sliceStarted >= CooperativeSliceSeconds)
+            {
+                RecordBuildSubstage(telemetry, "bridgeDeckVisualGeometry", sliceStarted);
+                yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+                sliceStarted = Time.realtimeSinceStartup;
+            }
+            CorridorEdge edge = edges[key];
+            if (edge.count != 1) continue;
+            int start = vertices.Count;
+            Vector3 a = vertices[edge.first], b = vertices[edge.second];
+            vertices.Add(a); vertices.Add(a - Vector3.up * BridgeVisualDeckThickness);
+            vertices.Add(b); vertices.Add(b - Vector3.up * BridgeVisualDeckThickness);
+            float length = Vector3.Distance(a, b) * .25f;
+            uvs.Add(new Vector2(0f, BridgeVisualDeckThickness * .25f)); uvs.Add(Vector2.zero);
+            uvs.Add(new Vector2(length, BridgeVisualDeckThickness * .25f)); uvs.Add(new Vector2(length, 0f));
+            triangles.Add(start); triangles.Add(start + 1); triangles.Add(start + 2);
+            triangles.Add(start + 2); triangles.Add(start + 1); triangles.Add(start + 3);
+        }
+        RecordBuildSubstage(telemetry, "bridgeDeckVisualGeometry", sliceStarted);
+        yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
+        sliceStarted = Time.realtimeSinceStartup;
+        var mesh = new Mesh { name = "YQ_BridgeVisualDeck", indexFormat = vertices.Count > 65535 ?
+            UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16 };
+        bool transferred = false;
+        try
+        {
+            mesh.SetVertices(vertices); mesh.SetUVs(0, uvs); mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals(); mesh.RecalculateBounds(); mesh.RecalculateTangents();
+            RecordBuildSubstage(telemetry, "bridgeDeckVisualMeshUpload", sliceStarted);
+            completed(mesh);
+            transferred = true;
+        }
+        finally
+        {
+            // note: Native setup failures occur before the bridge owner can register the mesh.
+            if (!transferred) UnityEngine.Object.Destroy(mesh);
         }
     }
 
@@ -201,7 +396,7 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
                 RecordBuildSubstage(substageTelemetry, "bridgeRailPost", stageStarted);
                 if (Time.realtimeSinceStartup - sliceStartedAt >= CooperativeSliceSeconds)
                 {
-                    yield return null;
+                    yield return YQGeneratedWorldPerformanceDirector.CooperativeWorkBoundary;
                     sliceStartedAt = Time.realtimeSinceStartup;
                 }
             }
@@ -371,6 +566,18 @@ public sealed class YQGeneratedRiverBridge : MonoBehaviour
     private static Mesh BuildWalkSurfaceMesh(IReadOnlyList<Vector3> road, float width)
     {
         return BuildExtrudedRoadMesh(road, width, WalkSurfaceTopOffset, WalkSurfaceBottomOffset, false, "YQ_StoneBridgeWalkSurface");
+    }
+
+    internal static Mesh BuildNativeWalkSurfaceMesh(IReadOnlyList<Vector3> road,float width)
+    {
+        // note: The verifier exercises the identical native tread constructor used by accepted crossing publication.
+        return YQNativeBridgeTread.Build(road,width,WalkSurfaceTopOffset,WalkSurfaceBottomOffset,false,"YQ_StoneBridgeWalkSurface");
+    }
+
+    internal static Mesh BuildNativeSupportSurfaceMesh(IReadOnlyList<Vector3> road,float width)
+    {
+        float top=WalkSurfaceTopOffset-WalkSurfaceSupportTopInset;
+        return YQNativeBridgeTread.Build(road,width+2f,top,top-WalkSurfaceSupportThickness,true,"YQ_ContinuousBridgeSupport");
     }
 
     private static Mesh BuildSupportSurfaceMesh(IReadOnlyList<Vector3> road, float width)

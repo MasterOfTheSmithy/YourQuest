@@ -46,7 +46,7 @@ internal static class YQG08R3PhysicalItineraryVerification
     private static Keyboard keyboard, originalKeyboard;
     private static Mouse mouse, originalMouse;
     private static InputSettings originalSettings, testSettings;
-    private static bool originalBackground;
+    private static bool originalBackground, inputCaptured;
     private static Vector3 originalPosition;
     private static Quaternion originalRotation;
     private static Request request;
@@ -280,27 +280,32 @@ internal static class YQG08R3PhysicalItineraryVerification
 
     private static void AcquireInput()
     {
-        // note: Background routing is a private, reversible settings clone; physical devices and project assets are retained.
+        // note: Each leg owns fresh devices. Retained disabled devices can become current again during Input System reload.
+        if (inputCaptured) throw new InvalidOperationException("R3 already owns input.");
         originalSettings = InputSystem.settings;
-        testSettings = UnityEngine.Object.Instantiate(originalSettings);
-        testSettings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-        testSettings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
-        InputSystem.settings = testSettings;
-        originalBackground = Application.runInBackground; Application.runInBackground = true;
         originalKeyboard = Keyboard.current; originalMouse = Mouse.current;
-        foreach (InputDevice device in InputSystem.devices)
+        originalBackground = Application.runInBackground;
+        inputCaptured = true;
+        try
         {
-            if (device is Keyboard key && device.name == "YQG08R3Keyboard") keyboard = key;
-            if (device is Mouse pointer && device.name == "YQG08R3Mouse") mouse = pointer;
+            testSettings = UnityEngine.Object.Instantiate(originalSettings);
+            testSettings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            testSettings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings = testSettings;
+            Application.runInBackground = true;
+            keyboard = InputSystem.AddDevice<Keyboard>("YQG08R3Keyboard");
+            mouse = InputSystem.AddDevice<Mouse>("YQG08R3Mouse");
         }
-        if (keyboard == null) keyboard = InputSystem.AddDevice<Keyboard>("YQG08R3Keyboard");
-        if (mouse == null) mouse = InputSystem.AddDevice<Mouse>("YQG08R3Mouse");
-        InputSystem.EnableDevice(keyboard); InputSystem.EnableDevice(mouse);
+        catch
+        {
+            ReleaseInput();
+            throw;
+        }
     }
 
     private static void QueueInput()
     {
-        if (!running || motor == null || (request.action != "observe" && waypointIndex >= request.waypoints.Length) ||
+        if (!running || !inputCaptured || motor == null || (request.action != "observe" && waypointIndex >= request.waypoints.Length) ||
             InputState.currentUpdateType != InputUpdateType.Dynamic) return;
         if (request.action == "observe")
         {
@@ -326,6 +331,7 @@ internal static class YQG08R3PhysicalItineraryVerification
 
     private static void KeepDevicesCurrent()
     {
+        if (!running || !inputCaptured) return;
         if (keyboard != null && keyboard.added) keyboard.MakeCurrent();
         if (mouse != null && mouse.added) mouse.MakeCurrent();
     }
@@ -415,12 +421,82 @@ internal static class YQG08R3PhysicalItineraryVerification
 
     private static void ReleaseInput()
     {
-        if (keyboard != null && keyboard.added) { InputSystem.QueueStateEvent(keyboard, new KeyboardState()); InputSystem.DisableDevice(keyboard); }
-        if (mouse != null && mouse.added) { InputSystem.QueueStateEvent(mouse, new MouseState()); InputSystem.DisableDevice(mouse); }
-        originalKeyboard?.MakeCurrent(); originalMouse?.MakeCurrent();
-        if (testSettings != null && InputSystem.settings == testSettings) InputSystem.settings = originalSettings;
-        if (testSettings != null) UnityEngine.Object.DestroyImmediate(testSettings);
-        testSettings = null; Application.runInBackground = originalBackground;
+        // note: Detach first and clear ownership before device callbacks; queued events cannot target removed devices after cleanup.
+        InputSystem.onBeforeUpdate -= QueueInput; InputSystem.onAfterUpdate -= KeepDevicesCurrent;
+        if (!inputCaptured) return;
+        inputCaptured = false;
+        Keyboard ownedKeyboard = keyboard, restoreKeyboard = originalKeyboard;
+        Mouse ownedMouse = mouse, restoreMouse = originalMouse;
+        InputSettings ownedSettings = testSettings, restoreSettings = originalSettings;
+        bool restoreBackground = originalBackground;
+        keyboard = null; mouse = null; originalKeyboard = null; originalMouse = null;
+        testSettings = null; originalSettings = null;
+        try
+        {
+            if (ownedKeyboard != null && ownedKeyboard.added) InputSystem.RemoveDevice(ownedKeyboard);
+        }
+        finally
+        {
+            try
+            {
+                if (ownedMouse != null && ownedMouse.added) InputSystem.RemoveDevice(ownedMouse);
+            }
+            finally
+            {
+                try
+                {
+                    // note: Preserve a newer settings owner if another tool replaced this leg's clone.
+                    if (ownedSettings != null && InputSystem.settings == ownedSettings) InputSystem.settings = restoreSettings;
+                    if (ownedSettings != null) UnityEngine.Object.DestroyImmediate(ownedSettings);
+                }
+                finally
+                {
+                    Application.runInBackground = restoreBackground;
+                    if (restoreKeyboard != null && restoreKeyboard.added) restoreKeyboard.MakeCurrent();
+                    if (restoreMouse != null && restoreMouse.added) restoreMouse.MakeCurrent();
+                }
+            }
+        }
+    }
+
+    private static bool IsRetiredInputDevice(InputDevice device)
+    {
+        return device != null && device.added && !device.native && !device.enabled &&
+            ((device is Keyboard && device.name == "YQG08R3Keyboard") ||
+             (device is Mouse && device.name == "YQG08R3Mouse"));
+    }
+
+    [MenuItem("YourQuest/Diagnostics/G08/R3/Release Retired Input Devices")]
+    private static void ReleaseRetiredInputDevices()
+    {
+        // note: Explicit stopped-Play recovery for devices retained by older R3 versions; never infer an active device is abandoned.
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || running ||
+            protectedSession || restoring || inputCaptured || YQDeveloperTestSession.Active ||
+            YQSemanticChunkRuntimeVerification.IsRunning)
+        {
+            Debug.LogWarning("[G08-R3] Retired-device recovery requires stopped Play and no active test owner.");
+            return;
+        }
+        Keyboard nativeKeyboard = Keyboard.current != null && Keyboard.current.native && Keyboard.current.enabled && Keyboard.current.added ? Keyboard.current : null;
+        Mouse nativeMouse = Mouse.current != null && Mouse.current.native && Mouse.current.enabled && Mouse.current.added ? Mouse.current : null;
+        var retired = new List<InputDevice>();
+        foreach (InputDevice device in InputSystem.devices)
+        {
+            if (IsRetiredInputDevice(device)) retired.Add(device);
+            if (!device.native || !device.enabled || !device.added) continue;
+            if (nativeKeyboard == null && device is Keyboard key) nativeKeyboard = key;
+            if (nativeMouse == null && device is Mouse pointer) nativeMouse = pointer;
+        }
+        int removedKeyboards = 0, removedMice = 0;
+        foreach (InputDevice device in retired)
+        {
+            if (device is Keyboard && nativeKeyboard != null) { InputSystem.RemoveDevice(device); removedKeyboards++; }
+            else if (device is Mouse && nativeMouse != null) { InputSystem.RemoveDevice(device); removedMice++; }
+        }
+        if (removedKeyboards > 0 && nativeKeyboard.added) nativeKeyboard.MakeCurrent();
+        if (removedMice > 0 && nativeMouse.added) nativeMouse.MakeCurrent();
+        Debug.Log("[G08-R3] Retired input recovery: keyboards=" + removedKeyboards + ", mice=" + removedMice +
+            "; native devices and input settings preserved.");
     }
 
     private static void OnPlayState(PlayModeStateChange state)
@@ -430,6 +506,7 @@ internal static class YQG08R3PhysicalItineraryVerification
 
     private static void Restore()
     {
+        ReleaseInput();
         if (!protectedSession) return;
         FinishLeg("INTERRUPTED", "Session ended before this leg completed.");
         // note: Pose restoration is outside the measured traversal; it cannot contribute to distance, access, or endpoint evidence.
@@ -866,7 +943,9 @@ internal static class YQG08R3PhysicalItineraryVerification
         {
             RaycastHit hit = supportHits[index];
             Collider collider = hit.collider;
-            bool player = collider == null || collider == controller || collider.transform.IsChildOf(motor.transform);
+            // note: Traversal diagnostics recognize the same canonical player during a detached tumble.
+            bool player = collider == null || collider == controller || collider.transform.IsChildOf(motor.transform) ||
+                YQInvestorPlayerMotor.ResolveFromCollider(collider) == motor;
             bool layerIgnored = collider != null && Physics.GetIgnoreLayerCollision(controller.gameObject.layer, collider.gameObject.layer);
             bool pairIgnored = collider != null && Physics.GetIgnoreCollision(controller, collider);
             MeshCollider mesh = collider as MeshCollider;
