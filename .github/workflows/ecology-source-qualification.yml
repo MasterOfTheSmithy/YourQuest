@@ -1,0 +1,49 @@
+name: Ecology source qualification
+
+on:
+  push:
+    branches: [repair/ecology-qualification-2026-10-18]
+    paths:
+      - '.github/workflows/ecology-source-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # note: This isolated repair-branch job exports only tracked engineering sources and catalog evidence. It does not run Unity or modify assets/saves.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Collect scoped source evidence
+        shell: python
+        run: |
+          import hashlib, json, pathlib, subprocess, zipfile
+          names = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
+          prefixes = ('Assets/Assets/Scripts/Generated/', 'Tools/ChatAuditVerification/')
+          exact = {'AGENTS.md', 'ARCHITECTURE_INDEX.md', 'Assets/Assets/Scripts/AGENTS.md',
+                   'Assets/Assets/Scripts/Tutorial/AGENTS.md', 'Assets/Assets/Scripts/Tutorial/YourQuestTutorialAutoBootstrap.cs',
+                   'Assets/Assets/Scripts/Tutorial/YQStartupLoadingScreen.cs', 'Assets/Assets/Scripts/Tutorial/YQStartupPresentation.cs',
+                   'Assets/Assets/Resources/YQWorldAssetIntakeCatalog.asset',
+                   'Assets/Assets/Resources/YQDiscoveredWorldAssetCatalog.asset',
+                   'Assets/Assets/Resources/YQWorldAssetManifest.json'}
+          selected = sorted(p for p in names if p and (p in exact or p.startswith(prefixes)))
+          hashes = {}
+          with zipfile.ZipFile('ecology-source-evidence.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
+              for name in selected:
+                  data = pathlib.Path(name).read_bytes()
+                  archive.writestr(name, data)
+                  hashes[name] = hashlib.sha256(data).hexdigest()
+              receipt = {'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip(), 'sha256': hashes}
+              archive.writestr('source-receipt.json', json.dumps(receipt, indent=2))
+          print('Exported', len(selected), 'tracked files; no native Unity verification claimed.')
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ecology-source-evidence
+          path: ecology-source-evidence.zip
+          if-no-files-found: error
+          retention-days: 7
