@@ -2,43 +2,78 @@ name: Ecology source qualification
 on:
   push:
     branches: [repair/ecology-qualification-2026-10-18]
-    paths: ['.github/workflows/ecology-source-qualification.yml']
+    paths: ['.github/workflows/ecology-source-qualification.yml', 'Tools/EcologyQualification/reviewed-payload.b64']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
-  managed-compiler:
+  reviewed-git-objects:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      DOTNET_INSTALL_DIR: /tmp/yourquest-managed-dotnet8
     steps:
-      - uses: actions/setup-dotnet@v6
+      - uses: actions/checkout@v7
         with:
-          dotnet-version: '8.0.x'
-      - name: Export isolated compiler and public runtime
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Stage precisely reviewed repair without moving production refs
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: python
         run: |
-          import hashlib, json, os, pathlib, zipfile
-          root = pathlib.Path(os.environ['DOTNET_INSTALL_DIR'])
-          sdk = sorted((root / 'sdk').glob('8.*'))[-1]
-          runtime = sorted((root / 'shared/Microsoft.NETCore.App').glob('8.*'))[-1]
-          framework = sorted((root / 'packs/Microsoft.NETCore.App.Ref').glob('8.*'))[-1]
-          host = sorted((root / 'host/fxr').glob('8.*'))[-1]
-          files = [root / 'dotnet', sdk / 'Newtonsoft.Json.dll']
-          for folder in (runtime, framework / 'ref/net8.0', host, sdk / 'Roslyn/bincore'):
-              files.extend(p for p in folder.rglob('*') if p.is_file())
-          files.extend(p for p in root.glob('*') if p.is_file() and p.name.lower().endswith(('.txt', '.json')))
-          hashes = {}
-          with zipfile.ZipFile('managed-compiler.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
-              for path in sorted(set(files)):
-                  name = str(path.relative_to(root)); data = path.read_bytes()
-                  archive.writestr(name, data); hashes[name] = hashlib.sha256(data).hexdigest()
-              archive.writestr('compiler-receipt.json', json.dumps({'sdk':sdk.name,'runtime':runtime.name,'sha256':hashes}, indent=2))
-          print('Official .NET runtime/compiler only;',len(hashes),'files; no repository credentials or Unity binaries.')
+          import base64, hashlib, json, os, pathlib, subprocess, urllib.request, zlib
+          repo = 'MasterOfTheSmithy/YourQuest'
+          base = '1db9a186332d6dc50a0a408bf10e02aae2233759'
+          source = pathlib.Path('Tools/EcologyQualification/reviewed-payload.b64')
+          if not source.exists():
+              print('Reviewed payload not installed yet; no Git objects or branch refs changed.')
+              raise SystemExit(0)
+          raw = zlib.decompress(base64.b64decode(source.read_text()))
+          assert hashlib.sha256(raw).hexdigest() == '8d9aa85526113a232a4811d840e9ff27cbbbf06f21143db3f7f46a69eac766a6'
+          payload = json.loads(raw)
+          assert payload['baseCommit'] == base
+          assert payload['baseTree'] == 'c62ecaaa0638b767903b822e571204414f1102c8'
+          allowed = ('Assets/Assets/Scripts/Generated/', 'Tools/ChatAuditVerification/', 'Docs/Audits/2026-10-17/')
+          assert len(payload['expected']) == 13
+          assert all(p.startswith(allowed) and '..' not in pathlib.PurePosixPath(p).parts for p in payload['expected'])
+          # This temporary runner checkout contains no user work; pin the exact reviewed production parent.
+          subprocess.run(['git','fetch','origin',base], check=True)
+          subprocess.run(['git','checkout','--detach',base], check=True)
+          assert subprocess.check_output(['git','rev-parse','HEAD']).decode().strip() == base
+          patch = payload['patch'].encode('utf-8')
+          subprocess.run(['git','apply','--check','-'], input=patch, check=True)
+          subprocess.run(['git','apply','--index','-'], input=patch, check=True)
+          paths = subprocess.check_output(['git','diff','--cached','--name-only','-z']).decode().rstrip('\0').split('\0')
+          assert sorted(paths) == sorted(payload['expected'])
+          subprocess.run(['git','diff','--cached','--check'], check=True)
+          data_by_path = {}
+          for path, expected in payload['expected'].items():
+              data = pathlib.Path(path).read_bytes()
+              assert hashlib.sha256(data).hexdigest() == expected['sha256'], path
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest() == expected['blob'], path
+              data_by_path[path] = data
+          # Only the already reviewed source bytes are uploaded. No workflow/configuration, token, imported asset, or save enters this tree.
+          def post(endpoint, body):
+              request = urllib.request.Request('https://api.github.com/repos/'+repo+'/'+endpoint,
+                  data=json.dumps(body).encode(), method='POST',
+                  headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json',
+                           'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  return json.load(response)
+          entries = []
+          for path in sorted(data_by_path):
+              expected = payload['expected'][path]
+              blob = post('git/blobs', {'encoding':'base64','content':base64.b64encode(data_by_path[path]).decode()})
+              assert blob['sha'] == expected['blob'], path
+              entries.append({'path':path,'mode':'100644','type':'blob','sha':blob['sha']})
+          tree = post('git/trees', {'base_tree':payload['baseTree'],'tree':entries})
+          receipt = {'baseCommit':base,'baseTree':payload['baseTree'],'treeSha':tree['sha'],
+                     'expected':payload['expected'],'payloadSha256':hashlib.sha256(raw).hexdigest(),
+                     'branchRefsMoved':False,'evidence':'Exact reviewed source transport; native Unity qualification not claimed.'}
+          pathlib.Path('ecology-publication.json').write_text(json.dumps(receipt,indent=2))
+          print(json.dumps(receipt,indent=2))
       - uses: actions/upload-artifact@v7
         with:
-          name: ecology-managed-compiler
-          path: managed-compiler.zip
-          if-no-files-found: error
-          retention-days: 1
+          name: ecology-reviewed-publication
+          path: ecology-publication.json
+          if-no-files-found: ignore
+          retention-days: 7
