@@ -3270,6 +3270,25 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
         return TryValidateHighSpeedTurnBufferCoverage(out failure);
     }
 
+    public bool TryGetTerminalRequiredEcologyFailure(out string failure)
+    {
+        // note: A demanded owner with no worker or retry ticket cannot progress. Startup must present recovery while keeping its visual gates closed.
+        foreach (var pair in _chunks)
+        {
+            RuntimeChunk chunk = pair.Value;
+            if (chunk == null || !IsContentDemandedNow(pair.Key) || chunk.requiredEcologyReady ||
+                chunk.decorativeGeneration != null || _requiredEcologyRetryAt.ContainsKey(pair.Key)) continue;
+            if (_requiredEcologyRetryCount.TryGetValue(pair.Key, out int count) && count >= MaximumRequiredEcologyRetries &&
+                !string.IsNullOrWhiteSpace(chunk.failureReason))
+            {
+                failure = "required ecology failed at " + pair.Key + ": " + chunk.failureReason;
+                return true;
+            }
+        }
+        failure = string.Empty;
+        return false;
+    }
+
     private bool TryValidateCanonicalPreparationEnvelope(out string failure)
     {
         // note: Do not release gameplay while the all-direction lead ring is only queued or represented by emergency ground.
@@ -8803,13 +8822,15 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
             return;
 
         _requiredEcologyRetryCount.TryGetValue(coordinate, out int retryCount);
-        if (retryCount >= MaximumRequiredEcologyRetries)
+        // note: Retrying the identical empty qualified pool cannot repair source approval or bindings; reserve retries for transient placement/provider failures.
+        bool permanentSourceFailure = failure != null && failure.StartsWith(YQEcologySourcePolicy.PermanentFailurePrefix, StringComparison.Ordinal);
+        if (permanentSourceFailure || retryCount >= MaximumRequiredEcologyRetries)
         {
             _requiredEcologyRetryAt.Remove(coordinate);
+            _requiredEcologyRetryCount[coordinate] = MaximumRequiredEcologyRetries;
             // note: Exhaustion is an explicit publication failure, not an invisible ecology=false owner that can remain in the camera envelope forever.
-            chunk.failureReason = "required ecology retry budget exhausted: " + failure;
-            if (_hardViewDemand.Contains(coordinate))
-                chunk.state = YQSemanticChunkLifecycle.Failed;
+            chunk.failureReason = (permanentSourceFailure ? "required ecology source qualification failed: " : "required ecology retry budget exhausted: ") + failure;
+            chunk.state = YQSemanticChunkLifecycle.Failed;
             Debug.LogError("[YQSemanticChunkStreamer] REQUIRED ECOLOGY PUBLISH FAILED " + coordinate +
                 ": " + chunk.failureReason);
             _lifecyclePending = true;
@@ -10714,6 +10735,12 @@ public sealed partial class YQPlayerFollowingSemanticChunkStreamer : MonoBehavio
 
                 if (!pending.published && pending.result != int.MinValue)
                 {
+                    // note: A rejected source/placement receipt does not depend on structural completion and must not be parked behind that owner.
+                    if (pending.result <= 0)
+                    {
+                        failure = pending.providerFailure ?? "canonical ecology returned no accepted required layer";
+                        yield break;
+                    }
                     if (!chunk.requiredContentReady || !chunk.overlayReady)
                     {
                         // note: Hold the prepared habitat without occupying an ecology slot until accepted structures and durable overlays are publishable.

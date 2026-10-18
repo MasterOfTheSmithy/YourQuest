@@ -2279,7 +2279,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
             record);
     }
 
-    private static bool IsDiscoveredReferenceRuntimeEligible(
+    internal static bool IsDiscoveredReferenceRuntimeEligible(
         string path,
         string assetType,
         string slot)
@@ -2372,7 +2372,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
                  materialIndex < materials.Length;
                  materialIndex++)
             {
-                Material material = materials[materialIndex];
+                Material material = YQWorldAssetIntakeBuilder.ResolveBoundIntakeMaterial(path, renderers[rendererIndex], materialIndex);
                 if (humanCharacter && material == null)
                     continue;
                 if (material == null &&
@@ -3877,6 +3877,9 @@ public static class YQRuntimeWorldAssetRegistryBuilder
             GameObject prefab,
             string assetPath)
     {
+        // note: Normal registry builds preserve the same reviewed source-surface correction as the bounded ecology migration.
+        if (YQWorldAssetIntakeBuilder.TryBuildReviewedEcologyMaterialOverrides(prefab, assetPath, out var reviewedEcology))
+            return reviewedEcology;
         List<YQRuntimeWorldMaterialOverride> bindings =
             new List<YQRuntimeWorldMaterialOverride>();
 
@@ -3925,6 +3928,9 @@ public static class YQRuntimeWorldAssetRegistryBuilder
         BuildMaterialOverrides(
             GameObject prefab)
     {
+        // note: Authored and discovered registry builds share the one reviewed foliage adapter contract.
+        if (YQWorldAssetIntakeBuilder.TryBuildReviewedEcologyMaterialOverrides(prefab, AssetDatabase.GetAssetPath(prefab), out var reviewedEcology))
+            return reviewedEcology;
         List<YQRuntimeWorldMaterialOverride> result =
             new List<YQRuntimeWorldMaterialOverride>();
 
@@ -4493,7 +4499,7 @@ public static class YQRuntimeWorldAssetRegistryBuilder
     }
 }
 
-public static class YQWorldAssetIntakeBuilder
+public static partial class YQWorldAssetIntakeBuilder
 {
     private static Dictionary<string, YQSpatialAssetRecord> _reviewedSpatialByPath;
     private static bool _reviewedSpatialIndexLoaded;
@@ -5036,7 +5042,7 @@ public static class YQWorldAssetIntakeBuilder
             YQSpatialAssetRecord record = catalog.SpatialAssets[index];
             if (record != null && record.disposition == YQAssetIntakeDisposition.Candidate && record.releaseEligible)
                 hasCandidate = true;
-            if (!CanApproveBenchmarkDecorative(record))
+            if (!CanApproveBenchmarkDecorative(record) || !RefreshDecorativeCandidateForApproval(catalog, record))
                 continue;
 
             ApplyBenchmarkDecorativeReview(record);
@@ -5082,7 +5088,7 @@ public static class YQWorldAssetIntakeBuilder
         for (int index = 0; index < catalog.SpatialAssets.Count; index++)
         {
             YQSpatialAssetRecord record = catalog.SpatialAssets[index];
-            if (!CanApproveDecorative(record))
+            if (!CanApproveDecorative(record) || !RefreshDecorativeCandidateForApproval(catalog, record))
                 continue;
             ApplyBenchmarkDecorativeReview(record);
             approvedKits.Add(record.kitId);
@@ -5148,7 +5154,7 @@ public static class YQWorldAssetIntakeBuilder
             string.IsNullOrWhiteSpace(record.kitId) ||
             !record.kitId.Equals("assets_befourstudios_medievalvikingvillage", StringComparison.OrdinalIgnoreCase) ||
             record.validationIssues == null || record.validationIssues.Count != 0 ||
-            !record.hasRenderer || !record.hasCollider || record.missingScriptCount != 0 ||
+            !YQEcologySourcePolicy.HasValidMeasuredSource(record) || !YQEcologySourcePolicy.AllowsCollisionProfile(record, false) ||
             record.invalidMaterialSlotCount != 0 || record.materialReviewSlotCount != 0 ||
             record.localBoundsSize.sqrMagnitude <= 0.0001f)
             return false;
@@ -5158,11 +5164,11 @@ public static class YQWorldAssetIntakeBuilder
                role == "rock" || role == "lighting";
     }
 
-    private static bool CanApproveDecorative(YQSpatialAssetRecord record)
+    internal static bool CanApproveDecorative(YQSpatialAssetRecord record, bool blocksNavigation = false)
     {
         if (record == null || record.disposition != YQAssetIntakeDisposition.NeedsSpatialReview ||
             string.IsNullOrWhiteSpace(record.kitId) || record.validationIssues == null || record.validationIssues.Count != 0 ||
-            !record.hasRenderer || !record.hasCollider || record.missingScriptCount != 0 ||
+            !YQEcologySourcePolicy.HasValidMeasuredSource(record) || !YQEcologySourcePolicy.AllowsCollisionProfile(record, blocksNavigation) ||
             record.invalidMaterialSlotCount != 0 || record.materialReviewSlotCount != 0 ||
             record.localBoundsSize.sqrMagnitude <= 0.0001f ||
             (record.compositionScale != YQSpatialCompositionScale.Atom &&
@@ -6017,7 +6023,7 @@ public static class YQWorldAssetIntakeBuilder
             {
                 YQMaterialCompatibilityState state =
                     EvaluateRuntimeReadyMaterial(
-                        sharedMaterials[materialIndex],
+                        ResolveBoundIntakeMaterial(record.assetPath, renderer, materialIndex),
                         out string issue,
                         out _,
                         out _);
@@ -7021,6 +7027,20 @@ public static class YQWorldAssetIntakeBuilder
 
         CopyAuthoredSpatialReview(refreshed, authored);
         // note: Keep newly measured renderer/material/collider evidence on the refreshed record; only authored placement authority is restored.
+        if (!string.IsNullOrEmpty(authored.ecologySourceDependencyHash))
+        {
+            // note: Normal rescans cannot resurrect an ecology approval after its source, geometry, materials or binding changed.
+            refreshed.ecologySourceDependencyHash = authored.ecologySourceDependencyHash;
+            if (!YQEcologySourcePolicy.HasValidMeasuredSource(refreshed) ||
+                !YQEcologySourcePolicy.TryClassifySmallFoliage(refreshed, out _) ||
+                AssetDatabase.GetAssetDependencyHash(refreshed.assetPath).ToString() != authored.ecologySourceDependencyHash ||
+                !HasExactEcologyBinding(refreshed, out _))
+            {
+                refreshed.releaseEligible = false;
+                refreshed.disposition = YQAssetIntakeDisposition.NeedsSpatialReview;
+                refreshed.validationIssues.Add("Ecology source or binding changed; run Repair Required Ecology Sources for revalidation.");
+            }
+        }
     }
 
     private static void CopyAuthoredSpatialReview(YQSpatialAssetRecord refreshed, YQSpatialAssetRecord authored)

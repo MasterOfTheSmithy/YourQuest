@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad7c799f2ef4fd4ea812d39a104736a, type: 3}
+  m_Name: YQWorldAsset_19690cd36e20d889da179714c5bcc808c97a29feafa36816817cfd96d1fe1095
+  m_EditorClassIdentifier: Assembly-CSharp::YQRuntimeWorldAssetRegistry
+  entries:
+  - assetPath: Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
+    prefab: {fileID: 1253365200111527898, guid: 8109e9e16ba4cc04b8e0928aea897927, type: 3}
+    material: {fileID: 0}
+    materialOverrides:
+    - transformPath: Bush01_LOD0
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a8ae48e0cfd6d32498b7cdc9600d79b7, type: 2}
+      replaceUsableSource: 1
+    - transformPath: Bush01_LOD1
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a8ae48e0cfd6d32498b7cdc9600d79b7, type: 2}
+      replaceUsableSource: 1
+    - transformPath: Bush01_LOD2
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a8ae48e0cfd6d32498b7cdc9600d79b7, type: 2}
+      replaceUsableSource: 1
+    - transformPath: Bush01_LOD3
+      rendererIndex: 0
+      materialIndex: 0
+      replacementMaterial: {fileID: 2100000, guid: a8ae48e0cfd6d32498b7cdc9600d79b7, type: 2}
+      replaceUsableSource: 1
+  useLazyResourceShards: 0
+  useGranularResourceShards: 0
+  terrainGrassTexture: {fileID: 0}

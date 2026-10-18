@@ -9801,6 +9801,7 @@ public static class YQGeneratedWorldEnvironment
         // note: Optional dressing failures must not revoke the already-published camera-critical habitat contract.
         bool optionalEcologyFailed = false;
         string failedEcologyLayer = string.Empty;
+        var ecologyFailureReasons = new Dictionary<string, string>(StringComparer.Ordinal);
         int canopySpawned = 0;
         int understorySpawned = 0;
         int shrubSpawned = 0;
@@ -9933,7 +9934,7 @@ public static class YQGeneratedWorldEnvironment
                         canopyMinimumSpawned = 1;
                         PublishRequiredEcologyMinimum();
                     }
-                }));
+                }, reason => ecologyFailureReasons["Canopy"] = reason));
 
         // note: Understory follows moisture and forest affinity while reusing the curated low-vegetation reference filter.
         RequiredEcologyLayerWork understoryWork = new RequiredEcologyLayerWork(
@@ -9964,7 +9965,7 @@ public static class YQGeneratedWorldEnvironment
                         understoryMinimumSpawned = 1;
                         PublishRequiredEcologyMinimum();
                     }
-                }));
+                }, reason => ecologyFailureReasons["Understory"] = reason));
 
         // note: Shrubs are a separate deterministic layer so low vegetation remains visible even when the canopy family is sparse or rejected by a Terrain prototype.
         RequiredEcologyLayerWork shrubWork = new RequiredEcologyLayerWork(
@@ -9995,7 +9996,7 @@ public static class YQGeneratedWorldEnvironment
                         shrubMinimumSpawned = 1;
                         PublishRequiredEcologyMinimum();
                     }
-                }));
+                }, reason => ecologyFailureReasons["Shrubs"] = reason));
 
         // note: Publish the same required layers only after every deterministic per-layer iterator has completed successfully.
         yield return RunRequiredEcologyLayersRoutine(canopyWork, understoryWork, shrubWork);
@@ -10008,13 +10009,27 @@ public static class YQGeneratedWorldEnvironment
             (!shrubApplicable || shrubSpawned > 0);
         if (!requiredEcologyReady)
         {
-            // note: A zero applicable layer is a deterministic placement rejection; carry its identity and actual counts through retries and terminal startup diagnostics.
-            string rejection = "required ecology layer rejected at (" + chunk.chunkX + ", " + chunk.chunkZ + ")" +
+            // note: Zero results are failures too; list every missing layer and distinguish permanent source absence from physical placement rejection.
+            var missingLayers = new List<string>();
+            if (canopyApplicable && canopySpawned <= 0) missingLayers.Add("Canopy");
+            if (understoryApplicable && understorySpawned <= 0) missingLayers.Add("Understory");
+            if (shrubApplicable && shrubSpawned <= 0) missingLayers.Add("Shrubs");
+            if (missingLayers.Count == 0 && !string.IsNullOrWhiteSpace(failedEcologyLayer)) missingLayers.Add(failedEcologyLayer);
+            bool permanentSourceFailure = false;
+            var causes = new List<string>();
+            foreach (string layer in missingLayers)
+            {
+                string cause = ecologyFailureReasons.TryGetValue(layer, out string detail) ? detail : "placement or instantiation produced no accepted instances";
+                permanentSourceFailure |= cause.StartsWith(YQEcologySourcePolicy.PermanentFailurePrefix, StringComparison.Ordinal);
+                causes.Add(layer + ": " + cause);
+            }
+            string rejection = (permanentSourceFailure ? YQEcologySourcePolicy.PermanentFailurePrefix + " " : string.Empty) +
+                "required ecology layer rejected at (" + chunk.chunkX + ", " + chunk.chunkZ + ")" +
                 " region=" + region.regionId +
                 " canopy=" + canopySpawned + "/" + canopyTarget + " applicable=" + canopyApplicable +
                 " understory=" + understorySpawned + "/" + understoryTarget + " applicable=" + understoryApplicable +
                 " shrubs=" + shrubSpawned + "/" + shrubTarget + " applicable=" + shrubApplicable +
-                " failedLayer=" + failedEcologyLayer;
+                " failedLayer=" + string.Join(",", missingLayers) + " causes=" + string.Join("; ", causes);
             requiredEcologyRejected?.Invoke(rejection);
             Debug.LogError("[YQGeneratedWorldEnvironment] " + rejection);
         }
@@ -11686,7 +11701,8 @@ public static class YQGeneratedWorldEnvironment
         bool synchronousInstantiation = false,
         MacroWaterSet sharedMacroWater = null,
         string layerLabel = null,
-        Action<int> requiredMinimumCompleted = null)
+        Action<int> requiredMinimumCompleted = null,
+        Action<string> rejected = null)
     {
         if (parent == null ||
             terrain == null ||
@@ -11768,6 +11784,13 @@ public static class YQGeneratedWorldEnvironment
                     slot,
                     treesOnly);
 
+            // note: Required shrubs and understory have separate measured candidate sets; a grass/fern cannot satisfy the shrub layer through a shared decoration pool.
+            string poolDiagnostic = string.Empty;
+            if (requiredLowVegetation)
+                scatterReferences = BuildRequiredLowFoliageReferences(palette, registry,
+                    string.Equals(layerLabel, "Shrubs", StringComparison.Ordinal) ? YQSmallFoliageKind.Shrub : YQSmallFoliageKind.Understory,
+                    out poolDiagnostic);
+
             // note: Vary each owner's canopy cycle without changing accepted membership, target density, spatial samples, or low-flora weighted selection.
             if (vegetationSlot && treesOnly)
                 OrderCanopyScatterReferences(scatterReferences, palette, plan.worldSeed, region.regionId, regionCenter, seedScope);
@@ -11781,6 +11804,9 @@ public static class YQGeneratedWorldEnvironment
 
             if (scatterReferences.Count == 0)
             {
+                // note: No placement retry can repair an empty qualified pool; emit one bounded source receipt for the streamed owner.
+                rejected?.Invoke(YQEcologySourcePolicy.PermanentFailurePrefix + " layer=" + layerLabel + " " +
+                    (string.IsNullOrEmpty(poolDiagnostic) ? "qualifiedCandidates=0" : poolDiagnostic));
                 UnityEngine.Object.Destroy(root);
                 completed?.Invoke(0);
                 yield break;
@@ -11792,6 +11818,7 @@ public static class YQGeneratedWorldEnvironment
                 StringComparer.OrdinalIgnoreCase);
             // note: Empty required layers retain the placement stage counts so a physical rejection is diagnosable without weakening habitat gates.
             int resolvedCenters = 0, clippedMembers = 0, allowedMembers = 0, habitatMembers = 0, clearMembers = 0, resolvedPrefabs = 0;
+            int missingPrefabs = 0, emptyInstantiations = 0, geometryRejected = 0, finalizationRejected = 0;
             int fallbackWaterRejected = 0, fallbackSettlementRejected = 0, fallbackCampRejected = 0;
             bool dryCandidateSearched = false, hasDryCandidate = false;
             Vector2 dryCandidate = default;
@@ -12022,7 +12049,10 @@ public static class YQGeneratedWorldEnvironment
                     : registry.ResolvePreloadedPrefab(reference.assetPath);
 
                 if (prefab == null)
+                {
+                    missingPrefabs++;
                     continue;
+                }
                 resolvedPrefabs++;
 
                 // note: Vegetation can be authored with a large canopy; fit it to the mature-tree budget after instantiation instead of discarding the ecological family before it is audited.
@@ -12067,7 +12097,10 @@ public static class YQGeneratedWorldEnvironment
                 }
 
                 if (instance == null)
+                {
+                    emptyInstantiations++;
                     continue;
+                }
 
                 instance.name =
                     "Wilderness_" +
@@ -12145,6 +12178,7 @@ public static class YQGeneratedWorldEnvironment
                     RemoveScatterReferenceByAssetPath(
                         scatterReferences,
                         reference.assetPath);
+                    geometryRejected++;
                     instance.SetActive(false);
                     UnityEngine.Object.Destroy(instance);
                     continue;
@@ -12181,6 +12215,7 @@ public static class YQGeneratedWorldEnvironment
                         slot,
                         reference))
                 {
+                    finalizationRejected++;
                     instance.SetActive(
                         false);
 
@@ -12232,10 +12267,16 @@ public static class YQGeneratedWorldEnvironment
                     " seed=" + seedScope + " attempts=" + attempts + " candidates=" + scatterReferences.Count +
                     " centers=" + resolvedCenters + " clipped=" + clippedMembers + " allowed=" + allowedMembers +
                     " habitat=" + habitatMembers + " pathClear=" + clearMembers + " prefabs=" + resolvedPrefabs +
+                    " missingPrefabs=" + missingPrefabs + " emptyClones=" + emptyInstantiations +
+                    " geometryRejected=" + geometryRejected + " finalizationRejected=" + finalizationRejected +
                     " fallbackWet=" + fallbackWaterRejected + " fallbackSettlement=" + fallbackSettlementRejected + " fallbackCamp=" + fallbackCampRejected +
                     " terrainOrigin=" + terrain.transform.position + " terrainSize=" + terrain.terrainData.size;
                 if (optionalGroundcover) Debug.LogWarning(exhaustion);
-                else Debug.LogError(exhaustion);
+                else
+                {
+                    rejected?.Invoke("placement/instantiation exhausted: " + exhaustion + " " + poolDiagnostic);
+                    Debug.LogError(exhaustion);
+                }
             }
             completed?.Invoke(spawned);
         }
@@ -12554,6 +12595,96 @@ public static class YQGeneratedWorldEnvironment
         }
 
         return candidates;
+    }
+
+    internal static List<GeneratedAssetReferenceRecord> BuildRequiredLowFoliageReferences(
+        GeneratedRegionAssetPaletteRecord palette,
+        YQRuntimeWorldAssetRegistry registry,
+        YQSmallFoliageKind requiredKind,
+        out string diagnostic)
+    {
+        // note: Accepted saved references retain precedence. New approvals supplement the live pool without rewriting saved palettes or importing another authored pack.
+        var result = new List<GeneratedAssetReferenceRecord>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        int proposed = 0, unsuitable = 0, invalidSource = 0, unapproved = 0, unbound = 0, missingMetadata = 0;
+        string representative = string.Empty;
+        Action<GeneratedAssetReferenceRecord> consider = reference =>
+        {
+            if (reference == null || string.IsNullOrWhiteSpace(reference.assetPath) || !seen.Add(reference.assetPath)) return;
+            proposed++;
+            string reason = null;
+            if (!YQWorldAssetCatalog.TryGetSpatialRecord(reference.assetPath, out YQSpatialAssetRecord spatial))
+            {
+                missingMetadata++;
+                reason = "missing spatial metadata";
+            }
+            else if (!YQEcologySourcePolicy.TryClassifySmallFoliage(spatial, out YQSmallFoliageKind kind) || kind != requiredKind)
+            {
+                unsuitable++;
+                reason = "wrong layer or measured geometry";
+            }
+            else if (!YQWorldAssetCatalog.IsSpatiallyApprovedForRuntime(reference.assetPath))
+            {
+                unapproved++;
+                reason = "not release approved";
+            }
+            else if (!YQEcologySourcePolicy.HasValidMeasuredSource(spatial) ||
+                     !YQEcologySourcePolicy.AllowsCollisionProfile(spatial, reference.blocksNav))
+            {
+                invalidSource++;
+                reason = "invalid measured source, materials, or blocking collision";
+            }
+            else if (registry == null || !registry.ContainsPrefabPath(reference.assetPath))
+            {
+                unbound++;
+                reason = "missing exact registry binding";
+            }
+            else
+            {
+                AddUniqueSmallReference(result, reference);
+            }
+            if (reason != null && (representative.Length == 0 || reason != "wrong layer or measured geometry" && representative.EndsWith("wrong layer or measured geometry", StringComparison.Ordinal)))
+                representative = System.IO.Path.GetFileName(reference.assetPath) + ": " + reason;
+        };
+
+        if (palette != null)
+        {
+            List<GeneratedAssetReferenceRecord> primary = YQWorldAssetCatalog.GetSlotList(palette, YQWorldAssetCatalog.SlotVegetation);
+            for (int index = 0; primary != null && index < primary.Count; index++) consider(primary[index]);
+            foreach (GeneratedAssetReferenceRecord reference in YQWorldAssetCatalog.BuildApprovedDiscoveredSlotCandidates(
+                         palette, YQWorldAssetCatalog.SlotVegetation, true)) consider(reference);
+
+            if (requiredKind == YQSmallFoliageKind.Shrub && ShouldUseFallbackUnderstory(palette))
+            {
+                // note: This neutral shrub family is already an explicit shared palette dependency. Foreign grass fallbacks never enter either required layer.
+                foreach (string path in ApprovedFallbackUnderstoryPrefabs)
+                {
+                    if (!path.StartsWith("Assets/YughuesFreeBushes2018/", StringComparison.OrdinalIgnoreCase)) continue;
+                    consider(new GeneratedAssetReferenceRecord
+                    {
+                        assetKey = "approved_shared_shrub_" + System.IO.Path.GetFileNameWithoutExtension(path),
+                        assetPath = path,
+                        assetType = "prefab",
+                        slotTag = YQWorldAssetCatalog.SlotVegetation,
+                        weight = 1,
+                        scaleMin = 0.72f,
+                        scaleMax = 1.16f,
+                        footprintX = 3.5f,
+                        footprintZ = 3.5f,
+                        placementRule = "terrain_understory",
+                        rotationRule = "random_yaw",
+                        allowRepeat = true,
+                        blocksNav = false,
+                        subTags = new List<string> { "bush", "shrub" },
+                        styleTags = new List<string> { "fantasy", "natural" }
+                    });
+                }
+            }
+        }
+        diagnostic = "kind=" + requiredKind + " proposed=" + proposed + " qualified=" + result.Count +
+            " unsuitable=" + unsuitable + " invalidSource=" + invalidSource + " unapproved=" + unapproved + " unbound=" + unbound +
+            " missingMetadata=" + missingMetadata + (representative.Length == 0 ? string.Empty : " example=" + representative);
+        return result;
     }
 
     private static void AddApprovedDeadfallReferences(

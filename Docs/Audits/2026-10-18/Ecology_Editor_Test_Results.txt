@@ -1,0 +1,32 @@
+[YQEcologyStartupRepairTests] EXPECTED production error follows: permanent source qualification failure.
+[YQEcologyStartupRepairTests] PASS permanent empty pool fails once with no ticket and remains startup-blocking
+[YQEcologyStartupRepairTests] controlled production contracts: passed=10 failed=0. Editor evidence only; no affected-profile Play Mode certification.
+[YQRequiredEcologyRepair] REPAIR COMPLETE qualified=11 coastalUnderstory=10 sharedShrubs=1 targetsUnchanged=true savesUnchanged=true backup=outputs/EcologyStartupRepair/20261018T1203126856088Z
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_02.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_03.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_04.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_02.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_03.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_04.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_05.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_06.prefab
+[YQEcologyStartupRepairTests] PASS Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
+[YQEcologyStartupRepairTests] PASS shared shrub preserves original material textures and binds every authored LOD
+[YQEcologyStartupRepairTests] PASS existing coastal palette gains appropriate required layers without save rewrite
+[YQEcologyStartupRepairTests] PASS instantiated shrub receives reviewed material on all LODs and normal rebuild retains it
+[YQEcologyStartupRepairTests] actual imported sources after migration: passed=14 failed=0. Editor evidence only; no affected-profile Play Mode certification.
+[YQEcologyStartupRepairTests] PASS colliderless measured fern and shrub qualify in their own layers
+[YQEcologyStartupRepairTests] PASS trees rocks and structures still require collision
+[YQEcologyStartupRepairTests] PASS invalid material geometry identity and scripts remain rejected
+[YQEcologyStartupRepairTests] PASS staging preserves unrelated approval and never mutates original records
+[YQEcologyStartupRepairTests] PASS cancellation after first refresh leaves complete original snapshot intact
+[YQEcologyStartupRepairTests] PASS refresh failure and invalid refreshed sources cannot produce a staged publication
+[YQEcologyStartupRepairTests] PASS coastal pools separate understory shrubs and blocking canopy with exact bindings
+[YQEcologyStartupRepairTests] PASS live pools reject invalid source unapproved source and blocking colliderless references
+[YQEcologyStartupRepairTests] PASS retry admission respects chunk identity and preserves structural ownership
+[YQEcologyStartupRepairTests] EXPECTED production error follows: permanent source qualification failure.
+[YQEcologyStartupRepairTests] PASS permanent empty pool fails once with no ticket and remains startup-blocking
+[YQEcologyStartupRepairTests] PASS reviewed material correction applies while legacy recovery retains usable sources
+[YQEcologyStartupRepairTests] controlled production contracts: passed=11 failed=0. Editor evidence only; no affected-profile Play Mode certification.

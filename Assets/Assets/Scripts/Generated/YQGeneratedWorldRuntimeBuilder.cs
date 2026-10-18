@@ -1057,6 +1057,17 @@ public sealed class YQGeneratedWorldRuntimeBuilder : MonoBehaviour
     public bool InitialGenerationRecoveryRequired =>
         _initialGenerationWatchdogAborted;
 
+    public void ReportStartupEcologyFailure(string failure)
+    {
+        // note: Reuse the existing accepted-world retry/title recovery owner after materialization; a terminal visual failure never unlocks gameplay.
+        if (_initialGenerationWatchdogAborted) return;
+        _initialGenerationWatchdogAborted = true;
+        Debug.LogError("[YQGeneratedWorldRuntimeBuilder] STARTUP ECOLOGY FAILED: " + failure);
+        YQStartupLoadingScreen.ShowGenerationFailure(
+            "Nearby vegetation could not be prepared. Retry the accepted world, or return to the title screen. " + failure,
+            RetryAfterGenerationWatchdog, ReturnToTitleAfterGenerationWatchdog);
+    }
+
     // note: Expose only read-only materialization diagnostics so editor verification can distinguish active work from a rejected or incomplete build.
     public bool IsMaterializationInProgress =>
         _buildInProgress;

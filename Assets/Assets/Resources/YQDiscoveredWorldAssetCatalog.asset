@@ -252199,7 +252199,7 @@ MonoBehaviour:
     assetPath: Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
     assetType: prefab
     slotTag: vegetation
-    runtimeEligible: 0
+    runtimeEligible: 1
     weight: 2
     scaleMin: 0.85
     scaleMax: 1.35
@@ -252228,7 +252228,7 @@ MonoBehaviour:
     assetPath: Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
     assetType: prefab
     slotTag: vegetation
-    runtimeEligible: 0
+    runtimeEligible: 1
     weight: 2
     scaleMin: 0.85
     scaleMax: 1.35
@@ -252257,7 +252257,7 @@ MonoBehaviour:
     assetPath: Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
     assetType: prefab
     slotTag: vegetation
-    runtimeEligible: 0
+    runtimeEligible: 1
     weight: 2
     scaleMin: 0.85
     scaleMax: 1.35

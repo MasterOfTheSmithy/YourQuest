@@ -1365,7 +1365,7 @@ public static class YQWorldAssetCatalog
     }
 
     internal static List<GeneratedAssetReferenceRecord> BuildApprovedDiscoveredSlotCandidates(
-        GeneratedRegionAssetPaletteRecord palette, string slot)
+        GeneratedRegionAssetPaletteRecord palette, string slot, bool includeUnapprovedForDiagnostics = false)
     {
         // note: Runtime supplements reuse the same approval, owning-pack and style boundary as initial palette construction, without mutating accepted palettes.
         var candidates = new List<GeneratedAssetReferenceRecord>();
@@ -1390,7 +1390,7 @@ public static class YQWorldAssetCatalog
             if (reference == null || !reference.runtimeEligible ||
                 !string.Equals(reference.assetType, "prefab", StringComparison.OrdinalIgnoreCase) ||
                 !string.Equals(ResolveRuntimeDiscoveredSlot(reference), slot, StringComparison.OrdinalIgnoreCase) ||
-                !IsAllowedWorldReferenceForSlot(reference, slot) ||
+                (!includeUnapprovedForDiagnostics && !IsAllowedWorldReferenceForSlot(reference, slot)) ||
                 !IsSafeDiscoveredAssetForPalette(palette, reference) || !DiscoveredAssetMatchesPalette(palette, reference)) continue;
             GeneratedAssetReferenceRecord clone = CloneDiscoveredReference(reference);
             ApplyDiscoveredSlotContract(clone, slot);
@@ -1937,6 +1937,21 @@ public static class YQWorldAssetCatalog
         }
 
         return true;
+    }
+
+    public static bool TryGetSpatialRecord(string assetPath, out YQSpatialAssetRecord record)
+    {
+        // note: Populate the canonical index even for an unapproved record; ecology needs its measured identity rather than a filename-only approval.
+        IsSpatiallyApprovedForRuntime(assetPath);
+        record = null;
+        return _spatialAssetsByPath != null && _spatialAssetsByPath.TryGetValue(
+            (assetPath ?? string.Empty).Replace('\\', '/'), out record);
+    }
+
+    public static void InvalidateRuntimeIntakeCatalog()
+    {
+        // note: Targeted editor requalification replaces list snapshots; invalidate metadata indexes without changing any saved region palette.
+        ResetRuntimeIntakeCatalog();
     }
 
     public static bool IsRuntimeQuarantinedPath(string assetPath)

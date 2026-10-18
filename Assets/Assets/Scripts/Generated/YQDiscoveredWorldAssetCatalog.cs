@@ -276,6 +276,8 @@ public sealed class YQSpatialAssetRecord
     public string stableAssetId;
     public string sourceGuid;
     public string sourceAssetKey;
+    // note: Narrow ecology qualification binds approval to the measured imported dependency revision; legacy records remain unchanged.
+    public string ecologySourceDependencyHash;
     public string assetPath;
     public string kitId;
     public string semanticRole;

@@ -249,6 +249,10 @@ public sealed class YourQuestTutorialAutoBootstrap : MonoBehaviour
             {
                 preparedCameraFrames = 0;
                 GameplayPresentationWaitReason = visualCoverageFailure;
+                // note: Retain input/loading/camera gates but expose the existing recovery controls when required ecology has no remaining runnable work.
+                if (visibleWorld != null && worldBuilder != null &&
+                    visibleWorld.TryGetTerminalRequiredEcologyFailure(out string terminalEcologyFailure))
+                    worldBuilder.ReportStartupEcologyFailure(terminalEcologyFailure);
                 if (Time.unscaledTime >= nextVisualCoverageDiagnosticAt)
                 {
                     Debug.Log("[YourQuestTutorialAutoBootstrap] STARTUP VISUAL COVERAGE WAIT failure=" + visualCoverageFailure +

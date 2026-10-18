@@ -1,0 +1,47 @@
+{
+  "evidence": "static serialized-data preservation after actual Unity migration",
+  "oldCount": 6414,
+  "newCount": 6414,
+  "changedSpatialRecords": [
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_01.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_02.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_03.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_04.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_01.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_02.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_03.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_04.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_05.prefab",
+    "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_06.prefab",
+    "Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab"
+  ],
+  "unexpectedSpatialChanges": [],
+  "unrelatedValidApprovalsPreserved": true,
+  "materialRecordsUnchanged": true,
+  "kitChanges": [
+    {
+      "kitId": "assets_hivemind",
+      "fields": [
+        "candidatePrefabCount",
+        "spatialReviewPrefabCount"
+      ]
+    },
+    {
+      "kitId": "assets_yughuesfreebushes2018_prefabs",
+      "fields": [
+        "candidatePrefabCount",
+        "releaseEligible",
+        "spatialReviewPrefabCount"
+      ]
+    }
+  ],
+  "manifestConservation": {
+    "bindingRows": 8174,
+    "prefabDependencyRows": 7801,
+    "changedPaths": [
+      "Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab"
+    ],
+    "allOtherRowsPreserved": true
+  },
+  "serializationNote": "Unity normalized legacy null collections and serialized the additive ecology source hash on the catalog. Comparison treats null and empty collections equivalently; exactly eleven spatial records have substantive changes."
+}

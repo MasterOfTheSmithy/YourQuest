@@ -22,6 +22,9 @@ public sealed class YQRuntimeWorldMaterialOverride
 
     // Serialized replacement material for runtime-safe repair.
     public Material replacementMaterial;
+
+    // note: Explicit reviewed surface corrections may replace a usable source. Legacy recovery overrides keep their existing default behavior.
+    public bool replaceUsableSource;
 }
 
 [Serializable]
@@ -791,9 +794,9 @@ public sealed class YQRuntimeWorldAssetRegistry : ScriptableObject
                 continue;
             }
 
-            // note: A verified serialized source binding needs no runtime substitution. Persisted adapters remain recovery authority for unresolved source slots.
+            // note: Recovery adapters retain usable sources; explicitly reviewed surface corrections also restore authored texture/workflow data on those sources.
             if (!YQRuntimeUrpMaterialRepair.IsMaterialSlotRequired(renderer, binding.materialIndex) ||
-                YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(materials[binding.materialIndex]) ||
+                (!binding.replaceUsableSource && YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(materials[binding.materialIndex])) ||
                 !YQRuntimeUrpMaterialRepair.IsRuntimeMaterialUsable(binding.replacementMaterial))
                 continue;
 
