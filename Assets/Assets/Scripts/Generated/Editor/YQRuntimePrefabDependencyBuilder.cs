@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
@@ -19,6 +20,7 @@ public static class YQRuntimePrefabDependencyBuilder
     private const string ResourcesFolder = "Assets/Assets/Resources";
     private const string BindingManifestPath = ResourcesFolder + "/YQWorldAssetManifest.json";
     private const string ManifestPath = ResourcesFolder + "/YQWorldPrefabDependencies.json";
+    private const string BindingOwner = "YourQuest.GranularWorldAssetResources.v1";
     private const string Owner = "YourQuest.PrefabDependencyPreloads.v1";
 
     private sealed class Dependency
@@ -34,46 +36,37 @@ public static class YQRuntimePrefabDependencyBuilder
         public List<string> resources;
     }
 
+    private sealed class PrefabBinding
+    {
+        public JObject manifestRow;
+        public string path, entrySha256, sourcePath, sourceIdentity;
+    }
+
     [MenuItem("YourQuest/Assets/Build Prefab Dependency Preloads")]
     public static void Rebuild()
     {
         RequireStableEditMode();
         if (!File.Exists(BindingManifestPath)) throw new InvalidOperationException("Build individual runtime asset bindings first.");
         string bindingSource = File.ReadAllText(BindingManifestPath);
-        JObject bindings = JObject.Parse(bindingSource);
-        if ((int?)bindings["version"] != 1 || !(bindings["assets"] is JArray assets))
-            throw new InvalidOperationException("Unsupported runtime binding manifest.");
         if (File.Exists(ManifestPath) && (string)JObject.Parse(File.ReadAllText(ManifestPath))["generator"] != Owner)
             throw new InvalidOperationException("Preserve the unowned prefab dependency manifest.");
-
-        var prefabBindings = assets.OfType<JObject>().Where(row =>
-            ((string)row["path"] ?? string.Empty).EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
-            .OrderBy(row => (string)row["path"], StringComparer.OrdinalIgnoreCase).ToArray();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (JObject binding in prefabBindings)
-        {
-            string path = (string)binding["path"], resource = (string)binding["resource"];
-            // note: Missing imported assets in a source-only checkout stop before any descriptor or manifest is published.
-            if (string.IsNullOrWhiteSpace(path) || !path.StartsWith("Assets/", StringComparison.Ordinal) || path.Contains("..") ||
-                !seen.Add(path) || string.IsNullOrWhiteSpace((string)binding["entrySha256"]) ||
-                string.IsNullOrWhiteSpace(resource) || !resource.StartsWith("YQWorldAssetLeaves/", StringComparison.Ordinal) || resource.Contains("..") ||
-                !File.Exists(path) || !File.Exists(ResourcesFolder + "/" + resource + ".asset"))
-                throw new InvalidOperationException("Complete imported source and runtime leaf required: " + path);
-        }
+        // note: Runtime keys survive GUID-preserving prefab moves. Resolve every conserved binding before preparing or publishing any descriptors.
+        PrefabBinding[] prefabBindings = ReadPrefabBindings(bindingSource);
 
         var dependencies = new Dictionary<string, Dependency>(StringComparer.Ordinal);
         var files = new Dictionary<string, List<Dependency>>(StringComparer.OrdinalIgnoreCase);
         var rows = new List<PrefabRow>(prefabBindings.Length);
-        foreach (JObject binding in prefabBindings)
+        foreach (PrefabBinding binding in prefabBindings)
         {
-            string path = (string)binding["path"];
-            List<Dependency> selected = ReadPrefabDependencies(path, files);
+            // note: Capture the physical source hash before discovery so a dependency change during preparation cannot publish a stale closure.
+            string sourceHash = AssetDatabase.GetAssetDependencyHash(binding.sourcePath).ToString();
+            List<Dependency> selected = ReadPrefabDependencies(binding.sourcePath, files);
             foreach (Dependency dependency in selected) dependencies[dependency.identity] = dependency;
             rows.Add(new PrefabRow
             {
-                path = path,
-                entrySha256 = (string)binding["entrySha256"],
-                sourceDependencyHash = AssetDatabase.GetAssetDependencyHash(path).ToString(),
+                path = binding.path,
+                entrySha256 = binding.entrySha256,
+                sourceDependencyHash = sourceHash,
                 // note: Clips precede controllers; source GUID/local-id ordering is independent of AssetDatabase enumeration and runtime traversal order.
                 resources = selected.Select(item => item.resource).ToList()
             });
@@ -89,9 +82,15 @@ public static class YQRuntimePrefabDependencyBuilder
         }
         if (File.ReadAllText(BindingManifestPath) != bindingSource)
             throw new InvalidOperationException("Runtime binding manifest changed during dependency preparation.");
-        foreach (PrefabRow row in rows)
-            if (row.sourceDependencyHash != AssetDatabase.GetAssetDependencyHash(row.path).ToString())
-                throw new InvalidOperationException("Prefab dependencies changed during preparation: " + row.path);
+        for (int index = 0; index < prefabBindings.Length; index++)
+        {
+            // note: An unchanged manifest does not prove that its leaf or GUID-to-path mapping stayed unchanged during discovery.
+            PrefabBinding original = prefabBindings[index];
+            PrefabBinding current = ResolvePrefabBinding(original.manifestRow);
+            if (current.sourcePath != original.sourcePath || current.sourceIdentity != original.sourceIdentity ||
+                rows[index].sourceDependencyHash != AssetDatabase.GetAssetDependencyHash(current.sourcePath).ToString())
+                throw new InvalidOperationException("Prefab source/dependencies changed during preparation: " + original.path);
+        }
 
         if (!AssetDatabase.IsValidFolder(ResourcesFolder + "/YQWorldAssetDependencies"))
             AssetDatabase.CreateFolder(ResourcesFolder, "YQWorldAssetDependencies");
@@ -112,6 +111,88 @@ public static class YQRuntimePrefabDependencyBuilder
         ValidateCurrent();
         Debug.Log("[YQRuntimePrefabDependencyBuilder] Published " + rows.Count + " prefab dependency rows and " + dependencies.Count +
             " distinct animation/controller descriptors. This is Editor binding evidence; cold native activation and travel remain unqualified.");
+    }
+
+    private static PrefabBinding[] ReadPrefabBindings(string source)
+    {
+        JObject bindings = JObject.Parse(source);
+        if ((int?)bindings["version"] != 1 || (string)bindings["generator"] != BindingOwner || !(bindings["assets"] is JArray assets))
+            throw new InvalidOperationException("Unsupported runtime binding manifest owner/version.");
+        // note: Malformed rows must not disappear from the completeness check when selecting prefab bindings from the mixed asset manifest.
+        if (assets.Any(item => !(item is JObject row) || row["path"]?.Type != JTokenType.String ||
+                string.IsNullOrWhiteSpace((string)row["path"])))
+            throw new InvalidOperationException("Runtime binding manifest contains an invalid asset row/path.");
+        var rows = assets.OfType<JObject>().Where(row =>
+            ((string)row["path"] ?? string.Empty).EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(row => (string)row["path"], StringComparer.OrdinalIgnoreCase).ToArray();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new List<PrefabBinding>(rows.Length);
+        foreach (JObject row in rows)
+        {
+            if (!seen.Add((string)row["path"]))
+                throw new InvalidOperationException("Duplicate runtime prefab binding: " + (string)row["path"]);
+            result.Add(ResolvePrefabBinding(row));
+        }
+        return result.ToArray();
+    }
+
+    private static PrefabBinding ResolvePrefabBinding(JObject binding)
+    {
+        string path = (string)binding["path"], resource = (string)binding["resource"];
+        string entryHash = (string)binding["entrySha256"], leafHash = (string)binding["leafSha256"];
+        if (!IsProjectAssetPath(path) || !IsSha256(entryHash) || !IsSha256(leafHash) ||
+            resource != "YQWorldAssetLeaves/" + Hash(YQRuntimeWorldAssetRegistry.NormalizePath(path).ToLowerInvariant()))
+            throw new InvalidOperationException("Invalid runtime prefab binding path/resource/hash: " + path);
+
+        string leafPath = ResourcesFolder + "/" + resource + ".asset";
+        if (!File.Exists(leafPath))
+            throw new InvalidOperationException("Missing runtime leaf for '" + path + "': " + leafPath +
+                ". Run YourQuest > Assets > Build Individual Runtime Asset Bindings (Preserve Legacy).");
+        // note: Read the generator's conserved text instead of loading every leaf and its native prefab graph just to recover a persistent identity.
+        string leaf = File.ReadAllText(leafPath).Replace("\r\n", "\n");
+        if (Hash(leaf) != leafHash)
+            throw new InvalidOperationException("Modified/stale runtime leaf for '" + path + "': " + leafPath);
+        MatchCollection entries = Regex.Matches(leaf, @"(?m)^  - assetPath: (.+(?:\n {6}.+)*)\n");
+        Match header = Regex.Match(leaf, @"(?m)^  entries:\n");
+        Match end = Regex.Match(leaf, @"(?m)^  useLazyResourceShards:");
+        if (entries.Count != 1 || !header.Success || header.Index + header.Length != entries[0].Index ||
+            !end.Success || end.Index <= entries[0].Index ||
+            Regex.Replace(entries[0].Groups[1].Value, @"\n {6}", " ") != path)
+            throw new InvalidOperationException("Runtime leaf must contain exactly its canonical binding: " + path);
+        string entry = leaf.Substring(entries[0].Index, end.Index - entries[0].Index);
+        if (Hash(entry) != entryHash)
+            throw new InvalidOperationException("Runtime leaf entry hash mismatch: " + path);
+
+        // note: Only the entry's prefab reference is authoritative; the leaf header and material overrides contain unrelated GUIDs.
+        MatchCollection references = Regex.Matches(entry,
+            @"(?m)^    prefab: \{fileID: (-?\d+), guid: ([a-fA-F0-9]{32}), type: 3\}$");
+        if (Regex.Matches(entry, @"(?m)^    prefab[ \t]*:").Count != 1 || references.Count != 1 ||
+            !long.TryParse(references[0].Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long localId) ||
+            localId == 0 || references[0].Groups[2].Value == "00000000000000000000000000000000")
+            throw new InvalidOperationException("Runtime leaf requires one persistent prefab GUID/fileID: " + path);
+        string guid = references[0].Groups[2].Value.ToLowerInvariant();
+        string identity = guid + ":" + localId.ToString(CultureInfo.InvariantCulture);
+        string sourcePath = AssetDatabase.GUIDToAssetPath(guid);
+        if (!IsProjectAssetPath(sourcePath) || !File.Exists(sourcePath))
+            throw new InvalidOperationException("Missing imported prefab source for '" + path + "' (GUID/fileID " + identity +
+                "). Resolved source: " + (string.IsNullOrEmpty(sourcePath) ? "<not imported>" : sourcePath));
+        if (!string.Equals(AssetDatabase.AssetPathToGUID(sourcePath, AssetPathToGUIDOptions.OnlyExistingAssets), guid,
+                StringComparison.OrdinalIgnoreCase) || AssetDatabase.GetTypeFromPathAndFileID(sourcePath, localId) != typeof(GameObject))
+            throw new InvalidOperationException("Imported prefab GUID/fileID identity mismatch for '" + path + "': " + sourcePath +
+                " (expected " + identity + ").");
+        return new PrefabBinding { manifestRow = binding, path = path, entrySha256 = entryHash,
+            sourcePath = sourcePath, sourceIdentity = identity };
+    }
+
+    private static bool IsProjectAssetPath(string path)
+    {
+        return !string.IsNullOrWhiteSpace(path) && path.StartsWith("Assets/", StringComparison.Ordinal) &&
+            !path.Contains("..") && !path.Contains("\\") && !path.Contains("\r") && !path.Contains("\n");
+    }
+
+    private static bool IsSha256(string value)
+    {
+        return value != null && Regex.IsMatch(value, @"\A[a-f0-9]{64}\z");
     }
 
     private static List<Dependency> ReadAnimationDependencies(string path)
@@ -158,19 +239,18 @@ public static class YQRuntimePrefabDependencyBuilder
         JObject manifest = JObject.Parse(File.ReadAllText(ManifestPath));
         if ((int?)manifest["version"] != 1 || (string)manifest["generator"] != Owner || !(manifest["prefabs"] is JArray rows))
             throw new InvalidOperationException("Prefab dependency metadata has an unsupported owner/version.");
-        JObject bindings = JObject.Parse(File.ReadAllText(BindingManifestPath));
-        var expected = ((JArray)bindings["assets"]).OfType<JObject>()
-            .Where(row => ((string)row["path"] ?? string.Empty).EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(row => (string)row["path"], row => (string)row["entrySha256"], StringComparer.OrdinalIgnoreCase);
+        // note: Validation uses the same conserved GUID/fileID resolution as building; historical keys never become filesystem fallbacks.
+        var expected = ReadPrefabBindings(File.ReadAllText(BindingManifestPath))
+            .ToDictionary(binding => binding.path, StringComparer.OrdinalIgnoreCase);
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var files = new Dictionary<string, List<Dependency>>(StringComparer.OrdinalIgnoreCase);
         foreach (JObject row in rows)
         {
             string path = (string)row["path"];
-            if (path == null || !seen.Add(path) || !expected.TryGetValue(path, out string entryHash) || entryHash != (string)row["entrySha256"] ||
-                !File.Exists(path) || AssetDatabase.GetAssetDependencyHash(path).ToString() != (string)row["sourceDependencyHash"])
+            if (path == null || !seen.Add(path) || !expected.TryGetValue(path, out PrefabBinding binding) || binding.entrySha256 != (string)row["entrySha256"] ||
+                AssetDatabase.GetAssetDependencyHash(binding.sourcePath).ToString() != (string)row["sourceDependencyHash"])
                 throw new InvalidOperationException("Missing/stale prefab dependency row: " + path);
-            if (!(row["resources"] is JArray resources) || !ReadPrefabDependencies(path, files).Select(item => item.resource)
+            if (!(row["resources"] is JArray resources) || !ReadPrefabDependencies(binding.sourcePath, files).Select(item => item.resource)
                     .SequenceEqual(resources.Select(value => (string)value), StringComparer.Ordinal))
                 throw new InvalidOperationException("Prefab dependency closure/order differs from imported source: " + path);
             foreach (JToken value in resources)

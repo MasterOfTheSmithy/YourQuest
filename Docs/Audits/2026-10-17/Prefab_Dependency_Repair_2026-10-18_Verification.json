@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "dateUtc": "2026-10-18",
+  "repository": "MasterOfTheSmithy/YourQuest",
+  "branch": "repair/chat-audit-2026-10-17",
+  "baseCommit": "94c132808183b64bc952be7426fb37952aa094cb",
+  "productionChangedPaths": [
+    "Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs"
+  ],
+  "baselineReplay": {
+    "receipt": {
+      "evidence": "Actual production C# against controlled Editor API contracts; no Unity import, native loading, or performance claim.",
+      "sdk": "8.0.426",
+      "runtime": "8.0.32",
+      "case": "moved",
+      "compile_command": [
+        "/tmp/yourquest-dotnet/dotnet",
+        "/tmp/yourquest-dotnet/sdk/8.0.426/Roslyn/bincore/csc.dll",
+        "@/tmp/yourquest-prefab-before/compile.rsp"
+      ],
+      "test_command": [
+        "/tmp/yourquest-dotnet/dotnet",
+        "/tmp/yourquest-prefab-before/contracts.dll",
+        "moved"
+      ],
+      "source_sha256": {
+        "/tmp/yourquest-dependency-builder-before.cs": "6b2e80857aca067fbd6138e98378731fd0dd49aa7231407d9b9a7639c5c9b86f",
+        "/tmp/yourquest-dependency-repair/Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs": "a4c9b4a2e3019da197db5feeb846a87ed16625621a76c061ba88c46bd63c1021",
+        "/tmp/yourquest-dependency-repair/Tools/ChatAuditVerification/PrefabDependencyBuilderStubs.cs": "2e0c3d0d0925d3848c7475bfac101ffda87ae1533cb5b26f871177dd588297b4",
+        "/tmp/yourquest-dependency-repair/Tools/ChatAuditVerification/PrefabDependencyBuilderTests.cs": "4d8d52eb3d6acf52f9a298619d9e696a7ee3ab3453d6f9b1d0ce1c35cdc67944"
+      },
+      "compile_exit_code": 0,
+      "test_exit_code": 1,
+      "exit_code": 1
+    },
+    "compilerLog": "warning CS1701: Assuming assembly reference 'System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' used by 'Newtonsoft.Json' matches identity 'System.Runtime, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' of 'System.Runtime', you may need to supply runtime policy\n",
+    "testLog": "FAIL prefab dependency builder: moved\nSystem.InvalidOperationException: Complete imported source and runtime leaf required: Assets/YourQuest DOT Creatures/cairnback/cairnback_darkness_affinity_set_v1.prefab\n   at YQRuntimePrefabDependencyBuilder.Rebuild()\n   at PrefabDependencyBuilderTests.MovedBinding()\n   at PrefabDependencyBuilderTests.Main(String[] args)\n",
+    "interpretation": "Expected failure: the actual baseline rejects the exact conserved cairnback binding when its GUID-identical prefab has moved."
+  },
+  "repairedReplay": {
+    "receipt": {
+      "evidence": "Actual production C# against controlled Editor API contracts; no Unity import, native loading, or performance claim.",
+      "sdk": "8.0.426",
+      "runtime": "8.0.32",
+      "case": "all",
+      "compile_command": [
+        "/tmp/yourquest-dotnet/dotnet",
+        "/tmp/yourquest-dotnet/sdk/8.0.426/Roslyn/bincore/csc.dll",
+        "@/tmp/yourquest-prefab-after/compile.rsp"
+      ],
+      "test_command": [
+        "/tmp/yourquest-dotnet/dotnet",
+        "/tmp/yourquest-prefab-after/contracts.dll"
+      ],
+      "source_sha256": {
+        "/tmp/yourquest-dependency-repair/Assets/Assets/Scripts/Generated/Editor/YQRuntimePrefabDependencyBuilder.cs": "4a56e11ef7c8594ec1668b1ffd19cb4c5885ae86ccdc871231b8eab88e5fa2ad",
+        "/tmp/yourquest-dependency-repair/Assets/Assets/Scripts/Generated/YQRuntimePrefabDependency.cs": "a4c9b4a2e3019da197db5feeb846a87ed16625621a76c061ba88c46bd63c1021",
+        "/tmp/yourquest-dependency-repair/Tools/ChatAuditVerification/PrefabDependencyBuilderStubs.cs": "2e0c3d0d0925d3848c7475bfac101ffda87ae1533cb5b26f871177dd588297b4",
+        "/tmp/yourquest-dependency-repair/Tools/ChatAuditVerification/PrefabDependencyBuilderTests.cs": "4d8d52eb3d6acf52f9a298619d9e696a7ee3ab3453d6f9b1d0ce1c35cdc67944"
+      },
+      "compile_exit_code": 0,
+      "test_exit_code": 0,
+      "exit_code": 0
+    },
+    "compilerLog": "warning CS1701: Assuming assembly reference 'System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' used by 'Newtonsoft.Json' matches identity 'System.Runtime, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a' of 'System.Runtime', you may need to supply runtime policy\n",
+    "testLog": "PASS prefab dependency builder: ordinary\nPASS prefab dependency builder: moved\nPASS prefab dependency builder: formats\nPASS prefab dependency builder: missing\nPASS prefab dependency builder: identity\nPASS prefab dependency builder: corrupt\nPASS prefab dependency builder: preflight\nPASS prefab dependency builder: discovery\nPASS prefab dependency builder: source_move\nPASS prefab dependency builder: validation\nPASS 10 managed builder groups. Actual production C#; controlled Editor API contracts, not Unity import/native verification.\n",
+    "passedGroups": [
+      "ordinary",
+      "moved",
+      "formats",
+      "missing",
+      "identity",
+      "corrupt",
+      "preflight",
+      "discovery",
+      "source_move",
+      "validation"
+    ],
+    "passedGroupCount": 10,
+    "failedGroupCount": 0
+  },
+  "serializedCompatibility": {
+    "receipt": {
+      "repository": "MasterOfTheSmithy/YourQuest",
+      "sourceCommit": "94c132808183b64bc952be7426fb37952aa094cb",
+      "executionDirectory": "/tmp/yourquest-dependency-repair",
+      "scriptPath": "/tmp/yq-prefab-binding-compatibility.py",
+      "scriptProvenance": "Exact Python body from the completed read-only verification command; saved after execution without another run.",
+      "resultProvenance": "Transcribed from successful command stdout; exit code 0.",
+      "reviewedBuilderSha256": "4a56e11ef7c8594ec1668b1ffd19cb4c5885ae86ccdc871231b8eab88e5fa2ad",
+      "evidenceLevel": "Published serialized metadata and reconstructed leaf text; not native Unity import or runtime verification.",
+      "counts": {
+        "prefabRows": 7801,
+        "sourceShards": 104,
+        "foldedPaths": 9,
+        "negativeLocalIds": 0,
+        "localIdsBeyondInt32": 2541
+      },
+      "issues": [],
+      "totalIssues": 0,
+      "scriptSha256": "069d543a56ae93aa5dc4f07eb58d464a7eaf18c65cea3597dd6f3fac01ffa277"
+    },
+    "script": "import hashlib,json,re,subprocess\nfrom collections import defaultdict\nread_source=lambda path:subprocess.check_output(['git','show','HEAD:'+path],text=True).replace('\\r\\n','\\n')\nmanifest=json.loads(read_source('Assets/Assets/Resources/YQWorldAssetManifest.json'))\nrows=[row for row in manifest['assets'] if isinstance(row,dict) and str(row.get('path','')).lower().endswith('.prefab')]\ngroups=defaultdict(list)\nfor row in rows: groups[row['source']].append(row)\nissues=[]; counts={'prefabRows':len(rows),'sourceShards':len(groups),'foldedPaths':0,'negativeLocalIds':0,'localIdsBeyondInt32':0}\nhash_text=lambda text:hashlib.sha256(text.encode('utf-8')).hexdigest()\nfor source,wanted in groups.items():\n    raw=read_source(source)\n    starts=list(re.finditer(r'(?m)^  - assetPath: (.+(?:\\n {6}.+)*)\\n',raw))\n    end=re.search(r'(?m)^  useLazyResourceShards:',raw)\n    entries={re.sub(r'\\n {6}',' ',m.group(1)):(m,raw[m.start():starts[i+1].start() if i+1<len(starts) else end.start()]) for i,m in enumerate(starts)}\n    header=raw[:raw.index('  entries:\\n')]+'  entries:\\n'\n    for row in wanted:\n        path=row['path']; m,entry=entries[path]\n        refs=list(re.finditer(r'(?m)^    prefab: \\{fileID: (-?\\d+), guid: ([a-fA-F0-9]{32}), type: 3\\}$',entry))\n        if len(refs)!=1 or len(re.findall(r'(?m)^    prefab[ \\t]*:',entry))!=1: issues.append({'path':path,'problem':'reference count or format','count':len(refs)});continue\n        localid=int(refs[0].group(1))\n        if localid==0 or not -(2**63)<=localid<2**63: issues.append({'path':path,'problem':'localID bounds','value':str(localid)})\n        if refs[0].group(2)=='0'*32: issues.append({'path':path,'problem':'zero GUID'})\n        normalized=path.strip().replace('\\\\','/')\n        while '//' in normalized: normalized=normalized.replace('//','/')\n        key=hash_text(normalized.lower())\n        if row['resource']!='YQWorldAssetLeaves/'+key:issues.append({'path':path,'problem':'resource mismatch'})\n        if hash_text(entry)!=row['entrySha256']:issues.append({'path':path,'problem':'entry hash mismatch'})\n        leafheader=re.sub(r'(?m)^  m_Name: .+$','  m_Name: YQWorldAsset_'+key,header)\n        leaf=leafheader+entry+'  useLazyResourceShards: 0\\n  useGranularResourceShards: 0\\n  terrainGrassTexture: {fileID: 0}\\n'\n        if hash_text(leaf)!=row['leafSha256']:issues.append({'path':path,'problem':'leaf hash mismatch'})\n        counts['foldedPaths']+=('\\n' in m.group(1));counts['negativeLocalIds']+=(localid<0);counts['localIdsBeyondInt32']+=(localid<-(2**31) or localid>=2**31)\nprint(json.dumps({'counts':counts,'issues':issues[:20],'totalIssues':len(issues)},indent=2))\n"
+  },
+  "review": {
+    "independentProductionReview": "approved",
+    "reviewedBuilderSha256": "4a56e11ef7c8594ec1668b1ffd19cb4c5885ae86ccdc871231b8eab88e5fa2ad",
+    "rootReviewedProductionAndFixtureDiffs": true,
+    "testedSourceHashesStillMatch": true
+  },
+  "evidenceLimits": [
+    "Managed compilation and execution use explicit controlled Unity Editor API contracts; they are not a native Unity compile or import result.",
+    "The 7801-row compatibility check covers published source metadata and reconstructed leaf text, not the omitted local imported asset library.",
+    "The original combined exception alone cannot distinguish a missing runtime leaf from a relocated or missing imported prefab.",
+    "Local Unity Build and Validate Prefab Dependency Preloads, cold activation, and sustained travel remain unqualified."
+  ]
+}

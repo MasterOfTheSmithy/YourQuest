@@ -9,6 +9,7 @@ Requirements: Python 3, Git, and a locally installed .NET 8 SDK with its referen
 ```sh
 python Tools/ChatAuditVerification/run.py --sdk-root /path/to/dotnet --output /path/to/verification-output
 python Tools/ChatAuditVerification/run_assets.py --dotnet-root /path/to/dotnet
+python Tools/ChatAuditVerification/run_prefab_dependencies.py --dotnet-root /path/to/dotnet --output /path/to/prefab-verification-output
 ```
 
 The first command defaults to source baseline `ee485e38ab6d66610e5ce3293b615b6b1a9dc1b8`. Use `--baseline` to select another comparison commit. It includes modified and new project C# files, parses both player and Editor conditional configurations using C# 9, then compiles and executes the focused publication, population, and movement fixtures. The scripts invoke the SDK compiler directly; they do not need a generated Unity project or restored NuGet packages. The asset script currently targets a Linux .NET 8 installation and removes its temporary executable output on completion.
@@ -22,12 +23,19 @@ The first command defaults to source baseline `ee485e38ab6d66610e5ce3293b615b6b1
 | Population | Verbatim scoped snapshot/body/life checks, prefab preparation coroutine, LOD stabilization, and metadata classification | Unity objects, JSON codec, DTOs, native instantiation, materials, and bounds |
 | Movement | Verbatim motor admission, movement gate, motion accounting, streamer availability, budget, terrain-ticket registration, synchronization arbitration, and publication iterators | Unity object lifetime, controller motion, physics synchronization, clock, appearance work, and final resource cleanup |
 | Assets | Complete current runtime registry and dependency descriptor; current fallback approval methods | Resources requests, residency clock, and ScriptableObject behavior; imported dependency discovery is not simulated |
+| Prefab dependency builder | Complete current Editor builder, its public rebuild/validation/build guard, and the actual dependency descriptor | Explicit AssetDatabase identity, imported dependency, and Editor write contracts in isolated temporary projects; no Unity importer or native object graph |
 
 Assertions cover both successful publication and rejected stale/corrupt states. Fixture methods are extracted from the checked-out source rather than copied implementations of their control flow. The asset checks also use the supplied 8,174-entry runtime manifest and the published intake records for the eight historical undergrowth fallback paths.
 
 The second repair batch adds a twelve-frame replay of continuous provisional ground work before canonical publication coroutines resume. It checks progress for both pending terrain tickets, the flush and cook frame boundaries, shared terrain synchronization limits, ordinary and urgent budget eligibility, cancellation, ownership replacement, and native-sync failure handoff. Asset checks keep one selected prefab pending while an unrelated cold prefab and dependency become eligible for retirement; implicit preload leases, external demand leases, single-pass input ordering, and delayed native completion are covered.
 
 The verification session emitted an SDK reference-unification warning (`CS1701`) for the SDK's Newtonsoft.Json assembly. The registry fixture also reports `CS0649` for fields populated through JSON deserialization. No compilation errors occurred in the focused managed fixtures. This is separate from Unity compilation, which was unavailable.
+
+## Moved prefab binding regression
+
+The prefab builder fixture reproduces the published cairnback logical key, conserved entry and leaf hashes, and its 64-bit prefab fileID. It exercises ordinary and moved physical sources, an unrelated replacement at the historical path, LF/CRLF and folded YAML, missing or corrupted leaves, exact GUID/fileID rejection, all-binding preflight, changes during dependency discovery, stale metadata after a source move, exact clip/controller closure order, and read-only validation/build gating. Every build runs in an isolated temporary fixture project; generated project resources are not touched.
+
+The third command retains source SHA-256 hashes, compiler and execution commands, exit codes, and logs in `receipt.json`, `compile.log`, and `test.log`. Use `--case moved --builder-source /path/to/original/YQRuntimePrefabDependencyBuilder.cs` to replay the same moved-source regression against an earlier complete production builder. These are managed contract results; imported source availability, Unity API behavior, and successful local asset generation still require the complete Unity project.
 
 ## Required Unity follow-up
 
