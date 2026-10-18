@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet8
+      DOTNET_INSTALL_DIR: /tmp/yourquest-managed-dotnet8
     steps:
       - uses: actions/setup-dotnet@v6
         with:
