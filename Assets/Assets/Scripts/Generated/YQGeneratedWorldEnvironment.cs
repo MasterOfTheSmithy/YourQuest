@@ -12644,7 +12644,7 @@ public static class YQGeneratedWorldEnvironment
                 AddUniqueSmallReference(result, reference);
             }
             if (reason != null && (representative.Length == 0 || reason != "wrong layer or measured geometry" && representative.EndsWith("wrong layer or measured geometry", StringComparison.Ordinal)))
-                representative = System.IO.Path.GetFileName(reference.assetPath) + ": " + reason;
+                representative = reference.assetPath + ": " + reason;
         };
 
         if (palette != null)
@@ -12681,7 +12681,7 @@ public static class YQGeneratedWorldEnvironment
                 }
             }
         }
-        diagnostic = "kind=" + requiredKind + " proposed=" + proposed + " qualified=" + result.Count +
+        diagnostic = "style=" + palette?.styleKey + " kind=" + requiredKind + " proposed=" + proposed + " qualified=" + result.Count +
             " unsuitable=" + unsuitable + " invalidSource=" + invalidSource + " unapproved=" + unapproved + " unbound=" + unbound +
             " missingMetadata=" + missingMetadata + (representative.Length == 0 ? string.Empty : " example=" + representative);
         return result;

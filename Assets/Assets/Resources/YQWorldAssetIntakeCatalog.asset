@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::YQWorldAssetIntakeCatalog
   schemaVersion: world_asset_intake_v3
   scanScope: all_configured_asset_libraries
-  generatedUtc: 2026-10-18T12:03:13.9117464Z
+  generatedUtc: 2026-10-18T12:16:15.7277584Z
   kits:
   - kitId: assets_adg_textures
     displayName: ADG_Textures
@@ -181,9 +181,9 @@ MonoBehaviour:
     totalDiscoveredAssetCount: 712
     prefabCount: 279
     materialCount: 45
-    candidatePrefabCount: 178
+    candidatePrefabCount: 179
     repairRequiredPrefabCount: 3
-    spatialReviewPrefabCount: 98
+    spatialReviewPrefabCount: 97
     verifiedMaterialCount: 45
     materialReviewOrRepairCount: 0
     genreTags:
@@ -400,9 +400,9 @@ MonoBehaviour:
     totalDiscoveredAssetCount: 17956
     prefabCount: 4226
     materialCount: 3764
-    candidatePrefabCount: 2195
+    candidatePrefabCount: 2205
     repairRequiredPrefabCount: 94
-    spatialReviewPrefabCount: 1937
+    spatialReviewPrefabCount: 1927
     verifiedMaterialCount: 1802
     materialReviewOrRepairCount: 1962
     genreTags: []
@@ -88529,13 +88529,13 @@ MonoBehaviour:
   - stableAssetId: asset_abc00000000011303153936534670086
     sourceGuid: abc00000000011303153936534670086
     sourceAssetKey: assets_befourstudios_medievalvikingvillage_art_prefabs_sm_weed_1_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 9f0c9cebf94de05c2c9be9bf63f82434
     assetPath: Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_1.prefab
     kitId: assets_befourstudios_medievalvikingvillage
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: -0.043261588, y: 0.20866622, z: -0.045376003}
     localBoundsSize: {x: 0.6878959, y: 0.49682662, z: 0.74326503}
     clearanceSize: {x: 1.1878959, y: 0.74682665, z: 1.243265}
@@ -88544,11 +88544,11 @@ MonoBehaviour:
     height: 0.49682662
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -88580,36 +88580,40 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_befourstudios_medievalvikingvillage
+      variantGroupId: asset_abc00000000011303153936534670086
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.34394795, y: -0.37163252}
+      - {x: -0.34394795, y: 0.37163252}
+      - {x: 0.34394795, y: 0.37163252}
+      - {x: 0.34394795, y: -0.37163252}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_befourstudios_medievalvikingvillage_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_abc00000000000100598235447562605
     sourceGuid: abc00000000000100598235447562605
@@ -412993,13 +412997,13 @@ MonoBehaviour:
   - stableAssetId: asset_538a5ebc20fef674d8be1729a1847fc1
     sourceGuid: 538a5ebc20fef674d8be1729a1847fc1
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_eaglefern_m_01_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: e0abe6f6995dcdde8ddd8575e24ec286
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_M_01.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: -0.05753863, y: 0.47358838, z: -0.08935255}
     localBoundsSize: {x: 1.5644991, y: 0.9518714, z: 1.2215232}
     clearanceSize: {x: 2.0644991, y: 1.2018714, z: 1.7215232}
@@ -413008,11 +413012,11 @@ MonoBehaviour:
     height: 0.9518714
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -413047,47 +413051,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_538a5ebc20fef674d8be1729a1847fc1
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.78224957, y: -0.6107616}
+      - {x: -0.78224957, y: 0.6107616}
+      - {x: 0.78224957, y: 0.6107616}
+      - {x: 0.78224957, y: -0.6107616}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_cefac026576c07c418f87b218999c3d3
     sourceGuid: cefac026576c07c418f87b218999c3d3
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_eaglefern_s_01_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 0786e320ab863f4bb37a62f3b6f9ae58
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_01.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.027279198, y: 0.25921592, z: 0.037358135}
     localBoundsSize: {x: 1.0576795, y: 0.547447, z: 0.8649951}
     clearanceSize: {x: 1.5576795, y: 0.797447, z: 1.3649951}
@@ -413096,11 +413104,11 @@ MonoBehaviour:
     height: 0.547447
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -413135,47 +413143,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_cefac026576c07c418f87b218999c3d3
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.52883977, y: -0.43249756}
+      - {x: -0.52883977, y: 0.43249756}
+      - {x: 0.52883977, y: 0.43249756}
+      - {x: 0.52883977, y: -0.43249756}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_efc95e3ec5c27e2428e28ed4b82b306b
     sourceGuid: efc95e3ec5c27e2428e28ed4b82b306b
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_eaglefern_s_02_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 3bdcd803dc9986eb0d95bc58279906d5
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_02.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.033398032, y: 0.23918073, z: 0.14494371}
     localBoundsSize: {x: 0.827029, y: 0.53993213, z: 0.5734092}
     clearanceSize: {x: 1.327029, y: 0.78993213, z: 1.0734092}
@@ -413184,11 +413196,11 @@ MonoBehaviour:
     height: 0.53993213
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -413223,47 +413235,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_efc95e3ec5c27e2428e28ed4b82b306b
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.4135145, y: -0.2867046}
+      - {x: -0.4135145, y: 0.2867046}
+      - {x: 0.4135145, y: 0.2867046}
+      - {x: 0.4135145, y: -0.2867046}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_860538bfbde90b94891d5d893a5c31dd
     sourceGuid: 860538bfbde90b94891d5d893a5c31dd
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_eaglefern_s_04_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 236df6a16c5bdf5266687b8acb782c18
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_04.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.0322268, y: 0.040048927, z: 0.26982602}
     localBoundsSize: {x: 0.7365967, y: 0.43459648, z: 0.55006063}
     clearanceSize: {x: 1.2365967, y: 0.6845965, z: 1.0500606}
@@ -413272,11 +413288,11 @@ MonoBehaviour:
     height: 0.43459648
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -413311,36 +413327,40 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_860538bfbde90b94891d5d893a5c31dd
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.36829835, y: -0.27503031}
+      - {x: -0.36829835, y: 0.27503031}
+      - {x: 0.36829835, y: 0.27503031}
+      - {x: 0.36829835, y: -0.27503031}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_ee9022835cbb24a46a1dadf6480f6922
     sourceGuid: ee9022835cbb24a46a1dadf6480f6922
@@ -414728,13 +414748,13 @@ MonoBehaviour:
   - stableAssetId: asset_80432c7184d486740aeb539c53fb46a6
     sourceGuid: 80432c7184d486740aeb539c53fb46a6
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_l_01_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 64608d382a9a3bfb08da1f539497793d
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_L_01.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: -0.058913887, y: 0.66343725, z: 0.0038431883}
     localBoundsSize: {x: 0.99750054, y: 1.4656496, z: 1.2390974}
     clearanceSize: {x: 1.4975005, y: 1.7156496, z: 1.7390974}
@@ -414743,11 +414763,11 @@ MonoBehaviour:
     height: 1.4656496
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -414782,47 +414802,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_80432c7184d486740aeb539c53fb46a6
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.49875027, y: -0.6195487}
+      - {x: -0.49875027, y: 0.6195487}
+      - {x: 0.49875027, y: 0.6195487}
+      - {x: 0.49875027, y: -0.6195487}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_5d3386e6c56b69c4e8fa2374f1cfa08e
     sourceGuid: 5d3386e6c56b69c4e8fa2374f1cfa08e
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_m_01_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 07c4edcd6d1eb997a602b215dd44d257
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_01.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.0047454834, y: 0.3811799, z: -0.010840416}
     localBoundsSize: {x: 1.0479872, y: 0.9490412, z: 1.1340194}
     clearanceSize: {x: 1.5479872, y: 1.1990411, z: 1.6340194}
@@ -414831,11 +414855,11 @@ MonoBehaviour:
     height: 0.9490412
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -414870,47 +414894,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_5d3386e6c56b69c4e8fa2374f1cfa08e
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.5239936, y: -0.5670097}
+      - {x: -0.5239936, y: 0.5670097}
+      - {x: 0.5239936, y: 0.5670097}
+      - {x: 0.5239936, y: -0.5670097}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_a5e0c93c66005f241914c915035c624a
     sourceGuid: a5e0c93c66005f241914c915035c624a
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_m_02_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: e220f4e36b2d314655df6e1d62174ee1
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_02.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: -0.018977404, y: 0.42191458, z: -0.03865409}
     localBoundsSize: {x: 1.3630838, y: 0.9824455, z: 1.4356232}
     clearanceSize: {x: 1.8630838, y: 1.2324455, z: 1.9356232}
@@ -414919,11 +414947,11 @@ MonoBehaviour:
     height: 0.9824455
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -414958,47 +414986,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_a5e0c93c66005f241914c915035c624a
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.6815419, y: -0.7178116}
+      - {x: -0.6815419, y: 0.7178116}
+      - {x: 0.6815419, y: 0.7178116}
+      - {x: 0.6815419, y: -0.7178116}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_d866c0331c8e28c4b9c12ce3b13e75e3
     sourceGuid: d866c0331c8e28c4b9c12ce3b13e75e3
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_s_01_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: cd288de94260d37b6a12fa3165ffebf0
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_01.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.009827495, y: 0.24498123, z: -0.025502801}
     localBoundsSize: {x: 1.2610983, y: 0.6807146, z: 1.3641908}
     clearanceSize: {x: 1.7610983, y: 0.9307146, z: 1.8641908}
@@ -415007,11 +415039,11 @@ MonoBehaviour:
     height: 0.6807146
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 4
     materialSlotCount: 4
@@ -415046,47 +415078,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_d866c0331c8e28c4b9c12ce3b13e75e3
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.63054913, y: -0.6820954}
+      - {x: -0.63054913, y: 0.6820954}
+      - {x: 0.63054913, y: 0.6820954}
+      - {x: 0.63054913, y: -0.6820954}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_fe89bc6d8e65c654d8ed5d86ae8a2e2d
     sourceGuid: fe89bc6d8e65c654d8ed5d86ae8a2e2d
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_s_02_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: 3f2404af96034b15d7bb53781dccc2c8
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_02.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: -0.011146545, y: 0.100943044, z: 0.014806151}
     localBoundsSize: {x: 1.2445166, y: 0.31224313, z: 1.1589024}
     clearanceSize: {x: 1.7445166, y: 0.5622431, z: 1.6589024}
@@ -415095,11 +415131,11 @@ MonoBehaviour:
     height: 0.31224313
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 3
     materialSlotCount: 3
@@ -415134,47 +415170,51 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_fe89bc6d8e65c654d8ed5d86ae8a2e2d
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.6222583, y: -0.5794512}
+      - {x: -0.6222583, y: 0.5794512}
+      - {x: 0.6222583, y: 0.5794512}
+      - {x: 0.6222583, y: -0.5794512}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_5fa0554ce01db81458157e7bf21d4417
     sourceGuid: 5fa0554ce01db81458157e7bf21d4417
     sourceAssetKey: assets_hivemind_nativeamericanvillage_hdrp_default__art_foliage_sm_wildgrass_s_03_prefab
-    ecologySourceDependencyHash: 
+    ecologySourceDependencyHash: f340900bf46c5855253559fd8c10c336
     assetPath: Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_03.prefab
     kitId: assets_hivemind
     semanticRole: vegetation
     compositionScale: 3
-    disposition: 0
-    releaseEligible: 0
+    disposition: 1
+    releaseEligible: 1
     localBoundsCenter: {x: 0.040244997, y: 0.06741792, z: 0.020644903}
     localBoundsSize: {x: 1.3472463, y: 0.23684904, z: 1.2124152}
     clearanceSize: {x: 1.8472463, y: 0.48684904, z: 1.7124152}
@@ -415183,11 +415223,11 @@ MonoBehaviour:
     height: 0.23684904
     frontDirection: {x: 0, y: 0, z: 1}
     frontDirectionAuthored: 0
-    spatialMetadataAuthored: 0
-    allowedSlopeDegrees: 0
-    foundationProfile: unassigned
-    roadRelationship: unassigned
-    navigationProfile: unassigned
+    spatialMetadataAuthored: 1
+    allowedSlopeDegrees: 45
+    foundationProfile: ground
+    roadRelationship: edge_or_open
+    navigationProfile: walkable_clearance
     hasRenderer: 1
     rendererCount: 3
     materialSlotCount: 3
@@ -415222,36 +415262,40 @@ MonoBehaviour:
     validationIssues: []
     libraryEvidenceIds: []
     curationV2:
-      contractVersion: 0
-      primaryRole: 0
-      primaryFunction: 0
+      contractVersion: 2
+      primaryRole: 3
+      primaryFunction: 14
       secondaryRoles: 
       secondaryFunctions: 
-      environments: 
+      environments: 01000000
       affordances: 
-      familyId: 
-      variantGroupId: 
-      supportMode: 0
+      familyId: assets_hivemind
+      variantGroupId: asset_5fa0554ce01db81458157e7bf21d4417
+      supportMode: 1
       canonicalScale: {x: 1, y: 1, z: 1}
       preserveAuthoredScale: 1
       supportLocalY: 0
-      supportPolygon: []
+      supportPolygon:
+      - {x: -0.67362314, y: -0.6062076}
+      - {x: -0.67362314, y: 0.6062076}
+      - {x: 0.67362314, y: 0.6062076}
+      - {x: 0.67362314, y: -0.6062076}
       minimumEmbedDepth: 0
-      maximumEmbedDepth: 0
-      maximumSupportRelief: 0
-      maxUsesPerSite: 0
-      minimumRepeatDistance: 0
+      maximumEmbedDepth: 0.25
+      maximumSupportRelief: 0.5
+      maxUsesPerSite: 12
+      minimumRepeatDistance: 2
       sockets: []
       ecology:
-        layer: 0
-        speciesFamilyId: 
+        layer: 1
+        speciesFamilyId: assets_hivemind_vegetation
         minimumMoisture: 0
         maximumMoisture: 1
         minimumNormalizedElevation: 0
         maximumNormalizedElevation: 1
-        minimumSpacing: 1
+        minimumSpacing: 2
         cohortMinimum: 1
-        cohortMaximum: 1
+        cohortMaximum: 4
         disturbanceTolerance: 0.5
   - stableAssetId: asset_abc00000000004105871310951559502
     sourceGuid: abc00000000004105871310951559502

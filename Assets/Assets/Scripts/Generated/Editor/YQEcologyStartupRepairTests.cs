@@ -48,7 +48,7 @@ public static class YQEcologyStartupRepairTests
         var suite = new Suite("controlled production contracts");
         suite.Check("colliderless measured fern and shrub qualify in their own layers", () =>
         {
-            foreach (string path in new[] { Fern, Grass, Bush })
+            foreach (string path in new[] { Fern, Grass, Bush, YQWorldAssetIntakeBuilder.VikingUnderstoryPath })
             {
                 YQSpatialAssetRecord record = Measured(path);
                 Require(YQEcologySourcePolicy.TryClassifySmallFoliage(record, out var kind), path);
@@ -60,7 +60,7 @@ public static class YQEcologyStartupRepairTests
         });
         suite.Check("trees rocks and structures still require collision", () =>
         {
-            foreach (string leaf in new[] { "SM_PalmTree.prefab", "SM_Rock.prefab", "SM_Wall.prefab", "SM_FernRock.prefab" })
+            foreach (string leaf in new[] { "SM_PalmTree.prefab", "SM_Rock.prefab", "SM_Wall.prefab", "SM_FernRock.prefab", "SM_ThatchGrass01.prefab" })
             {
                 YQSpatialAssetRecord record = Measured(Pirate + leaf);
                 Require(!YQEcologySourcePolicy.AllowsCollisionProfile(record, false), "Nonblocking obstacle bypassed collision: " + leaf);
@@ -232,6 +232,10 @@ public static class YQEcologyStartupRepairTests
         var paths = new List<string>();
         for (int i = 1; i <= 4; i++) paths.Add(Pirate + "SM_EagleFern_" + i.ToString("00") + ".prefab");
         for (int i = 1; i <= 6; i++) paths.Add(Pirate + "SM_WildGrass_" + i.ToString("00") + ".prefab");
+        foreach (string leaf in new[] { "SM_EagleFern_M_01", "SM_EagleFern_S_01", "SM_EagleFern_S_02", "SM_EagleFern_S_04",
+                     "SM_WildGrass_L_01", "SM_WildGrass_M_01", "SM_WildGrass_M_02", "SM_WildGrass_S_01", "SM_WildGrass_S_02", "SM_WildGrass_S_03" })
+            paths.Add(YQWorldAssetIntakeBuilder.WoodlandFoliageRoot + leaf + ".prefab");
+        paths.Add(YQWorldAssetIntakeBuilder.VikingUnderstoryPath);
         paths.Add(Bush);
         YQRuntimeWorldAssetRegistry registry = YQRuntimeWorldAssetRegistry.Instance;
         foreach (string path in paths)
@@ -324,6 +328,20 @@ public static class YQEcologyStartupRepairTests
                     foreach (Material material in renderer.sharedMaterials) YQWorldAssetIntakeBuilder.ValidateShrubAdapter(source, material);
             }
             finally { UnityEngine.Object.DestroyImmediate(instance); }
+        });
+        suite.Check("all three retained region palettes have separate suitable required foliage pools", () =>
+        {
+            foreach (string style in new[] { "hivemind_pirate_island", "hivemind_woodland_village", "viking_rural" })
+            {
+                var palette = new GeneratedRegionAssetPaletteRecord { styleKey = style };
+                var understory = Pool(palette, registry, YQSmallFoliageKind.Understory, out string detail);
+                Require(understory.Count > 0, detail);
+                Require(Pool(palette, registry, YQSmallFoliageKind.Shrub, out detail).Count > 0, detail);
+                foreach (var reference in understory)
+                    Require(style == "hivemind_pirate_island" ? reference.assetPath.StartsWith(Pirate, StringComparison.Ordinal) :
+                        style == "hivemind_woodland_village" ? reference.assetPath.StartsWith(YQWorldAssetIntakeBuilder.WoodlandFoliageRoot, StringComparison.Ordinal) :
+                        reference.assetPath == YQWorldAssetIntakeBuilder.VikingUnderstoryPath, "Required flora crossed its authored palette: " + reference.assetPath);
+            }
         });
         return suite.Finish();
     }

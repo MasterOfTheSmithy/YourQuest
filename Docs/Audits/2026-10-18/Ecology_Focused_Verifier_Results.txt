@@ -1,0 +1,44 @@
+# YourQuest Semantic Chunk Runtime Verification
+- verificationScope: focused G08-R1 publication recovery plus physical unload/revisit; speed-260 motor and remaining G08 rows not run
+- startedUtc: 2026-10-18T12:25:37.3267666Z
+- executingAssembly: name=Assembly-CSharp mvid=314c4809-6f5c-4c44-a06b-9c55449c7379 path=C:\Users\Garri\YourQuest\Library\ScriptAssemblies\Assembly-CSharp.dll
+- executingAssemblySha256: path=C:\Users\Garri\YourQuest\Library\ScriptAssemblies\Assembly-CSharp.dll sha256=BB57C690038A767359896095F0C40C040E7857F7EA1A8C292F486A82F7CB0B95
+- verifierSourceSha256: path=C:/Users/Garri/YourQuest/Assets\Assets\Scripts\Generated\YQSemanticChunkRuntimeVerification.cs sha256=9A5F429493A11A80A331856DA54E071329D228BD648E072D49175EB2AAB37B43
+- streamerSourceSha256: path=C:/Users/Garri/YourQuest/Assets\Assets\Scripts\Generated\YQPlayerFollowingSemanticChunkStreamer.cs sha256=90A061E34AAC780EEF420DC03B1537BE73123328A69FCA191D213628CC8444FA
+- measurementSetup: unity=6000.3.2f1 os=Windows 11  (10.0.26200) 64bit cpu=AMD Ryzen 7 5800X 8-Core Processor  logicalProcessors=16 memoryMb=32648 gpu=NVIDIA GeForce RTX 5060 graphicsApi=Direct3D12 viewport=923x519 focused=False
+- measurementProfilerSetup: enabled=False binaryLog=False allocationCallstacks=False deepProfiling=False traceRequested=False
+- status: WAITING_FOR_STARTUP
+- macroFieldHashParity: PASS seedCoordinateSamples=16 maximumDelta=0.000000
+- sourceMode: live-authored-world
+- status: STARTUP_READY
+- profileWorldIdentity: activeProfileId=04de758c424e466a92158561de7ef246 ownerProfileId=04de758c424e466a92158561de7ef246 ownerMatchesActiveProfile=True
+- worldPlanIdentity: stateSchema=8 planSchema=world_plan_v1 worldId=yq-world-28bd759a8346e1142b5fba12 worldSeed=6dd38ebe
+- activeSpatialPlanResolution: resolved=True authority=AcceptedV2 reason=<empty>
+- persistedSpatialArtifactIdentity: id=yq-content-f11098e6ae029d5fce7e90e3 version=spatial_world_plan_v1_causal
+- persistedV1Artifact: schema=spatial_world_plan_v1 generation=spatial_world_plan_v1_causal seed=6dd38ebe semanticFingerprint=af0f43d8
+- acceptedV2Artifact: state=Accepted schema=spatial_world_plan_v2 generation=spatial_world_plan_v2_topology_12 validation=spatial_world_plan_v2_gate_3 seed=6dd38ebe contentHash=c77a1f2ae256294c validatedContentHash=c77a1f2ae256294c
+- acceptedSaveTerrainStartup: PASS
+- profileTerrainSnapshotMatchesWorld: True
+- profileTerrainRestoreSucceeded: True
+- continuationPortalSymmetry: PASS
+- authoredFeatureBoundaryContinuation: PASS
+- status: INITIAL_FRONTIER_OBSERVATION
+- initialCamera: fov=84 position=(42.16, 71.97, -18.21) rotation=(314.30, 222.80, 0.00) timeScale=1
+- initialRequiredCoverage: PASS
+- initialPreparedViewEnvelope: PASS radius=7
+- initialVisualCoverage: PASS radius=4 prewarm=5 distance=512m
+- productionMotorPreflight: enabledBeforeVerifier=True, authoritative=True, cameraPivot=True, playerCamera=True, controller=True, modalBlocked=False, timeScale=1
+- initialTraversability: PASS
+- productionMotorTraversal: NOT_RUN_FOCUSED_R1_SCOPE
+- postMotorVisualCoverage: PASS
+- postMotorPublicationWorkContract: PASS incompleteVisibleChunks=0
+- adjacentEdgeContracts: PASS
+- adjacentEdgeMaximumContractFloatDelta: 0.000000
+- originChunk: (4, 3)
+- originSemanticCount: 405
+- biomeTransition: PASS
+- biomeTransitionMaximumEightMetreWeightDelta: 0.011
+- generationOrderIndependence: PASS
+- result: FAIL
+- finishedUtc: 2026-10-18T12:25:37.6619036Z
+- failure: InvalidOperationException: distant procedural synthesis failed: distant cells did not produce distinct regional biome identity

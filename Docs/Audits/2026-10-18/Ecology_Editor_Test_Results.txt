@@ -1,7 +1,6 @@
-[YQEcologyStartupRepairTests] EXPECTED production error follows: permanent source qualification failure.
-[YQEcologyStartupRepairTests] PASS permanent empty pool fails once with no ticket and remains startup-blocking
-[YQEcologyStartupRepairTests] controlled production contracts: passed=10 failed=0. Editor evidence only; no affected-profile Play Mode certification.
-[YQRequiredEcologyRepair] REPAIR COMPLETE qualified=11 coastalUnderstory=10 sharedShrubs=1 targetsUnchanged=true savesUnchanged=true backup=outputs/EcologyStartupRepair/20261018T1203126856088Z
+Unity 6000.3.2f1, actual Editor menus, 2026-10-18.
+One intentionally exercised permanent-failure production error; no unexpected test failures.
+[YQRequiredEcologyRepair] REPAIR COMPLETE qualified=22 coastalUnderstory=10 woodlandUnderstory=10 vikingUnderstory=1 sharedShrubs=1 targetsUnchanged=true savesUnchanged=true backup=outputs/EcologyStartupRepair/20261018T1216141119112Z
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_01.prefab
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_02.prefab
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_03.prefab
@@ -12,11 +11,23 @@
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_04.prefab
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_05.prefab
 [YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_WildGrass_06.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_M_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_02.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_04.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_L_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_02.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_01.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_02.prefab
+[YQEcologyStartupRepairTests] PASS Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_03.prefab
+[YQEcologyStartupRepairTests] PASS Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_1.prefab
 [YQEcologyStartupRepairTests] PASS Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab
 [YQEcologyStartupRepairTests] PASS shared shrub preserves original material textures and binds every authored LOD
 [YQEcologyStartupRepairTests] PASS existing coastal palette gains appropriate required layers without save rewrite
 [YQEcologyStartupRepairTests] PASS instantiated shrub receives reviewed material on all LODs and normal rebuild retains it
-[YQEcologyStartupRepairTests] actual imported sources after migration: passed=14 failed=0. Editor evidence only; no affected-profile Play Mode certification.
+[YQEcologyStartupRepairTests] PASS all three retained region palettes have separate suitable required foliage pools
+[YQEcologyStartupRepairTests] actual imported sources after migration: passed=26 failed=0. Editor evidence only; no affected-profile Play Mode certification.
 [YQEcologyStartupRepairTests] PASS colliderless measured fern and shrub qualify in their own layers
 [YQEcologyStartupRepairTests] PASS trees rocks and structures still require collision
 [YQEcologyStartupRepairTests] PASS invalid material geometry identity and scripts remain rejected
@@ -30,3 +41,7 @@
 [YQEcologyStartupRepairTests] PASS permanent empty pool fails once with no ticket and remains startup-blocking
 [YQEcologyStartupRepairTests] PASS reviewed material correction applies while legacy recovery retains usable sources
 [YQEcologyStartupRepairTests] controlled production contracts: passed=11 failed=0. Editor evidence only; no affected-profile Play Mode certification.
+
+Fresh real Unity compilation before these tests: *** Tundra build success (15.97 seconds), 9 items updated, 906 evaluated.
+No C# compiler errors in the final compilation.
+Compiled Assembly-CSharp SHA-256: BB57C690038A767359896095F0C40C040E7857F7EA1A8C292F486A82F7CB0B95

@@ -13,6 +13,9 @@ using UnityEngine;
 public static partial class YQWorldAssetIntakeBuilder
 {
     internal const string CoastalFoliageRoot = "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/";
+    internal const string WoodlandFoliageRoot = "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/";
+    internal const string VikingUnderstoryPath = "Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_1.prefab";
+    internal const int RequiredEcologySourceCount = 22;
     internal const string SharedShrubPath = "Assets/YughuesFreeBushes2018/Prefabs/P_Bush01.prefab";
     private const string BindingManifest = "Assets/Assets/Resources/YQWorldAssetManifest.json";
     private const string DependencyManifest = "Assets/Assets/Resources/YQWorldPrefabDependencies.json";
@@ -20,7 +23,9 @@ public static partial class YQWorldAssetIntakeBuilder
     internal static bool IsRequiredEcologyRepairTarget(YQSpatialAssetRecord record)
     {
         string path = record?.assetPath ?? string.Empty;
-        return path == SharedShrubPath || path.StartsWith(CoastalFoliageRoot, StringComparison.Ordinal) &&
+        // note: The retained profile's three authored palettes require their own ground flora; neighboring startup cells cannot borrow coastal ferns across the pack boundary.
+        return path == SharedShrubPath || path == VikingUnderstoryPath ||
+            (path.StartsWith(CoastalFoliageRoot, StringComparison.Ordinal) || path.StartsWith(WoodlandFoliageRoot, StringComparison.Ordinal)) &&
             YQEcologySourcePolicy.ClassifyPath(path) == YQSmallFoliageKind.Understory;
     }
 
@@ -151,8 +156,8 @@ public static partial class YQWorldAssetIntakeBuilder
                 refreshedCount++;
                 return measured;
             }, () => !Application.isBatchMode && EditorUtility.DisplayCancelableProgressBar(
-                "Required ecology source repair", "Validating imported foliage " + refreshedCount, refreshedCount / 11f));
-            if (refreshedCount != 11) throw new InvalidOperationException("Expected the ten coastal foliage records and one shared shrub; found " + refreshedCount);
+                "Required ecology source repair", "Validating imported foliage " + refreshedCount, refreshedCount / (float)RequiredEcologySourceCount));
+            if (refreshedCount != RequiredEcologySourceCount) throw new InvalidOperationException("Expected the coastal, woodland, Viking and shared shrub sources; found " + refreshedCount);
             foreach (var pair in sourceHashes)
                 if (AssetDatabase.GetAssetDependencyHash(pair.Key).ToString() != pair.Value)
                     throw new InvalidOperationException("Ecology source changed during validation: " + pair.Key);
@@ -184,7 +189,7 @@ public static partial class YQWorldAssetIntakeBuilder
             YQRuntimeWorldAssetRegistry.ClearCachedInstance();
             transaction.Complete();
             Debug.Log("[YQRequiredEcologyRepair] REPAIR COMPLETE qualified=" + refreshedCount +
-                " coastalUnderstory=10 sharedShrubs=1 targetsUnchanged=true savesUnchanged=true backup=" + transaction.BackupDirectory);
+                " coastalUnderstory=10 woodlandUnderstory=10 vikingUnderstory=1 sharedShrubs=1 targetsUnchanged=true savesUnchanged=true backup=" + transaction.BackupDirectory);
         }
         catch
         {

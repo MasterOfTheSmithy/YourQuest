@@ -12,10 +12,10 @@ public static class YQEcologySourcePolicy
     public static YQSmallFoliageKind ClassifyPath(string path)
     {
         string leaf = Path.GetFileNameWithoutExtension((path ?? string.Empty).Replace('\\', '/')).ToLowerInvariant();
-        if (Contains(leaf, "tree", "palm", "trunk", "log", "rock", "wall", "hedge", "interior", "root"))
+        if (Contains(leaf, "tree", "palm", "trunk", "log", "rock", "wall", "hedge", "interior", "root", "thatch", "roof", "floor"))
             return YQSmallFoliageKind.None;
         if (Contains(leaf, "bush", "shrub", "heather", "gorse")) return YQSmallFoliageKind.Shrub;
-        if (Contains(leaf, "fern", "grass", "nettle", "clover")) return YQSmallFoliageKind.Understory;
+        if (Contains(leaf, "fern", "grass", "nettle", "clover", "weed")) return YQSmallFoliageKind.Understory;
         return YQSmallFoliageKind.None;
     }
 

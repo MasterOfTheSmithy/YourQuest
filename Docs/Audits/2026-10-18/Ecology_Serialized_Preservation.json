@@ -3,6 +3,17 @@
   "oldCount": 6414,
   "newCount": 6414,
   "changedSpatialRecords": [
+    "Assets/BefourStudios/MedievalVikingVillage/Art/Prefabs/SM_Weed_1.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_M_01.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_01.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_02.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_EagleFern_S_04.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_L_01.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_01.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_M_02.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_01.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_02.prefab",
+    "Assets/HIVEMIND/NativeAmericanVillage/HDRP(Default)/Art/Foliage/SM_WildGrass_S_03.prefab",
     "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_01.prefab",
     "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_02.prefab",
     "Assets/HIVEMIND/PirateIsland/HDRP(Default)/Art/Prefabs/SM_EagleFern_03.prefab",
@@ -20,6 +31,13 @@
   "materialRecordsUnchanged": true,
   "kitChanges": [
     {
+      "kitId": "assets_befourstudios_medievalvikingvillage",
+      "fields": [
+        "candidatePrefabCount",
+        "spatialReviewPrefabCount"
+      ]
+    },
+    {
       "kitId": "assets_hivemind",
       "fields": [
         "candidatePrefabCount",
@@ -29,8 +47,8 @@
     {
       "kitId": "assets_yughuesfreebushes2018_prefabs",
       "fields": [
-        "candidatePrefabCount",
         "releaseEligible",
+        "candidatePrefabCount",
         "spatialReviewPrefabCount"
       ]
     }
@@ -43,5 +61,6 @@
     ],
     "allOtherRowsPreserved": true
   },
-  "serializationNote": "Unity normalized legacy null collections and serialized the additive ecology source hash on the catalog. Comparison treats null and empty collections equivalently; exactly eleven spatial records have substantive changes."
+  "serializationNote": "Unity normalized legacy null collections and serialized the additive ecology source hash. Comparison treats null and empty collections equivalently; exactly 22 spatial records have substantive changes.",
+  "baselineCommit": "1db9a186332d6dc50a0a408bf10e02aae2233759"
 }
