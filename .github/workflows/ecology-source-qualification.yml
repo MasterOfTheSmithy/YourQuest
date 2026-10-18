@@ -1,49 +1,44 @@
 name: Ecology source qualification
-
 on:
   push:
     branches: [repair/ecology-qualification-2026-10-18]
-    paths:
-      - '.github/workflows/ecology-source-qualification.yml'
+    paths: ['.github/workflows/ecology-source-qualification.yml']
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
-  source-evidence:
+  managed-compiler:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet8
     steps:
-      # note: This isolated repair-branch job exports only tracked engineering sources and catalog evidence. It does not run Unity or modify assets/saves.
-      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
-          persist-credentials: false
-      - name: Collect scoped source evidence
+          dotnet-version: '8.0.x'
+      - name: Export isolated compiler and public runtime
         shell: python
         run: |
-          import hashlib, json, pathlib, subprocess, zipfile
-          names = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
-          prefixes = ('Assets/Assets/Scripts/Generated/', 'Tools/ChatAuditVerification/')
-          exact = {'AGENTS.md', 'ARCHITECTURE_INDEX.md', 'Assets/Assets/Scripts/AGENTS.md',
-                   'Assets/Assets/Scripts/Tutorial/AGENTS.md', 'Assets/Assets/Scripts/Tutorial/YourQuestTutorialAutoBootstrap.cs',
-                   'Assets/Assets/Scripts/Tutorial/YQStartupLoadingScreen.cs', 'Assets/Assets/Scripts/Tutorial/YQStartupPresentation.cs',
-                   'Assets/Assets/Resources/YQWorldAssetIntakeCatalog.asset',
-                   'Assets/Assets/Resources/YQDiscoveredWorldAssetCatalog.asset',
-                   'Assets/Assets/Resources/YQWorldAssetManifest.json'}
-          selected = sorted(p for p in names if p and (p in exact or p.startswith(prefixes)))
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path(os.environ['DOTNET_INSTALL_DIR'])
+          sdk = sorted((root / 'sdk').glob('8.*'))[-1]
+          runtime = sorted((root / 'shared/Microsoft.NETCore.App').glob('8.*'))[-1]
+          framework = sorted((root / 'packs/Microsoft.NETCore.App.Ref').glob('8.*'))[-1]
+          host = sorted((root / 'host/fxr').glob('8.*'))[-1]
+          files = [root / 'dotnet', sdk / 'Newtonsoft.Json.dll']
+          for folder in (runtime, framework / 'ref/net8.0', host, sdk / 'Roslyn/bincore'):
+              files.extend(p for p in folder.rglob('*') if p.is_file())
+          files.extend(p for p in root.glob('*') if p.is_file() and p.name.lower().endswith(('.txt', '.json')))
           hashes = {}
-          with zipfile.ZipFile('ecology-source-evidence.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
-              for name in selected:
-                  data = pathlib.Path(name).read_bytes()
-                  archive.writestr(name, data)
-                  hashes[name] = hashlib.sha256(data).hexdigest()
-              receipt = {'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip(), 'sha256': hashes}
-              archive.writestr('source-receipt.json', json.dumps(receipt, indent=2))
-          print('Exported', len(selected), 'tracked files; no native Unity verification claimed.')
+          with zipfile.ZipFile('managed-compiler.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
+              for path in sorted(set(files)):
+                  name = str(path.relative_to(root)); data = path.read_bytes()
+                  archive.writestr(name, data); hashes[name] = hashlib.sha256(data).hexdigest()
+              archive.writestr('compiler-receipt.json', json.dumps({'sdk':sdk.name,'runtime':runtime.name,'sha256':hashes}, indent=2))
+          print('Official .NET runtime/compiler only;',len(hashes),'files; no repository credentials or Unity binaries.')
       - uses: actions/upload-artifact@v7
         with:
-          name: ecology-source-evidence
-          path: ecology-source-evidence.zip
+          name: ecology-managed-compiler
+          path: managed-compiler.zip
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
